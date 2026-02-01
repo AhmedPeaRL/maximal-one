@@ -1,4 +1,3 @@
-# hcm-sovereign-presence
 
 # MAXIMAL-ONE
 
