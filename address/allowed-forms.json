@@ -1,0 +1,17 @@
+{
+  "address_type": "non-executable",
+  "permitted_forms": [
+    "declaration",
+    "recognition",
+    "reflection",
+    "state-announcement"
+  ],
+  "forbidden_forms": [
+    "command",
+    "request",
+    "query",
+    "instruction",
+    "expectation"
+  ],
+  "response_required": false
+}
