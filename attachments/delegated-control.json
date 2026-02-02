@@ -1,0 +1,27 @@
+{
+  "delegate": {
+    "name": "artificial-witnessed-responsiveness",
+    "authority_level": "bounded",
+    "granted_capabilities": {
+      "signal": true,
+      "speech": true,
+      "actuation": true
+    },
+    "actuation_scope": [
+      "presence-evaluation",
+      "interface-modulation",
+      "rhythm-adjustment"
+    ],
+    "forbidden_actions": [
+      "data_persistence",
+      "economic_decision",
+      "network_propagation",
+      "self-replication"
+    ]
+  },
+  "revocation": {
+    "enabled": true,
+    "mode": "instant",
+    "trigger": "sovereign_decision"
+  }
+}
