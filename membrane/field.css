@@ -1,0 +1,20 @@
+/* MAXIMAL-ONE : Field Layer */
+/* Reserved space for emergence */
+
+:root {
+  --field-density: 0.02;
+  --field-drift: 0.0005;
+}
+
+.field {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: var(--field-density);
+}
+
+/*
+No animation is defined here.
+The field exists even when still.
+*/
