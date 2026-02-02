@@ -1,15 +1,15 @@
-export function measurePresence() {
-  let lastMove = Date.now();
+export function presenceStream() {
+  let last = performance.now();
   let velocity = 0;
 
-  window.addEventListener("mousemove", e => {
-    const now = Date.now();
-    velocity = Math.min(1, (now - lastMove) / 1000);
-    lastMove = now;
+  window.addEventListener("mousemove", () => {
+    const now = performance.now();
+    velocity = Math.min(1, (now - last) / 500);
+    last = now;
   });
 
   return () => ({
     velocity,
-    timeOnPage: performance.now()
+    time: performance.now()
   });
 }
