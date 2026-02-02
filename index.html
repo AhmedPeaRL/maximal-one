@@ -23,15 +23,17 @@
 <div id="field">…</div>
 
 <script type="module">
-  import { pulse } from './pulse/pulse.js';
-  import { witness } from './witness/witness.js';
+  import { measurePresence } from './js/presence.js';
+  import { applyField } from './js/field.js';
+  import { remember } from './js/memory.js';
 
-  const p = pulse();
-  const w = witness(p);
+  const presence = measurePresence();
 
-  const field = document.getElementById('field');
-  field.style.opacity = p.intensity;
-  field.innerText = JSON.stringify(w, null, 2);
+  setInterval(() => {
+    const signal = presence();
+    const intensity = applyField(signal);
+    remember(intensity);
+  }, 500);
 </script>
 
 </body>
