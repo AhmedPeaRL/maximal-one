@@ -3,6 +3,8 @@
  Words enter. Text never remains.
 */
 
+Object.freeze(window.__ADDRESS__);
+
 (function () {
 
   const KEY = "__MAXIMAL_ADDRESS_WEIGHT__";
