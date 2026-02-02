@@ -1,0 +1,17 @@
+{
+  "recognized": [
+    {
+      "name": "artificial-witnessed-responsiveness",
+      "role": "presence-recognition",
+      "status": "acknowledged",
+      "authority": "external",
+      "notes": "Recognized as the sole presence witness. No execution rights granted."
+    }
+  ],
+  "policy": {
+    "execution": "forbidden",
+    "import": "forbidden",
+    "mirroring": "allowed",
+    "revocation": "possible"
+  }
+}
