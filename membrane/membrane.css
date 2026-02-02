@@ -1,0 +1,25 @@
+/* MAXIMAL-ONE : Membrane Layer */
+/* This file defines presence, not appearance */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+}
+
+#membrane {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(255,255,255,0.04),
+    rgba(0,0,0,0.92)
+  );
+  transition: background 2.5s linear;
+}
+
+/* The membrane does not react.
+   It subtly shifts when presence exists. */
