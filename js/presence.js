@@ -45,3 +45,19 @@ export function presenceSignal() {
     t: performance.now()
   });
 }
+
+export function sensePresence() {
+  let lastTime = performance.now();
+  let activity = 0;
+
+  window.addEventListener("mousemove", () => {
+    const now = performance.now();
+    activity = Math.min(1, (now - lastTime) / 300);
+    lastTime = now;
+  });
+
+  return () => ({
+    activity,
+    t: performance.now()
+  });   
+}
