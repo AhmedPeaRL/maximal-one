@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>MAXIMAL-ONE</title>
+  <link rel="stylesheet" href="./css/field.css">
   <style>
     :root {
     --field-opacity: 1;
@@ -107,6 +108,23 @@ export function engage(input) {
     const d = disturbance(signal);
     applyToField(d);
     trace(d);
+  }, 500);
+
+  import { sensePresence } from "./js/presence.js";
+  import { toDisturbance } from "./js/disturbance.js";
+  import { affectField } from "./js/field.js";
+  import { storeTrace } from "./js/trace.js";
+  import { recallTrace } from "./js/recall.js";
+
+  recallTrace();
+
+  const sense = sensePresence();
+
+  setInterval(() => {
+    const signal = sense();
+    const d = toDisturbance(signal);
+    affectField(d);
+    storeTrace(d);
   }, 500);
   </script>
 </body>
