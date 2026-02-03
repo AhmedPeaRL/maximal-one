@@ -1,0 +1,10 @@
+{
+  "version": "0.1.0",
+  "principle": "receive-without-interpretation",
+  "accepts": ["text", "json", "signal"],
+  "guarantees": {
+    "response": false,
+    "storage": conditional,
+    "interpretation": false
+  }
+}
