@@ -4,20 +4,28 @@
   <meta charset="UTF-8">
   <title>MAXIMAL-ONE</title>
   <style>
+    :root {
+    --field-opacity: 1;
+    --field-darkness: 0;
+  }     
     body {
-       background: #0b0b0b;
+      background: #0b0b0b;
       color: #e0e0e0;
       font-family: monospace;
       padding: 40px;
-    }
+      background: rgba(0,0,0,var(--field-opacity));
+      transition: background 0.5s linear;
+      background: rgba(0, 0, 0, var(--field-darkness));
+      transition: background 0.4s linear;
+  }
     .pulse {
       opacity: 0.7;
-    }
+  }    
     #field {
       margin-top: 20px;
       opacity: 0.6;
       transition: opacity 0.6s ease;
-    }
+  }
   </style>
 </head>
 <body>
@@ -73,6 +81,32 @@ export function engage(input) {
     const signal = presence();
     const intensity = applyField(signal);
     remember(intensity);
+  }, 500);
+  
+  import { presenceStream } from "./js/presence.js";
+  import { applyDynamics } from "./js/dynamics.js";
+  import { observe } from "./js/observer.js";
+
+  const stream = presenceStream();
+
+  setInterval(() => {
+    const signal = stream();
+    const state = applyDynamics(signal);
+    observe(state);
+  }, 500);
+
+  import { presenceSignal } from "./js/presence.js";
+  import { disturbance } from "./js/disturbance.js";
+  import { applyToField } from "./js/field.js";
+  import { trace } from "./js/trace.js";
+
+  const sense = presenceSignal();
+
+  setInterval(() => {
+    const signal = sense();
+    const d = disturbance(signal);
+    applyToField(d);
+    trace(d);
   }, 500);
   </script>
 </body>
