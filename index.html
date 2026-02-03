@@ -10,19 +10,20 @@
       font-family: monospace;
       padding: 40px;
     }
+    .pulse {
+      opacity: 0.7;
+    }
     #field {
       margin-top: 20px;
       opacity: 0.6;
       transition: opacity 0.6s ease;
-    }
-    .pulse {
-      opacity: 0.7;
     }
   </style>
 </head>
 <body>
   <h1>MAXIMAL-ONE</h1>
   <div id="state" class="pulse">waiting…</div>
+  <div id="field">…</div>
 
   <script type="module">
     import { react } from './reactive-core/index.js';
@@ -50,6 +51,16 @@ export function engage(input) {
     const signal = intake("presence");
     const observed = observe(signal);
 
+    import { pulse } from './pulse/pulse.js';
+  import { witness } from './witness/witness.js';
+
+  const p = pulse();
+  const w = witness(p);
+
+  const field = document.getElementById('field');
+  field.style.opacity = p.intensity;
+  field.innerText = JSON.stringify(w, null, 2);
+    
     document.getElementById('state').innerText =
       JSON.stringify(observed, null, 2);
   </script>
