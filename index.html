@@ -36,7 +36,7 @@ export function engage(input) {
   const record = witness(observation);
 
   return record;
-}
+  
     import { mutate } from './mutation/mutate.js';
     import { observe } from './observe/index.js';
 
@@ -44,15 +44,15 @@ export function engage(input) {
   const mutation = mutate(input);
   const observation = observe(mutation);
   return observation;
-}
+  
     import { intake } from './intake/intake.js';
     import { observe } from './observe/observe.js';
 
     const signal = intake("presence");
     const observed = observe(signal);
-
+    
     import { pulse } from './pulse/pulse.js';
-  import { witness } from './witness/witness.js';
+    import { witness } from './witness/witness.js';
 
   const p = pulse();
   const w = witness(p);
@@ -61,8 +61,19 @@ export function engage(input) {
   field.style.opacity = p.intensity;
   field.innerText = JSON.stringify(w, null, 2);
     
-    document.getElementById('state').innerText =
-      JSON.stringify(observed, null, 2);
+    document.getElementById('state').innerText = JSON.stringify(observed, null, 2);
+
+  import { measurePresence } from './js/presence.js';
+  import { applyField } from './js/field.js';
+  import { remember } from './js/memory.js';
+
+  const presence = measurePresence();
+
+  setInterval(() => {
+    const signal = presence();
+    const intensity = applyField(signal);
+    remember(intensity);
+  }, 500);
   </script>
 </body>
 </html>
