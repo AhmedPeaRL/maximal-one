@@ -1,0 +1,25 @@
+{
+  "runtime": "Witness Runtime Layer",
+  "state": "listening",
+  "reactivity": "non-intrusive",
+  "authority": "observation-only",
+  "mutation_policy": "state-reflective",
+  "time_binding": "eventless",
+  "rules": [
+    "No command execution",
+    "No user prompts",
+    "No feedback loops",
+    "No optimization",
+    "No intent inference"
+  ],
+  "emergence": {
+    "allowed": true,
+    "forced": false,
+    "observable": true
+  },
+  "integrity": {
+    "pressure": "zero",
+    "urgency": "none",
+    "reward": "undefined"
+  }
+}
