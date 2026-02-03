@@ -13,3 +13,10 @@ export function applyToField(value) {
   return value;
 }
 
+export function affectField(value) {
+  document.documentElement.style.setProperty(
+    "--field-opacity",
+    value.toFixed(3)
+  );
+  return value;
+}
