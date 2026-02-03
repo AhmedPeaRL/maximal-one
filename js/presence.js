@@ -1,15 +1,15 @@
-export function presenceStream() {
+export function presenceSignal() {
   let last = performance.now();
-  let velocity = 0;
+  let intensity = 0;
 
   window.addEventListener("mousemove", () => {
     const now = performance.now();
-    velocity = Math.min(1, (now - last) / 500);
+    intensity = Math.min(1, (now - last) / 400);
     last = now;
   });
 
   return () => ({
-    velocity,
-    time: performance.now()
+    intensity,
+    t: performance.now()
   });
 }
