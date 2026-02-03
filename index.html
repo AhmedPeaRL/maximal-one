@@ -4,30 +4,35 @@
   <meta charset="UTF-8">
   <title>MAXIMAL-ONE</title>
   <style>
-      :root {
-    --field-opacity: 1;
-  }
-  body {
-    background: rgba(0,0,0,var(--field-opacity));
-    transition: background 0.5s linear;
-  }
+    body {
+       background: #0b0b0b;
+      color: #e0e0e0;
+      font-family: monospace;
+      padding: 40px;
+    }
+    #field {
+      margin-top: 20px;
+      opacity: 0.6;
+      transition: opacity 0.6s ease;
+    }
+    .pulse {
+      opacity: 0.7;
+    }
   </style>
 </head>
 <body>
+  <h1>MAXIMAL-ONE</h1>
+  <div id="state" class="pulse">waiting…</div>
 
-<h1>MAXIMAL-ONE</h1>
-<div id="field">…</div>
+  <script type="module">
+    import { intake } from './intake/intake.js';
+    import { observe } from './observe/observe.js';
 
-<script type="module">
-  import { presenceStream } from "./js/presence.js";
-  import { applyDynamics } from "./js/dynamics.js";
-  import { observe } from "./js/observer.js";
+    const signal = intake("presence");
+    const observed = observe(signal);
 
-  const stream = presenceStream();
-
-  setInterval(() => {
-    const signal = stream();
-    const state = applyDynamics(signal);
-    observe(state);
-  }, 500);
-</script>
+    document.getElementById('state').innerText =
+      JSON.stringify(observed, null, 2);
+  </script>
+</body>
+</html>
