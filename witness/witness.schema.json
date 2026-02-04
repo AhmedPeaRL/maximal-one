@@ -1,0 +1,17 @@
+{
+  "witness_version": "1.0.0",
+  "role": "passive_observer",
+  "permissions": {
+    "generate": false,
+    "decide": false,
+    "judge": false,
+    "respond_directly": false
+  },
+  "allowed_actions": [
+    "record_input",
+    "timestamp_event",
+    "forward_to_processor",
+    "store_response"
+  ],
+  "integrity_rule": "no_emergence_without_external_trigger"
+}
