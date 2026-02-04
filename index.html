@@ -34,6 +34,17 @@
   <div id="state" class="pulse">waiting…</div>
   <div id="field">…</div>
 
+  <form id="witness-form">
+  <textarea
+    id="witness-input"
+    placeholder=""
+    autocomplete="off"
+    spellcheck="false"
+  ></textarea>
+
+  <button type="submit">Submit</button>
+  </form>
+  <script src="/assets/witness.js"></script>
   <script type="module">
     import { react } from './reactive-core/index.js';
     import { observe } from './observable-surface/observe.js';
