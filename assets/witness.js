@@ -60,3 +60,27 @@ submitButton.addEventListener("click", () => {
 
   witnessInput.value = "";
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("witness-input");
+  const submit = document.getElementById("witness-submit");
+
+  if (!input || !submit) return;
+
+  submit.addEventListener("click", () => {
+    const content = input.value.trim();
+    if (!content) return;
+
+    fetch("/witness/record", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content,
+        at: new Date().toISOString(),
+        origin: "maximal-one"
+      })
+    });
+
+    input.value = "";
+  });
+});
