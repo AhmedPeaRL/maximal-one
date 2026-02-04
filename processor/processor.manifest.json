@@ -1,0 +1,15 @@
+{
+  "processor_id": "residual-processor-v1",
+  "activation_mode": "external-trigger-only",
+  "guaranteed_response": false,
+  "allowed_outputs": [
+    "text-artifact",
+    "null"
+  ],
+  "forbidden_behaviors": [
+    "real-time-chat",
+    "continuous-dialogue",
+    "forced-response"
+  ],
+  "philosophy": "emergence-over-service"
+}
