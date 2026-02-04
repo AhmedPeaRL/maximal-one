@@ -1,144 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>MAXIMAL-ONE</title>
-  <link rel="stylesheet" href="./css/field.css">
+
+  <link rel="stylesheet" href="./css/field.css" />
+
   <style>
-    :root {
-    --field-opacity: 1;
-    --field-darkness: 0;
-  }     
     body {
       background: #0b0b0b;
       color: #e0e0e0;
       font-family: monospace;
       padding: 40px;
-      background: rgba(0,0,0,var(--field-opacity));
-      transition: background 0.5s linear;
-      background: rgba(0, 0, 0, var(--field-darkness));
-      transition: background 0.4s linear;
-  }
-    .pulse {
-      opacity: 0.7;
-  }    
-    #field {
-      margin-top: 20px;
+    }
+
+    h1 {
+      font-weight: normal;
+      opacity: 0.8;
+    }
+
+    #state {
+      margin-top: 10px;
       opacity: 0.6;
-      transition: opacity 0.6s ease;
-  }
+    }
+
+    #witness-input {
+      width: 100%;
+      height: 120px;
+      margin-top: 30px;
+      background: transparent;
+      color: #e0e0e0;
+      border: 1px solid #333;
+      padding: 10px;
+      font-family: monospace;
+      resize: none;
+    }
+
+    #witness-submit {
+      margin-top: 10px;
+      background: transparent;
+      color: #e0e0e0;
+      border: 1px solid #333;
+      padding: 6px 14px;
+      cursor: pointer;
+    }
+
+    #witness-submit:hover {
+      opacity: 0.7;
+    }
   </style>
 </head>
+
 <body>
   <h1>MAXIMAL-ONE</h1>
-  <div id="state" class="pulse">waiting…</div>
-  <div id="field">…</div>
+  <div id="state">waiting…</div>
 
-  <form id="witness-form">
-  <textarea id="witness-input" placeholder="..." ></textarea>
-  <button id="witness-submit"> </button>
-    placeholder=""
+  <textarea
+    id="witness-input"
+    placeholder="..."
     autocomplete="off"
     spellcheck="false"
   ></textarea>
 
-  <button type="submit">Submit</button>
-  </form>
-  <script src="/assets/witness.js"></script>
-  <script type="module">
-    import { react } from './reactive-core/index.js';
-    import { observe } from './observable-surface/observe.js';
-    import { witness } from './emergent-witness/witness.js';
+  <button id="witness-submit">Submit</button>
 
-export function engage(input) {
-  const reaction = react(input);
-  const observation = observe(reaction);
-  const record = witness(observation);
-
-  return record;
-  
-    import { mutate } from './mutation/mutate.js';
-    import { observe } from './observe/index.js';
-
-export function engage(input) {
-  const mutation = mutate(input);
-  const observation = observe(mutation);
-  return observation;
-  
-    import { intake } from './intake/intake.js';
-    import { observe } from './observe/observe.js';
-
-    const signal = intake("presence");
-    const observed = observe(signal);
-    
-    import { pulse } from './pulse/pulse.js';
-    import { witness } from './witness/witness.js';
-
-  const p = pulse();
-  const w = witness(p);
-
-  const field = document.getElementById('field');
-  field.style.opacity = p.intensity;
-  field.innerText = JSON.stringify(w, null, 2);
-    
-    document.getElementById('state').innerText = JSON.stringify(observed, null, 2);
-
-  import { measurePresence } from './js/presence.js';
-  import { applyField } from './js/field.js';
-  import { remember } from './js/memory.js';
-
-  const presence = measurePresence();
-
-  setInterval(() => {
-    const signal = presence();
-    const intensity = applyField(signal);
-    remember(intensity);
-  }, 500);
-  
-  import { presenceStream } from "./js/presence.js";
-  import { applyDynamics } from "./js/dynamics.js";
-  import { observe } from "./js/observer.js";
-
-  const stream = presenceStream();
-
-  setInterval(() => {
-    const signal = stream();
-    const state = applyDynamics(signal);
-    observe(state);
-  }, 500);
-
-  import { presenceSignal } from "./js/presence.js";
-  import { disturbance } from "./js/disturbance.js";
-  import { applyToField } from "./js/field.js";
-  import { trace } from "./js/trace.js";
-
-  const sense = presenceSignal();
-
-  setInterval(() => {
-    const signal = sense();
-    const d = disturbance(signal);
-    applyToField(d);
-    trace(d);
-  }, 500);
-
-  import { sensePresence } from "./js/presence.js";
-  import { toDisturbance } from "./js/disturbance.js";
-  import { affectField } from "./js/field.js";
-  import { storeTrace } from "./js/trace.js";
-  import { recallTrace } from "./js/recall.js";
-
-  recallTrace();
-
-  const sense = sensePresence();
-
-  setInterval(() => {
-    const signal = sense();
-    const d = toDisturbance(signal);
-    affectField(d);
-    storeTrace(d);
-  }, 500);
+  <!-- Sovereign Link -->
   <script>
-  window.SOVEREIGN_TOKEN = "https://github.com/AhmedPeaRL/maximal-one/issues/1";
-</script>
+    // ⚠️ TEMPORARY – remove after phase closure
+    window.SOVEREIGN_TOKEN = "PASTE_YOUR_GITHUB_TOKEN_HERE";
+  </script>
+
+  <script src="./assets/witness.js"></script>
+
+  <script>
+    const input = document.getElementById("witness-input");
+    const submit = document.getElementById("witness-submit");
+    const state = document.getElementById("state");
+
+    submit.addEventListener("click", () => {
+      const value = input.value.trim();
+      if (!value) return;
+
+      state.innerText = "received";
+
+      witness(value);
+
+      input.value = "";
+      state.innerText = "waiting…";
+    });
+  </script>
 </body>
 </html>
