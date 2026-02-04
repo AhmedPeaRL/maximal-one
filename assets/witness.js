@@ -46,3 +46,17 @@
 
   document.addEventListener("DOMContentLoaded", Witness.init);
 })();
+       // silent submission
+submitButton.addEventListener("click", () => {
+  const content = witnessInput.value.trim();
+  if (!content) return;
+
+  // witness records, no promise
+  fetch("/witness/record", {
+    method: "POST",
+    body: JSON.stringify({ content }),
+    headers: { "Content-Type": "application/json" }
+  });
+
+  witnessInput.value = "";
+});
