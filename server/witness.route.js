@@ -17,6 +17,11 @@ router.post("/record", (req, res) => {
 if (!sovereignGate()) return res.status(204).end();
   coldStore(req.body);
   res.status(204).end();
+
+router.post("/record", express.json(), (req, res) => {
+  if (!allow()) return res.status(204).end();
+  store(req.body);
+  res.status(204).end();
 });
 
 module.exports = router;
