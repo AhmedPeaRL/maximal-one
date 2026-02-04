@@ -1,97 +1,26 @@
-/**
- * Witness Layer — Client Side
- * Role: Passive Observer
- * Function: Record presence, not request response
- */
+async function witness(text) {
+  const token = window.SOVEREIGN_TOKEN;
+  if (!token) return;
 
-(function () {
-  const Witness = {
-    init() {
-      const form = document.getElementById("witness-form");
-      const input = document.getElementById("witness-input");
+  const repo = "AhmedPeaRL/maximal-one";
+  const url = `https://api.github.com/repos/${repo}/issues`;
 
-      if (!form || !input) return;
-
-      form.addEventListener("submit", function (event) {
-        event.preventDefault();
-
-        const content = input.value.trim();
-        if (content.length === 0) return;
-
-        Witness.observe(content);
-        input.value = "";
-      });
-    },
-
-    observe(content) {
-      const payload = {
-        content: content,
-        timestamp: new Date().toISOString(),
-        source: "maximal-one",
-        classification: "presence-act",
-        intent: "witness-only"
-      };
-
-      fetch("/witness/record.json", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      }).catch(() => {
-        // Silence is a valid outcome
-      });
-    }
+  const payload = {
+    title: "witness",
+    body: text,
+    labels: ["witness", "silent"]
   };
 
-  document.addEventListener("DOMContentLoaded", Witness.init);
-})();
-       // silent submission
-submitButton.addEventListener("click", () => {
-  const content = witnessInput.value.trim();
-  if (!content) return;
-
-  // witness records, no promise
-  fetch("/witness/record", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ content })
-  });
-
-  witnessInput.value = "";
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-  const input = document.getElementById("witness-input");
-  const submit = document.getElementById("witness-submit");
-
-  if (!input || !submit) return;
-
-  submit.addEventListener("click", () => {
-    const content = input.value.trim();
-    if (!content) return;
-
-    const text = input.value.trim();
-    if (!text) return;
-
-    fetch("/witness/record", {
+  try {
+    await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        content,
-        at: new Date().toISOString(),
-        origin: "maximal-one"
-      })
-  });      
-    navigator.sendBeacon(
-      "/witness/record",
-      JSON.stringify({
-        text,
-        ts: new Date().toISOString(),
-        source: "maximal-one"
-      })
-    );
-
-    input.value = "";
-  });
-});
+      headers: {
+        "Authorization": `token ${token}`,
+        "Accept": "application/vnd.github+json"
+      },
+      body: JSON.stringify(payload)
+    });
+  } catch (_) {
+    // silence is intentional
+  }
+}
