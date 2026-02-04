@@ -71,6 +71,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const content = input.value.trim();
     if (!content) return;
 
+    const text = input.value.trim();
+    if (!text) return;
+
     fetch("/witness/record", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -79,7 +82,16 @@ document.addEventListener("DOMContentLoaded", () => {
         at: new Date().toISOString(),
         origin: "maximal-one"
       })
-    });
+        
+    navigator.sendBeacon(
+      "/witness/record",
+      JSON.stringify({
+        text,
+        ts: new Date().toISOString(),
+        source: "maximal-one"
+      })
+    );
+  });
 
     input.value = "";
   });
