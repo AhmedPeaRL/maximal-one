@@ -54,8 +54,8 @@ submitButton.addEventListener("click", () => {
   // witness records, no promise
   fetch("/witness/record", {
     method: "POST",
-    body: JSON.stringify({ content }),
-    headers: { "Content-Type": "application/json" }
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content })
   });
 
   witnessInput.value = "";
