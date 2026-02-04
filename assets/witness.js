@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
         at: new Date().toISOString(),
         origin: "maximal-one"
       })
-        
+  });      
     navigator.sendBeacon(
       "/witness/record",
       JSON.stringify({
@@ -91,7 +91,6 @@ document.addEventListener("DOMContentLoaded", () => {
         source: "maximal-one"
       })
     );
-  });
 
     input.value = "";
   });
