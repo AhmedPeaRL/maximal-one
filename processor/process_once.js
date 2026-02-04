@@ -15,6 +15,15 @@ function process(input) {
     generated_at: new Date().toISOString(),
     origin: "residual-processor"
   };
-}
+  
+  const timestamp = new Date().toISOString();
 
+  return {
+    id: `artifact-${Date.now()}`,
+    created_at: timestamp,
+    source: "witness",
+    content: input.content,
+    state: "emerged"
+  };
+}
 module.exports = { process };
