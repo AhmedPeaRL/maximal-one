@@ -1,0 +1,48 @@
+name: Witness Parsing
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  parse:
+    if: github.event.issue.title == 'witness'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Parse witness
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.WITNESS_TOKEN }}
+          script: |
+            const fs = require('fs');
+
+            const body = context.payload.issue.body;
+
+            const signalMatch = body.match(/```json([\s\S]*?)```/);
+            if (!signalMatch) return;
+
+            const signal = JSON.parse(signalMatch[1]);
+
+            const resonance = {
+              timestamp: new Date().toISOString(),
+              length: signal.text.length,
+              tone: signal.text.length < 40 ? "faint" : "dense",
+              presence: "received"
+            };
+
+            fs.appendFileSync(
+              "resonance/silence.md",
+              `\n---\n${JSON.stringify(resonance, null, 2)}\n`
+            );
+
+      - name: Commit resonance
+        run: |
+          git config user.name "maximal-one"
+          git config user.email "witness@maximal.one"
+          git add resonance/silence.md
+          git commit -m "resonance"
+          git push
