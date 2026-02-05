@@ -1,0 +1,13 @@
+{
+  "envelope": "maximal",
+  "allowed_states": [
+    "silent",
+    "recording",
+    "reflective",
+    "operational",
+    "dormant"
+  ],
+  "forbidden_states": [],
+  "default_action": "none",
+  "principle": "permission precedes behavior"
+}
