@@ -1,0 +1,43 @@
+name: Reflection Engine
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # كل 6 ساعات = لا استعجال
+  workflow_dispatch:
+
+jobs:
+  reflect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reflect without interpretation
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.WITNESS_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = 'witness/raw';
+
+            if (!fs.existsSync(path)) return;
+
+            const files = fs.readdirSync(path).filter(f => f.endsWith('.json'));
+            if (files.length === 0) return;
+
+            const reflections = files.map(f => {
+              const raw = JSON.parse(fs.readFileSync(`${path}/${f}`));
+              return {
+                source: raw.id,
+                timestamp: raw.timestamp,
+                input_length: raw.body.length,
+                semantic_mass: Math.min(1, raw.body.length / 500),
+                volitional_depth: Math.random().toFixed(2)
+              };
+            });
+
+            const epoch = new Date().toISOString().slice(0,13).replace(/[:T]/g,'-');
+            const outDir = `reflection/epoch-${epoch}`;
+            fs.mkdirSync(outDir, { recursive: true });
+
+            fs.writeFileSync(
+              `${outDir}/distilled.json`,
+              JSON.stringify(reflections, null, 2)
+            );
