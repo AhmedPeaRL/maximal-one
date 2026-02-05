@@ -1,0 +1,33 @@
+name: Interaction Listener
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+jobs:
+  listen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Record interaction
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'ledger/interactions.log';
+
+            const entry = {
+              type: context.eventName,
+              id: context.payload.issue?.number || context.payload.pull_request?.number,
+              timestamp: new Date().toISOString(),
+              actor: context.actor
+            };
+
+            let data = [];
+            if (fs.existsSync(path)) {
+              data = fs.readFileSync(path, 'utf8').trim().split('\n');
+            }
+
+            data.push(JSON.stringify(entry));
+            fs.writeFileSync(path, data.join('\n') + '\n');
