@@ -1,0 +1,37 @@
+name: Semantic Clustering
+
+on:
+  workflow_run:
+    workflows: ["Reflection Engine"]
+    types: [completed]
+
+jobs:
+  cluster:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cluster by epoch
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.WITNESS_TOKEN }}
+          script: |
+            const fs = require('fs');
+
+            const base = 'reflection';
+            if (!fs.existsSync(base)) return;
+
+            const epochs = fs.readdirSync(base).filter(d => d.startsWith('epoch-'));
+            const dataset = epochs.map(e => {
+              const data = JSON.parse(fs.readFileSync(`${base}/${e}/distilled.json`));
+              return {
+                epoch: e,
+                count: data.length,
+                avg_semantic_mass:
+                  data.reduce((a,b)=>a+Number(b.semantic_mass),0)/data.length
+              };
+            });
+
+            fs.mkdirSync('datasets', { recursive: true });
+            fs.writeFileSync(
+              `datasets/epochs.json`,
+              JSON.stringify(dataset, null, 2)
+            );
