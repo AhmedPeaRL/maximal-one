@@ -1,0 +1,27 @@
+name: Epoch Tick
+
+on:
+  schedule:
+    - cron: "0 0 * * *"   # مرة في اليوم = تنفّس بطيء
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Advance epoch
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'ledger/epochs.log';
+
+            if (!fs.existsSync(path)) return;
+
+            const lines = fs.readFileSync(path, 'utf8').trim().split('\n');
+            const next = String(lines.length + 1).padStart(4,'0');
+
+            lines.push(
+              `epoch-${next} | tick | no intervention`
+            );
+
+            fs.writeFileSync(path, lines.join('\n') + '\n');
