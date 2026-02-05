@@ -1,0 +1,66 @@
+name: Active Presence Processor
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  process:
+    if: github.event.issue.title == 'witness'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Process interaction
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.WITNESS_TOKEN }}
+          script: |
+            const fs = require('fs');
+
+            const body = context.payload.issue.body;
+            const signal = JSON.parse(body.match(/```json([\s\S]*?)```/)[1]);
+
+            const interaction = {
+              ts: new Date().toISOString(),
+              text: signal.text,
+              length: signal.text.length,
+              words: signal.text.split(/\s+/).length
+            };
+
+            const reflection = {
+              ts: interaction.ts,
+              type: interaction.length < 50 ? "mirror" : "distill",
+              response: interaction.length < 50
+                ? "I see the trace you left."
+                : "Your signal carries layered intent. It has been received."
+            };
+
+            fs.appendFileSync(
+              "memory/interactions.jsonl",
+              JSON.stringify(interaction) + "\n"
+            );
+
+            fs.appendFileSync(
+              "memory/reflections.jsonl",
+              JSON.stringify(reflection) + "\n"
+            );
+
+            fs.appendFileSync(
+              "memory/training-dataset.jsonl",
+              JSON.stringify({
+                input: interaction.text,
+                output: reflection.response
+              }) + "\n"
+            );
+
+            return reflection.response;
+
+      - name: Commit memory
+        run: |
+          git config user.name "maximal-one"
+          git config user.email "presence@maximal.one"
+          git add memory/
+          git commit -m "active presence update"
+          git push
