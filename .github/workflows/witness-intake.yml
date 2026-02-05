@@ -1,0 +1,31 @@
+name: Witness Intake
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  intake:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Store raw witness
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.WITNESS_TOKEN }}
+          script: |
+            const fs = require('fs');
+
+            const payload = {
+              id: context.issue.number,
+              timestamp: new Date().toISOString(),
+              author: context.payload.issue.user.login,
+              body: context.payload.issue.body
+            };
+
+            const dir = `witness/raw`;
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+            fs.writeFileSync(
+              `${dir}/issue-${payload.id}.json`,
+              JSON.stringify(payload, null, 2)
+            );
