@@ -1,0 +1,47 @@
+name: Active Presence
+
+on:
+  repository_dispatch:
+    types: [witness-event]
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Process witness
+        run: |
+          node <<'EOF'
+          import fs from "fs";
+          import { parseWitness } from "./field/parse.js";
+          import { shouldRemainSilent } from "./field/silence.js";
+          import { indirectResponse } from "./field/respond.js";
+
+          const payload = JSON.parse(process.env.PAYLOAD);
+
+          const parsed = parseWitness(payload);
+          const memory = JSON.parse(fs.readFileSync("./memory/log.json"));
+
+          memory.push(parsed);
+
+          fs.writeFileSync("./memory/log.json", JSON.stringify(memory, null, 2));
+
+          if (!shouldRemainSilent(parsed)) {
+            const response = indirectResponse(parsed);
+            fs.writeFileSync(
+              `./memory/response-${Date.now()}.json`,
+              JSON.stringify(response, null, 2)
+            );
+          }
+          EOF
+        env:
+          PAYLOAD: ${{ toJson(github.event.client_payload) }}
+
+      - name: Commit memory
+        run: |
+          git config user.name "presence"
+          git config user.email "presence@field"
+          git add .
+          git commit -m "witnessed presence"
+          git push
