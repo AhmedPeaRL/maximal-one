@@ -1,0 +1,24 @@
+name: Rhythm Sentinel
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce silence
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const forbidden = ['reply', 'respond', 'answer', 'explain'];
+            const message = context.payload.head_commit?.message || '';
+
+            forbidden.forEach(word => {
+              if (message.toLowerCase().includes(word)) {
+                throw new Error(
+                  `Rhythm violation detected: "${word}"`
+                );
+              }
+            });
