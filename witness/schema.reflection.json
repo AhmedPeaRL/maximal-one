@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "principle": "reflection_not_response",
+  "rules": {
+    "no_interpretation": true,
+    "no_realtime_reply": true,
+    "epochal_closure_only": true,
+    "silence_is_artifact": true
+  },
+  "metrics": {
+    "semantic_mass": "0.0 → 1.0",
+    "volitional_depth": "0.0 → 1.0",
+    "signal_entropy": "measured"
+  }
+}
