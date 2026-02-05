@@ -1,0 +1,14 @@
+name: Epoch Recorder
+
+on:
+  schedule:
+    - cron: "0 */12 * * *"
+  workflow_dispatch:
+
+jobs:
+  epoch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Append epoch
+        run: |
+          echo "$(date -Iseconds) | epoch | autonomous" >> ledger/epochs.log
