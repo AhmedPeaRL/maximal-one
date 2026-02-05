@@ -17,20 +17,21 @@ jobs:
         with:
           github-token: ${{ secrets.WITNESS_TOKEN }}
           script: |
-            const payload = JSON.parse(`${{ inputs.payload }}`);
+            const payload = JSON.parse(process.env.INPUT_PAYLOAD);
+
+            const body =
+              "**timestamp:** " + payload.timestamp + "\n\n" +
+              "**origin:** maximal-one\n\n" +
+              "**signal:**\n" +
+              "```json\n" +
+              JSON.stringify(payload.signal, null, 2) +
+              "\n```";
 
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: "witness",
-              body: `
-**timestamp:** ${payload.timestamp}
-
-**origin:** maximal-one
-
-**signal:**
-\`\`\`json
-${JSON.stringify(payload.signal, null, 2)}
-\`\`\`
-`
+              body: body
             });
+        env:
+          INPUT_PAYLOAD: ${{ inputs.payload }}
