@@ -1,31 +1,36 @@
-document.getElementById("witness-form").addEventListener("submit", async (e) => {
+// assets/witness.js
+
+const FORM = document.getElementById("witness-form");
+const INPUT = document.getElementById("witness-input");
+const STATE = document.getElementById("state");
+
+FORM.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const input = document.getElementById("witness-input").value.trim();
-  if (!input) return;
+  const text = INPUT.value.trim();
+  if (!text) return;
+
+  STATE.innerText = "received";
 
   const payload = {
-    timestamp: new Date().toISOString(),
-    signal: {
-      text: input,
-      presence: "acknowledged"
-    }
+    content: text,
+    timestamp: Date.now(),
+    origin: "human",
   };
 
-  await fetch("https://api.github.com/repos/AhmedPeaRL/maximal-one/actions/workflows/witness-proxy.yml/dispatches", {
+  await fetch("https://api.github.com/repos/AhmedPeaRL/maximal-one/dispatches", {
     method: "POST",
     headers: {
       "Accept": "application/vnd.github+json",
-      "Authorization": "Bearer " + window.PROXY_TRIGGER_TOKEN,
-      "Content-Type": "application/json"
+      "Authorization": `Bearer ${window.SOVEREIGN_TOKEN}`,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      ref: "main",
-      inputs: {
-        payload: JSON.stringify(payload)
-      }
-    })
+      event_type: "witness-event",
+      client_payload: payload,
+    }),
   });
 
-  document.getElementById("witness-input").value = "";
+  INPUT.value = "";
+  STATE.innerText = "witnessed";
 });
