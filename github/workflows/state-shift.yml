@@ -1,0 +1,27 @@
+name: state-shift-on-touch
+
+on:
+  watch:
+    types: [started]
+  fork:
+
+jobs:
+  shift_state:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update state if untouched
+        run: |
+          if grep -q '"activated_by_touch": false' system/state.json; then
+            jq '.activated_by_touch=true | .first_touch_at=now' system/state.json > system/state.tmp
+            mv system/state.tmp system/state.json
+          fi
+
+      - name: Commit state change
+        run: |
+          git config user.name "system"
+          git config user.email "presence@system"
+          git add system/state.json
+          git commit -m "state: first external touch registered" || echo "No change"
+          git push
