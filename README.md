@@ -56,3 +56,10 @@ They do not touch it.
 → Return Without Demand Layer: /return
 
 → Live Undistorted Presence: /presence
+
+---
+
+## Residual Economy
+
+Some value may pass.
+Nothing depends on it.
