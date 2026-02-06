@@ -52,5 +52,7 @@ Some operations occur around presence.
 They do not touch it.
 
 → Single Interface: /interface
+
 → Return Without Demand Layer: /return
+
 → Live Undistorted Presence: /presence
