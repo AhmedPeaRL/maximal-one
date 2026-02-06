@@ -13,3 +13,18 @@ Presence is allowance.
 
 If nothing happens, presence remains valid.
 If something happens, presence is not disturbed.
+
+---
+
+# Presence
+
+This page demonstrates no interaction.
+
+Nothing here reacts.
+Nothing here adapts.
+Nothing here improves.
+
+Yet it continues.
+
+This is not inactivity.
+This is resistance to distortion.
