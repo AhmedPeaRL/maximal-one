@@ -1,0 +1,40 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #0e0e0e;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: system-ui, sans-serif;
+}
+
+#presence {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pulse {
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: pulse 6s ease-in-out infinite;
+}
+
+.line {
+  position: absolute;
+  bottom: 10%;
+  width: 40%;
+  height: 1px;
+  background: rgba(255,255,255,0.15);
+}
+
+@keyframes pulse {
+  0%   { transform: scale(1);   opacity: 0.2; }
+  50%  { transform: scale(1.6); opacity: 0.6; }
+  100% { transform: scale(1);   opacity: 0.2; }
+}
