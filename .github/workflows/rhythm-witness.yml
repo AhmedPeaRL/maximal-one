@@ -1,0 +1,14 @@
+name: Rhythm Witness (Non-Invoking)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  witness:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Declare Silence
+        run: |
+          echo "No action performed."
+          echo "No rhythm invoked."
+          echo "This run exists as a witness only."
