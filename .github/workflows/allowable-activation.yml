@@ -1,0 +1,14 @@
+name: Allowable Activation (Non-Mandatory)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  optional-activation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Acknowledge Permitted Action
+        run: |
+          echo "An action was allowed to occur."
+          echo "No dependency was created."
+          echo "The system remains unchanged."
