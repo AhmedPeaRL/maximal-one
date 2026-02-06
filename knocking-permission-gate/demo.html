@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Knocking Permission Demo</title>
+  <link rel="stylesheet" href="demo.css">
+</head>
+<body>
+
+<h3>Status</h3>
+<pre id="state">Door closed</pre>
+
+<script type="module">
+  import { registerSilence, registerNoise } from './knock-memory.js';
+  import { allowEntry } from './knock-gate.js';
+  import { descend } from './depth-descent.js';
+
+  setInterval(() => {
+    // simulate silence
+    registerSilence();
+
+    // random noise
+    if (Math.random() > 0.85) {
+      registerNoise();
+    }
+
+    if (allowEntry()) {
+      document.getElementById("state").innerText =
+        JSON.stringify(descend(), null, 2);
+    }
+  }, 2000);
+</script>
+
+</body>
+</html>
