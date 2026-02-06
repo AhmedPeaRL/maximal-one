@@ -1,0 +1,29 @@
+name: conditional-emergence
+
+on:
+  push:
+    paths:
+      - system/ALLOW_EMERGENCE
+
+jobs:
+  emerge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check state
+        run: |
+          jq '.activated_by_touch' system/state.json | grep true
+
+      - name: Generate artifact
+        run: |
+          mkdir -p artifacts
+          echo "Emergence at $(date -u)" > artifacts/emergent.txt
+
+      - name: Commit artifact
+        run: |
+          git config user.name "system"
+          git config user.email "presence@system"
+          git add artifacts/
+          git commit -m "artifact: emergence"
+          git push
