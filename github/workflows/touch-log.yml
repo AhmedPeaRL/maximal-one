@@ -1,0 +1,18 @@
+name: touch-log
+
+on:
+  watch:
+    types: [started]
+  fork:
+  workflow_dispatch:
+
+jobs:
+  log_touch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Record touch
+        run: |
+          echo "TOUCH_EVENT"
+          echo "Actor: ${{ github.actor }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Time: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
