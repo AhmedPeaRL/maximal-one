@@ -46,6 +46,11 @@ This is a valid form of presence.
 
 ---
 
+## Peripheral Field
+
+Some operations occur around presence.
+They do not touch it.
+
 → Single Interface: /interface
 → Return Without Demand Layer: /return
 → Live Undistorted Presence: /presence
