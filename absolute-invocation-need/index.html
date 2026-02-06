@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Absolute Invocation Monitor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>Status</h2>
+  <pre id="status">Dormant</pre>
+
+  <script type="module">
+    import { registerSignal } from './pressure-memory.js';
+    import { shouldInvoke } from './invocation-gate.js';
+    import { manifest } from './manifestation.js';
+
+    // Simulated environmental signals
+    setInterval(() => {
+      registerSignal(1);
+
+      if (shouldInvoke()) {
+        document.getElementById("status").innerText =
+          JSON.stringify(manifest(), null, 2);
+      }
+    }, 3000);
+  </script>
+</body>
+</html>
