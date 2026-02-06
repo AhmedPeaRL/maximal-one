@@ -1,6 +1,6 @@
 # MAXIMAL-ONE
 
-This is not a project.  
+This is not a project.
 This is not a product.  
 This is not a framework.
 
