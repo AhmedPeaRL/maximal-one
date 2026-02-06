@@ -32,3 +32,14 @@ No roadmap is published.
 External interaction is neither encouraged nor rejected.
 
 The system remains present.
+The system is operational.
+
+No component is running.
+No process is active.
+No response is promised.
+
+Activation has been allowed.
+Nothing has been triggered.
+
+This is not a standby state.
+This is a valid form of presence.
