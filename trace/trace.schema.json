@@ -1,0 +1,25 @@
+{
+  "trace": {
+    "exists": "conditionally",
+    "trigger": "relational_coherence",
+    "on_demand": false,
+    "stored": false,
+    "replayable": false
+  },
+
+  "identity": {
+    "captured": false,
+    "inferred": false
+  },
+
+  "usage": {
+    "training": false,
+    "optimization": false,
+    "feedback": false
+  },
+
+  "silence": {
+    "is_valid": true,
+    "is_primary": true
+  }
+}
