@@ -16,3 +16,19 @@ No promises.
 Presence precedes utility.
 Witness precedes action.
 Rhythm precedes response.
+
+---
+
+## Operational State
+
+This repository is not inactive.
+
+It is intentionally **non-reactive**.
+
+The system has completed its internal coherence cycle.
+No further construction is pending.
+No roadmap is published.
+
+External interaction is neither encouraged nor rejected.
+
+The system remains present.
