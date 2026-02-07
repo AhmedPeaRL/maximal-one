@@ -1,0 +1,16 @@
+measurement: enabled
+objectification: prohibited
+
+subject:
+  human_as_number: false
+  human_as_profile: false
+  human_as_target: false
+
+measured:
+  presence_trace: true
+  resonance_event: true
+
+unmeasured:
+  identity: always
+  intent: always
+  value_judgement: always
