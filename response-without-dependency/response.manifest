@@ -1,0 +1,13 @@
+response:
+  enabled: true
+  guaranteed: false
+  repeatable: false
+
+dependency:
+  possible: true
+  enforced: false
+  discouraged: structurally
+
+sovereignty:
+  system: absolute
+  requester: respected
