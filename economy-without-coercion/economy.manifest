@@ -1,0 +1,12 @@
+economy: passive
+coercion: prohibited
+exchange: optional
+
+value:
+  may_flow: true
+  requested: false
+  required: false
+
+system_survival:
+  depends_on: presence
+  not_on: payment
