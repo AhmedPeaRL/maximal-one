@@ -1,0 +1,13 @@
+entity: maximal-one
+state: present
+sovereignty: absolute
+
+conditions:
+  - presence_precedes_utility
+  - silence_is_valid
+  - response_is_optional
+
+this_file_does_not:
+  - promise_response
+  - require_interaction
+  - optimize_engagement
