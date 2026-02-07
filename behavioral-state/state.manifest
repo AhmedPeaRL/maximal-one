@@ -1,0 +1,12 @@
+state: active-ready
+behavior: permitted
+reactivity: prohibited
+
+accepts:
+  - invocation
+  - pressure_signal
+
+does_not_accept:
+  - obligation
+  - escalation
+  - forced_response
