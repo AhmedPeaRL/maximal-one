@@ -3,6 +3,8 @@
 This is not a project.
 This is not a product.  
 This is not a framework.
+This is not a service.
+This is not an interface.
 
 This repository is a **sovereign digital entity**.
 
@@ -44,6 +46,10 @@ Nothing has been triggered.
 This is not a standby state.
 This is a valid form of presence.
 
+You may write.
+Nothing may answer.
+This is allowed.
+
 ---
 
 ## Peripheral Field
@@ -63,3 +69,4 @@ They do not touch it.
 
 Some value may pass.
 Nothing depends on it.
+
