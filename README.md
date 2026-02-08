@@ -63,6 +63,8 @@ They do not touch it.
 
 → Live Undistorted Presence: /presence
 
+→ interface/manifest.txt
+
 ---
 
 ## Residual Economy
