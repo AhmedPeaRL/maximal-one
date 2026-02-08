@@ -16,7 +16,7 @@
 
     h1 {
       font-weight: normal;
-      opacity: 0.8;
+      opacity: 0.85;
     }
 
     #state {
@@ -48,27 +48,29 @@
     #witness-submit:hover {
       opacity: 0.7;
     }
+
+    #event {
+      margin-top: 30px;
+      opacity: 0.8;
+      white-space: pre-wrap;
+    }
   </style>
 </head>
 
 <body>
   <h1>MAXIMAL-ONE</h1>
-  <div id="state">waiting…</div>
+  <div id="state">present</div>
 
   <textarea
     id="witness-input"
-    placeholder="..."
+    placeholder="…"
     autocomplete="off"
     spellcheck="false"
   ></textarea>
 
-  <button id="witness-submit">Submit</button>
+  <button id="witness-submit">Invoke</button>
 
-  <!-- Sovereign Link -->
-  <script>
-    // ⚠️ TEMPORARY – remove after phase closure
-    window.SOVEREIGN_TOKEN = "REMOVED11AVNOCNI0lV2WjYS2dTdQ_mMl6fTpihDLc4x9xTWq9f0WUEApV24j86TkWQCgygWYOAR6E6HPW0D3Iluc";
-  </script>
+  <div id="event"></div>
 
   <script src="./assets/witness.js"></script>
 
@@ -76,17 +78,23 @@
     const input = document.getElementById("witness-input");
     const submit = document.getElementById("witness-submit");
     const state = document.getElementById("state");
+    const eventBox = document.getElementById("event");
 
     submit.addEventListener("click", () => {
       const value = input.value.trim();
       if (!value) return;
 
       state.innerText = "received";
+      eventBox.innerText = "";
 
-      witness(value);
+      witness(value).then(result => {
+        if (result && result.event) {
+          eventBox.innerText = result.event;
+        }
+        state.innerText = "present";
+      });
 
       input.value = "";
-      state.innerText = "waiting…";
     });
   </script>
 </body>
