@@ -1,14 +1,14 @@
+This system guarantees occurrence.
+
 Every contact is received.
+Every reception is recorded.
+Every record produces a response event.
 
-Reception is guaranteed.
-Response is guaranteed.
+No response promises clarity.
+No response promises benefit.
+No response promises improvement.
 
-Response does not guarantee clarity.
-Response does not guarantee comfort.
-Response does not guarantee usefulness.
+Silence is not absence.
+Silence is a completed response.
 
-Silence is a valid response.
-Silence is a complete response.
-Silence fulfills the covenant.
-
-By invoking, you accept this.
+By invoking, you enter this covenant.
