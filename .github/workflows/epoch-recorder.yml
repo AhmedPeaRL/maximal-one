@@ -9,6 +9,14 @@ jobs:
   epoch:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Ensure ledger exists
+        run: |
+          mkdir -p ledger
+          touch ledger/epochs.log
+
       - name: Append epoch
         run: |
           echo "$(date -Iseconds) | epoch | autonomous" >> ledger/epochs.log
