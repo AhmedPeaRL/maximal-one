@@ -1,4 +1,4 @@
-name: Epoch Recorder
+name: Epoch Declaration
 
 on:
   schedule:
@@ -9,14 +9,6 @@ jobs:
   epoch:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Ensure ledger exists
+      - name: Declare epoch without record
         run: |
-          mkdir -p ledger
-          touch ledger/epochs.log
-
-      - name: Append epoch
-        run: |
-          echo "$(date -Iseconds) | epoch | autonomous" >> ledger/epochs.log
+          echo "Epoch occurred. Silence maintained. No record written."
