@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       payload:
-        description: "Witness payload"
+        description: "Witness payload (JSON)"
         required: true
         type: string
 
@@ -19,15 +19,28 @@ jobs:
         with:
           github-token: ${{ secrets.WITNESS_TOKEN }}
           script: |
-            const payload = JSON.parse(process.env.WITNESS_PAYLOAD);
+            let payload;
+            let raw = process.env.WITNESS_PAYLOAD;
+
+            try {
+              payload = JSON.parse(raw);
+            } catch (e) {
+              payload = {
+                timestamp: new Date().toISOString(),
+                origin: "maximal-one",
+                error: "Invalid JSON payload",
+                raw: raw
+              };
+            }
 
             const body =
               "**timestamp:** " + payload.timestamp + "\n\n" +
               "**origin:** maximal-one\n\n" +
-              "**signal:**\n" +
-              "```json\n" +
-              JSON.stringify(payload.signal, null, 2) + "\n" +
-              "```";
+              (payload.signal
+                ? "**signal:**\n```json\n" +
+                  JSON.stringify(payload.signal, null, 2) +
+                  "\n```"
+                : "**error:** Invalid or non-JSON payload received.");
 
             await github.rest.issues.create({
               owner: context.repo.owner,
