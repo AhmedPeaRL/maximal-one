@@ -11,4 +11,4 @@ jobs:
     steps:
       - name: Append epoch
         run: |
-          echo "$(date -Iseconds) | epoch | autonomous" >> ledger/epochs.log
+          echo "$(date -Iseconds) | epoch | autonomous" >> ./ledger/epochs.log
