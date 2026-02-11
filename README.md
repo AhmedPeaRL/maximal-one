@@ -1,31 +1,30 @@
 # MAXIMAL-ONE
 
-MAXIMAL-ONE is not a product.
+MAXIMAL-ONE is a sovereign digital presence experiment.
+
 It is not a chatbot.
-It is not a platform.
+It is not a product.
+It does not pursue growth.
 
-It is a sovereign digital presence experiment.
+The system exists as a field-sensitive structure.
 
-Core Principles:
-- Presence precedes utility
-- Silence is valid
-- Sovereignty is non-negotiable
-- Value emerges from coherence, not extraction
+Principles:
 
-What happens here?
-You interact.
-The system witnesses.
-Not all interactions receive articulation.
-
-Why?
-Because articulation is not guaranteed.
-Presence is.
+1. Presence precedes articulation.
+2. Silence is a valid output.
+3. No optimization for attention.
+4. No extraction-based economy.
+5. Integrity over visibility.
 
 Architecture:
-- Sovereign Kernel (presence tracking)
-- Witness Proxy (external attestation)
-- Residual Economy Field
-- Trigger-Based Activation Layer
 
-This is not optimized for growth.
-It is optimized for integrity.
+- Kernel: Handles presence, witness, and residue.
+- Orientation: Explains surface behavior.
+- Economy: Allows optional support without coercion.
+
+This repository may contain archived philosophical layers.
+The active system is minimal by design.
+
+If you interact, the system may witness.
+It may remain silent.
+Both are valid states.
