@@ -12,13 +12,26 @@
 
   const body = document.body;
 
-  function witness(eventWeight = 1) {
-    STATE.presence += eventWeight;
-    STATE.residue += Math.log(1 + eventWeight);
-    STATE.lastEvent = Date.now();
-    applyPhysics();
-    persist();
+  function updateFieldIndicator() {
+  const el = document.getElementById("field-state");
+  if (!el) return;
+
+  if (STATE.presence > 50) {
+    el.innerText = "deepening";
+  } else if (STATE.presence > 10) {
+    el.innerText = "responsive";
+  } else {
+    el.innerText = "present";
   }
+}
+
+function witness(eventWeight = 1) {
+  STATE.presence += eventWeight;
+  STATE.residue += Math.log(1 + eventWeight);
+  applyPhysics();
+  updateFieldIndicator();
+  persist();
+}
 
   function applyPhysics() {
     const glow = Math.min(0.6, STATE.presence * 0.002);
