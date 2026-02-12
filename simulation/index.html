@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Presence Simulation</title>
+  <meta charset="UTF-8">
+  <script src="/kernel/sovereign.kernel.js"></script>
+  <style>
+    body {
+      font-family: system-ui;
+      max-width: 600px;
+      margin: 50px auto;
+    }
+    button {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Presence Simulation</h1>
+
+<p>Current Presence: <span id="presence-value">0</span></p>
+<p>Silence State: <span id="silence-value">true</span></p>
+
+<button onclick="simulateEvent()">Trigger Event (weight 5)</button>
+
+<script>
+  function simulateEvent() {
+    witness(5);
+    render();
+  }
+
+  function render() {
+    document.getElementById("presence-value").innerText = STATE.presence.toFixed(2);
+    document.getElementById("silence-value").innerText = STATE.silence;
+  }
+
+  render();
+</script>
+
+</body>
+</html>
