@@ -24,7 +24,6 @@ jobs:
           script: |
 
             const raw = process.env.WITNESS_PAYLOAD;
-
             let payload;
 
             try {
@@ -34,39 +33,39 @@ jobs:
               return;
             }
 
-            // ---- SCHEMA VALIDATION ----
+            if (typeof payload.id !== "string") {
+              core.setFailed("Missing unique 'id' (string required).");
+              return;
+            }
+
             if (typeof payload.timestamp !== "number") {
-              core.setFailed("Invalid or missing 'timestamp' (must be number).");
+              core.setFailed("Invalid or missing 'timestamp'.");
               return;
             }
 
             if (typeof payload.weight !== "number" || payload.weight < 0) {
-              core.setFailed("Invalid or missing 'weight' (must be non-negative number).");
+              core.setFailed("Invalid or missing 'weight'.");
               return;
             }
 
-            const origin = typeof payload.origin === "string"
-              ? payload.origin
-              : "unknown";
+            const search = await github.rest.search.issuesAndPullRequests({
+              q: `repo:${context.repo.owner}/${context.repo.repo} in:title "${payload.id}"`
+            });
 
-            const metadata = payload.metadata && typeof payload.metadata === "object"
-              ? JSON.stringify(payload.metadata, null, 2)
-              : null;
-
-            // ---- ISSUE BODY ----
-            let body =
-              `timestamp: ${payload.timestamp}\n` +
-              `weight: ${payload.weight}\n` +
-              `origin: ${origin}\n\n`;
-
-            if (metadata) {
-              body += "metadata:\n```json\n" + metadata + "\n```\n";
+            if (search.data.total_count > 0) {
+              core.setFailed("Duplicate event ID detected.");
+              return;
             }
 
-            // ---- CREATE ISSUE ----
+            const body =
+              `id: ${payload.id}\n` +
+              `timestamp: ${payload.timestamp}\n` +
+              `weight: ${payload.weight}\n` +
+              `origin: ${payload.origin || "unknown"}\n`;
+
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: "witness",
+              title: payload.id,
               body: body
             });
