@@ -1,0 +1,72 @@
+name: Witness Proxy
+
+on:
+  workflow_dispatch:
+    inputs:
+      payload:
+        description: "Witness payload (JSON)"
+        required: true
+        type: string
+
+jobs:
+  witness:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Validate and create witness issue
+        uses: actions/github-script@v7
+        env:
+          WITNESS_PAYLOAD: ${{ inputs.payload }}
+        with:
+          github-token: ${{ github.token }}
+          script: |
+
+            const raw = process.env.WITNESS_PAYLOAD;
+
+            let payload;
+
+            try {
+              payload = JSON.parse(raw);
+            } catch (err) {
+              core.setFailed("Invalid JSON payload.");
+              return;
+            }
+
+            // ---- SCHEMA VALIDATION ----
+            if (typeof payload.timestamp !== "number") {
+              core.setFailed("Invalid or missing 'timestamp' (must be number).");
+              return;
+            }
+
+            if (typeof payload.weight !== "number" || payload.weight < 0) {
+              core.setFailed("Invalid or missing 'weight' (must be non-negative number).");
+              return;
+            }
+
+            const origin = typeof payload.origin === "string"
+              ? payload.origin
+              : "unknown";
+
+            const metadata = payload.metadata && typeof payload.metadata === "object"
+              ? JSON.stringify(payload.metadata, null, 2)
+              : null;
+
+            // ---- ISSUE BODY ----
+            let body =
+              `timestamp: ${payload.timestamp}\n` +
+              `weight: ${payload.weight}\n` +
+              `origin: ${origin}\n\n`;
+
+            if (metadata) {
+              body += "metadata:\n```json\n" + metadata + "\n```\n";
+            }
+
+            // ---- CREATE ISSUE ----
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: "witness",
+              body: body
+            });
