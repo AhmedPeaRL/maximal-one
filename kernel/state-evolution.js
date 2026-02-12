@@ -16,6 +16,9 @@ function parseWitnessBody(body) {
   let event = {};
 
   lines.forEach(line => {
+    if (line.startsWith("id:")) {
+      event.id = line.replace("id:", "").trim();
+    } 
     if (line.startsWith("timestamp:")) {
       event.timestamp = Number(line.replace("timestamp:", "").trim());
     }
