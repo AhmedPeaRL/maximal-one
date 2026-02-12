@@ -32,18 +32,5 @@ function parseWitnessBody(body) {
 
 async function recomputeStateFromWitness() {
   const events = await fetchWitnessEvents();
-
-  let presence = 0;
-  let residue = 0;
-
-  events.forEach(event => {
-    presence = presence * 0.98 + event.weight;
-    residue += Math.log(1 + event.weight);
-  });
-
-  return {
-    presence,
-    residue,
-    silence: presence < 25
-  };
+ return computeTemporalPresence(events);
 }
