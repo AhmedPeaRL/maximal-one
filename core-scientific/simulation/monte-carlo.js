@@ -40,3 +40,7 @@ export function runMonteCarlo(iterations, lambda) {
 
   return results;
 }
+export function averageError(results) {
+  const total = results.reduce((sum, r) => sum + r.error, 0);
+  return total / results.length;
+}
