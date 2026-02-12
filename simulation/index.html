@@ -4,6 +4,7 @@
   <title>Presence Simulation</title>
   <meta charset="UTF-8">
   <script src="/kernel/sovereign.kernel.js"></script>
+  <script src="/kernel/state-evolution.js"></script>
   <style>
     body {
       font-family: system-ui;
@@ -24,6 +25,8 @@
 
 <button onclick="simulateEvent()">Trigger Event (weight 5)</button>
 
+<button onclick="recompute()">Recompute From Witness</button>
+  
 <script>
   function simulateEvent() {
     witness(5);
@@ -33,6 +36,16 @@
   function render() {
     document.getElementById("presence-value").innerText = STATE.presence.toFixed(2);
     document.getElementById("silence-value").innerText = STATE.silence;
+  }
+
+  async function recompute() {
+  const state = await recomputeStateFromWitness();
+
+  document.getElementById("presence-value").innerText =
+    state.presence.toFixed(2);
+
+  document.getElementById("silence-value").innerText =
+    state.silence;
   }
 
   render();
