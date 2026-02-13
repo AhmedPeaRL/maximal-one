@@ -17,6 +17,8 @@ jobs:
         with:
           node-version: 18
 
+      - name: Install dependencies
+        run: npm install
+
       - name: Run Publication Gate
-        run: |
-          node -e "import('./core-scientific/publication-gate/index.js').then(m => console.log(m.publicationGate()))"
+        run: npm run validate
