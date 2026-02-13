@@ -5,6 +5,8 @@ import { enforceSensitivity } from "./sensitivity-check.js";
 import { enforceLongRun } from "./long-run-check.js";
 import { enforceMultiSeed } from "./multiseed-check.js";
 import { enforceEnvelope } from "./envelope-check.js";
+import { enforceSnapshot } from "./snapshot-check.js";
+import { enforceConfidence } from "./confidence-check.js";
 import { randomEvents } from "../validation/montecarlo.js";
 import fs from "fs";
 
@@ -21,6 +23,8 @@ export function publicationGate() {
     longRunCheck: enforceLongRun(),
     multiSeedCheck: enforceMultiSeed(),
     envelopeCheck: enforceEnvelope(),
+    snapshotCheck: enforceSnapshot(),
+    confidenceCheck: enforceConfidence(),
     status: "PASSED"
   };
 
