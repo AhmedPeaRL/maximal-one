@@ -8,6 +8,8 @@ import { enforceEnvelope } from "./envelope-check.js";
 import { enforceSnapshot } from "./snapshot-check.js";
 import { enforceConfidence } from "./confidence-check.js";
 import { randomEvents } from "../validation/montecarlo.js";
+import { execSync } from "child_process";
+import { recordEvolution } from "./evolution-recorder.js";
 import fs from "fs";
 
 export function publicationGate() {
@@ -32,7 +34,12 @@ export function publicationGate() {
     "./core-scientific/publication-gate/report.json",
     JSON.stringify(report, null, 2)
   );
+  const commitHash = execSync("git rev-parse HEAD")
+  .toString()
+  .trim();
 
+  report.evolution = recordEvolution(commitHash, report);
+  
   return report;
 }
 
