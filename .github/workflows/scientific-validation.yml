@@ -1,0 +1,22 @@
+name: Scientific Validation
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Run Publication Gate
+        run: |
+          node -e "import('./core-scientific/publication-gate/index.js').then(m => console.log(m.publicationGate()))"
