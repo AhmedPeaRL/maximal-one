@@ -7,7 +7,7 @@ export function publicationGate() {
   const events = randomEvents(200, 999);
 
   const errorCheck = enforceRelativeError(events);
-  const varianceCheck = enforceVariance();
+  const varianceCheck = enforceVariance(events);
   const stabilityCheck = detectExplosion(events);
 
   return {
