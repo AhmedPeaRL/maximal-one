@@ -17,3 +17,14 @@ export function publicationGate() {
     status: "PASSED"
   };
 }
+
+// Allow direct execution
+if (import.meta.url === `file://${process.argv[1]}`) {
+  try {
+    const result = publicationGate();
+    console.log(result);
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
+}
