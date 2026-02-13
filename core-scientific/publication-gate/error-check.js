@@ -1,13 +1,16 @@
-import { runFalsification } from "../validation/falsification.js";
+export function enforceRelativeError(values) {
+  const reference = values[0];
 
-export function enforceRelativeError(events, lambda = 0.001) {
-  const result = runFalsification(events, lambda);
+  const maxError = Math.max(
+    ...values.map(v => Math.abs((v - reference) / reference))
+  );
 
-  if (result.relativeError > 0.01) {
-    throw new Error(
-      `Relative error too high: ${result.relativeError}`
-    );
+  if (maxError >= 0.01) {
+    throw new Error(`Relative error too high: ${maxError}`);
   }
 
-  return result;
+  return {
+    relativeError: maxError,
+    passed: true
+  };
 }
