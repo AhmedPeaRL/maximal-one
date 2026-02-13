@@ -1,0 +1,12 @@
+{
+  "name": "maximal-one",
+  "version": "1.0.0",
+  "description": "Deterministic exponential memory decay dynamical system",
+  "type": "module",
+  "scripts": {
+    "validate": "node ./core-scientific/publication-gate/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
