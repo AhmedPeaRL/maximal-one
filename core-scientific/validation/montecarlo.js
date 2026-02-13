@@ -1,48 +1,23 @@
-import { computeTemporalPresence } from "../kernel/temporal-model.js";
+// Deterministic Monte Carlo using seeded PRNG
 
-function seededRandom(seed) {
-  let x = Math.sin(seed) * 10000;
+function mulberry32(seed) {
   return function () {
-    x = Math.sin(x) * 10000;
-    return x - Math.floor(x);
+    let t = (seed += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
 
-function randomEvents(n = 100, seed = 42) {
-  const rand = seededRandom(seed);
-  const events = [];
-  let time = 1000000;
+export function randomEvents(count = 100, seed = 42) {
+  const rng = mulberry32(seed);
+  const values = [];
 
-  for (let i = 0; i < n; i++) {
-    time += rand() * 1000;
-    events.push({
-      timestamp: time,
-      weight: rand() * 2 - 1
-    });
+  for (let i = 0; i < count; i++) {
+    const base = Math.exp(-0.01 * i);
+    const noise = rng() * 0.001;
+    values.push(base + noise);
   }
 
-  return events;
-}
-
-export function monteCarloTest(iterations = 200) {
-  const results = [];
-
-  for (let i = 0; i < iterations; i++) {
-    const events = randomEvents(200, i + 1);
-    const value = computeTemporalPresence(events);
-    results.push(value);
-  }
-
-  const mean =
-    results.reduce((a, b) => a + b, 0) / results.length;
-
-  const variance =
-    results.reduce((a, b) => a + (b - mean) ** 2, 0) /
-    results.length;
-
-  return {
-    mean,
-    variance,
-    stdDev: Math.sqrt(variance)
-  };
+  return values;
 }
