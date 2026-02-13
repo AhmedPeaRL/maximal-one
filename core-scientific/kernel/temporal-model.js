@@ -4,29 +4,19 @@ function decayFactor(deltaSeconds) {
   return Math.exp(-DECAY_LAMBDA * deltaSeconds);
 }
 
-function computeTemporalPresence(events) {
-  if (!events.length) {
-    return { presence: 0, residue: 0, silence: true };
-  }
-
-  events.sort((a, b) => a.timestamp - b.timestamp);
+export function computeTemporalPresence(events, lambda = 0.001) {
+  if (!events || events.length === 0) return 0;
 
   let presence = 0;
-  let residue = 0;
   let lastTime = events[0].timestamp;
 
-  events.forEach(event => {
-    const deltaSeconds = (event.timestamp - lastTime) / 1000;
+  for (const event of events) {
+    const dt = (event.timestamp - lastTime) / 1000;
+    const decay = Math.exp(-lambda * dt);
 
-    presence = presence * decayFactor(deltaSeconds) + event.weight;
-    residue += Math.log(1 + event.weight);
-
+    presence = presence * decay + event.weight;
     lastTime = event.timestamp;
-  });
+  }
 
-  return {
-    presence,
-    residue,
-    silence: presence < 25
-  };
+  return presence;
 }
