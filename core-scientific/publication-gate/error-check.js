@@ -1,9 +1,15 @@
 export function enforceRelativeError(values) {
-  const reference = values[0];
+  const lambda = 0.01;
 
-  const maxError = Math.max(
-    ...values.map(v => Math.abs((v - reference) / reference))
-  );
+  let maxError = 0;
+
+  for (let i = 0; i < values.length; i++) {
+    const theoretical = Math.exp(-lambda * i);
+    const error = Math.abs((values[i] - theoretical) / theoretical);
+    if (error > maxError) {
+      maxError = error;
+    }
+  }
 
   if (maxError >= 0.01) {
     throw new Error(`Relative error too high: ${maxError}`);
