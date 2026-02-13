@@ -16,15 +16,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-
-      - name: Upload scientific report
-        uses: actions/upload-artifact@v4
-        with:
-         name: scientific-report
-         path: core-scientific/publication-gate/report.json
     
       - name: Install dependencies
         run: npm install
 
       - name: Run Publication Gate
         run: npm run validate
+
+      - name: Upload scientific report
+        uses: actions/upload-artifact@v4
+        with:
+         name: scientific-report
+         path: core-scientific/publication-gate/report.json
