@@ -2,16 +2,15 @@ import fs from "fs";
 import { runEmpiricalValidation } from "../empirical/empirical-test.js";
 import { runSensitivitySuite } from "../sensitivity/sensitivity-test.js";
 import { runBifurcationScan } from "../nonlinear/bifurcation-test.js";
-import baseline from "./baseline.json" assert { type: "json" };
+
+const baseline = JSON.parse(fs.readFileSync(new URL("./baseline.json", import.meta.url)));
 
 function isFiniteArray(arr) {
   return arr.every(v => Number.isFinite(v));
 }
 
 function assert(condition, message) {
-  if (!condition) {
-    throw new Error(message);
-  }
+  if (!condition) throw new Error(message);
 }
 
 function computeDrift(values) {
@@ -21,7 +20,6 @@ function computeDrift(values) {
 }
 
 async function publicationGate() {
-
   console.log("---- DIAGNOSTICS ----");
 
   const empirical = runEmpiricalValidation();
