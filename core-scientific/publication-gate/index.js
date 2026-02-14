@@ -5,13 +5,22 @@ import { runSensitivitySuite } from "../sensitivity/sensitivity-test.js";
 import { runBifurcationScan } from "../nonlinear/bifurcation-test.js";
 
 const SCIENTIFIC_PROTOCOL_VERSION = "2.0.0";
-
 const baselinePath = new URL("./baseline.json", import.meta.url);
-const baseline = JSON.parse(fs.readFileSync(baselinePath));
 
 const seedsConfig = JSON.parse(
   fs.readFileSync(new URL("./seeds.json", import.meta.url))
 );
+
+function loadBaseline() {
+  return JSON.parse(fs.readFileSync(baselinePath));
+}
+
+function saveBaseline(data) {
+  fs.writeFileSync(
+    baselinePath,
+    JSON.stringify(data, null, 2)
+  );
+}
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -102,14 +111,15 @@ async function publicationGate() {
   assert(envelope.varianceDriftAcrossSeeds < 0.01, "Variance unstable across seeds");
   assert(envelope.sensitivityDriftAcrossSeeds < 0.01, "Sensitivity unstable across seeds");
 
-  // Baseline initialization mode
+  let baseline = loadBaseline();
+
   if (baseline.initialize === true) {
-    fs.writeFileSync(
-      baselinePath,
-      JSON.stringify(envelope, null, 2)
-    );
+    saveBaseline(envelope);
     console.log("Baseline initialized from current envelope.");
-  } else if (baseline.protocolVersion === envelope.protocolVersion) {
+    baseline = envelope;
+  }
+
+  if (baseline.protocolVersion === envelope.protocolVersion) {
 
     const driftTolerance = 1e-6;
 
