@@ -4,6 +4,7 @@ import { runEmpiricalValidation } from "../empirical/empirical-test.js";
 import { runSensitivitySuite } from "../sensitivity/sensitivity-test.js";
 import { runBifurcationScan } from "../nonlinear/bifurcation-test.js";
 
+const SCIENTIFIC_PROTOCOL_VERSION = "1.0.0";
 const baseline = JSON.parse(
   fs.readFileSync(new URL("./baseline.json", import.meta.url))
 );
@@ -101,6 +102,7 @@ async function publicationGate() {
 
   // الجزء العلمي الخالص (بدون commit وبدون timestamp)
   const scientificCore = {
+    protocolVersion: SCIENTIFIC_PROTOCOL_VERSION,
     empiricalMean: quantize(empirical.empiricalMean),
     relativeError: quantize(empirical.relativeError),
     variance: quantize(variance),
