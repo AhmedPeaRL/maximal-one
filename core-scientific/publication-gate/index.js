@@ -22,10 +22,29 @@ function computeDrift(values) {
   return Math.abs(max - min);
 }
 
+function stableStringify(obj) {
+  if (obj === null || typeof obj !== "object") {
+    return JSON.stringify(obj);
+  }
+
+  if (Array.isArray(obj)) {
+    return "[" + obj.map(stableStringify).join(",") + "]";
+  }
+
+  const keys = Object.keys(obj).sort();
+  return (
+    "{" +
+    keys
+      .map(k => JSON.stringify(k) + ":" + stableStringify(obj[k]))
+      .join(",") +
+    "}"
+  );
+}
+
 function computeScientificHash(payload) {
   return crypto
     .createHash("sha256")
-    .update(JSON.stringify(payload))
+    .update(stableStringify(payload))
     .digest("hex");
 }
 
