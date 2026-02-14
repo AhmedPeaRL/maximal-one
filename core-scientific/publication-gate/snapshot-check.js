@@ -1,17 +1,13 @@
 import fs from "fs";
-import { randomEvents } from "../validation/montecarlo.js";
 
-export function enforceSnapshot() {
-  const seed = 999;
-  const events = randomEvents(50, seed);
+const snapshotPath =
+  "./core-scientific/publication-gate/snapshot-baseline.json";
 
-  const snapshotPath =
-    "./core-scientific/publication-gate/baseline-snapshot.json";
-
+export function enforceSnapshot(currentState, seed) {
   if (!fs.existsSync(snapshotPath)) {
     fs.writeFileSync(
       snapshotPath,
-      JSON.stringify(events, null, 2)
+      JSON.stringify(currentState, null, 2)
     );
     return { createdBaseline: true };
   }
@@ -20,11 +16,14 @@ export function enforceSnapshot() {
     fs.readFileSync(snapshotPath)
   );
 
-  const identical =
-    JSON.stringify(events) === JSON.stringify(baseline);
+  const match =
+    JSON.stringify(baseline) ===
+    JSON.stringify(currentState);
 
-  if (!identical) {
-    throw new Error("Deterministic snapshot mismatch.");
+  if (!match) {
+    throw new Error(
+      "Determinism violation: snapshot mismatch under fixed seed"
+    );
   }
 
   return { snapshotMatch: true };
