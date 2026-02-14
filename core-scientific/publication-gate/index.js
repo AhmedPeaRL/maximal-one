@@ -13,29 +13,43 @@ import { recordEvolution } from "./evolution-recorder.js";
 import { createSeededRandom } from "../utils/seeded-rng.js";
 import fs from "fs";
 
-const random = createSeededRandom(42);
-const stress = process.env.STRESS === "true";
-const snapshotPath =
-  "./core-scientific/publication-gate/snapshot-baseline.json";
-
 export function publicationGate() {
-  
   const seed = 999;
-  
+  const stress = process.env.STRESS === "true";
+
   const events = stress
-  ? randomEvents(5000, seed)
-  : randomEvents(10000, seed);
-
-  const empiricalMean =
-  events.reduce((a, b) => a + b, 0) / events.length;
-
-  const theoreticalMean = 0; // أو القيمة النظرية الحقيقية لو مختلفة
+    ? randomEvents(5000, seed)
+    : randomEvents(10000, seed);
 
   const horizon = stress ? 20000 : 5000;
 
+  // === empirical statistics ===
+  const empiricalMean =
+    events.reduce((a, b) => a + b, 0) / events.length;
+
+  const empiricalVariance =
+    events.reduce((a, b) => a + (b - empiricalMean) ** 2, 0) /
+    events.length;
+
+  const empiricalStd = Math.sqrt(empiricalVariance);
+
+  // === theoretical assumptions ===
+  const theoreticalMean = 0;
+
+  // dynamic tolerance using 3-sigma rule
+  const tolerance =
+    (3 * empiricalStd) / Math.sqrt(events.length);
+
   const report = {
     seed,
-    errorCheck: enforceMeanError(empiricalMean, theoreticalMean, 0.01),
+    empiricalMean,
+    empiricalVariance,
+    tolerance,
+    errorCheck: enforceMeanError(
+      empiricalMean,
+      theoreticalMean,
+      tolerance
+    ),
     varianceCheck: enforceVariance(events),
     stabilityCheck: detectExplosion(events),
     sensitivityCheck: enforceSensitivity(),
@@ -46,31 +60,32 @@ export function publicationGate() {
     confidenceCheck: enforceConfidence(events),
     status: "PASSED"
   };
-  
+
   const commitHash = execSync("git rev-parse HEAD")
-  .toString()
-  .trim();
+    .toString()
+    .trim();
 
   report.evolution = recordEvolution(commitHash, report);
 
   report.environment = {
-  node: process.version,
-  platform: process.platform,
-  arch: process.arch
-};
-  
+    node: process.version,
+    platform: process.platform,
+    arch: process.arch
+  };
+
   fs.writeFileSync(
-  "./core-scientific/publication-gate/report.json",
-  JSON.stringify(report, null, 2)
-);
-  
+    "./core-scientific/publication-gate/report.json",
+    JSON.stringify(report, null, 2)
+  );
+
   return report;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   try {
     const result = publicationGate();
-    console.log("Mean error:", result.errorCheck);
+    console.log("Empirical mean:", result.empiricalMean);
+    console.log("Tolerance:", result.tolerance);
     console.log(result);
   } catch (err) {
     console.error(err);
