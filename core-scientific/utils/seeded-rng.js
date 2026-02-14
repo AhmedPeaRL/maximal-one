@@ -1,9 +1,12 @@
-export function createSeededRandom(seed = 123456) {
-  let state = seed % 2147483647;
-  if (state <= 0) state += 2147483646;
+// Simple deterministic RNG (Mulberry32)
+
+export function createSeededRNG(seed) {
+  let t = seed >>> 0;
 
   return function () {
-    state = (state * 16807) % 2147483647;
-    return (state - 1) / 2147483646;
+    t += 0x6D2B79F5;
+    let r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
   };
 }
