@@ -12,12 +12,16 @@ import { execSync } from "child_process";
 import { recordEvolution } from "./evolution-recorder.js";
 import fs from "fs";
 
+const stress = process.env.STRESS === "true";
 const snapshotPath =
   "./core-scientific/publication-gate/snapshot-baseline.json";
 
 export function publicationGate() {
-  const seed = 999;
-  const events = randomEvents(200, seed);
+  const events = stress
+  ? randomEvents(5000, seed)
+  : randomEvents(1000, seed);
+
+  const horizon = stress ? 20000 : 5000;
 
   const report = {
     seed,
@@ -25,7 +29,7 @@ export function publicationGate() {
     varianceCheck: enforceVariance(events),
     stabilityCheck: detectExplosion(events),
     sensitivityCheck: enforceSensitivity(),
-    longRunCheck: enforceLongRun(),
+    longRunCheck: enforceLongRun(horizon),
     multiSeedCheck: enforceMultiSeed(),
     envelopeCheck: enforceEnvelope(events),
     snapshotCheck: enforceSnapshot(events, seed),
@@ -43,6 +47,11 @@ export function publicationGate() {
   "./core-scientific/publication-gate/report.json",
   JSON.stringify(report, null, 2)
 );
+  report.environment = {
+  node: process.version,
+  platform: process.platform,
+  arch: process.arch
+};
   
   return report;
 }
