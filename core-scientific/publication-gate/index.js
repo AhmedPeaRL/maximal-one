@@ -1,120 +1,60 @@
 import fs from "fs";
-import { enforceMeanError } from "./error-check.js";
-import { runSensitivitySuite } from "../stability/sensitivity-test.js";
+import { runEmpiricalValidation } from "../empirical/empirical-test.js";
+import { runSensitivitySuite } from "../sensitivity/sensitivity-test.js";
 import { runBifurcationScan } from "../nonlinear/bifurcation-test.js";
-import { createSeededRNG } from "../utils/seeded-rng.js";
 
-/* ============================= */
-/* ===== Helper Functions ====== */
-/* ============================= */
-
-function mean(arr) {
-  return arr.reduce((a, b) => a + b, 0) / arr.length;
-}
-
-function std(arr, m) {
-  const variance =
-    arr.reduce((sum, x) => sum + (x - m) ** 2, 0) /
-    arr.length;
-  return Math.sqrt(variance);
-}
-
-function relativeError(empirical, theoretical) {
-  return Math.abs(empirical - theoretical) /
-    Math.abs(theoretical || 1);
-}
-
-/* ============================= */
-/* ===== Simulation Layer ====== */
-/* ============================= */
-
-function runSimulation(sampleSize = 10000) {
-  const rng = createSeededRNG(42);
-  const values = [];
-
-  for (let i = 0; i < sampleSize; i++) {
-    const x = rng() * 2 - 1;
-    values.push(x);
+function assert(condition, message) {
+  if (!condition) {
+    throw new Error(message);
   }
-
-  return values;
 }
 
-/* ============================= */
-/* ===== Publication Gate ====== */
-/* ============================= */
+function computeDrift(values) {
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  return Math.abs(max - min);
+}
 
-function publicationGate({
-  empiricalMean,
-  theoreticalMean,
-  empiricalStd,
-  sampleSize
-}) {
+async function publicationGate() {
 
   console.log("---- DIAGNOSTICS ----");
-  console.log("Empirical Mean:", empiricalMean);
-  console.log("Theoretical Mean:", theoreticalMean);
-  console.log("Empirical Std:", empiricalStd);
-  console.log("Sample Size:", sampleSize);
 
-  if (empiricalStd === 0) {
-    throw new Error("Variance is zero — degenerate system.");
-  }
+  const empirical = runEmpiricalValidation();
+  const sensitivity = runSensitivitySuite();
+  const bifurcation = runBifurcationScan();
 
-  if (!Number.isFinite(empiricalMean)) {
-    throw new Error("Numerical explosion detected.");
-  }
+  const relError = empirical.relativeError;
+  const variance = empirical.empiricalStd ** 2;
 
-  const relError = relativeError(
-    empiricalMean,
-    theoreticalMean
-  );
+  const chaoticRegions = bifurcation.filter(b => b.lyapunov > 0);
+  const stableRegions = bifurcation.filter(b => b.lyapunov < 0);
 
+  const sensitivityMeans = sensitivity.map(s => s.mean);
+  const sensitivityDrift = computeDrift(sensitivityMeans);
+
+  console.log("Empirical Mean:", empirical.empiricalMean);
   console.log("Relative Error:", relError);
+  console.log("Variance:", variance);
+  console.log("Chaotic regions:", chaoticRegions.length);
+  console.log("Stable regions:", stableRegions.length);
+  console.log("Sensitivity drift:", sensitivityDrift);
 
-  if (relError > 0.01) {
-    throw new Error(
-      `Relative error exceeds 1% threshold: ${relError}`
-    );
-  }
+  // --- HARD ASSERTIONS ---
 
-  const meanCheck = enforceMeanError(
-    empiricalMean,
-    theoreticalMean,
-    null,
-    empiricalStd,
-    sampleSize
-  );
-
-  /* ========= Sensitivity ========= */
-
-  const sensitivityResults = runSensitivitySuite();
-  console.log("Sensitivity Suite:", sensitivityResults);
-  
-  /* ========= Bifurcation ========= */
-
-  const bifurcationResults = runBifurcationScan();
-  const chaoticRegions = bifurcationResults.filter(b => b.lyapunov > 0);
-
-if (chaoticRegions.length === 0) {
-  throw new Error("No chaotic regime detected — nonlinear layer not active.");
-}
-
-  console.log("Chaotic regions detected:", chaoticRegions.length);
-  console.log("Bifurcation Scan Completed");
-  
-  /* ========= Report ========= */
+  assert(relError < 0.01, "Relative error exceeds 1%");
+  assert(variance > 0, "Variance is zero");
+  assert(chaoticRegions.length > 0, "No chaotic regime detected");
+  assert(stableRegions.length > 0, "No stable regime detected");
+  assert(sensitivityDrift < 0.05, "Sensitivity instability detected");
 
   const report = {
-    empiricalMean,
-    theoreticalMean,
-    empiricalStd,
-    sampleSize,
-    relativeError: relError,
-    meanCheck,
-    sensitivityResults,
-    bifurcationResults,
+    empirical,
+    sensitivity,
+    bifurcation,
     chaoticRegionsCount: chaoticRegions.length,
+    stableRegionsCount: stableRegions.length,
+    sensitivityDrift,
+    integrity: "SELF_CONSISTENT",
     status: "READY_FOR_PUBLICATION"
   };
 
@@ -126,20 +66,4 @@ if (chaoticRegions.length === 0) {
   console.log("Publication Gate: PASSED");
 }
 
-/* ============================= */
-/* ========= EXECUTE =========== */
-/* ============================= */
-
-const sampleSize = 10000;
-const theoreticalMean = 0;
-
-const data = runSimulation(sampleSize);
-const empiricalMean = mean(data);
-const empiricalStd = std(data, empiricalMean);
-
-publicationGate({
-  empiricalMean,
-  theoreticalMean,
-  empiricalStd,
-  sampleSize
-});
+publicationGate();
