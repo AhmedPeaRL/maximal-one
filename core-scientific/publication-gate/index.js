@@ -1,6 +1,7 @@
 import fs from "fs";
 import { enforceMeanError } from "./error-check.js";
 import { runSensitivitySuite } from "../stability/sensitivity-test.js";
+import { runBifurcationScan } from "../nonlinear/bifurcation-test.js";
 import { createSeededRNG } from "../utils/seeded-rng.js";
 
 /* ============================= */
@@ -89,7 +90,12 @@ function publicationGate({
 
   const sensitivityResults = runSensitivitySuite();
   console.log("Sensitivity Suite:", sensitivityResults);
+  
+  /* ========= Bifurcation ========= */
 
+  const bifurcationResults = runBifurcationScan();
+  console.log("Bifurcation Scan Completed");
+  
   /* ========= Report ========= */
 
   const report = {
@@ -100,6 +106,7 @@ function publicationGate({
     relativeError: relError,
     meanCheck,
     sensitivityResults,
+    bifurcationResults,
     status: "READY_FOR_PUBLICATION"
   };
 
