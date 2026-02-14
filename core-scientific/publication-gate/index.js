@@ -59,6 +59,7 @@ async function publicationGate() {
   console.log("Stable regions:", stableRegions.length);
   console.log("Sensitivity drift:", sensitivityDrift);
 
+  // ---- Primary scientific invariants ----
   assert(relError < 0.01, "Relative error exceeds 1%");
   assert(variance > 0, "Variance is zero");
   assert(chaoticRegions.length > 0, "No chaotic regime detected");
@@ -70,14 +71,16 @@ async function publicationGate() {
     "Non-finite Lyapunov values detected"
   );
 
+  // ---- Regression guards ----
   assert(meanDiff < 0.003, "Mean regression detected");
   assert(varianceDiff < 0.002, "Variance regression detected");
   assert(driftDiff < 0.001, "Sensitivity regression detected");
 
-  // الجزء العلمي الخالص (بدون timestamp)
+  // الجزء العلمي الخالص (بدون commit وبدون timestamp)
   const scientificCore = {
-    commit: process.env.GITHUB_SHA || "local",
-    empirical,
+    empiricalMean: empirical.empiricalMean,
+    relativeError: empirical.relativeError,
+    variance,
     chaoticRegionsCount: chaoticRegions.length,
     stableRegionsCount: stableRegions.length,
     sensitivityDrift
@@ -87,6 +90,7 @@ async function publicationGate() {
 
   const finalReport = {
     timestamp: new Date().toISOString(),
+    commit: process.env.GITHUB_SHA || "local",
     ...scientificCore,
     integrity: "SELF_CONSISTENT",
     status: "READY_FOR_PUBLICATION",
