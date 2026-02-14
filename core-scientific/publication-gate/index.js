@@ -2,6 +2,11 @@ import fs from "fs";
 import { runEmpiricalValidation } from "../empirical/empirical-test.js";
 import { runSensitivitySuite } from "../sensitivity/sensitivity-test.js";
 import { runBifurcationScan } from "../nonlinear/bifurcation-test.js";
+import baseline from "./baseline.json" assert { type: "json" };
+
+function isFiniteArray(arr) {
+  return arr.every(v => Number.isFinite(v));
+}
 
 function assert(condition, message) {
   if (!condition) {
@@ -32,6 +37,10 @@ async function publicationGate() {
   const sensitivityMeans = sensitivity.map(s => s.mean);
   const sensitivityDrift = computeDrift(sensitivityMeans);
 
+  const meanDiff = Math.abs(empirical.empiricalMean - baseline.expectedMean);
+  const varianceDiff = Math.abs(variance - baseline.expectedVariance);
+  const driftDiff = Math.abs(sensitivityDrift - baseline.expectedSensitivityDrift);
+
   console.log("Empirical Mean:", empirical.empiricalMean);
   console.log("Relative Error:", relError);
   console.log("Variance:", variance);
@@ -44,6 +53,11 @@ async function publicationGate() {
   assert(chaoticRegions.length > 0, "No chaotic regime detected");
   assert(stableRegions.length > 0, "No stable regime detected");
   assert(sensitivityDrift < 0.05, "Sensitivity instability detected");
+  assert(isFiniteArray(sensitivityMeans), "Non-finite values detected in sensitivity");
+  assert(bifurcation.every(b => Number.isFinite(b.lyapunov)), "Non-finite Lyapunov values detected");
+  assert(meanDiff < 0.001, "Mean regression detected");
+  assert(varianceDiff < 0.001, "Variance regression detected");
+  assert(driftDiff < 0.001, "Sensitivity regression detected");
 
   const report = {
     timestamp: new Date().toISOString(),
