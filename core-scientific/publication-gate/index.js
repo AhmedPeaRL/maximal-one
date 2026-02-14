@@ -17,6 +17,9 @@ const snapshotPath =
   "./core-scientific/publication-gate/snapshot-baseline.json";
 
 export function publicationGate() {
+  
+  const seed = 999;
+  
   const events = stress
   ? randomEvents(5000, seed)
   : randomEvents(1000, seed);
@@ -43,15 +46,16 @@ export function publicationGate() {
 
   report.evolution = recordEvolution(commitHash, report);
 
-  fs.writeFileSync(
-  "./core-scientific/publication-gate/report.json",
-  JSON.stringify(report, null, 2)
-);
   report.environment = {
   node: process.version,
   platform: process.platform,
   arch: process.arch
 };
+  
+  fs.writeFileSync(
+  "./core-scientific/publication-gate/report.json",
+  JSON.stringify(report, null, 2)
+);
   
   return report;
 }
