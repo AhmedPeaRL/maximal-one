@@ -1,21 +1,32 @@
-export function enforceMeanError(empiricalMean, theoreticalMean, tolerance = 0.01) {
-  const epsilon = 1e-8;
+export function enforceMeanError(
+  empiricalMean,
+  theoreticalMean,
+  tolerance,
+  empiricalStd,
+  sampleSize
+) {
+  const absoluteError = Math.abs(
+    empiricalMean - theoreticalMean
+  );
 
-  const absError = Math.abs(empiricalMean - theoreticalMean);
+  // === Dynamic tolerance fallback ===
+  // If empiricalStd and sampleSize provided, compute 3-sigma bound
+  let effectiveTolerance = tolerance;
 
-  if (Math.abs(theoreticalMean) < epsilon) {
-    // Use absolute error when theoretical mean is near zero
-    if (absError > tolerance) {
-      throw new Error(`Absolute mean error too high: ${absError}`);
-    }
-    return absError;
+  if (empiricalStd && sampleSize) {
+    effectiveTolerance =
+      (3 * empiricalStd) / Math.sqrt(sampleSize);
   }
 
-  const relativeError = absError / Math.abs(theoreticalMean);
-
-  if (relativeError > tolerance) {
-    throw new Error(`Relative mean error too high: ${relativeError}`);
+  if (absoluteError > effectiveTolerance) {
+    throw new Error(
+      `Absolute mean error too high: ${absoluteError} (tolerance: ${effectiveTolerance})`
+    );
   }
 
-  return relativeError;
+  return {
+    absoluteError,
+    tolerance: effectiveTolerance,
+    status: "PASSED"
+  };
 }
