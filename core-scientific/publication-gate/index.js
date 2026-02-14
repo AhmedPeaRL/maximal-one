@@ -38,6 +38,11 @@ export function publicationGate() {
   .trim();
 
   report.evolution = recordEvolution(commitHash, report);
+
+  fs.writeFileSync(
+  "./core-scientific/publication-gate/report.json",
+  JSON.stringify(report, null, 2)
+);
   
   return report;
 }
