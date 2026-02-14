@@ -1,5 +1,8 @@
+import { createSeededRandom } from "../utils/seeded-random.js";
+
 export function runEmpiricalValidation() {
 
+  const random = createSeededRandom(42);
   const sampleSize = 10000;
   const theoreticalMean = 0.5;
 
@@ -7,7 +10,7 @@ export function runEmpiricalValidation() {
   let sumSquares = 0;
 
   for (let i = 0; i < sampleSize; i++) {
-    const x = Math.random();
+    const x = random();
     sum += x;
     sumSquares += x * x;
   }
