@@ -94,6 +94,13 @@ function publicationGate({
   /* ========= Bifurcation ========= */
 
   const bifurcationResults = runBifurcationScan();
+  const chaoticRegions = bifurcationResults.filter(b => b.lyapunov > 0);
+
+if (chaoticRegions.length === 0) {
+  throw new Error("No chaotic regime detected — nonlinear layer not active.");
+}
+
+  console.log("Chaotic regions detected:", chaoticRegions.length);
   console.log("Bifurcation Scan Completed");
   
   /* ========= Report ========= */
@@ -107,6 +114,7 @@ function publicationGate({
     meanCheck,
     sensitivityResults,
     bifurcationResults,
+    chaoticRegionsCount: chaoticRegions.length,
     status: "READY_FOR_PUBLICATION"
   };
 
