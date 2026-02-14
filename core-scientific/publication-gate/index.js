@@ -48,7 +48,9 @@ export function publicationGate() {
     errorCheck: enforceMeanError(
       empiricalMean,
       theoreticalMean,
-      tolerance
+      tolerance,
+      empiricalStd,
+      events.length
     ),
     varianceCheck: enforceVariance(events),
     stabilityCheck: detectExplosion(events),
