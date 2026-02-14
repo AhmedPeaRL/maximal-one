@@ -1,7 +1,7 @@
 export function enforceMeanError(
   empiricalMean,
   theoreticalMean,
-  tolerance,
+  _tolerance,
   empiricalStd,
   sampleSize
 ) {
@@ -9,24 +9,18 @@ export function enforceMeanError(
     empiricalMean - theoreticalMean
   );
 
-  // === Dynamic tolerance fallback ===
-  // If empiricalStd and sampleSize provided, compute 3-sigma bound
-  let effectiveTolerance = tolerance;
+  const tolerance =
+    (3 * empiricalStd) / Math.sqrt(sampleSize);
 
-  if (empiricalStd && sampleSize) {
-    effectiveTolerance =
-      (3 * empiricalStd) / Math.sqrt(sampleSize);
-  }
-
-  if (absoluteError > effectiveTolerance) {
+  if (absoluteError > tolerance) {
     throw new Error(
-      `Absolute mean error too high: ${absoluteError} (tolerance: ${effectiveTolerance})`
+      `Absolute mean error too high: ${absoluteError} (tolerance: ${tolerance})`
     );
   }
 
   return {
     absoluteError,
-    tolerance: effectiveTolerance,
+    tolerance,
     status: "PASSED"
   };
 }
