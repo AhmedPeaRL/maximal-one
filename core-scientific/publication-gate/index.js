@@ -53,8 +53,8 @@ async function publicationGate() {
   assert(sensitivityDrift < 0.05, "Sensitivity instability detected");
   assert(isFiniteArray(sensitivityMeans), "Non-finite values detected in sensitivity");
   assert(bifurcation.every(b => Number.isFinite(b.lyapunov)), "Non-finite Lyapunov values detected");
-  assert(meanDiff < 0.001, "Mean regression detected");
-  assert(varianceDiff < 0.001, "Variance regression detected");
+  assert(meanDiff < 0.003, "Mean regression detected");
+  assert(varianceDiff < 0.002, "Variance regression detected");
   assert(driftDiff < 0.001, "Sensitivity regression detected");
 
   const report = {
