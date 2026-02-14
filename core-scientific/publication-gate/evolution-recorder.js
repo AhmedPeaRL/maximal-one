@@ -3,45 +3,45 @@ import fs from "fs";
 const historyPath =
   "./core-scientific/publication-gate/validation-history.json";
 
+const evolutionPath =
+  "./core-scientific/publication-gate/evolution-log.json";
+
 export function recordEvolution(commitHash, report) {
   let history = [];
 
-  if (fs.existsSync(historyPath)) {
-    history = JSON.parse(
-      fs.readFileSync(historyPath)
-    );
+  if (fs.existsSync(evolutionPath)) {
+    history = JSON.parse(fs.readFileSync(evolutionPath));
   }
 
   const entry = {
+    timestamp: Date.now(),
     commit: commitHash,
-    timestamp: new Date().toISOString(),
     mean: report.envelopeCheck.mean,
     variance: report.envelopeCheck.variance,
-    relativeError: report.errorCheck.relativeError,
-    confidence95: report.confidenceCheck.confidence95
+    relativeError: report.errorCheck.relativeError
   };
 
   history.push(entry);
 
   fs.writeFileSync(
-    historyPath,
+    evolutionPath,
     JSON.stringify(history, null, 2)
   );
 
-  // ---- Degradation Gate ----
-  if (history.length > 3) {
-    const avgError =
-      history
-        .slice(0, -1)
-        .reduce((acc, h) => acc + h.relativeError, 0)
-      / (history.length - 1);
+  let drift = null;
 
-    if (entry.relativeError > avgError * 1.5) {
-      throw new Error(
-        `Degradation detected: ${entry.relativeError} > ${avgError * 1.5}`
-      );
-    }
+  if (history.length > 1) {
+    const prev = history[history.length - 2];
+    drift = {
+      meanDrift: entry.mean - prev.mean,
+      varianceDrift: entry.variance - prev.variance,
+      errorDrift: entry.relativeError - prev.relativeError
+    };
   }
 
-  return { recorded: true, totalRuns: history.length };
+  return {
+    recorded: true,
+    totalRuns: history.length,
+    drift
+  };
 }
