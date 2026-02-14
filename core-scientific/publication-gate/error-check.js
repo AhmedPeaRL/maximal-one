@@ -1,31 +1,21 @@
-export function enforceRelativeError(values) {
-  const theoreticalMean = 0.5;
+export function enforceMeanError(empiricalMean, theoreticalMean, tolerance = 0.01) {
   const epsilon = 1e-8;
 
-  const mean =
-    values.reduce((a, b) => a + b, 0) / values.length;
+  const absError = Math.abs(empiricalMean - theoreticalMean);
 
-  const variance =
-    values.reduce((acc, v) => acc + (v - mean) ** 2, 0) /
-    values.length;
-
-  console.log("Empirical mean:", mean);
-  console.log("Empirical variance:", variance);
-
-  const error =
-    Math.abs(mean - theoreticalMean) /
-    Math.max(Math.abs(theoreticalMean), epsilon);
-
-  console.log("Relative mean error:", error);
-
-  if (error >= 0.01) {
-    throw new Error(`Relative mean error too high: ${error}`);
+  if (Math.abs(theoreticalMean) < epsilon) {
+    // Use absolute error when theoretical mean is near zero
+    if (absError > tolerance) {
+      throw new Error(`Absolute mean error too high: ${absError}`);
+    }
+    return absError;
   }
 
-  return {
-    relativeError: error,
-    empiricalMean: mean,
-    variance,
-    passed: true
-  };
+  const relativeError = absError / Math.abs(theoreticalMean);
+
+  if (relativeError > tolerance) {
+    throw new Error(`Relative mean error too high: ${relativeError}`);
+  }
+
+  return relativeError;
 }
