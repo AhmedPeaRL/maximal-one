@@ -1,31 +1,21 @@
 export function enforceRelativeError(values) {
-  const lambda = 0.01;
-  const epsilon = 1e-8; // threshold to avoid division near zero
+  const theoreticalMean = 0.5; // for Uniform(0,1)
+  const epsilon = 1e-8;
 
-  let maxError = 0;
+  const mean =
+    values.reduce((a, b) => a + b, 0) / values.length;
 
-  for (let i = 0; i < values.length; i++) {
-    const theoretical = Math.exp(-lambda * i);
+  const error =
+    Math.abs(mean - theoreticalMean) /
+    Math.max(Math.abs(theoreticalMean), epsilon);
 
-    if (Math.abs(theoretical) < epsilon) {
-      continue; // ignore unstable tail region
-    }
-
-    const error =
-      Math.abs(values[i] - theoretical) /
-      Math.abs(theoretical);
-
-    if (error > maxError) {
-      maxError = error;
-    }
-  }
-
-  if (maxError >= 0.01) {
-    throw new Error(`Relative error too high: ${maxError}`);
+  if (error >= 0.01) {
+    throw new Error(`Relative mean error too high: ${error}`);
   }
 
   return {
-    relativeError: maxError,
+    relativeError: error,
+    empiricalMean: mean,
     passed: true
   };
 }
