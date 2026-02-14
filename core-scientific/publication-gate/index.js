@@ -10,13 +10,14 @@ import { enforceConfidence } from "./confidence-check.js";
 import { randomEvents } from "../validation/montecarlo.js";
 import { execSync } from "child_process";
 import { recordEvolution } from "./evolution-recorder.js";
+import { createSeededRandom } from "../utils/seeded-rng.js";
 import fs from "fs";
 
+const random = createSeededRandom(42);
 const stress = process.env.STRESS === "true";
 const snapshotPath =
   "./core-scientific/publication-gate/snapshot-baseline.json";
 const meanError = enforceMeanError(empiricalMean, theoreticalMean, 0.01);
-console.log("Mean error:", meanError);
 
 export function publicationGate() {
   
@@ -65,6 +66,7 @@ export function publicationGate() {
 if (import.meta.url === `file://${process.argv[1]}`) {
   try {
     const result = publicationGate();
+    console.log("Mean error:", meanError);
     console.log(result);
   } catch (err) {
     console.error(err);
