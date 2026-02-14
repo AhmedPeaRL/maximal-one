@@ -22,7 +22,7 @@ function computeDrift(values) {
   return Math.abs(max - min);
 }
 
-function computeIntegrityHash(payload) {
+function computeScientificHash(payload) {
   return crypto
     .createHash("sha256")
     .update(JSON.stringify(payload))
@@ -74,22 +74,23 @@ async function publicationGate() {
   assert(varianceDiff < 0.002, "Variance regression detected");
   assert(driftDiff < 0.001, "Sensitivity regression detected");
 
-  const reportCore = {
-    timestamp: new Date().toISOString(),
+  // الجزء العلمي الخالص (بدون timestamp)
+  const scientificCore = {
     commit: process.env.GITHUB_SHA || "local",
     empirical,
     chaoticRegionsCount: chaoticRegions.length,
     stableRegionsCount: stableRegions.length,
-    sensitivityDrift,
-    integrity: "SELF_CONSISTENT",
-    status: "READY_FOR_PUBLICATION"
+    sensitivityDrift
   };
 
-  const integrityHash = computeIntegrityHash(reportCore);
+  const scientificHash = computeScientificHash(scientificCore);
 
   const finalReport = {
-    ...reportCore,
-    integrityHash
+    timestamp: new Date().toISOString(),
+    ...scientificCore,
+    integrity: "SELF_CONSISTENT",
+    status: "READY_FOR_PUBLICATION",
+    scientificHash
   };
 
   fs.writeFileSync(
@@ -97,7 +98,7 @@ async function publicationGate() {
     JSON.stringify(finalReport, null, 2)
   );
 
-  console.log("Integrity hash:", integrityHash);
+  console.log("Scientific hash:", scientificHash);
   console.log("Publication Gate: PASSED");
 }
 
