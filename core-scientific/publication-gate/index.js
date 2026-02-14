@@ -12,6 +12,9 @@ import { execSync } from "child_process";
 import { recordEvolution } from "./evolution-recorder.js";
 import fs from "fs";
 
+const snapshotPath =
+  "./core-scientific/publication-gate/snapshot-baseline.json";
+
 export function publicationGate() {
   const seed = 999;
   const events = randomEvents(200, seed);
@@ -30,10 +33,33 @@ export function publicationGate() {
     status: "PASSED"
   };
 
-  fs.writeFileSync(
-    "./core-scientific/publication-gate/report.json",
-    JSON.stringify(report, null, 2)
+  snapshotCheck(currentState, seed) {
+
+    if (!fs.existsSync(snapshotPath)) {
+    fs.writeFileSync(
+      snapshotPath,
+      JSON.stringify(currentState, null, 2)
+    );
+    return { createdBaseline: true };
+  }
+
+  const baseline = JSON.parse(
+    fs.readFileSync(snapshotPath)
   );
+
+  const match =
+    JSON.stringify(baseline) ===
+    JSON.stringify(currentState);
+
+  if (!match) {
+    throw new Error(
+      "Determinism violation: snapshot mismatch under fixed seed"
+    );
+  }
+
+  return { snapshotMatch: true };
+  }
+  
   const commitHash = execSync("git rev-parse HEAD")
   .toString()
   .trim();
