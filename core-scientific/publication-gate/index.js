@@ -106,6 +106,27 @@ async function publicationGate() {
   assert(envelope.varianceDriftAcrossSeeds < 0.01, "Variance unstable across seeds");
   assert(envelope.sensitivityDriftAcrossSeeds < 0.01, "Sensitivity unstable across seeds");
 
+  // Regression against baseline
+if (baseline.protocolVersion === envelope.protocolVersion) {
+
+  const driftTolerance = 0.000001;
+
+  assert(
+    Math.abs(envelope.meanDriftAcrossSeeds - baseline.meanDriftAcrossSeeds) < driftTolerance,
+    "Mean drift regression detected"
+  );
+
+  assert(
+    Math.abs(envelope.varianceDriftAcrossSeeds - baseline.varianceDriftAcrossSeeds) < driftTolerance,
+    "Variance drift regression detected"
+  );
+
+  assert(
+    Math.abs(envelope.sensitivityDriftAcrossSeeds - baseline.sensitivityDriftAcrossSeeds) < driftTolerance,
+    "Sensitivity drift regression detected"
+  );
+}
+ 
   const scientificHash = computeScientificHash(envelope);
 
   const finalReport = {
