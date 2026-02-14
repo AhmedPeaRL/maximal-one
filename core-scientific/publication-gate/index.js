@@ -29,11 +29,9 @@ function relativeError(empirical, theoretical) {
 
 function runSimulation(sampleSize = 10000) {
   const rng = createSeededRNG(42);
-
   const values = [];
 
   for (let i = 0; i < sampleSize; i++) {
-    // centered distribution in [-1, 1]
     const x = rng() * 2 - 1;
     values.push(x);
   }
@@ -57,7 +55,6 @@ function publicationGate({
   console.log("Theoretical Mean:", theoreticalMean);
   console.log("Empirical Std:", empiricalStd);
   console.log("Sample Size:", sampleSize);
-  console.log("Sensitivity Suite:", sensitivityResults);
 
   if (empiricalStd === 0) {
     throw new Error("Variance is zero — degenerate system.");
@@ -88,6 +85,13 @@ function publicationGate({
     sampleSize
   );
 
+  /* ========= Sensitivity ========= */
+
+  const sensitivityResults = runSensitivitySuite();
+  console.log("Sensitivity Suite:", sensitivityResults);
+
+  /* ========= Report ========= */
+
   const report = {
     empiricalMean,
     theoreticalMean,
@@ -99,8 +103,6 @@ function publicationGate({
     status: "READY_FOR_PUBLICATION"
   };
 
-  const sensitivityResults = runSensitivitySuite();
-  
   fs.writeFileSync(
     "./core-scientific/publication-gate/report.json",
     JSON.stringify(report, null, 2)
