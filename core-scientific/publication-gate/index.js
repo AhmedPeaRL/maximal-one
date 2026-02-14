@@ -39,8 +39,6 @@ async function publicationGate() {
   console.log("Stable regions:", stableRegions.length);
   console.log("Sensitivity drift:", sensitivityDrift);
 
-  // --- HARD ASSERTIONS ---
-
   assert(relError < 0.01, "Relative error exceeds 1%");
   assert(variance > 0, "Variance is zero");
   assert(chaoticRegions.length > 0, "No chaotic regime detected");
@@ -48,6 +46,8 @@ async function publicationGate() {
   assert(sensitivityDrift < 0.05, "Sensitivity instability detected");
 
   const report = {
+    timestamp: new Date().toISOString(),
+    commit: process.env.GITHUB_SHA || "local",
     empirical,
     sensitivity,
     bifurcation,
