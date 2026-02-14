@@ -22,6 +22,10 @@ function computeDrift(values) {
   return Math.abs(max - min);
 }
 
+function quantize(value, digits = 12) {
+  return Number.parseFloat(value.toFixed(digits));
+}
+
 function stableStringify(obj) {
   if (obj === null || typeof obj !== "object") {
     return JSON.stringify(obj);
@@ -97,12 +101,12 @@ async function publicationGate() {
 
   // الجزء العلمي الخالص (بدون commit وبدون timestamp)
   const scientificCore = {
-    empiricalMean: empirical.empiricalMean,
-    relativeError: empirical.relativeError,
-    variance,
+    empiricalMean: quantize(empirical.empiricalMean),
+    relativeError: quantize(empirical.relativeError),
+    variance: quantize(variance),
     chaoticRegionsCount: chaoticRegions.length,
     stableRegionsCount: stableRegions.length,
-    sensitivityDrift
+    sensitivityDrift: quantize(sensitivityDrift)
   };
 
   const scientificHash = computeScientificHash(scientificCore);
