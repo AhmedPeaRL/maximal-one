@@ -22,7 +22,7 @@ export function publicationGate() {
   
   const events = stress
   ? randomEvents(5000, seed)
-  : randomEvents(1000, seed);
+  : randomEvents(10000, seed);
 
   const horizon = stress ? 20000 : 5000;
 
