@@ -6,9 +6,8 @@ import { runBifurcationScan } from "../nonlinear/bifurcation-test.js";
 
 const SCIENTIFIC_PROTOCOL_VERSION = "2.0.0";
 
-const baseline = JSON.parse(
-  fs.readFileSync(new URL("./baseline.json", import.meta.url))
-);
+const baselinePath = new URL("./baseline.json", import.meta.url);
+const baseline = JSON.parse(fs.readFileSync(baselinePath));
 
 const seedsConfig = JSON.parse(
   fs.readFileSync(new URL("./seeds.json", import.meta.url))
@@ -34,9 +33,7 @@ function stableStringify(obj) {
   const keys = Object.keys(obj).sort();
   return (
     "{" +
-    keys
-      .map(k => JSON.stringify(k) + ":" + stableStringify(obj[k]))
-      .join(",") +
+    keys.map(k => JSON.stringify(k) + ":" + stableStringify(obj[k])).join(",") +
     "}"
   );
 }
@@ -59,7 +56,6 @@ async function publicationGate() {
   console.log("---- MULTI-SEED DIAGNOSTICS ----");
 
   const seeds = seedsConfig.seeds;
-
   const results = [];
 
   for (const seed of seeds) {
@@ -106,27 +102,33 @@ async function publicationGate() {
   assert(envelope.varianceDriftAcrossSeeds < 0.01, "Variance unstable across seeds");
   assert(envelope.sensitivityDriftAcrossSeeds < 0.01, "Sensitivity unstable across seeds");
 
-  // Regression against baseline
-if (baseline.protocolVersion === envelope.protocolVersion) {
+  // Baseline initialization mode
+  if (baseline.initialize === true) {
+    fs.writeFileSync(
+      baselinePath,
+      JSON.stringify(envelope, null, 2)
+    );
+    console.log("Baseline initialized from current envelope.");
+  } else if (baseline.protocolVersion === envelope.protocolVersion) {
 
-  const driftTolerance = 0.000001;
+    const driftTolerance = 1e-6;
 
-  assert(
-    Math.abs(envelope.meanDriftAcrossSeeds - baseline.meanDriftAcrossSeeds) < driftTolerance,
-    "Mean drift regression detected"
-  );
+    assert(
+      Math.abs(envelope.meanDriftAcrossSeeds - baseline.meanDriftAcrossSeeds) < driftTolerance,
+      "Mean drift regression detected"
+    );
 
-  assert(
-    Math.abs(envelope.varianceDriftAcrossSeeds - baseline.varianceDriftAcrossSeeds) < driftTolerance,
-    "Variance drift regression detected"
-  );
+    assert(
+      Math.abs(envelope.varianceDriftAcrossSeeds - baseline.varianceDriftAcrossSeeds) < driftTolerance,
+      "Variance drift regression detected"
+    );
 
-  assert(
-    Math.abs(envelope.sensitivityDriftAcrossSeeds - baseline.sensitivityDriftAcrossSeeds) < driftTolerance,
-    "Sensitivity drift regression detected"
-  );
-}
- 
+    assert(
+      Math.abs(envelope.sensitivityDriftAcrossSeeds - baseline.sensitivityDriftAcrossSeeds) < driftTolerance,
+      "Sensitivity drift regression detected"
+    );
+  }
+
   const scientificHash = computeScientificHash(envelope);
 
   const finalReport = {
