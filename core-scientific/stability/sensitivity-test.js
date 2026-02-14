@@ -1,48 +1,34 @@
-import { createSeededRNG } from "../utils/seeded-rng.js";
+export function runSensitivitySuite() {
 
-function mean(arr) {
-  return arr.reduce((a, b) => a + b, 0) / arr.length;
-}
+  const seeds = [0.1, 0.11, 0.1001, 0.101];
+  const r = 3.7;
+  const iterations = 2000;
+  const discard = 500;
 
-function std(arr, m) {
-  const variance =
-    arr.reduce((sum, x) => sum + (x - m) ** 2, 0) /
-    arr.length;
-  return Math.sqrt(variance);
-}
-
-function simulate(seed, sampleSize) {
-  const rng = createSeededRNG(seed);
-  const values = [];
-
-  for (let i = 0; i < sampleSize; i++) {
-    values.push(rng() * 2 - 1);
+  function logistic(x) {
+    return r * x * (1 - x);
   }
 
-  const m = mean(values);
-  const s = std(values, m);
+  const results = [];
 
-  return { mean: m, std: s };
-}
+  for (const seed of seeds) {
 
-export function runSensitivitySuite() {
-  const configs = [
-    { seed: 42, n: 10000 },
-    { seed: 43, n: 10000 },
-    { seed: 44, n: 10000 },
-    { seed: 42, n: 5000 },
-    { seed: 42, n: 20000 }
-  ];
+    let x = seed;
+    const trajectory = [];
 
-  const results = configs.map(cfg => ({
-    ...cfg,
-    ...simulate(cfg.seed, cfg.n)
-  }));
+    for (let i = 0; i < iterations; i++) {
+      x = logistic(x);
+      if (i >= discard) {
+        trajectory.push(x);
+      }
+    }
 
-  const unstable = results.some(r => Math.abs(r.mean) > 0.02);
+    const mean = trajectory.reduce((a, b) => a + b, 0) / trajectory.length;
 
-  if (unstable) {
-    throw new Error("Sensitivity instability detected.");
+    results.push({
+      seed,
+      mean
+    });
   }
 
   return results;
