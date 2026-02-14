@@ -12,6 +12,9 @@ import { execSync } from "child_process";
 import { recordEvolution } from "./evolution-recorder.js";
 import fs from "fs";
 
+const snapshotPath =
+  "./core-scientific/publication-gate/snapshot-baseline.json";
+
 export function publicationGate() {
   const seed = 999;
   const events = randomEvents(200, seed);
