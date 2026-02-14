@@ -1,4 +1,4 @@
-import { enforceRelativeError } from "./error-check.js";
+import { enforceMeanError } from "./error-check.js";
 import { enforceVariance } from "./variance-check.js";
 import { detectExplosion } from "./stability-check.js";
 import { enforceSensitivity } from "./sensitivity-check.js";
@@ -15,6 +15,8 @@ import fs from "fs";
 const stress = process.env.STRESS === "true";
 const snapshotPath =
   "./core-scientific/publication-gate/snapshot-baseline.json";
+const meanError = enforceMeanError(empiricalMean, theoreticalMean, 0.01);
+console.log("Mean error:", meanError);
 
 export function publicationGate() {
   
@@ -28,7 +30,7 @@ export function publicationGate() {
 
   const report = {
     seed,
-    errorCheck: enforceRelativeError(events),
+    errorCheck: enforceMeanError(events),
     varianceCheck: enforceVariance(events),
     stabilityCheck: detectExplosion(events),
     sensitivityCheck: enforceSensitivity(),
@@ -66,6 +68,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     console.log(result);
   } catch (err) {
     console.error(err);
-    process.exit(1);
+    process.exit1);
   }
 }
