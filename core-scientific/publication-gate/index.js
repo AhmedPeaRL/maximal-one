@@ -86,8 +86,10 @@ export function publicationGate() {
 if (import.meta.url === `file://${process.argv[1]}`) {
   try {
     const result = publicationGate();
-    console.log("Empirical mean:", result.empiricalMean);
-    console.log("Tolerance:", result.tolerance);
+    console.log("Empirical Mean:", empiricalMean);
+    console.log("Theoretical Mean:", theoreticalMean);
+    console.log("Empirical Std:", empiricalStd);
+    console.log("Sample Size:", events.length);
     console.log(result);
   } catch (err) {
     console.error(err);
