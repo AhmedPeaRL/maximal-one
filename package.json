@@ -1,12 +1,13 @@
 {
   "name": "maximal-one",
   "version": "1.0.0",
-  "description": "Deterministic exponential memory decay dynamical system",
+  "description": "Deterministic dynamical system validation core",
   "type": "module",
+  "engines": {
+    "node": "18.20.8"
+  },
+  "engineStrict": true,
   "scripts": {
     "validate": "node ./core-scientific/publication-gate/index.js"
-  },
-  "engines": {
-    "node": ">=18"
   }
 }
