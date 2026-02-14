@@ -1,6 +1,7 @@
 import fs from "fs";
 import { enforceMeanError } from "./error-check.js";
 import { createSeededRNG } from "../utils/seeded-rng.js";
+import { runSensitivitySuite } from "../stability/sensitivity-test.js";
 
 /* ============================= */
 /* ===== Helper Functions ====== */
@@ -56,6 +57,7 @@ function publicationGate({
   console.log("Theoretical Mean:", theoreticalMean);
   console.log("Empirical Std:", empiricalStd);
   console.log("Sample Size:", sampleSize);
+  console.log("Sensitivity Suite:", sensitivityResults);
 
   if (empiricalStd === 0) {
     throw new Error("Variance is zero — degenerate system.");
@@ -93,9 +95,12 @@ function publicationGate({
     sampleSize,
     relativeError: relError,
     meanCheck,
+    sensitivityResults,
     status: "READY_FOR_PUBLICATION"
   };
 
+  const sensitivityResults = runSensitivitySuite();
+  
   fs.writeFileSync(
     "./core-scientific/publication-gate/report.json",
     JSON.stringify(report, null, 2)
