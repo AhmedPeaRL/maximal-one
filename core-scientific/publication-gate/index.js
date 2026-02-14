@@ -1,9 +1,12 @@
 import fs from "fs";
+import crypto from "crypto";
 import { runEmpiricalValidation } from "../empirical/empirical-test.js";
 import { runSensitivitySuite } from "../sensitivity/sensitivity-test.js";
 import { runBifurcationScan } from "../nonlinear/bifurcation-test.js";
 
-const baseline = JSON.parse(fs.readFileSync(new URL("./baseline.json", import.meta.url)));
+const baseline = JSON.parse(
+  fs.readFileSync(new URL("./baseline.json", import.meta.url))
+);
 
 function isFiniteArray(arr) {
   return arr.every(v => Number.isFinite(v));
@@ -19,7 +22,15 @@ function computeDrift(values) {
   return Math.abs(max - min);
 }
 
+function computeIntegrityHash(payload) {
+  return crypto
+    .createHash("sha256")
+    .update(JSON.stringify(payload))
+    .digest("hex");
+}
+
 async function publicationGate() {
+
   console.log("---- DIAGNOSTICS ----");
 
   const empirical = runEmpiricalValidation();
@@ -37,7 +48,9 @@ async function publicationGate() {
 
   const meanDiff = Math.abs(empirical.empiricalMean - baseline.expectedMean);
   const varianceDiff = Math.abs(variance - baseline.expectedVariance);
-  const driftDiff = Math.abs(sensitivityDrift - baseline.expectedSensitivityDrift);
+  const driftDiff = Math.abs(
+    sensitivityDrift - baseline.expectedSensitivityDrift
+  );
 
   console.log("Empirical Mean:", empirical.empiricalMean);
   console.log("Relative Error:", relError);
@@ -51,18 +64,20 @@ async function publicationGate() {
   assert(chaoticRegions.length > 0, "No chaotic regime detected");
   assert(stableRegions.length > 0, "No stable regime detected");
   assert(sensitivityDrift < 0.05, "Sensitivity instability detected");
-  assert(isFiniteArray(sensitivityMeans), "Non-finite values detected in sensitivity");
-  assert(bifurcation.every(b => Number.isFinite(b.lyapunov)), "Non-finite Lyapunov values detected");
+  assert(isFiniteArray(sensitivityMeans), "Non-finite sensitivity values");
+  assert(
+    bifurcation.every(b => Number.isFinite(b.lyapunov)),
+    "Non-finite Lyapunov values detected"
+  );
+
   assert(meanDiff < 0.003, "Mean regression detected");
   assert(varianceDiff < 0.002, "Variance regression detected");
   assert(driftDiff < 0.001, "Sensitivity regression detected");
 
-  const report = {
+  const reportCore = {
     timestamp: new Date().toISOString(),
     commit: process.env.GITHUB_SHA || "local",
     empirical,
-    sensitivity,
-    bifurcation,
     chaoticRegionsCount: chaoticRegions.length,
     stableRegionsCount: stableRegions.length,
     sensitivityDrift,
@@ -70,11 +85,19 @@ async function publicationGate() {
     status: "READY_FOR_PUBLICATION"
   };
 
+  const integrityHash = computeIntegrityHash(reportCore);
+
+  const finalReport = {
+    ...reportCore,
+    integrityHash
+  };
+
   fs.writeFileSync(
     "./core-scientific/publication-gate/report.json",
-    JSON.stringify(report, null, 2)
+    JSON.stringify(finalReport, null, 2)
   );
 
+  console.log("Integrity hash:", integrityHash);
   console.log("Publication Gate: PASSED");
 }
 
