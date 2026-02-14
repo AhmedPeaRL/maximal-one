@@ -11,14 +11,24 @@ export function runEmpiricalValidation() {
 
   for (let i = 0; i < sampleSize; i++) {
     const x = random();
+
+    // Guard against floating overflow (future scaling safety)
+    if (!Number.isFinite(x)) {
+      throw new Error("Non-finite random sample detected");
+    }
+
     sum += x;
     sumSquares += x * x;
   }
 
   const empiricalMean = sum / sampleSize;
   const variance = (sumSquares / sampleSize) - empiricalMean ** 2;
-  const empiricalStd = Math.sqrt(variance);
 
+  if (variance <= 0 || !Number.isFinite(variance)) {
+    throw new Error("Numerical instability in variance computation");
+  }
+
+  const empiricalStd = Math.sqrt(variance);
   const relativeError = Math.abs(empiricalMean - theoreticalMean) / theoreticalMean;
 
   return {
