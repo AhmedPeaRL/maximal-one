@@ -17,7 +17,6 @@ const random = createSeededRandom(42);
 const stress = process.env.STRESS === "true";
 const snapshotPath =
   "./core-scientific/publication-gate/snapshot-baseline.json";
-const meanError = enforceMeanError(empiricalMean, theoreticalMean, 0.01);
 
 export function publicationGate() {
   
@@ -27,11 +26,16 @@ export function publicationGate() {
   ? randomEvents(5000, seed)
   : randomEvents(10000, seed);
 
+  const empiricalMean =
+  events.reduce((a, b) => a + b, 0) / events.length;
+
+  const theoreticalMean = 0; // أو القيمة النظرية الحقيقية لو مختلفة
+
   const horizon = stress ? 20000 : 5000;
 
   const report = {
     seed,
-    errorCheck: enforceMeanError(events),
+    errorCheck: enforceMeanError(empiricalMean, theoreticalMean, 0.01),
     varianceCheck: enforceVariance(events),
     stabilityCheck: detectExplosion(events),
     sensitivityCheck: enforceSensitivity(),
@@ -66,10 +70,10 @@ export function publicationGate() {
 if (import.meta.url === `file://${process.argv[1]}`) {
   try {
     const result = publicationGate();
-    console.log("Mean error:", meanError);
+    console.log("Mean error:", result.errorCheck);
     console.log(result);
   } catch (err) {
     console.error(err);
-    process.exit1);
+    process.exit(1);
   }
 }
