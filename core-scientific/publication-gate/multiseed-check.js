@@ -1,5 +1,5 @@
 import { randomEvents } from "../validation/montecarlo.js";
-import { enforceRelativeError } from "./error-check.js";
+import { enforceMeanError } from "./error-check.js";
 import { enforceVariance } from "./variance-check.js";
 import { detectExplosion } from "./stability-check.js";
 
@@ -10,7 +10,7 @@ export function enforceMultiSeed() {
   for (const seed of seeds) {
     const events = randomEvents(200, seed);
 
-    const error = enforceRelativeError(events);
+    const error = enforceMeanError(empiricalMean, theoreticalMean, 0.01);
     const variance = enforceVariance(events);
     const stability = detectExplosion(events);
 
