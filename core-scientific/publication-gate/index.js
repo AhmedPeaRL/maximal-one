@@ -1,7 +1,7 @@
 import fs from "fs";
 import { enforceMeanError } from "./error-check.js";
-import { createSeededRNG } from "../utils/seeded-rng.js";
 import { runSensitivitySuite } from "../stability/sensitivity-test.js";
+import { createSeededRNG } from "../utils/seeded-rng.js";
 
 /* ============================= */
 /* ===== Helper Functions ====== */
