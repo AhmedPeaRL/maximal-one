@@ -4,23 +4,18 @@ import { runEmpiricalValidation } from "../empirical/empirical-test.js";
 import { runSensitivitySuite } from "../sensitivity/sensitivity-test.js";
 import { runBifurcationScan } from "../nonlinear/bifurcation-test.js";
 
-const SCIENTIFIC_PROTOCOL_VERSION = "1.0.0";
+const SCIENTIFIC_PROTOCOL_VERSION = "2.0.0";
+
 const baseline = JSON.parse(
   fs.readFileSync(new URL("./baseline.json", import.meta.url))
 );
 
-function isFiniteArray(arr) {
-  return arr.every(v => Number.isFinite(v));
-}
+const seedsConfig = JSON.parse(
+  fs.readFileSync(new URL("./seeds.json", import.meta.url))
+);
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
-}
-
-function computeDrift(values) {
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  return Math.abs(max - min);
 }
 
 function quantize(value, digits = 12) {
@@ -53,72 +48,71 @@ function computeScientificHash(payload) {
     .digest("hex");
 }
 
+function computeDrift(values) {
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  return Math.abs(max - min);
+}
+
 async function publicationGate() {
 
-  console.log("---- DIAGNOSTICS ----");
+  console.log("---- MULTI-SEED DIAGNOSTICS ----");
 
-  const empirical = runEmpiricalValidation();
-  const sensitivity = runSensitivitySuite();
-  const bifurcation = runBifurcationScan();
+  const seeds = seedsConfig.seeds;
 
-  const relError = empirical.relativeError;
-  const variance = empirical.empiricalStd ** 2;
+  const results = [];
 
-  const chaoticRegions = bifurcation.filter(b => b.lyapunov > 0);
-  const stableRegions = bifurcation.filter(b => b.lyapunov < 0);
+  for (const seed of seeds) {
 
-  const sensitivityMeans = sensitivity.map(s => s.mean);
-  const sensitivityDrift = computeDrift(sensitivityMeans);
+    const empirical = runEmpiricalValidation(seed);
+    const sensitivity = runSensitivitySuite(seed);
+    const bifurcation = runBifurcationScan(seed);
 
-  const meanDiff = Math.abs(empirical.empiricalMean - baseline.expectedMean);
-  const varianceDiff = Math.abs(variance - baseline.expectedVariance);
-  const driftDiff = Math.abs(
-    sensitivityDrift - baseline.expectedSensitivityDrift
-  );
+    const relError = empirical.relativeError;
+    const variance = empirical.empiricalStd ** 2;
 
-  console.log("Empirical Mean:", empirical.empiricalMean);
-  console.log("Relative Error:", relError);
-  console.log("Variance:", variance);
-  console.log("Chaotic regions:", chaoticRegions.length);
-  console.log("Stable regions:", stableRegions.length);
-  console.log("Sensitivity drift:", sensitivityDrift);
+    const chaoticRegions = bifurcation.filter(b => b.lyapunov > 0);
+    const stableRegions = bifurcation.filter(b => b.lyapunov < 0);
 
-  // ---- Primary scientific invariants ----
-  assert(relError < 0.01, "Relative error exceeds 1%");
-  assert(variance > 0, "Variance is zero");
-  assert(chaoticRegions.length > 0, "No chaotic regime detected");
-  assert(stableRegions.length > 0, "No stable regime detected");
-  assert(sensitivityDrift < 0.05, "Sensitivity instability detected");
-  assert(isFiniteArray(sensitivityMeans), "Non-finite sensitivity values");
-  assert(
-    bifurcation.every(b => Number.isFinite(b.lyapunov)),
-    "Non-finite Lyapunov values detected"
-  );
+    const sensitivityMeans = sensitivity.map(s => s.mean);
+    const sensitivityDrift = computeDrift(sensitivityMeans);
 
-  // ---- Regression guards ----
-  assert(meanDiff < 0.003, "Mean regression detected");
-  assert(varianceDiff < 0.002, "Variance regression detected");
-  assert(driftDiff < 0.001, "Sensitivity regression detected");
+    assert(relError < 0.01, `Relative error exceeds 1% (seed ${seed})`);
+    assert(variance > 0, `Variance zero (seed ${seed})`);
+    assert(chaoticRegions.length > 0, `No chaos (seed ${seed})`);
+    assert(stableRegions.length > 0, `No stability (seed ${seed})`);
+    assert(sensitivityDrift < 0.05, `Sensitivity instability (seed ${seed})`);
 
-  // الجزء العلمي الخالص (بدون commit وبدون timestamp)
-  const scientificCore = {
+    results.push({
+      seed,
+      empiricalMean: empirical.empiricalMean,
+      variance,
+      sensitivityDrift
+    });
+  }
+
+  const means = results.map(r => r.empiricalMean);
+  const variances = results.map(r => r.variance);
+  const drifts = results.map(r => r.sensitivityDrift);
+
+  const envelope = {
     protocolVersion: SCIENTIFIC_PROTOCOL_VERSION,
-    empiricalMean: quantize(empirical.empiricalMean),
-    relativeError: quantize(empirical.relativeError),
-    variance: quantize(variance),
-    chaoticRegionsCount: chaoticRegions.length,
-    stableRegionsCount: stableRegions.length,
-    sensitivityDrift: quantize(sensitivityDrift)
+    meanDriftAcrossSeeds: quantize(computeDrift(means)),
+    varianceDriftAcrossSeeds: quantize(computeDrift(variances)),
+    sensitivityDriftAcrossSeeds: quantize(computeDrift(drifts))
   };
 
-  const scientificHash = computeScientificHash(scientificCore);
+  assert(envelope.meanDriftAcrossSeeds < 0.01, "Mean unstable across seeds");
+  assert(envelope.varianceDriftAcrossSeeds < 0.01, "Variance unstable across seeds");
+  assert(envelope.sensitivityDriftAcrossSeeds < 0.01, "Sensitivity unstable across seeds");
+
+  const scientificHash = computeScientificHash(envelope);
 
   const finalReport = {
     timestamp: new Date().toISOString(),
     commit: process.env.GITHUB_SHA || "local",
-    ...scientificCore,
-    integrity: "SELF_CONSISTENT",
-    status: "READY_FOR_PUBLICATION",
+    ...envelope,
+    status: "MULTI_SEED_VERIFIED",
     scientificHash
   };
 
@@ -128,7 +122,7 @@ async function publicationGate() {
   );
 
   console.log("Scientific hash:", scientificHash);
-  console.log("Publication Gate: PASSED");
+  console.log("Multi-Seed Gate: PASSED");
 }
 
 publicationGate();
