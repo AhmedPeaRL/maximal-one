@@ -1,3 +1,4 @@
+import { computeRuntimeSeal } from "./runtime-seal.js";
 import fs from "fs";
 import crypto from "crypto";
 import { runEmpiricalValidation } from "../empirical/empirical-test.js";
@@ -46,6 +47,8 @@ function stableStringify(obj) {
     "}"
   );
 }
+
+const runtimeSeal = computeRuntimeSeal();
 
 function computeScientificHash(payload) {
   return crypto
@@ -142,11 +145,13 @@ async function publicationGate() {
   const scientificHash = computeScientificHash(envelope);
 
   const finalReport = {
-    timestamp: new Date().toISOString(),
-    commit: process.env.GITHUB_SHA || "local",
-    ...envelope,
-    status: "MULTI_SEED_VERIFIED",
-    scientificHash
+     timestamp: new Date().toISOString(),
+     commit: process.env.GITHUB_SHA || "local",
+     ...envelope,
+     runtimeHash: runtimeSeal.runtimeHash,
+     runtimeFingerprint: runtimeSeal.fingerprint,
+     status: "MULTI_SEED_VERIFIED",
+     scientificHash
   };
 
   fs.writeFileSync(
