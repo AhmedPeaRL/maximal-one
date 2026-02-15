@@ -148,6 +148,7 @@ async function publicationGate() {
     );
   }
 
+  const scientificHash = computeScientificHash(envelope);
   const compositeSeal = computeScientificHash({
     scientificHash,
     runtimeHash: runtimeSeal.runtimeHash
