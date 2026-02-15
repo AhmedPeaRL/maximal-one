@@ -7,6 +7,7 @@ import { runBifurcationScan } from "../nonlinear/bifurcation-test.js";
 
 const SCIENTIFIC_PROTOCOL_VERSION = "2.0.0";
 const EXPECTED_NODE_MAJOR = 18;
+
 const baselinePath = new URL("./baseline.json", import.meta.url);
 
 const seedsConfig = JSON.parse(
@@ -49,8 +50,6 @@ function stableStringify(obj) {
   );
 }
 
-const runtimeSeal = computeRuntimeSeal();
-
 function computeScientificHash(payload) {
   return crypto
     .createHash("sha256")
@@ -65,8 +64,15 @@ function computeDrift(values) {
 }
 
 async function publicationGate() {
+
   const nodeMajor = parseInt(process.version.split(".")[0].replace("v",""));
-  
+  assert(
+    nodeMajor === EXPECTED_NODE_MAJOR,
+    `Node major version mismatch. Expected ${EXPECTED_NODE_MAJOR}`
+  );
+
+  const runtimeSeal = computeRuntimeSeal();
+
   console.log("---- MULTI-SEED DIAGNOSTICS ----");
 
   const seeds = seedsConfig.seeds;
@@ -85,12 +91,8 @@ async function publicationGate() {
     const stableRegions = bifurcation.filter(b => b.lyapunov < 0);
 
     const sensitivityMeans = sensitivity.map(s => s.mean);
-    const sensitivityDrift = computeDrift(sensitvityMeans);
+    const sensitivityDrift = computeDrift(sensitivityMeans);
 
-    assert(
-    nodeMajor === EXPECTED_NODE_MAJOR,
-    `Node major version mismatch. Expected ${EXPECTED_NODE_MAJOR}`
-  );
     assert(relError < 0.01, `Relative error exceeds 1% (seed ${seed})`);
     assert(variance > 0, `Variance zero (seed ${seed})`);
     assert(chaoticRegions.length > 0, `No chaos (seed ${seed})`);
@@ -149,28 +151,30 @@ async function publicationGate() {
   }
 
   const scientificHash = computeScientificHash(envelope);
+
   const compositeSeal = computeScientificHash({
     scientificHash,
     runtimeHash: runtimeSeal.runtimeHash
   });
-  
+
   const finalReport = {
-     timestamp: new Date().toISOString(),
-     commit: process.env.GITHUB_SHA || "local",
-     ...envelope,
-     runtimeHash: runtimeSeal.runtimeHash,
-     runtimeFingerprint: runtimeSeal.fingerprint,
-     scientificHash,
-     compositeSeal,
-     status: "MULTI_SEED_VERIFIED"
+    timestamp: new Date().toISOString(),
+    commit: process.env.GITHUB_SHA || "local",
+    ...envelope,
+    runtimeHash: runtimeSeal.runtimeHash,
+    runtimeFingerprint: runtimeSeal.fingerprint,
+    scientificHash,
+    compositeSeal,
+    status: "MULTI_SEED_VERIFIED"
   };
-  
+
   fs.writeFileSync(
     "./core-scientific/publication-gate/report.json",
     JSON.stringify(finalReport, null, 2)
   );
 
   console.log("Scientific hash:", scientificHash);
+  console.log("Composite seal:", compositeSeal);
   console.log("Multi-Seed Gate: PASSED");
 }
 
