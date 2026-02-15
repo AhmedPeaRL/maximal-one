@@ -208,17 +208,36 @@ async function publicationGate() {
   }
 
   const scientificHash = computeScientificHash(envelope);
-
+  const canonicalUpgradePath = new URL("./canonical-upgrade.json", import.meta.url);
+  
   if (fs.existsSync(canonicalPath)) {
-    const canonical = JSON.parse(fs.readFileSync(canonicalPath));
 
-    if (canonical.protocolVersion === SCIENTIFIC_PROTOCOL_VERSION) {
+  const canonical = JSON.parse(fs.readFileSync(canonicalPath));
+  const upgradePolicy = JSON.parse(fs.readFileSync(canonicalUpgradePath));
+
+  if (canonical.protocolVersion === SCIENTIFIC_PROTOCOL_VERSION) {
+
+    if (canonical.scientificHash !== scientificHash) {
+
       assert(
-        canonical.scientificHash === scientificHash,
-        "Scientific identity drift detected"
+        upgradePolicy.allowUpgrade === true,
+        "Scientific identity drift detected (upgrade not authorized)"
       );
+
+      assert(
+        upgradePolicy.requiredCommit === process.env.GITHUB_SHA,
+        "Upgrade commit mismatch"
+      );
+
+      assert(
+        upgradePolicy.upgradeProtocolVersion === SCIENTIFIC_PROTOCOL_VERSION,
+        "Upgrade protocol version mismatch"
+      );
+
+      console.log("Canonical scientific identity upgraded.");
     }
   }
+}
 
   const compositeSeal = computeScientificHash({
     scientificHash,
@@ -243,6 +262,12 @@ async function publicationGate() {
     ...preliminaryReport,
     reportSelfHash: reportHash
   };
+
+  const deterministicArtifactHash = computeHash(
+  stableStringify(finalReport)
+);
+
+finalReport.deterministicArtifactHash = deterministicArtifactHash;
 
   fs.writeFileSync(
     reportPath,
