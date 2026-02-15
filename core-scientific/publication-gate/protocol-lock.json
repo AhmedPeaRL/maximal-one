@@ -8,5 +8,6 @@
   "perSeedSensitivityThreshold": 0.05,
   "regressionTolerance": 1e-6,
   "invariantMin": 0,
-  "invariantMax": 1
+  "invariantMax": 1,
+  "quantizationDigits": 12
 }
