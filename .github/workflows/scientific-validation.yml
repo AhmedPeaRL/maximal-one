@@ -28,3 +28,7 @@ jobs:
         with:
          name: scientific-report
          path: core-scientific/publication-gate/report.json
+
+      - name: Verify Artifact Integrity
+        run: |
+          sha256sum core-scientific/publication-gate/report.json
