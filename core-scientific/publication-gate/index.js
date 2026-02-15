@@ -226,13 +226,18 @@ async function publicationGate() {
   });
 
   const identityPayload = {
-    commit: process.env.GITHUB_SHA || "local",
-    ...envelope,
-    runtimeHash: runtimeSeal.runtimeHash,
-    scientificHash,
-    compositeSeal,
-    status: "MULTI_SEED_VERIFIED"
-  };
+  protocolVersion: SCIENTIFIC_PROTOCOL_VERSION,
+  ...envelope,
+  runtimeHash: runtimeSeal.runtimeHash,
+  scientificHash,
+  compositeSeal,
+  status: "MULTI_SEED_VERIFIED"
+};
+
+const executionContext = {
+  commit: process.env.GITHUB_SHA || "local",
+  runtimeFingerprint: runtimeSeal.fingerprint
+};
 
   const deterministicArtifactHash = computeHash(
     stableStringify(identityPayload)
@@ -246,12 +251,12 @@ async function publicationGate() {
   );
 
   const finalReport = {
-    timestamp: new Date().toISOString(),
-    ...identityPayload,
-    runtimeFingerprint: runtimeSeal.fingerprint,
-    deterministicArtifactHash,
-    reportSelfHash
-  };
+  timestamp: new Date().toISOString(),
+  ...identityPayload,
+  ...executionContext,
+  deterministicArtifactHash,
+  reportSelfHash
+};
 
   fs.writeFileSync(
     reportPath,
