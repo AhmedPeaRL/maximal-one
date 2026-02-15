@@ -12,6 +12,7 @@ const baselinePath = new URL("./baseline.json", import.meta.url);
 const seedsPath = new URL("./seeds.json", import.meta.url);
 const canonicalPath = new URL("./canonical.json", import.meta.url);
 const protocolLockPath = new URL("./protocol-lock.json", import.meta.url);
+const reportPath = new URL("./report.json", import.meta.url);
 
 const seedsConfig = JSON.parse(fs.readFileSync(seedsPath));
 const protocolLock = JSON.parse(fs.readFileSync(protocolLockPath));
@@ -41,11 +42,15 @@ function stableStringify(obj) {
   );
 }
 
-function computeScientificHash(payload) {
+function computeHash(payload) {
   return crypto
     .createHash("sha256")
-    .update(stableStringify(payload))
+    .update(payload)
     .digest("hex");
+}
+
+function computeScientificHash(payload) {
+  return computeHash(stableStringify(payload));
 }
 
 function computeDrift(values) {
@@ -65,7 +70,23 @@ function saveBaseline(data) {
   fs.writeFileSync(baselinePath, JSON.stringify(data, null, 2));
 }
 
+function verifyExistingReport() {
+  if (!fs.existsSync(reportPath)) return;
+
+  const existing = JSON.parse(fs.readFileSync(reportPath));
+  const { reportSelfHash, ...rest } = existing;
+
+  const recomputed = computeHash(stableStringify(rest));
+
+  assert(
+    recomputed === reportSelfHash,
+    "Report self-hash verification failed"
+  );
+}
+
 async function publicationGate() {
+
+  verifyExistingReport();
 
   assert(
     protocolLock.protocolVersion === SCIENTIFIC_PROTOCOL_VERSION,
@@ -205,32 +226,28 @@ async function publicationGate() {
   });
 
   const preliminaryReport = {
-  timestamp: new Date().toISOString(),
-  commit: process.env.GITHUB_SHA || "local",
-  ...envelope,
-  runtimeHash: runtimeSeal.runtimeHash,
-  runtimeFingerprint: runtimeSeal.fingerprint,
-  scientificHash,
-  compositeSeal,
-  status: "MULTI_SEED_VERIFIED"
-};
+    timestamp: new Date().toISOString(),
+    commit: process.env.GITHUB_SHA || "local",
+    ...envelope,
+    runtimeHash: runtimeSeal.runtimeHash,
+    runtimeFingerprint: runtimeSeal.fingerprint,
+    scientificHash,
+    compositeSeal,
+    status: "MULTI_SEED_VERIFIED"
+  };
 
-const reportString = stableStringify(preliminaryReport);
+  const reportString = stableStringify(preliminaryReport);
+  const reportHash = computeHash(reportString);
 
-const reportHash = crypto
-  .createHash("sha256")
-  .update(reportString)
-  .digest("hex");
+  const finalReport = {
+    ...preliminaryReport,
+    reportSelfHash: reportHash
+  };
 
-const finalReport = {
-  ...preliminaryReport,
-  reportSelfHash: reportHash
-};
-
-fs.writeFileSync(
-  "./core-scientific/publication-gate/report.json",
-  JSON.stringify(finalReport, null, 2)
-);
+  fs.writeFileSync(
+    reportPath,
+    JSON.stringify(finalReport, null, 2)
+  );
 
   console.log("Scientific hash:", scientificHash);
   console.log("Composite seal:", compositeSeal);
