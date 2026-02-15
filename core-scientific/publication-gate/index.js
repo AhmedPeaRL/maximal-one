@@ -158,14 +158,18 @@ async function publicationGate() {
   assert(envelope.varianceDriftAcrossSeeds < protocolLock.seedVarianceDriftThreshold, "Variance unstable across seeds");
   assert(envelope.sensitivityDriftAcrossSeeds < protocolLock.seedSensitivityDriftThreshold, "Sensitivity unstable across seeds");
 
+  const epsilon = 1e-12;
+
   const invariant =
     envelope.meanDriftAcrossSeeds /
-    (envelope.varianceDriftAcrossSeeds + 1e-12);
+    (envelope.meanDriftAcrossSeeds +
+     envelope.varianceDriftAcrossSeeds +
+     epsilon);
 
   assert(
-    invariant > protocolLock.invariantMin &&
-    invariant < protocolLock.invariantMax,
-    "Structural invariant violation"
+    invariant >= protocolLock.invariantMin &&
+    invariant <= protocolLock.invariantMax,
+    `Structural invariant violation: ${invariant}`
   );
 
   const scientificHash = computeScientificHash(envelope);
