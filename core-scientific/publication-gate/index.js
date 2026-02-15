@@ -196,7 +196,7 @@ envelope.meanDriftAcrossSeeds / totalDrift;
 assert(
 invariant >= protocolLock.invariantMin &&
 invariant <= protocolLock.invariantMax,
-Structural invariant violation: ${invariant}
+`Structural invariant violation: ${invariant}`
 );
 
 const scientificHash = computeScientificHash(envelope);
