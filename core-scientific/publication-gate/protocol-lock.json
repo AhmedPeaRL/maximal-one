@@ -6,10 +6,10 @@
   "seedVarianceDriftThreshold": 0.01,
   "seedSensitivityDriftThreshold": 0.01,
   "perSeedSensitivityThreshold": 0.05,
-  "regressionTolerance": 1e-6,
+  "regressionTolerance": 0.000001,
   "invariantMin": 0,
   "invariantMax": 1,
   "quantizationDigits": 12,
   "structuralEpsilon": 1e-12,
-  "canonicalHash": "2ec644145ea8edb73bbb6d809a66aa008dba7b64"
+  "canonicalHash": "3e943d44131ac346f9a96bf48af54cf61483d578b1ecdf5cd693962b34cff68f"
 }
