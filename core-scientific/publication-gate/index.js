@@ -8,6 +8,7 @@ import { runBifurcationScan } from "../nonlinear/bifurcation-test.js";
 const SCIENTIFIC_PROTOCOL_VERSION = "2.0.1";
 const EXPECTED_NODE_MAJOR = 18;
 const FIXED_QUANTIZATION_DIGITS = 12;
+const STRUCTURAL_EPSILON = 1e-12;
 
 const baselinePath = new URL("./baseline.json", import.meta.url);
 const seedsPath = new URL("./seeds.json", import.meta.url);
@@ -77,17 +78,6 @@ function computeDrift(values) {
   return Math.abs(max - min);
 }
 
-function loadBaseline() {
-  if (!fs.existsSync(baselinePath)) {
-    return { initialize: true };
-  }
-  return JSON.parse(fs.readFileSync(baselinePath));
-}
-
-function saveBaseline(data) {
-  fs.writeFileSync(baselinePath, JSON.stringify(data, null, 2));
-}
-
 function verifyExistingReport() {
   if (!fs.existsSync(reportPath)) return;
 
@@ -121,6 +111,11 @@ async function publicationGate() {
     "Quantization governance mismatch"
   );
 
+  assert(
+    protocolLock.structuralEpsilon === STRUCTURAL_EPSILON,
+    "Structural epsilon governance mismatch"
+  );
+
   const nodeMajor = parseInt(process.version.split(".")[0].replace("v",""));
   assert(
     nodeMajor === EXPECTED_NODE_MAJOR,
@@ -140,7 +135,9 @@ async function publicationGate() {
 
   const results = [];
 
-  for (const seed of seedsConfig.seeds) {
+  const orderedSeeds = [...seedsConfig.seeds].sort((a, b) => a - b);
+
+  for (const seed of orderedSeeds) {
 
     const empirical = runEmpiricalValidation(seed);
     const sensitivity = runSensitivitySuite(seed);
@@ -184,7 +181,7 @@ async function publicationGate() {
   assert(envelope.varianceDriftAcrossSeeds < protocolLock.seedVarianceDriftThreshold, "Variance unstable across seeds");
   assert(envelope.sensitivityDriftAcrossSeeds < protocolLock.seedSensitivityDriftThreshold, "Sensitivity unstable across seeds");
 
-  const epsilon = 1e-12;
+  const epsilon = STRUCTURAL_EPSILON;
 
   const totalDrift =
     envelope.meanDriftAcrossSeeds +
@@ -258,6 +255,7 @@ async function publicationGate() {
 
 const executionContext = {
   commit: process.env.GITHUB_SHA || "local",
+  environmentClass: runtimeSeal.environmentClass
   runtimeFingerprint: runtimeSeal.fingerprint
 };
 
@@ -265,29 +263,32 @@ const executionContext = {
     stableStringify(identityPayload)
   );
 
+  const finalTimestamp = new Date().toISOString();
+
+  const finalReportPayload = {
+    timestamp: finalTimestamp,
+    ...identityPayload,
+      ...executionContext,
+    deterministicArtifactHash
+  };
+  
   const reportSelfHash = computeHash(
-    stableStringify({
-      ...identityPayload,
-      deterministicArtifactHash
-    })
+    stableStringify(finalReportPayload)
   );
 
   const finalReport = {
-  timestamp: new Date().toISOString(),
-  ...identityPayload,
-  ...executionContext,
-  deterministicArtifactHash,
-  reportSelfHash
-};
+    ...finalReportPayload,
+    reportSelfHash
+  };
 
   const canonicalReport = JSON.parse(
-  stableStringify(finalReport)
-);
+    stableStringify(finalReport)
+  );
 
-fs.writeFileSync(
-  reportPath,
-  JSON.stringify(canonicalReport, null, 2)
-);
+  fs.writeFileSync(
+    reportPath,
+    JSON.stringify(canonicalReport, null, 2)
+  );
 
   console.log("Scientific hash:", scientificHash);
   console.log("Composite seal:", compositeSeal);
