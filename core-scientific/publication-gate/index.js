@@ -255,8 +255,8 @@ async function publicationGate() {
 
 const executionContext = {
   commit: process.env.GITHUB_SHA || "local",
-  environmentClass: runtimeSeal.environmentClass
   runtimeFingerprint: runtimeSeal.fingerprint
+  environmentClass: runtimeSeal.environmentClass
 };
 
   const deterministicArtifactHash = computeHash(
