@@ -207,10 +207,26 @@ async function publicationGate() {
     );
   }
 
+  const invariant =
+  envelope.meanDriftAcrossSeeds /
+  (envelope.varianceDriftAcrossSeeds + 1e-12);
+
+assert(
+  invariant > protocolLock.invariantMin &&
+  invariant < protocolLock.invariantMax,
+  "Structural invariant violation"
+);
+
   const scientificHash = computeScientificHash(envelope);
+
+  if (!fs.existsSync(canonicalPath)) {
+
+    const canonicalPayload = {
+    protocolVersion: SCIENTIFIC_PROTOCOL_VERSION,
+    scientificHash
+  };
+    
   const canonicalUpgradePath = new URL("./canonical-upgrade.json", import.meta.url);
-  
-  if (fs.existsSync(canonicalPath)) {
 
   const canonical = JSON.parse(fs.readFileSync(canonicalPath));
   const upgradePolicy = JSON.parse(fs.readFileSync(canonicalUpgradePath));
@@ -255,28 +271,35 @@ async function publicationGate() {
     status: "MULTI_SEED_VERIFIED"
   };
 
-  const reportString = stableStringify(preliminaryReport);
-  const reportHash = computeHash(reportString);
+  // Phase 1: attach deterministic artifact hash (without self-hash)
+  const deterministicArtifactHash = computeHash(
+    stableStringify(preliminaryReport)
+  );
 
-  const finalReport = {
+  const reportWithArtifactSeal = {
     ...preliminaryReport,
-    reportSelfHash: reportHash
+    deterministicArtifactHash
   };
 
-  const deterministicArtifactHash = computeHash(
-  stableStringify(finalReport)
-);
+  // Phase 2: compute final self-hash over everything
+  const reportSelfHash = computeHash(
+    stableStringify(reportWithArtifactSeal)
+  );
 
-finalReport.deterministicArtifactHash = deterministicArtifactHash;
+  const finalReport = {
+    ...reportWithArtifactSeal,
+    reportSelfHash
+  };
 
   fs.writeFileSync(
-    reportPath,
-    JSON.stringify(finalReport, null, 2)
+    canonicalPath,
+    JSON.stringify(canonicalPayload, null, 2)
   );
 
   console.log("Scientific hash:", scientificHash);
   console.log("Composite seal:", compositeSeal);
   console.log("Multi-Seed Gate: PASSED");
+  console.log("Canonical identity initialized.");
 }
 
 publicationGate();
