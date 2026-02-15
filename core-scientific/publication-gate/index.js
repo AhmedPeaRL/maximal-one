@@ -15,6 +15,9 @@ const seedsConfig = JSON.parse(
 );
 
 function loadBaseline() {
+  if (!fs.existsSync(baselinePath)) {
+    return { initialize: true };
+  }
   return JSON.parse(fs.readFileSync(baselinePath));
 }
 
@@ -149,9 +152,11 @@ async function publicationGate() {
       "Sensitivity drift regression detected"
     );
   }
-
+  
   const scientificHash = computeScientificHash(envelope);
 
+  Object.freeze(envelope);
+  
   const compositeSeal = computeScientificHash({
     scientificHash,
     runtimeHash: runtimeSeal.runtimeHash
