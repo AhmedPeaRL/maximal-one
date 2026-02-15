@@ -35,8 +35,14 @@ export function computeRuntimeSeal() {
     .update(stableStringify(fingerprint))
     .digest("hex");
 
+  const environmentClass =
+    process.env.GITHUB_ACTIONS === "true"
+    ? "github-runner"
+    : "local-node";
+  
   return {
+    runtimeHash,
     fingerprint,
-    runtimeHash: hash
+    environmentClass
   };
 }
