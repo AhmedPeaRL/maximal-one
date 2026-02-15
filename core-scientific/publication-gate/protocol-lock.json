@@ -9,5 +9,6 @@
   "regressionTolerance": 1e-6,
   "invariantMin": 0,
   "invariantMax": 1,
-  "quantizationDigits": 12
+  "quantizationDigits": 12,
+  "structuralEpsilon": 1e-12
 }
