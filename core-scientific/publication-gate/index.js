@@ -138,6 +138,15 @@ async function publicationGate() {
     sensitivityDriftAcrossSeeds: quantize(computeDrift(results.map(r=>r.sensitivityDrift)))
   });
 
+  const canonical = JSON.parse(fs.readFileSync(canonicalPath));
+  
+  const canonicalHash = computeScientificHash(canonical);
+  
+  assert(
+    canonicalHash === protocolLock.canonicalHash,
+    "Canonical reference mismatch"
+  );
+
   const scientificHash = computeScientificHash(envelope);
 
   const compositeSeal = computeScientificHash({
@@ -151,6 +160,7 @@ async function publicationGate() {
     runtimeHash: runtimeSeal.runtimeHash,
     scientificHash,
     compositeSeal,
+    canonicalHash,
     status: "MULTI_SEED_VERIFIED"
   };
 
@@ -164,8 +174,12 @@ async function publicationGate() {
     stableStringify(identityPayload)
   );
 
+  const deterministicTimestamp = new Date(
+      parseInt(compositeSeal.slice(0, 12), 16) % 1e12
+    ).toISOString();
+
   const finalReportPayload = {
-    timestamp: new Date().toISOString(),
+  timestamp: deterministicTimestamp,
     ...identityPayload,
     ...executionContext,
     deterministicArtifactHash
@@ -182,6 +196,12 @@ async function publicationGate() {
     reportPath,
     JSON.stringify(finalReport, null, 2)
   );
+
+  const reloaded = JSON.parse(fs.readFileSync(reportPath));
+  const { reportSelfHash: reHash, ...reRest } = reloaded;
+  const recomputed = computeHash(stableStringify(reRest));
+
+  assert(reHash === recomputed, "Post-write reproducibility failure");
 
   console.log("Scientific hash:", scientificHash);
   console.log("Composite seal:", compositeSeal);
