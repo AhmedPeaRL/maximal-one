@@ -7,6 +7,7 @@ import { runBifurcationScan } from "../nonlinear/bifurcation-test.js";
 
 const SCIENTIFIC_PROTOCOL_VERSION = "2.0.1";
 const EXPECTED_NODE_MAJOR = 18;
+const FIXED_QUANTIZATION_DIGITS = 12;
 
 const baselinePath = new URL("./baseline.json", import.meta.url);
 const seedsPath = new URL("./seeds.json", import.meta.url);
@@ -22,8 +23,8 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
-function quantize(value, digits = 12) {
-  return Number.parseFloat(value.toFixed(digits));
+function quantize(value) {
+  return Number.parseFloat(value.toFixed(FIXED_QUANTIZATION_DIGITS));
 }
 
 function stableStringify(obj) {
@@ -41,6 +42,22 @@ function stableStringify(obj) {
     keys.map(k => JSON.stringify(k) + ":" + stableStringify(obj[k])).join(",") +
     "}"
   );
+}
+
+function deepFreeze(obj) {
+  if (obj && typeof obj === "object") {
+    Object.freeze(obj);
+    Object.getOwnPropertyNames(obj).forEach(prop => {
+      if (
+        obj[prop] !== null &&
+        (typeof obj[prop] === "object" || typeof obj[prop] === "function") &&
+        !Object.isFrozen(obj[prop])
+      ) {
+        deepFreeze(obj[prop]);
+      }
+    });
+  }
+  return obj;
 }
 
 function computeHash(payload) {
@@ -99,6 +116,11 @@ async function publicationGate() {
     "Node expectation mismatch with protocol-lock"
   );
 
+  assert(
+    protocolLock.quantizationDigits === FIXED_QUANTIZATION_DIGITS,
+    "Quantization governance mismatch"
+  );
+
   const nodeMajor = parseInt(process.version.split(".")[0].replace("v",""));
   assert(
     nodeMajor === EXPECTED_NODE_MAJOR,
@@ -151,7 +173,7 @@ async function publicationGate() {
   const variances = results.map(r => r.variance);
   const drifts = results.map(r => r.sensitivityDrift);
 
-  const envelope = Object.freeze({
+  const envelope = deepFreeze({
     protocolVersion: SCIENTIFIC_PROTOCOL_VERSION,
     meanDriftAcrossSeeds: quantize(computeDrift(means)),
     varianceDriftAcrossSeeds: quantize(computeDrift(variances)),
@@ -258,10 +280,14 @@ const executionContext = {
   reportSelfHash
 };
 
-  fs.writeFileSync(
-    reportPath,
-    JSON.stringify(finalReport, null, 2)
-  );
+  const canonicalReport = JSON.parse(
+  stableStringify(finalReport)
+);
+
+fs.writeFileSync(
+  reportPath,
+  JSON.stringify(canonicalReport, null, 2)
+);
 
   console.log("Scientific hash:", scientificHash);
   console.log("Composite seal:", compositeSeal);
