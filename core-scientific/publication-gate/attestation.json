@@ -1,0 +1,9 @@
+{
+  "attestationProtocol": "1.0.0",
+  "description": "Self-contained scientific reproducibility attestation",
+  "requires": [
+    "scientificHash",
+    "compositeSeal",
+    "reportSelfHash"
+  ]
+}
