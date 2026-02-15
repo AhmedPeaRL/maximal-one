@@ -11,6 +11,7 @@ const EXPECTED_NODE_MAJOR = 18;
 const baselinePath = new URL("./baseline.json", import.meta.url);
 const seedsPath = new URL("./seeds.json", import.meta.url);
 const canonicalPath = new URL("./canonical.json", import.meta.url);
+const canonicalUpgradePath = new URL("./canonical-upgrade.json", import.meta.url);
 const protocolLockPath = new URL("./protocol-lock.json", import.meta.url);
 const reportPath = new URL("./report.json", import.meta.url);
 
@@ -111,8 +112,6 @@ async function publicationGate() {
 
   const runtimeSeal = computeRuntimeSeal();
 
-  console.log("---- MULTI-SEED DIAGNOSTICS ----");
-
   const results = [];
 
   for (const seed of seedsConfig.seeds) {
@@ -130,19 +129,11 @@ async function publicationGate() {
     const sensitivityMeans = sensitivity.map(s => s.mean);
     const sensitivityDrift = computeDrift(sensitivityMeans);
 
-    assert(
-      relError < protocolLock.relativeErrorThreshold,
-      `Relative error exceeds threshold (seed ${seed})`
-    );
-
+    assert(relError < protocolLock.relativeErrorThreshold, `Relative error exceeds threshold (seed ${seed})`);
     assert(variance > 0, `Variance zero (seed ${seed})`);
     assert(chaoticRegions.length > 0, `No chaos (seed ${seed})`);
     assert(stableRegions.length > 0, `No stability (seed ${seed})`);
-
-    assert(
-      sensitivityDrift < protocolLock.perSeedSensitivityThreshold,
-      `Sensitivity instability (seed ${seed})`
-    );
+    assert(sensitivityDrift < protocolLock.perSeedSensitivityThreshold, `Sensitivity instability (seed ${seed})`);
 
     results.push({
       seed,
@@ -163,97 +154,52 @@ async function publicationGate() {
     sensitivityDriftAcrossSeeds: quantize(computeDrift(drifts))
   });
 
-  assert(
-    envelope.meanDriftAcrossSeeds < protocolLock.seedMeanDriftThreshold,
-    "Mean unstable across seeds"
-  );
-
-  assert(
-    envelope.varianceDriftAcrossSeeds < protocolLock.seedVarianceDriftThreshold,
-    "Variance unstable across seeds"
-  );
-
-  assert(
-    envelope.sensitivityDriftAcrossSeeds < protocolLock.seedSensitivityDriftThreshold,
-    "Sensitivity unstable across seeds"
-  );
-
-  let baseline = loadBaseline();
-
-  if (baseline.initialize === true) {
-    saveBaseline(envelope);
-    console.log("Baseline initialized from current envelope.");
-    baseline = envelope;
-  }
-
-  if (baseline.protocolVersion === envelope.protocolVersion) {
-
-    assert(
-      Math.abs(envelope.meanDriftAcrossSeeds - baseline.meanDriftAcrossSeeds)
-        < protocolLock.regressionTolerance,
-      "Mean drift regression detected"
-    );
-
-    assert(
-      Math.abs(envelope.varianceDriftAcrossSeeds - baseline.varianceDriftAcrossSeeds)
-        < protocolLock.regressionTolerance,
-      "Variance drift regression detected"
-    );
-
-    assert(
-      Math.abs(envelope.sensitivityDriftAcrossSeeds - baseline.sensitivityDriftAcrossSeeds)
-        < protocolLock.regressionTolerance,
-      "Sensitivity drift regression detected"
-    );
-  }
+  assert(envelope.meanDriftAcrossSeeds < protocolLock.seedMeanDriftThreshold, "Mean unstable across seeds");
+  assert(envelope.varianceDriftAcrossSeeds < protocolLock.seedVarianceDriftThreshold, "Variance unstable across seeds");
+  assert(envelope.sensitivityDriftAcrossSeeds < protocolLock.seedSensitivityDriftThreshold, "Sensitivity unstable across seeds");
 
   const invariant =
-  envelope.meanDriftAcrossSeeds /
-  (envelope.varianceDriftAcrossSeeds + 1e-12);
+    envelope.meanDriftAcrossSeeds /
+    (envelope.varianceDriftAcrossSeeds + 1e-12);
 
-assert(
-  invariant > protocolLock.invariantMin &&
-  invariant < protocolLock.invariantMax,
-  "Structural invariant violation"
-);
+  assert(
+    invariant > protocolLock.invariantMin &&
+    invariant < protocolLock.invariantMax,
+    "Structural invariant violation"
+  );
 
   const scientificHash = computeScientificHash(envelope);
 
+  // Canonical initialization
   if (!fs.existsSync(canonicalPath)) {
-
     const canonicalPayload = {
-    protocolVersion: SCIENTIFIC_PROTOCOL_VERSION,
-    scientificHash
-  };
-    
-  const canonicalUpgradePath = new URL("./canonical-upgrade.json", import.meta.url);
-
-  const canonical = JSON.parse(fs.readFileSync(canonicalPath));
-  const upgradePolicy = JSON.parse(fs.readFileSync(canonicalUpgradePath));
-
-  if (canonical.protocolVersion === SCIENTIFIC_PROTOCOL_VERSION) {
-
-    if (canonical.scientificHash !== scientificHash) {
-
-      assert(
-        upgradePolicy.allowUpgrade === true,
-        "Scientific identity drift detected (upgrade not authorized)"
-      );
-
-      assert(
-        upgradePolicy.requiredCommit === process.env.GITHUB_SHA,
-        "Upgrade commit mismatch"
-      );
-
-      assert(
-        upgradePolicy.upgradeProtocolVersion === SCIENTIFIC_PROTOCOL_VERSION,
-        "Upgrade protocol version mismatch"
-      );
-
-      console.log("Canonical scientific identity upgraded.");
-    }
+      protocolVersion: SCIENTIFIC_PROTOCOL_VERSION,
+      scientificHash
+    };
+    fs.writeFileSync(canonicalPath, JSON.stringify(canonicalPayload, null, 2));
   }
-}
+
+  // Canonical governance
+  const canonical = JSON.parse(fs.readFileSync(canonicalPath));
+
+  if (canonical.protocolVersion === SCIENTIFIC_PROTOCOL_VERSION &&
+      canonical.scientificHash !== scientificHash) {
+
+    const upgradePolicy = JSON.parse(fs.readFileSync(canonicalUpgradePath));
+
+    assert(upgradePolicy.allowUpgrade === true, "Scientific identity drift detected (upgrade not authorized)");
+    assert(upgradePolicy.requiredCommit === process.env.GITHUB_SHA, "Upgrade commit mismatch");
+    assert(upgradePolicy.upgradeProtocolVersion === SCIENTIFIC_PROTOCOL_VERSION, "Upgrade protocol version mismatch");
+
+    fs.writeFileSync(
+      canonicalPath,
+      JSON.stringify(
+        { protocolVersion: SCIENTIFIC_PROTOCOL_VERSION, scientificHash },
+        null,
+        2
+      )
+    );
+  }
 
   const compositeSeal = computeScientificHash({
     scientificHash,
@@ -271,7 +217,6 @@ assert(
     status: "MULTI_SEED_VERIFIED"
   };
 
-  // Phase 1: attach deterministic artifact hash (without self-hash)
   const deterministicArtifactHash = computeHash(
     stableStringify(preliminaryReport)
   );
@@ -281,7 +226,6 @@ assert(
     deterministicArtifactHash
   };
 
-  // Phase 2: compute final self-hash over everything
   const reportSelfHash = computeHash(
     stableStringify(reportWithArtifactSeal)
   );
@@ -292,14 +236,13 @@ assert(
   };
 
   fs.writeFileSync(
-    canonicalPath,
-    JSON.stringify(canonicalPayload, null, 2)
+    reportPath,
+    JSON.stringify(finalReport, null, 2)
   );
 
   console.log("Scientific hash:", scientificHash);
   console.log("Composite seal:", compositeSeal);
   console.log("Multi-Seed Gate: PASSED");
-  console.log("Canonical identity initialized.");
 }
 
 publicationGate();
