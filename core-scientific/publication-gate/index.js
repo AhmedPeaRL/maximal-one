@@ -86,8 +86,6 @@ function verifyExistingReport() {
   assert(recomputed === reportSelfHash, "Report self-hash verification failed");
 }
 
-enforceScientificMetrics(report);
-
 async function publicationGate() {
 
   verifyExistingReport();
@@ -213,6 +211,8 @@ async function publicationGate() {
     ...finalReportPayload,
     reportSelfHash
   };
+
+  enforceScientificMetrics(report);
 
   fs.writeFileSync(
     reportPath,
