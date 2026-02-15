@@ -5,13 +5,14 @@ import { runEmpiricalValidation } from "../empirical/empirical-test.js";
 import { runSensitivitySuite } from "../sensitivity/sensitivity-test.js";
 import { runBifurcationScan } from "../nonlinear/bifurcation-test.js";
 
-const SCIENTIFIC_PROTOCOL_VERSION = "2.0.0";
+const SCIENTIFIC_PROTOCOL_VERSION = "2.0.1";
 const EXPECTED_NODE_MAJOR = 18;
 
 const baselinePath = new URL("./baseline.json", import.meta.url);
+const seedsPath = new URL("./seeds.json", import.meta.url);
 
 const seedsConfig = JSON.parse(
-  fs.readFileSync(new URL("./seeds.json", import.meta.url))
+  fs.readFileSync(seedsPath)
 );
 
 function loadBaseline() {
@@ -74,6 +75,11 @@ async function publicationGate() {
     `Node major version mismatch. Expected ${EXPECTED_NODE_MAJOR}`
   );
 
+  assert(
+    Array.isArray(seedsConfig.seeds) && seedsConfig.seeds.length > 0,
+    "Invalid seeds configuration"
+  );
+
   const runtimeSeal = computeRuntimeSeal();
 
   console.log("---- MULTI-SEED DIAGNOSTICS ----");
@@ -114,12 +120,12 @@ async function publicationGate() {
   const variances = results.map(r => r.variance);
   const drifts = results.map(r => r.sensitivityDrift);
 
-  const envelope = {
+  const envelope = Object.freeze({
     protocolVersion: SCIENTIFIC_PROTOCOL_VERSION,
     meanDriftAcrossSeeds: quantize(computeDrift(means)),
     varianceDriftAcrossSeeds: quantize(computeDrift(variances)),
     sensitivityDriftAcrossSeeds: quantize(computeDrift(drifts))
-  };
+  });
 
   assert(envelope.meanDriftAcrossSeeds < 0.01, "Mean unstable across seeds");
   assert(envelope.varianceDriftAcrossSeeds < 0.01, "Variance unstable across seeds");
@@ -152,11 +158,9 @@ async function publicationGate() {
       "Sensitivity drift regression detected"
     );
   }
-  
+
   const scientificHash = computeScientificHash(envelope);
 
-  Object.freeze(envelope);
-  
   const compositeSeal = computeScientificHash({
     scientificHash,
     runtimeHash: runtimeSeal.runtimeHash
