@@ -7,4 +7,6 @@
   "seedSensitivityDriftThreshold": 0.01,
   "perSeedSensitivityThreshold": 0.05,
   "regressionTolerance": 1e-6
+  "invariantMin": 0,
+  "invariantMax": 1000000
 }
