@@ -1,0 +1,32 @@
+name: Canonical Sync
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - run: npm install
+
+      - name: Run validation in AUTO SYNC mode
+        run: |
+          AUTO_SYNC_CANONICAL=true npm run validate
+
+      - name: Commit updated protocol-lock
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add core-scientific/publication-gate/protocol-lock.json
+          git commit -m "Auto-sync canonical hash" || echo "No changes"
+          git push
