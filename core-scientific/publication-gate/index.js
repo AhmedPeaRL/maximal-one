@@ -66,10 +66,6 @@ function computeDrift(values) {
 
 async function publicationGate() {
   const nodeMajor = parseInt(process.version.split(".")[0].replace("v",""));
-  assert(
-    nodeMajor === EXPECTED_NODE_MAJOR,
-    `Node major version mismatch. Expected ${EXPECTED_NODE_MAJOR}`
-  );
   
   console.log("---- MULTI-SEED DIAGNOSTICS ----");
 
@@ -91,6 +87,10 @@ async function publicationGate() {
     const sensitivityMeans = sensitivity.map(s => s.mean);
     const sensitivityDrift = computeDrift(sensitvityMeans);
 
+    assert(
+    nodeMajor === EXPECTED_NODE_MAJOR,
+    `Node major version mismatch. Expected ${EXPECTED_NODE_MAJOR}`
+  );
     assert(relError < 0.01, `Relative error exceeds 1% (seed ${seed})`);
     assert(variance > 0, `Variance zero (seed ${seed})`);
     assert(chaoticRegions.length > 0, `No chaos (seed ${seed})`);
