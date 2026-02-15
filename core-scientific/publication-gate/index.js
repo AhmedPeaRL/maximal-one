@@ -211,8 +211,12 @@ async function publicationGate() {
     ...finalReportPayload,
     reportSelfHash
   };
-
-  enforceScientificMetrics(report);
+  
+  enforceScientificMetrics({
+    relativeError: envelope.meanDriftAcrossSeeds,
+    variance: envelope.varianceDriftAcrossSeeds,
+    sensitivity: envelope.sensitivityDriftAcrossSeeds
+  });
 
   fs.writeFileSync(
     reportPath,
