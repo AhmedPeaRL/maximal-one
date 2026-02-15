@@ -1,10 +1,10 @@
-import { enforceScientificMetrics } from "./metrics-guard.js";
 import { computeRuntimeSeal } from "./runtime-seal.js";
 import fs from "fs";
 import crypto from "crypto";
 import { runEmpiricalValidation } from "../empirical/empirical-test.js";
 import { runSensitivitySuite } from "../sensitivity/sensitivity-test.js";
 import { runBifurcationScan } from "../nonlinear/bifurcation-test.js";
+import { enforceScientificMetrics } from "./metrics-guard.js";
 
 const SCIENTIFIC_PROTOCOL_VERSION = "2.0.1";
 const EXPECTED_NODE_MAJOR = 18;
