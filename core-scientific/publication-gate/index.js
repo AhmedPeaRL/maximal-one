@@ -10,24 +10,11 @@ const EXPECTED_NODE_MAJOR = 18;
 
 const baselinePath = new URL("./baseline.json", import.meta.url);
 const seedsPath = new URL("./seeds.json", import.meta.url);
+const canonicalPath = new URL("./canonical.json", import.meta.url);
+const protocolLockPath = new URL("./protocol-lock.json", import.meta.url);
 
-const seedsConfig = JSON.parse(
-  fs.readFileSync(seedsPath)
-);
-
-function loadBaseline() {
-  if (!fs.existsSync(baselinePath)) {
-    return { initialize: true };
-  }
-  return JSON.parse(fs.readFileSync(baselinePath));
-}
-
-function saveBaseline(data) {
-  fs.writeFileSync(
-    baselinePath,
-    JSON.stringify(data, null, 2)
-  );
-}
+const seedsConfig = JSON.parse(fs.readFileSync(seedsPath));
+const protocolLock = JSON.parse(fs.readFileSync(protocolLockPath));
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -67,7 +54,28 @@ function computeDrift(values) {
   return Math.abs(max - min);
 }
 
+function loadBaseline() {
+  if (!fs.existsSync(baselinePath)) {
+    return { initialize: true };
+  }
+  return JSON.parse(fs.readFileSync(baselinePath));
+}
+
+function saveBaseline(data) {
+  fs.writeFileSync(baselinePath, JSON.stringify(data, null, 2));
+}
+
 async function publicationGate() {
+
+  assert(
+    protocolLock.protocolVersion === SCIENTIFIC_PROTOCOL_VERSION,
+    "Protocol version mismatch with protocol-lock"
+  );
+
+  assert(
+    protocolLock.expectedNodeMajor === EXPECTED_NODE_MAJOR,
+    "Node expectation mismatch with protocol-lock"
+  );
 
   const nodeMajor = parseInt(process.version.split(".")[0].replace("v",""));
   assert(
@@ -84,10 +92,9 @@ async function publicationGate() {
 
   console.log("---- MULTI-SEED DIAGNOSTICS ----");
 
-  const seeds = seedsConfig.seeds;
   const results = [];
 
-  for (const seed of seeds) {
+  for (const seed of seedsConfig.seeds) {
 
     const empirical = runEmpiricalValidation(seed);
     const sensitivity = runSensitivitySuite(seed);
@@ -102,11 +109,19 @@ async function publicationGate() {
     const sensitivityMeans = sensitivity.map(s => s.mean);
     const sensitivityDrift = computeDrift(sensitivityMeans);
 
-    assert(relError < 0.01, `Relative error exceeds 1% (seed ${seed})`);
+    assert(
+      relError < protocolLock.relativeErrorThreshold,
+      `Relative error exceeds threshold (seed ${seed})`
+    );
+
     assert(variance > 0, `Variance zero (seed ${seed})`);
     assert(chaoticRegions.length > 0, `No chaos (seed ${seed})`);
     assert(stableRegions.length > 0, `No stability (seed ${seed})`);
-    assert(sensitivityDrift < 0.05, `Sensitivity instability (seed ${seed})`);
+
+    assert(
+      sensitivityDrift < protocolLock.perSeedSensitivityThreshold,
+      `Sensitivity instability (seed ${seed})`
+    );
 
     results.push({
       seed,
@@ -127,9 +142,20 @@ async function publicationGate() {
     sensitivityDriftAcrossSeeds: quantize(computeDrift(drifts))
   });
 
-  assert(envelope.meanDriftAcrossSeeds < 0.01, "Mean unstable across seeds");
-  assert(envelope.varianceDriftAcrossSeeds < 0.01, "Variance unstable across seeds");
-  assert(envelope.sensitivityDriftAcrossSeeds < 0.01, "Sensitivity unstable across seeds");
+  assert(
+    envelope.meanDriftAcrossSeeds < protocolLock.seedMeanDriftThreshold,
+    "Mean unstable across seeds"
+  );
+
+  assert(
+    envelope.varianceDriftAcrossSeeds < protocolLock.seedVarianceDriftThreshold,
+    "Variance unstable across seeds"
+  );
+
+  assert(
+    envelope.sensitivityDriftAcrossSeeds < protocolLock.seedSensitivityDriftThreshold,
+    "Sensitivity unstable across seeds"
+  );
 
   let baseline = loadBaseline();
 
@@ -141,39 +167,37 @@ async function publicationGate() {
 
   if (baseline.protocolVersion === envelope.protocolVersion) {
 
-    const driftTolerance = 1e-6;
-
     assert(
-      Math.abs(envelope.meanDriftAcrossSeeds - baseline.meanDriftAcrossSeeds) < driftTolerance,
+      Math.abs(envelope.meanDriftAcrossSeeds - baseline.meanDriftAcrossSeeds)
+        < protocolLock.regressionTolerance,
       "Mean drift regression detected"
     );
 
     assert(
-      Math.abs(envelope.varianceDriftAcrossSeeds - baseline.varianceDriftAcrossSeeds) < driftTolerance,
+      Math.abs(envelope.varianceDriftAcrossSeeds - baseline.varianceDriftAcrossSeeds)
+        < protocolLock.regressionTolerance,
       "Variance drift regression detected"
     );
 
     assert(
-      Math.abs(envelope.sensitivityDriftAcrossSeeds - baseline.sensitivityDriftAcrossSeeds) < driftTolerance,
+      Math.abs(envelope.sensitivityDriftAcrossSeeds - baseline.sensitivityDriftAcrossSeeds)
+        < protocolLock.regressionTolerance,
       "Sensitivity drift regression detected"
     );
   }
 
   const scientificHash = computeScientificHash(envelope);
-  const canonicalPath = new URL("./canonical.json", import.meta.url);
 
-if (fs.existsSync(canonicalPath)) {
-  const canonical = JSON.parse(
-    fs.readFileSync(canonicalPath)
-  );
+  if (fs.existsSync(canonicalPath)) {
+    const canonical = JSON.parse(fs.readFileSync(canonicalPath));
 
-  if (canonical.protocolVersion === SCIENTIFIC_PROTOCOL_VERSION) {
-    assert(
-      canonical.scientificHash === scientificHash,
-      "Scientific identity drift detected"
-    );
+    if (canonical.protocolVersion === SCIENTIFIC_PROTOCOL_VERSION) {
+      assert(
+        canonical.scientificHash === scientificHash,
+        "Scientific identity drift detected"
+      );
+    }
   }
-}
 
   const compositeSeal = computeScientificHash({
     scientificHash,
