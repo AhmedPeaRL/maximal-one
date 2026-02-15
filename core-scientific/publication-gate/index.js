@@ -200,6 +200,10 @@ async function publicationGate() {
 
   if (canonical.scientificHash !== scientificHash) {
 
+    if (!process.env.GITHUB_SHA) {
+      throw new Error("Scientific identity drift detected (no commit context)");
+    }
+
     const upgradePolicy = JSON.parse(fs.readFileSync(canonicalUpgradePath));
 
     assert(upgradePolicy.allowUpgrade === true, "Scientific identity drift detected (upgrade not authorized)");
@@ -221,32 +225,31 @@ async function publicationGate() {
     runtimeHash: runtimeSeal.runtimeHash
   });
 
-  const preliminaryReport = {
-    timestamp: new Date().toISOString(),
+  const identityPayload = {
     commit: process.env.GITHUB_SHA || "local",
     ...envelope,
     runtimeHash: runtimeSeal.runtimeHash,
-    runtimeFingerprint: runtimeSeal.fingerprint,
     scientificHash,
     compositeSeal,
     status: "MULTI_SEED_VERIFIED"
   };
 
   const deterministicArtifactHash = computeHash(
-    stableStringify(preliminaryReport)
+    stableStringify(identityPayload)
   );
 
-  const reportWithArtifactSeal = {
-    ...preliminaryReport,
-    deterministicArtifactHash
-  };
-
   const reportSelfHash = computeHash(
-    stableStringify(reportWithArtifactSeal)
+    stableStringify({
+      ...identityPayload,
+      deterministicArtifactHash
+    })
   );
 
   const finalReport = {
-    ...reportWithArtifactSeal,
+    timestamp: new Date().toISOString(),
+    ...identityPayload,
+    runtimeFingerprint: runtimeSeal.fingerprint,
+    deterministicArtifactHash,
     reportSelfHash
   };
 
