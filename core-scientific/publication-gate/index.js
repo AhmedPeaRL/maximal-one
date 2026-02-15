@@ -10,6 +10,7 @@ const EXPECTED_NODE_MAJOR = 18;
 const FIXED_QUANTIZATION_DIGITS = 12;
 const STRUCTURAL_EPSILON = 1e-12;
 
+const baselinePath = new URL("./baseline.json", import.meta.url);
 const seedsPath = new URL("./seeds.json", import.meta.url);
 const canonicalPath = new URL("./canonical.json", import.meta.url);
 const canonicalUpgradePath = new URL("./canonical-upgrade.json", import.meta.url);
@@ -20,274 +21,280 @@ const seedsConfig = JSON.parse(fs.readFileSync(seedsPath));
 const protocolLock = JSON.parse(fs.readFileSync(protocolLockPath));
 
 function assert(condition, message) {
-  if (!condition) throw new Error(message);
+if (!condition) throw new Error(message);
 }
 
 function quantize(value) {
-  return Number.parseFloat(value.toFixed(FIXED_QUANTIZATION_DIGITS));
+return Number.parseFloat(value.toFixed(FIXED_QUANTIZATION_DIGITS));
 }
 
 function stableStringify(obj) {
-  if (obj === null || typeof obj !== "object") {
-    return JSON.stringify(obj);
-  }
+if (obj === null || typeof obj !== "object") {
+return JSON.stringify(obj);
+}
 
-  if (Array.isArray(obj)) {
-    return "[" + obj.map(stableStringify).join(",") + "]";
-  }
+if (Array.isArray(obj)) {
+return "[" + obj.map(stableStringify).join(",") + "]";
+}
 
-  const keys = Object.keys(obj).sort();
-  return (
-    "{" +
-    keys.map(k => JSON.stringify(k) + ":" + stableStringify(obj[k])).join(",") +
-    "}"
-  );
+const keys = Object.keys(obj).sort();
+return (
+"{" +
+keys.map(k => JSON.stringify(k) + ":" + stableStringify(obj[k])).join(",") +
+"}"
+);
 }
 
 function deepFreeze(obj) {
-  if (obj && typeof obj === "object") {
-    Object.freeze(obj);
-    Object.getOwnPropertyNames(obj).forEach(prop => {
-      if (
-        obj[prop] !== null &&
-        (typeof obj[prop] === "object" || typeof obj[prop] === "function") &&
-        !Object.isFrozen(obj[prop])
-      ) {
-        deepFreeze(obj[prop]);
-      }
-    });
-  }
-  return obj;
+if (obj && typeof obj === "object") {
+Object.freeze(obj);
+Object.getOwnPropertyNames(obj).forEach(prop => {
+if (
+obj[prop] !== null &&
+(typeof obj[prop] === "object" || typeof obj[prop] === "function") &&
+!Object.isFrozen(obj[prop])
+) {
+deepFreeze(obj[prop]);
+}
+});
+}
+return obj;
 }
 
 function computeHash(payload) {
-  return crypto
-    .createHash("sha256")
-    .update(payload)
-    .digest("hex");
+return crypto
+.createHash("sha256")
+.update(payload)
+.digest("hex");
 }
 
 function computeScientificHash(payload) {
-  return computeHash(stableStringify(payload));
+return computeHash(stableStringify(payload));
 }
 
 function computeDrift(values) {
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  return Math.abs(max - min);
+const min = Math.min(...values);
+const max = Math.max(...values);
+return Math.abs(max - min);
 }
 
 function verifyExistingReport() {
-  if (!fs.existsSync(reportPath)) return;
+if (!fs.existsSync(reportPath)) return;
 
-  const existing = JSON.parse(fs.readFileSync(reportPath));
-  const { reportSelfHash, ...rest } = existing;
+const existing = JSON.parse(fs.readFileSync(reportPath));
+const { reportSelfHash, ...rest } = existing;
 
-  const recomputed = computeHash(stableStringify(rest));
+const recomputed = computeHash(stableStringify(rest));
 
-  assert(
-    recomputed === reportSelfHash,
-    "Report self-hash verification failed"
-  );
+assert(
+recomputed === reportSelfHash,
+"Report self-hash verification failed"
+);
 }
 
 async function publicationGate() {
 
-  verifyExistingReport();
+verifyExistingReport();
 
-  assert(
-    protocolLock.protocolVersion === SCIENTIFIC_PROTOCOL_VERSION,
-    "Protocol version mismatch with protocol-lock"
-  );
+assert(
+protocolLock.protocolVersion === SCIENTIFIC_PROTOCOL_VERSION,
+"Protocol version mismatch with protocol-lock"
+);
 
-  assert(
-    protocolLock.expectedNodeMajor === EXPECTED_NODE_MAJOR,
-    "Node expectation mismatch with protocol-lock"
-  );
+assert(
+protocolLock.expectedNodeMajor === EXPECTED_NODE_MAJOR,
+"Node expectation mismatch with protocol-lock"
+);
 
-  assert(
-    protocolLock.quantizationDigits === FIXED_QUANTIZATION_DIGITS,
-    "Quantization governance mismatch"
-  );
+assert(
+protocolLock.quantizationDigits === FIXED_QUANTIZATION_DIGITS,
+"Quantization governance mismatch"
+);
 
-  assert(
-    protocolLock.structuralEpsilon === STRUCTURAL_EPSILON,
-    "Structural epsilon governance mismatch"
-  );
+assert(
+protocolLock.structuralEpsilon === STRUCTURAL_EPSILON,
+"Structural epsilon governance mismatch"
+);
 
-  const nodeMajor = parseInt(process.version.split(".")[0].replace("v",""));
-  assert(
-    nodeMajor === EXPECTED_NODE_MAJOR,
-    `Node major version mismatch. Expected ${EXPECTED_NODE_MAJOR}`
-  );
+const nodeMajor = parseInt(process.version.split(".")[0].replace("v",""));
+assert(
+nodeMajor === EXPECTED_NODE_MAJOR,
+Node major version mismatch. Expected ${EXPECTED_NODE_MAJOR}
+);
 
-  assert(
-    Array.isArray(seedsConfig.seeds) && seedsConfig.seeds.length > 0,
-    "Invalid seeds configuration"
-  );
+assert(
+Array.isArray(seedsConfig.seeds) && seedsConfig.seeds.length > 0,
+"Invalid seeds configuration"
+);
 
-  const runtimeSeal = computeRuntimeSeal();
-  assert(
-    runtimeSeal && runtimeSeal.runtimeHash,
-    "Runtime seal invalid"
-  );
+const runtimeSeal = computeRuntimeSeal();
+assert(
+runtimeSeal && runtimeSeal.runtimeHash,
+"Runtime seal invalid"
+);
 
-  const results = [];
-  const orderedSeeds = [...seedsConfig.seeds].sort((a, b) => a - b);
+const results = [];
 
-  for (const seed of orderedSeeds) {
+const orderedSeeds = [...seedsConfig.seeds].sort((a, b) => a - b);
 
-    const empirical = runEmpiricalValidation(seed);
-    const sensitivity = runSensitivitySuite(seed);
-    const bifurcation = runBifurcationScan(seed);
+for (const seed of orderedSeeds) {
 
-    const relError = empirical.relativeError;
-    const variance = empirical.empiricalStd ** 2;
+const empirical = runEmpiricalValidation(seed);  
+const sensitivity = runSensitivitySuite(seed);  
+const bifurcation = runBifurcationScan(seed);  
 
-    const chaoticRegions = bifurcation.filter(b => b.lyapunov > 0);
-    const stableRegions = bifurcation.filter(b => b.lyapunov < 0);
+const relError = empirical.relativeError;  
+const variance = empirical.empiricalStd ** 2;  
 
-    const sensitivityMeans = sensitivity.map(s => s.mean);
-    const sensitivityDrift = computeDrift(sensitivityMeans);
+const chaoticRegions = bifurcation.filter(b => b.lyapunov > 0);  
+const stableRegions = bifurcation.filter(b => b.lyapunov < 0);  
 
-    assert(relError < protocolLock.relativeErrorThreshold, `Relative error exceeds threshold (seed ${seed})`);
-    assert(variance > 0, `Variance zero (seed ${seed})`);
-    assert(chaoticRegions.length > 0, `No chaos (seed ${seed})`);
-    assert(stableRegions.length > 0, `No stability (seed ${seed})`);
-    assert(sensitivityDrift < protocolLock.perSeedSensitivityThreshold, `Sensitivity instability (seed ${seed})`);
+const sensitivityMeans = sensitivity.map(s => s.mean);  
+const sensitivityDrift = computeDrift(sensitivityMeans);  
 
-    results.push({
-      seed,
-      empiricalMean: empirical.empiricalMean,
-      variance,
-      sensitivityDrift
-    });
-  }
+assert(relError < protocolLock.relativeErrorThreshold, `Relative error exceeds threshold (seed ${seed})`);  
+assert(variance > 0, `Variance zero (seed ${seed})`);  
+assert(chaoticRegions.length > 0, `No chaos (seed ${seed})`);  
+assert(stableRegions.length > 0, `No stability (seed ${seed})`);  
+assert(sensitivityDrift < protocolLock.perSeedSensitivityThreshold, `Sensitivity instability (seed ${seed})`);  
 
-  const means = results.map(r => r.empiricalMean);
-  const variances = results.map(r => r.variance);
-  const drifts = results.map(r => r.sensitivityDrift);
+results.push({  
+  seed,  
+  empiricalMean: empirical.empiricalMean,  
+  variance,  
+  sensitivityDrift  
+});
 
-  const envelope = deepFreeze({
-    protocolVersion: SCIENTIFIC_PROTOCOL_VERSION,
-    meanDriftAcrossSeeds: quantize(computeDrift(means)),
-    varianceDriftAcrossSeeds: quantize(computeDrift(variances)),
-    sensitivityDriftAcrossSeeds: quantize(computeDrift(drifts))
-  });
+}
 
-  assert(envelope.meanDriftAcrossSeeds < protocolLock.seedMeanDriftThreshold, "Mean unstable across seeds");
-  assert(envelope.varianceDriftAcrossSeeds < protocolLock.seedVarianceDriftThreshold, "Variance unstable across seeds");
-  assert(envelope.sensitivityDriftAcrossSeeds < protocolLock.seedSensitivityDriftThreshold, "Sensitivity unstable across seeds");
+const means = results.map(r => r.empiricalMean);
+const variances = results.map(r => r.variance);
+const drifts = results.map(r => r.sensitivityDrift);
 
-  const epsilon = STRUCTURAL_EPSILON;
+const envelope = deepFreeze({
+protocolVersion: SCIENTIFIC_PROTOCOL_VERSION,
+meanDriftAcrossSeeds: quantize(computeDrift(means)),
+varianceDriftAcrossSeeds: quantize(computeDrift(variances)),
+sensitivityDriftAcrossSeeds: quantize(computeDrift(drifts))
+});
 
-  const totalDrift =
-    envelope.meanDriftAcrossSeeds +
-    envelope.varianceDriftAcrossSeeds +
-    epsilon;
+assert(envelope.meanDriftAcrossSeeds < protocolLock.seedMeanDriftThreshold, "Mean unstable across seeds");
+assert(envelope.varianceDriftAcrossSeeds < protocolLock.seedVarianceDriftThreshold, "Variance unstable across seeds");
+assert(envelope.sensitivityDriftAcrossSeeds < protocolLock.seedSensitivityDriftThreshold, "Sensitivity unstable across seeds");
 
-  const invariant =
-    envelope.meanDriftAcrossSeeds / totalDrift;
+const epsilon = STRUCTURAL_EPSILON;
 
-  assert(
-    invariant >= protocolLock.invariantMin &&
-    invariant <= protocolLock.invariantMax,
-    `Structural invariant violation: ${invariant}`
-  );
+const totalDrift =
+envelope.meanDriftAcrossSeeds +
+envelope.varianceDriftAcrossSeeds +
+epsilon;
 
-  const scientificHash = computeScientificHash(envelope);
+const invariant =
+envelope.meanDriftAcrossSeeds / totalDrift;
 
-  if (!fs.existsSync(canonicalPath)) {
-    const canonicalPayload = {
-      protocolVersion: SCIENTIFIC_PROTOCOL_VERSION,
-      scientificHash
-    };
-    fs.writeFileSync(canonicalPath, JSON.stringify(canonicalPayload, null, 2));
-  }
+// Structural invariant must remain bounded
+assert(
+invariant >= protocolLock.invariantMin &&
+invariant <= protocolLock.invariantMax,
+Structural invariant violation: ${invariant}
+);
 
-  const canonical = JSON.parse(fs.readFileSync(canonicalPath));
+const scientificHash = computeScientificHash(envelope);
 
-  assert(
-    canonical.protocolVersion === SCIENTIFIC_PROTOCOL_VERSION,
-    "Canonical protocol version mismatch"
-  );
+// Canonical initialization
+if (!fs.existsSync(canonicalPath)) {
+const canonicalPayload = {
+protocolVersion: SCIENTIFIC_PROTOCOL_VERSION,
+scientificHash
+};
+fs.writeFileSync(canonicalPath, JSON.stringify(canonicalPayload, null, 2));
+}
 
-  if (canonical.scientificHash !== scientificHash) {
+// Canonical governance
+const canonical = JSON.parse(fs.readFileSync(canonicalPath));
 
-    if (!process.env.GITHUB_SHA) {
-      throw new Error("Scientific identity drift detected (no commit context)");
-    }
+assert(
+canonical.protocolVersion === SCIENTIFIC_PROTOCOL_VERSION,
+"Canonical protocol version mismatch"
+);
 
-    const upgradePolicy = JSON.parse(fs.readFileSync(canonicalUpgradePath));
+if (canonical.scientificHash !== scientificHash) {
 
-    assert(upgradePolicy.allowUpgrade === true, "Scientific identity drift detected (upgrade not authorized)");
-    assert(upgradePolicy.requiredCommit === process.env.GITHUB_SHA, "Upgrade commit mismatch");
-    assert(upgradePolicy.upgradeProtocolVersion === SCIENTIFIC_PROTOCOL_VERSION, "Upgrade protocol version mismatch");
+if (!process.env.GITHUB_SHA) {  
+  throw new Error("Scientific identity drift detected (no commit context)");  
+}  
 
-    fs.writeFileSync(
-      canonicalPath,
-      JSON.stringify(
-        { protocolVersion: SCIENTIFIC_PROTOCOL_VERSION, scientificHash },
-        null,
-        2
-      )
-    );
-  }
+const upgradePolicy = JSON.parse(fs.readFileSync(canonicalUpgradePath));  
 
-  const compositeSeal = computeScientificHash({
-    scientificHash,
-    runtimeHash: runtimeSeal.runtimeHash
-  });
+assert(upgradePolicy.allowUpgrade === true, "Scientific identity drift detected (upgrade not authorized)");  
+assert(upgradePolicy.requiredCommit === process.env.GITHUB_SHA, "Upgrade commit mismatch");  
+assert(upgradePolicy.upgradeProtocolVersion === SCIENTIFIC_PROTOCOL_VERSION, "Upgrade protocol version mismatch");  
 
-  const identityPayload = {
-    protocolVersion: SCIENTIFIC_PROTOCOL_VERSION,
-    ...envelope,
-    runtimeHash: runtimeSeal.runtimeHash,
-    scientificHash,
-    compositeSeal,
-    status: "MULTI_SEED_VERIFIED"
-  };
+fs.writeFileSync(  
+  canonicalPath,  
+  JSON.stringify(  
+    { protocolVersion: SCIENTIFIC_PROTOCOL_VERSION, scientificHash },  
+    null,  
+    2  
+  )  
+);
 
-  const executionContext = {
-    commit: process.env.GITHUB_SHA || "local",
-    runtimeFingerprint: runtimeSeal.fingerprint,
-    environmentClass: runtimeSeal.environmentClass
-  };
+}
 
-  const deterministicArtifactHash = computeHash(
-    stableStringify(identityPayload)
-  );
+const compositeSeal = computeScientificHash({
+scientificHash,
+runtimeHash: runtimeSeal.runtimeHash
+});
 
-  const finalTimestamp = new Date().toISOString();
+const identityPayload = {
+protocolVersion: SCIENTIFIC_PROTOCOL_VERSION,
+...envelope,
+runtimeHash: runtimeSeal.runtimeHash,
+scientificHash,
+compositeSeal,
+status: "MULTI_SEED_VERIFIED"
+};
 
-  const finalReportPayload = {
-    timestamp: finalTimestamp,
-    ...identityPayload,
-    ...executionContext,
-    deterministicArtifactHash
-  };
+const executionContext = {
+commit: process.env.GITHUB_SHA || "local",
+runtimeFingerprint: runtimeSeal.fingerprint,
+environmentClass: runtimeSeal.environmentClass
+};
 
-  const reportSelfHash = computeHash(
-    stableStringify(finalReportPayload)
-  );
+const deterministicArtifactHash = computeHash(
+stableStringify(identityPayload)
+);
 
-  const finalReport = {
-    ...finalReportPayload,
-    reportSelfHash
-  };
+const finalTimestamp = new Date().toISOString();
 
-  const canonicalReport = JSON.parse(
-    stableStringify(finalReport)
-  );
+const finalReportPayload = {
+timestamp: finalTimestamp,
+...identityPayload,
+...executionContext,
+deterministicArtifactHash
+};
 
-  fs.writeFileSync(
-    reportPath,
-    JSON.stringify(canonicalReport, null, 2)
-  );
+const reportSelfHash = computeHash(
+stableStringify(finalReportPayload)
+);
 
-  console.log("Scientific hash:", scientificHash);
-  console.log("Composite seal:", compositeSeal);
-  console.log("Multi-Seed Gate: PASSED");
+const finalReport = {
+...finalReportPayload,
+reportSelfHash
+};
+
+const canonicalReport = JSON.parse(
+stableStringify(finalReport)
+);
+
+fs.writeFileSync(
+reportPath,
+JSON.stringify(canonicalReport, null, 2)
+);
+
+console.log("Scientific hash:", scientificHash);
+console.log("Composite seal:", compositeSeal);
+console.log("Multi-Seed Gate: PASSED");
 }
 
 publicationGate();
