@@ -160,6 +160,20 @@ async function publicationGate() {
   }
 
   const scientificHash = computeScientificHash(envelope);
+  const canonicalPath = new URL("./canonical.json", import.meta.url);
+
+if (fs.existsSync(canonicalPath)) {
+  const canonical = JSON.parse(
+    fs.readFileSync(canonicalPath)
+  );
+
+  if (canonical.protocolVersion === SCIENTIFIC_PROTOCOL_VERSION) {
+    assert(
+      canonical.scientificHash === scientificHash,
+      "Scientific identity drift detected"
+    );
+  }
+}
 
   const compositeSeal = computeScientificHash({
     scientificHash,
