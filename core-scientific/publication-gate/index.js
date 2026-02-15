@@ -10,7 +10,6 @@ const EXPECTED_NODE_MAJOR = 18;
 const FIXED_QUANTIZATION_DIGITS = 12;
 const STRUCTURAL_EPSILON = 1e-12;
 
-const baselinePath = new URL("./baseline.json", import.meta.url);
 const seedsPath = new URL("./seeds.json", import.meta.url);
 const canonicalPath = new URL("./canonical.json", import.meta.url);
 const canonicalUpgradePath = new URL("./canonical-upgrade.json", import.meta.url);
@@ -129,12 +128,11 @@ async function publicationGate() {
 
   const runtimeSeal = computeRuntimeSeal();
   assert(
-  runtimeSeal && runtimeSeal.runtimeHash,
-  "Runtime seal invalid"
-);
+    runtimeSeal && runtimeSeal.runtimeHash,
+    "Runtime seal invalid"
+  );
 
   const results = [];
-
   const orderedSeeds = [...seedsConfig.seeds].sort((a, b) => a - b);
 
   for (const seed of orderedSeeds) {
@@ -191,7 +189,6 @@ async function publicationGate() {
   const invariant =
     envelope.meanDriftAcrossSeeds / totalDrift;
 
-  // Structural invariant must remain bounded
   assert(
     invariant >= protocolLock.invariantMin &&
     invariant <= protocolLock.invariantMax,
@@ -200,7 +197,6 @@ async function publicationGate() {
 
   const scientificHash = computeScientificHash(envelope);
 
-  // Canonical initialization
   if (!fs.existsSync(canonicalPath)) {
     const canonicalPayload = {
       protocolVersion: SCIENTIFIC_PROTOCOL_VERSION,
@@ -209,7 +205,6 @@ async function publicationGate() {
     fs.writeFileSync(canonicalPath, JSON.stringify(canonicalPayload, null, 2));
   }
 
-  // Canonical governance
   const canonical = JSON.parse(fs.readFileSync(canonicalPath));
 
   assert(
@@ -245,19 +240,19 @@ async function publicationGate() {
   });
 
   const identityPayload = {
-  protocolVersion: SCIENTIFIC_PROTOCOL_VERSION,
-  ...envelope,
-  runtimeHash: runtimeSeal.runtimeHash,
-  scientificHash,
-  compositeSeal,
-  status: "MULTI_SEED_VERIFIED"
-};
+    protocolVersion: SCIENTIFIC_PROTOCOL_VERSION,
+    ...envelope,
+    runtimeHash: runtimeSeal.runtimeHash,
+    scientificHash,
+    compositeSeal,
+    status: "MULTI_SEED_VERIFIED"
+  };
 
-const executionContext = {
-  commit: process.env.GITHUB_SHA || "local",
-  runtimeFingerprint: runtimeSeal.fingerprint
-  environmentClass: runtimeSeal.environmentClass
-};
+  const executionContext = {
+    commit: process.env.GITHUB_SHA || "local",
+    runtimeFingerprint: runtimeSeal.fingerprint,
+    environmentClass: runtimeSeal.environmentClass
+  };
 
   const deterministicArtifactHash = computeHash(
     stableStringify(identityPayload)
@@ -268,10 +263,10 @@ const executionContext = {
   const finalReportPayload = {
     timestamp: finalTimestamp,
     ...identityPayload,
-      ...executionContext,
+    ...executionContext,
     deterministicArtifactHash
   };
-  
+
   const reportSelfHash = computeHash(
     stableStringify(finalReportPayload)
   );
