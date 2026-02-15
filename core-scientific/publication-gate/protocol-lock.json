@@ -1,0 +1,10 @@
+{
+  "protocolVersion": "2.0.1",
+  "expectedNodeMajor": 18,
+  "relativeErrorThreshold": 0.01,
+  "seedMeanDriftThreshold": 0.01,
+  "seedVarianceDriftThreshold": 0.01,
+  "seedSensitivityDriftThreshold": 0.01,
+  "perSeedSensitivityThreshold": 0.05,
+  "regressionTolerance": 1e-6
+}
