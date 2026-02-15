@@ -1,3 +1,4 @@
+import { enforceScientificMetrics } from "./metrics-guard.js";
 import { computeRuntimeSeal } from "./runtime-seal.js";
 import fs from "fs";
 import crypto from "crypto";
@@ -210,6 +211,8 @@ async function publicationGate() {
     ...finalReportPayload,
     reportSelfHash
   };
+
+  enforceScientificMetrics(report);
 
   fs.writeFileSync(
     reportPath,
