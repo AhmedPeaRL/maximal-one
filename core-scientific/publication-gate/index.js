@@ -111,6 +111,10 @@ async function publicationGate() {
   );
 
   const runtimeSeal = computeRuntimeSeal();
+  assert(
+  runtimeSeal && runtimeSeal.runtimeHash,
+  "Runtime seal invalid"
+);
 
   const results = [];
 
@@ -160,11 +164,19 @@ async function publicationGate() {
 
   const epsilon = 1e-12;
 
+  const totalDrift =
+    envelope.meanDriftAcrossSeeds +
+    envelope.varianceDriftAcrossSeeds +
+    epsilon;
+
   const invariant =
-    envelope.meanDriftAcrossSeeds /
-    (envelope.meanDriftAcrossSeeds +
-     envelope.varianceDriftAcrossSeeds +
-     epsilon);
+    envelope.meanDriftAcrossSeeds / totalDrift;
+
+  // Guard against degenerate frozen state
+  assert(
+    totalDrift > epsilon,
+    "Degenerate multi-seed equilibrium detected"
+  );
 
   assert(
     invariant >= protocolLock.invariantMin &&
@@ -186,8 +198,12 @@ async function publicationGate() {
   // Canonical governance
   const canonical = JSON.parse(fs.readFileSync(canonicalPath));
 
-  if (canonical.protocolVersion === SCIENTIFIC_PROTOCOL_VERSION &&
-      canonical.scientificHash !== scientificHash) {
+  assert(
+    canonical.protocolVersion === SCIENTIFIC_PROTOCOL_VERSION,
+    "Canonical protocol version mismatch"
+  );
+
+  if (canonical.scientificHash !== scientificHash) {
 
     const upgradePolicy = JSON.parse(fs.readFileSync(canonicalUpgradePath));
 
