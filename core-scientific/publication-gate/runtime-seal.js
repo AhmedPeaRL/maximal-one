@@ -1,8 +1,8 @@
 import crypto from "crypto";
 import os from "os";
-import process from "process";
 
 function stableStringify(obj) {
+  if (obj === undefined) return "null";
   if (obj === null || typeof obj !== "object") {
     return JSON.stringify(obj);
   }
@@ -19,30 +19,34 @@ function stableStringify(obj) {
   );
 }
 
+function computeHash(payload) {
+  return crypto.createHash("sha256").update(payload).digest("hex");
+}
+
 export function computeRuntimeSeal() {
 
-  const fingerprint = {
+  const runtimeFingerprint = {
     nodeVersion: process.version,
     platform: process.platform,
     arch: process.arch,
-    openssl: process.versions.openssl,
-    v8: process.versions.v8,
-    cpuModel: os.cpus()[0]?.model || "unknown"
+    cpuModel: os.cpus()?.[0]?.model || "unknown",
+    cpuCount: os.cpus()?.length || 0,
+    totalMemory: os.totalmem(),
+    hostname: os.hostname()
   };
 
-  const hash = crypto
-    .createHash("sha256")
-    .update(stableStringify(fingerprint))
-    .digest("hex");
+  const runtimeHash = computeHash(
+    stableStringify(runtimeFingerprint)
+  );
 
   const environmentClass =
     process.env.GITHUB_ACTIONS === "true"
-    ? "github-runner"
-    : "local-node";
-  
+      ? "github-runner"
+      : "local-node";
+
   return {
     runtimeHash,
-    fingerprint,
+    fingerprint: runtimeFingerprint,
     environmentClass
   };
 }
