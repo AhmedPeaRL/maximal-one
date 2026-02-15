@@ -204,21 +204,33 @@ async function publicationGate() {
     runtimeHash: runtimeSeal.runtimeHash
   });
 
-  const finalReport = {
-    timestamp: new Date().toISOString(),
-    commit: process.env.GITHUB_SHA || "local",
-    ...envelope,
-    runtimeHash: runtimeSeal.runtimeHash,
-    runtimeFingerprint: runtimeSeal.fingerprint,
-    scientificHash,
-    compositeSeal,
-    status: "MULTI_SEED_VERIFIED"
-  };
+  const preliminaryReport = {
+  timestamp: new Date().toISOString(),
+  commit: process.env.GITHUB_SHA || "local",
+  ...envelope,
+  runtimeHash: runtimeSeal.runtimeHash,
+  runtimeFingerprint: runtimeSeal.fingerprint,
+  scientificHash,
+  compositeSeal,
+  status: "MULTI_SEED_VERIFIED"
+};
 
-  fs.writeFileSync(
-    "./core-scientific/publication-gate/report.json",
-    JSON.stringify(finalReport, null, 2)
-  );
+const reportString = stableStringify(preliminaryReport);
+
+const reportHash = crypto
+  .createHash("sha256")
+  .update(reportString)
+  .digest("hex");
+
+const finalReport = {
+  ...preliminaryReport,
+  reportSelfHash: reportHash
+};
+
+fs.writeFileSync(
+  "./core-scientific/publication-gate/report.json",
+  JSON.stringify(finalReport, null, 2)
+);
 
   console.log("Scientific hash:", scientificHash);
   console.log("Composite seal:", compositeSeal);
