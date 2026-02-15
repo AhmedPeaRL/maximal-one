@@ -119,7 +119,7 @@ protocolLock.structuralEpsilon === STRUCTURAL_EPSILON,
 const nodeMajor = parseInt(process.version.split(".")[0].replace("v",""));
 assert(
 nodeMajor === EXPECTED_NODE_MAJOR,
-Node major version mismatch. Expected ${EXPECTED_NODE_MAJOR}
+`Node major version mismatch. Expected ${EXPECTED_NODE_MAJOR}`
 );
 
 assert(
