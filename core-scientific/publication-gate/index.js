@@ -257,6 +257,7 @@ status: "MULTI_SEED_VERIFIED"
 
 const executionContext = {
 commit: process.env.GITHUB_SHA || "local",
+runtimeFingerprint: runtimeSeal.fingerprint,  
 environmentClass: runtimeSeal.environmentClass
 };
 
