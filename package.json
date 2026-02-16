@@ -13,6 +13,7 @@
     "verify": "node ./core-scientific/publication-gate/verify-report.js",
     "audit": "node ./core-scientific/public-audit/independent-audit.js",
     "freeze": "node ./core-scientific/release-lock/freeze-release.js",
-    "badge": "node BADGE-GENERATOR.js"
+    "badge": "node BADGE-GENERATOR.js",
+    "seal": "node ./core-scientific/commit-attestation/commit-seal.js"
   }
 }
