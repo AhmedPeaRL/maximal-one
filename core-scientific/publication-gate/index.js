@@ -6,6 +6,18 @@ function sha256(x) {
   return crypto.createHash("sha256").update(x).digest("hex");
 }
 
+function writeCanonicalJSON(path, obj) {
+  const ordered = Object.keys(obj)
+    .sort()
+    .reduce((acc, key) => {
+      acc[key] = obj[key];
+      return acc;
+    }, {});
+
+  const json = JSON.stringify(ordered, null, 2) + "\n";
+  fs.writeFileSync(path, json, { encoding: "utf8" });
+}
+
 function main() {
 
   const scientificPayload = "MAXIMAL_ONE_SCIENTIFIC_CORE_V1";
@@ -26,9 +38,9 @@ function main() {
     deterministicArtifactHash
   };
 
-  fs.writeFileSync(
+  writeCanonicalJSON(
     "./core-scientific/publication-gate/report.json",
-    JSON.stringify(report, null, 2)
+    report
   );
 
   console.log("Scientific hash:", scientificHash);
