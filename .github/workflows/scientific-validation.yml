@@ -39,8 +39,5 @@ jobs:
       - name: Independent Public Audit
         run: npm run audit
 
-      - name: Generate Commit Seal
-        run: npm run seal
-
       - name: Generate Attestation
         run: npm run attest
