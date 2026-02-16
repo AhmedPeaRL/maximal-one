@@ -9,5 +9,9 @@
   "engineStrict": true,
   "scripts": {
     "validate": "node ./core-scientific/publication-gate/index.js"
+  },
+  "scripts": {
+  "validate": "node ./core-scientific/publication-gate/index.js",
+  "verify": "node ./core-scientific/publication-gate/verify-report.js"
   }
 }
