@@ -44,3 +44,6 @@ jobs:
 
       - name: Generate Verification Badge
         run: npm run badge
+
+      - name: Generate Commit Seal
+        run: npm run seal
