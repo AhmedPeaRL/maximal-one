@@ -36,9 +36,6 @@ jobs:
       - name: Verify report integrity
         run: npm run verify
 
-      - name: Generate Attestation
-        run: npm run attest
-
       - name: Independent Public Audit
         run: npm run audit
 
