@@ -19,11 +19,13 @@ function main() {
   );
 
   const releaseHash = sha256(reportRaw);
+  const timestamp = new Date().toISOString();
 
   const releaseObject = {
-    version,
-    releaseHash
-  };
+  version,
+  releaseHash,
+  timestamp
+};
 
   const releaseFileName =
     `release-${version}.json`;
