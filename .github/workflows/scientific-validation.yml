@@ -47,3 +47,6 @@ jobs:
 
       - name: Generate Commit Seal
         run: npm run seal
+
+      - name: Generate Attestation
+        run: npm run attest
