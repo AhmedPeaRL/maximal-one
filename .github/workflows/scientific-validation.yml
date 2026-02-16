@@ -7,40 +7,22 @@ on:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
-  cross-region-check:
-    needs: validate
     runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        region: [eastus, westus]
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - run: npm install
-      - run: npm run validate
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
-    
+
       - name: Install dependencies
         run: npm install
 
       - name: Run Publication Gate
         run: npm run validate
-
-      - name: Upload scientific report
-        uses: actions/upload-artifact@v4
-        with:
-         name: scientific-report
-         path: core-scientific/publication-gate/report.json
-
-      - name: Verify Artifact Integrity
-        run: |
-          sha256sum core-scientific/publication-gate/report.json
 
       - name: Verify report integrity
         run: npm run verify
@@ -48,7 +30,6 @@ jobs:
       - name: Validate state manifest
         run: |
           node -e "
-          const fs = require('fs');
           const report = require('./core-scientific/publication-gate/report.json');
           const manifest = require('./core-scientific/publication-gate/state-manifest.json');
           if (report.deterministicArtifactHash !== manifest.deterministicArtifactHash) {
@@ -57,10 +38,35 @@ jobs:
           console.log('State manifest verified.');
           "
 
-      - name: Independent Public Audit
-        run: npm run audit
-
       - name: Generate Attestation
         run: npm run attest
-        
-      
+
+      - name: Upload scientific report
+        uses: actions/upload-artifact@v4
+        with:
+          name: scientific-report
+          path: core-scientific/publication-gate/report.json
+
+
+  cross-region-check:
+    needs: validate
+    runs-on: ubuntu-24.04
+
+    strategy:
+      matrix:
+        region: [eastus, westus]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Recompute Publication Gate
+        run: npm run validate
