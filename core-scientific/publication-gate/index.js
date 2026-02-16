@@ -8,15 +8,12 @@ function sha256(x) {
 
 function main() {
 
-  // 1️⃣ احسب scientific hash
   const scientificPayload = "MAXIMAL_ONE_SCIENTIFIC_CORE_V1";
   const scientificHash = sha256(scientificPayload);
 
-  // 2️⃣ احسب composite seal
   const compositePayload = scientificHash + "::MAXIMAL_SEAL_V1";
   const compositeSeal = sha256(compositePayload);
 
-  // 3️⃣ احسب deterministic artifact hash
   const deterministicArtifactHash =
     computeDeterministicArtifactHash(
       scientificHash,
@@ -26,8 +23,7 @@ function main() {
   const report = {
     scientificHash,
     compositeSeal,
-    deterministicArtifactHash,
-    timestamp: new Date().toISOString()
+    deterministicArtifactHash
   };
 
   fs.writeFileSync(
