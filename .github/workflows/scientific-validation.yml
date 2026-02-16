@@ -41,3 +41,6 @@ jobs:
 
       - name: Freeze Release Snapshot
         run: npm run freeze
+
+      - name: Generate Verification Badge
+        run: npm run badge
