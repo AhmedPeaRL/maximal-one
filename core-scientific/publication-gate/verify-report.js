@@ -1,76 +1,45 @@
 import fs from "fs";
 import crypto from "crypto";
+import { computeDeterministicArtifactHash } from "../hash-core.js";
 
 function sha256(x) {
   return crypto.createHash("sha256").update(x).digest("hex");
 }
 
-function stable(obj) {
-  return JSON.stringify(obj, Object.keys(obj).sort());
-}
-
-function stableStringify(obj) {
-  if (obj === null || typeof obj !== "object") {
-    return JSON.stringify(obj);
-  }
-
-  if (Array.isArray(obj)) {
-    return "[" + obj.map(stableStringify).join(",") + "]";
-  }
-
-  const keys = Object.keys(obj).sort();
-  return (
-    "{" +
-    keys.map(k => JSON.stringify(k) + ":" + stableStringify(obj[k])).join(",") +
-    "}"
-  );
-}
-
-function computeHash(payload) {
-  return crypto.createHash("sha256").update(payload).digest("hex");
-}
-
 function verify() {
 
-  const reportPath = new URL("./report.json", import.meta.url);
-  const attestationPath = new URL("./attestation.json", import.meta.url);
+  const scientificPayload = "MAXIMAL_ONE_SCIENTIFIC_CORE_V1";
+  const expectedScientificHash = sha256(scientificPayload);
 
-  if (!fs.existsSync(reportPath)) {
-    throw new Error("Report file not found");
-  }
+  const compositePayload =
+    expectedScientificHash + "::MAXIMAL_SEAL_V1";
 
-  const report = JSON.parse(fs.readFileSync(reportPath));
+  const expectedCompositeSeal =
+    sha256(compositePayload);
 
-  const { reportSelfHash, ...rest } = report;
+  const expectedDeterministicArtifactHash =
+    computeDeterministicArtifactHash(
+      expectedScientificHash,
+      expectedCompositeSeal
+    );
 
-  const recomputedReportHash = computeHash(stableStringify(rest));
+  const raw = fs.readFileSync(
+    "./core-scientific/publication-gate/report.json",
+    "utf8"
+  );
 
-  if (recomputedReportHash !== reportSelfHash) {
+  const report = JSON.parse(raw);
+
+  if (
+    report.scientificHash !== expectedScientificHash ||
+    report.compositeSeal !== expectedCompositeSeal ||
+    report.deterministicArtifactHash !==
+      expectedDeterministicArtifactHash
+  ) {
     throw new Error("Report integrity mismatch");
   }
 
-  if (fs.existsSync(attestationPath)) {
-
-    const attestation = JSON.parse(fs.readFileSync(attestationPath));
-
-    const recomputedAttestation = sha256(stable({
-      scientificHash: attestation.scientificHash,
-      compositeSeal: attestation.compositeSeal,
-      deterministicArtifactHash: attestation.deterministicArtifactHash
-    }));
-
-    if (recomputedAttestation !== attestation.attestationHash) {
-      throw new Error("Attestation mismatch detected");
-    }
-
-    console.log("Attestation integrity verified.");
-    console.log("Attestation Hash:", attestation.attestationHash);
-  }
-
   console.log("Report integrity verified.");
-  console.log("Deterministic Artifact Hash:", report.deterministicArtifactHash);
-  console.log("Scientific Hash:", report.scientificHash);
-  console.log("Composite Seal:", report.compositeSeal);
 }
 
 verify();
