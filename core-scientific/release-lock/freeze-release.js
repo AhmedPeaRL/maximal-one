@@ -1,73 +1,41 @@
 import fs from "fs";
 import crypto from "crypto";
 
-const REPORT_PATH = "./core-scientific/publication-gate/report.json";
-const RELEASE_DIR = "./core-scientific/release-lock";
+function sha256(x) {
+  return crypto.createHash("sha256").update(x).digest("hex");
+}
 
-function stableStringify(obj) {
-  if (obj === null || typeof obj !== "object") {
-    return JSON.stringify(obj);
-  }
-  if (Array.isArray(obj)) {
-    return "[" + obj.map(stableStringify).join(",") + "]";
-  }
-  const keys = Object.keys(obj).sort();
-  return (
-    "{" +
-    keys.map(k => JSON.stringify(k) + ":" + stableStringify(obj[k])).join(",") +
-    "}"
+function main() {
+
+  const pkg = JSON.parse(
+    fs.readFileSync("./package.json", "utf8")
   );
-}
 
-function computeHash(payload) {
-  return crypto.createHash("sha256").update(payload).digest("hex");
-}
+  const version = pkg.version;
 
-function assert(condition, message) {
-  if (!condition) {
-    console.error("RELEASE FREEZE FAILED:", message);
-    process.exit(1);
-  }
-}
+  const reportRaw = fs.readFileSync(
+    "./core-scientific/publication-gate/report.json",
+    "utf8"
+  );
 
-function freezeRelease() {
-
-  assert(fs.existsSync(REPORT_PATH), "Report missing");
-
-  const report = JSON.parse(fs.readFileSync(REPORT_PATH));
-
-  const version = report.protocolVersion;
-  const artifactHash = report.deterministicArtifactHash;
+  const releaseHash = sha256(reportRaw);
 
   const releaseObject = {
     version,
-    artifactHash,
-    scientificHash: report.scientificHash,
-    compositeSeal: report.compositeSeal,
-    canonicalHash: report.canonicalHash,
-    frozenAt: new Date().toISOString()
-  };
-
-  const releaseHash = computeHash(stableStringify(releaseObject));
-
-  const finalRelease = {
-    ...releaseObject,
     releaseHash
   };
 
-  if (!fs.existsSync(RELEASE_DIR)) {
-    fs.mkdirSync(RELEASE_DIR, { recursive: true });
-  }
-
-  const fileName = `release-${version}.json`;
+  const releaseFileName =
+    `release-${version}.json`;
 
   fs.writeFileSync(
-    `${RELEASE_DIR}/${fileName}`,
-    JSON.stringify(finalRelease, null, 2)
+    `./core-scientific/release-lock/${releaseFileName}`,
+    JSON.stringify(releaseObject, null, 2) + "\n",
+    "utf8"
   );
 
-  console.log("Release frozen:", fileName);
+  console.log("Release frozen:", releaseFileName);
   console.log("Release Hash:", releaseHash);
 }
 
-freezeRelease();
+main();
