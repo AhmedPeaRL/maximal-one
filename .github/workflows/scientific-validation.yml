@@ -27,6 +27,9 @@ jobs:
       - name: Verify report integrity
         run: npm run verify
 
+      - name: Numerical Stability Gate
+        run: npm run stability
+
       - name: Validate state manifest
         run: |
           node -e "
