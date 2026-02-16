@@ -9,14 +9,6 @@ function stable(obj) {
   return JSON.stringify(obj, Object.keys(obj).sort());
 }
 
-const attestationPath = "./core-scientific/publication-gate/attestation.json";
-
-if (fs.existsSync(attestationPath)) {
-
-  const attestation = JSON.parse(fs.readFileSync(attestationPath));
-
-const reportPath = new URL("./report.json", import.meta.url);
-
 function stableStringify(obj) {
   if (obj === null || typeof obj !== "object") {
     return JSON.stringify(obj);
@@ -40,6 +32,9 @@ function computeHash(payload) {
 
 function verify() {
 
+  const reportPath = new URL("./report.json", import.meta.url);
+  const attestationPath = new URL("./attestation.json", import.meta.url);
+
   if (!fs.existsSync(reportPath)) {
     throw new Error("Report file not found");
   }
@@ -48,22 +43,34 @@ function verify() {
 
   const { reportSelfHash, ...rest } = report;
 
-  const recomputed = sha256(stable({
-    scientificHash: attestation.scientificHash,
-    compositeSeal: attestation.compositeSeal,
-    deterministicArtifactHash: attestation.deterministicArtifactHash
-  }));
+  const recomputedReportHash = computeHash(stableStringify(rest));
 
-  if (recomputed !== attestation.attestationHash) {
-    console.error("Attestation mismatch detected.");
-    process.exit(1);
+  if (recomputedReportHash !== reportSelfHash) {
+    throw new Error("Report integrity mismatch");
   }
 
-}
+  if (fs.existsSync(attestationPath)) {
+
+    const attestation = JSON.parse(fs.readFileSync(attestationPath));
+
+    const recomputedAttestation = sha256(stable({
+      scientificHash: attestation.scientificHash,
+      compositeSeal: attestation.compositeSeal,
+      deterministicArtifactHash: attestation.deterministicArtifactHash
+    }));
+
+    if (recomputedAttestation !== attestation.attestationHash) {
+      throw new Error("Attestation mismatch detected");
+    }
+
+    console.log("Attestation integrity verified.");
+    console.log("Attestation Hash:", attestation.attestationHash);
+  }
 
   console.log("Report integrity verified.");
   console.log("Deterministic Artifact Hash:", report.deterministicArtifactHash);
-  console.log("Attestation Hash:", report.attestationHash || "N/A");
+  console.log("Scientific Hash:", report.scientificHash);
+  console.log("Composite Seal:", report.compositeSeal);
 }
 
 verify();
