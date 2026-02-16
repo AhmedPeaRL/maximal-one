@@ -34,4 +34,7 @@ jobs:
           sha256sum core-scientific/publication-gate/report.json
 
       - name: Verify report integrity
-        run: npm run verify  
+        run: npm run verify
+
+      - name: Independent Public Audit
+        run: npm run audit
