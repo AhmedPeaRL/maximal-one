@@ -1,9 +1,6 @@
 import fs from "fs";
 import crypto from "crypto";
-
-function sha256(x) {
-  return crypto.createHash("sha256").update(x).digest("hex");
-}
+import { sha256, computeDeterministicArtifactHash } from "../hash-core.js";
 
 function stableStringify(obj) {
   if (obj === null || typeof obj !== "object") {
@@ -28,8 +25,8 @@ function stable(obj) {
 
 function main() {
 
-  const scientificHash = sha256("maximal-one-scientific-envelope");
-  const compositeSeal = sha256(scientificHash + "composite-layer");
+  const deterministicArtifactHash =
+  computeDeterministicArtifactHash(scientificHash, compositeSeal);
 
   const report = {
     scientificHash,
