@@ -14,6 +14,7 @@
     "audit": "node ./core-scientific/public-audit/independent-audit.js",
     "freeze": "node ./core-scientific/release-lock/freeze-release.js",
     "badge": "node BADGE-GENERATOR.js",
-    "seal": "node ./core-scientific/commit-attestation/commit-seal.js"
+    "seal": "node ./core-scientific/commit-attestation/commit-seal.js",
+    "drift": "node ./core-scientific/reproducibility/verify-drift.js"
   }
 }
