@@ -1,0 +1,18 @@
+{
+  "protocolVersion": "1.0.0",
+  "scientificHash": "c17aee57afcbc97ed3aa780144f9d37eac34ef525b09f9df8c024df66d4f5a4c",
+  "compositeSeal": "0c7a74fe6055d9a1024edc9314a12ea8cdc89f45467196f1e19d75c8527a6ee3",
+  "deterministicArtifactHash": "f5b8c5ec6dcd65434a65209a317fd31fa394d8fc42881cbeb1e3929170deccbe",
+  "attestationHash": "e48b05a2437fad6f150152a22d9dfe8ec2ae1b8ff4067057be12702ed5f4f5a5",
+  "runnerEnvironment": {
+    "os": "ubuntu-24.04",
+    "node": "18.20.8"
+  },
+  "stabilityGuarantees": {
+    "relativeErrorBound": "< 1%",
+    "varianceNonZero": true,
+    "sensitivityStable": true,
+    "numericalExplosion": false,
+    "reproducible": true
+  }
+}
