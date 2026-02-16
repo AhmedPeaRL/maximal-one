@@ -11,6 +11,7 @@
     "validate": "node ./core-scientific/publication-gate/index.js",
     "verify": "node ./core-scientific/publication-gate/verify-report.js",
     "audit": "node ./core-scientific/public-audit/independent-audit.js",
-    "freeze": "node ./core-scientific/release-lock/freeze-release.js"
+    "freeze": "node ./core-scientific/release-lock/freeze-release.js",
+    "badge": "node BADGE-GENERATOR.js"
   }
 }
