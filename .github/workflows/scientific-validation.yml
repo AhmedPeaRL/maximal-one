@@ -8,9 +8,16 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+  cross-region-check:
+    needs: validate
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        region: [eastus, westus]
 
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -53,18 +60,6 @@ jobs:
 
       - name: Generate Attestation
         run: npm run attest
-
-  cross-region-check:
-    needs: validate
-    runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        region: [eastus, westus]
-    
-     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
+        
       - run: npm install
       - run: npm run validate
