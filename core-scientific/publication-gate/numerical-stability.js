@@ -1,33 +1,46 @@
-const fs = require("fs");
+import report from "./report.json" assert { type: "json" };
 
-const report = require("./report.json");
-
-function assert(condition, message) {
+function assertCondition(condition, message) {
   if (!condition) {
     throw new Error(message);
   }
 }
 
 // 1. Relative Error Check
-assert(
+assertCondition(
+  typeof report.relativeError === "number",
+  "relativeError missing"
+);
+
+assertCondition(
   report.relativeError < 0.01,
   "Relative error exceeds 1%"
 );
 
 // 2. Variance Check
-assert(
+assertCondition(
+  typeof report.variance === "number",
+  "variance missing"
+);
+
+assertCondition(
   report.variance !== 0,
   "Variance is zero — model is degenerate"
 );
 
 // 3. Sensitivity Stability
-assert(
+assertCondition(
+  typeof report.sensitivityDrift === "number",
+  "sensitivityDrift missing"
+);
+
+assertCondition(
   Math.abs(report.sensitivityDrift) < 0.001,
   "Sensitivity drift unstable"
 );
 
 // 4. Numerical Explosion Guard
-assert(
+assertCondition(
   Number.isFinite(report.maxIntermediateValue),
   "Numerical instability detected"
 );
