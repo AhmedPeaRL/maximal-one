@@ -5,6 +5,7 @@ import { runEmpiricalValidation } from "../empirical/empirical-test.js";
 import { runSensitivitySuite } from "../sensitivity/sensitivity-test.js";
 import { runBifurcationScan } from "../nonlinear/bifurcation-test.js";
 import { enforceScientificMetrics } from "./metrics-guard.js";
+import { generateAttestation } from "./attestation.js";
 
 const SCIENTIFIC_PROTOCOL_VERSION = "2.0.1";
 const EXPECTED_NODE_MAJOR = 18;
@@ -231,6 +232,9 @@ async function publicationGate() {
 
   console.log("Scientific hash:", scientificHash);
   console.log("Composite seal:", compositeSeal);
+
+  generateAttestation();
+  
   console.log("Multi-Seed Gate: PASSED");
 }
 
