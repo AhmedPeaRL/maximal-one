@@ -19,6 +19,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -37,7 +38,18 @@ jobs:
           HASH=$(node -e "console.log(require('./core-scientific/publication-gate/report.json').deterministicArtifactHash)")
           echo "hash=$HASH" >> $GITHUB_OUTPUT
 
-      - name: Create Git Tag
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          TAG="v1.0.0-${{ steps.extract_hash.outputs.hash }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create and push tag
+        if: steps.check_tag.outputs.exists == 'false'
         run: |
           TAG="v1.0.0-${{ steps.extract_hash.outputs.hash }}"
           git config user.name "github-actions"
