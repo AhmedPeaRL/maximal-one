@@ -39,12 +39,6 @@ jobs:
       - name: Independent Public Audit
         run: npm run audit
 
-      - name: Freeze Release Snapshot
-        run: npm run freeze
-
-      - name: Generate Verification Badge
-        run: npm run badge
-
       - name: Generate Commit Seal
         run: npm run seal
 
