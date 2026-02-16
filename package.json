@@ -16,6 +16,7 @@
     "badge": "node BADGE-GENERATOR.js",
     "seal": "node ./core-scientific/commit-attestation/commit-seal.js",
     "drift": "node ./core-scientific/reproducibility/verify-drift.js",
-    "attest": "node ./core-scientific/publication-gate/generate-attestation.js"
+    "attest": "node ./core-scientific/publication-gate/generate-attestation.js",
+    "stability": "node ./core-scientific/publication-gate/numerical-stability.js"
   }
 }
