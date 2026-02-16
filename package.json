@@ -4,7 +4,8 @@
   "description": "Deterministic dynamical system validation core",
   "type": "module",
   "engines": {
-    "node": "18.20.8"
+    "node": "18.20.8",
+    "npm": "10.8.2"
   },
   "engineStrict": true,
   "scripts": {
