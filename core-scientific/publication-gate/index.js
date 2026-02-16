@@ -1,6 +1,7 @@
 import fs from "fs";
 import crypto from "crypto";
 import { computeDeterministicArtifactHash } from "../hash-core.js";
+import os from "os";
 
 function sha256(x) {
   return crypto.createHash("sha256").update(x).digest("hex");
@@ -32,10 +33,18 @@ function main() {
       compositeSeal
     );
 
+  const environmentSeal = {
+    node: process.version,
+    platform: process.platform,
+    arch: process.arch,
+    region: process.env.RUNNER_REGION || "unknown"
+  };
+
   const report = {
     scientificHash,
     compositeSeal,
-    deterministicArtifactHash
+    deterministicArtifactHash,
+    environmentSeal
   };
 
   writeCanonicalJSON(
