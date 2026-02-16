@@ -38,3 +38,6 @@ jobs:
 
       - name: Independent Public Audit
         run: npm run audit
+
+      - name: Freeze Release Snapshot
+        run: npm run freeze
