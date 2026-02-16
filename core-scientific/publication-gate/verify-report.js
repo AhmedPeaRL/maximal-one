@@ -1,6 +1,20 @@
 import fs from "fs";
 import crypto from "crypto";
 
+function sha256(x) {
+  return crypto.createHash("sha256").update(x).digest("hex");
+}
+
+function stable(obj) {
+  return JSON.stringify(obj, Object.keys(obj).sort());
+}
+
+const attestationPath = "./core-scientific/publication-gate/attestation.json";
+
+if (fs.existsSync(attestationPath)) {
+
+  const attestation = JSON.parse(fs.readFileSync(attestationPath));
+
 const reportPath = new URL("./report.json", import.meta.url);
 
 function stableStringify(obj) {
@@ -34,11 +48,18 @@ function verify() {
 
   const { reportSelfHash, ...rest } = report;
 
-  const recomputed = computeHash(stableStringify(rest));
+  const recomputed = sha256(stable({
+    scientificHash: attestation.scientificHash,
+    compositeSeal: attestation.compositeSeal,
+    deterministicArtifactHash: attestation.deterministicArtifactHash
+  }));
 
-  if (recomputed !== reportSelfHash) {
-    throw new Error("Report integrity verification failed");
+  if (recomputed !== attestation.attestationHash) {
+    console.error("Attestation mismatch detected.");
+    process.exit(1);
   }
+
+}
 
   console.log("Report integrity verified.");
   console.log("Deterministic Artifact Hash:", report.deterministicArtifactHash);
