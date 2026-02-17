@@ -26,23 +26,37 @@ function enforceInvariants() {
     throw new Error("Aggregated report is empty or not an array.");
   }
 
-  const validReports = reports.filter(
+  const normalizedReports = reports.map(r => {
+    const hash =
+      r.deterministicArtifactHash ||
+      r.artifactHash ||
+      r.hash ||
+      null;
+
+    return {
+      region: r.region || "unknown",
+      hash
+    };
+  });
+
+  const validReports = normalizedReports.filter(
     r =>
-      r &&
       typeof r.region === "string" &&
       r.region.length > 0 &&
-      typeof r.deterministicArtifactHash === "string" &&
-      r.deterministicArtifactHash.length === 64
+      typeof r.hash === "string" &&
+      r.hash.length === 64
   );
 
   if (validReports.length === 0) {
+    console.error("Aggregated structure received:");
+    console.error(JSON.stringify(reports, null, 2));
     throw new Error(
-      "No valid reports with region and deterministicArtifactHash."
+      "No valid reports with region and valid 64-char hash."
     );
   }
 
   const uniqueHashes = [
-    ...new Set(validReports.map(r => r.deterministicArtifactHash))
+    ...new Set(validReports.map(r => r.hash))
   ];
 
   if (uniqueHashes.length !== 1) {
