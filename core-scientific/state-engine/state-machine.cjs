@@ -1,61 +1,61 @@
-const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
-
-const REPORT_PATH = path.join(__dirname, '../publication-gate/report.json');
-const MANIFEST_PATH = path.join(__dirname, '../publication-gate/state-manifest.json');
-const TRANSITION_LOG = path.join(__dirname, 'transition-log.json');
-
-function sha256(data) {
-  return crypto.createHash('sha256').update(data).digest('hex');
-}
+const fs = require("fs");
+const path = require("path");
+const crypto = require("crypto");
 
 function loadCurrentState() {
-  const report = JSON.parse(fs.readFileSync(REPORT_PATH));
-  return report.deterministicArtifactHash;
+  const reportPath = path.join(
+    __dirname,
+    "..",
+    "publication-gate",
+    "aggregated-report.json"
+  );
+
+  if (!fs.existsSync(reportPath)) {
+    throw new Error(
+      "aggregated-report.json not found. Cannot load current state."
+    );
+  }
+
+  const raw = fs.readFileSync(reportPath, "utf-8");
+  const data = JSON.parse(raw);
+
+  if (!Array.isArray(data)) {
+    throw new Error("Aggregated report must be an array.");
+  }
+
+  return data;
 }
 
-function loadManifest() {
-  return JSON.parse(fs.readFileSync(MANIFEST_PATH));
+function computeStateHash(state) {
+  return crypto
+    .createHash("sha256")
+    .update(JSON.stringify(state))
+    .digest("hex");
 }
 
-function recordTransition(previousHash, newHash, event) {
-  const entry = {
+function executeTransition() {
+  const state = loadCurrentState();
+  const hash = computeStateHash(state);
+
+  const transition = {
     timestamp: new Date().toISOString(),
-    previousHash,
-    newHash,
-    event,
+    entries: state.length,
+    stateHash: hash
   };
 
-  let log = [];
-  if (fs.existsSync(TRANSITION_LOG)) {
-    log = JSON.parse(fs.readFileSync(TRANSITION_LOG));
-  }
+  const outputPath = path.join(
+    __dirname,
+    "..",
+    "publication-gate",
+    "state-transition.json"
+  );
 
-  log.push(entry);
-  fs.writeFileSync(TRANSITION_LOG, JSON.stringify(log, null, 2));
+  fs.writeFileSync(outputPath, JSON.stringify(transition, null, 2));
+
+  console.log("State transition executed.");
+  console.log("State hash:", hash);
+
+  return transition;
 }
 
-function deterministicTransform(input) {
-  return sha256(input);
-}
-
-function executeTransition(eventPayload) {
-  const currentHash = loadCurrentState();
-  const manifest = loadManifest();
-
-  if (currentHash !== manifest.deterministicArtifactHash) {
-    throw new Error('State mismatch before transition.');
-  }
-
-  const inputString = JSON.stringify(eventPayload);
-  const newHash = deterministicTransform(currentHash + inputString);
-
-  recordTransition(currentHash, newHash, eventPayload);
-
-  return newHash;
-}
-
-module.exports = {
-  executeTransition
-};
+module.exports = { executeTransition };
