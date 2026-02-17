@@ -73,3 +73,24 @@ jobs:
 
       - name: Recompute Publication Gate
         run: npm run validate
+
+  evolution:
+    runs-on: ubuntu-latest
+    schedule:
+      - cron: '0 0 * * 0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - run: npm install
+
+      - run: npm run validate
+      - run: npm run verify
+      - run: npm run stability
+
+      - run: npm run evolve
