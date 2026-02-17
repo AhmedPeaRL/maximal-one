@@ -117,6 +117,7 @@ jobs:
           echo $HASH > core-scientific/publication-gate/aggregated-report.sha256
 
           echo "Deterministic hash: $HASH"
+      
       - uses: actions/setup-node@v4
         with:
           node-version: 18
