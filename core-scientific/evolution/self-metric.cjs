@@ -10,7 +10,7 @@ function sha256(data) {
 
 function computeSelfMetric() {
   const report = JSON.parse(fs.readFileSync(REPORT_PATH));
-  
+
   const baseVector = [
     report.scientificHash,
     report.compositeSeal,
@@ -18,15 +18,9 @@ function computeSelfMetric() {
   ].join('');
 
   const metricHash = sha256(baseVector);
-
   const numericScore = parseInt(metricHash.slice(0, 12), 16);
 
-  return {
-    metricHash,
-    numericScore
-  };
+  return { metricHash, numericScore };
 }
 
-module.exports = {
-  computeSelfMetric
-};
+module.exports = { computeSelfMetric };
