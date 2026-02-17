@@ -15,8 +15,6 @@ v1.0.0-f5b8c5ec6dcd65434a65209a317fd31fa394d8fc42881cbeb1e3929170deccbe
 
 ## 2. Deterministic Artifact Hash
 
-deterministicArtifactHash:
-
 f5b8c5ec6dcd65434a65209a317fd31fa394d8fc42881cbeb1e3929170deccbe
 
 Algorithm:
@@ -24,51 +22,57 @@ SHA-256
 
 ---
 
-## 3. Structural Binding
+## 3. Scientific Hash
 
-This release is cryptographically bound through:
-
-scientificHash → compositeSeal → deterministicArtifactHash
-
-As defined in:
-
-FORMAL_REPRODUCIBILITY_NOTE.md
+c17aee57afcbc97ed3aa780144f9d37eac34ef525b09f9df8c024df66d4f5a4c
 
 ---
 
-## 4. Canonical Commit Reference
+## 4. Composite Seal
 
-The commit associated with this release must match:
-
-f5b8c5ec6dcd65434a65209a317fd31fa394d8fc42881cbeb1e3929170deccbe
-
-If commit hash diverges, this document becomes invalid.
+0c7a74fe6055d9a1024edc9314a12ea8cdc89f45467196f1e19d75c8527a6ee3
 
 ---
 
-## 5. Mutation Rule
+## 5. Canonical Commit Reference
 
-If any byte in canonical source changes:
+Commit at time of anchoring:
 
-- A new scientificHash must be generated.
-- A new compositeSeal must be generated.
-- A new deterministicArtifactHash must be generated.
-- A new release tag must be created.
+287017ce2cbcf0ca77947096050d5d93f5556ef2
 
-This file must then be replaced entirely.
+Note:
+
+Commit hash and deterministicArtifactHash are distinct values.
+The deterministicArtifactHash is derived from scientific content,
+not from Git commit identity.
 
 ---
 
-## 6. Auditor Instruction
+## 6. Mutation Rule
+
+If canonical scientific content changes:
+
+- scientificHash must change
+- compositeSeal must change
+- deterministicArtifactHash must change
+- release tag must change
+- this file must be fully replaced
+
+---
+
+## 7. Auditor Instruction
 
 To verify integrity:
 
-1. Clone repository.
-2. Checkout tag v1.0.0-f5b8c5ec6dcd65434a65209a317fd31fa394d8fc42881cbeb1e3929170deccbe
-3. Recompute all hashes as defined in FORMAL_REPRODUCIBILITY_NOTE.md
-4. Confirm equality.
+1. Clone repository
+2. Checkout tag:
+   v1.0.0-f5b8c5ec6dcd65434a65209a317fd31fa394d8fc42881cbeb1e3929170deccbe
+3. Recompute scientificHash
+4. Recompute compositeSeal
+5. Recompute deterministicArtifactHash
+6. Confirm equality
 
-No internal CI access required.
+No CI access required.
 
 ---
 
