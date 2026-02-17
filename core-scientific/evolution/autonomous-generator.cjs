@@ -1,6 +1,6 @@
-const { computeSelfMetric } = require('./self-metric');
-const { enforceInvariants } = require('./invariant-enforcer');
-const { executeTransition } = require('../state-engine/state-machine');
+const { computeSelfMetric } = require('./self-metric.cjs');
+const { enforceInvariants } = require('./invariant-enforcer.cjs');
+const { executeTransition } = require('../state-engine/state-machine.cjs');
 
 function generateAutonomousEvent() {
   enforceInvariants();
