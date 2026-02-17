@@ -1,0 +1,15 @@
+{
+  "system": "maximal-one",
+  "status": "deterministic-locked",
+  "core_model": "publication-gate",
+  "hash_algorithm": "sha256",
+  "node_major_version": 18,
+  "os_class": "linux",
+  "release_identity": "v1.0.0-f5b8c5ec6dcd65434a65209a317fd31fa394d8fc42881cbeb1e3929170deccbe",
+  "scientific_hash": "c17aee57afcbc97ed3aa780144f9d37eac34ef525b09f9df8c024df66d4f5a4c",
+  "deterministic_artifact_hash": "f5b8c5ec6dcd65434a65209a317fd31fa394d8fc42881cbeb1e3929170deccbe",
+  "state_timestamp_utc": "2026-02-17T10:27:38Z",
+  "infrastructure_dependency": "none-required-for-verification",
+  "ci_platform": "github-actions",
+  "integrity_model": "hash-anchored-release-lock"
+}
