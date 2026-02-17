@@ -76,9 +76,10 @@ jobs:
 
   evolution:
     runs-on: ubuntu-latest
-    schedule:
+  schedule:
       - cron: '0 0 * * 0'
-    steps:
+      
+      steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
