@@ -39,13 +39,16 @@ jobs:
         with:
           path: reports
 
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Evaluate Quorum
         run: |
           HASHES=()
 
           for file in reports/*/report.json; do
-            HASH=$(node -e "console.log(require('./'$file).deterministicArtifactHash)")
-            HASHES+=($HASH)
+            HASH=$(jq -r '.deterministicArtifactHash' "$file")
+            HASHES+=("$HASH")
           done
 
           echo "Collected hashes:"
@@ -85,6 +88,17 @@ jobs:
         with:
           path: reports
 
+      - name: Restore consensus report
+        run: |
+          mkdir -p core-scientific/publication-gate
+          cp reports/*/report.json core-scientific/publication-gate/report.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - run: npm install
+      - run: npm run evolve
       - name: Restore consensus report
         run: |
           mkdir -p core-scientific/publication-gate
