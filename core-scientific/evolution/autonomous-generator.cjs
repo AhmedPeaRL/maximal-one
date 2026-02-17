@@ -1,59 +1,82 @@
 const fs = require("fs");
 const path = require("path");
 
-const { enforceEvolutionLock } = require("./evolution-lock.cjs");
 const { enforceInvariants } = require("../invariants/invariant-engine.cjs");
 const { computeConsensusHash } = require("../consensus/consensus-engine.cjs");
 const { generateSelfMetric } = require("../metrics/self-metric.cjs");
+const { enforceEvolutionLock } = require("./evolution-lock.cjs");
 
-function loadAggregatedReport() {
-  const reportPath = path.join(
-    __dirname,
-    "..",
-    "publication-gate",
-    "aggregated-report.json"
-  );
+function collectReports() {
+  const reportsDir = path.join(__dirname, "..", "..", "reports");
 
-  if (!fs.existsSync(reportPath)) {
-    throw new Error("Aggregated report not found.");
+  if (!fs.existsSync(reportsDir)) {
+    throw new Error("Reports directory not found.");
   }
 
-  return JSON.parse(fs.readFileSync(reportPath, "utf-8"));
-}
+  const regionFolders = fs
+    .readdirSync(reportsDir)
+    .filter((f) =>
+      fs.statSync(path.join(reportsDir, f)).isDirectory()
+    );
 
-function computeStateHash(data) {
-  const crypto = require("crypto");
-  return crypto
-    .createHash("sha256")
-    .update(JSON.stringify(data))
-    .digest("hex");
+  const aggregated = [];
+
+  regionFolders.forEach((regionFolder) => {
+    const reportPath = path.join(
+      reportsDir,
+      regionFolder,
+      "report.json"
+    );
+
+    if (!fs.existsSync(reportPath)) return;
+
+    const content = JSON.parse(
+      fs.readFileSync(reportPath, "utf-8")
+    );
+
+    // لو التقرير array
+    const entries = Array.isArray(content) ? content : [content];
+
+    entries.forEach((entry) => {
+      if (!entry.deterministicArtifactHash) {
+        throw new Error(
+          `Missing deterministicArtifactHash in ${regionFolder}`
+        );
+      }
+
+      aggregated.push({
+        region: regionFolder.replace("report-", ""),
+        deterministicArtifactHash:
+          entry.deterministicArtifactHash
+      });
+    });
+  });
+
+  return aggregated.sort((a, b) =>
+    a.region.localeCompare(b.region)
+  );
 }
 
 function runEvolution() {
-  const aggregated = loadAggregatedReport();
+  const aggregated = collectReports();
 
   enforceInvariants(aggregated);
 
-  const consensusHash = computeConsensusHash(aggregated);
-  const entries = aggregated.length;
+  const consensusHash =
+    computeConsensusHash(aggregated);
 
-  const stateObject = {
-    timestamp: new Date().toISOString(),
-    entries,
-    consensusHash
-  };
+  const stateHash = require("crypto")
+    .createHash("sha256")
+    .update(JSON.stringify(aggregated))
+    .digest("hex");
 
-  const stateHash = computeStateHash(stateObject);
-
-  console.log("Invariant enforcement passed.");
   console.log("Consensus hash:", consensusHash);
-  console.log("Entries:", entries);
-  console.log("Structural signature:", stateHash);
+  console.log("State hash:", stateHash);
 
   enforceEvolutionLock(stateHash);
 
   generateSelfMetric({
-    entries,
+    entries: aggregated.length,
     stateHash,
     consensusHash
   });
