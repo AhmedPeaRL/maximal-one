@@ -22,7 +22,11 @@ jobs:
           node-version: 18
 
       - run: npm install
-      - run: npm run validate
+
+      - name: Run validation with region context
+        run: |
+          echo "Running validation for region: ${{ matrix.region }}"
+          REGION=${{ matrix.region }} npm run validate
 
       - name: Upload validation report
         uses: actions/upload-artifact@v4
