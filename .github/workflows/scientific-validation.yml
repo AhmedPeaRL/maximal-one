@@ -111,6 +111,11 @@ jobs:
             sort_by(.region) 
           ' $REPORT_FILES > core-scientific/publication-gate/aggregated-report.json
 
+      - name: Ensure region field exists in aggregated report
+        run: |
+          jq 'map(select(.region != null))' core-scientific/publication-gate/aggregated-report.json > tmp.json
+          mv tmp.json core-scientific/publication-gate/aggregated-report.json
+
       - name: Compute deterministic hash
         run: |
           HASH=$(sha256sum core-scientific/publication-gate/aggregated-report.json | awk '{print $1}')
