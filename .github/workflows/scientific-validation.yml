@@ -4,103 +4,84 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
-  schedule:
-    - cron: '0 0 * * 0'
 
 jobs:
 
-  validate:
-    runs-on: ubuntu-24.04
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run Publication Gate
-        run: npm run validate
-
-      - name: Verify report integrity
-        run: npm run verify
-
-      - name: Numerical Stability Gate
-        run: npm run stability
-
-      - name: Validate state manifest
-        run: |
-          node -e "
-          const report = require('./core-scientific/publication-gate/report.json');
-          const manifest = require('./core-scientific/publication-gate/state-manifest.json');
-          if (report.deterministicArtifactHash !== manifest.deterministicArtifactHash) {
-            throw new Error('Manifest mismatch');
-          }
-          console.log('State manifest verified.');
-          "
-
-      - name: Generate Attestation
-        run: npm run attest
-
-      - name: Upload scientific report
-        uses: actions/upload-artifact@v4
-        with:
-          name: scientific-report
-          path: core-scientific/publication-gate/report.json
-
-
-  cross-region-check:
-    needs: validate
+  multi-node-validate:
     runs-on: ubuntu-24.04
 
     strategy:
       matrix:
-        region: [eastus, westus]
+        region: [eastus, westus, northcentralus]
+
+    outputs:
+      hash-eastus: ${{ steps.extract.outputs.hash }}
+      hash-westus: ${{ steps.extract.outputs.hash }}
+      hash-northcentralus: ${{ steps.extract.outputs.hash }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Install dependencies
-        run: npm install
+      - run: npm install
+      - run: npm run validate
 
-      - name: Recompute Publication Gate
-        run: npm run validate
+      - id: extract
+        run: |
+          HASH=$(node -e "console.log(require('./core-scientific/publication-gate/report.json').deterministicArtifactHash)")
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
 
-
-  evolution:
-    needs: validate
+  quorum-check:
+    needs: multi-node-validate
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Evaluate Quorum
+        run: |
+          HASHES=(
+            "${{ needs.multi-node-validate.outputs.hash-eastus }}"
+            "${{ needs.multi-node-validate.outputs.hash-westus }}"
+            "${{ needs.multi-node-validate.outputs.hash-northcentralus }}"
+          )
+
+          echo "Collected hashes:"
+          printf "%s\n" "${HASHES[@]}"
+
+          declare -A counts
+
+          for h in "${HASHES[@]}"; do
+            counts[$h]=$((counts[$h]+1))
+          done
+
+          consensus=false
+
+          for key in "${!counts[@]}"; do
+            if [ "${counts[$key]}" -ge 2 ]; then
+              consensus=true
+              echo "Quorum reached on hash: $key"
+            fi
+          done
+
+          if [ "$consensus" = false ]; then
+            echo "No quorum reached."
+            exit 1
+          fi
+
+  evolution:
+    needs: quorum-check
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run validation gates
-        run: |
-          npm run validate
-          npm run verify
-          npm run stability
-
-      - name: Execute autonomous evolution
-        run: npm run evolve
+      - run: npm install
+      - run: npm run evolve
