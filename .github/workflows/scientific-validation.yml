@@ -4,8 +4,11 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 0'
 
 jobs:
+
   validate:
     runs-on: ubuntu-24.04
 
@@ -74,24 +77,30 @@ jobs:
       - name: Recompute Publication Gate
         run: npm run validate
 
+
   evolution:
-    runs-on: ubuntu-latest
-  schedule:
-      - cron: '0 0 * * 0'
-      
-      steps:
-      - uses: actions/checkout@v4
+    needs: validate
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - run: npm install
+      - name: Install dependencies
+        run: npm install
 
-      - run: npm run validate
-      - run: npm run verify
-      - run: npm run stability
+      - name: Run validation gates
+        run: |
+          npm run validate
+          npm run verify
+          npm run stability
 
-      - run: npm run evolve
+      - name: Execute autonomous evolution
+        run: npm run evolve
