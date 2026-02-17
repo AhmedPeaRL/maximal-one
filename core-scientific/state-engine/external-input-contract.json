@@ -1,0 +1,12 @@
+{
+  "allowedEventTypes": [
+    "SCIENTIFIC_UPDATE",
+    "PARAMETER_ADJUSTMENT",
+    "ARCHITECTURAL_EXTENSION"
+  ],
+  "validationRules": {
+    "SCIENTIFIC_UPDATE": ["requiresScientificHash"],
+    "PARAMETER_ADJUSTMENT": ["numericOnly"],
+    "ARCHITECTURAL_EXTENSION": ["mustNotModifyHistoricalTags"]
+  }
+}
