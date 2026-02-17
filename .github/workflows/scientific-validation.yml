@@ -91,6 +91,10 @@ jobs:
       - name: Restore consensus report
         run: |
           mkdir -p core-scientific/publication-gate
+
+      - name: Prepare publication gate directory
+        run: |
+          mkdir -p core-scientific/publication-gate
         
       - name: Aggregate reports deterministically
         run: |
