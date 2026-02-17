@@ -1,29 +1,29 @@
 const fs = require("fs");
 const path = require("path");
 
-function enforceEvolutionLock(currentHash) {
-  const lockPath = path.join(
-    __dirname,
-    "..",
-    "publication-gate",
-    "evolution-lock.json"
-  );
+function enforceEvolutionLock(stateHash) {
+  const lockPath = path.join(__dirname, "evolution-lock.json");
 
   if (fs.existsSync(lockPath)) {
-    const existing = JSON.parse(fs.readFileSync(lockPath, "utf-8"));
+    const previous = JSON.parse(fs.readFileSync(lockPath, "utf-8"));
 
-    if (existing.stateHash === currentHash) {
-      console.log("Evolution lock active. No structural change detected.");
+    if (previous.stateHash === stateHash) {
+      console.log("Evolution lock active. No state change.");
       process.exit(0);
     }
   }
 
-  const lockData = {
-    timestamp: new Date().toISOString(),
-    stateHash: currentHash
-  };
-
-  fs.writeFileSync(lockPath, JSON.stringify(lockData, null, 2));
+  fs.writeFileSync(
+    lockPath,
+    JSON.stringify(
+      {
+        timestamp: new Date().toISOString(),
+        stateHash
+      },
+      null,
+      2
+    )
+  );
 
   console.log("Evolution lock updated.");
 }
