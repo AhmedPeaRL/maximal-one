@@ -1,6 +1,7 @@
 const { computeSelfMetric } = require('./self-metric.cjs');
 const { enforceInvariants } = require('./invariant-enforcer.cjs');
 const { executeTransition } = require('../state-engine/state-machine.cjs');
+const { enforceEvolutionLock } = require("./evolution-lock.cjs");
 
 function generateAutonomousEvent() {
   enforceInvariants();
@@ -15,6 +16,7 @@ function generateAutonomousEvent() {
   };
 
   const newStateHash = executeTransition(event);
+  enforceEvolutionLock(transition.stateHash);
 
   console.log("Autonomous transition executed.");
   console.log("New state hash:", newStateHash);
