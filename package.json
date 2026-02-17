@@ -19,6 +19,7 @@
     "attest": "node ./core-scientific/publication-gate/generate-attestation.js",
     "stability": "node ./core-scientific/publication-gate/numerical-stability.js",
     "verify-local": "node LOCAL_VERIFICATION.js",
-    "state:transition": "node ./core-scientific/state-engine/event-processor.js"
+    "state:transition": "node ./core-scientific/state-engine/event-processor.js",
+    "evolve": "node ./core-scientific/evolution/autonomous-generator.js"
   }
 }
