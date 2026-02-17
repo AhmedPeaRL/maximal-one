@@ -14,25 +14,37 @@ function enforceInvariants() {
   }
 
   const raw = fs.readFileSync(publicationGatePath, "utf-8");
-  let reports;
 
+  let reports;
   try {
     reports = JSON.parse(raw);
-  } catch (err) {
+  } catch {
     throw new Error("Aggregated report is not valid JSON.");
   }
 
-  if (!Array.isArray(reports) || reports.length === 0) {
-    throw new Error("Aggregated report is empty or malformed.");
+  if (!Array.isArray(reports)) {
+    throw new Error("Aggregated report must be an array.");
   }
 
-  const validReports = reports.filter(r => r.region && r.deterministicArtifactHash);
-
-  if (validReports.length !== reports.length) {
-    console.warn("Some reports missing region or hash, skipping them.");
+  if (reports.length === 0) {
+    throw new Error("Aggregated report is empty.");
   }
 
-  const uniqueHashes = new Set(validReports.map(r => r.deterministicArtifactHash));
+  const normalized = reports
+    .filter(r => r && typeof r === "object")
+    .map(r => ({
+      region: r.region,
+      deterministicArtifactHash: r.deterministicArtifactHash
+    }))
+    .filter(r => r.region && r.deterministicArtifactHash);
+
+  if (normalized.length === 0) {
+    throw new Error("No valid reports with region and deterministicArtifactHash.");
+  }
+
+  const uniqueHashes = new Set(
+    normalized.map(r => r.deterministicArtifactHash)
+  );
 
   if (uniqueHashes.size !== 1) {
     throw new Error("Deterministic hash mismatch across regions.");
@@ -40,7 +52,7 @@ function enforceInvariants() {
 
   return {
     consensusHash: [...uniqueHashes][0],
-    regions: validReports.map(r => r.region)
+    regions: normalized.map(r => r.region)
   };
 }
 
