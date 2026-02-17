@@ -2,58 +2,59 @@ const fs = require("fs");
 const path = require("path");
 
 function enforceInvariants() {
-  const publicationGatePath = path.join(
+  const aggregatedPath = path.join(
     __dirname,
     "..",
     "publication-gate",
     "aggregated-report.json"
   );
 
-  if (!fs.existsSync(publicationGatePath)) {
-    throw new Error(`Aggregated report not found at ${publicationGatePath}`);
+  if (!fs.existsSync(aggregatedPath)) {
+    throw new Error("aggregated-report.json not found.");
   }
 
-  const raw = fs.readFileSync(publicationGatePath, "utf-8");
+  const raw = fs.readFileSync(aggregatedPath, "utf8");
 
   let reports;
   try {
     reports = JSON.parse(raw);
-  } catch {
-    throw new Error("Aggregated report is not valid JSON.");
+  } catch (err) {
+    throw new Error("Invalid JSON format in aggregated-report.json");
   }
 
-  if (!Array.isArray(reports)) {
-    throw new Error("Aggregated report must be an array.");
+  if (!Array.isArray(reports) || reports.length === 0) {
+    throw new Error("Aggregated report is empty or not an array.");
   }
 
-  if (reports.length === 0) {
-    throw new Error("Aggregated report is empty.");
-  }
-
-  const normalized = reports
-    .filter(r => r && typeof r === "object")
-    .map(r => ({
-      region: r.region,
-      deterministicArtifactHash: r.deterministicArtifactHash
-    }))
-    .filter(r => r.region && r.deterministicArtifactHash);
-
-  if (normalized.length === 0) {
-    throw new Error("No valid reports with region and deterministicArtifactHash.");
-  }
-
-  const uniqueHashes = new Set(
-    normalized.map(r => r.deterministicArtifactHash)
+  const validReports = reports.filter(
+    r =>
+      r &&
+      typeof r.region === "string" &&
+      r.region.length > 0 &&
+      typeof r.deterministicArtifactHash === "string" &&
+      r.deterministicArtifactHash.length === 64
   );
 
-  if (uniqueHashes.size !== 1) {
-    throw new Error("Deterministic hash mismatch across regions.");
+  if (validReports.length === 0) {
+    throw new Error(
+      "No valid reports with region and deterministicArtifactHash."
+    );
   }
 
-  return {
-    consensusHash: [...uniqueHashes][0],
-    regions: normalized.map(r => r.region)
-  };
+  const uniqueHashes = [
+    ...new Set(validReports.map(r => r.deterministicArtifactHash))
+  ];
+
+  if (uniqueHashes.length !== 1) {
+    throw new Error(
+      "Deterministic invariant violated: multiple artifact hashes detected."
+    );
+  }
+
+  console.log("Invariant enforcement passed.");
+  console.log("Consensus hash:", uniqueHashes[0]);
+
+  return uniqueHashes[0];
 }
 
 module.exports = { enforceInvariants };
