@@ -16,12 +16,14 @@ function generateAutonomousEvent() {
   };
 
   const newStateHash = executeTransition(event);
-  enforceEvolutionLock(transition.stateHash);
 
   console.log("Autonomous transition executed.");
   console.log("New state hash:", newStateHash);
 
   return newStateHash;
 }
+
+const transition = executeTransition();
+enforceEvolutionLock(transition.stateHash);
 
 generateAutonomousEvent();
