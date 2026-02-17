@@ -1,29 +1,64 @@
-const { computeSelfMetric } = require('./self-metric.cjs');
-const { enforceInvariants } = require('./invariant-enforcer.cjs');
-const { executeTransition } = require('../state-engine/state-machine.cjs');
+const fs = require("fs");
+const path = require("path");
+
 const { enforceEvolutionLock } = require("./evolution-lock.cjs");
+const { enforceInvariants } = require("../invariants/invariant-engine.cjs");
+const { computeConsensusHash } = require("../consensus/consensus-engine.cjs");
+const { generateSelfMetric } = require("../metrics/self-metric.cjs");
 
-function generateAutonomousEvent() {
-  enforceInvariants();
+function loadAggregatedReport() {
+  const reportPath = path.join(
+    __dirname,
+    "..",
+    "publication-gate",
+    "aggregated-report.json"
+  );
 
-  const metric = computeSelfMetric();
+  if (!fs.existsSync(reportPath)) {
+    throw new Error("Aggregated report not found.");
+  }
 
-  const event = {
-    type: "ARCHITECTURAL_EXTENSION",
-    metricHash: metric.metricHash,
-    numericScore: metric.numericScore,
-    timestamp: new Date().toISOString()
-  };
-
-  const newStateHash = executeTransition(event);
-
-  console.log("Autonomous transition executed.");
-  console.log("New state hash:", newStateHash);
-
-  return newStateHash;
+  return JSON.parse(fs.readFileSync(reportPath, "utf-8"));
 }
 
-const transition = executeTransition();
-enforceEvolutionLock(transition.stateHash);
+function computeStateHash(data) {
+  const crypto = require("crypto");
+  return crypto
+    .createHash("sha256")
+    .update(JSON.stringify(data))
+    .digest("hex");
+}
 
-generateAutonomousEvent();
+function runEvolution() {
+  const aggregated = loadAggregatedReport();
+
+  enforceInvariants(aggregated);
+
+  const consensusHash = computeConsensusHash(aggregated);
+  const entries = aggregated.length;
+
+  const stateObject = {
+    timestamp: new Date().toISOString(),
+    entries,
+    consensusHash
+  };
+
+  const stateHash = computeStateHash(stateObject);
+
+  console.log("Invariant enforcement passed.");
+  console.log("Consensus hash:", consensusHash);
+  console.log("Entries:", entries);
+  console.log("Structural signature:", stateHash);
+
+  enforceEvolutionLock(stateHash);
+
+  generateSelfMetric({
+    entries,
+    stateHash,
+    consensusHash
+  });
+
+  console.log("Autonomous evolution committed.");
+}
+
+runEvolution();
