@@ -92,12 +92,9 @@ jobs:
         run: |
           mkdir -p core-scientific/publication-gate
         
-      - name: Aggregate reports deterministically
+      - name: Merge reports deterministically (flattened)
         run: |
           echo "Collecting report.json files..."
-
-          ls -R reports
-
           REPORT_FILES=$(find reports -type f -name "report.json" | sort)
 
           if [ -z "$REPORT_FILES" ]; then
@@ -105,17 +102,15 @@ jobs:
             exit 1
           fi
 
-          echo "Merging reports deterministically..."
+          echo "Merging reports with flattening..."
 
           jq -s '
-            sort_by(.region) 
+            map(
+              if type=="array" then .[] else . end
+            )
+            | sort_by(.region)
           ' $REPORT_FILES > core-scientific/publication-gate/aggregated-report.json
-
-      - name: Ensure region field exists in aggregated report
-        run: |
-          jq 'map(select(.region != null))' core-scientific/publication-gate/aggregated-report.json > tmp.json
-          mv tmp.json core-scientific/publication-gate/aggregated-report.json
-
+          
       - name: Compute deterministic hash
         run: |
           HASH=$(sha256sum core-scientific/publication-gate/aggregated-report.json | awk '{print $1}')
