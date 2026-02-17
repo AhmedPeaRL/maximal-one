@@ -91,8 +91,33 @@ jobs:
       - name: Restore consensus report
         run: |
           mkdir -p core-scientific/publication-gate
-          cp reports/*/report.json core-scientific/publication-gate/report.json
+          - name: Prepare publication gate directory
+        
+      - name: Aggregate reports deterministically
+        run: |
+          echo "Collecting report.json files..."
 
+          ls -R reports
+
+          REPORT_FILES=$(find reports -type f -name "report.json" | sort)
+
+          if [ -z "$REPORT_FILES" ]; then
+            echo "No report.json files found."
+            exit 1
+          fi
+
+          echo "Merging reports deterministically..."
+
+          jq -s '
+            sort_by(.region) 
+          ' $REPORT_FILES > core-scientific/publication-gate/aggregated-report.json
+
+      - name: Compute deterministic hash
+        run: |
+          HASH=$(sha256sum core-scientific/publication-gate/aggregated-report.json | awk '{print $1}')
+          echo $HASH > core-scientific/publication-gate/aggregated-report.sha256
+
+          echo "Deterministic hash: $HASH"
       - uses: actions/setup-node@v4
         with:
           node-version: 18
