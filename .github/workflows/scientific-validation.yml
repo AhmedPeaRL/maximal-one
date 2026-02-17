@@ -14,11 +14,6 @@ jobs:
       matrix:
         region: [eastus, westus, northcentralus]
 
-    outputs:
-      hash-eastus: ${{ steps.extract.outputs.hash }}
-      hash-westus: ${{ steps.extract.outputs.hash }}
-      hash-northcentralus: ${{ steps.extract.outputs.hash }}
-
     steps:
       - uses: actions/checkout@v4
 
@@ -29,23 +24,29 @@ jobs:
       - run: npm install
       - run: npm run validate
 
-      - id: extract
-        run: |
-          HASH=$(node -e "console.log(require('./core-scientific/publication-gate/report.json').deterministicArtifactHash)")
-          echo "hash=$HASH" >> $GITHUB_OUTPUT
+      - name: Upload validation report
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-${{ matrix.region }}
+          path: core-scientific/publication-gate/report.json
 
   quorum-check:
     needs: multi-node-validate
     runs-on: ubuntu-24.04
 
     steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: reports
+
       - name: Evaluate Quorum
         run: |
-          HASHES=(
-            "${{ needs.multi-node-validate.outputs.hash-eastus }}"
-            "${{ needs.multi-node-validate.outputs.hash-westus }}"
-            "${{ needs.multi-node-validate.outputs.hash-northcentralus }}"
-          )
+          HASHES=()
+
+          for file in reports/*/report.json; do
+            HASH=$(node -e "console.log(require('./'$file).deterministicArtifactHash)")
+            HASHES+=($HASH)
+          done
 
           echo "Collected hashes:"
           printf "%s\n" "${HASHES[@]}"
@@ -57,11 +58,12 @@ jobs:
           done
 
           consensus=false
+          consensus_hash=""
 
           for key in "${!counts[@]}"; do
             if [ "${counts[$key]}" -ge 2 ]; then
               consensus=true
-              echo "Quorum reached on hash: $key"
+              consensus_hash=$key
             fi
           done
 
@@ -70,14 +72,23 @@ jobs:
             exit 1
           fi
 
+          echo "CONSENSUS_HASH=$consensus_hash" >> $GITHUB_ENV
+
   evolution:
     needs: quorum-check
     runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
         with:
-          fetch-depth: 0
+          path: reports
+
+      - name: Restore consensus report
+        run: |
+          mkdir -p core-scientific/publication-gate
+          cp reports/*/report.json core-scientific/publication-gate/report.json
 
       - uses: actions/setup-node@v4
         with:
