@@ -24,9 +24,6 @@
     "generate:report": "node core-scientific/publication-gate/generate-report.cjs",
     "attractor": "node ./core-scientific/metrics/attractor-score.js",
     "attractor": "node core-scientific/stability/attractor-field.js"
-  },
-  "devDependencies": {
-  "jq-cli-wrapper": "^1.0.0"
   }
 }
 
