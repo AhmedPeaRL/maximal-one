@@ -172,4 +172,22 @@ jobs:
 
       - run: npm install
 
-      - run: npm run attractor
+      - id: score
+        run: |
+          SCORE=$(node ./core-scientific/metrics/attractor-score.js | awk '{print $3}')
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          echo "Attractor score is $SCORE"
+
+      - name: Enforce attractor threshold
+        run: |
+          THRESHOLD=0.70
+          SCORE=${{ steps.score.outputs.score }}
+          echo "Threshold: $THRESHOLD"
+          echo "Score: $SCORE"
+
+          awk "BEGIN {exit !($SCORE >= $THRESHOLD)}" || {
+            echo "Attractor threshold not met. Evolution blocked."
+            exit 1
+          }
+
+          echo "Attractor threshold satisfied."
