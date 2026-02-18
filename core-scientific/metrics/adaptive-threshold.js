@@ -6,8 +6,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const HISTORY_FILE = path.join(__dirname, 'attractor-history.json');
-const WINDOW = 5;
-const TOLERANCE = 0.02;
+
+const ALPHA = 0.4;          // exponential smoothing factor
+const TOLERANCE = 0.02;     // adaptive tolerance band
+const MAX_DELTA = 0.15;     // entropy spike guard
 
 function readHistory() {
   if (!fs.existsSync(HISTORY_FILE)) return [];
@@ -18,21 +20,32 @@ function writeHistory(history) {
   fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2));
 }
 
-function movingAverage(arr) {
+function exponentialMovingAverage(arr) {
   if (arr.length === 0) return null;
-  const recent = arr.slice(-WINDOW);
-  const sum = recent.reduce((a, b) => a + b, 0);
-  return sum / recent.length;
+
+  let ema = arr[0];
+  for (let i = 1; i < arr.length; i++) {
+    ema = ALPHA * arr[i] + (1 - ALPHA) * ema;
+  }
+
+  return ema;
 }
 
-function slope(arr) {
+function emaSlope(arr) {
   if (arr.length < 2) return 0;
-  const recent = arr.slice(-WINDOW);
-  let delta = 0;
-  for (let i = 1; i < recent.length; i++) {
-    delta += recent[i] - recent[i - 1];
+
+  let emaPrev = arr[0];
+  let emaCurrent = arr[0];
+
+  for (let i = 1; i < arr.length; i++) {
+    emaCurrent = ALPHA * arr[i] + (1 - ALPHA) * emaPrev;
+    emaPrev = emaCurrent;
   }
-  return delta / (recent.length - 1);
+
+  const lastRaw = arr[arr.length - 1];
+  const previousRaw = arr[arr.length - 2];
+
+  return lastRaw - previousRaw;
 }
 
 function main() {
@@ -44,11 +57,28 @@ function main() {
   }
 
   const history = readHistory();
+
+  const last = history.length > 0
+    ? history[history.length - 1]
+    : score;
+
+  if (Math.abs(score - last) > MAX_DELTA) {
+    console.log(JSON.stringify({
+      score,
+      baseline: null,
+      threshold: null,
+      slope: null,
+      passed: false,
+      reason: "entropy spike detected"
+    }));
+    process.exit(1);
+  }
+
   history.push(score);
   writeHistory(history);
 
-  const baseline = movingAverage(history);
-  const trend = slope(history);
+  const baseline = exponentialMovingAverage(history);
+  const slope = emaSlope(history);
 
   const threshold = baseline !== null
     ? baseline - TOLERANCE
@@ -56,19 +86,13 @@ function main() {
 
   const passed = score >= threshold;
 
-  const MAX_DELTA = 0.15;
-  const last = history.length > 1 ? history[history.length - 2] : score;
-  
-  if (Math.abs(score - last) > MAX_DELTA) {
-    console.log(JSON.stringify({
-      score,
-      baseline,
-      threshold,
-      slope: trend,
-      passed: false,
-      reason: "entropy spike detected"
-    }));
-    process.exit(1);
-  }
+  console.log(JSON.stringify({
+    score,
+    baseline,
+    threshold,
+    slope,
+    passed
+  }));
+}
 
 main();
