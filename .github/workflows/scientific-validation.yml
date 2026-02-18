@@ -164,12 +164,14 @@ jobs:
 
           echo "$RESULT"
 
-          PASSED=$(echo $RESULT | node -e "let d=JSON.parse(require('fs').readFileSync(0,'utf8')); console.log(d.passed)")
-          BASELINE=$(echo $RESULT | node -e "let d=JSON.parse(require('fs').readFileSync(0,'utf8')); console.log(d.baseline)")
-          THRESHOLD=$(echo $RESULT | node -e "let d=JSON.parse(require('fs').readFileSync(0,'utf8')); console.log(d.threshold)")
+          PASSED=$(echo "$RESULT" | jq -r '.passed')
+          BASELINE=$(echo "$RESULT" | jq -r '.baseline')
+          THRESHOLD=$(echo "$RESULT" | jq -r '.threshold')
+          SLOPE=$(echo "$RESULT" | jq -r '.slope')
 
           echo "Baseline: $BASELINE"
           echo "Adaptive Threshold: $THRESHOLD"
+          echo "Baseline Slope: $SLOPE"
 
           if [ "$PASSED" = "true" ]; then
             echo "passed=true" >> $GITHUB_OUTPUT
