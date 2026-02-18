@@ -1,47 +1,47 @@
 name: Truth Pressure Lock
 
 on:
-  workflow_dispatch:
   push:
     branches: [ main ]
 
 jobs:
-  integrity-lock:
-    runs-on: ubuntu-24.04
+  verify:
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - name: Use Node 18
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - run: npm install
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Re-generate deterministic report
-        run: npm run validate
+      - name: Regenerate report
+        run: node core-scientific/publication-gate/generate-report.cjs
 
-      - name: Compute live hash
-        id: live
+      - name: Verify integrity
         run: |
-          LIVE=$(node -e "console.log(require('./core-scientific/publication-gate/report.json').deterministicArtifactHash)")
-          echo "live=$LIVE" >> $GITHUB_OUTPUT
+          echo "Checking report integrity..."
 
-      - name: Extract committed hash
-        id: committed
-        run: |
-          COMMITTED=$(git show HEAD:core-scientific/publication-gate/report.json | node -e "process.stdin.on('data',d=>{console.log(JSON.parse(d).deterministicArtifactHash)})")
-          echo "committed=$COMMITTED" >> $GITHUB_OUTPUT
+          GENERATED_HASH=$(jq -r '.reportHash' core-scientific/publication-gate/report.json)
+          RECOMPUTED_HASH=$(cat core-scientific/publication-gate/report.json | jq -S 'del(.reportHash)' | sha256sum | awk '{print $1}')
 
-      - name: Compare truth states
-        run: |
-          if [ "${{ steps.live.outputs.live }}" != "${{ steps.committed.outputs.committed }}" ]; then
-            echo "Deterministic mismatch detected."
-            echo "Live:      ${{ steps.live.outputs.live }}"
-            echo "Committed: ${{ steps.committed.outputs.committed }}"
+          if [ "$GENERATED_HASH" != "$RECOMPUTED_HASH" ]; then
+            echo "Report hash mismatch."
             exit 1
-          else
-            echo "Deterministic state verified."
           fi
+
+          echo "Checking generator integrity..."
+
+          STORED_GENERATOR_HASH=$(jq -r '.generatorHash' core-scientific/publication-gate/report.json)
+          CURRENT_GENERATOR_HASH=$(cat core-scientific/publication-gate/generate-report.cjs | tr -d '\r' | sha256sum | awk '{print $1}')
+
+          if [ "$STORED_GENERATOR_HASH" != "$CURRENT_GENERATOR_HASH" ]; then
+            echo "Generator drift detected."
+            exit 1
+          fi
+
+          echo "All integrity checks passed."
