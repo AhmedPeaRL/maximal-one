@@ -1,0 +1,47 @@
+name: Truth Pressure Lock
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  integrity-lock:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - run: npm install
+
+      - name: Re-generate deterministic report
+        run: npm run validate
+
+      - name: Compute live hash
+        id: live
+        run: |
+          LIVE=$(node -e "console.log(require('./core-scientific/publication-gate/report.json').deterministicArtifactHash)")
+          echo "live=$LIVE" >> $GITHUB_OUTPUT
+
+      - name: Extract committed hash
+        id: committed
+        run: |
+          COMMITTED=$(git show HEAD:core-scientific/publication-gate/report.json | node -e "process.stdin.on('data',d=>{console.log(JSON.parse(d).deterministicArtifactHash)})")
+          echo "committed=$COMMITTED" >> $GITHUB_OUTPUT
+
+      - name: Compare truth states
+        run: |
+          if [ "${{ steps.live.outputs.live }}" != "${{ steps.committed.outputs.committed }}" ]; then
+            echo "Deterministic mismatch detected."
+            echo "Live:      ${{ steps.live.outputs.live }}"
+            echo "Committed: ${{ steps.committed.outputs.committed }}"
+            exit 1
+          else
+            echo "Deterministic state verified."
+          fi
