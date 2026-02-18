@@ -2,12 +2,17 @@
 
 /**
  * Adaptive Threshold Gate
- * Deterministic + Generator Locked
- * No Silent Failure Path
+ * ESM Deterministic Mode
+ * Baseline freezes on breakthrough only
+ * No silent failure path
  */
 
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const SCORE = parseFloat(process.argv[2]);
 
@@ -23,31 +28,32 @@ const STATE_PATH = path.join(
   "adaptive-baseline.json"
 );
 
-// Ensure state directory exists
 fs.mkdirSync(path.dirname(STATE_PATH), { recursive: true });
 
 let baseline = SCORE;
-let slope = 0;
 let threshold = SCORE;
+let slope = 0;
 let passed = true;
+
+const BREAKTHROUGH_MARGIN = 0.02;
+const STABILITY_MARGIN = 0.01;
 
 if (fs.existsSync(STATE_PATH)) {
   const prev = JSON.parse(fs.readFileSync(STATE_PATH, "utf8"));
 
-  const alpha = 0.2; // smoothing factor
-  baseline = alpha * SCORE + (1 - alpha) * prev.baseline;
+  baseline = prev.baseline;
 
-  slope = baseline - prev.baseline;
+  slope = SCORE - baseline;
 
-  const minMargin = 0.01;
-  const dynamicMargin = Math.max(minMargin, Math.abs(slope) * 0.5);
+  if (SCORE > baseline + BREAKTHROUGH_MARGIN) {
+    baseline = SCORE; // freeze only on real breakthrough
+  }
 
-  threshold = baseline - dynamicMargin;
+  threshold = baseline - STABILITY_MARGIN;
 
   passed = SCORE >= threshold;
 }
 
-// Persist deterministic state
 fs.writeFileSync(
   STATE_PATH,
   JSON.stringify(
