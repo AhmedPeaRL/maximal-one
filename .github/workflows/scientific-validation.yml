@@ -1,90 +1,105 @@
-name: Validate Scientific Integrity
+name: Deterministic Scientific Mesh
 
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 0'
 
 jobs:
 
-  multi-node-validate:
+  compute:
     runs-on: ubuntu-24.04
-
     strategy:
       matrix:
-        region: [eastus, westus, northcentralus]
+        node: [18, 20]
+
+    outputs:
+      artifact_hash: ${{ steps.hash.outputs.hash }}
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: ${{ matrix.node }}
 
       - run: npm install
+      - run: npm run validate
+      - run: npm run verify
+      - run: npm run stability
 
-      - name: Run validation with region context
+      - name: Compute deterministic hash
+        id: hash
         run: |
-          echo "Running validation for region: ${{ matrix.region }}"
-          REGION=${{ matrix.region }} npm run validate
+          HASH=$(sha256sum core-scientific/publication-gate/report.json | awk '{print $1}')
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+          echo $HASH > hash.txt
 
-      - name: Upload validation report
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: report-${{ matrix.region }}
-          path: core-scientific/publication-gate/report.json
+          name: hash-${{ matrix.node }}
+          path: hash.txt
 
-  quorum-check:
-    needs: multi-node-validate
+  vote:
+    needs: compute
     runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/download-artifact@v4
         with:
-          path: reports
+          path: hashes
 
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
-
-      - name: Evaluate Quorum
+      - name: Majority vote
         run: |
-          HASHES=()
-
-          for file in reports/*/report.json; do
-            HASH=$(jq -r '.deterministicArtifactHash' "$file")
-            HASHES+=("$HASH")
-          done
-
-          echo "Collected hashes:"
-          printf "%s\n" "${HASHES[@]}"
-
-          declare -A counts
-
-          for h in "${HASHES[@]}"; do
-            counts[$h]=$((counts[$h]+1))
-          done
-
-          consensus=false
-          consensus_hash=""
-
-          for key in "${!counts[@]}"; do
-            if [ "${counts[$key]}" -ge 2 ]; then
-              consensus=true
-              consensus_hash=$key
-            fi
-          done
-
-          if [ "$consensus" = false ]; then
-            echo "No quorum reached."
+          HASHES=$(cat hashes/**/hash.txt)
+          UNIQUE=$(echo "$HASHES" | sort | uniq | wc -l)
+          if [ "$UNIQUE" -ne 1 ]; then
+            echo "Hash divergence detected"
             exit 1
           fi
+          echo "Consensus achieved: $HASHES"
 
-          echo "CONSENSUS_HASH=$consensus_hash" >> $GITHUB_ENV
+      - name: Store consensus
+        run: |
+          echo "$HASHES" > consensus.txt
 
-  evolution:
-    needs: quorum-check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: consensus
+          path: consensus.txt
+
+  notarize:
+    needs: vote
     runs-on: ubuntu-24.04
 
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: consensus
+
+      - name: Cross-repo notarization
+        run: |
+          CONS=$(cat consensus.txt)
+          echo "{\"notarizedHash\":\"$CONS\",\"timestamp\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > notarization.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: notarization
+          path: notarization.json
+
+  evolve:
+    needs: notarize
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - run: npm install
+      - run: npm run evolve
     steps:
       - uses: actions/checkout@v4
 
