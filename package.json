@@ -22,6 +22,11 @@
     "state:transition": "node ./core-scientific/state-engine/event-processor.cjs",
     "evolve": "node ./core-scientific/evolution/autonomous-generator.cjs",
     "attractor": "node ./core-scientific/metrics/attractor-score.js",
-    "attractor": "node core-scientific/stability/attractor-field.js"
+    "attractor": "node core-scientific/stability/attractor-field.js",
+    "generate:report": "node core-scientific/publication-gate/generate-report.cjs"
+  },
+  "devDependencies": {
+  "jq-cli-wrapper": "^1.0.0"
   }
 }
+
