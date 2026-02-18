@@ -38,3 +38,28 @@ jobs:
 
       - name: Compute Attractor Field Score
         run: npm run attractor
+
+      - name: Download all report artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: downloaded-reports
+
+      - name: Verify multi-runner consensus
+        run: |
+          FILES=$(find downloaded-reports -name report.json)
+          COUNT=$(echo "$FILES" | wc -l)
+
+          if [ "$COUNT" -lt 1 ]; then
+            echo "No report artifacts found."
+            exit 1
+          fi
+
+          HASHES=$(sha256sum $FILES | awk '{print $1}' | sort | uniq | wc -l)
+
+          if [ "$HASHES" -ne 1 ]; then
+            echo "Report divergence detected across runners."
+            exit 1
+          fi
+
+          mkdir -p core-scientific/publication-gate
+          cp $(echo "$FILES" | head -n 1) core-scientific/publication-gate/report.json
