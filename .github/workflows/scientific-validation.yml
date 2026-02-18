@@ -151,20 +151,26 @@ jobs:
           echo "score=$SCORE" >> $GITHUB_OUTPUT
           echo "Attractor score is $SCORE"
 
-      - id: threshold
+      - id: adaptive
         run: |
-          THRESHOLD=0.70
           SCORE=${{ steps.score.outputs.score }}
+          RESULT=$(node ./core-scientific/metrics/adaptive-threshold.js $SCORE)
 
-          echo "Threshold: $THRESHOLD"
-          echo "Score: $SCORE"
+          echo "$RESULT"
 
-          if awk "BEGIN {exit !($SCORE >= $THRESHOLD)}"; then
+          PASSED=$(echo $RESULT | node -e "let d=JSON.parse(require('fs').readFileSync(0,'utf8')); console.log(d.passed)")
+          BASELINE=$(echo $RESULT | node -e "let d=JSON.parse(require('fs').readFileSync(0,'utf8')); console.log(d.baseline)")
+          THRESHOLD=$(echo $RESULT | node -e "let d=JSON.parse(require('fs').readFileSync(0,'utf8')); console.log(d.threshold)")
+
+          echo "Baseline: $BASELINE"
+          echo "Adaptive Threshold: $THRESHOLD"
+
+          if [ "$PASSED" = "true" ]; then
             echo "passed=true" >> $GITHUB_OUTPUT
-            echo "Attractor threshold satisfied."
+            echo "Adaptive gate satisfied."
           else
             echo "passed=false" >> $GITHUB_OUTPUT
-            echo "Attractor threshold not met."
+            echo "Adaptive gate rejected evolution."
             exit 1
           fi
 
