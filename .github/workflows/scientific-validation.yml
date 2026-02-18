@@ -46,9 +46,7 @@ jobs:
       - name: Compute SHA256
         id: compute_hash
         run: |
-          HASH=$(sha256sum core-scientific/publication-gate/report.json | awk '{print $1}')
-          echo "hash=$HASH" >> $GITHUB_OUTPUT
-          echo $HASH > hash.txt
+          node -e "const fs=require('fs'); const crypto=require('crypto'); const data=fs.readFileSync('core-scientific/publication-gate/report.json'); const hash=crypto.createHash('sha256').update(data).digest('hex'); console.log(hash); fs.writeFileSync('hash.txt',hash);"
 
       - name: Upload hash
         uses: actions/upload-artifact@v4
