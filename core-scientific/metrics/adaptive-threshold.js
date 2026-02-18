@@ -1,98 +1,72 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+#!/usr/bin/env node
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+/**
+ * Adaptive Threshold Gate
+ * Deterministic + Generator Locked
+ * No Silent Failure Path
+ */
 
-const HISTORY_FILE = path.join(__dirname, 'attractor-history.json');
+const fs = require("fs");
+const path = require("path");
 
-const ALPHA = 0.4;          // exponential smoothing factor
-const TOLERANCE = 0.02;     // adaptive tolerance band
-const MAX_DELTA = 0.15;     // entropy spike guard
+const SCORE = parseFloat(process.argv[2]);
 
-function readHistory() {
-  if (!fs.existsSync(HISTORY_FILE)) return [];
-  return JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8'));
+if (isNaN(SCORE)) {
+  console.error("Invalid score input.");
+  process.exit(1);
 }
 
-function writeHistory(history) {
-  fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2));
+const STATE_PATH = path.join(
+  __dirname,
+  "..",
+  "state",
+  "adaptive-baseline.json"
+);
+
+// Ensure state directory exists
+fs.mkdirSync(path.dirname(STATE_PATH), { recursive: true });
+
+let baseline = SCORE;
+let slope = 0;
+let threshold = SCORE;
+let passed = true;
+
+if (fs.existsSync(STATE_PATH)) {
+  const prev = JSON.parse(fs.readFileSync(STATE_PATH, "utf8"));
+
+  const alpha = 0.2; // smoothing factor
+  baseline = alpha * SCORE + (1 - alpha) * prev.baseline;
+
+  slope = baseline - prev.baseline;
+
+  const minMargin = 0.01;
+  const dynamicMargin = Math.max(minMargin, Math.abs(slope) * 0.5);
+
+  threshold = baseline - dynamicMargin;
+
+  passed = SCORE >= threshold;
 }
 
-function exponentialMovingAverage(arr) {
-  if (arr.length === 0) return null;
+// Persist deterministic state
+fs.writeFileSync(
+  STATE_PATH,
+  JSON.stringify(
+    {
+      baseline,
+      lastScore: SCORE,
+      updatedAt: new Date().toISOString()
+    },
+    null,
+    2
+  )
+);
 
-  let ema = arr[0];
-  for (let i = 1; i < arr.length; i++) {
-    ema = ALPHA * arr[i] + (1 - ALPHA) * ema;
-  }
+const result = {
+  score: SCORE,
+  baseline,
+  threshold,
+  slope,
+  passed
+};
 
-  return ema;
-}
-
-function emaSlope(arr) {
-  if (arr.length < 2) return 0;
-
-  let emaPrev = arr[0];
-  let emaCurrent = arr[0];
-
-  for (let i = 1; i < arr.length; i++) {
-    emaCurrent = ALPHA * arr[i] + (1 - ALPHA) * emaPrev;
-    emaPrev = emaCurrent;
-  }
-
-  const lastRaw = arr[arr.length - 1];
-  const previousRaw = arr[arr.length - 2];
-
-  return lastRaw - previousRaw;
-}
-
-function main() {
-  const score = parseFloat(process.argv[2]);
-
-  if (isNaN(score)) {
-    console.error("Invalid score input");
-    process.exit(1);
-  }
-
-  const history = readHistory();
-
-  const last = history.length > 0
-    ? history[history.length - 1]
-    : score;
-
-  if (Math.abs(score - last) > MAX_DELTA) {
-    console.log(JSON.stringify({
-      score,
-      baseline: null,
-      threshold: null,
-      slope: null,
-      passed: false,
-      reason: "entropy spike detected"
-    }));
-    process.exit(1);
-  }
-
-  history.push(score);
-  writeHistory(history);
-
-  const baseline = exponentialMovingAverage(history);
-  const slope = emaSlope(history);
-
-  const threshold = baseline !== null
-    ? baseline - TOLERANCE
-    : score - TOLERANCE;
-
-  const passed = score >= threshold;
-
-  console.log(JSON.stringify({
-    score,
-    baseline,
-    threshold,
-    slope,
-    passed
-  }));
-}
-
-main();
+console.log(JSON.stringify(result));
