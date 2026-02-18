@@ -15,19 +15,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download canonical report artifact
+      - name: Download all artifacts from triggering run
         uses: actions/download-artifact@v4
         with:
-          name: scientific-report-18
-          path: core-scientific/publication-gate
+          path: upstream-artifacts
           run-id: ${{ github.event.workflow_run.id }}
 
-      - name: Verify report existence
+      - name: Locate canonical report
         run: |
-          if [ ! -f core-scientific/publication-gate/report.json ]; then
-            echo "Missing report.json. Upstream validation did not generate artifact."
+          REPORT=$(find upstream-artifacts -name "report.json" | head -n 1)
+          if [ -z "$REPORT" ]; then
+            echo "report.json not found in upstream artifacts."
             exit 1
           fi
+          mkdir -p core-scientific/publication-gate
+          cp "$REPORT" core-scientific/publication-gate/report.json
 
       - name: Setup Node
         uses: actions/setup-node@v4
