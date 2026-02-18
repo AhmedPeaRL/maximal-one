@@ -172,5 +172,3 @@ jobs:
             exit 1
           fi
           cp $(find downloaded-reports -name report.json | head -n 1) core-scientific/publication-gate/report.json
-          
-      - run: npm run evolve
