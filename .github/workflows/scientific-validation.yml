@@ -58,6 +58,7 @@ jobs:
         with:
           name: scientific-report-${{ matrix.node }}
           path: core-scientific/publication-gate/report.json
+          overwrite: true
 
   vote:
     name: Multi-Runner Hash Voting
@@ -160,6 +161,16 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: scientific-report-18
-          path: core-scientific/publication-gate
+          path: downloaded-reports
+
+      - name: Verify report consensus
+        run: |
+          FILES=$(find downloaded-reports -name report.json)
+          HASHES=$(sha256sum $FILES | awk '{print $1}' | sort | uniq | wc -l)
+          if [ "$HASHES" -ne 1 ]; then
+            echo "Report divergence detected across runners."
+            exit 1
+          fi
+          cp $(find downloaded-reports -name report.json | head -n 1) core-scientific/publication-gate/report.json
+          
       - run: npm run evolve
