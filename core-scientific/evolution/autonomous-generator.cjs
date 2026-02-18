@@ -1,87 +1,47 @@
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 
-const { enforceInvariants } = require("../invariants/invariant-engine.cjs");
-const { computeConsensusHash } = require("../consensus/consensus-engine.cjs");
-const { generateSelfMetric } = require("../metrics/self-metric.cjs");
-const { enforceEvolutionLock } = require("./evolution-lock.cjs");
+const REPORT_PATH = path.join(
+  __dirname,
+  "..",
+  "publication-gate",
+  "report.json"
+);
 
-function collectReports() {
-  const reportsDir = path.join(__dirname, "..", "..", "reports");
-
-  if (!fs.existsSync(reportsDir)) {
-    throw new Error("Reports directory not found.");
+function loadReport() {
+  if (!fs.existsSync(REPORT_PATH)) {
+    console.log("No report found. Evolution skipped.");
+    process.exit(0);
   }
 
-  const regionFolders = fs
-    .readdirSync(reportsDir)
-    .filter((f) =>
-      fs.statSync(path.join(reportsDir, f)).isDirectory()
-    );
+  const raw = fs.readFileSync(REPORT_PATH, "utf-8");
+  return JSON.parse(raw);
+}
 
-  const aggregated = [];
+function computeEvolutionHash(report) {
+  const stable = JSON.stringify(report, Object.keys(report).sort());
+  return crypto.createHash("sha256").update(stable).digest("hex");
+}
 
-  regionFolders.forEach((regionFolder) => {
-    const reportPath = path.join(
-      reportsDir,
-      regionFolder,
-      "report.json"
-    );
+function writeEvolutionState(hash) {
+  const output = {
+    evolutionHash: hash,
+    timestamp: new Date().toISOString()
+  };
 
-    if (!fs.existsSync(reportPath)) return;
-
-    const content = JSON.parse(
-      fs.readFileSync(reportPath, "utf-8")
-    );
-
-    // لو التقرير array
-    const entries = Array.isArray(content) ? content : [content];
-
-    entries.forEach((entry) => {
-      if (!entry.deterministicArtifactHash) {
-        throw new Error(
-          `Missing deterministicArtifactHash in ${regionFolder}`
-        );
-      }
-
-      aggregated.push({
-        region: regionFolder.replace("report-", ""),
-        deterministicArtifactHash:
-          entry.deterministicArtifactHash
-      });
-    });
-  });
-
-  return aggregated.sort((a, b) =>
-    a.region.localeCompare(b.region)
+  fs.writeFileSync(
+    path.join(__dirname, "evolution-state.json"),
+    JSON.stringify(output, null, 2)
   );
+
+  console.log("Evolution state updated:", hash);
 }
 
 function runEvolution() {
-  const aggregated = collectReports();
-
-  enforceInvariants(aggregated);
-
-  const consensusHash =
-    computeConsensusHash(aggregated);
-
-  const stateHash = require("crypto")
-    .createHash("sha256")
-    .update(JSON.stringify(aggregated))
-    .digest("hex");
-
-  console.log("Consensus hash:", consensusHash);
-  console.log("State hash:", stateHash);
-
-  enforceEvolutionLock(stateHash);
-
-  generateSelfMetric({
-    entries: aggregated.length,
-    stateHash,
-    consensusHash
-  });
-
-  console.log("Autonomous evolution committed.");
+  const report = loadReport();
+  const hash = computeEvolutionHash(report);
+  writeEvolutionState(hash);
 }
 
 runEvolution();
