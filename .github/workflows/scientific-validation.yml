@@ -158,6 +158,9 @@ jobs:
           echo "score=$SCORE" >> $GITHUB_OUTPUT
           echo "Attractor score is $SCORE"
 
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Adaptive Gate
         id: gate
         run: |
