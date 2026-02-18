@@ -21,16 +21,13 @@ jobs:
         byzantine: [false]
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Install
-        run: npm install
+      - run: npm install
 
       - name: Run validation
         run: |
@@ -44,19 +41,18 @@ jobs:
           echo "corruption" >> core-scientific/publication-gate/report.json
 
       - name: Compute SHA256
-        id: compute_hash
         run: |
           node -e "const fs=require('fs'); const crypto=require('crypto'); const data=fs.readFileSync('core-scientific/publication-gate/report.json'); const hash=crypto.createHash('sha256').update(data).digest('hex'); console.log(hash); fs.writeFileSync('hash.txt',hash);"
 
-      - name: Upload hash
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: hash-${{ matrix.node-version }}
           path: hash.txt
+          overwrite: true
 
       - uses: actions/upload-artifact@v4
         with:
-          name: scientific-report-${{ matrix.node }}
+          name: scientific-report-${{ matrix.node-version }}
           path: core-scientific/publication-gate/report.json
           overwrite: true
 
@@ -66,8 +62,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Download hashes
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           path: hashes
 
@@ -75,7 +70,6 @@ jobs:
         id: vote_step
         run: |
           HASHES=$(cat hashes/**/hash.txt)
-          echo "$HASHES"
           UNIQUE=$(echo "$HASHES" | sort | uniq | wc -l)
 
           if [ "$UNIQUE" -ne 1 ]; then
@@ -87,11 +81,11 @@ jobs:
           echo "consensus=$CONS" >> $GITHUB_OUTPUT
           echo $CONS > consensus.txt
 
-      - name: Upload consensus
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: consensus
           path: consensus.txt
+          overwrite: true
 
   notarize:
     name: Cross-Repo Notarization
@@ -99,8 +93,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Download consensus
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: consensus
 
@@ -110,11 +103,11 @@ jobs:
           TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           echo "{\"notarizedHash\":\"$CONS\",\"timestamp\":\"$TS\"}" > notarization.json
 
-      - name: Upload notarization
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: notarization
           path: notarization.json
+          overwrite: true
 
   evolve:
     name: Evolution Gate
@@ -126,22 +119,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: actions/download-artifact@v4
+        with:
+          name: scientific-report-18
+          path: core-scientific/publication-gate
+
+      - name: Ensure report exists
+        run: |
+          if [ ! -f core-scientific/publication-gate/report.json ]; then
+            echo "Missing report.json after artifact download."
+            exit 1
+          fi
+
       - uses: actions/setup-node@v4
         with:
           node-version: 18
 
       - run: npm install
 
-      - name: Ensure report exists
-        run: |
-          if [ ! -f core-scientific/publication-gate/report.json ]; then
-            echo "Missing report.json. Upstream validation did not generate artifact."
-            exit 1
-          fi
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: scientific-report-18
-          path: core-scientific/publication-gate
-          
-      - run: npm run evolve 
+      - run: npm run evolve
