@@ -158,22 +158,19 @@ jobs:
           echo "score=$SCORE" >> $GITHUB_OUTPUT
           echo "Attractor score is $SCORE"
 
-      - name: Adaptive threshold evaluation
-        id: adaptive
+      - name: Adaptive Gate
+        id: gate
         run: |
-          SCORE=${{ steps.score.outputs.score }}
-          RESULT=$(node ./core-scientific/metrics/adaptive-threshold.js $SCORE)
+         RESULT=$(node ./core-scientific/metrics/adaptive-threshold.js ${{ steps.score.outputs.score }})
+         echo "$RESULT"
 
-          echo "$RESULT"
+         PASSED=$(echo "$RESULT" | jq -r '.passed')
 
-          PASSED=$(echo "$RESULT" | jq -r '.passed')
-          echo "passed=$PASSED" >> $GITHUB_OUTPUT
-
-          if [ "$PASSED" != "true" ]; then
-            echo "Adaptive gate rejected evolution."
-            exit 1
-          fi
-
+         if [ "$PASSED" != "true" ]; then
+           echo "::error::Adaptive gate rejected evolution."
+           exit 1
+         fi
+  
       - name: Commit evolution to branch
         run: |
           git config user.name "HCM Mesh Bot"
