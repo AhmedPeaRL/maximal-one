@@ -1,5 +1,9 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const HISTORY_FILE = path.join(__dirname, 'attractor-history.json');
 const WINDOW = 5;
@@ -21,8 +25,19 @@ function movingAverage(arr) {
   return sum / recent.length;
 }
 
+function slope(arr) {
+  if (arr.length < 2) return 0;
+  const recent = arr.slice(-WINDOW);
+  let delta = 0;
+  for (let i = 1; i < recent.length; i++) {
+    delta += recent[i] - recent[i - 1];
+  }
+  return delta / (recent.length - 1);
+}
+
 function main() {
   const score = parseFloat(process.argv[2]);
+
   if (isNaN(score)) {
     console.error("Invalid score input");
     process.exit(1);
@@ -33,14 +48,27 @@ function main() {
   writeHistory(history);
 
   const baseline = movingAverage(history);
-  const threshold = baseline !== null ? baseline - TOLERANCE : score - TOLERANCE;
+  const trend = slope(history);
 
-  console.log(JSON.stringify({
-    score,
-    baseline,
-    threshold,
-    passed: score >= threshold
-  }));
-}
+  const threshold = baseline !== null
+    ? baseline - TOLERANCE
+    : score - TOLERANCE;
+
+  const passed = score >= threshold;
+
+  const MAX_DELTA = 0.15;
+  const last = history.length > 1 ? history[history.length - 2] : score;
+  
+  if (Math.abs(score - last) > MAX_DELTA) {
+    console.log(JSON.stringify({
+      score,
+      baseline,
+      threshold,
+      slope: trend,
+      passed: false,
+      reason: "entropy spike detected"
+    }));
+    process.exit(1);
+  }
 
 main();
