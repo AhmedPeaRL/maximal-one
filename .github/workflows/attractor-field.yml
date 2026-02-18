@@ -1,0 +1,40 @@
+name: Attractor Field Scoring
+
+on:
+  workflow_run:
+    workflows: ["Scientific Validation"]
+    types:
+      - completed
+
+jobs:
+  attractor:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download canonical report artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: scientific-report-18
+          path: core-scientific/publication-gate
+
+      - name: Verify report existence
+        run: |
+          if [ ! -f core-scientific/publication-gate/report.json ]; then
+            echo "Missing report.json. Upstream validation did not generate artifact."
+            exit 1
+          fi
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Compute Attractor Field Score
+        run: npm run attractor
