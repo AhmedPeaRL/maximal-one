@@ -145,3 +145,31 @@ jobs:
       - run: npm install
 
       - run: npm run evolve
+
+  attractor:
+    name: Attractor Field Scoring
+    needs: evolve
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: scientific-report-18
+          path: core-scientific/publication-gate
+
+      - name: Ensure report exists
+        run: |
+          if [ ! -f core-scientific/publication-gate/report.json ]; then
+            echo "report.json missing before attractor scoring"
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - run: npm install
+
+      - run: npm run attractor
