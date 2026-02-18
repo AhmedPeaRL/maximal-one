@@ -9,8 +9,8 @@
   },
   "engineStrict": true,
   "scripts": {
-    "validate": "node ./core-scientific/publication-gate/index.js",
-    "verify": "node ./core-scientific/publication-gate/verify-report.js",
+    "validate": "node ./core-scientific/publication-gate/generate-report.cjs",
+    "verify": "node -e \"JSON.parse(require('fs').readFileSync('./core-scientific/publication-gate/report.json','utf8'))\"",
     "audit": "node ./core-scientific/public-audit/independent-audit.js",
     "freeze": "node ./core-scientific/release-lock/freeze-release.js",
     "badge": "node BADGE-GENERATOR.js",
