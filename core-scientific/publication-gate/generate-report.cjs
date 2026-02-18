@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * HCM Publication Gate – Deterministic Generator (Generator Locked Version)
+ * HCM Publication Gate – Deterministic Generator (Fully Locked)
  */
 
 const fs = require("fs");
@@ -20,47 +20,45 @@ function readFileSafe(p) {
 }
 
 /* -------------------------
-   1) Hash generator itself
+   1) Generator Lock
 -------------------------- */
 const generatorSource = readFileSafe(generatorPath);
 const generatorHash = sha256(generatorSource);
 
 /* -------------------------
-   2) Collect deterministic data
+   2) Deterministic Data
 -------------------------- */
-
 const packagePath = path.join(root, "package.json");
 const packageJson = JSON.parse(readFileSafe(packagePath));
 
-const report = {
+const baseReport = {
   system: "HCM",
   layer: "publication-gate",
   version: packageJson.version || "0.0.0",
-  timestampUTC: new Date().toISOString(),
-  generatorHash: generatorHash,
   nodeVersion: process.version,
-  platform: process.platform
+  platform: process.platform,
+  generatorHash
 };
 
 /* -------------------------
-   3) Deterministic serialization
+   3) Deterministic Serialization
 -------------------------- */
-
-const stableJson = JSON.stringify(report, Object.keys(report).sort(), 2) + "\n";
-const reportHash = sha256(stableJson);
+const stableBase = JSON.stringify(baseReport, Object.keys(baseReport).sort(), 2) + "\n";
+const deterministicArtifactHash = sha256(stableBase);
 
 /* -------------------------
-   4) Final write
+   4) Final Object (Sorted)
 -------------------------- */
+const finalObject = {
+  ...baseReport,
+  deterministicArtifactHash
+};
 
-const finalOutput = JSON.stringify(
-  { ...report, reportHash },
-  Object.keys({ ...report, reportHash }).sort(),
-  2
-) + "\n";
+const finalOutput =
+  JSON.stringify(finalObject, Object.keys(finalObject).sort(), 2) + "\n";
 
 fs.writeFileSync(outputPath, finalOutput);
 
-console.log("Report generated deterministically.");
+console.log("Deterministic artifact generated.");
 console.log("Generator SHA256:", generatorHash);
-console.log("Report SHA256:", reportHash);
+console.log("Deterministic Artifact SHA256:", deterministicArtifactHash);
