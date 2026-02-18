@@ -1,7 +1,7 @@
-const fs = require('fs');
-const crypto = require('crypto');
+import fs from 'fs';
+import crypto from 'crypto';
 
-function attractorScore(path) {
+export function attractorScore(path) {
   const data = fs.readFileSync(path);
   const hash = crypto.createHash('sha256').update(data).digest('hex');
 
@@ -11,9 +11,7 @@ function attractorScore(path) {
   return score;
 }
 
-if (require.main === module) {
+if (process.argv[1] === new URL(import.meta.url).pathname) {
   const score = attractorScore('./core-scientific/publication-gate/report.json');
   console.log('Attractor score:', score);
 }
-
-module.exports = { attractorScore };
