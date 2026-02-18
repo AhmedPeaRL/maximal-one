@@ -2,7 +2,7 @@ name: Attractor Field Scoring
 
 on:
   workflow_run:
-    workflows: ["Scientific Validation"]
+    workflows: ["Deterministic Scientific Mesh"]
     types:
       - completed
 
