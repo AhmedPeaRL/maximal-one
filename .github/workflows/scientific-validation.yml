@@ -136,6 +136,20 @@ jobs:
       - name: Compute attractor score
         run: npm run attractor
 
+      - uses: actions/download-artifact@v4
+        with:
+          path: downloaded-reports
+
+      - name: Verify report consensus
+        run: |
+          FILES=$(find downloaded-reports -name report.json)
+          HASHES=$(sha256sum $FILES | awk '{print $1}' | sort | uniq | wc -l)
+          if [ "$HASHES" -ne 1 ]; then
+            echo "Report divergence detected across runners."
+            exit 1
+          fi
+          cp $(find downloaded-reports -name report.json | head -n 1) core-scientific/publication-gate/report.json 
+
   evolve:
     name: Evolution Gate
     needs: notarize
@@ -161,15 +175,6 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          path: downloaded-reports
-
-      - name: Verify report consensus
-        run: |
-          FILES=$(find downloaded-reports -name report.json)
-          HASHES=$(sha256sum $FILES | awk '{print $1}' | sort | uniq | wc -l)
-          if [ "$HASHES" -ne 1 ]; then
-            echo "Report divergence detected across runners."
-            exit 1
-          fi
-          cp $(find downloaded-reports -name report.json | head -n 1) core-scientific/publication-gate/report.json
+          name: scientific-report-18
+          path: core-scientific/publication-gate
       - run: npm run evolve 
