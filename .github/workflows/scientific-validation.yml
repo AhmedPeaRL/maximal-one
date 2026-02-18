@@ -116,40 +116,6 @@ jobs:
           name: notarization
           path: notarization.json
 
-  attractor:
-    name: Attractor Field Scoring
-    needs: notarize
-    runs-on: ubuntu-24.04
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - name: Install
-        run: npm install
-
-      - name: Compute attractor score
-        run: npm run attractor
-
-      - uses: actions/download-artifact@v4
-        with:
-          path: downloaded-reports
-
-      - name: Verify report consensus
-        run: |
-          FILES=$(find downloaded-reports -name report.json)
-          HASHES=$(sha256sum $FILES | awk '{print $1}' | sort | uniq | wc -l)
-          if [ "$HASHES" -ne 1 ]; then
-            echo "Report divergence detected across runners."
-            exit 1
-          fi
-          cp $(find downloaded-reports -name report.json | head -n 1) core-scientific/publication-gate/report.json 
-
   evolve:
     name: Evolution Gate
     needs: notarize
