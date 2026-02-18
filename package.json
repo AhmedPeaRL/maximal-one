@@ -20,8 +20,8 @@
     "stability": "node ./core-scientific/publication-gate/numerical-stability.js",
     "verify-local": "node LOCAL_VERIFICATION.js",
     "state:transition": "node ./core-scientific/state-engine/event-processor.cjs",
-    "generate:report": "node core-scientific/publication-gate/generate-report.cjs",
     "evolve": "node ./core-scientific/evolution/autonomous-generator.cjs",
+    "generate:report": "node core-scientific/publication-gate/generate-report.cjs",
     "attractor": "node ./core-scientific/metrics/attractor-score.js",
     "attractor": "node core-scientific/stability/attractor-field.js"
   },
