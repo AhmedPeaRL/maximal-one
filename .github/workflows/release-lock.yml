@@ -2,7 +2,7 @@ name: Immutable Release Lock
 
 on:
   workflow_run:
-    workflows: ["Validate Scientific Integrity"]
+    workflows: ["Deterministic Scientific Mesh"]
     types:
       - completed
 
