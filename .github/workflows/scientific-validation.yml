@@ -54,6 +54,11 @@ jobs:
           name: hash-${{ matrix.node-version }}
           path: hash.txt
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scientific-report-${{ matrix.node }}
+          path: core-scientific/publication-gate/report.json
+
   vote:
     name: Multi-Runner Hash Voting
     needs: compute
@@ -132,22 +137,29 @@ jobs:
 
   evolve:
     name: Evolution Gate
-    needs: attractor
+    needs: notarize
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Checkout full history
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Install
-        run: npm install
+      - run: npm install
 
-      - name: Run evolution
-        run: npm run evolve
+      - name: Ensure report exists
+        run: |
+          if [ ! -f core-scientific/publication-gate/report.json ]; then
+            echo "Missing report.json. Upstream validation did not generate artifact."
+            exit 1
+          fi
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: scientific-report-18
+          path: core-scientific/publication-gate
+      - run: npm run evolve
