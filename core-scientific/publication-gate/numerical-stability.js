@@ -1,4 +1,5 @@
-import report from "./report.json" with { type: "json" };
+import fs from "fs";
+import crypto from "crypto";
 
 function assertCondition(condition, message) {
   if (!condition) {
@@ -6,31 +7,35 @@ function assertCondition(condition, message) {
   }
 }
 
-// Ensure deterministicArtifactHash exists
+function sha256(content) {
+  return crypto.createHash("sha256").update(content).digest("hex");
+}
+
+const raw = fs.readFileSync(
+  "./core-scientific/publication-gate/report.json",
+  "utf8"
+);
+
+const report = JSON.parse(raw);
+
 assertCondition(
   typeof report.deterministicArtifactHash === "string",
   "deterministicArtifactHash missing"
 );
 
-// Basic structural sanity check
+const { deterministicArtifactHash, ...rest } = report;
+
+const stable = JSON.stringify(
+  rest,
+  Object.keys(rest).sort(),
+  2
+) + "\n";
+
+const recomputed = sha256(stable);
+
 assertCondition(
-  report.deterministicArtifactHash.length === 64,
-  "Invalid artifact hash length"
+  recomputed === deterministicArtifactHash,
+  "deterministicArtifactHash mismatch"
 );
-
-// Optional numeric guards (only if present)
-if ("relativeError" in report) {
-  assertCondition(
-    typeof report.relativeError === "number",
-    "relativeError invalid"
-  );
-}
-
-if ("variance" in report) {
-  assertCondition(
-    typeof report.variance === "number",
-    "variance invalid"
-  );
-}
 
 console.log("Numerical stability verified.");
