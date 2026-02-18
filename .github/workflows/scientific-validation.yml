@@ -2,7 +2,8 @@ name: Deterministic Scientific Mesh
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * 0'
@@ -10,136 +11,145 @@ on:
 jobs:
 
   compute:
+    name: Compute Deterministic Hash
     runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        node: [18, 20]
 
-    outputs:
-      artifact_hash: ${{ steps.hash.outputs.hash }}
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [18, 20]
+        byzantine: [false]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: ${{ matrix.node-version }}
 
-      - run: npm install
-      - run: npm run validate
-      - run: npm run verify
-      - run: npm run stability
+      - name: Install
+        run: npm install
 
-      - name: Compute deterministic hash
-        id: hash
+      - name: Run validation
+        run: |
+          npm run validate
+          npm run verify
+          npm run stability
+
+      - name: Byzantine simulation (optional corruption)
+        if: matrix.byzantine == 'true'
+        run: |
+          echo "corruption" >> core-scientific/publication-gate/report.json
+
+      - name: Compute SHA256
+        id: compute_hash
         run: |
           HASH=$(sha256sum core-scientific/publication-gate/report.json | awk '{print $1}')
           echo "hash=$HASH" >> $GITHUB_OUTPUT
           echo $HASH > hash.txt
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload hash
+        uses: actions/upload-artifact@v4
         with:
-          name: hash-${{ matrix.node }}
+          name: hash-${{ matrix.node-version }}
           path: hash.txt
 
   vote:
+    name: Multi-Runner Hash Voting
     needs: compute
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download hashes
+        uses: actions/download-artifact@v4
         with:
           path: hashes
 
       - name: Majority vote
+        id: vote_step
         run: |
           HASHES=$(cat hashes/**/hash.txt)
+          echo "$HASHES"
           UNIQUE=$(echo "$HASHES" | sort | uniq | wc -l)
+
           if [ "$UNIQUE" -ne 1 ]; then
-            echo "Hash divergence detected"
+            echo "Divergence detected"
             exit 1
           fi
-          echo "Consensus achieved: $HASHES"
 
-      - name: Store consensus
-        run: |
-          echo "$HASHES" > consensus.txt
+          CONS=$(echo "$HASHES" | head -n 1)
+          echo "consensus=$CONS" >> $GITHUB_OUTPUT
+          echo $CONS > consensus.txt
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload consensus
+        uses: actions/upload-artifact@v4
         with:
           name: consensus
           path: consensus.txt
 
   notarize:
+    name: Cross-Repo Notarization
     needs: vote
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download consensus
+        uses: actions/download-artifact@v4
         with:
           name: consensus
 
-      - name: Cross-repo notarization
+      - name: Create notarization record
         run: |
           CONS=$(cat consensus.txt)
-          echo "{\"notarizedHash\":\"$CONS\",\"timestamp\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > notarization.json
+          TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          echo "{\"notarizedHash\":\"$CONS\",\"timestamp\":\"$TS\"}" > notarization.json
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload notarization
+        uses: actions/upload-artifact@v4
         with:
           name: notarization
           path: notarization.json
 
-  evolve:
+  attractor:
+    name: Attractor Field Scoring
     needs: notarize
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - run: npm install
-      - run: npm run evolve
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
-        with:
-          path: reports
-
-      - name: Prepare publication gate directory
-        run: |
-          mkdir -p core-scientific/publication-gate
-        
-      - name: Merge reports deterministically (flattened)
-        run: |
-          echo "Collecting report.json files..."
-          REPORT_FILES=$(find reports -type f -name "report.json" | sort)
-
-          if [ -z "$REPORT_FILES" ]; then
-            echo "No report.json files found."
-            exit 1
-          fi
-
-          echo "Merging reports with flattening..."
-
-          jq -s '
-            map(
-              if type=="array" then .[] else . end
-            )
-            | sort_by(.region)
-          ' $REPORT_FILES > core-scientific/publication-gate/aggregated-report.json
-          
-      - name: Compute deterministic hash
-        run: |
-          HASH=$(sha256sum core-scientific/publication-gate/aggregated-report.json | awk '{print $1}')
-          echo $HASH > core-scientific/publication-gate/aggregated-report.sha256
-
-          echo "Deterministic hash: $HASH"
-      
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - run: npm install
-      - run: npm run evolve
+      - name: Install
+        run: npm install
+
+      - name: Compute attractor score
+        run: npm run attractor
+
+  evolve:
+    name: Evolution Gate
+    needs: attractor
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install
+        run: npm install
+
+      - name: Run evolution
+        run: npm run evolve
