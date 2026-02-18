@@ -20,6 +20,7 @@ jobs:
         with:
           name: scientific-report-18
           path: core-scientific/publication-gate
+          run-id: ${{ github.event.workflow_run.id }}
 
       - name: Verify report existence
         run: |
