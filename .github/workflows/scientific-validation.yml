@@ -145,6 +145,12 @@ jobs:
 
       - run: npm install
 
+      - uses: actions/download-artifact@v4
+        with:
+          name: attractor-history
+          path: core-scientific/metrics
+        continue-on-error: true
+
       - id: score
         run: |
           SCORE=$(node ./core-scientific/metrics/attractor-score.js | awk '{print $3}')
@@ -173,6 +179,12 @@ jobs:
             echo "Adaptive gate rejected evolution."
             exit 1
           fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: attractor-history
+          path: core-scientific/metrics/attractor-history.json
+          overwrite: true
 
   evolve:
     name: Evolution Gate
