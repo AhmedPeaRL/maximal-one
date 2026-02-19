@@ -2,7 +2,7 @@
 
 /**
  * Deterministic Publication Gate
- * Fully Canonical + Stability Compatible
+ * Canonical + Stability Integrated
  * No silent failure path exists.
  */
 
@@ -14,6 +14,9 @@ const ROOT = process.cwd();
 const GATE_DIR = path.join(ROOT, "core-scientific", "publication-gate");
 const REPORT_PATH = path.join(GATE_DIR, "report.json");
 const GENERATOR_PATH = path.join(GATE_DIR, "generate-report.cjs");
+
+const MEMORY_DIR = path.join(ROOT, ".coherence-memory");
+const STATE_HISTORY_PATH = path.join(MEMORY_DIR, "state-history.jsonl");
 
 function sha256(data) {
   return crypto.createHash("sha256").update(data).digest("hex");
@@ -31,9 +34,12 @@ function ensureExists(p) {
   }
 }
 
-/**
- * Fully recursive canonical JSON (stable + sorted keys)
- */
+function ensureDir(p) {
+  if (!fs.existsSync(p)) {
+    fs.mkdirSync(p, { recursive: true });
+  }
+}
+
 function canonicalize(obj) {
   if (Array.isArray(obj)) {
     return obj.map(canonicalize);
@@ -51,15 +57,19 @@ function canonicalize(obj) {
   return obj;
 }
 
+function appendState(state) {
+  ensureDir(MEMORY_DIR);
+  const line = JSON.stringify(state);
+  fs.appendFileSync(STATE_HISTORY_PATH, line + "\n");
+}
+
 function main() {
   ensureExists(GATE_DIR);
   ensureExists(GENERATOR_PATH);
 
-  // Normalize line endings to avoid platform drift
-  const generatorSource = fs
-    .readFileSync(GENERATOR_PATH, "utf8")
-    .replace(/\r/g, "");
+  const start = Date.now();
 
+  const generatorSource = fs.readFileSync(GENERATOR_PATH, "utf8").replace(/\r/g, "");
   const generatorHash = sha256(generatorSource);
 
   const deterministicArtifactHash = sha256(
@@ -73,24 +83,33 @@ function main() {
     deterministicArtifactHash,
     generatorHash,
     invariant: "No silent failure path exists.",
-    schemaVersion: 1
+    schemaVersion: 2
   };
 
-  // 🔒 Canonicalize BEFORE hashing
   const canonicalBase = canonicalize(baseReport);
   const baseString = JSON.stringify(canonicalBase);
   const reportHash = sha256(baseString);
 
   const finalReport = {
-    ...canonicalBase,
+    ...baseReport,
     reportHash
   };
 
-  // Canonicalize final form as well (defensive symmetry)
   const canonicalFinal = canonicalize(finalReport);
   const finalString = JSON.stringify(canonicalFinal, null, 2);
 
   fs.writeFileSync(REPORT_PATH, finalString);
+
+  const durationMs = Date.now() - start;
+
+  appendState({
+    timestamp: new Date().toISOString(),
+    reportHash,
+    generatorHash,
+    durationMs,
+    nodeVersion: process.version,
+    platform: process.platform
+  });
 
   console.log("✅ Deterministic report generated.");
   console.log("Report hash:", reportHash);
