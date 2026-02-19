@@ -154,7 +154,9 @@ jobs:
       - name: Compute attractor score
         id: score
         run: |
-          SCORE=$(node -e "
+          SCORE=$(node ./core-scientific/metrics/attractor-score.js)
+          echo "$SCORE"
+          node -e "
           const fs = require('fs');
           const crypto = require('crypto');
 
