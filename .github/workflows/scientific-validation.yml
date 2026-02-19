@@ -187,7 +187,6 @@ jobs:
 
           const cloned = JSON.parse(JSON.stringify(report));
           delete cloned.reportHash;
-          delete cloned.generatorHash;
 
           const canonicalCloned = canonicalize(cloned);
 
