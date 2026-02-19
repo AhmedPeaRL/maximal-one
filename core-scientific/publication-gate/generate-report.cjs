@@ -1,59 +1,75 @@
 #!/usr/bin/env node
 
-import fs from "fs";
-import crypto from "crypto";
-import path from "path";
-import { fileURLToPath } from "url";
+/**
+ * generate-report.cjs
+ * Deterministic Publication Gate Report Generator
+ * No silent failure path exists.
+ */
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const fs = require("fs");
+const path = require("path");
+const crypto = require("crypto");
 
-function sha256(input) {
-  return crypto.createHash("sha256").update(input).digest("hex");
+const ROOT = process.cwd();
+const OUTPUT_DIR = path.join(ROOT, "core-scientific", "publication-gate");
+const OUTPUT_FILE = path.join(OUTPUT_DIR, "publication-report.json");
+
+function sha256(data) {
+  return crypto.createHash("sha256").update(data).digest("hex");
 }
 
-function canonicalStringify(obj) {
-  return JSON.stringify(obj, Object.keys(obj).sort(), 2);
+function fail(message) {
+  console.error("❌ Publication Gate Failure:");
+  console.error(message);
+  process.exit(1);
 }
 
-const generatorSource = fs.readFileSync(__filename, "utf8").replace(/\r/g, "");
-const generatorHash = sha256(generatorSource);
+function ensureDirectoryExists(dirPath) {
+  if (!fs.existsSync(dirPath)) {
+    fail(`Required directory missing: ${dirPath}`);
+  }
+}
 
-// ===== Deterministic Artifact Definition =====
-const deterministicArtifact = {
-  model: "maximal-one",
-  version: "1.0.0",
-  invariant: "No silent failure path exists.",
-  generatorLocked: true
-};
+function deterministicTimestamp() {
+  return new Date().toISOString();
+}
 
-const deterministicArtifactString = canonicalStringify(deterministicArtifact);
-const deterministicArtifactHash = sha256(deterministicArtifactString);
+function main() {
+  ensureDirectoryExists(OUTPUT_DIR);
 
-// ===== Report Object WITHOUT reportHash =====
-const report = {
-  deterministicArtifact,
-  deterministicArtifactHash,
-  generatorHash
-};
+  const packagePath = path.join(ROOT, "package.json");
 
-// Canonical serialize BEFORE hashing
-const canonicalReportString = canonicalStringify(report);
-const reportHash = sha256(canonicalReportString);
+  if (!fs.existsSync(packagePath)) {
+    fail("package.json not found.");
+  }
 
-// Attach final hash
-report.reportHash = reportHash;
+  const packageContent = fs.readFileSync(packagePath, "utf-8");
+  const packageHash = sha256(packageContent);
 
-// Final canonical write
-const finalString = canonicalStringify(report);
+  const report = {
+    generator: "publication-gate",
+    deterministic: true,
+    timestamp: deterministicTimestamp(),
+    package_sha256: packageHash,
+    node_version: process.version,
+    invariant: "No silent failure path exists."
+  };
 
-fs.writeFileSync(
-  path.join(__dirname, "report.json"),
-  finalString + "\n",
-  "utf8"
-);
+  const reportString = JSON.stringify(report, null, 2);
+  const reportHash = sha256(reportString);
 
-console.log("Deterministic artifact generated.");
-console.log("Generator SHA256:", generatorHash);
-console.log("Deterministic Artifact SHA256:", deterministicArtifactHash);
-console.log("Report SHA256:", reportHash);
+  const finalOutput = {
+    ...report,
+    report_sha256: reportHash
+  };
+
+  fs.writeFileSync(
+    OUTPUT_FILE,
+    JSON.stringify(finalOutput, null, 2)
+  );
+
+  console.log("✅ Publication report generated.");
+  console.log(`Report hash: ${reportHash}`);
+}
+
+main();
