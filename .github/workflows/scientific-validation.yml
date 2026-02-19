@@ -151,48 +151,70 @@ jobs:
 
       - run: npm install
 
-      - name: Integrity Lock Verification
+      - name: Verify report determinism
         run: |
-         node -e "   
-         const fs = require('fs');
-         const crypto = require('crypto');
-         
-         const report = JSON.parse(
-         fs.readFileSync('./core-scientific/publication-gate/report.json','utf8')
-         );
-         
-         const originalReportHash = report.reportHash;
-         const originalGeneratorHash = report.generatorHash;
-         
-         const cloned = JSON.parse(JSON.stringify(report));
-         delete cloned.reportHash;
-         delete cloned.generatorHash;
-         
-         const recomputedReportHash = crypto
-         .createHash('sha256')
-         .update(JSON.stringify(cloned))
-         .digest('hex');
-         
-         if (originalReportHash !== recomputedReportHash) {
-         console.error('Report hash mismatch.');
-         process.exit(1);
-         }
-         
-         const currentGeneratorHash = crypto
-         .createHash('sha256')
-         .update(
-         fs.readFileSync('./core-scientific/publication-gate/generate-report.cjs','utf8')
-         .replace(/\r/g,'')
-         )
-         .digest('hex');
-         
-         if (originalGeneratorHash !== currentGeneratorHash) {
-         console.error('Generator drift detected.');
-         process.exit(1);
-         }
-         
-         console.log('All integrity checks passed.');
-         "
+          node - <<'NODE'
+          const fs = require('fs');
+          const crypto = require('crypto');
+
+          function canonicalize(obj) {
+            if (Array.isArray(obj)) {
+              return obj.map(canonicalize);
+            }
+            if (obj !== null && typeof obj === 'object') {
+              return Object.keys(obj)
+                .sort()
+                .reduce((acc, key) => {
+                  acc[key] = canonicalize(obj[key]);
+                  return acc;
+                }, {});
+            }
+            return obj;
+          }
+
+          const reportPath = './core-scientific/publication-gate/report.json';
+          const generatorPath = './core-scientific/publication-gate/generate-report.cjs';
+
+          if (!fs.existsSync(reportPath)) {
+            console.error('report.json missing.');
+            process.exit(1);
+          }
+
+          const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+
+          const originalReportHash = report.reportHash;
+          const originalGeneratorHash = report.generatorHash;
+
+          const cloned = JSON.parse(JSON.stringify(report));
+          delete cloned.reportHash;
+          delete cloned.generatorHash;
+
+          const canonicalCloned = canonicalize(cloned);
+
+          const recomputedReportHash = crypto
+            .createHash('sha256')
+            .update(JSON.stringify(canonicalCloned))
+            .digest('hex');
+
+          if (originalReportHash !== recomputedReportHash) {
+            console.error('Report hash mismatch.');
+            process.exit(1);
+          }
+
+          const currentGeneratorHash = crypto
+            .createHash('sha256')
+            .update(
+              fs.readFileSync(generatorPath, 'utf8').replace(/\r/g, '')
+            )
+            .digest('hex');
+
+          if (originalGeneratorHash !== currentGeneratorHash) {
+            console.error('Generator drift detected.');
+            process.exit(1);
+          }
+
+          console.log('All integrity checks passed.');
+          NODE
 
       - name: Adaptive Gate
         id: gate
