@@ -218,7 +218,7 @@ jobs:
       - name: Adaptive Gate
         id: gate
         run: |
-         RESULT=$(node ./core-scientific/metrics/adaptive-threshold.js 0.547072)
+         RESULT=$(node ./core-scientific/metrics/adaptive-threshold.cjs 0.547072)
          echo "$RESULT"
          PASSED=$(node -e "
          const data = JSON.parse(process.argv[1]);
