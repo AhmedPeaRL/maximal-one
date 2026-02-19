@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * generate-report.cjs
- * Deterministic Publication Gate Report Generator
+ * Deterministic Publication Gate
+ * Fully Locked Schema
  * No silent failure path exists.
  */
 
@@ -11,65 +11,59 @@ const path = require("path");
 const crypto = require("crypto");
 
 const ROOT = process.cwd();
-const OUTPUT_DIR = path.join(ROOT, "core-scientific", "publication-gate");
-const OUTPUT_FILE = path.join(OUTPUT_DIR, "publication-report.json");
+const GATE_DIR = path.join(ROOT, "core-scientific", "publication-gate");
+const REPORT_PATH = path.join(GATE_DIR, "report.json");
+const GENERATOR_PATH = path.join(GATE_DIR, "generate-report.cjs");
 
 function sha256(data) {
   return crypto.createHash("sha256").update(data).digest("hex");
 }
 
-function fail(message) {
+function fail(msg) {
   console.error("❌ Publication Gate Failure:");
-  console.error(message);
+  console.error(msg);
   process.exit(1);
 }
 
-function ensureDirectoryExists(dirPath) {
-  if (!fs.existsSync(dirPath)) {
-    fail(`Required directory missing: ${dirPath}`);
+function ensureExists(p) {
+  if (!fs.existsSync(p)) {
+    fail(`Missing required path: ${p}`);
   }
-}
-
-function deterministicTimestamp() {
-  return new Date().toISOString();
 }
 
 function main() {
-  ensureDirectoryExists(OUTPUT_DIR);
+  ensureExists(GATE_DIR);
+  ensureExists(GENERATOR_PATH);
 
-  const packagePath = path.join(ROOT, "package.json");
+  const generatorSource = fs.readFileSync(GENERATOR_PATH, "utf8").replace(/\r/g, "");
+  const generatorHash = sha256(generatorSource);
 
-  if (!fs.existsSync(packagePath)) {
-    fail("package.json not found.");
-  }
+  const deterministicArtifact = sha256(
+    JSON.stringify({
+      node: process.version,
+      platform: process.platform
+    })
+  );
 
-  const packageContent = fs.readFileSync(packagePath, "utf-8");
-  const packageHash = sha256(packageContent);
-
-  const report = {
-    generator: "publication-gate",
-    deterministic: true,
-    timestamp: deterministicTimestamp(),
-    package_sha256: packageHash,
-    node_version: process.version,
+  const baseReport = {
+    schemaVersion: 1,
+    deterministicArtifact,
+    generatorHash,
     invariant: "No silent failure path exists."
   };
 
-  const reportString = JSON.stringify(report, null, 2);
-  const reportHash = sha256(reportString);
+  const reportWithoutHash = JSON.stringify(baseReport, null, 2);
+  const reportHash = sha256(reportWithoutHash);
 
-  const finalOutput = {
-    ...report,
-    report_sha256: reportHash
+  const finalReport = {
+    ...baseReport,
+    reportHash
   };
 
-  fs.writeFileSync(
-    OUTPUT_FILE,
-    JSON.stringify(finalOutput, null, 2)
-  );
+  fs.writeFileSync(REPORT_PATH, JSON.stringify(finalReport, null, 2));
 
-  console.log("✅ Publication report generated.");
-  console.log(`Report hash: ${reportHash}`);
+  console.log("✅ Deterministic report generated.");
+  console.log("Report hash:", reportHash);
 }
 
 main();
