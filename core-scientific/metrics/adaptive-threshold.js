@@ -1,78 +1,84 @@
 #!/usr/bin/env node
 
 /**
- * Adaptive Threshold Gate
- * ESM Deterministic Mode
- * Baseline freezes on breakthrough only
- * No silent failure path
+ * Adaptive Threshold Engine
+ * Deterministic.
+ * History-aware.
+ * No silent fallback path exists.
  */
 
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+const fs = require("fs");
+const path = require("path");
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const ROOT = process.cwd();
+const HISTORY_PATH = path.join(
+  ROOT,
+  "core-scientific",
+  "metrics",
+  "attractor-history.json"
+);
 
-const SCORE = parseFloat(process.argv[2]);
-
-if (isNaN(SCORE)) {
-  console.error("Invalid score input.");
+function fail(msg) {
+  console.error("❌ Adaptive Threshold Failure:");
+  console.error(msg);
   process.exit(1);
 }
 
-const STATE_PATH = path.join(
-  __dirname,
-  "..",
-  "state",
-  "adaptive-baseline.json"
-);
-
-fs.mkdirSync(path.dirname(STATE_PATH), { recursive: true });
-
-let baseline = SCORE;
-let threshold = SCORE;
-let slope = 0;
-let passed = true;
-
-const BREAKTHROUGH_MARGIN = 0.02;
-const STABILITY_MARGIN = 0.01;
-
-if (fs.existsSync(STATE_PATH)) {
-  const prev = JSON.parse(fs.readFileSync(STATE_PATH, "utf8"));
-
-  baseline = prev.baseline;
-
-  slope = SCORE - baseline;
-
-  if (SCORE > baseline + BREAKTHROUGH_MARGIN) {
-    baseline = SCORE; // freeze only on real breakthrough
-  }
-
-  threshold = baseline - STABILITY_MARGIN;
-
-  passed = SCORE >= threshold;
+function median(values) {
+  if (!values.length) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 !== 0
+    ? sorted[mid]
+    : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
-fs.writeFileSync(
-  STATE_PATH,
-  JSON.stringify(
-    {
-      baseline,
-      lastScore: SCORE,
-      updatedAt: new Date().toISOString()
-    },
-    null,
-    2
-  )
-);
+function main() {
+  const inputScore = parseFloat(process.argv[2]);
 
-const result = {
-  score: SCORE,
-  baseline,
-  threshold,
-  slope,
-  passed
-};
+  if (isNaN(inputScore)) {
+    fail("Invalid score input.");
+  }
 
-console.log(JSON.stringify(result));
+  if (!fs.existsSync(HISTORY_PATH)) {
+    fail("Missing attractor-history.json");
+  }
+
+  const history = JSON.parse(
+    fs.readFileSync(HISTORY_PATH, "utf8")
+  );
+
+  if (!Array.isArray(history)) {
+    fail("History must be an array.");
+  }
+
+  const recentWindow = history.slice(-10);
+  const baseline = median(recentWindow);
+
+  if (baseline === null) {
+    fail("Cannot compute baseline from empty history.");
+  }
+
+  const previous =
+    history.length >= 2
+      ? history[history.length - 2]
+      : baseline;
+
+  const slope = inputScore - previous;
+
+  const threshold = baseline + slope * 0.25;
+
+  const passed = inputScore >= threshold;
+
+  const result = {
+    score: inputScore,
+    baseline,
+    threshold,
+    slope,
+    passed
+  };
+
+  console.log(JSON.stringify(result));
+}
+
+main();
