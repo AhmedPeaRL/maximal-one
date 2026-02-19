@@ -1,7 +1,3 @@
-#!/usr/bin/env node
-/**
- * HCM Publication Gate – Deterministic Generator (Generator Locked Version)
- */
 const fs = require('fs');
 const crypto = require('crypto');
 
