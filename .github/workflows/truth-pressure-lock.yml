@@ -24,24 +24,38 @@ jobs:
 
       - name: Verify integrity
         run: |
-          echo "Checking report integrity..."
+          node -e "
+          const fs = require('fs');
+          const crypto = require('crypto');
+          
+          const report = JSON.parse(
+          fs.readFileSync('./core-scientific/publication-gate/report.json','utf8')
+          );
+          
+          const { reportHash, generatorHash, ...base } = report;
+          
+          const recomputed = crypto
+          .createHash('sha256')
+          .update(JSON.stringify(base))
+          .digest('hex');
+          
+          if (reportHash !== recomputed) {
+          console.error('Report hash mismatch.');
+          process.exit(1);
+          }
+          
+          const currentGeneratorHash = crypto
+          .createHash('sha256')
+          .update(
+            fs.readFileSync('./core-scientific/publication-gate/generate-report.cjs','utf8')
+             .replace(/\r/g,'')
+             )
+             .digest('hex');
+             
+             if (generatorHash !== currentGeneratorHash) {
+             console.error('Generator drift detected.');
+             process.exit(1);
+             }
 
-          GENERATED_HASH=$(jq -r '.reportHash' core-scientific/publication-gate/report.json)
-          RECOMPUTED_HASH=$(cat core-scientific/publication-gate/report.json | jq -S 'del(.reportHash)' | sha256sum | awk '{print $1}')
-
-          if [ "$GENERATED_HASH" != "$RECOMPUTED_HASH" ]; then
-            echo "Report hash mismatch."
-            exit 1
-          fi
-
-          echo "Checking generator integrity..."
-
-          STORED_GENERATOR_HASH=$(jq -r '.generatorHash' core-scientific/publication-gate/report.json)
-          CURRENT_GENERATOR_HASH=$(cat core-scientific/publication-gate/generate-report.cjs | tr -d '\r' | sha256sum | awk '{print $1}')
-
-          if [ "$STORED_GENERATOR_HASH" != "$CURRENT_GENERATOR_HASH" ]; then
-            echo "Generator drift detected."
-            exit 1
-          fi
-
-          echo "All integrity checks passed."
+            console.log('All integrity checks passed.');
+            "
