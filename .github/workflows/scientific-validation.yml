@@ -157,9 +157,28 @@ jobs:
           SCORE=$(node ./core-scientific/metrics/attractor-score.js | awk '{print $3}')
           echo "score=$SCORE" >> $GITHUB_OUTPUT
           echo "Attractor score is $SCORE"
+          node -e "
+          const fs = require('fs');
+          const crypto = require('crypto');
 
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
+          const report = JSON.parse(
+          fs.readFileSync('./core-scientific/publication-gate/report.json','utf8')
+          );
+
+          const { reportHash, ...base } = report;
+
+          const recomputed = crypto
+          .createHash('sha256')
+          .update(JSON.stringify(base))
+          .digest('hex');
+
+          if (reportHash !== recomputed) {
+          console.error('Report hash mismatch.');
+          process.exit(1);
+          }
+
+          console.log('Report integrity verified.');
+          "
 
       - name: Adaptive Gate
         id: gate
@@ -167,7 +186,7 @@ jobs:
          RESULT=$(node ./core-scientific/metrics/adaptive-threshold.js ${{ steps.score.outputs.score }})
          echo "$RESULT"
 
-         PASSED=$(echo "$RESULT" | jq -r '.passed')
+         PASSED=$(echo "$RESULT")
 
          if [ "$PASSED" != "true" ]; then
            echo "::error::Adaptive gate rejected evolution."
