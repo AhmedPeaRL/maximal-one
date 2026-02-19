@@ -151,45 +151,48 @@ jobs:
 
       - run: npm install
 
-      - name: Compute attractor score
-        id: score
+      - name: Integrity Lock Verification
         run: |
-          SCORE=$(node ./core-scientific/metrics/attractor-score.js)
-          echo "$SCORE"
-          node -e "
-          const fs = require('fs');
-          const crypto = require('crypto');
-
-          const report = JSON.parse(
-          fs.readFileSync('./core-scientific/publication-gate/report.json','utf8')
-          );
-
-          const { reportHash, ...base } = report;
-
-          const recomputed = crypto
-          .createHash('sha256')
-          .update(JSON.stringify(base))
-          .digest('hex');
-
-          if (reportHash !== recomputed) {
-          console.error('Report hash mismatch.');
-          process.exit(1);
-          }
-
-          const currentGeneratorHash = crypto
-          .createHash('sha256')
-          .update(
-          fs.readFileSync('./core-scientific/publication-gate/generate-report.cjs','utf8')
-          .replace(/\r/g,'')
-          )
-          .digest('hex');
-          
-          if (generatorHash !== currentGeneratorHash) {
-          console.error('Generator drift detected.');
-          process.exit(1);
-          }
-          console.log('All integrity checks passed.');
-          "
+         node -e "   
+         const fs = require('fs');
+         const crypto = require('crypto');
+         
+         const report = JSON.parse(
+         fs.readFileSync('./core-scientific/publication-gate/report.json','utf8')
+         );
+         
+         const originalReportHash = report.reportHash;
+         const originalGeneratorHash = report.generatorHash;
+         
+         const cloned = JSON.parse(JSON.stringify(report));
+         delete cloned.reportHash;
+         delete cloned.generatorHash;
+         
+         const recomputedReportHash = crypto
+         .createHash('sha256')
+         .update(JSON.stringify(cloned))
+         .digest('hex');
+         
+         if (originalReportHash !== recomputedReportHash) {
+         console.error('Report hash mismatch.');
+         process.exit(1);
+         }
+         
+         const currentGeneratorHash = crypto
+         .createHash('sha256')
+         .update(
+         fs.readFileSync('./core-scientific/publication-gate/generate-report.cjs','utf8')
+         .replace(/\r/g,'')
+         )
+         .digest('hex');
+         
+         if (originalGeneratorHash !== currentGeneratorHash) {
+         console.error('Generator drift detected.');
+         process.exit(1);
+         }
+         
+         console.log('All integrity checks passed.');
+         "
 
       - name: Adaptive Gate
         id: gate
