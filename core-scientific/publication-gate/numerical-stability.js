@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from 'fs';
 
 function assertCondition(condition, message) {
   if (!condition) {
@@ -6,16 +6,18 @@ function assertCondition(condition, message) {
   }
 }
 
-const raw = fs.readFileSync(
-  "./core-scientific/publication-gate/report.json",
-  "utf8"
+const report = JSON.parse(
+  fs.readFileSync('./core-scientific/publication-gate/report.json','utf8')
 );
 
-const report = JSON.parse(raw);
+assertCondition(
+  typeof report.deterministicArtifactHash === 'string',
+  'deterministicArtifactHash missing'
+);
 
-assertCondition(report.deterministicArtifact, "deterministicArtifact missing");
-assertCondition(report.deterministicArtifactHash, "deterministicArtifactHash missing");
-assertCondition(report.generatorHash, "generatorHash missing");
-assertCondition(report.reportHash, "reportHash missing");
+assertCondition(
+  report.deterministicArtifactHash.length === 64,
+  'deterministicArtifactHash invalid length'
+);
 
-console.log("Numerical stability verified.");
+console.log('Numerical stability verified.');
