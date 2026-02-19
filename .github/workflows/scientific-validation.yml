@@ -154,10 +154,7 @@ jobs:
       - name: Compute attractor score
         id: score
         run: |
-          SCORE=$(node ./core-scientific/metrics/attractor-score.js)
-          echo "score=$SCORE" >> $GITHUB_OUTPUT
-          echo "Attractor score is $SCORE"
-          node -e "
+          SCORE=$(node -e "
           const fs = require('fs');
           const crypto = require('crypto');
 
