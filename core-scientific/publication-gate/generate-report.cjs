@@ -2,7 +2,7 @@
 
 /**
  * Deterministic Publication Gate
- * Fully Locked Schema
+ * Canonicalized + Schema Locked
  * No silent failure path exists.
  */
 
@@ -31,6 +31,22 @@ function ensureExists(p) {
   }
 }
 
+/**
+ * Canonical JSON sort (matches jq -S)
+ */
+function canonicalize(obj) {
+  return JSON.stringify(
+    Object.keys(obj)
+      .sort()
+      .reduce((acc, key) => {
+        acc[key] = obj[key];
+        return acc;
+      }, {}),
+    null,
+    2
+  );
+}
+
 function main() {
   ensureExists(GATE_DIR);
   ensureExists(GENERATOR_PATH);
@@ -46,21 +62,21 @@ function main() {
   );
 
   const baseReport = {
-    schemaVersion: 1,
-    deterministicArtifact,
+    deterministicArtifactHash: deterministicArtifact,
     generatorHash,
-    invariant: "No silent failure path exists."
+    invariant: "No silent failure path exists.",
+    schemaVersion: 1
   };
 
-  const reportWithoutHash = JSON.stringify(baseReport, null, 2);
-  const reportHash = sha256(reportWithoutHash);
+  const canonical = canonicalize(baseReport);
+  const reportHash = sha256(canonical);
 
   const finalReport = {
     ...baseReport,
     reportHash
   };
 
-  fs.writeFileSync(REPORT_PATH, JSON.stringify(finalReport, null, 2));
+  fs.writeFileSync(REPORT_PATH, canonicalize(finalReport));
 
   console.log("✅ Deterministic report generated.");
   console.log("Report hash:", reportHash);
