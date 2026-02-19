@@ -32,7 +32,7 @@ function ensureExists(p) {
 }
 
 /**
- * Fully recursive canonical JSON (matches jq -S)
+ * Fully recursive canonical JSON (stable + sorted keys)
  */
 function canonicalize(obj) {
   if (Array.isArray(obj)) {
@@ -55,32 +55,38 @@ function main() {
   ensureExists(GATE_DIR);
   ensureExists(GENERATOR_PATH);
 
-  const generatorSource = fs.readFileSync(GENERATOR_PATH, "utf8").replace(/\r/g, "");
+  // Normalize line endings to avoid platform drift
+  const generatorSource = fs
+    .readFileSync(GENERATOR_PATH, "utf8")
+    .replace(/\r/g, "");
+
   const generatorHash = sha256(generatorSource);
 
   const deterministicArtifactHash = sha256(
-  JSON.stringify({
-    node: process.version,
-    platform: process.platform
-  })
-);
+    JSON.stringify({
+      node: process.version,
+      platform: process.platform
+    })
+  );
 
-const baseReport = {
-  deterministicArtifactHash,
-  generatorHash,
-  invariant: "No silent failure path exists.",
-  schemaVersion: 1
-};
+  const baseReport = {
+    deterministicArtifactHash,
+    generatorHash,
+    invariant: "No silent failure path exists.",
+    schemaVersion: 1
+  };
 
-  const canonicalBase = JSON.parse(JSON.stringify(baseReport));
+  // 🔒 Canonicalize BEFORE hashing
+  const canonicalBase = canonicalize(baseReport);
   const baseString = JSON.stringify(canonicalBase);
   const reportHash = sha256(baseString);
 
   const finalReport = {
-    ...baseReport,
+    ...canonicalBase,
     reportHash
   };
 
+  // Canonicalize final form as well (defensive symmetry)
   const canonicalFinal = canonicalize(finalReport);
   const finalString = JSON.stringify(canonicalFinal, null, 2);
 
