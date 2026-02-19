@@ -24,38 +24,31 @@ jobs:
 
       - name: Verify integrity
         run: |
-          node -e "
-          const fs = require('fs');
+          node -e " 
+          const fs = require('fs'); 
           const crypto = require('crypto');
-          
-          const report = JSON.parse(
-          fs.readFileSync('./core-scientific/publication-gate/report.json','utf8')
-          );
-          
-          const { reportHash, generatorHash, ...base } = report;
-          
-          const recomputed = crypto
-          .createHash('sha256')
-          .update(JSON.stringify(base))
+          const report = JSON.parse( fs.readFileSync('./core-scientific/publication-gate/report.json','utf8') );
+          const originalGeneratorHash = report.generatorHash; 
+          const originalReportHash = report.reportHash;
+          // أعد بناء التقرير كما يفعل المولد تمامًا 
+          const cloned = JSON.parse(JSON.stringify(report)); delete cloned.reportHash; delete cloned.generatorHash;
+          const recomputedReportHash = crypto 
+          .createHash('sha256') 
+          .update(JSON.stringify(cloned)) 
           .digest('hex');
           
-          if (reportHash !== recomputed) {
-          console.error('Report hash mismatch.');
-          process.exit(1);
+          if (originalReportHash !== recomputedReportHash) 
+          { console.error('Report hash mismatch.'); 
+          process.exit(1); 
           }
+          const currentGeneratorHash = crypto 
+          .createHash('sha256') 
+          .update( fs.readFileSync('./core-scientific/publication-gate/generate-report.cjs','utf8') 
+          .replace(/\r/g,'') ) 
+          .digest('hex');
+          if (originalGeneratorHash !== currentGeneratorHash) 
+          { console.error('Generator drift detected.'); 
+          process.exit(1); }
           
-          const currentGeneratorHash = crypto
-          .createHash('sha256')
-          .update(
-            fs.readFileSync('./core-scientific/publication-gate/generate-report.cjs','utf8')
-             .replace(/\r/g,'')
-             )
-             .digest('hex');
-             
-             if (generatorHash !== currentGeneratorHash) {
-             console.error('Generator drift detected.');
-             process.exit(1);
-             }
-
-            console.log('All integrity checks passed.');
-            "
+          console.log('All integrity checks passed.'); 
+          "
