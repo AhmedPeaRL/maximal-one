@@ -1,39 +1,59 @@
-const fs = require('fs');
-const crypto = require('crypto');
+#!/usr/bin/env node
 
-const generatorPath = __filename;
-const reportPath = __dirname + '/report.json';
+import fs from "fs";
+import crypto from "crypto";
+import path from "path";
+import { fileURLToPath } from "url";
 
-// Helper: stable stringify (sorted keys)
-function stableStringify(obj) {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+function sha256(input) {
+  return crypto.createHash("sha256").update(input).digest("hex");
+}
+
+function canonicalStringify(obj) {
   return JSON.stringify(obj, Object.keys(obj).sort(), 2);
 }
 
-// 1) Read generator file and compute its SHA256 (normalized line endings)
-const generatorSource = fs.readFileSync(generatorPath, 'utf8').replace(/\r/g, '');
-const generatorHash = crypto.createHash('sha256').update(generatorSource).digest('hex');
+const generatorSource = fs.readFileSync(__filename, "utf8").replace(/\r/g, "");
+const generatorHash = sha256(generatorSource);
 
-// 2) Build deterministic payload (WITHOUT reportHash)
-const payload = {
+// ===== Deterministic Artifact Definition =====
+const deterministicArtifact = {
+  model: "maximal-one",
   version: "1.0.0",
-  generatorHash,
-  timestamp: "LOCKED-DETERMINISTIC",
-  system: "HCM-Truth-Lock"
+  invariant: "No silent failure path exists.",
+  generatorLocked: true
 };
 
-// 3) Compute report hash using stable sorted JSON
-const canonical = stableStringify(payload);
-const reportHash = crypto.createHash('sha256').update(canonical).digest('hex');
+const deterministicArtifactString = canonicalStringify(deterministicArtifact);
+const deterministicArtifactHash = sha256(deterministicArtifactString);
 
-// 4) Final object
-const finalReport = {
-  ...payload,
-  reportHash
+// ===== Report Object WITHOUT reportHash =====
+const report = {
+  deterministicArtifact,
+  deterministicArtifactHash,
+  generatorHash
 };
 
-// 5) Write deterministically
-fs.writeFileSync(reportPath, stableStringify(finalReport) + '\n');
+// Canonical serialize BEFORE hashing
+const canonicalReportString = canonicalStringify(report);
+const reportHash = sha256(canonicalReportString);
+
+// Attach final hash
+report.reportHash = reportHash;
+
+// Final canonical write
+const finalString = canonicalStringify(report);
+
+fs.writeFileSync(
+  path.join(__dirname, "report.json"),
+  finalString + "\n",
+  "utf8"
+);
 
 console.log("Deterministic artifact generated.");
 console.log("Generator SHA256:", generatorHash);
-console.log("Deterministic Artifact SHA256:", reportHash);
+console.log("Deterministic Artifact SHA256:", deterministicArtifactHash);
+console.log("Report SHA256:", reportHash);
