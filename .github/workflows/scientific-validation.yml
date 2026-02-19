@@ -219,10 +219,9 @@ jobs:
         id: gate
         run: |
          RESULT=$(node ./core-scientific/metrics/adaptive-threshold.cjs 0.547072)
-         echo "$RESULT"
          PASSED=$(node -e "
          const data = JSON.parse(process.argv[1]);
-         console.log(data.passed);
+         console.log(data.passed === true ? 'true' : 'false');
          " "$RESULT")
          
          if [ "$PASSED" != "true" ]; then
