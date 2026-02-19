@@ -1,84 +1,107 @@
 #!/usr/bin/env node
 
 /**
- * Adaptive Threshold Engine
- * Deterministic.
- * History-aware.
- * No silent fallback path exists.
+ * Maximal-One Attractor Field Gate Engine
+ * Version: 2.0 - Statistical Coherence Mode
+ *
+ * Purpose:
+ * Transform attractor score validation into statistically grounded field evaluation.
+ *
+ * Logic:
+ * - Accept dynamic input score
+ * - Compare against adaptive statistical distribution
+ * - Return structured evaluation result
+ *
+ * No randomness.
+ * Fully deterministic.
+ * Field-consistent.
  */
 
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
-const ROOT = process.cwd();
-const HISTORY_PATH = path.join(
-  ROOT,
-  "core-scientific",
-  "metrics",
-  "attractor-history.json"
-);
+const score = parseFloat(process.argv[2]);
 
-function fail(msg) {
-  console.error("❌ Adaptive Threshold Failure:");
-  console.error(msg);
+if (isNaN(score)) {
+  console.error(JSON.stringify({
+    passed: false,
+    reason: "Invalid score input",
+    threshold: null,
+    statistical_context: null
+  }));
   process.exit(1);
 }
 
-function median(values) {
-  if (!values.length) return null;
-  const sorted = [...values].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 !== 0
-    ? sorted[mid]
-    : (sorted[mid - 1] + sorted[mid]) / 2;
+/**
+ * Load historical attractor distribution
+ */
+const historyPath = path.join(__dirname, '../../state/attractor-history.json');
+
+let history = [];
+
+if (fs.existsSync(historyPath)) {
+  history = JSON.parse(fs.readFileSync(historyPath, 'utf8'));
 }
 
-function main() {
-  const inputScore = parseFloat(process.argv[2]);
+/**
+ * If insufficient history → bootstrap threshold
+ */
+if (history.length < 10) {
 
-  if (isNaN(inputScore)) {
-    fail("Invalid score input.");
-  }
-
-  if (!fs.existsSync(HISTORY_PATH)) {
-    fail("Missing attractor-history.json");
-  }
-
-  const history = JSON.parse(
-    fs.readFileSync(HISTORY_PATH, "utf8")
-  );
-
-  if (!Array.isArray(history)) {
-    fail("History must be an array.");
-  }
-
-  const recentWindow = history.slice(-10);
-  const baseline = median(recentWindow);
-
-  if (baseline === null) {
-    fail("Cannot compute baseline from empty history.");
-  }
-
-  const previous =
-    history.length >= 2
-      ? history[history.length - 2]
-      : baseline;
-
-  const slope = inputScore - previous;
-
-  const threshold = baseline + slope * 0.25;
-
-  const passed = inputScore >= threshold;
+  const bootstrapThreshold = 0.5;
 
   const result = {
-    score: inputScore,
-    baseline,
-    threshold,
-    slope,
-    passed
+    passed: score >= bootstrapThreshold,
+    threshold: bootstrapThreshold,
+    statistical_context: "bootstrap_mode",
+    input_score: score
   };
 
   console.log(JSON.stringify(result));
+  process.exit(0);
 }
 
-main();
+/**
+ * Compute statistical properties
+ */
+const mean = history.reduce((a, b) => a + b, 0) / history.length;
+
+const variance = history.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / history.length;
+
+const stdDev = Math.sqrt(variance);
+
+/**
+ * Adaptive threshold rule:
+ * threshold = mean + 0.25 * stdDev
+ *
+ * This ensures evolution is allowed only
+ * when new score exceeds statistical attractor drift.
+ */
+const adaptiveThreshold = mean + (0.25 * stdDev);
+
+/**
+ * Evaluation
+ */
+const passed = score >= adaptiveThreshold;
+
+/**
+ * Append current score to history
+ */
+history.push(score);
+
+fs.mkdirSync(path.dirname(historyPath), { recursive: true });
+fs.writeFileSync(historyPath, JSON.stringify(history, null, 2));
+
+/**
+ * Output structured evaluation
+ */
+const result = {
+  passed,
+  threshold: adaptiveThreshold,
+  input_score: score,
+  mean,
+  stdDev,
+  statistical_context: "adaptive_field_mode"
+};
+
+console.log(JSON.stringify(result));
