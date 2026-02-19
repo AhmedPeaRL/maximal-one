@@ -58,7 +58,7 @@ function main() {
   const generatorSource = fs.readFileSync(GENERATOR_PATH, "utf8").replace(/\r/g, "");
   const generatorHash = sha256(generatorSource);
 
-  const deterministicArtifactHash = sha256(
+  const deterministicArtifact = sha256(
     JSON.stringify({
       node: process.version,
       platform: process.platform
@@ -66,13 +66,13 @@ function main() {
   );
 
   const baseReport = {
-    deterministicArtifactHash, // <-- stability expects this exact key
+    deterministicArtifact, // <-- stability expects this exact key
     generatorHash,
     invariant: "No silent failure path exists.",
     schemaVersion: 1
   };
 
-  const canonicalBase = canonicalize(baseReport);
+  const canonicalBase = JSON.parse(JSON.stringify(baseReport));
   const baseString = JSON.stringify(canonicalBase);
   const reportHash = sha256(baseString);
 
