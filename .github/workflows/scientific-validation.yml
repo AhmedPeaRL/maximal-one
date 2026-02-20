@@ -254,7 +254,7 @@ jobs:
   evolve:
     name: Evolution Gate
     needs: attractor
-    if: ${{ needs.adaptive-gate.outputs.passed == 'true' }}
+    if: ${{ needs.attractor-history.outputs.passed == 'true' }}
     runs-on: ubuntu-24.04
 
     steps:
