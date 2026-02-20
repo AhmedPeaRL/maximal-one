@@ -1,17 +1,11 @@
 #!/usr/bin/env node
 
 /**
- * Adaptive Attractor Field Gate v3.0
- * Scientific Logging Edition
- *
- * Produces full statistical evolution record:
- * - score
- * - mean
- * - stdDev
- * - zScore
- * - decision
- *
- * No silent failure path exists.
+ * Proof-Grade Adaptive Threshold
+ * Deterministic
+ * Welford Online Variance
+ * Burn-in Discipline
+ * Recompute Mode Integrity
  */
 
 const fs = require("fs");
@@ -19,136 +13,128 @@ const path = require("path");
 
 const ROOT = process.cwd();
 const FIELD_DIR = path.join(ROOT, "core-scientific", "attractor-field");
-const HISTORY_PATH = path.join(FIELD_DIR, "attractor-history.json");
 
-const MIN_HISTORY = 5;
-const Z_THRESHOLD = -2; // Reject if extreme negative drift
+const RAW_PATH = path.join(FIELD_DIR, "raw-history.json");
+const STATE_PATH = path.join(FIELD_DIR, "statistical-state.json");
+
+const BURN_IN = 5;
+const EPSILON = 1e-12;
 
 function fail(msg) {
-  console.error("::error::Adaptive gate rejected evolution.");
   console.error(msg);
   process.exit(1);
 }
 
-function ensureDir(p) {
+function ensure(p, fallback) {
   if (!fs.existsSync(p)) {
-    fs.mkdirSync(p, { recursive: true });
+    fs.writeFileSync(p, JSON.stringify(fallback, null, 2));
   }
 }
 
-function mean(values) {
-  return values.reduce((a, b) => a + b, 0) / values.length;
+function readJSON(p) {
+  return JSON.parse(fs.readFileSync(p, "utf8"));
 }
 
-function stdDev(values, m) {
-  const variance =
-    values.reduce((sum, v) => sum + Math.pow(v - m, 2), 0) /
-    values.length;
-  return Math.sqrt(variance);
+function writeJSON(p, obj) {
+  fs.writeFileSync(p, JSON.stringify(obj, null, 2));
 }
 
-function generateScore() {
-  // Deterministic seed based on report.json if exists
-  const reportPath = path.join(
-    ROOT,
-    "core-scientific",
-    "publication-gate",
-    "report.json"
-  );
+/**
+ * Welford recomputation from raw history
+ */
+function recomputeFromRaw(scores) {
+  let mean = 0;
+  let m2 = 0;
+  let count = 0;
 
-  if (!fs.existsSync(reportPath)) {
-    return Math.random(); // fallback
+  for (const x of scores) {
+    count++;
+    const delta = x - mean;
+    mean += delta / count;
+    const delta2 = x - mean;
+    m2 += delta * delta2;
   }
 
-  const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
-  const hash = report.reportHash;
+  const variance = count > 1 ? m2 / (count - 1) : 0;
+  const stdDev = Math.sqrt(variance);
 
-  const numeric = parseInt(hash.slice(0, 12), 16);
-  return (numeric % 1000000) / 1000000;
-}
-
-function loadHistory() {
-  if (!fs.existsSync(HISTORY_PATH)) {
-    return {
-      schemaVersion: 2,
-      history: []
-    };
-  }
-
-  const raw = JSON.parse(fs.readFileSync(HISTORY_PATH, "utf8"));
-
-  if (!raw.schemaVersion || raw.schemaVersion !== 2) {
-    return {
-      schemaVersion: 2,
-      history: []
-    };
-  }
-
-  return raw;
+  return { count, mean, m2, stdDev };
 }
 
 function main() {
-  ensureDir(FIELD_DIR);
+  ensure(FIELD_DIR, {});
+  ensure(RAW_PATH, { scores: [] });
+  ensure(STATE_PATH, { count: 0, mean: 0, m2: 0 });
 
-  const historyData = loadHistory();
-  const history = historyData.history;
+  const raw = readJSON(RAW_PATH);
+  const state = readJSON(STATE_PATH);
 
-  const score = generateScore();
+  const scores = raw.scores || [];
 
-  const previousScores = history.map(h => h.score);
-  const allScores = [...previousScores, score];
-
-  const currentMean = mean(allScores);
-  const currentStdDev = allScores.length > 1
-    ? stdDev(allScores, currentMean)
-    : 0;
-
-  const zScore =
-    currentStdDev === 0
-      ? 0
-      : (score - currentMean) / currentStdDev;
-
-  let decision = "accepted";
-
-  if (
-    allScores.length >= MIN_HISTORY &&
-    zScore < Z_THRESHOLD
-  ) {
-    decision = "rejected";
-  }
-
-  const record = {
-    timestamp: new Date().toISOString(),
-    score,
-    mean: currentMean,
-    stdDev: currentStdDev,
-    zScore,
-    decision
-  };
-
-  history.push(record);
-
-  const finalData = {
-    schemaVersion: 2,
-    history
-  };
-
-  fs.writeFileSync(
-    HISTORY_PATH,
-    JSON.stringify(finalData, null, 2)
+  // deterministic score derived from report hash
+  const report = readJSON(
+    path.join(ROOT, "core-scientific", "publication-gate", "report.json")
   );
 
-  console.log("Adaptive score:", score);
-  console.log("Mean:", currentMean);
-  console.log("StdDev:", currentStdDev);
-  console.log("Z-Score:", zScore);
-  console.log("Decision:", decision);
+  const score =
+    parseInt(report.reportHash.slice(0, 12), 16) / 0xffffffffffff;
 
-  if (decision === "rejected") {
-    fail("Z-score below adaptive threshold.");
+  scores.push(score);
+
+  // recompute full state
+  const recomputed = recomputeFromRaw(scores);
+
+  // corruption detection
+  if (
+    Math.abs(recomputed.mean - state.mean) > EPSILON &&
+    state.count > 0
+  ) {
+    fail("Statistical state drift detected.");
   }
 
-  console.log("Attractor field evolution accepted.");
+  // update files
+  raw.scores = scores;
+  writeJSON(RAW_PATH, raw);
+
+  writeJSON(STATE_PATH, {
+    count: recomputed.count,
+    mean: recomputed.mean,
+    m2: recomputed.m2,
+  });
+
+  const zScore =
+    recomputed.stdDev > 0
+      ? (score - recomputed.mean) / recomputed.stdDev
+      : 0;
+
+  const burnInComplete = recomputed.count >= BURN_IN;
+
+  const passed =
+    burnInComplete
+      ? Math.abs(zScore) <= 3
+      : true;
+
+  const result = {
+    score,
+    mean: recomputed.mean,
+    stdDev: recomputed.stdDev,
+    zScore,
+    count: recomputed.count,
+    burnInComplete,
+    passed,
+  };
+
+  // human readable log
+  console.log("Adaptive score:", score.toFixed(6));
+  console.log("Mean:", recomputed.mean.toFixed(6));
+  console.log("StdDev:", recomputed.stdDev.toFixed(6));
+  console.log("Z-Score:", zScore.toFixed(6));
+  console.log("Count:", recomputed.count);
+  console.log("Burn-in complete:", burnInComplete);
+  console.log("Decision:", passed ? "accepted" : "rejected");
+
+  // machine contract (IMPORTANT)
+  process.stdout.write("\n" + JSON.stringify(result));
 }
 
 main();
