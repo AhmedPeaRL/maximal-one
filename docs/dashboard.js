@@ -61,6 +61,7 @@ async function main() {
 
   const latest = scores[scores.length - 1];
   const zScore = stdDev > 0 ? (latest - mean) / stdDev : 0;
+  const { slope, drift, stability } = extendedMetrics(scores, stdDev);
   const burnInComplete = state.count >= 5;
   const passed = burnInComplete ? Math.abs(zScore) <= 3 : true;
 
@@ -70,6 +71,9 @@ async function main() {
     Mean: ${mean.toFixed(6)}<br>
     StdDev: ${stdDev.toFixed(6)}<br>
     Z-Score: ${zScore.toFixed(6)}<br>
+    Slope: ${slope.toFixed(6)}<br>
+    Drift: ${drift.toFixed(6)}<br>
+    Stability Index: ${stability.toFixed(4)}<br>
     Burn-in complete: ${burnInComplete}<br>
     Decision: <span class="${passed ? "good" : "bad"}">
       ${passed ? "ACCEPTED" : "REJECTED"}
