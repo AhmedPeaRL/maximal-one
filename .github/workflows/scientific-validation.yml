@@ -220,7 +220,7 @@ jobs:
       - name: Adaptive Gate
         id: gate
         run: |
-         RESULT=$(node ./core-scientific/metrics/adaptive-threshold.cjs 0.547072)
+         RESULT=$(node ./core-scientific/attractor-field/adaptive-threshold.cjs 0.547072)
          PASSED=$(node -e "
          const data = JSON.parse(process.argv[1]);
          console.log(data.passed === true ? 'true' : 'false');
@@ -244,7 +244,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: attractor-history
-          path: core-scientific/metrics/attractor-history.json
+          path: core-scientific/attractor-field/*.json
           overwrite: true
 
   evolve:
