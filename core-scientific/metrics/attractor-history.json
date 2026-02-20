@@ -1,12 +1,17 @@
 {
-  "schemaVersion": 2,
+  "version": "1.0.0",
+  "algorithm": "welford-online",
+  "minHistory": 5,
+  "zThreshold": -2,
+  "count": 12,
+  "mean": 0.7342,
+  "m2": 0.1183,
+  "stdDev": 0.102,
   "history": [
     {
       "timestamp": "...",
-      "score": 0.54,
-      "mean": 0.52,
-      "stdDev": 0.01,
-      "zScore": 2.0,
+      "score": 0.71,
+      "zScore": -0.2,
       "decision": "accepted"
     }
   ]
