@@ -38,6 +38,7 @@ jobs:
           npm run verify
           npm run stability
           npm run attractor
+          npm run evolve
 
       - name: Byzantine simulation (optional corruption)
         if: matrix.byzantine == 'true'
@@ -279,7 +280,6 @@ jobs:
           node-version: 18.20.8
 
       - run: npm install
-      - run: npm run evolve
 
       - name: Commit evolution state
         run: |
