@@ -150,6 +150,7 @@ jobs:
           node-version: 18.20.8
 
       - run: npm install
+      
       - name: Run Adaptive Attractor Gate
         run: node core-scientific/attractor-field/adaptive-threshold.cjs
 
@@ -220,7 +221,7 @@ jobs:
       - name: Adaptive Gate
         id: gate
         run: |
-         RESULT=$(node ./core-scientific/attractor-field/adaptive-threshold.cjs 0.547072)
+         RESULT=$(node ./core-scientific/attractor-field/adaptive-threshold.cjs)
          PASSED=$(node -e "
          const data = JSON.parse(process.argv[1]);
          console.log(data.passed === true ? 'true' : 'false');
