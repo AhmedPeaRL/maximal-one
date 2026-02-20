@@ -7,6 +7,8 @@ const {
   transitionMatrix,
   driftCoefficient
 } = require("./stability-metrics");
+const { linearRegressionSlope } = require("./regression");
+const { stabilityIndex } = require("./stability-index");
 
 const ROOT = process.cwd();
 const MEMORY_PATH = path.join(ROOT, ".coherence-memory", "state-history.jsonl");
@@ -40,3 +42,24 @@ const summary = {
 };
 
 console.log(JSON.stringify(summary, null, 2));
+
+function extendedMetrics(scores, stdDev) {
+  const slope = linearRegressionSlope(scores);
+  const drift = driftCoefficient(scores);
+
+  const stability = stabilityIndex({
+    slope,
+    drift,
+    stdDev
+  });
+
+  return {
+    slope,
+    drift,
+    stability
+  };
+}
+
+module.exports = {
+  extendedMetrics
+};
