@@ -150,6 +150,8 @@ jobs:
           node-version: 18.20.8
 
       - run: npm install
+      - name: Run Adaptive Attractor Gate
+        run: node core-scientific/attractor-field/adaptive-threshold.cjs
 
       - name: Verify report determinism
         run: |
