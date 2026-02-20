@@ -221,16 +221,19 @@ jobs:
       - name: Adaptive Gate
         id: gate
         run: |
-         RESULT=$(node ./core-scientific/attractor-field/adaptive-threshold.cjs)
+         RESULT=$(node ./core-scientific/attractor-field/adaptive-threshold.cjs | tail -n 1)
+
          PASSED=$(node -e "
-         const data = JSON.parse(process.argv[1]);
-         console.log(data.passed === true ? 'true' : 'false');
+          const data = JSON.parse(process.argv[1]);
+          console.log(data.passed === true ? 'true' : 'false');
          " "$RESULT")
-         
+
          if [ "$PASSED" != "true" ]; then
          echo "::error::Adaptive gate rejected evolution."
          exit 1
          fi
+
+         echo "passed=$PASSED" >> $GITHUB_OUTPUT
   
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
