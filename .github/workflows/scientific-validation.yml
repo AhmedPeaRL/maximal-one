@@ -255,7 +255,7 @@ jobs:
   evolve:
     name: Evolution Gate
     needs: attractor
-    if: ${{ needs.attractor-field-gate.outputs.passed == 'true' }}
+    if: ${{ needs.adaptive-attractor-gate.outputs.passed == 'true' }}
     runs-on: ubuntu-24.04
 
     steps:
