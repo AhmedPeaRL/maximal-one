@@ -1,0 +1,19 @@
+name: Evaluation Gate
+
+on:
+  pull_request:
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Adaptive Threshold
+        run: |
+          python scripts/adaptive_threshold.py 0.923
+
+      - name: Run Lyapunov Monitor
+        run: |
+          python scripts/lyapunov_monitor.py
