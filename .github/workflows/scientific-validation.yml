@@ -38,7 +38,6 @@ jobs:
           npm run verify
           npm run stability
           npm run attractor
-          npm run evolve
 
       - name: Byzantine simulation (optional corruption)
         if: matrix.byzantine == 'true'
@@ -255,7 +254,7 @@ jobs:
   evolve:
     name: Evolution Gate
     needs: attractor
-    if: ${{ needs.tag.outputs.passed == 'true' }}
+    if: needs.attractor.outputs.passed == 'true'
     runs-on: ubuntu-24.04
 
     steps:
@@ -280,6 +279,7 @@ jobs:
           node-version: 18.20.8
 
       - run: npm install
+      - run: npm run evolve
 
       - name: Commit evolution state
         run: |
