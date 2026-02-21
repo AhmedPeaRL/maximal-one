@@ -28,4 +28,5 @@ jobs:
           python tests/run_proof_verification.py
 
       - name: SOS Stability Certificate
-        run: python stability/sos_lyapunov_certificate.py
+        run: |
+          python stability/sos_lyapunov_certificate.py
