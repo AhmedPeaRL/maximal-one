@@ -14,6 +14,7 @@ def run_verification():
     verifier = LyapunovVerifier(system)
 
     result = verifier.verify()
+    assert result["stable"], "System is not theoretically stable."
 
     if not result["stable"]:
         raise AssertionError("System failed Lyapunov stability check.")
