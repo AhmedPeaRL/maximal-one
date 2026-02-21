@@ -1,36 +1,34 @@
 import numpy as np
 
 
-class DynamicalSystem:
-    def __init__(self, A=None, B=None):
-        # Stable linear system by default
-        self.A = A if A is not None else np.array([[0.8]])
-        self.B = B if B is not None else np.array([[0.1]])
-
-    def step(self, x, u):
-        return self.A @ x + self.B @ u
+class LinearSystem:
+    def __init__(self, A, B, M):
+        self.A = np.array(A, dtype=float)
+        self.B = np.array(B, dtype=float)
+        self.M = float(M)
 
 
-class LyapunovVerifier:
-    def __init__(self, system, M=0.5, steps=50):
+class TheoreticalVerifier:
+    def __init__(self, system: LinearSystem):
         self.system = system
-        self.M = M
-        self.steps = steps
-
-    def V(self, x):
-        return float(x.T @ x)
 
     def verify(self):
-        x = np.array([[1.0]])
-        stable = True
+        A = self.system.A
+        B = self.system.B
+        M = self.system.M
 
-        for i in range(self.steps):
-            u = np.array([[np.random.uniform(-self.M, self.M)]])
-            x_next = self.system.step(x, u)
+        spectral_radius_squared = np.linalg.norm(A)**2
 
-            if self.V(x_next) > self.V(x) + 1e-6:
-                stable = False
+        if spectral_radius_squared >= 1:
+            return {
+                "stable": False,
+                "reason": "Spectral radius squared >= 1"
+            }
 
-            x = x_next
+        ultimate_bound = (np.linalg.norm(B)**2 * M**2) / (1 - spectral_radius_squared)
 
-        return {"stable": stable}
+        return {
+            "stable": True,
+            "spectral_radius_squared": float(spectral_radius_squared),
+            "ultimate_bound": float(ultimate_bound)
+        }
