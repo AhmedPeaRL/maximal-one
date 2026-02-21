@@ -1,0 +1,28 @@
+name: Scientific Evaluation
+
+on:
+  pull_request:
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Stream Data
+        run: |
+          python scripts/data_stream.py data/input.csv > scores.txt
+
+      - name: Evaluate Scores
+        run: |
+          while read score; do
+            p=$(python scripts/perturbation_engine.py $score)
+            python scripts/adaptive_threshold.py $p
+          done < scores.txt
+
+      - name: Lyapunov Check
+        run: python scripts/lyapunov_monitor.py
+
+      - name: Equilibrium Check
+        run: python scripts/dynamic_equilibrium.py
