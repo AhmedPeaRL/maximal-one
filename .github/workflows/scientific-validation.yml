@@ -120,10 +120,6 @@ jobs:
           path: notarization.json
           overwrite: true
 
-      - name: Run multidimensional Lyapunov verification
-        run: |
-         python stability/multidim_lyapunov.py
-
   attractor:
     name: Attractor Field Gate
     needs: notarize
@@ -298,3 +294,7 @@ jobs:
             git commit -m "Autonomous evolution state update"
             git push
           fi
+
+      - name: Run multidimensional Lyapunov verification
+        run: |
+         python stability/multidim_lyapunov.py
