@@ -1,26 +1,27 @@
 import sys
 import os
 
-# Ensure project root is in Python path
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
+# Allow test folder to access root directory
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from proof_harness import DynamicalSystem, LyapunovVerifier
+from proof_harness import LinearSystem, TheoreticalVerifier
 
 
 def run_verification():
-    system = DynamicalSystem()
-    verifier = TheoreticalVerifier(system)
+    system = LinearSystem(
+        A=[[0.8]],
+        B=[[0.1]],
+        M=0.5
+    )
 
+    verifier = TheoreticalVerifier(system)
     result = verifier.verify()
+
     assert result["stable"], "System is not theoretically stable."
 
-    if not result["stable"]:
-        raise AssertionError("System failed Lyapunov stability check.")
-
-    print("Proof verification passed.")
-    return True
+    print("Verification successful.")
+    print("Spectral radius squared:", result["spectral_radius_squared"])
+    print("Ultimate bound:", result["ultimate_bound"])
 
 
 if __name__ == "__main__":
