@@ -11,7 +11,7 @@ from proof_harness import DynamicalSystem, LyapunovVerifier
 
 def run_verification():
     system = DynamicalSystem()
-    verifier = LyapunovVerifier(system)
+    verifier = TheoreticalVerifier(system)
 
     result = verifier.verify()
     assert result["stable"], "System is not theoretically stable."
