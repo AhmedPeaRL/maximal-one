@@ -26,3 +26,6 @@ jobs:
       - name: Run Theoretical Proof Harness
         run: |
           python tests/run_proof_verification.py
+
+      - name: SOS Stability Certificate
+        run: python stability/sos_lyapunov_certificate.py
