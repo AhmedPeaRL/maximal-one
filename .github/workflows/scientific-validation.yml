@@ -298,3 +298,8 @@ jobs:
       - name: Run multidimensional Lyapunov verification
         run: |
          python stability/multidim_lyapunov.py
+
+      - name: SOS Stability Certificate
+        run: |
+          python stability/sos_lyapunov_certificate.py
+          
