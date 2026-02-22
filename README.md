@@ -76,3 +76,70 @@ Chaos without collapse.
 Determinism without illusion.
 
 The system is self-validating.
+
+# Spectral and Extremal Structure of the Divisor Function
+
+## Objective
+
+This project investigates unresolved structural aspects of the divisor function τ(n), focusing on:
+
+1. Local fluctuation structure
+2. Extremal growth behavior
+3. Higher-order multidimensional generalizations
+
+The goal is not to re-prove classical upper bounds, but to explore structural regularities beyond asymptotic envelopes.
+
+---
+
+## Core Research Questions
+
+### Q1: Spectral Structure of Fluctuations
+
+Define:
+
+Δ(n) = τ(n) − log(n)
+
+We investigate:
+
+- Does Δ(n) exhibit non-random spectral features?
+- Are there dominant frequency components in its discrete Fourier transform?
+- Is the fluctuation multiplicatively structured rather than statistically random?
+
+---
+
+### Q2: Running Supremum Geometry
+
+Define:
+
+M(N) = max_{n ≤ N} τ(n)
+
+We study:
+
+- Growth rate comparison with theoretical asymptotics
+- Stability zones between extremal spikes
+- Scaling transitions
+
+---
+
+### Q3: Multidimensional Generalization
+
+Define τ_k(n):
+
+Number of representations of n as product of k positive integers.
+
+We investigate:
+
+- Extremal growth scaling with k
+- Structural transition in multiplicative density
+- Possible phase-like behavior as k increases
+
+---
+
+## Philosophy
+
+No claims beyond evidence.
+All conjectures explicitly marked.
+All code reproducible.
+All derivations transparent.
+
+Scientific clarity > rhetorical ambition.
