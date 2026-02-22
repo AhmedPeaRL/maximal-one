@@ -13,8 +13,9 @@ if not REPORT_PATH.exists():
 with open(REPORT_PATH) as f:
     data = json.load(f)
 
-if "ratios" not in data:
+if not all(k in data for k in ["ratios", "n_values"]):
     print("Invalid asymptotic report structure.")
+    print("Keys found:", list(data.keys()))
     sys.exit(1)
 
 ratios = np.array(data["ratios"], dtype=float)
