@@ -14,30 +14,11 @@ This file is designed to be CI-gated.
 
 import numpy as np
 
+from scipy.linalg import solve_discrete_lyapunov
 
-def solve_discrete_lyapunov(A: np.ndarray, Q: np.ndarray) -> np.ndarray:
-    """
-    Solve: A^T P A - P = -Q
 
-    Using vectorization:
-    vec(A^T P A) = (A ⊗ A)^T vec(P)
-
-    So:
-    ((A ⊗ A)^T - I) vec(P) = -vec(Q)
-    """
-
-    n = A.shape[0]
-    I = np.eye(n * n)
-
-    kron_term = np.kron(A, A).T
-    M = kron_term - I
-
-    vecQ = Q.reshape(n * n, 1)
-    vecP = np.linalg.solve(M, -vecQ)
-
-    P = vecP.reshape(n, n)
-    return P
-
+def solve_discrete_lyapunov_wrapper(A: np.ndarray, Q: np.ndarray) -> np.ndarray:
+    return solve_discrete_lyapunov(A.T, Q)
 
 def is_positive_definite(M: np.ndarray) -> bool:
     eigvals = np.linalg.eigvals(M)
