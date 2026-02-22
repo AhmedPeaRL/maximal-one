@@ -313,3 +313,11 @@ jobs:
       - name: SOS Stability Certificate
         run: |
           python stability/sos_lyapunov_certificate.py
+
+      - name: Run divisor bound verification (Node)
+        run: |
+         node core-scientific/number-theory/divisor-bound.cjs
+
+      - name: Run divisor numerical experiment (Python)
+        run: |
+         python stability/numerical_divisor_experiment.py
