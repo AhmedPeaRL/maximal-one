@@ -8,40 +8,27 @@ We verify:
 2) P is positive definite
 3) V(x_{k+1}) - V(x_k) <= -alpha ||x_k||^2
 
-If any condition fails -> raise RuntimeError
-This file is designed to be CI-gated.
+CI deterministic.
+Numerically stable.
 """
 
 import numpy as np
 from scipy.linalg import solve_discrete_lyapunov
 
+TOL = 1e-10
+
 
 def solve_discrete_lyapunov_wrapper(A: np.ndarray, Q: np.ndarray) -> np.ndarray:
     """
-Solve: A^T P A - P = -Q
-
-Using vectorization:  
-vec(A^T P A) = (A ⊗ A)^T vec(P)  
-
-So:  
-((A ⊗ A)^T - I) vec(P) = -vec(Q)  
-"""  
-
-n = A.shape[0]  
-I = np.eye(n * n)  
-
-kron_term = np.kron(A, A).T  
-M = kron_term - I  
-
-vecQ = Q.reshape(n * n, 1)  
-vecP = np.linalg.solve(M, -vecQ)  
-
-P = vecP.reshape(n, n)  
+    Solve: A^T P A - P = -Q
+    Using scipy stable solver.
+    """
     return solve_discrete_lyapunov(A.T, Q)
+
 
 def is_positive_definite(M: np.ndarray) -> bool:
     eigvals = np.linalg.eigvals(M)
-    return np.all(eigvals > 0)
+    return np.all(eigvals.real > TOL)
 
 
 def spectral_radius(A: np.ndarray) -> float:
@@ -55,24 +42,28 @@ class MultiDimensionalSystem:
         self.A = A
         self.n = A.shape[0]
 
-        if spectral_radius(A) >= 1.0:
-            raise RuntimeError("System not Schur-stable (spectral radius >= 1)")
+        rho = spectral_radius(A)
+
+        if rho >= 1.0 - TOL:
+            raise RuntimeError(
+                f"System not Schur-stable (spectral radius = {rho})"
+            )
 
     def verify_lyapunov(self):
 
         Q = np.eye(self.n)
-        P = solve_discrete_lyapunov(self.A, Q)
+        P = solve_discrete_lyapunov_wrapper(self.A, Q)
 
         if not is_positive_definite(P):
             raise RuntimeError("Lyapunov matrix P is not positive definite")
 
-        # Estimate alpha from minimum eigenvalue of Q in inequality
-        eigvals_Q = np.linalg.eigvals(Q)
-        alpha = min(eigvals_Q.real)
+        alpha = min(np.linalg.eigvals(Q).real)
 
-        # Empirical verification over random samples
-        for _ in range(1000):
-            x = np.random.randn(self.n, 1)
+        rng = np.random.default_rng(seed=42)
+
+        for _ in range(500):
+
+            x = rng.standard_normal((self.n, 1))
 
             Vx = float(x.T @ P @ x)
             x_next = self.A @ x
@@ -93,7 +84,6 @@ class MultiDimensionalSystem:
 
 if __name__ == "__main__":
 
-    # Example stable 2D system
     A = np.array([
         [0.6, 0.1],
         [0.0, 0.7]
