@@ -303,16 +303,16 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          python -m pip install --upgrade pip
+         python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run multidimensional Lyapunov verification
         run: |
-          python stability/multidim_lyapunov.py
+         python stability/multidim_lyapunov.py
 
       - name: SOS Stability Certificate
         run: |
-          python stability/sos_lyapunov_certificate.py
+         python stability/sos_lyapunov_certificate.py
 
       - name: Run divisor bound verification (Node)
         run: |
@@ -321,3 +321,7 @@ jobs:
       - name: Run divisor numerical experiment (Python)
         run: |
          python stability/numerical_divisor_experiment.py
+
+      - name: Run divisor asymptotic study
+        run: |
+         python stability/divisor_asymptotic_study.py > core-scientific/analytic-number-theory/asymptotic_report.json
