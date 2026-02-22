@@ -54,4 +54,8 @@ if decay_rate < 0:
     print("Non-decaying or increasing behavior detected.")
     sys.exit(1)
 
+if np.max(ratios) > 1.0:
+    print("Upper bound violation detected.")
+    sys.exit(1)
+
 print("Asymptotic statistical validation passed.")
