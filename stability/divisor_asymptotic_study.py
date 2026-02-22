@@ -1,8 +1,9 @@
 import os
 import json
 import math
-import numpy as np
 import statistics
+import numpy as np
+
 
 def divisor_count(n):
     count = 0
@@ -13,59 +14,52 @@ def divisor_count(n):
         i += 1
     return count
 
-def theoretical_upper_bound(k):
-    if k < 3:
-        return 10  # trivial safe bound for small k
-    return math.exp(2 * math.log(k) / math.log(math.log(k)))
 
-def run(limit=50000):
-    ratios = []
-    max_ratio = 0
-    max_k = 1
-
-    for k in range(3, limit + 1):
-        d = divisor_count(k)
-        logk = math.log(k)
-
-        ratio = d / logk
-        ratios.append(ratio)
-
-        if ratio > max_ratio:
-            max_ratio = ratio
-            max_k = k
-
-        # Correct asymptotic guard
-        if d > theoretical_upper_bound(k):
-            raise ValueError(f"Asymptotic bound violation at k={k}")
-
-    result = {
-        "limit": limit,
-        "mean_ratio": statistics.mean(ratios),
-        "median_ratio": statistics.median(ratios),
-        "max_ratio": max_ratio,
-        "max_k": max_k
-    }
+def run():
 
     N = int(os.getenv("ASYMPTOTIC_N", "5000"))
 
     n_values = []
     ratios = []
-    
+
+    max_ratio = 0.0
+    max_n = 1
+
+    running_supremum = []
+
     for n in range(2, N + 1):
-        # احسب tau(n) أو ratio الفعلي عند
-        tau = sum(1 for k in range(1, int(np.sqrt(n)) + 1) if n % k == 0) * 2
-        bound = 2 * np.sqrt(n)
+
+        tau = divisor_count(n)
+        bound = 2 * math.sqrt(n)
+
         ratio = tau / bound
-        
+
         n_values.append(n)
         ratios.append(ratio)
-        
-        report = {
-            "n_values": n_values,
-            "ratios": ratios
-        }
-        
-        print(json.dumps(report))
+
+        if ratio > max_ratio:
+            max_ratio = ratio
+            max_n = n
+
+        running_supremum.append(max_ratio)
+
+    last_window = ratios[-100:] if len(ratios) >= 100 else ratios
+
+    report = {
+        "N": N,
+        "max_ratio": max_ratio,
+        "argmax_n": max_n,
+        "final_ratio": ratios[-1],
+        "mean_last_window": statistics.mean(last_window),
+        "global_mean_ratio": statistics.mean(ratios),
+        "global_median_ratio": statistics.median(ratios),
+        "n_values": n_values,
+        "ratios": ratios,
+        "running_supremum": running_supremum
+    }
+
+    print(json.dumps(report, indent=2))
+
 
 if __name__ == "__main__":
     run()
