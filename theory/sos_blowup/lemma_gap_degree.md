@@ -1,10 +1,48 @@
-Lemma.
-If p_ε is strictly positive on compact projective sphere and
-m_ε = min_S p_ε,
-then minimal Putinar degree satisfies
-deg_min(p_ε) ≥ C log(1/m_ε)
-for some constant C depending only on dimension and degree.
-Proof sketch:
-Archimedean module
-Nie–Schweighofer bound
-Dependence on minimal value
+# Lemma — Degree Gap Discussion
+
+## Statement
+
+Let f ∈ R be strictly positive on compact S.
+
+Then:
+
+    f ∈ M
+
+by Putinar.
+
+---
+
+## What Is Known
+
+In general:
+
+• No universal explicit bound exists for the degrees of σ_i.
+• Degree bounds depend on:
+    - Dimension n
+    - Degree of f
+    - Geometry of S
+    - Generators g_i
+
+Explicit degree bounds remain an active research area.
+
+---
+
+## What We Do NOT Claim
+
+We do not claim:
+
+• Optimal degree bounds.
+• Polynomial scaling degree bounds.
+• Sharp asymptotic degree control.
+
+---
+
+## Open Direction
+
+Investigate whether:
+
+    deg(σ_i) ≤ C · deg(f)^k
+
+for universal constants C,k under curvature non-degeneracy assumptions.
+
+This remains open.
