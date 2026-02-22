@@ -13,7 +13,6 @@ This file is designed to be CI-gated.
 """
 
 import numpy as np
-
 from scipy.linalg import solve_discrete_lyapunov
 
 
