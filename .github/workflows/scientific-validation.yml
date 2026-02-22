@@ -11,12 +11,14 @@ on:
 permissions:
   contents: write
   pull-requests: write
-
+  
 jobs:
 
   compute:
     name: Compute Deterministic Hash
     runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/ahmedpearl/maximal-one:latest
 
     strategy:
       fail-fast: false
@@ -71,6 +73,9 @@ jobs:
     name: Multi-Runner Hash Voting
     needs: compute
     runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/ahmedpearl/maximal-one:latest
+      
 
     steps:
       - uses: actions/download-artifact@v4
@@ -102,6 +107,8 @@ jobs:
     name: Cross-Repo Notarization
     needs: vote
     runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/ahmedpearl/maximal-one:latest
 
     steps:
       - uses: actions/download-artifact@v4
@@ -124,6 +131,9 @@ jobs:
     name: Attractor Field Gate
     needs: notarize
     runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/ahmedpearl/maximal-one:latest
+      
 
     outputs:
       passed: ${{ steps.gate.outputs.passed }}
@@ -258,6 +268,8 @@ jobs:
     needs: attractor
     if: needs.attractor.outputs.passed == 'true'
     runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/ahmedpearl/maximal-one:latest
 
     steps:
       - uses: actions/checkout@v4
@@ -296,13 +308,6 @@ jobs:
             git commit -m "Autonomous evolution state update"
             git push
           fi
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18.20.8
-
-      - run: npm install
-      - run: npm run evolve
 
       - name: Setup Python
         uses: actions/setup-python@v5
