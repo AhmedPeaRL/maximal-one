@@ -17,9 +17,6 @@ jobs:
   compute:
     name: Compute Deterministic Hash
     runs-on: ubuntu-24.04
-    container:
-      image: ghcr.io/ahmedpearl/maximal-one:latest
-
     strategy:
       fail-fast: false
       matrix:
@@ -73,9 +70,7 @@ jobs:
     name: Multi-Runner Hash Voting
     needs: compute
     runs-on: ubuntu-24.04
-    container:
-      image: ghcr.io/ahmedpearl/maximal-one:latest
-      
+    
 
     steps:
       - uses: actions/download-artifact@v4
@@ -107,9 +102,7 @@ jobs:
     name: Cross-Repo Notarization
     needs: vote
     runs-on: ubuntu-24.04
-    container:
-      image: ghcr.io/ahmedpearl/maximal-one:latest
-
+    
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -131,9 +124,6 @@ jobs:
     name: Attractor Field Gate
     needs: notarize
     runs-on: ubuntu-24.04
-    container:
-      image: ghcr.io/ahmedpearl/maximal-one:latest
-      
 
     outputs:
       passed: ${{ steps.gate.outputs.passed }}
@@ -268,9 +258,6 @@ jobs:
     needs: attractor
     if: needs.attractor.outputs.passed == 'true'
     runs-on: ubuntu-24.04
-    container:
-      image: ghcr.io/ahmedpearl/maximal-one:latest
-
     steps:
       - uses: actions/checkout@v4
         with:
