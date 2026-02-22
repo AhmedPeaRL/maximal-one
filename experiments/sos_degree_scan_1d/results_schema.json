@@ -1,0 +1,7 @@
+{
+  "description": "Minimal feasible SOS degree per k",
+  "structure": {
+    "k": "integer",
+    "minimal_degree": "integer or null"
+  }
+}
