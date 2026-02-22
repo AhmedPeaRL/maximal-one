@@ -126,7 +126,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     outputs:
-      passed: ${{ steps.adaptive.outputs.passed }}
+      passed: ${{ steps.gate.outputs.passed }}
 
     steps:
       - uses: actions/checkout@v4
@@ -152,7 +152,10 @@ jobs:
       - run: npm install
       
       - name: Run Adaptive Attractor Gate
-        run: node core-scientific/attractor-field/adaptive-threshold.cjs
+        id: adaptive_run
+        run: |
+         RESULT=$(node core-scientific/attractor-field/adaptive-threshold.cjs | tail -n 1)
+         echo "$RESULT" > adaptive_result.json
 
       - name: Verify report determinism
         run: |
@@ -221,8 +224,7 @@ jobs:
       - name: Adaptive Gate
         id: gate
         run: |
-         RESULT=$(node ./core-scientific/attractor-field/adaptive-threshold.cjs | tail -n 1)
-
+         RESULT=$(cat adaptive_result.json)
          PASSED=$(node -e "
           const data = JSON.parse(process.argv[1]);
           console.log(data.passed === true ? 'true' : 'false');
