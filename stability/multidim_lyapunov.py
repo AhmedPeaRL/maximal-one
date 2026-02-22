@@ -33,7 +33,7 @@ def is_positive_definite(M: np.ndarray) -> bool:
 
 def spectral_radius(A: np.ndarray) -> float:
     eigvals = np.linalg.eigvals(A)
-    return max(abs(eigvals))
+    return max(abs(eigvals.real))
 
 
 class MultiDimensionalSystem:
