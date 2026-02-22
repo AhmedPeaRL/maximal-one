@@ -56,21 +56,20 @@ class MultiDimensionalSystem:
 
         if not is_positive_definite(P):
             raise RuntimeError("Lyapunov matrix P is not positive definite")
-
         alpha = min(np.linalg.eigvals(Q).real)
 
         rng = np.random.default_rng(seed=42)
 
         for _ in range(500):
 
-            x = rng.standard_normal((self.n, 1))
+            x = rng.standard_normal(self.n)
 
-            Vx = float(x.T @ P @ x)
+            Vx = x @ P @ x
             x_next = self.A @ x
-            Vx_next = float(x_next.T @ P @ x_next)
+            Vx_next = x_next @ P @ x_next
 
             lhs = Vx_next - Vx
-            rhs = -alpha * float(x.T @ x)
+            rhs = -alpha * (x @ x)
 
             if lhs > rhs + 1e-8:
                 raise RuntimeError("Lyapunov decrease condition violated")
