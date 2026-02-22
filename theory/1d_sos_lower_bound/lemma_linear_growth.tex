@@ -1,0 +1,66 @@
+\documentclass{article}
+\usepackage{amsmath,amsthm}
+
+\newtheorem{lemma}{Lemma}
+
+\begin{document}
+
+\title{Linear Lower Bound on SOS Degree in 1D}
+\author{Maximal One}
+\date{}
+\maketitle
+
+\section*{Setting}
+
+Let
+\[
+f_k(x) = (1 - x^2)^k
+\]
+on the compact interval $[-1,1]$.
+
+Assume a Putinar-type representation:
+\[
+f_k(x) = \sigma_0(x) + \sigma_1(x)(1 - x^2)
+\]
+where $\sigma_0, \sigma_1$ are sums of squares.
+
+Define $d(k)$ as the minimal degree required in such a representation.
+
+\begin{lemma}
+For all $k \ge 1$, one has
+\[
+d(k) \ge k.
+\]
+\end{lemma}
+
+\begin{proof}
+Observe that $f_k$ vanishes at $x=1$ with multiplicity $k$.
+Indeed,
+\[
+1 - x^2 = (1-x)(1+x)
+\]
+so near $x=1$, $f_k(x)$ behaves like $(1-x)^k$ up to nonzero scaling.
+
+Evaluating at $x=1$:
+\[
+f_k(1) = \sigma_0(1).
+\]
+Since $f_k(1)=0$ and $\sigma_0$ is a sum of squares,
+each squared component must vanish at $x=1$.
+Hence $\sigma_0$ vanishes with even multiplicity.
+
+If $\sigma_0$ carries the full multiplicity,
+its degree must grow at least linearly in $k$.
+
+Otherwise,
+$\sigma_1(x)(1-x^2)$ must contribute.
+Since $(1-x^2)$ vanishes with multiplicity $1$,
+$\sigma_1$ must vanish with multiplicity at least $k-1$.
+Again, being a sum of squares,
+its vanishing multiplicity is even,
+forcing its degree to grow at least linearly in $k$.
+
+Thus $d(k) \ge k$.
+\end{proof}
+
+\end{document}
