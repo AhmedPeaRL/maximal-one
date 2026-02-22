@@ -1,5 +1,6 @@
-import math
+import os
 import json
+import math
 import numpy as np
 import statistics
 
@@ -45,7 +46,7 @@ def run(limit=50000):
         "max_k": max_k
     }
 
-    N = 20000
+    N = int(os.getenv("ASYMPTOTIC_N", "5000"))
 
     n_values = []
     ratios = []
