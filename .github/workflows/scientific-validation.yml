@@ -325,3 +325,7 @@ jobs:
       - name: Run divisor asymptotic study
         run: |
          python stability/divisor_asymptotic_study.py > core-scientific/analytic-number-theory/asymptotic_report.json
+
+      - name: Run asymptotic statistical analysis
+        run: |
+          python stability/asymptotic_statistical_analysis.py
