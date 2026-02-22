@@ -16,13 +16,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Compute lowercase image name
+        id: vars
+        run: |
+          OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "owner_lc=$OWNER_LC" >> $GITHUB_OUTPUT
+
       - name: Log in to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-      - name: Build image
+        
+      - name: IMAGE_NAME=$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
         run: |
-          docker build -t ghcr.io/${{ github.actor }}/maximal-one:latest .
-
-      - name: Push image
+          docker build -t $IMAGE_NAME:latest .
+          
+      - name: IMAGE_NAME=$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
         run: |
-          docker push ghcr.io/${{ github.repository_owner }}/maximal-one:latest
+         docker push $IMAGE_NAME:latest
