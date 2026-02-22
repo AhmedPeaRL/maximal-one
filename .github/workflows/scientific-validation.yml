@@ -28,7 +28,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 18.20.8
+          node-version: ${{ matrix.node-version }}
       - run: npm install
 
       - name: Run validation
@@ -324,11 +324,11 @@ jobs:
 
       - name: Run divisor asymptotic study
         run: |
-         python stability/divisor_asymptotic_study.py > core-scientific/analytic-number-theory/asymptotic_report.json
-
-      - name: Print asymptotic report
+         ASYMPTOTIC_N=5000 python stability/divisor_asymptotic_study.py > core-scientific/analytic-number-theory/asymptotic_report.json
+      
+      - name: Print asymptotic report (head only)
         run: |
-         cat core-scientific/analytic-number-theory/asymptotic_report.json
+         head -n 40 core-scientific/analytic-number-theory/asymptotic_report.json
 
       - name: Run asymptotic statistical analysis
         run: |
