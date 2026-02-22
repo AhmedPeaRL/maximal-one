@@ -326,9 +326,9 @@ jobs:
         run: |
          ASYMPTOTIC_N=5000 python stability/divisor_asymptotic_study.py > core-scientific/analytic-number-theory/asymptotic_report.json
       
-      - name: Print asymptotic report (head only)
+      - name: Print asymptotic report summary
         run: |
-         head -n 40 core-scientific/analytic-number-theory/asymptotic_report.json
+         cat core-scientific/analytic-number-theory/asymptotic_report.json
 
       - name: Run asymptotic statistical analysis
         run: |
