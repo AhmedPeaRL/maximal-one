@@ -11,6 +11,11 @@ def divisor_count(n):
         i += 1
     return count
 
+def theoretical_upper_bound(k):
+    if k < 3:
+        return 10  # trivial safe bound for small k
+    return math.exp(2 * math.log(k) / math.log(math.log(k)))
+
 def run(limit=50000):
     ratios = []
     max_ratio = 0
@@ -27,6 +32,10 @@ def run(limit=50000):
             max_ratio = ratio
             max_k = k
 
+        # Correct asymptotic guard
+        if d > theoretical_upper_bound(k):
+            raise ValueError(f"Asymptotic bound violation at k={k}")
+
     result = {
         "limit": limit,
         "mean_ratio": statistics.mean(ratios),
@@ -36,11 +45,6 @@ def run(limit=50000):
     }
 
     print(json.dumps(result, indent=2))
-
-    # Stability guard: d(k) must stay below k^(0.2) for tested range
-    for k in range(3, limit + 1):
-        if divisor_count(k) > k ** 0.2:
-            raise ValueError(f"Unexpected growth anomaly at k={k}")
 
 if __name__ == "__main__":
     run()
