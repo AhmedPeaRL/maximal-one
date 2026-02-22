@@ -1,5 +1,6 @@
 import math
 import json
+import numpy as np
 import statistics
 
 def divisor_count(n):
@@ -44,7 +45,26 @@ def run(limit=50000):
         "max_k": max_k
     }
 
-    print(json.dumps(result, indent=2))
+    N = 20000
+
+    n_values = []
+    ratios = []
+    
+    for n in range(2, N + 1):
+        # احسب tau(n) أو ratio الفعلي عند
+        tau = sum(1 for k in range(1, int(np.sqrt(n)) + 1) if n % k == 0) * 2
+        bound = 2 * np.sqrt(n)
+        ratio = tau / bound
+        
+        n_values.append(n)
+        ratios.append(ratio)
+        
+        report = {
+            "n_values": n_values,
+            "ratios": ratios
+        }
+        
+        print(json.dumps(report))
 
 if __name__ == "__main__":
     run()
