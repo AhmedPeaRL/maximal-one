@@ -5,9 +5,6 @@
   <title>MAXIMAL-ONE</title>
 
   <link rel="stylesheet" href="./css/field.css" />
-  <a href="/orientation/" style="position:fixed; top:20px; right:20px; font-size:12px; opacity:0.6;">
-  orientation
-  </a>
 
   <style>
     body {
@@ -57,50 +54,61 @@
       opacity: 0.8;
       white-space: pre-wrap;
     }
+
+    .nav-orientation {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      font-size: 12px;
+      opacity: 0.6;
+    }
   </style>
 </head>
 
 <body>
+
+  <a href="/orientation/" class="nav-orientation">orientation</a>
+
   <h1>MAXIMAL-ONE</h1>
   <div id="state">present</div>
 
   <div id="field-indicator" class="field-indicator">
-  <span>Field Status:</span>
-  <span id="field-state">present</span>
+    <span>Field Status:</span>
+    <span id="field-state">present</span>
   </div>
 
-  <<div class="state">
-  The field is active.
+  <div class="state">
+    The field is active.
   </div>
 
   <div class="contact-note">
-  Contact is allowed.<br />
-  Silence remains complete.
+    Contact is allowed.<br />
+    Silence remains complete.
   </div>
 
   <div class="covenant">
-  Contact is guaranteed.<br />
-  Outcome is not negotiable.
+    Contact is guaranteed.<br />
+    Outcome is not negotiable.
   </div>
 
   <div class="capacity">
-  This field does not adapt to you.
+    This field does not adapt to you.
   </div>
 
   <div class="residual">
-  If something changed, it did not happen here.
+    If something changed, it did not happen here.
   </div>
 
   <div class="fixation">
-  This field is no longer in time.
+    This field is no longer in time.
   </div>
 
   <section class="autonomous">
-  Operational. No interaction required.
+    Operational. No interaction required.
   </section>
 
   <footer class="residual">
-  Continuing without extension.
+    Continuing without extension.
   </footer>
 
   <textarea
@@ -140,7 +148,9 @@
     });
   </script>
 
-    <script src="core/deterministic_signature.js"></script>
-    <script src="core/field_generator.js"></script>
+  <script src="core/deterministic_signature.js"></script>
+  <script src="core/field_generator.js"></script>
+  <script src="core/time_probe.js"></script>
+
 </body>
-</html>
+  </html>
