@@ -27,5 +27,38 @@ def main():
 
     print(report)
 
+def run_experiment(seed=None):
+    if seed is not None:
+        np.random.seed(seed)
+
+    # === Core stochastic model ===
+    data = np.random.normal(loc=0.0, scale=1.0, size=1000)
+
+    mean = float(np.mean(data))
+    std = float(np.std(data))
+    z_score = float(mean / (std / np.sqrt(len(data))))
+
+    result = {
+        "mean": mean,
+        "std": std,
+        "max_zscore": abs(z_score),
+        "significant": abs(z_score) > 3.0
+    }
+
+    return result
+
+
+if __name__ == "__main__":
+    result = run_experiment(seed=42)
+
+    with open("state.json", "w") as f:
+        json.dump(result, f, indent=2)
+
+    if result["significant"]:
+        print("Significant deviation detected.")
+        exit(1)
+    else:
+        print("Null hypothesis holds.")
+
 if __name__ == "__main__":
     main()
