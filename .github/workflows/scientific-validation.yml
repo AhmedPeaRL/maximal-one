@@ -329,27 +329,33 @@ jobs:
 
       - name: Seed Sweep
         run: |
-          python - <<'PY'
-          import json
-          import numpy as np
-          from master_experiment import run_experiment
+         python - <<'PY'
+         import json
+         import numpy as np
+         from master_experiment import run_experiment
 
-          results = []
-          for seed in range(50):
-              r = run_experiment(seed=seed)
-              results.append(r["max_zscore"])
+         results = []
+         for seed in range(100):
+            r = run_experiment(seed=seed)
+            results.append(r["max_zscore"])
 
-          summary = {
-              "mean": float(np.mean(results)),
-              "std": float(np.std(results)),
-              "p95": float(np.percentile(results,95)),
-              "p99": float(np.percentile(results,99))
-          }
+         summary = {
+         "mean": float(np.mean(results)),
+         "std": float(np.std(results)),
+         "p95": float(np.percentile(results,95)),
+         "p99": float(np.percentile(results,99))
+         }
 
-          with open("seed_sweep_summary.json","w") as f:
-              json.dump(summary,f,indent=2)
-          PY
+         with open("seed_sweep_summary.json","w") as f:
+            json.dump(summary,f,indent=2)
 
+         if summary["p99"] > 3.5:
+            print("Drift detected via distribution tail.")
+            exit(1)
+
+         print("Distribution stable.")
+         PY
+         
       - uses: actions/upload-artifact@v4
         with:
           name: seed-sweep
