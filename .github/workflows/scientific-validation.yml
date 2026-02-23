@@ -65,31 +65,7 @@ jobs:
           name: scientific-report-${{ matrix.node-version }}
           path: core-scientific/publication-gate/report.json
           overwrite: true
-
-  validate:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - run: pip install -r requirements.txt
-
-      - run: python master_experiment.py
-
-      - name: Fail if false claim
-        run: |
-          if grep -q '"significant": true' state.json; then
-            echo "Significant deviation detected."
-            exit 0
-          else
-            echo "Null hypothesis holds."
-            exit 0
-          fi
-
+          
   vote:
     name: Multi-Runner Hash Voting
     needs: compute
@@ -276,6 +252,30 @@ jobs:
           name: attractor-history
           path: core-scientific/attractor-field/*.json
           overwrite: true
+
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements.txt
+
+      - run: python master_experiment.py
+
+      - name: Fail if false claim
+        run: |
+          if grep -q '"significant": true' state.json; then
+            echo "Significant deviation detected."
+            exit 0
+          else
+            echo "Null hypothesis holds."
+            exit 0
+          fi
 
   evolve:
     name: Evolution Gate
