@@ -1,4 +1,4 @@
-name: Deterministic Scientific Mesh
+name: Scientific Validation
 
 on:
   push:
@@ -14,6 +14,30 @@ permissions:
   
 jobs:
 
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements.txt
+
+      - run: python master_experiment.py
+
+      - name: Fail if false claim
+        run: |
+          if grep -q '"significant": true' state.json; then
+            echo "Significant deviation detected."
+            exit 0
+          else
+            echo "Null hypothesis holds."
+            exit 0
+          fi
+  
   compute:
     name: Compute Deterministic Hash
     runs-on: ubuntu-24.04
@@ -333,3 +357,5 @@ jobs:
       - name: Run asymptotic statistical analysis
         run: |
          python stability/asymptotic_statistical_analysis.py
+
+        
