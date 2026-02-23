@@ -28,7 +28,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 18.20.8
+          node-version: ${{ matrix.node-version }}
 
       - run: npm install
 
@@ -85,6 +85,44 @@ jobs:
           name: hash-${{ matrix.node-version }}-${{ matrix.byzantine }}
           path: hash.txt
           overwrite: true
+
+      - name: Generate Environment Fingerprint
+        run: |
+         node - <<'NODE'
+         const fs = require('fs');
+         const crypto = require('crypto');
+         const os = require('os');
+
+         function hashFile(path) {
+          if (!fs.existsSync(path)) return null;
+          return crypto.createHash('sha256')
+           .update(fs.readFileSync(path))
+           .digest('hex');
+          }
+
+         const fingerprint = {
+           node_version: process.version,
+           platform: os.platform(),
+           release: os.release(),
+           arch: os.arch(),
+           package_lock_hash: hashFile('package-lock.json')
+         };
+
+         fs.writeFileSync('environment.json', JSON.stringify(fingerprint, null, 2));
+         NODE
+
+      - uses: actions/upload-artifact@v4
+        with:
+         name: environment-${{ matrix.node-version }}-${{ matrix.byzantine }}
+         path: environment.json
+
+      - name: Upload Canonical Report (node18-nonbyzantine)
+        if: matrix.node-version == 18 && matrix.byzantine == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+         name: scientific-report-canonical
+         path: core-scientific/publication-gate/report.json
+         overwrite: true
 
       - name: Upload Scientific Report
         uses: actions/upload-artifact@v4
