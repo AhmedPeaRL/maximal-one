@@ -1,18 +1,20 @@
 import numpy as np
-from math import log
-from sympy import divisor_count
-import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+from scipy.stats import zscore
 
-N = 5000
+def run_spectral_test(data):
 
-tau = np.array([divisor_count(n) for n in range(1, N+1)])
-delta = tau - np.log(np.arange(1, N+1))
+    fft_vals = np.fft.fft(data)
+    power = np.abs(fft_vals)**2
 
-# Fourier Transform
-fft_vals = np.fft.fft(delta)
-power_spectrum = np.abs(fft_vals)**2
+    z = zscore(power)
 
-plt.figure()
-plt.plot(power_spectrum[:200])
-plt.title("Power Spectrum of Δ(n)")
-plt.show()
+    peaks, properties = find_peaks(z, height=3)
+
+    significant = len(peaks) > 0
+
+    return {
+        "max_zscore": float(np.max(z)),
+        "significant": significant,
+        "peak_indices": peaks.tolist()
+    }
