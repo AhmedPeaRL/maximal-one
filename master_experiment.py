@@ -1,4 +1,6 @@
 import numpy as np
+from environment_fingerprint import generate_environment_fingerprint
+from positive_control import power_curve_test
 from spectral_experiment import run_spectral_test
 from theoretical_guard import validate_environment
 import json
@@ -10,6 +12,8 @@ def main():
 
     np.random.seed(42)
     baseline = np.random.normal(0, 1, 2048)
+    env_hash = generate_environment_fingerprint()
+    print(f"Environment hash: {env_hash}")
 
     result = run_spectral_test(baseline, alpha=0.01)
 
@@ -46,6 +50,15 @@ def run_experiment(seed=None):
     }
 
     return result
+
+def dummy_detector(data):
+    # Replace with your real detector
+    return np.max(np.abs(data)) > 4
+
+power_results = power_curve_test(dummy_detector)
+
+with open("power_curve.json", "w") as f:
+    json.dump(power_results, f, indent=2)
 
 
 if __name__ == "__main__":
