@@ -162,23 +162,6 @@ jobs:
           path: consensus.txt
           overwrite: true
 
-  consensus:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/download-artifact@v4
-
-      - name: Collect environment hashes
-        run: |
-          cat */environment.hash.txt > all_hashes.txt
-          sort all_hashes.txt | uniq > unique_hashes.txt
-          count=$(wc -l < unique_hashes.txt)
-          echo "Unique environment count: $count"
-          if [ "$count" -gt 1 ]; then
-            echo "Environment mismatch detected"
-            exit 1
-          fi
-
   notarize:
     name: Cross-Repo Notarization
     needs: vote
@@ -341,6 +324,23 @@ jobs:
       - name: Run asymptotic statistical analysis
         run: |
           python stability/asymptotic_statistical_analysis.py
+
+  consensus:
+    runs-on: ubuntu-latest
+    needs: evolve
+    steps:
+      - uses: actions/download-artifact@v4
+
+      - name: Collect environment hashes
+        run: |
+          cat */environment.hash.txt > all_hashes.txt
+          sort all_hashes.txt | uniq > unique_hashes.txt
+          count=$(wc -l < unique_hashes.txt)
+          echo "Unique environment count: $count"
+          if [ "$count" -gt 1 ]; then
+            echo "Environment mismatch detected"
+            exit 1
+          fi
    
   validate:
     runs-on: ubuntu-latest
