@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
+      
       matrix:
         node-version: [18, 20]
         byzantine: [false, true]
@@ -84,7 +85,6 @@ jobs:
         with:
           name: hash-${{ matrix.node-version }}-${{ matrix.byzantine }}
           path: hash.txt
-          overwrite: true
 
       - name: Generate Environment Fingerprint
         run: |
@@ -115,7 +115,6 @@ jobs:
         with:
          name: environment-${{ matrix.node-version }}-${{ matrix.byzantine }}
          path: environment.json
-         overwrite: true
 
       - name: Upload Canonical Report (node18-nonbyzantine)
         if: matrix.node-version == 18 && matrix.byzantine == 'false'
@@ -123,14 +122,12 @@ jobs:
         with:
          name: scientific-report-canonical
          path: core-scientific/publication-gate/report.json
-         overwrite: true
 
       - name: Upload report
         uses: actions/upload-artifact@v4
         with:
          name: scientific-report
          path: report.json
-         overwrite: true
 
   vote:
     name: Multi-Runner Hash Voting
@@ -141,7 +138,6 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: hashes
-          overwrite: true
 
       - name: Majority vote
         id: vote_step
@@ -162,7 +158,6 @@ jobs:
         with:
           name: consensus
           path: consensus.txt
-          overwrite: true
 
   notarize:
     name: Cross-Repo Notarization
@@ -173,7 +168,6 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: consensus
-          overwrite: true
 
       - name: Create notarization record
         run: |
@@ -185,7 +179,6 @@ jobs:
         with:
           name: notarization
           path: notarization.json
-          overwrite: true
 
   attractor:
     name: Attractor Field Gate
@@ -203,7 +196,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
          name: scientific-report
-         overwrite: true
          
       - name: Ensure report exists
         run: |
@@ -263,7 +255,6 @@ jobs:
         with:
          name: scientific-report
          path: core-scientific/publication-gate
-         overwrite: true
 
       - name: Ensure report exists
         run: |
@@ -430,4 +421,3 @@ jobs:
         with:
           name: seed-sweep
           path: seed_sweep_summary.json
-          overwrite: true
