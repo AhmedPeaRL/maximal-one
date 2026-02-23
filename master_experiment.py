@@ -3,8 +3,39 @@ from environment_fingerprint import generate_environment_fingerprint
 from positive_control import power_curve_test
 from spectral_experiment import run_spectral_test
 from theoretical_guard import validate_environment
+import platform
+import hashlib
 import json
+import subprocess
 import time
+
+def environment_fingerprint():
+    env = {
+        "python_version": platform.python_version(),
+        "platform": platform.platform(),
+        "processor": platform.processor(),
+        "uname": platform.uname()._asdict(),
+    }
+
+    try:
+        node_version = subprocess.check_output(["node", "--version"]).decode().strip()
+    except:
+        node_version = None
+
+    env["node_version"] = node_version
+
+    raw = json.dumps(env, sort_keys=True).encode()
+    env_hash = hashlib.sha256(raw).hexdigest()
+
+    return env, env_hash
+
+    env, env_hash = environment_fingerprint()
+    
+    with open("environment.json", "w") as f
+       json.dump(env, f, indent=2)
+    
+    with open("hash.txt", "w") as f:
+       f.write(env_hash)
 
 def main():
 
