@@ -115,6 +115,7 @@ jobs:
         with:
          name: environment-${{ matrix.node-version }}-${{ matrix.byzantine }}
          path: environment.json
+         overwrite: true
 
       - name: Upload Canonical Report (node18-nonbyzantine)
         if: matrix.node-version == 18 && matrix.byzantine == 'false'
@@ -140,6 +141,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: hashes
+          overwrite: true
 
       - name: Majority vote
         id: vote_step
@@ -171,6 +173,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: consensus
+          overwrite: true
 
       - name: Create notarization record
         run: |
@@ -200,6 +203,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
          name: scientific-report
+         overwrite: true
          
       - name: Ensure report exists
         run: |
@@ -259,6 +263,7 @@ jobs:
         with:
          name: scientific-report
          path: core-scientific/publication-gate
+         overwrite: true
 
       - name: Ensure report exists
         run: |
@@ -425,3 +430,4 @@ jobs:
         with:
           name: seed-sweep
           path: seed_sweep_summary.json
+          overwrite: true
