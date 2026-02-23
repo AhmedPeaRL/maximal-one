@@ -124,11 +124,11 @@ jobs:
          path: core-scientific/publication-gate/report.json
          overwrite: true
 
-      - name: Upload Scientific Report
+      - name: Upload report
         uses: actions/upload-artifact@v4
         with:
-         name: scientific-report-${{ matrix.sample }}-${{ matrix.flag }}-${{ runner.os }}-${{ strategy.job-index }}
-         path: core-scientific/publication-gate/report.json
+         name: scientific-report
+         path: report.json
          overwrite: true
 
   vote:
@@ -196,11 +196,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v4
+      - name: Download report
+        uses: actions/download-artifact@v4
         with:
-          name: scientific-report-18
-          path: core-scientific/publication-gate
-
+         name: scientific-report
+         
       - name: Ensure report exists
         run: |
           if [ ! -f core-scientific/publication-gate/report.json ]; then
@@ -254,10 +254,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v4
+      - name: Download report
+        uses: actions/download-artifact@v4
         with:
-          name: scientific-report-18
-          path: core-scientific/publication-gate
+         name: scientific-report
+         path: core-scientific/publication-gate
 
       - name: Ensure report exists
         run: |
@@ -342,6 +343,11 @@ jobs:
             exit 1
           fi
 
+      - name: Check environment consensus
+        run: |
+         cat */hash.txt > all_hashes.txt
+         sort all_hashes.txt | uniq | wc -l
+
   validate:
      runs-on: ubuntu-latest
 
@@ -351,6 +357,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
+      - name: List files for sanity
+        run: ls -R
 
       - run: pip install -r requirements.txt
 
