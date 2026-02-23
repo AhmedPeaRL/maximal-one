@@ -43,10 +43,32 @@ jobs:
         run: |
           echo "corruption" >> core-scientific/publication-gate/report.json
 
-      - name: Compute SHA256
+      - name: Compute Canonical SHA256
         run: |
-          node -e "const fs=require('fs'); const crypto=require('crypto'); const data=fs.readFileSync('core-scientific/publication-gate/report.json'); const hash=crypto.createHash('sha256').update(data).digest('hex'); console.log(hash); fs.writeFileSync('hash.txt',hash);"
+          node - <<'NODE'
+          const fs = require('fs');
+          const crypto = require('crypto');
 
+          function canonicalize(obj) {
+            if (Array.isArray(obj)) return obj.map(canonicalize);
+            if (obj && typeof obj === 'object') {
+              return Object.keys(obj).sort().reduce((a, k) => {
+                a[k] = canonicalize(obj[k]);
+                return a;
+              }, {});
+            }
+            return obj;
+          }
+
+          const raw = JSON.parse(fs.readFileSync('core-scientific/publication-gate/report.json','utf8'));
+          const canon = canonicalize(raw);
+          const hash = crypto.createHash('sha256')
+            .update(JSON.stringify(canon))
+            .digest('hex');
+
+          console.log(hash);
+          fs.writeFileSync('hash.txt', hash);
+          NODE
       - name: Ensure report exists
         run: |
           if [ ! -f core-scientific/publication-gate/report.json ]; then
@@ -156,6 +178,13 @@ attractor:
         run: |
          RESULT=$(node core-scientific/attractor-field/adaptive-threshold.cjs | tail -n 1)
          echo "$RESULT" > adaptive_result.json
+
+      - name: Validate Adaptive Output Exists
+        run: |
+          if [ ! -f adaptive_result.json ]; then
+            echo "::error::Adaptive output missing."
+            exit 1
+          fi
 
       - name: Verify report determinism
         run: |
@@ -388,3 +417,43 @@ validate:
       - name: Run asymptotic statistical analysis
         run: |
          python stability/asymptotic_statistical_analysis.py
+
+reproducibility-sweep:
+    runs-on: ubuntu-24.04
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements.txt
+
+      - name: Seed Sweep
+        run: |
+          python - <<'PY'
+          import json
+          import numpy as np
+          from master_experiment import run_experiment
+
+          results = []
+          for seed in range(50):
+              r = run_experiment(seed=seed)
+              results.append(r["max_zscore"])
+
+          summary = {
+              "mean": float(np.mean(results)),
+              "std": float(np.std(results)),
+              "p95": float(np.percentile(results,95)),
+              "p99": float(np.percentile(results,99))
+          }
+
+          with open("seed_sweep_summary.json","w") as f:
+              json.dump(summary,f,indent=2)
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seed-sweep
+          path: seed_sweep_summary.json
