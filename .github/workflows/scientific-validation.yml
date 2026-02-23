@@ -15,15 +15,15 @@ permissions:
 jobs:
 
   compute:
-    name: Compute Deterministic Hash
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        node-version: [18, 20]
-        byzantine: [false]
-
-    steps:
+      name: Compute Deterministic Hash
+      runs-on: ubuntu-24.04
+  strategy:
+     fail-fast: false
+     matrix:
+      node-version: [18, 20]
+      byzantine: [false, true]
+   
+  steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
@@ -66,7 +66,7 @@ jobs:
           path: core-scientific/publication-gate/report.json
           overwrite: true
           
-  vote:
+ vote:
     name: Multi-Runner Hash Voting
     needs: compute
     runs-on: ubuntu-24.04
@@ -98,7 +98,7 @@ jobs:
           path: consensus.txt
           overwrite: true
 
-  notarize:
+notarize:
     name: Cross-Repo Notarization
     needs: vote
     runs-on: ubuntu-24.04
@@ -120,7 +120,7 @@ jobs:
           path: notarization.json
           overwrite: true
 
-  attractor:
+attractor:
     name: Attractor Field Gate
     needs: notarize
     runs-on: ubuntu-24.04
@@ -252,8 +252,8 @@ jobs:
           name: attractor-history
           path: core-scientific/attractor-field/*.json
           overwrite: true
-
-  validate:
+          
+validate:
     runs-on: ubuntu-latest
 
     steps:
@@ -267,22 +267,53 @@ jobs:
 
       - run: python master_experiment.py
 
-      - name: Fail if false claim
+      - name: Enforce Null Integrity
         run: |
+          if [ ! -f state.json ]; then
+            echo "state.json missing."
+            exit 1
+          fi
+
           if grep -q '"significant": true' state.json; then
-            echo "Significant deviation detected."
-            exit 0
+            echo "::error::Significant deviation detected. Null hypothesis violated."
+            exit 1
           else
-            echo "Null hypothesis holds."
+            echo "Null hypothesis holds. Integrity preserved."
             exit 0
           fi
 
-  evolve:
-    name: Evolution Gate
-    needs: attractor
-    if: needs.attractor.outputs.passed == 'true'
-    runs-on: ubuntu-24.04
-    steps:
+      - name: Capture Environment Forensics
+        run: |
+          python - <<'PY'
+          import json
+          import platform
+          import numpy as np
+          import scipy
+          import sys
+
+          data = {
+              "python_version": sys.version,
+              "platform": platform.platform(),
+              "processor": platform.processor(),
+              "numpy_version": np.__version__,
+              "scipy_version": scipy.__version__
+          }
+
+          with open("environment_forensics.json", "w") as f:
+              json.dump(data, f, indent=2)
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: environment-forensics
+          path: environment_forensics.json
+          
+    evolve:
+      name: Evolution Gate
+      needs: attractor
+      if: needs.attractor.outputs.passed == 'true'
+      runs-on: ubuntu-24.04
+      steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
