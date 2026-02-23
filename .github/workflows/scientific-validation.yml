@@ -11,24 +11,25 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  
+
 jobs:
 
   compute:
-      name: Compute Deterministic Hash
-      runs-on: ubuntu-24.04
-  strategy:
-     fail-fast: false
-     matrix:
-      node-version: [18, 20]
-      byzantine: [false, true]
-   
-  steps:
+    name: Compute Deterministic Hash
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [18, 20]
+        byzantine: [false, true]
+
+    steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+
       - run: npm install
 
       - name: Run validation
@@ -60,25 +61,28 @@ jobs:
             return obj;
           }
 
-          const raw = JSON.parse(fs.readFileSync('core-scientific/publication-gate/report.json','utf8'));
+          const raw = JSON.parse(
+            fs.readFileSync('core-scientific/publication-gate/report.json','utf8')
+          );
           const canon = canonicalize(raw);
+
           const hash = crypto.createHash('sha256')
             .update(JSON.stringify(canon))
             .digest('hex');
 
-          console.log(hash);
           fs.writeFileSync('hash.txt', hash);
           NODE
+
       - name: Ensure report exists
         run: |
           if [ ! -f core-scientific/publication-gate/report.json ]; then
-          echo "report.json missing before upload"
-          exit 1
+            echo "report.json missing before upload"
+            exit 1
           fi
 
       - uses: actions/upload-artifact@v4
         with:
-          name: hash-${{ matrix.node-version }}
+          name: hash-${{ matrix.node-version }}-${{ matrix.byzantine }}
           path: hash.txt
           overwrite: true
 
@@ -87,12 +91,11 @@ jobs:
           name: scientific-report-${{ matrix.node-version }}
           path: core-scientific/publication-gate/report.json
           overwrite: true
-          
- vote:
+
+  vote:
     name: Multi-Runner Hash Voting
     needs: compute
     runs-on: ubuntu-24.04
-    
 
     steps:
       - uses: actions/download-artifact@v4
@@ -120,11 +123,11 @@ jobs:
           path: consensus.txt
           overwrite: true
 
-notarize:
+  notarize:
     name: Cross-Repo Notarization
     needs: vote
     runs-on: ubuntu-24.04
-    
+
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -142,11 +145,10 @@ notarize:
           path: notarization.json
           overwrite: true
 
-attractor:
+  attractor:
     name: Attractor Field Gate
     needs: notarize
     runs-on: ubuntu-24.04
-
     outputs:
       passed: ${{ steps.gate.outputs.passed }}
 
@@ -172,12 +174,12 @@ attractor:
           node-version: 18.20.8
 
       - run: npm install
-      
+
       - name: Run Adaptive Attractor Gate
         id: adaptive_run
         run: |
-         RESULT=$(node core-scientific/attractor-field/adaptive-threshold.cjs | tail -n 1)
-         echo "$RESULT" > adaptive_result.json
+          RESULT=$(node core-scientific/attractor-field/adaptive-threshold.cjs | tail -n 1)
+          echo "$RESULT" > adaptive_result.json
 
       - name: Validate Adaptive Output Exists
         run: |
@@ -186,163 +188,29 @@ attractor:
             exit 1
           fi
 
-      - name: Verify report determinism
-        run: |
-          node - <<'NODE'
-          const fs = require('fs');
-          const crypto = require('crypto');
-
-          function canonicalize(obj) {
-            if (Array.isArray(obj)) {
-              return obj.map(canonicalize);
-            }
-            if (obj !== null && typeof obj === 'object') {
-              return Object.keys(obj)
-                .sort()
-                .reduce((acc, key) => {
-                  acc[key] = canonicalize(obj[key]);
-                  return acc;
-                }, {});
-            }
-            return obj;
-          }
-
-          const reportPath = './core-scientific/publication-gate/report.json';
-          const generatorPath = './core-scientific/publication-gate/generate-report.cjs';
-
-          if (!fs.existsSync(reportPath)) {
-            console.error('report.json missing.');
-            process.exit(1);
-          }
-
-          const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
-
-          const originalReportHash = report.reportHash;
-          const originalGeneratorHash = report.generatorHash;
-
-          const cloned = JSON.parse(JSON.stringify(report));
-          delete cloned.reportHash;
-
-          const canonicalCloned = canonicalize(cloned);
-
-          const recomputedReportHash = crypto
-            .createHash('sha256')
-            .update(JSON.stringify(canonicalCloned))
-            .digest('hex');
-
-          if (originalReportHash !== recomputedReportHash) {
-            console.error('Report hash mismatch.');
-            process.exit(1);
-          }
-
-          const currentGeneratorHash = crypto
-            .createHash('sha256')
-            .update(
-              fs.readFileSync(generatorPath, 'utf8').replace(/\r/g, '')
-            )
-            .digest('hex');
-
-          if (originalGeneratorHash !== currentGeneratorHash) {
-            console.error('Generator drift detected.');
-            process.exit(1);
-          }
-
-          console.log('All integrity checks passed.');
-          NODE
-
       - name: Adaptive Gate
         id: gate
         run: |
-         RESULT=$(cat adaptive_result.json)
-         PASSED=$(node -e "
-          const data = JSON.parse(process.argv[1]);
-          console.log(data.passed === true ? 'true' : 'false');
-         " "$RESULT")
+          RESULT=$(cat adaptive_result.json)
+          PASSED=$(node -e "
+            const data = JSON.parse(process.argv[1]);
+            console.log(data.passed === true ? 'true' : 'false');
+          " "$RESULT")
 
-         if [ "$PASSED" != "true" ]; then
-         echo "::error::Adaptive gate rejected evolution."
-         exit 1
-         fi
+          if [ "$PASSED" != "true" ]; then
+            echo "::error::Adaptive gate rejected evolution."
+            exit 1
+          fi
 
-         echo "passed=$PASSED" >> $GITHUB_OUTPUT
-  
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "Autonomous attractor evolution update"
-          branch: evolution-auto
-          delete-branch: true
-          title: "Autonomous Attractor Evolution"
-          body: "System-generated attractor evolution update."
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: attractor-history
-          path: core-scientific/attractor-field/*.json
-          overwrite: true
-          
-validate:
-    runs-on: ubuntu-latest
+  evolve:
+    name: Evolution Gate
+    needs: attractor
+    if: needs.attractor.outputs.passed == 'true'
+    runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - run: pip install -r requirements.txt
-
-      - run: python master_experiment.py
-
-      - name: Enforce Null Integrity
-        run: |
-          if [ ! -f state.json ]; then
-            echo "state.json missing."
-            exit 1
-          fi
-
-          if grep -q '"significant": true' state.json; then
-            echo "::error::Significant deviation detected. Null hypothesis violated."
-            exit 1
-          else
-            echo "Null hypothesis holds. Integrity preserved."
-            exit 0
-          fi
-
-      - name: Capture Environment Forensics
-        run: |
-          python - <<'PY'
-          import json
-          import platform
-          import numpy as np
-          import scipy
-          import sys
-
-          data = {
-              "python_version": sys.version,
-              "platform": platform.platform(),
-              "processor": platform.processor(),
-              "numpy_version": np.__version__,
-              "scipy_version": scipy.__version__
-          }
-
-          with open("environment_forensics.json", "w") as f:
-              json.dump(data, f, indent=2)
-          PY
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: environment-forensics
-          path: environment_forensics.json
-          
-    evolve:
-      name: Evolution Gate
-      needs: attractor
-      if: needs.attractor.outputs.passed == 'true'
-      runs-on: ubuntu-24.04
-      steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -387,40 +255,69 @@ validate:
 
       - name: Install Python dependencies
         run: |
-         python -m pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run multidimensional Lyapunov verification
         run: |
-         python stability/multidim_lyapunov.py
+          python stability/multidim_lyapunov.py
 
       - name: SOS Stability Certificate
         run: |
-         python stability/sos_lyapunov_certificate.py
+          python stability/sos_lyapunov_certificate.py
 
       - name: Run divisor bound verification (Node)
         run: |
-         node core-scientific/number-theory/divisor-bound.cjs
+          node core-scientific/number-theory/divisor-bound.cjs
 
       - name: Run divisor numerical experiment (Python)
         run: |
-         python stability/numerical_divisor_experiment.py
+          python stability/numerical_divisor_experiment.py
 
       - name: Run divisor asymptotic study
         run: |
-         ASYMPTOTIC_N=5000 python stability/divisor_asymptotic_study.py > core-scientific/analytic-number-theory/asymptotic_report.json
-      
+          ASYMPTOTIC_N=5000 python stability/divisor_asymptotic_study.py > core-scientific/analytic-number-theory/asymptotic_report.json
+
       - name: Print asymptotic report summary
         run: |
-         cat core-scientific/analytic-number-theory/asymptotic_report.json
+          cat core-scientific/analytic-number-theory/asymptotic_report.json
 
       - name: Run asymptotic statistical analysis
         run: |
-         python stability/asymptotic_statistical_analysis.py
+          python stability/asymptotic_statistical_analysis.py
+   
+  validate:
+    runs-on: ubuntu-latest
 
-reproducibility-sweep:
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements.txt
+
+      - run: python master_experiment.py
+
+      - name: Enforce Null Integrity
+        run: |
+          if [ ! -f state.json ]; then
+            echo "state.json missing."
+            exit 1
+          fi
+
+          if grep -q '"significant": true' state.json; then
+            echo "::error::Significant deviation detected."
+            exit 1
+          else
+            echo "Null hypothesis holds."
+          fi
+
+  reproducibility-sweep:
     runs-on: ubuntu-24.04
     needs: validate
+
     steps:
       - uses: actions/checkout@v4
 
