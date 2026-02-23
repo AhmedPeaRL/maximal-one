@@ -127,7 +127,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
          name: scientific-report
-         path: report.json
+         path: core-scientific/publication-gate/report.json
 
   vote:
     name: Multi-Runner Hash Voting
@@ -196,6 +196,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
          name: scientific-report
+         path: core-scientific/publication-gate/report.json
+         
          
       - name: Ensure report exists
         run: |
@@ -254,7 +256,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
          name: scientific-report
-         path: core-scientific/publication-gate
+         path: core-scientific/publication-gate/report.json
 
       - name: Ensure report exists
         run: |
