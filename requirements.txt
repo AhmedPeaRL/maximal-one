@@ -1,8 +1,8 @@
 cvxpy
-numpy>=1.26
-scipy>=1.11
+numpy==1.26.4
+scipy==1.12.0
 sympy
-matplotlib
+matplotlib==3.8.2
 scs
 pandas
-statsmodels
+statsmodels==0.14.1
