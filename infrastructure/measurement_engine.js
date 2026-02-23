@@ -1,5 +1,43 @@
-// measurement_engine.js
-// STRICTLY ISOLATED FROM EXPRESSION LAYER
+// infrastructure/measurement_engine.js
+
+(function () {
+
+  const samples = [];
+  const MAX = 128;
+
+  function record(value) {
+    samples.push(value);
+    if (samples.length > MAX) samples.shift();
+  }
+
+  function periodicAnalysis() {
+    const result = window.StatEngine.analyze(samples);
+    if (!result) return;
+
+    console.log("=== Statistical Report ===");
+    console.log(result);
+
+    // Basic normality heuristic
+    if (Math.abs(result.skewness) < 0.5 &&
+        Math.abs(result.kurtosis) < 1.0) {
+      console.log("Distribution: approximately normal");
+    } else {
+      console.log("Distribution: non-normal structure detected");
+    }
+
+    if (result.dominantFrequencyIndex > 0) {
+      console.log("Dominant frequency index:", result.dominantFrequencyIndex);
+    }
+  }
+
+  // Hook into time_probe
+  if (window.TimeProbe) {
+    setInterval(() => {
+      const value = window.TimeProbe.sample();
+      record(value);
+      periodicAnalysis();
+    }, 1000);
+  }
 
 (function () {
 
