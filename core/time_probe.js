@@ -1,3 +1,13 @@
+// core/time_probe.js
+
+(function () {
+
+  function sample() {
+    return performance.now() % 1000;
+  }
+
+  window.TimeProbe = { sample };
+  
 (function () {
 
   function probe() {
