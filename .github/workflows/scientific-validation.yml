@@ -341,11 +341,11 @@ jobs:
             echo "Environment mismatch detected"
             exit 1
           fi
-   
-  validate:
-    runs-on: ubuntu-latest
 
-    steps:
+  validate:
+     runs-on: ubuntu-latest
+
+     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
