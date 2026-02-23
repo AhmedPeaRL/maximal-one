@@ -1,0 +1,36 @@
+name: Cross Architecture Timing Test
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * 1"
+
+jobs:
+  timing-test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install numpy scipy
+
+      - name: Run experiment
+        run: |
+          python experiments/timing_experiment.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: timing-${{ matrix.os }}
+          path: timing_results.json
