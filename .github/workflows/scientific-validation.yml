@@ -162,6 +162,23 @@ jobs:
           path: consensus.txt
           overwrite: true
 
+  consensus:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+
+      - name: Collect environment hashes
+        run: |
+          cat */environment.hash.txt > all_hashes.txt
+          sort all_hashes.txt | uniq > unique_hashes.txt
+          count=$(wc -l < unique_hashes.txt)
+          echo "Unique environment count: $count"
+          if [ "$count" -gt 1 ]; then
+            echo "Environment mismatch detected"
+            exit 1
+          fi
+
   notarize:
     name: Cross-Repo Notarization
     needs: vote
@@ -399,21 +416,3 @@ jobs:
         with:
           name: seed-sweep
           path: seed_sweep_summary.json
-
-  consensus:
-    needs: [reproducibility-sweep]
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/download-artifact@v4
-
-      - name: Collect environment hashes
-        run: |
-          cat */environment.hash.txt > all_hashes.txt
-          sort all_hashes.txt | uniq > unique_hashes.txt
-          count=$(wc -l < unique_hashes.txt)
-          echo "Unique environment count: $count"
-          if [ "$count" -gt 1 ]; then
-            echo "Environment mismatch detected"
-            exit 1
-          fi
