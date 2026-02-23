@@ -62,5 +62,4 @@
   window.StatEngine = {
     analyze
   };
-
 })();
