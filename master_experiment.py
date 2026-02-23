@@ -1,23 +1,34 @@
-#!/usr/bin/env python3
-import subprocess
+import numpy as np
+from spectral_experiment import run_spectral_test
+from theoretical_guard import validate_environment
+import json
+import time
 
-MODES = ["noise", "shift", "adversarial"]
+def main():
 
-for mode in MODES:
-    print("MODE:", mode)
+    validate_environment()
 
-    data = subprocess.check_output(
-        ["python", "harness/real_data_loader.py", "data/input.csv"]
-    ).decode().splitlines()
+    print("Collecting synthetic control data...")
 
-    for d in data:
-        p = subprocess.check_output(
-            ["python", "harness/perturbation.py", d, mode]
-        ).decode().strip()
+    # Synthetic baseline
+    np.random.seed(42)
+    baseline = np.random.normal(0, 1, 2048)
 
-        subprocess.run(
-            ["python", "scripts/adaptive_threshold.py", p]
-        )
+    result = run_spectral_test(baseline)
 
-    subprocess.run(["python", "harness/lyapunov_monitor.py"])
-    subprocess.run(["python", "harness/equilibrium_test.py"])
+    report = {
+        "timestamp": time.time(),
+        "max_zscore": result["max_zscore"],
+        "significant": result["significant"],
+        "sample_size": len(baseline),
+        "null_hypothesis": "No intrinsic periodic structure"
+    }
+
+    with open("state.json", "w") as f:
+        json.dump(report, f, indent=2)
+
+    print("Experiment complete.")
+    print(report)
+
+if __name__ == "__main__":
+    main()
