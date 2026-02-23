@@ -1,6 +1,10 @@
-def verify_monotonic_decrease(history, tolerance=1e-8):
-    return (history <= tolerance).all()
+import platform
+import sys
 
-def bounded_input_check(perturbations, M):
-    import numpy as np
-    return np.max(np.linalg.norm(perturbations, axis=1)) <= M
+def validate_environment():
+
+    if sys.version_info < (3, 10):
+        raise RuntimeError("Python 3.10+ required.")
+
+    print("Environment validated:")
+    print("Platform:", platform.platform())
