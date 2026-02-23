@@ -136,15 +136,14 @@
 
       state.innerText = "received";
       eventBox.innerText = "";
-
-      witness(value).then(result => {
-        if (result && result.event) {
-          eventBox.innerText = result.event;
-        }
-        state.innerText = "present";
-      });
-
-      input.value = "";
+      
+    witness(value).then(result => {
+      if (result && result.event) {
+        eventBox.innerText = result.event;
+      } else {
+        eventBox.innerText = renderLogos(value);
+      }
+      state.innerText = "present";
     });
   </script>
 
