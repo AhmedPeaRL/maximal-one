@@ -84,8 +84,8 @@ jobs:
       with:  
       name: hash-${{ matrix.node-version }}-${{ matrix.byzantine }}  
       path: hash.txt  
-      
- build-report:
+  
+      build-report:
       runs-on: ubuntu-24.04
       needs: compute
 
