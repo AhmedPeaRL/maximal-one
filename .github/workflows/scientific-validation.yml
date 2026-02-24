@@ -203,6 +203,8 @@ jobs:
       with:
         python-version: "3.11.8"
 
+    - run: python -m pip install pip==24.0
+
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
