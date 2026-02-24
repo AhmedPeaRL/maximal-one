@@ -1,23 +1,49 @@
 import numpy as np
+from scipy.stats import norm
 
+def compute_z(value, mean, std):
+    if std == 0:
+        return 0.0
+    return (value - mean) / std
 
-def spc_check(sample, baseline, tests=2, alpha=0.01):
-    mean = np.mean(sample)
-    std = np.std(sample)
+def spc_check(sample, baseline, alpha=0.01):
+    """
+    Distribution-aware SPC check.
+    Baseline must include:
+        mean_mean
+        mean_std
+        std_mean
+        std_std
+    """
 
-    corrected_alpha = alpha / tests
-    threshold = 2.58  # approximate z for 0.01
+    sample_mean = np.mean(sample)
+    sample_std = np.std(sample)
 
-    mean_z = abs(mean - baseline["mean"]) / baseline["std"]
-    std_z = abs(std - baseline["std"]) / baseline["std"]
+    # Z-scores against baseline distribution
+    mean_z = compute_z(
+        sample_mean,
+        baseline["mean_mean"],
+        baseline["mean_std"]
+    )
 
-    mean_fail = mean_z > threshold
-    std_fail = std_z > threshold
+    std_z = compute_z(
+        sample_std,
+        baseline["std_mean"],
+        baseline["std_std"]
+    )
+
+    # two-sided threshold
+    threshold = norm.ppf(1 - alpha/2)
+
+    mean_fail = abs(mean_z) > threshold
+    std_fail = abs(std_z) > threshold
 
     return {
+        "sample_mean": float(sample_mean),
+        "sample_std": float(sample_std),
         "mean_z": float(mean_z),
         "std_z": float(std_z),
-        "mean_fail": mean_fail,
-        "std_fail": std_fail,
-        "corrected_alpha": corrected_alpha,
+        "threshold": float(threshold),
+        "mean_fail": bool(mean_fail),
+        "std_fail": bool(std_fail),
     }
