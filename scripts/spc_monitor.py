@@ -1,6 +1,6 @@
 import json
 import numpy as np
-from master_experiment import run_experiment
+from maximal_one.master_experiment import run_experiment
 import sys
 import os
 
