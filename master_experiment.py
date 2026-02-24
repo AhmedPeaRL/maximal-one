@@ -6,9 +6,9 @@ import subprocess
 import time
 
 from core.environment_fingerprint import generate_environment_fingerprint
-from positive_control import power_curve_test
-from spectral_experiment import run_spectral_test
-from theoretical_guard import validate_environment
+from core.positive_control import power_curve_test
+from core.spectral_experiment import run_spectral_test
+from core.theoretical_guard import validate_environment
 
 
 def environment_fingerprint_local():
