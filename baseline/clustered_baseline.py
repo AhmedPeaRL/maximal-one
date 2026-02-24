@@ -15,14 +15,20 @@ def baseline_path(env_hash):
     return os.path.join(BASELINE_DIR, f"{env_hash}.json")
 
 
-def create_baseline(sample):
-    mean = float(np.mean(sample))
-    std = float(np.std(sample))
+def create_baseline(samples):
+    """
+    samples: list of independent sample arrays
+    """
+
+    means = [np.mean(s) for s in samples]
+    stds  = [np.std(s)  for s in samples]
 
     return {
-        "mean": mean,
-        "std": std,
-        "n": len(sample),
+        "mean_mean": float(np.mean(means)),
+        "mean_std":  float(np.std(means)),
+        "std_mean":  float(np.mean(stds)),
+        "std_std":   float(np.std(stds)),
+        "n_runs": len(samples)
     }
 
 
