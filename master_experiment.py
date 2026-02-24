@@ -5,7 +5,7 @@ import json
 import subprocess
 import time
 
-from environment_fingerprint import generate_environment_fingerprint
+from core.environment_fingerprint import generate_environment_fingerprint
 from positive_control import power_curve_test
 from spectral_experiment import run_spectral_test
 from theoretical_guard import validate_environment
