@@ -423,3 +423,16 @@ jobs:
         with:
           name: seed-sweep
           path: seed_sweep_summary.json
+
+      - name: Run Adversarial Test
+        run: python scripts/adversarial_runner.py
+
+      - name: Drift Detection
+        run: |
+          python scripts/drift_detector.py > drift_output.json
+
+      - name: SPC Monitor
+        run: python scripts/spc_monitor.py
+
+      - name: Sequential Test
+        run: python scripts/sequential_test.py
