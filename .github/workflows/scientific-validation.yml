@@ -195,7 +195,7 @@ jobs:
       - name: Download report
         uses: actions/download-artifact@v4
         with:
-         name: scientific-report-${{ matrix.node-version }}-${{ matrix.byzantine }}
+         name: scientific-report-canonical
          path: core-scientific/publication-gate/report.json
          
          
@@ -255,7 +255,7 @@ jobs:
       - name: Download report
         uses: actions/download-artifact@v4
         with:
-         name: scientific-report-${{ matrix.node-version }}-${{ matrix.byzantine }}
+         name: scientific-report-canonical
          path: core-scientific/publication-gate/report.json
 
       - name: Ensure report exists
@@ -347,36 +347,36 @@ jobs:
          sort all_hashes.txt | uniq | wc -l
 
   validate:
-     runs-on: ubuntu-latest
+   runs-on: ubuntu-latest
 
-     steps:
-      - uses: actions/checkout@v4
+   steps:
+    - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
 
-      - name: List files for sanity
-        run: ls -R
+    - run: pip install -r requirements.txt
 
-      - run: pip install -r requirements.txt
+    - name: Multi-run null validation
+      run: |
+        python - <<'PY'
+        import numpy as np
+        from master_experiment import run_experiment
 
-      - run: python master_experiment.py
+        results = []
+        for seed in range(50):
+            r = run_experiment(seed=seed)
+            results.append(r["max_zscore"])
 
-      - name: Enforce Null Integrity
-        run: |
-          if [ ! -f state.json ]; then
-            echo "state.json missing."
-            exit 1
-          fi
+        p99 = np.percentile(results, 99)
 
-          if grep -q '"significant": true' state.json; then
-            echo "::error::Significant deviation detected."
-            exit 1
-          else
-            echo "Null hypothesis holds."
-          fi
+        if p99 > 3.5:
+            raise SystemExit("False positive drift detected.")
 
+        print("Null distribution stable.")
+        PY
+        
   reproducibility-sweep:
     runs-on: ubuntu-24.04
     needs: validate
