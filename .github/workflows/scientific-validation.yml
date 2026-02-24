@@ -120,13 +120,13 @@ jobs:
         if: matrix.node-version == 18 && matrix.byzantine == 'false'
         uses: actions/upload-artifact@v4
         with:
-         name: scientific-report-canonical
+         name: maximal-one-canonical-report
          path: core-scientific/publication-gate/report.json
 
       - name: Upload scientific report
         uses: actions/upload-artifact@v4
         with:
-          name: scientific-report-${{ matrix.node-version }}-${{ matrix.byzantine }}
+          name: maximal-one-canonical-report
           path: core-scientific/publication-gate/report.json
 
   vote:
@@ -225,7 +225,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: smaximal-one-stability-artifacts
+          name: maximal-one-canonical-report
           path: ./artifact
 
       - name: Validate gate
@@ -297,7 +297,7 @@ jobs:
       - name: Download report
         uses: actions/download-artifact@v4
         with:
-         name: maximal-one-stability-artifacts
+         name: maximal-one-canonical-report
          path: core-scientific/publication-gate/report.json
 
       - name: Ensure report exists
