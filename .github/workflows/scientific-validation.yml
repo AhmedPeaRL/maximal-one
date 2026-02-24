@@ -193,23 +193,29 @@ jobs:
           fetch-depth: 0
 
   build-report:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Generate report
-        run: python scripts/generate_report.py
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11.8"
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: maximal-one-stability-artifacts
-          path: artifacts/
-      
-      - uses: actions/upload-artifact@v4
-        with:
-          name: scientific-report-canonical
-          path: core-scientific/publication-gate/report.json
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Generate stability report
+      run: python scripts/generate_report.py
+
+    - name: Upload stability artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: maximal-one-stability-artifacts
+        path: artifacts/
 
   gate:
     runs-on: ubuntu-latest
