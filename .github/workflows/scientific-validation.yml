@@ -1,80 +1,95 @@
 name: Scientific Validation
 
 on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
-  schedule:
-    - cron: '0 0 * * 0'
+ push:
+  branches: 
+  - main
+ workflow_dispatch:
+ schedule:
+  - cron: '0 0 * * 0'
 
 permissions:
-  contents: write
-
+ contents: write
+ pull-requests: write
+ 
 jobs:
 
-  compute:
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        node-version: [18, 20]
+ compute:
+  name: Compute Deterministic Hash
+  runs-on: ubuntu-24.04
+  strategy:
+   fail-fast: false
+   matrix:  
+    node-version: [18, 20]  
+    byzantine: [false, true]  
 
-    steps:
-      - uses: actions/checkout@v4
+  steps:  
+  - uses: actions/checkout@v4  
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
+  - uses: actions/setup-node@v4  
+    with:  
+      node-version: ${{ matrix.node-version }}  
 
-      - run: npm ci
+  - run: npm install  
 
-      - name: Run Node validation suite
-        run: |
-          npm run validate
-          npm run verify
-          npm run stability
-          npm run attractor
+  - name: Run validation  
+    run: |  
+      npm run validate  
+      npm run verify  
+      npm run stability  
+      npm run attractor  
 
-      - name: Compute Canonical SHA256
-        run: |
-          node - <<'NODE'
-          const fs = require('fs');
-          const crypto = require('crypto');
+  - name: Byzantine simulation (optional corruption)  
+    if: matrix.byzantine == 'true'  
+    run: |  
+      echo "corruption" >> core-scientific/publication-gate/report.json  
 
-          function canonicalize(obj){
-            if(Array.isArray(obj)) return obj.map(canonicalize);
-            if(obj && typeof obj === 'object'){
-              return Object.keys(obj).sort().reduce((a,k)=>{
-                a[k] = canonicalize(obj[k]);
-                return a;
-              },{});
-            }
-            return obj;
-          }
+  - name: Compute Canonical SHA256  
+    run: |  
+      node - <<'NODE'  
+      const fs = require('fs');  
+      const crypto = require('crypto');  
 
-          const raw = JSON.parse(
-            fs.readFileSync('core-scientific/publication-gate/report.json','utf8')
-          );
+      function canonicalize(obj) {  
+        if (Array.isArray(obj)) return obj.map(canonicalize);  
+        if (obj && typeof obj === 'object') {  
+          return Object.keys(obj).sort().reduce((a, k) => {  
+            a[k] = canonicalize(obj[k]);  
+            return a;  
+          }, {});  
+        }  
+        return obj;  
+      }  
 
-          const canon = canonicalize(raw);
+      const raw = JSON.parse(  
+        fs.readFileSync('core-scientific/publication-gate/report.json','utf8')  
+      );  
+      const canon = canonicalize(raw);  
 
-          const hash = crypto.createHash('sha256')
-            .update(JSON.stringify(canon))
-            .digest('hex');
+      const hash = crypto.createHash('sha256')  
+        .update(JSON.stringify(canon))  
+        .digest('hex');  
 
-          fs.writeFileSync('hash.txt', hash);
-          NODE
+      fs.writeFileSync('hash.txt', hash);  
+      NODE  
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: node-hash-${{ matrix.node-version }}
-          path: hash.txt
+  - name: Ensure report exists  
+    run: |  
+      if [ ! -f core-scientific/publication-gate/report.json ]; then  
+        echo "report.json missing before upload"  
+        exit 1  
+      fi  
 
-  build-report:
-    runs-on: ubuntu-24.04
-    needs: compute
+  - uses: actions/upload-artifact@v4  
+    with:  
+      name: hash-${{ matrix.node-version }}-${{ matrix.byzantine }}  
+      path: hash.txt  
 
-    steps:
+ build-report:
+     runs-on: ubuntu-24.04
+     needs: compute
+
+     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
@@ -133,13 +148,13 @@ jobs:
           name: pip-freeze
           path: pip-freeze.txt
 
-  gate:
-    runs-on: ubuntu-24.04
-    needs: build-report
-    outputs:
-      passed: ${{ steps.gate_step.outputs.passed }}
+     gate:
+      runs-on: ubuntu-24.04
+      needs: build-report
+      outputs:
+         passed: ${{ steps.gate_step.outputs.passed }}
 
-    steps:
+     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/download-artifact@v4
@@ -175,8 +190,8 @@ jobs:
           fi
 
           echo "passed=$PASSED" >> $GITHUB_OUTPUT
-
-  evolve:
+          
+evolve:
     runs-on: ubuntu-24.04
     needs: gate
     if: needs.gate.outputs.passed == 'true'
@@ -202,8 +217,8 @@ jobs:
             git commit -m "Deterministic evolution state update"
             git push
           fi
-
-  consensus:
+          
+          consensus:
     runs-on: ubuntu-24.04
     needs: evolve
 
