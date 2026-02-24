@@ -215,7 +215,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: maximal-one-stability-artifacts
-        path: artifacts/
+        path: artifacts/canonical_report.json
 
   gate:
     runs-on: ubuntu-latest
@@ -225,7 +225,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: scientific-report-canonical
+          name: smaximal-one-stability-artifacts
           path: ./artifact
 
       - name: Validate gate
@@ -234,8 +234,8 @@ jobs:
       - name: Download report
         uses: actions/download-artifact@v4
         with:
-         name: scientific-report-canonical
-         path: artifact
+         name: maximal-one-stability-artifacts
+         path: ./artifact
 
       - run: |
          mv artifact/report.json core-scientific/publication-gate/report.json
@@ -297,7 +297,7 @@ jobs:
       - name: Download report
         uses: actions/download-artifact@v4
         with:
-         name: scientific-report-canonical
+         name: maximal-one-stability-artifacts
          path: core-scientific/publication-gate/report.json
 
       - name: Ensure report exists
