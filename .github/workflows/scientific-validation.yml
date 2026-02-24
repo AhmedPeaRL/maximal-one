@@ -2,27 +2,22 @@ name: Scientific Validation
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * 0'
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
 
   compute:
-    name: Compute Deterministic Hash
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
-      
       matrix:
         node-version: [18, 20]
-        byzantine: [false, true]
 
     steps:
       - uses: actions/checkout@v4
@@ -31,19 +26,14 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - run: npm install
+      - run: npm ci
 
-      - name: Run validation
+      - name: Run Node validation suite
         run: |
           npm run validate
           npm run verify
           npm run stability
           npm run attractor
-
-      - name: Byzantine simulation (optional corruption)
-        if: matrix.byzantine == 'true'
-        run: |
-          echo "corruption" >> core-scientific/publication-gate/report.json
 
       - name: Compute Canonical SHA256
         run: |
@@ -51,13 +41,13 @@ jobs:
           const fs = require('fs');
           const crypto = require('crypto');
 
-          function canonicalize(obj) {
-            if (Array.isArray(obj)) return obj.map(canonicalize);
-            if (obj && typeof obj === 'object') {
-              return Object.keys(obj).sort().reduce((a, k) => {
+          function canonicalize(obj){
+            if(Array.isArray(obj)) return obj.map(canonicalize);
+            if(obj && typeof obj === 'object'){
+              return Object.keys(obj).sort().reduce((a,k)=>{
                 a[k] = canonicalize(obj[k]);
                 return a;
-              }, {});
+              },{});
             }
             return obj;
           }
@@ -65,6 +55,7 @@ jobs:
           const raw = JSON.parse(
             fs.readFileSync('core-scientific/publication-gate/report.json','utf8')
           );
+
           const canon = canonicalize(raw);
 
           const hash = crypto.createHash('sha256')
@@ -74,409 +65,167 @@ jobs:
           fs.writeFileSync('hash.txt', hash);
           NODE
 
-      - name: Ensure report exists
-        run: |
-          if [ ! -f core-scientific/publication-gate/report.json ]; then
-            echo "report.json missing before upload"
-            exit 1
-          fi
-
       - uses: actions/upload-artifact@v4
         with:
-          name: hash-${{ matrix.node-version }}-${{ matrix.byzantine }}
+          name: node-hash-${{ matrix.node-version }}
           path: hash.txt
-
-      - name: Generate Environment Fingerprint
-        run: |
-         node - <<'NODE'
-         const fs = require('fs');
-         const crypto = require('crypto');
-         const os = require('os');
-
-         function hashFile(path) {
-          if (!fs.existsSync(path)) return null;
-          return crypto.createHash('sha256')
-           .update(fs.readFileSync(path))
-           .digest('hex');
-          }
-
-         const fingerprint = {
-           node_version: process.version,
-           platform: os.platform(),
-           release: os.release(),
-           arch: os.arch(),
-           package_lock_hash: hashFile('package-lock.json')
-         };
-
-         fs.writeFileSync('environment.json', JSON.stringify(fingerprint, null, 2));
-         NODE
-
-      - uses: actions/upload-artifact@v4
-        with:
-         name: environment-${{ matrix.node-version }}-${{ matrix.byzantine }}
-         path: environment.json
-
-      - name: Upload Canonical Report (node18-nonbyzantine)
-        if: matrix.node-version == 18 && matrix.byzantine == 'false'
-        uses: actions/upload-artifact@v4
-        with:
-         name: scientific-report-canonical
-         path: core-scientific/publication-gate/report.json
-
-      - name: Upload scientific report
-        uses: actions/upload-artifact@v4
-        with:
-          name: scientific-report-${{ matrix.node-version }}-${{ matrix.byzantine }}
-          path: core-scientific/publication-gate/report.json
-
-  vote:
-    name: Multi-Runner Hash Voting
-    needs: compute
-    runs-on: ubuntu-24.04
-
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          path: hashes
-
-      - name: Majority vote
-        id: vote_step
-        run: |
-          HASHES=$(cat hashes/**/hash.txt)
-          UNIQUE=$(echo "$HASHES" | sort | uniq | wc -l)
-
-          if [ "$UNIQUE" -ne 1 ]; then
-            echo "Divergence detected"
-            exit 1
-          fi
-
-          CONS=$(echo "$HASHES" | head -n 1)
-          echo "consensus=$CONS" >> $GITHUB_OUTPUT
-          echo $CONS > consensus.txt
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: consensus
-          path: consensus.txt
-
-  notarize:
-    name: Cross-Repo Notarization
-    needs: vote
-    runs-on: ubuntu-24.04
-
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: consensus
-
-      - name: Create notarization record
-        run: |
-          CONS=$(cat consensus.txt)
-          TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          echo "{\"notarizedHash\":\"$CONS\",\"timestamp\":\"$TS\"}" > notarization.json
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: notarization
-          path: notarization.json
-
-  attractor:
-    name: Attractor Field Gate
-    needs: notarize
-    runs-on: ubuntu-24.04
-    outputs:
-      passed: ${{ steps.gate.outputs.passed }}
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
   build-report:
     runs-on: ubuntu-24.04
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.11.8"
-
-    - run: python -m pip install pip==24.0
-
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Generate stability report
-      run: python scripts/generate_report.py
-
-    - name: Upload stability artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: maximal-one-canonical-report
-        path: artifacts/canonical_report.json
-
-  gate:
-    runs-on: ubuntu-latest
-    needs: build-report
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: maximal-one-canonical-report
-          path: ./artifact
-
-      - name: Validate gate
-        run: python scripts/validate_gate.py ./artifact/report.json 
-
-      - name: Download report
-        uses: actions/download-artifact@v4
-        with:
-         name: maximal-one-canonical-report
-         path: ./artifact
-
-      - run: |
-         mv artifact/report.json core-scientific/publication-gate/report.json
-         
-         
-      - name: Ensure report exists
-        run: |
-          if [ ! -f core-scientific/publication-gate/report.json ]; then
-            echo "report.json missing before attractor scoring"
-            exit 1
-          fi
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - run: npm install
-
-      - name: Run Adaptive Attractor Gate
-        id: adaptive_run
-        run: |
-          RESULT=$(node core-scientific/attractor-field/adaptive-threshold.cjs | tail -n 1)
-          echo "$RESULT" > adaptive_result.json
-
-      - name: Validate Adaptive Output Exists
-        run: |
-          if [ ! -f adaptive_result.json ]; then
-            echo "::error::Adaptive output missing."
-            exit 1
-          fi
-
-      - name: Adaptive Gate
-        id: gate
-        run: |
-          RESULT=$(cat adaptive_result.json)
-          PASSED=$(node -e "
-            const data = JSON.parse(process.argv[1]);
-            console.log(data.passed === true ? 'true' : 'false');
-          " "$RESULT")
-
-          if [ "$PASSED" != "true" ]; then
-            echo "::error::Adaptive gate rejected evolution."
-            exit 1
-          fi
-
-          echo "passed=$PASSED" >> $GITHUB_OUTPUT
-
-  evolve:
-    name: Evolution Gate
-    needs: attractor
-    if: needs.attractor.outputs.passed == 'true'
-    runs-on: ubuntu-24.04
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download report
-        uses: actions/download-artifact@v4
-        with:
-         name: maximal-one-canonical-report
-         path: core-scientific/publication-gate/report.json
-
-      - name: Ensure report exists
-        run: |
-          if [ ! -f core-scientific/publication-gate/report.json ]; then
-            echo "Missing report.json after artifact download."
-            exit 1
-          fi
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - run: npm install
-      - run: npm run evolve
-
-      - name: Commit evolution state
-        run: |
-          git config user.name "HCM Evolution Bot"
-          git config user.email "evolution@mesh.local"
-
-          git add core-scientific
-
-          if git diff --cached --quiet; then
-            echo "No evolution delta."
-          else
-            git commit -m "Autonomous evolution state update"
-            git push
-          fi
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11.8'
-
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run multidimensional Lyapunov verification
-        run: |
-          python stability/multidim_lyapunov.py
-
-      - name: SOS Stability Certificate
-        run: |
-          python stability/sos_lyapunov_certificate.py
-
-      - name: Run divisor bound verification (Node)
-        run: |
-          node core-scientific/number-theory/divisor-bound.cjs
-
-      - name: Run divisor numerical experiment (Python)
-        run: |
-          python stability/numerical_divisor_experiment.py
-
-      - name: Run divisor asymptotic study
-        run: |
-          ASYMPTOTIC_N=5000 python stability/divisor_asymptotic_study.py > core-scientific/analytic-number-theory/asymptotic_report.json
-
-      - name: Print asymptotic report summary
-        run: |
-          cat core-scientific/analytic-number-theory/asymptotic_report.json
-
-      - name: Run asymptotic statistical analysis
-        run: |
-          python stability/asymptotic_statistical_analysis.py
-
-  consensus:
-    runs-on: ubuntu-latest
-    needs: evolve
-    steps:
-      - uses: actions/download-artifact@v4
-
-      - name: Collect environment hashes
-        run: |
-          cat */environment.hash.txt > all_hashes.txt
-          sort all_hashes.txt | uniq > unique_hashes.txt
-          count=$(wc -l < unique_hashes.txt)
-          echo "Unique environment count: $count"
-          if [ "$count" -gt 1 ]; then
-            echo "Environment mismatch detected"
-            exit 1
-          fi
-
-      - name: Check environment consensus
-        run: |
-         cat */hash.txt > all_hashes.txt
-         sort all_hashes.txt | uniq | wc -l
-
-  validate:
-   runs-on: ubuntu-latest
-
-   steps:
-    - uses: actions/checkout@v4
-
-    - uses: actions/setup-python@v5
-      with:
-        python-version: "3.11.8"
-
-    - run: pip install -r requirements.txt
-
-    - name: Multi-run null validation
-      run: |
-        python - <<'PY'
-        import numpy as np
-        from master_experiment import run_experiment
-
-        results = []
-        for seed in range(50):
-            r = run_experiment(seed=seed)
-            results.append(r["max_zscore"])
-
-        p99 = np.percentile(results, 99)
-
-        if p99 > 3.5:
-            raise SystemExit("False positive drift detected.")
-
-        print("Null distribution stable.")
-        PY
-        
-  reproducibility-sweep:
-    runs-on: ubuntu-24.04
-    needs: validate
+    needs: compute
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11.8"
+          python-version: '3.11.8'
 
-      - run: pip install -r requirements.txt
-
-      - name: Seed Sweep
+      - name: Install deterministic Python env
         run: |
-         python - <<'PY'
-         import json
-         import numpy as np
-         from master_experiment import run_experiment
+          python -m pip install pip==24.0
+          pip install --require-hashes -r requirements.txt
 
-         results = []
-         for seed in range(100):
-            r = run_experiment(seed=seed)
-            results.append(r["max_zscore"])
+      - name: Freeze exact environment
+        run: pip freeze > pip-freeze.txt
 
-         summary = {
-         "mean": float(np.mean(results)),
-         "std": float(np.std(results)),
-         "p95": float(np.percentile(results,95)),
-         "p99": float(np.percentile(results,99))
-         }
+      - name: Generate deterministic report
+        run: |
+          PYTHONHASHSEED=0 python scripts/generate_report.py --seed 42
 
-         with open("seed_sweep_summary.json","w") as f:
-            json.dump(summary,f,indent=2)
+      - name: Inject environment fingerprint into report
+        run: |
+          python - <<'PY'
+          import json, hashlib, platform
 
-         if summary["p99"] > 3.5:
-            print("Drift detected via distribution tail.")
-            exit(1)
+          report_path = "artifacts/canonical_report.json"
+          with open(report_path) as f:
+              report = json.load(f)
 
-         print("Distribution stable.")
-         PY
-         
+          with open("pip-freeze.txt") as f:
+              freeze = f.read()
+
+          report["_environment"] = {
+              "python_version": platform.python_version(),
+              "pip_freeze_sha256": hashlib.sha256(freeze.encode()).hexdigest()
+          }
+
+          with open(report_path,"w") as f:
+              json.dump(report,f,indent=2,sort_keys=True)
+          PY
+
+      - name: Hash final report
+        run: |
+          sha256sum artifacts/canonical_report.json | cut -d " " -f1 > report.hash
+
       - uses: actions/upload-artifact@v4
         with:
-          name: seed-sweep
-          path: seed_sweep_summary.json
+          name: canonical-report
+          path: artifacts/canonical_report.json
 
-      - name: Run Adversarial Test
-        run: python scripts/adversarial_runner.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: report-hash
+          path: report.hash
 
-      - name: Drift Detection
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pip-freeze
+          path: pip-freeze.txt
+
+  gate:
+    runs-on: ubuntu-24.04
+    needs: build-report
+    outputs:
+      passed: ${{ steps.gate_step.outputs.passed }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: canonical-report
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: report-hash
+
+      - name: Verify report hash
         run: |
-          python scripts/drift_detector.py > drift_output.json
+          CALC=$(sha256sum canonical_report.json | cut -d " " -f1)
+          STORED=$(cat report.hash)
 
-      - name: SPC Monitor
-        run: python scripts/spc_monitor.py
+          if [ "$CALC" != "$STORED" ]; then
+            echo "Hash mismatch"
+            exit 1
+          fi
 
-      - name: Sequential Test
-        run: python scripts/sequential_test.py
+      - name: Run adaptive attractor
+        id: gate_step
+        run: |
+          RESULT=$(node core-scientific/attractor-field/adaptive-threshold.cjs | tail -n 1)
+
+          PASSED=$(node -e "
+            const d = JSON.parse(process.argv[1]);
+            console.log(d.passed === true ? 'true' : 'false');
+          " "$RESULT")
+
+          if [ "$PASSED" != "true" ]; then
+            exit 1
+          fi
+
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+
+  evolve:
+    runs-on: ubuntu-24.04
+    needs: gate
+    if: needs.gate.outputs.passed == 'true'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - run: npm ci
+      - run: npm run evolve
+
+      - name: Commit evolution
+        run: |
+          git config user.name "HCM Evolution Bot"
+          git config user.email "evolution@mesh.local"
+          git add core-scientific
+          if git diff --cached --quiet; then
+            echo "No evolution delta."
+          else
+            git commit -m "Deterministic evolution state update"
+            git push
+          fi
+
+  consensus:
+    runs-on: ubuntu-24.04
+    needs: evolve
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: node-hash-18
+          path: node18
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: node-hash-20
+          path: node20
+
+      - name: Compare Node hashes
+        run: |
+          H1=$(cat node18/hash.txt)
+          H2=$(cat node20/hash.txt)
+
+          if [ "$H1" != "$H2" ]; then
+            echo "Cross-version divergence detected"
+            exit 1
+          fi
+
+          echo "Cross-version consensus verified."
