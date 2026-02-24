@@ -223,7 +223,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
          name: scientific-report-canonical
-         path: core-scientific/publication-gate/report.json
+         path: artifact
+
+      - run: |
+         mv artifact/report.json core-scientific/publication-gate/report.json
          
          
       - name: Ensure report exists
@@ -235,7 +238,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 18
 
       - run: npm install
 
@@ -294,7 +297,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 18
 
       - run: npm install
       - run: npm run evolve
