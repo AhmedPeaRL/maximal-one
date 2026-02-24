@@ -2,7 +2,7 @@ name: Scientific Validation
 
 on:
  push:
-  branches: 
+  branches:
   - main
  workflow_dispatch:
  schedule:
@@ -11,7 +11,7 @@ on:
 permissions:
  contents: write
  pull-requests: write
- 
+
 jobs:
 
  compute:
@@ -23,34 +23,34 @@ jobs:
     node-version: [18, 20]  
     byzantine: [false, true]  
 
-  steps:  
-  - uses: actions/checkout@v4  
+ steps:  
+    - uses: actions/checkout@v4  
 
-  - uses: actions/setup-node@v4  
-    with:  
+    - uses: actions/setup-node@v4  
+      with:  
       node-version: ${{ matrix.node-version }}  
 
-  - run: npm install  
+    - run: npm install  
 
-  - name: Run validation  
-    run: |  
-      npm run validate  
-      npm run verify  
-      npm run stability  
-      npm run attractor  
+    - name: Run validation  
+      run: |  
+       npm run validate  
+       npm run verify  
+       npm run stability  
+       npm run attractor  
 
-  - name: Byzantine simulation (optional corruption)  
-    if: matrix.byzantine == 'true'  
-    run: |  
-      echo "corruption" >> core-scientific/publication-gate/report.json  
+    - name: Byzantine simulation (optional corruption)  
+      if: matrix.byzantine == 'true'  
+      run: |  
+        echo "corruption" >> core-scientific/publication-gate/report.json  
 
-  - name: Compute Canonical SHA256  
-    run: |  
-      node - <<'NODE'  
-      const fs = require('fs');  
-      const crypto = require('crypto');  
+    - name: Compute Canonical SHA256  
+      run: |  
+       node - <<'NODE'  
+       const fs = require('fs');  
+       const crypto = require('crypto');  
 
-      function canonicalize(obj) {  
+       function canonicalize(obj) {  
         if (Array.isArray(obj)) return obj.map(canonicalize);  
         if (obj && typeof obj === 'object') {  
           return Object.keys(obj).sort().reduce((a, k) => {  
@@ -59,37 +59,37 @@ jobs:
           }, {});  
         }  
         return obj;  
-      }  
+       }  
 
-      const raw = JSON.parse(  
+       const raw = JSON.parse(  
         fs.readFileSync('core-scientific/publication-gate/report.json','utf8')  
-      );  
-      const canon = canonicalize(raw);  
+       );  
+       const canon = canonicalize(raw);  
 
-      const hash = crypto.createHash('sha256')  
+       const hash = crypto.createHash('sha256')  
         .update(JSON.stringify(canon))  
         .digest('hex');  
 
-      fs.writeFileSync('hash.txt', hash);  
-      NODE  
+       fs.writeFileSync('hash.txt', hash);  
+       NODE  
 
-  - name: Ensure report exists  
-    run: |  
-      if [ ! -f core-scientific/publication-gate/report.json ]; then  
-        echo "report.json missing before upload"  
-        exit 1  
-      fi  
+    - name: Ensure report exists  
+      run: |  
+       if [ ! -f core-scientific/publication-gate/report.json ]; then  
+         echo "report.json missing before upload"  
+         exit 1  
+       fi  
 
-  - uses: actions/upload-artifact@v4  
-    with:  
+    - uses: actions/upload-artifact@v4  
+      with:  
       name: hash-${{ matrix.node-version }}-${{ matrix.byzantine }}  
       path: hash.txt  
-
+      
  build-report:
-     runs-on: ubuntu-24.04
-     needs: compute
+      runs-on: ubuntu-24.04
+      needs: compute
 
-     steps:
+      steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
@@ -110,119 +110,119 @@ jobs:
 
       - name: Inject environment fingerprint into report
         run: |
-          python - <<'PY'
-          import json, hashlib, platform
+           python - <<'PY'
+           import json, hashlib, platform
 
-          report_path = "artifacts/canonical_report.json"
-          with open(report_path) as f:
+           report_path = "artifacts/canonical_report.json"
+           with open(report_path) as f:
               report = json.load(f)
 
-          with open("pip-freeze.txt") as f:
+           with open("pip-freeze.txt") as f:
               freeze = f.read()
 
-          report["_environment"] = {
+           report["_environment"] = {
               "python_version": platform.python_version(),
               "pip_freeze_sha256": hashlib.sha256(freeze.encode()).hexdigest()
-          }
+           }
 
-          with open(report_path,"w") as f:
+           with open(report_path,"w") as f:
               json.dump(report,f,indent=2,sort_keys=True)
-          PY
+           PY
 
-      - name: Hash final report
-        run: |
-          sha256sum artifacts/canonical_report.json | cut -d " " -f1 > report.hash
+       - name: Hash final report
+         run: |
+           sha256sum artifacts/canonical_report.json | cut -d " " -f1 > report.hash
 
-      - uses: actions/upload-artifact@v4
-        with:
+       - uses: actions/upload-artifact@v4
+         with:
           name: canonical-report
           path: artifacts/canonical_report.json
 
-      - uses: actions/upload-artifact@v4
-        with:
+       - uses: actions/upload-artifact@v4
+         with:
           name: report-hash
           path: report.hash
 
-      - uses: actions/upload-artifact@v4
-        with:
+       - uses: actions/upload-artifact@v4
+         with:
           name: pip-freeze
           path: pip-freeze.txt
+           
+      gate:
+       runs-on: ubuntu-24.04
+       needs: build-report
+       outputs:
+        passed: ${{ steps.gate_step.outputs.passed }}
 
-     gate:
-      runs-on: ubuntu-24.04
-      needs: build-report
-      outputs:
-         passed: ${{ steps.gate_step.outputs.passed }}
+       steps:
+        - uses: actions/checkout@v4
 
-     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
-        with:
+        - uses: actions/download-artifact@v4
+          with:
           name: canonical-report
 
-      - uses: actions/download-artifact@v4
-        with:
+        - uses: actions/download-artifact@v4
+          with:
           name: report-hash
 
-      - name: Verify report hash
-        run: |
-          CALC=$(sha256sum canonical_report.json | cut -d " " -f1)
-          STORED=$(cat report.hash)
+        - name: Verify report hash
+          run: |
+            CALC=$(sha256sum canonical_report.json | cut -d " " -f1)
+            STORED=$(cat report.hash)
 
-          if [ "$CALC" != "$STORED" ]; then
-            echo "Hash mismatch"
-            exit 1
-          fi
+             if [ "$CALC" != "$STORED" ]; then
+             echo "Hash mismatch"
+             exit 1
+            fi
 
-      - name: Run adaptive attractor
-        id: gate_step
-        run: |
-          RESULT=$(node core-scientific/attractor-field/adaptive-threshold.cjs | tail -n 1)
+        - name: Run adaptive attractor
+          id: gate_step
+          run: |
+            RESULT=$(node core-scientific/attractor-field/adaptive-threshold.cjs | tail -n 1)
 
-          PASSED=$(node -e "
+            PASSED=$(node -e "
             const d = JSON.parse(process.argv[1]);
             console.log(d.passed === true ? 'true' : 'false');
-          " "$RESULT")
+            " "$RESULT")
 
-          if [ "$PASSED" != "true" ]; then
-            exit 1
-          fi
+            if [ "$PASSED" != "true" ]; then
+             exit 1
+            fi
 
-          echo "passed=$PASSED" >> $GITHUB_OUTPUT
-          
-evolve:
-    runs-on: ubuntu-24.04
-    needs: gate
-    if: needs.gate.outputs.passed == 'true'
+            echo "passed=$PASSED" >> $GITHUB_OUTPUT
 
-    steps:
-      - uses: actions/checkout@v4
+      evolve:
+         runs-on: ubuntu-24.04
+         needs: gate
+         if: needs.gate.outputs.passed == 'true'
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
+      steps:
+        - uses: actions/checkout@v4
 
-      - run: npm ci
-      - run: npm run evolve
+        - uses: actions/setup-node@v4
+          with:
+           node-version: 18
 
-      - name: Commit evolution
-        run: |
-          git config user.name "HCM Evolution Bot"
-          git config user.email "evolution@mesh.local"
-          git add core-scientific
-          if git diff --cached --quiet; then
+        - run: npm ci
+        - run: npm run evolve
+
+        - name: Commit evolution
+          run: |
+           git config user.name "HCM Evolution Bot"
+           git config user.email "evolution@mesh.local"
+           git add core-scientific
+           if git diff --cached --quiet; then
             echo "No evolution delta."
-          else
+           else
             git commit -m "Deterministic evolution state update"
             git push
-          fi
-          
-          consensus:
-    runs-on: ubuntu-24.04
-    needs: evolve
+           fi
 
-    steps:
+consensus:
+     runs-on: ubuntu-24.04
+     needs: evolve
+
+     steps:
       - uses: actions/download-artifact@v4
         with:
           name: node-hash-18
