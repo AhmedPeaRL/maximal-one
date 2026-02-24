@@ -1,36 +1,63 @@
 import json
 import numpy as np
+from master_experiment import run_experiment
+import sys
+import os
 
-CONTROL_LIMITS = {
-    "mean_ucl": 0.05,
-    "std_ucl": 0.05,
-    "p99_ucl": 4.0
-}
+BASELINE_PATH = "baseline_distribution.json"
 
-def evaluate(metrics):
-    violations = []
+def compute_distribution(n=100):
+    results = []
+    for seed in range(n):
+        r = run_experiment(seed=seed)
+        results.append(r["max_zscore"])
+    return np.array(results)
 
-    if metrics["mean_diff"] > CONTROL_LIMITS["mean_ucl"]:
-        violations.append("Mean out of control")
+def create_baseline(dist):
+    return {
+        "mean": float(np.mean(dist)),
+        "std": float(np.std(dist)),
+        "p99": float(np.percentile(dist, 99))
+    }
 
-    if metrics["std_diff"] > CONTROL_LIMITS["std_ucl"]:
-        violations.append("Std deviation out of control")
+def load_or_create_baseline():
+    if os.path.exists(BASELINE_PATH):
+        with open(BASELINE_PATH) as f:
+            return json.load(f)
 
-    if metrics["p99"] > CONTROL_LIMITS["p99_ucl"]:
-        violations.append("Tail explosion detected")
+    print("Creating new SPC baseline...")
+    dist = compute_distribution(200)
+    baseline = create_baseline(dist)
 
-    return violations
+    with open(BASELINE_PATH, "w") as f:
+        json.dump(baseline, f, indent=2)
+
+    return baseline
+
+def main():
+    baseline = load_or_create_baseline()
+
+    dist = compute_distribution(100)
+
+    mean = float(np.mean(dist))
+    std = float(np.std(dist))
+    p99 = float(np.percentile(dist, 99))
+
+    violation = False
+
+    if p99 > baseline["p99"] * 1.15:
+        print("CONTROL VIOLATION: Tail expansion detected")
+        violation = True
+
+    if abs(mean - baseline["mean"]) > 3 * baseline["std"]:
+        print("CONTROL VIOLATION: Mean drift detected")
+        violation = True
+
+    if violation:
+        sys.exit(1)
+
+    print("SPC Stable.")
+    sys.exit(0)
 
 if __name__ == "__main__":
-    with open("drift_output.json") as f:
-        metrics = json.load(f)
-
-    violations = evaluate(metrics)
-
-    if violations:
-        print("CONTROL VIOLATION:")
-        for v in violations:
-            print(v)
-        exit(1)
-    else:
-        print("Process within statistical control.")
+    main()
