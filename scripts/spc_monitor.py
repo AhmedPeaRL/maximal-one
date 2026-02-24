@@ -1,8 +1,11 @@
 import json
 import numpy as np
-from maximal_one.master_experiment import run_experiment
 import sys
 import os
+
+sys.path.append(os.getcwd())
+
+from master_experiment import run_experiment
 
 BASELINE_PATH = "baseline_distribution.json"
 
