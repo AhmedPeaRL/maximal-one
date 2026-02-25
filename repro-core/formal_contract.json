@@ -1,0 +1,10 @@
+{
+  "invariance_domain": {
+    "python_version": "3.11.8",
+    "seed": 42,
+    "os": "ubuntu-24.04"
+  },
+  "stability_threshold": 0.06,
+  "hash_algorithm": "sha256",
+  "canonicalization": "sorted_keys_no_whitespace"
+}
