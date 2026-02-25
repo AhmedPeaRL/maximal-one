@@ -4,11 +4,13 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
-  schedule:
-    - cron: '0 0 * * 0'
 
 permissions:
   contents: write
+
+env:
+  PYTHONHASHSEED: "0"
+  NODE_ENV: "production"
 
 jobs:
 
@@ -17,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [18, 20]
+        node-version: [18.20.8, 20.20.0]
 
     steps:
       - uses: actions/checkout@v4
@@ -26,26 +28,34 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - run: npm ci
+      - name: Verify lockfile exists
+        run: |
+          if [ ! -f package-lock.json ]; then
+            echo "Missing package-lock.json — reproducibility broken."
+            exit 1
+          fi
 
-      - name: Run Node validation suite
+      - name: Deterministic install
+        run: npm ci --ignore-scripts --no-audit
+
+      - name: Run deterministic Node suite
         run: |
           npm run validate
           npm run verify
           npm run stability
           npm run attractor
 
-      - name: Compute Canonical SHA256
+      - name: Canonicalize and hash report
         run: |
           node - <<'NODE'
           const fs = require('fs');
           const crypto = require('crypto');
 
-          function canonicalize(obj){
-            if(Array.isArray(obj)) return obj.map(canonicalize);
+          function canonical(obj){
+            if(Array.isArray(obj)) return obj.map(canonical);
             if(obj && typeof obj === 'object'){
               return Object.keys(obj).sort().reduce((a,k)=>{
-                a[k] = canonicalize(obj[k]);
+                a[k]=canonical(obj[k]);
                 return a;
               },{});
             }
@@ -56,19 +66,20 @@ jobs:
             fs.readFileSync('core-scientific/publication-gate/report.json','utf8')
           );
 
-          const canon = canonicalize(raw);
+          const canon = canonical(raw);
+          const serialized = JSON.stringify(canon);
 
           const hash = crypto.createHash('sha256')
-            .update(JSON.stringify(canon))
+            .update(serialized)
             .digest('hex');
 
-          fs.writeFileSync('hash.txt', hash);
+          fs.writeFileSync('node_report.hash', hash);
           NODE
 
       - uses: actions/upload-artifact@v4
         with:
           name: node-hash-${{ matrix.node-version }}
-          path: hash.txt
+          path: node_report.hash
 
   build-report:
     runs-on: ubuntu-24.04
@@ -81,42 +92,57 @@ jobs:
         with:
           python-version: '3.11.8'
 
-      - name: Install deterministic Python env
-        run: |
-          python -m pip install pip==24.0
-          pip install --require-hashes -r requirements.txt
+      - name: Lock pip version
+        run: python -m pip install pip==24.0
 
-      - name: Freeze exact environment
+      - name: Deterministic dependency install
+        run: pip install --require-hashes -r requirements.txt
+
+      - name: Freeze environment
         run: pip freeze > pip-freeze.txt
 
-      - name: Generate deterministic report
+      - name: Inject environment fingerprint
         run: |
-          PYTHONHASHSEED=0 python scripts/generate_report.py --seed 42
+         python - <<'PY'
+         import json, hashlib, platform
+         path = "artifacts/canonical_report.json"
+         with open(path) as f:
+            data = json.load(f)
+          freeze = open("pip-freeze.txt").read()
+          data["_environment"] = {
+             "python": platform.python_version(),
+             "pip_freeze_sha256": hashlib.sha256(freeze.encode()).hexdigest()
+          }
+          with open(path,"w") as f:
+             json.dump(data,f,sort_keys=True,separators=(',',':'))
+          PY
 
-      - name: Inject environment fingerprint into report
+      - name: Generate deterministic report
+        run: python scripts/generate_report.py --seed 42 --canonical
+
+      - name: Inject environment fingerprint
         run: |
           python - <<'PY'
           import json, hashlib, platform
 
-          report_path = "artifacts/canonical_report.json"
-          with open(report_path) as f:
+          path = "artifacts/canonical_report.json"
+
+          with open(path) as f:
               report = json.load(f)
 
-          with open("pip-freeze.txt") as f:
-              freeze = f.read()
+          freeze = open("pip-freeze.txt").read()
 
           report["_environment"] = {
-              "python_version": platform.python_version(),
+              "python": platform.python_version(),
               "pip_freeze_sha256": hashlib.sha256(freeze.encode()).hexdigest()
           }
 
-          with open(report_path,"w") as f:
-              json.dump(report,f,indent=2,sort_keys=True)
+          with open(path,"w") as f:
+              json.dump(report,f,sort_keys=True,separators=(',',':'))
           PY
 
-      - name: Hash final report
-        run: |
-          sha256sum artifacts/canonical_report.json | cut -d " " -f1 > report.hash
+      - name: Final cryptographic hash
+        run: sha256sum artifacts/canonical_report.json | cut -d " " -f1 > report.hash
 
       - uses: actions/upload-artifact@v4
         with:
@@ -137,7 +163,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: build-report
     outputs:
-      passed: ${{ steps.gate_step.outputs.passed }}
+      passed: ${{ steps.final_gate.outputs.passed }}
 
     steps:
       - uses: actions/checkout@v4
@@ -150,18 +176,24 @@ jobs:
         with:
           name: report-hash
 
-      - name: Verify report hash
+      - name: Verify hash integrity
         run: |
           CALC=$(sha256sum canonical_report.json | cut -d " " -f1)
           STORED=$(cat report.hash)
 
           if [ "$CALC" != "$STORED" ]; then
-            echo "Hash mismatch"
+            echo "Report integrity violation."
             exit 1
           fi
 
-      - name: Run adaptive attractor
-        id: gate_step
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18.20.8
+
+      - run: npm ci --ignore-scripts --no-audit
+
+      - name: Adaptive Attractor Gate
+        id: final_gate
         run: |
           RESULT=$(node core-scientific/attractor-field/adaptive-threshold.cjs | tail -n 1)
 
@@ -176,56 +208,29 @@ jobs:
 
           echo "passed=$PASSED" >> $GITHUB_OUTPUT
 
-  evolve:
-    runs-on: ubuntu-24.04
-    needs: gate
-    if: needs.gate.outputs.passed == 'true'
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
-      - run: npm ci
-      - run: npm run evolve
-
-      - name: Commit evolution
-        run: |
-          git config user.name "HCM Evolution Bot"
-          git config user.email "evolution@mesh.local"
-          git add core-scientific
-          if git diff --cached --quiet; then
-            echo "No evolution delta."
-          else
-            git commit -m "Deterministic evolution state update"
-            git push
-          fi
-
   consensus:
     runs-on: ubuntu-24.04
-    needs: evolve
+    needs: gate
 
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: node-hash-18
+          name: node-hash-18.20.8
           path: node18
 
       - uses: actions/download-artifact@v4
         with:
-          name: node-hash-20
+          name: node-hash-20.20.0
           path: node20
 
-      - name: Compare Node hashes
+      - name: Cross-version consensus
         run: |
-          H1=$(cat node18/hash.txt)
-          H2=$(cat node20/hash.txt)
+          H1=$(cat node18/node_report.hash)
+          H2=$(cat node20/node_report.hash)
 
           if [ "$H1" != "$H2" ]; then
-            echo "Cross-version divergence detected"
+            echo "Cross-version divergence detected."
             exit 1
           fi
 
-          echo "Cross-version consensus verified."
+          echo "Deterministic consensus verified."
