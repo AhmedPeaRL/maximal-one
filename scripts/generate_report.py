@@ -1,85 +1,50 @@
-import sys
-import subprocess
-import hashlib
-import platform
 import json
-import os
-import datetime
-import numpy as np
+import hashlib
+import argparse
+import random
+import platform
+import sys
 
-REPORT_DIR = "artifacts"
-FREEZE_FILE = os.path.join(REPORT_DIR, "pip_freeze.txt")
-REPORT_FILE = os.path.join(REPORT_DIR, "stability_report.json")
+def nonlinear_measure(x):
+    return x**2 + 3*x + 7
 
-os.makedirs(REPORT_DIR, exist_ok=True)
-
-def get_python_patch_version():
-    return platform.python_version()
-
-def get_platform_fingerprint():
-    data = {
-        "system": platform.system(),
-        "release": platform.release(),
-        "version": platform.version(),
-        "machine": platform.machine(),
-        "processor": platform.processor(),
-        "python_patch": get_python_patch_version(),
-    }
-    raw = json.dumps(data, sort_keys=True).encode()
-    fingerprint = hashlib.sha256(raw).hexdigest()
-    return data, fingerprint
-
-def freeze_environment():
-    result = subprocess.run(
-        [sys.executable, "-m", "pip", "freeze"],
-        capture_output=True,
-        text=True
-    )
-    with open(FREEZE_FILE, "w") as f:
-        f.write(result.stdout)
-    return result.stdout
-
-def nonlinear_stability_test():
-    # اختبار بسيط لاخطي عبر logistic map
-    r = 3.9
-    x = 0.5
-    values = []
-    for _ in range(1000):
-        x = r * x * (1 - x)
-        values.append(x)
-    arr = np.array(values)
-    mean = float(np.mean(arr))
-    std = float(np.std(arr))
-    max_val = float(np.max(arr))
-    min_val = float(np.min(arr))
-    stable = std < 0.35  # معيار تحكمي قابل للتطوير
+def compute_stability(seed):
+    random.seed(seed)
+    values = [random.random() for _ in range(1000)]
+    transformed = [nonlinear_measure(v) for v in values]
+    mean = sum(transformed)/len(transformed)
+    variance = sum((v-mean)**2 for v in transformed)/len(transformed)
     return {
         "mean": mean,
-        "std": std,
-        "max": max_val,
-        "min": min_val,
-        "stable_under_threshold": stable
+        "variance": variance
     }
 
 def main():
-    timestamp = datetime.datetime.utcnow().isoformat()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--seed", type=int, required=True)
+    parser.add_argument("--canonical", action="store_true")
+    args = parser.parse_args()
 
-    platform_data, fingerprint = get_platform_fingerprint()
-    freeze_output = freeze_environment()
-    nonlinear_result = nonlinear_stability_test()
+    stability = compute_stability(args.seed)
 
     report = {
-        "timestamp_utc": timestamp,
-        "environment": platform_data,
-        "environment_fingerprint_sha256": fingerprint,
-        "nonlinear_stability_test": nonlinear_result
+        "seed": args.seed,
+        "stability": stability,
+        "python_version": platform.python_version(),
+        "platform": platform.platform()
     }
 
-    with open(REPORT_FILE, "w") as f:
-        json.dump(report, f, indent=4)
+    serialized = json.dumps(report, sort_keys=True, separators=(',', ':'))
 
-    print("Report generated.")
-    print("Environment fingerprint:", fingerprint)
+    sha = hashlib.sha256(serialized.encode()).hexdigest()
+
+    final = {
+        "report": report,
+        "sha256": sha
+    }
+
+    with open("artifacts/canonical_report.json", "w") as f:
+        json.dump(final, f, sort_keys=True, separators=(',', ':'))
 
 if __name__ == "__main__":
     main()
