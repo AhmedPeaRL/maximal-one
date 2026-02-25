@@ -13,7 +13,7 @@ def compute_hash():
     return result.decode().strip()
 
 def main():
-    expected = json.load(open(EXPECTED_FILE))["allowed_hash"]
+    expected = json.load(open(EXPECTED_FILE))["3aa16caaee4dada25ee37b944e598d6e973bccfbdc5230c58f077d588bed9946"]
     current = compute_hash()
 
     if current != expected:
