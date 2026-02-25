@@ -1,6 +1,7 @@
 import json
 import subprocess
 import sys
+from entropy_invariant import invariant
 
 THEORETICAL_VARIANCE = 1.0 / 12.0
 TOLERANCE = 0.005  # allowed deviation
@@ -35,6 +36,17 @@ def test_variance_stability():
 
     print("SURVIVED_ADVERSARIAL_STRESS")
 
+def stress_invariant():
+    worst = 0
+    for seed in range(0, 500):
+        r = invariant(seed=seed, N=20000)
+        worst = max(worst, r["invariant"])
+        if r["invariant"] > 0.01:
+            print("INVARIANT_BOUND_BROKEN")
+            return False
+    print("INVARIANT_BOUND_HELD")
+    print("max observed:", worst)
+    return True
 
 if __name__ == "__main__":
     test_variance_stability()
