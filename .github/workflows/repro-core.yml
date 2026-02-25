@@ -10,9 +10,18 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: List repository structure
+        run: |
+          echo "Root:"
+          ls -la
+          echo "Repro core contents:"
+          ls -la repro-core || echo "repro-core not found"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11.8'
 
