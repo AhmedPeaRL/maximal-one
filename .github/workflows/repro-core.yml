@@ -29,10 +29,13 @@ jobs:
         run: |
           mkdir -p artifacts
           python repro-core/deterministic_kernel.py > artifacts/state.json
+          python repro-core/environment_fingerprint.py > artifacts/environment.json
 
       - name: Verify canonical hash
         run: |
           cat artifacts/state.json | python repro-core/canonical_hash.py
+          echo "Environment fingerprint:"
+          cat artifacts/environment.json
 
       - name: Adversarial stability test
         run: |
