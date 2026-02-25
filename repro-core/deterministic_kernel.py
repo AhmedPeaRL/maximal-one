@@ -1,44 +1,33 @@
 import json
-import hashlib
 import random
-import platform
-import sys
+import statistics
+import hashlib
 
 SEED = 42
 
-def nonlinear_transform(x):
-    return x**3 - 2*x**2 + 0.5*x + 1
+def main():
+    random.seed(SEED)
 
-def compute_state(seed=SEED):
-    random.seed(seed)
-    values = [random.random() for _ in range(1000)]
-    transformed = [nonlinear_transform(v) for v in values]
+    data = [random.random() for _ in range(1000)]
 
-    mean = sum(transformed)/len(transformed)
-    variance = sum((v-mean)**2 for v in transformed)/len(transformed)
+    mean = statistics.mean(data)
+    variance = statistics.variance(data)
 
-    return {
-        "seed": seed,
+    state = {
+        "seed": SEED,
         "mean": mean,
-        "variance": variance,
-        "python_version": platform.python_version(),
-        "platform": platform.platform()
+        "variance": variance
     }
 
-def canonical_json(obj):
-    return json.dumps(obj, sort_keys=True, separators=(',', ':'))
-
-def main():
-    state = compute_state()
-    serialized = canonical_json(state)
-    sha = hashlib.sha256(serialized.encode()).hexdigest()
+    canonical = json.dumps(state, sort_keys=True, separators=(",", ":"))
+    digest = hashlib.sha256(canonical.encode()).hexdigest()
 
     output = {
-        "state": state,
-        "sha256": sha
+        "sha256": digest,
+        "state": state
     }
 
-    print(canonical_json(output))
+    print(json.dumps(output, sort_keys=True, separators=(",", ":")))
 
 if __name__ == "__main__":
     main()
