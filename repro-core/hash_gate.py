@@ -13,7 +13,7 @@ def compute_hash():
     return result.decode().strip()
 
 def main():
-    expected_Hash = 3aa16caaee4dada25ee37b944e598d6e973bccfbdc5230c58f077d588bed9946))["allowed_hash"]
+    expected_Hash = "3aa16caaee4dada25ee37b944e598d6e973bccfbdc5230c58f077d588bed9946"
     current = compute_hash()
 
     if current != expected:
