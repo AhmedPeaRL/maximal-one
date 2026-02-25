@@ -7,7 +7,7 @@ SEED = 42
 
 def main():
     rng = random.Random(SEED)
-    data = [rng.random() for _ in range(1000)])]
+    data = [rng.random() for _ in range(1000)]
 
     mean = statistics.mean(data)
     variance = statistics.variance(data)
