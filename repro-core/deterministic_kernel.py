@@ -6,9 +6,8 @@ import hashlib
 SEED = 42
 
 def main():
-    random.seed(SEED)
-
-    data = [random.random() for _ in range(1000)]
+    rng = random.Random(SEED)
+    data = [rng.random() for _ in range(1000)])]
 
     mean = statistics.mean(data)
     variance = statistics.variance(data)
