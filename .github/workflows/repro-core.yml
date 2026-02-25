@@ -1,0 +1,30 @@
+name: Repro Core Verification
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.8'
+
+      - name: Run deterministic kernel
+        run: |
+          mkdir -p artifacts
+          python repro-core/deterministic_kernel.py > artifacts/state.json
+
+      - name: Verify canonical hash
+        run: |
+          cat artifacts/state.json | python repro-core/canonical_hash.py
+
+      - name: Adversarial stability test
+        run: |
+          python repro-core/adversarial_test.py
