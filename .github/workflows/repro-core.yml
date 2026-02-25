@@ -28,11 +28,6 @@ jobs:
           python repro-core/deterministic_kernel.py > artifacts/state.json
           python repro-core/environment_fingerprint.py > artifacts/environment.json
 
-      - name: Dump state content
-        run: |
-          echo "==== STATE CONTENT ===="
-          cat artifacts/state.json
-
       - name: Canonical hash
         run: |
           cat artifacts/state.json | python repro-core/canonical_hash.py
