@@ -4,29 +4,33 @@ import statistics
 import hashlib
 
 SEED = 42
+N = 1000
 
 def main():
     rng = random.Random(SEED)
-    data = [rng.random() for _ in range(1000)]
+    data = [rng.random() for _ in range(N)]
 
-    mean = statistics.mean(data)
-    variance = statistics.variance(data)
+    mean = sum(data) / N
+    variance = sum((x - mean) ** 2 for x in data) / N
 
-    state = {
-        "seed": SEED,
-        "mean": mean,
-        "variance": variance
-    }
+    # Canonical float stabilization
+mean = round(mean, 12)
+variance = round(variance, 12)
 
-    canonical = json.dumps(state, sort_keys=True, separators=(",", ":"))
-    digest = hashlib.sha256(canonical.encode()).hexdigest()
+payload = {
+    "seed": SEED,
+    "mean": mean,
+    "variance": variance,
+}
 
-    output = {
-        "sha256": digest,
-        "state": state
-    }
+sha = hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
 
-    print(json.dumps(output, sort_keys=True, separators=(",", ":")))
+output = {
+    "sha256": sha,
+    "state": payload,
+}
+
+print(json.dumps(output, sort_keys=True))
 
 if __name__ == "__main__":
     main()
