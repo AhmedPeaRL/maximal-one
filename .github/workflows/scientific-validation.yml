@@ -44,6 +44,12 @@ jobs:
           npm run verify
           npm run stability
           npm run attractor
+          npm install
+          git add package-lock.json
+          git commit -m "Add deterministic lockfile"
+          git push
+          pip install pip-tools
+          pip-compile --generate-hashes
 
       - name: Canonicalize and hash report
         run: |
