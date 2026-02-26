@@ -36,8 +36,8 @@ jobs:
           fi
 
       - name: Deterministic install
-        run: npm ci --ignore-scripts --no-audit
-
+        run: npm install --ignore-scripts --no-audit
+             
       - name: Run deterministic Node suite
         run: |
          npm run validate
