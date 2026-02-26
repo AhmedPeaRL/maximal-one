@@ -40,16 +40,10 @@ jobs:
 
       - name: Run deterministic Node suite
         run: |
-          npm run validate
-          npm run verify
-          npm run stability
-          npm run attractor
-          npm install
-          git add package-lock.json
-          git commit -m "Add deterministic lockfile"
-          git push
-          pip install pip-tools
-          pip-compile --generate-hashes
+         npm run validate
+         npm run verify
+         npm run stability
+         npm run attractor
 
       - name: Canonicalize and hash report
         run: |
@@ -99,7 +93,7 @@ jobs:
           python-version: '3.11.8'
 
       - name: Lock pip version
-        run: python -m pip install pip==24.0
+        run: python -m pip install --upgrade pip
 
       - name: Deterministic dependency install
         run: pip install --require-hashes -r requirements.txt
