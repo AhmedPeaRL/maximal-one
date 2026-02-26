@@ -1,37 +1,78 @@
+# analysis/numerical_spectral_verification.py
+
 import numpy as np
-import math
+import json
+import os
 
-def lcg_sequence(a, p, N):
-    x = 1
+# -----------------------------
+# Deterministic LCG parameters
+# -----------------------------
+p = 2**31 - 1  # prime modulus
+a = 48271      # Park-Miller multiplier
+seed = 123456
+
+max_N = 5000
+k = 1  # frequency index
+
+# -----------------------------
+# Generate LCG sequence
+# -----------------------------
+def generate_lcg(n):
+    x = seed
     seq = []
-    for _ in range(N):
-        seq.append(x)
+    for _ in range(n):
         x = (a * x) % p
-    return np.array(seq)
+        seq.append(x)
+    return np.array(seq, dtype=np.int64)
 
-def spectral_amplitude(seq, p):
-    N = len(seq)
-    max_amp = 0
-    for k in range(1, min(p, 2000)):  # limit for computational feasibility
-        val = abs(np.sum(np.exp(2j*np.pi*k*seq/p))) / N
-        max_amp = max(max_amp, val)
-    return max_amp
+# -----------------------------
+# Spectral amplitude
+# -----------------------------
+def spectral_amplitude(xs):
+    N = len(xs)
+    angles = 2 * np.pi * k * xs / p
+    exp_sum = np.exp(1j * angles).sum()
+    return abs(exp_sum) / N
 
-def verify_bound(p, a, N):
-    seq = lcg_sequence(a, p, N)
-    amp = spectral_amplitude(seq, p)
+# -----------------------------
+# Empirical exponent estimation
+# -----------------------------
+def estimate_exponent(N_values, amplitudes):
+    logN = np.log(N_values)
+    logA = np.log(amplitudes)
+    slope, _ = np.polyfit(logN, logA, 1)
+    return -slope  # since amplitude ~ N^{-alpha}
 
-    theoretical_bound = 1 / math.sqrt(N)
+# -----------------------------
+# Main profiling
+# -----------------------------
+N_values = np.unique(np.logspace(2, np.log10(max_N), 25).astype(int))
+amplitudes = []
 
-    print("Prime p:", p)
-    print("N:", N)
-    print("Measured spectral amplitude:", amp)
-    print("1/sqrt(N):", theoretical_bound)
+full_seq = generate_lcg(max_N)
 
-    if amp <= 2 * theoretical_bound:
-        print("BOUND_BEHAVIOR_CONFIRMED")
-    else:
-        print("BOUND_BEHAVIOR_VIOLATED")
+for N in N_values:
+    xs = full_seq[:N]
+    amp = spectral_amplitude(xs)
+    amplitudes.append(amp)
 
-if __name__ == "__main__":
-    verify_bound(p=10007, a=5, N=500)
+amplitudes = np.array(amplitudes)
+alpha_est = estimate_exponent(N_values, amplitudes)
+
+# -----------------------------
+# Output artifacts
+# -----------------------------
+os.makedirs("artifacts", exist_ok=True)
+
+profile = {
+    "N_values": N_values.tolist(),
+    "amplitudes": amplitudes.tolist(),
+    "estimated_alpha": float(alpha_est),
+    "reference_half": 0.5
+}
+
+with open("artifacts/spectral_profile.json", "w") as f:
+    json.dump(profile, f, indent=2)
+
+print("==== SPECTRAL PROFILE ====")
+print(json.dumps(profile, indent=2))
