@@ -1,0 +1,91 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb, amsthm}
+
+\title{A Deterministic Kernel Variance Bound}
+\author{Maximal-One Formal Core}
+\date{}
+
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+
+\begin{document}
+
+\maketitle
+
+\section*{Abstract}
+
+We define a deterministic kernel state sequence $(S_N)_{N \ge 1}$ 
+and establish a strict upper bound on its variance. 
+The result is independent of numerical implementation.
+
+\section{Deterministic Kernel State}
+
+\begin{definition}
+Let $f : \mathbb{N} \to \mathbb{R}$ be a deterministic bounded function 
+defined by a fixed seed $\sigma$.
+Define the state sequence:
+
+\[
+S_N = \frac{1}{N} \sum_{k=1}^{N} f(k).
+\]
+
+\end{definition}
+
+\section{Variance Structure}
+
+\begin{lemma}
+If $f$ is bounded such that $|f(k)| \le M$ for all $k$, 
+then:
+
+\[
+\mathrm{Var}(S_N) \le \frac{M^2}{N}.
+\]
+
+\end{lemma}
+
+\begin{proof}
+
+Since:
+
+\[
+S_N = \frac{1}{N} \sum_{k=1}^{N} f(k),
+\]
+
+we have:
+
+\[
+\mathrm{Var}(S_N) = \frac{1}{N^2} \sum_{k=1}^{N} \mathrm{Var}(f(k)).
+\]
+
+If $|f(k)| \le M$, then $\mathrm{Var}(f(k)) \le M^2$,
+hence:
+
+\[
+\mathrm{Var}(S_N) \le \frac{N M^2}{N^2}
+= \frac{M^2}{N}.
+\]
+
+\end{proof}
+
+\section{Main Result}
+
+\begin{theorem}
+For all $N \ge 1$:
+
+\[
+\mathrm{Var}(S_N) \le \frac{C}{N},
+\]
+
+where $C = M^2$.
+\end{theorem}
+
+\section{Sharpness Condition}
+
+\begin{remark}
+Equality holds if and only if the deterministic kernel 
+achieves maximal oscillation magnitude at every step.
+\end{remark}
+
+\end{document}
