@@ -96,7 +96,7 @@ jobs:
           pip install --upgrade pip
           
       - name: Deterministic dependency install
-        run: pip install --require-hashes -r requirements.txt
+        run: pip-compile --generate-hashes requirements.in
 
       - name: Freeze environment
         run: pip freeze > pip-freeze.txt
