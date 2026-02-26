@@ -93,10 +93,10 @@ jobs:
       - name: Pin pip version
         run:  |
           python -m pip install pip==24.0
-          pip install numpy==2.4.2
+          pip install --upgrade pip
           
       - name: Deterministic dependency install
-        run:  pip install --upgrade pip -r requirements.txt
+        run: pip install --require-hashes -r requirements.txt
 
       - name: Freeze environment
         run: pip freeze > pip-freeze.txt
