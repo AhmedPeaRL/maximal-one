@@ -10,9 +10,6 @@ RUN npm install --omit=dev
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-Copy requirements.txt ./
-Run pip install --upgrade pip -r requirements.txt
-
 COPY . .
 
 CMD ["node", "index.js"]
