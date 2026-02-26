@@ -8,8 +8,9 @@ COPY package*.json ./
 RUN npm install --omit=dev
 
 COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
-Run pip install --upgrade pip
+RUN |
+  pip install --no-cache-dir -r requirements.txt
+  pip install --upgrade pip
 COPY . .
 
 CMD ["node", "index.js"]
