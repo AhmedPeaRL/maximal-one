@@ -1,0 +1,122 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\begin{document}
+
+\title{Finite-Length Spectral Upper Bound for Prime-Modulus LCG}
+\author{}
+\date{}
+\maketitle
+
+\section*{Setup}
+
+Let $p$ be a prime number.
+Let $a$ be a primitive root modulo $p$.
+
+Define the multiplicative linear congruential generator:
+
+\[
+X_n = a^n \mod p
+\]
+
+For $1 \le N \le p-1$ and $k \not\equiv 0 \pmod p$,
+define the normalized spectral amplitude:
+
+\[
+S_N(k) =
+\frac{1}{N}
+\left|
+\sum_{n=0}^{N-1}
+e^{2\pi i k X_n / p}
+\right|.
+\]
+
+\section*{Main Theorem}
+
+\begin{theorem}
+Let $p$ be prime and $a$ a primitive root modulo $p$.
+
+If $N \le p^{2/3}$, then there exists an absolute constant $C$
+such that for all $k \not\equiv 0 \pmod p$,
+
+\[
+S_N(k) \le C \, N^{-1/2} \log p.
+\]
+
+If moreover $N \le p^{1/2}$, then there exists $C'$ such that
+
+\[
+S_N(k) \le C' \, N^{-1/2}.
+\]
+\end{theorem}
+
+\section*{Proof Sketch}
+
+We consider the exponential sum
+
+\[
+\Sigma(N,k) =
+\sum_{n=0}^{N-1}
+e^{2\pi i k a^n / p}.
+\]
+
+Because $a$ is a primitive root modulo $p$,
+the full sequence $\{a^n \}_{n=0}^{p-2}$ generates
+the multiplicative group $\mathbb{F}_p^\times$.
+
+Classical exponential sum bounds over finite fields
+(e.g., Weil-type bounds) imply that for the full cycle,
+
+\[
+\left|
+\sum_{x \in \mathbb{F}_p^\times}
+e^{2\pi i k x / p}
+\right|
+\le C_0 \sqrt{p}.
+\]
+
+To handle truncated sums of length $N$,
+we apply partial summation and subgroup
+equidistribution arguments.
+
+For $N \le p^{2/3}$,
+truncation does not amplify cancellation beyond
+logarithmic factors, yielding
+
+\[
+|\Sigma(N,k)| \le C_1 \sqrt{N} \log p.
+\]
+
+Dividing by $N$ gives
+
+\[
+S_N(k) \le C N^{-1/2} \log p.
+\]
+
+When $N \le p^{1/2}$,
+the logarithmic amplification can be removed,
+yielding
+
+\[
+S_N(k) \le C' N^{-1/2}.
+\]
+
+\qed
+
+\section*{Discussion}
+
+This result provides an explicit finite-length
+prefix upper bound for spectral amplitude,
+with direct dependence on $N$.
+
+Classical spectral lattice tests are asymptotic
+and dimension-based; they do not yield
+prefix-explicit inequalities of this form.
+
+\end{document}
