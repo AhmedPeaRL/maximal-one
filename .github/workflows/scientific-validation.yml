@@ -93,7 +93,7 @@ jobs:
           python-version: '3.11.8'
 
       - name: Pin pip version
-        run: python -m pip install pip==24.0
+        run: python -m pip install --upgrade pip
 
       - name: Deterministic dependency install
         run: pip install --require-hashes -r requirements.txt
