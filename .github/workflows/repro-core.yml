@@ -44,3 +44,6 @@ jobs:
       - name: Adversarial stability test
         run: |
           python repro-core/adversarial_test.py
+
+      - name: Run spectral verification
+        run: python analysis/numerical_spectral_verification.py
