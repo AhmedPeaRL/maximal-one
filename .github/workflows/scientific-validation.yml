@@ -84,6 +84,8 @@ jobs:
   build-report:
     runs-on: ubuntu-24.04
     needs: compute
+    container:
+      image: python:3.11.8-slim
 
     steps:
       - uses: actions/checkout@v4
