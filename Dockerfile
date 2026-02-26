@@ -1,15 +1,15 @@
-FROM node:18-bullseye
+FROM python:3.11.8-slim
 
-RUN apt-get update && apt-get install -y python3 python3-pip
+RUN apt-get update && apt-get install -y nodejs npm
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+RUN npm install --omit=dev
 
 COPY requirements.txt ./
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["bash"]
+CMD ["node", "index.js"]
