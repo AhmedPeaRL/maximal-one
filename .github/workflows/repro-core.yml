@@ -49,3 +49,9 @@ jobs:
       - name: Run spectral verification
         run: |
           python analysis/numerical_spectral_verification.py
+
+      - name: Upload spectral artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: spectral-profile
+          path: artifacts/spectral_profile.json
