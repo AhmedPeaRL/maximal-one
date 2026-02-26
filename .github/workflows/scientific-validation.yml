@@ -92,30 +92,14 @@ jobs:
         with:
           python-version: '3.11.8'
 
-      - name: Lock pip version
-        run: python -m pip install --upgrade pip
+      - name: Pin pip version
+        run: python -m pip install pip==24.0
 
       - name: Deterministic dependency install
         run: pip install --require-hashes -r requirements.txt
 
       - name: Freeze environment
         run: pip freeze > pip-freeze.txt
-
-      - name: Inject environment fingerprint
-        run: |
-         python - <<'PY'
-         import json, hashlib, platform
-         path = "artifacts/canonical_report.json"
-         with open(path) as f:
-            data = json.load(f)
-          freeze = open("pip-freeze.txt").read()
-          data["_environment"] = {
-             "python": platform.python_version(),
-             "pip_freeze_sha256": hashlib.sha256(freeze.encode()).hexdigest()
-          }
-          with open(path,"w") as f:
-             json.dump(data,f,sort_keys=True,separators=(',',':'))
-          PY
 
       - name: Generate deterministic report
         run: python scripts/generate_report.py --seed 42 --canonical
