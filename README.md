@@ -48,6 +48,12 @@ Falsifiability > Desire
 
 ---
 
+New Theorem – Finite Spectral Upper Bound
+
+See core-scientific/finite_spectral_bound.md.
+
+---
+
 ## Execution
 
 ```bash
