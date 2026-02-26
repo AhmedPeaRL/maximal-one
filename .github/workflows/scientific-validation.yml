@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [18.20.8, 20.20.0]
+        node-version: [18.20.8, 20.20.0, 24.11.1]
 
     steps:
       - uses: actions/checkout@v4
@@ -37,7 +37,6 @@ jobs:
 
       - name: Deterministic install
         run: npm ci --ignore-scripts --no-audit
-          npm install --ignore-scripts --no-audit
              
       - name: Run deterministic Node suite
         run: |
