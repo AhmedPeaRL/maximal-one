@@ -91,12 +91,14 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Pin pip version
-        run:  |
+        run: |
           python -m pip install pip==24.0
-          pip install --upgrade pip
+          pip install numpy==2.4.2
           
       - name: Deterministic dependency install
-        run: pip-compile --generate-hashes requirements.in
+        run: | 
+          pip install --require-hashes -r requirements.txt
+          pip-compile --generate-hashes requirements.in
 
       - name: Freeze environment
         run: pip freeze > pip-freeze.txt
