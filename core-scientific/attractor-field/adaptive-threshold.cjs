@@ -1,4 +1,5 @@
 const fs = require('fs');
+const crypto = require("crypto");
 
 const report = JSON.parse(
   fs.readFileSync('artifacts/canonical_report.json','utf8')
