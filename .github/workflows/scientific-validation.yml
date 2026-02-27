@@ -90,10 +90,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies (pinned)
-        run: |
-          python -m pip install --require-hashes -r requirements.txt
-          pip install --upgrade pip
+      - name: Upgrade pip first
+        run: python -m pip install --upgrade pip==24.0
+
+      - name: Install locked requirements
+        run: python -m pip install --require-hashes -r requirements.txt
 
       - name: Freeze environment
         run: pip freeze > pip-freeze.txt
