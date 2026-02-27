@@ -16,10 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies (pinned)
+      - name: Install pinned scientific stack
         run: |
-          python -m pip-compile --generate-hashes -r requirements.txt
-          pip install numpy==1.26.4
+          python -m pip install --upgrade pip==24.0
+          pip install numpy==1.26.4 scipy==1.12.0 statsmodels==0.14.1 matplotlib==3.8.2 pandas sympy scs cvxpy
 
       - name: Compute lowercase image name
         id: vars
