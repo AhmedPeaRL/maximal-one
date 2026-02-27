@@ -92,7 +92,7 @@ jobs:
 
       - name: Install dependencies (pinned)
         run: |
-          python -m pip-compile --generate-hashes -r requirements.txt
+          python -m pip install --no-cache-dir -r requirements.txt
           pip install numpy==1.26.4
 
       - name: Freeze environment
