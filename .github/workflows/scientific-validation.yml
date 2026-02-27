@@ -172,6 +172,11 @@ jobs:
             exit 1
           fi
 
+      - name: Dump canonical report
+        run: |
+         echo "===== REPORT CONTENT ====="
+         cat artifacts/canonical_report.json
+    
       - name: Schema sanity check
         run: |
           node - <<'NODE'
