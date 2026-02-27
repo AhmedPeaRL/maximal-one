@@ -172,6 +172,20 @@ jobs:
             exit 1
           fi
 
+      - name: Schema sanity check
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const r = JSON.parse(fs.readFileSync('artifacts/canonical_report.json','utf8'));
+
+          if (!r.spectral_profile || 
+             typeof r.spectral_profile.estimated_alpha !== 'number' ||
+             typeof r.spectral_profile.bootstrap_std !== 'number') {
+            console.error("Schema violation.");
+            process.exit(1);
+            }
+            NODE
+
       - uses: actions/setup-node@v4
         with:
           node-version: 18.20.8
