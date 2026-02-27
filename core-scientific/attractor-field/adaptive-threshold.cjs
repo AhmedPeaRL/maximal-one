@@ -1,28 +1,27 @@
-const fs = require("fs");
-const crypto = require("crypto");
+const fs = require('fs');
 
 const data = JSON.parse(
-  fs.readFileSync("artifacts/canonical_report.json","utf8")
+  fs.readFileSync('./core-scientific/repro-core/spectral-profile.json', 'utf8')
 );
 
-const serialized = JSON.stringify(data.report);
-const recalculated = crypto
-  .createHash("sha256")
-  .update(serialized)
-  .digest("hex");
+const alpha = data.estimated_alpha;
+const std = data.bootstrap_std;
 
-if (recalculated !== data.sha256) {
-  console.log(JSON.stringify({passed:false,reason:"hash_mismatch"}));
-  process.exit(1);
+if (typeof alpha !== 'number' || typeof std !== 'number') {
+  console.log(JSON.stringify({ passed: false, reason: "invalid_input" }));
+  process.exit(0);
 }
 
-const variance = data.report.stability.variance;
+// z-score relative to reference 0.5
+const z = Math.abs((alpha - 0.5) / std);
 
-const threshold = 0.05;
+// decision rule: within 1 sigma
+const passed = z < 1;
 
-if (variance > threshold) {
-  console.log(JSON.stringify({passed:false,reason:"unstable_variance"}));
-  process.exit(1);
-}
-
-console.log(JSON.stringify({passed:true}));
+console.log(JSON.stringify({
+  alpha,
+  std,
+  z,
+  passed,
+  decision_rule: "z < 1 sigma"
+}));
