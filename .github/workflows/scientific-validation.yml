@@ -92,9 +92,8 @@ jobs:
 
       - name: Install dependencies (pinned)
         run: |
-          python -m pip install --no-cache-dir -r requirements.txt
+          python -m pip-compile --generate-hashes -r requirements.txt
           pip install numpy==1.26.4
-          pip install --upgrade pip
 
       - name: Freeze environment
         run: pip freeze > pip-freeze.txt
