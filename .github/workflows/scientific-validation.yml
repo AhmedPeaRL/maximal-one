@@ -183,8 +183,7 @@ jobs:
              typeof r.spectral_profile.bootstrap_std !== 'number') {
             console.error("Schema violation.");
             process.exit(1);
-            }
-            NODE
+          }
 
       - uses: actions/setup-node@v4
         with:
