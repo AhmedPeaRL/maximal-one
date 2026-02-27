@@ -18,9 +18,15 @@ const GENERATOR_PATH = path.join(GATE_DIR, "generate-report.cjs");
 const MEMORY_DIR = path.join(ROOT, ".coherence-memory");
 const STATE_HISTORY_PATH = path.join(MEMORY_DIR, "state-history.jsonl");
 
-function sha256(data) {
-  return crypto.createHash("sha256").update(data).digest("hex");
-}
+const { canonicalJSONStringify } = require("./utils/canonicalize");
+const crypto = require("crypto");
+
+const canonical = canonicalJSONStringify(report);
+
+const hash = crypto
+  .createHash("sha256")
+  .update(canonical, "utf8")
+  .digest("hex");
 
 function fail(msg) {
   console.error("❌ Publication Gate Failure:");
@@ -98,7 +104,11 @@ function main() {
   const canonicalFinal = canonicalize(finalReport);
   const finalString = JSON.stringify(canonicalFinal, null, 2);
 
-  fs.writeFileSync(REPORT_PATH, finalString);
+  require("fs").writeFileSync(
+  "node_report.hash",
+  hash + "\n",
+  { encoding: "utf8" }
+  );
 
   const durationMs = Date.now() - start;
 
