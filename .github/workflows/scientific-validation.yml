@@ -179,18 +179,14 @@ jobs:
       - run: npm ci --ignore-scripts --no-audit
 
       - name: Adaptive Attractor Gate
-        id: final_gate
         run: |
-          RESULT=$(node core-scientific/attractor-field/adaptive-threshold.cjs | tail -n 1)
-
-          PASSED=$(node -e "
-            const d = JSON.parse(process.argv[1]);
-            console.log(d.passed === true ? 'true' : 'false');
-          " "$RESULT")
-
-          if [ "$PASSED" != "true" ]; then
-            exit 1
-          fi
+         RESULT=$(node core-scientific/attractor-field/adaptive-threshold.cjs)
+         echo "$RESULT"
+         PASS=$(echo $RESULT | node -e "const d=JSON.parse(require('fs').readFileSync(0,'utf8')); console.log(d.passed?'true':'false')")
+         if [ "$PASS" != "true" ]; then
+           echo "Attractor strictness failed"
+           exit 1
+         fi
 
           echo "passed=$PASSED" >> $GITHUB_OUTPUT
 
