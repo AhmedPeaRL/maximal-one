@@ -155,16 +155,17 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: canonical-report
+          path: artifacts
 
       - uses: actions/download-artifact@v4
         with:
-          name: canonical-report
+          name: report-hash
           path: artifacts
 
       - name: Verify hash integrity
         run: |
-          CALC=$(sha256sum canonical_report.json | cut -d " " -f1)
-          STORED=$(cat report.hash)
+          CALC=$(sha256sum artifacts/canonical_report.json | cut -d " " -f1)
+          STORED=$(cat artifacts/report.hash)
 
           if [ "$CALC" != "$STORED" ]; then
             echo "Report integrity violation."
