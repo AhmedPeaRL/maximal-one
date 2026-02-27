@@ -1,21 +1,52 @@
 const fs = require('fs');
 
-const data = JSON.parse(
-  fs.readFileSync('./core-scientific/repro-core/spectral-profile.json', 'utf8')
-);
+const REPORT_PATH = './artifacts/canonical_report.json';
 
-const alpha = data.estimated_alpha;
-const std = data.bootstrap_std;
-
-if (typeof alpha !== 'number' || typeof std !== 'number') {
-  console.log(JSON.stringify({ passed: false, reason: "invalid_input" }));
+if (!fs.existsSync(REPORT_PATH)) {
+  console.log(JSON.stringify({
+    passed: false,
+    reason: "missing_canonical_report"
+  }));
   process.exit(0);
 }
 
-// z-score relative to reference 0.5
-const z = Math.abs((alpha - 0.5) / std);
+let report;
+try {
+  report = JSON.parse(fs.readFileSync(REPORT_PATH, 'utf8'));
+} catch (err) {
+  console.log(JSON.stringify({
+    passed: false,
+    reason: "invalid_json"
+  }));
+  process.exit(0);
+}
 
-// decision rule: within 1 sigma
+if (!report.spectral_profile) {
+  console.log(JSON.stringify({
+    passed: false,
+    reason: "missing_spectral_profile"
+  }));
+  process.exit(0);
+}
+
+const alpha = report.spectral_profile.estimated_alpha;
+const std   = report.spectral_profile.bootstrap_std;
+
+if (
+  typeof alpha !== 'number' ||
+  typeof std !== 'number' ||
+  !isFinite(alpha) ||
+  !isFinite(std) ||
+  std <= 0
+) {
+  console.log(JSON.stringify({
+    passed: false,
+    reason: "invalid_numeric_input"
+  }));
+  process.exit(0);
+}
+
+const z = Math.abs((alpha - 0.5) / std);
 const passed = z < 1;
 
 console.log(JSON.stringify({
@@ -23,5 +54,5 @@ console.log(JSON.stringify({
   std,
   z,
   passed,
-  decision_rule: "z < 1 sigma"
+  decision_rule: "z < 1 sigma (canonical_report anchored)"
 }));
