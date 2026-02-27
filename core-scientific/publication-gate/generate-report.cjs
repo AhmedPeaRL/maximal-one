@@ -8,7 +8,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const { canonicalJSONStringify } = require("./utils/canonicalize");
+const { canonicalJSONStringify } = require("./utils/canonicalize.cjs");
 const crypto = require("crypto");
 
 const ROOT = process.cwd();
