@@ -45,37 +45,7 @@ jobs:
          npm run stability
          npm run attractor
 
-      - name: Canonicalize and hash report
-        run: |
-          node - <<'NODE'
-          const fs = require('fs');
-          const crypto = require('crypto');
-
-          function canonical(obj){
-            if(Array.isArray(obj)) return obj.map(canonical);
-            if(obj && typeof obj === 'object'){
-              return Object.keys(obj).sort().reduce((a,k)=>{
-                a[k]=canonical(obj[k]);
-                return a;
-              },{});
-            }
-            return obj;
-          }
-
-          const raw = JSON.parse(
-            fs.readFileSync('core-scientific/publication-gate/report.json','utf8')
-          );
-
-          const canon = canonical(raw);
-          const serialized = JSON.stringify(canon);
-
-          const hash = crypto.createHash('sha256')
-            .update(serialized)
-            .digest('hex');
-
-          fs.writeFileSync('node_report.hash', hash);
-          NODE
-
+      
       - uses: actions/upload-artifact@v4
         with:
           name: node-hash-${{ matrix.node-version }}
