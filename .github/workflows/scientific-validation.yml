@@ -187,6 +187,7 @@ jobs:
            echo "Attractor strictness failed"
            exit 1
          fi
+         echo "passed=$PASSED" >> $GITHUB_OUTPUT
 
   consensus:
     runs-on: ubuntu-24.04
