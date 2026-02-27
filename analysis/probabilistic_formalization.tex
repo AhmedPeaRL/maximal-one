@@ -1,0 +1,68 @@
+\section{Probabilistic Formalization of the Deterministic Kernel}
+
+\subsection{Probability Space}
+
+Let $\Omega = \{0,1,\dots,2^k-1\}$ denote the finite seed space.
+
+Define the probability space $(\Omega, \mathcal{F}, \mathbb{P})$ where:
+
+\begin{itemize}
+\item $\mathcal{F} = 2^\Omega$
+\item $\mathbb{P}$ is the uniform distribution on $\Omega$
+\end{itemize}
+
+\subsection{Random Kernel}
+
+For each $\omega \in \Omega$, define the deterministic kernel:
+
+\[
+K_n(\omega) := \text{KernelOutput}(n, \omega)
+\]
+
+This induces a random sequence:
+
+\[
+S_n(\omega)
+\]
+
+\subsection{Random Operator}
+
+Define the operator:
+
+\[
+T_n : \ell^2 \to \ell^2
+\]
+
+induced by convolution with $S_n(\omega)$.
+
+Thus $T_n$ is a random operator measurable with respect to $\mathcal{F}$.
+
+\subsection{Spectral Measure}
+
+Let $\mu_n^\omega$ denote the empirical spectral measure of $T_n$.
+
+We study convergence in probability:
+
+\[
+\mu_n^\omega \xrightarrow{P} \mu
+\]
+
+as $n \to \infty$.
+
+\subsection{Main Deviation Quantity}
+
+Define:
+
+\[
+\alpha_n(\omega) := \int \lambda \, d\mu_n^\omega(\lambda)
+\]
+
+We analyze the deviation:
+
+\[
+Z_n(\omega) := \frac{\alpha_n(\omega) - \mathbb{E}[\alpha_n]}{\sqrt{\mathrm{Var}(\alpha_n)}}
+\]
+
+\subsection{Objective}
+
+Prove tight entropy bounds and identify universality class of $\mu$.
