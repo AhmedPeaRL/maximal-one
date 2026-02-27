@@ -8,6 +8,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { canonicalJSONStringify } = require("./utils/canonicalize");
 const crypto = require("crypto");
 
 const ROOT = process.cwd();
@@ -17,9 +18,6 @@ const GENERATOR_PATH = path.join(GATE_DIR, "generate-report.cjs");
 
 const MEMORY_DIR = path.join(ROOT, ".coherence-memory");
 const STATE_HISTORY_PATH = path.join(MEMORY_DIR, "state-history.jsonl");
-
-const { canonicalJSONStringify } = require("./utils/canonicalize");
-const crypto = require("crypto");
 
 const canonical = canonicalJSONStringify(report);
 
