@@ -28,23 +28,17 @@ def main():
     stability = compute_stability(args.seed)
 
     report = {
-        "seed": args.seed,
-        "stability": stability,
-        "python_version": platform.python_version(),
-        "platform": platform.platform()
+    "spectral_profile": {
+        "estimated_alpha": float(alpha),
+        "bootstrap_std": float(std)
+    },
+    "metadata": {
+        "seed": seed
     }
-
-    serialized = json.dumps(report, sort_keys=True, separators=(',', ':'))
-
-    sha = hashlib.sha256(serialized.encode()).hexdigest()
-
-    final = {
-        "report": report,
-        "sha256": sha
     }
-
-    with open("artifacts/canonical_report.json", "w") as f:
-        json.dump(final, f, sort_keys=True, separators=(',', ':'))
+    
+    with open("artifacts/canonical_report.json","w") as f:
+        json.dump(report, f, sort_keys=True, separators=(',',':'))
 
 if __name__ == "__main__":
     main()
