@@ -196,6 +196,11 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
+          name: node-hash-20.20.0
+          path: node20
+
+      - uses: actions/download-artifact@v4
+        with:
           name: node-hash-24.11.1
           path: node24
 
@@ -204,6 +209,10 @@ jobs:
           H1=$(cat node18/node_report.hash)
           H2=$(cat node20/node_report.hash)
           H3=$(cat node24/node_report.hash)
+
+          echo "Node 18 hash: $H1"
+          echo "Node 20 hash: $H2"
+          echo "Node 24 hash: $H3"
 
           if [ "$H1" != "$H2" ] || [ "$H1" != "$H3" ]; then
             echo "Cross-version divergence detected."
