@@ -24,6 +24,10 @@ jobs:
         node-version: [18.20.8, 20.20.0, 24.11.1]
 
     steps:
+
+      - name: Print trigger source
+        run: echo "Triggered by ${{ github.event_name }}"
+        
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
@@ -47,7 +51,6 @@ jobs:
          npm run stability
          npm run attractor
 
-      
       - uses: actions/upload-artifact@v4
         with:
           name: node-hash-${{ matrix.node-version }}
