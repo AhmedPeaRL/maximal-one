@@ -93,25 +93,6 @@ jobs:
               json.dump(report,f,sort_keys=True,separators=(',',':'))
           PY
 
-      - name: Compute lowercase image name
-        id: vars
-        run: |
-          OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          echo "owner_lc=$OWNER_LC" >> $GITHUB_OUTPUT
-
-      - name: Log in to GHCR
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-        
-      - name: Build image
-        run: |
-          IMAGE_NAME=$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          docker build -t $IMAGE_NAME:latest .
-          
-      - name: Push image
-        run: |
-          IMAGE_NAME=$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          docker push $IMAGE_NAME:latest
-
       - name: Final cryptographic hash
         run: sha256sum artifacts/canonical_report.json | cut -d " " -f1 > report.hash
 
