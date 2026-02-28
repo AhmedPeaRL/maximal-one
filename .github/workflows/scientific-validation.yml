@@ -225,19 +225,27 @@ jobs:
     needs: consensus
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: Install deterministic scientific stack
+        run: |
+          python -m pip install --upgrade pip==24.0
+          pip install numpy==1.26.4 sympy==1.12
+
+      - name: Freeze environment
+        run: pip freeze
 
       - name: Debug repository structure
         run: |
           echo "==== ROOT ===="
           ls -R
-          
+
       - name: Run SDP robustness test
         run: python stability/sos_robustness_test.py
-     
+
       - name: Spectral gap check
         run: python stability/spectral_gap_test.py
-      
+
       - name: Eigenvalue drift
         run: python stability/eigen_drift_check.py
   
