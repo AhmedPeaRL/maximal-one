@@ -219,11 +219,19 @@ jobs:
           echo "Deterministic consensus verified."
 
   stability-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    container:
+      image: python:3.11.8-slim
     needs: consensus
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: Debug repository structure
+        run: |
+          echo "==== ROOT ===="
+          ls -R
+          
       - name: Run SDP robustness test
         run: python stability/sos_robustness_test.py
      
