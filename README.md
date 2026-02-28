@@ -61,3 +61,35 @@ pip install -r requirements.txt
 python master_experiment.py
 
 All outputs are deterministic given identical seeds and environment constraints.
+
+---
+
+## Formal Layer
+
+The formal hypothesis, theorem structure,
+boundary conditions, and falsifiability framework
+are defined under:
+
+    /formal/
+
+This separates experimental computation
+from formal scientific claim structure.
+
+---
+
+## Experimental Assault Layer
+
+The repository now includes:
+
+- Multi-seed sweep experiment (50 seeds)
+- Public CSV dataset export
+- Statistical power analysis against α = 1/2
+- Replication assault stress test
+
+All outputs are stored in:
+
+    /data/
+
+All experiments are under:
+
+    /experiments/
