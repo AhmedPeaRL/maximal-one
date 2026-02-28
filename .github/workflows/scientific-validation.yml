@@ -1,9 +1,6 @@
-name: Scientific Validation
+name: SOS Robustness Gate
 
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+on: [push, pull_request]
 
 permissions:
   contents: write
@@ -220,3 +217,19 @@ jobs:
           fi
 
           echo "Deterministic consensus verified."
+
+  stability-check:
+    runs-on: ubuntu-latest
+    needs: consensus
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run SDP robustness test
+        run: python stability/sos_robustness_test.py
+     
+      - name: Spectral gap check
+        run: python stability/spectral_gap_test.py
+      
+      - name: Eigenvalue drift
+        run: python stability/eigen_drift_check.py
+  
