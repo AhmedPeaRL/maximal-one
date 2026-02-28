@@ -1,0 +1,15 @@
+name: SOS Robustness Gate
+
+on: [push, pull_request]
+
+jobs:
+  stability-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run SDP robustness test
+        run: python stability/sos_robustness_test.py
+      - name: Spectral gap check
+        run: python stability/spectral_gap_test.py
+      - name: Eigenvalue drift
+        run: python stability/eigen_drift_check.py
