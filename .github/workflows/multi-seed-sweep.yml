@@ -60,6 +60,11 @@ jobs:
           mkdir -p ../data
           python null_ensemble.py > ../data/null_test.txt
 
+      - name: Update Power Badge
+        run: |
+          cd experiments
+          python update_badge.py
+
       - name: Commit dataset if changed
         run: |
           git config --global user.name "github-actions"
