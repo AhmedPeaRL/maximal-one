@@ -14,20 +14,11 @@ permissions:
 jobs:
   sweep:
     runs-on: ubuntu-24.04
-    container:
-      image: python:3.11.8-slim
-
-    defaults:
-      run:
-        working-directory: /__w/maximal-one/maximal-one
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install git
-        run: |
-          apt-get update
-          apt-get install -y git
+        with:
+          fetch-depth: 0
 
       - name: Install scientific stack
         run: |
