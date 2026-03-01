@@ -1,29 +1,28 @@
-import pandas as pd
 import numpy as np
-from scipy.stats import ttest_1samp
-import json
-
-DATA_PATH = "../data/multi_seed_results.csv"
-REFERENCE = 0.5
+import pandas as pd
+from scipy import stats
 
 def main():
-    df = pd.read_csv(DATA_PATH)
-    alphas = df["mu_boot"].values
+    df = pd.read_csv("../data/multi_seed_results.csv")
 
-    t_stat, p_value = ttest_1samp(alphas, REFERENCE)
+    # نستخدم spectral_exponent بدلاً من mu_boot
+    alphas = df["spectral_exponent"].values
 
-    result = {
-        "mean_alpha": float(np.mean(alphas)),
-        "std_alpha": float(np.std(alphas)),
-        "t_statistic": float(t_stat),
-        "p_value": float(p_value),
-        "reference": REFERENCE
-    }
+    mean_alpha = np.mean(alphas)
+    std_alpha = np.std(alphas, ddof=1)
 
-    with open("../data/power_result.json","w") as f:
-        json.dump(result,f,indent=2)
+    # اختبار مقابل H0: alpha = 1 (random walk theoretical slope)
+    t_stat, p_value = stats.ttest_1samp(alphas, 1.0)
 
-    print(json.dumps(result,indent=2))
+    # حساب Cohen's d
+    effect_size = (mean_alpha - 1.0) / std_alpha
+
+    print("=== Power Analysis ===")
+    print("Mean spectral exponent:", mean_alpha)
+    print("Std:", std_alpha)
+    print("t-statistic:", t_stat)
+    print("p-value:", p_value)
+    print("Effect size (Cohen's d):", effect_size)
 
 if __name__ == "__main__":
     main()
