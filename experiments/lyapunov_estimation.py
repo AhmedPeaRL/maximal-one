@@ -62,3 +62,5 @@ if __name__ == "__main__":
     with open("../data/lyapunov.txt", "w") as f:
         f.write(f"mean_lyapunov: {mean_lyap}\n")
         f.write(f"failure_ratio: {fail_rate}\n")
+
+print("Lyapunov estimation complete")
