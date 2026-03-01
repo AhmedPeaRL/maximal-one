@@ -33,6 +33,9 @@ if __name__ == "__main__":
     seeds = range(100)
     exponents = [estimate_lyapunov(s) for s in seeds]
     mean_lyap = safe_mean(exponents)
+    
+if result is None:
+    print("LYAPUNOV_FAILURE: empty trajectory")
 
     print("=== Lyapunov Analysis ===")
     print(f"Mean Lyapunov exponent: {mean_lyap}")
