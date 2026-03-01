@@ -3,8 +3,6 @@ name: SOS Robustness Gate
 on:
   push:
   pull_request:
-    paths:
-      - "experiments/**"
     paths-ignore:
       - "data/**"
       - "README.md"
