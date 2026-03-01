@@ -10,6 +10,11 @@ def generate_hcm_series(seed, n=2000):
 
     return x
 
+def safe_mean(arr):
+    if arr is None or len(arr) == 0:
+        return None
+    return float(np.mean(arr))
+
 def estimate_lyapunov(seed, epsilon=1e-8, n=2000):
     x1 = generate_hcm_series(seed, n)
     x2 = generate_hcm_series(seed, n)
@@ -22,12 +27,12 @@ def estimate_lyapunov(seed, epsilon=1e-8, n=2000):
         if delta > 0:
             divergence.append(np.log(delta / epsilon))
 
-    return np.mean(divergence)
+    return safe_mean(divergence)
 
 if __name__ == "__main__":
     seeds = range(100)
     exponents = [estimate_lyapunov(s) for s in seeds]
-    mean_lyap = np.mean(exponents)
+    mean_lyap = safe_mean(exponents)
 
     print("=== Lyapunov Analysis ===")
     print(f"Mean Lyapunov exponent: {mean_lyap}")
