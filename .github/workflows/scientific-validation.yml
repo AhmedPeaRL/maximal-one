@@ -5,6 +5,9 @@ on:
   pull_request:
     paths:
       - "experiments/**"
+    paths-ignore:
+      - "data/**"
+      - "README.md"
   workflow_dispatch:
   schedule:
     - cron: "0 3 * * 0"
@@ -385,21 +388,13 @@ jobs:
           mkdir -p ../data
           python lyapunov_estimation.py > ../data/lyapunov.txt
 
-      - name: Commit dataset if changed (safe)
+      - name: Commit dataset if changed (atomic)
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
 
-          # تأكد إننا على main
-          git checkout main
+          git add data/*.csv data/*.json data/*.txt README.md || true
 
-          # اسحب قبل أي تعديل
-          git pull --rebase origin main
-
-          # أضف الملفات بعد انتهاء كل العمليات
-          git add data/*.csv data/*.json data/*.txt || true
-
-          # لو مفيش تغييرات لا تكمل
           if git diff --cached --quiet; then
             echo "No dataset changes."
             exit 0
@@ -407,4 +402,10 @@ jobs:
 
           git commit -m "Automated multi-seed sweep update"
 
-          git push origin main
+          # محاولة دفع آمنة
+          git push origin HEAD:main || (
+            echo "Push failed, retrying with rebase..."
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
+          )
