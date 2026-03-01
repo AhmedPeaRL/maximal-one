@@ -1,50 +1,39 @@
 import numpy as np
 import pandas as pd
 from scipy.signal import welch
-from scipy.stats import linregress
-import os
 
-OUTPUT_PATH = "../data/multi_seed_results.csv"
-N = 4096
-SEEDS = range(0, 50)  # 50 independent seeds
-BOOTSTRAP_ITER = 1000
-
-def generate_process(seed):
-    np.random.seed(seed)
-    return np.cumsum(np.random.randn(N))  # integrated white noise
-
-def estimate_alpha(x):
-    f, Pxx = welch(x, nperseg=256)
-    log_f = np.log(f[1:])
-    log_P = np.log(Pxx[1:])
-    slope, _, _, _, _ = linregress(log_f, log_P)
+def spectral_exponent(signal):
+    freqs, psd = welch(signal, nperseg=256)
+    freqs = freqs[1:]
+    psd = psd[1:]
+    log_f = np.log(freqs)
+    log_p = np.log(psd)
+    slope, _ = np.polyfit(log_f, log_p, 1)
     return -slope
 
-def bootstrap_alpha(x):
-    alphas = []
-    for _ in range(BOOTSTRAP_ITER):
-        resample = np.random.choice(x, size=len(x), replace=True)
-        alphas.append(estimate_alpha(resample))
-    return np.mean(alphas), np.std(alphas)
+def generate_signal(seed, n=2048):
+    np.random.seed(seed)
+    return np.cumsum(np.random.normal(size=n))
 
 def main():
     results = []
-    for seed in SEEDS:
-        x = generate_process(seed)
-        alpha = estimate_alpha(x)
-        mu_boot, std_boot = bootstrap_alpha(x)
+
+    for seed in range(50):
+        signal = generate_signal(seed)
+        value = np.mean(signal)
+        alpha = spectral_exponent(signal)
+
         results.append({
             "seed": seed,
-            "alpha": alpha,
-            "mu_boot": mu_boot,
-            "std_boot": std_boot
+            "value": value,
+            "spectral_exponent": alpha
         })
+
         print(f"Seed {seed} done")
 
     df = pd.DataFrame(results)
-    os.makedirs("../data", exist_ok=True)
-    df.to_csv(OUTPUT_PATH, index=False)
-    print("Saved:", OUTPUT_PATH)
+    df.to_csv("../data/multi_seed_results.csv", index=False)
+    print("Saved: ../data/multi_seed_results.csv")
 
 if __name__ == "__main__":
     main()
