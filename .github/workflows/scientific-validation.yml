@@ -385,11 +385,26 @@ jobs:
           mkdir -p ../data
           python lyapunov_estimation.py > ../data/lyapunov.txt
 
-      - name: Commit dataset if changed
+      - name: Commit dataset if changed (safe)
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
-          git add data/*.csv data/*.json data/*.txt || true
-          git commit -m "Automated multi-seed sweep update" || true
+
+          # تأكد إننا على main
+          git checkout main
+
+          # اسحب قبل أي تعديل
           git pull --rebase origin main
+
+          # أضف الملفات بعد انتهاء كل العمليات
+          git add data/*.csv data/*.json data/*.txt || true
+
+          # لو مفيش تغييرات لا تكمل
+          if git diff --cached --quiet; then
+            echo "No dataset changes."
+            exit 0
+          fi
+
+          git commit -m "Automated multi-seed sweep update"
+
           git push origin main
