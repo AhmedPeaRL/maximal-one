@@ -20,7 +20,7 @@ def main():
     real = pd.read_csv("../data/multi_seed_results.csv")["spectral_exponent"].values
 
     null_vals = []
-    for i in range(100):
+    for i in range(5000):
         rw = generate_random_walk(len(real))
         null_vals.append(spectral_exponent(rw))
 
