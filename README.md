@@ -95,3 +95,11 @@ All outputs are stored in:
 All experiments are under:
 
     /experiments/
+
+---
+
+## Power Test Result
+
+Latest statistical test output is stored under:
+
+    data/power_result.txt
