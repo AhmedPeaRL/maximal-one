@@ -65,6 +65,12 @@ jobs:
           cd experiments
           python update_badge.py
 
+      - name: Compute Effect Size
+        run: |
+          cd experiments
+          mkdir -p ../data
+          python effect_size.py > ../data/effect_size.txt
+
       - name: Commit dataset if changed
         run: |
           git config --global user.name "github-actions"
