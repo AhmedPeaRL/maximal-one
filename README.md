@@ -1,3 +1,4 @@
+![Power Test](https://img.shields.io/badge/power-auto_generated-blue)
 ![Multi Seed Sweep](https://github.com/AhmedPeaRL/maximal-one/actions/workflows/multi-seed-sweep.yml/badge.svg)
 
 # maximal-one
