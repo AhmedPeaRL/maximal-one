@@ -1,4 +1,4 @@
-![Multi Seed Sweep](https://github.com/ahmedpearl/maximal-one/actions/workflows/multi-seed-sweep.yml/badge.svg)
+![Multi Seed Sweep](https://github.com/AhmedPeaRL/maximal-one/actions/workflows/multi-seed-sweep.yml/badge.svg)
 
 # maximal-one
 
