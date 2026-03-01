@@ -36,6 +36,6 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
-          git add data/*.csv data/power_result.txt || true
+          git add data/*.json data/power_result.txt || true
           git commit -m "Automated multi-seed sweep update" || true
           git push
