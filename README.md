@@ -56,16 +56,6 @@ See core-scientific/finite_spectral_bound.md.
 
 ---
 
-## Execution
-
-```bash
-pip install -r requirements.txt
-python master_experiment.py
-
-All outputs are deterministic given identical seeds and environment constraints.
-
----
-
 ## Formal Layer
 
 The formal hypothesis, theorem structure,
@@ -103,3 +93,12 @@ All experiments are under:
 Latest statistical test output is stored under:
 
     data/power_result.txt
+    
+
+## Execution
+
+```bash
+pip install -r requirements.txt
+python master_experiment.py
+
+All outputs are deterministic given identical seeds and environment constraints.
