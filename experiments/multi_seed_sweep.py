@@ -18,7 +18,7 @@ def generate_signal(seed, n=2048):
 def main():
     results = []
 
-    for seed in range(50):
+    for seed in range(500):
         signal = generate_signal(seed)
         value = np.mean(signal)
         alpha = spectral_exponent(signal)
