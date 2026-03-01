@@ -20,7 +20,13 @@ fbm_series = generate_fbm(n)
 h_fbm = hurst_rs(fbm_series)
 
 data = pd.read_csv("../data/multi_seed_results.csv")
+
 h_model = np.mean(data["spectral_exponent"])
+h_fbm = 0.5
+delta = abs(h_model - h_fbm)
+
+print("Mean spectral exponent:", h_model)
+print("Deviation from FBM (0.5):", delta)
 
 results = {
     "H_fbm": float(h_fbm),
