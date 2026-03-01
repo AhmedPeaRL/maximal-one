@@ -1,3 +1,5 @@
+![Multi Seed Sweep](https://github.com/ahmedpearl/maximal-one/actions/workflows/multi-seed-sweep.yml/badge.svg)
+
 # maximal-one
 
 maximal-one is a reproducible experimental framework for testing the hypothesis:
