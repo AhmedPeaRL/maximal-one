@@ -1,5 +1,9 @@
 name: SOS Robustness Gate
 
+concurrency:
+  group: scientific-validation-main
+  cancel-in-progress: false
+
 on:
   push:
   pull_request:
@@ -386,10 +390,10 @@ jobs:
           mkdir -p ../data
           python lyapunov_estimation.py > ../data/lyapunov.txt
 
-      - name: Commit dataset if changed (atomic)
+      - name: Commit dataset if changed
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
 
           git add data/*.csv data/*.json data/*.txt README.md || true
 
@@ -399,11 +403,4 @@ jobs:
           fi
 
           git commit -m "Automated multi-seed sweep update"
-
-          # محاولة دفع آمنة
-          git push origin HEAD:main || (
-            echo "Push failed, retrying with rebase..."
-            git fetch origin main
-            git rebase origin/main
-            git push origin HEAD:main
-          )
+          git push
