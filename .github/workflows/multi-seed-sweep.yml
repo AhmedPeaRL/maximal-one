@@ -71,6 +71,12 @@ jobs:
           mkdir -p ../data
           python effect_size.py > ../data/effect_size.txt
 
+      - name: Run Lyapunov Analysis
+        run: |
+          cd experiments
+          mkdir -p ../data
+          python lyapunov_estimation.py > ../data/lyapunov.txt
+
       - name: Commit dataset if changed
         run: |
           git config --global user.name "github-actions"
