@@ -54,6 +54,12 @@ jobs:
           mkdir -p ../data
           python hurst_dfa.py > ../data/hurst.txt
 
+      - name: Run Null Ensemble Test
+        run: |
+          cd experiments
+          mkdir -p ../data
+          python null_ensemble.py > ../data/null_test.txt
+
       - name: Commit dataset if changed
         run: |
           git config --global user.name "github-actions"
