@@ -6,7 +6,10 @@ on:
       - "experiments/**"
   workflow_dispatch:
   schedule:
-    - cron: "0 3 * * 0"   # weekly
+    - cron: "0 3 * * 0"
+
+permissions:
+  contents: write
 
 jobs:
   sweep:
@@ -16,6 +19,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install git (required inside slim container)
+        run: |
+          apt-get update
+          apt-get install -y git
 
       - name: Install scientific stack
         run: |
@@ -36,6 +44,6 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
-          git add data/*.json data/power_result.txt || true
+          git add data/*.csv data/*.json data/power_result.txt || true
           git commit -m "Automated multi-seed sweep update" || true
           git push
