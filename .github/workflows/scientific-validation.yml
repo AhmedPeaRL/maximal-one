@@ -407,6 +407,10 @@ jobs:
           mkdir -p ../data
           python lyapunov_estimation.py > ../data/lyapunov.txt
 
+      - name: Strict Lyapunov Scan
+        run: |
+          python analysis/lyapunov_strict_scan.py
+
       - name: Commit dataset if changed
         run: |
           git config user.name "github-actions"
