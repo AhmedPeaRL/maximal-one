@@ -280,6 +280,10 @@ jobs:
         run: |
           python repro-core/boundedness_check.py
 
+      - name: precision robustness
+        run: |
+          python analysis/precision_stability.py
+          
       - name: Run spectral verification
         run: |
           python analysis/numerical_spectral_verification.py
@@ -291,6 +295,11 @@ jobs:
           python analysis/real_data_adapter.py real-data/sample.csv
           python analysis/nonlinear_real_world_scan.py real-data/sample.csv > artifacts/real_world_scan.txt
 
+      - name: Predictive deviation test
+        if: hashFiles('real-data/*.csv') != ''
+        run: |
+          python analysis/real_world_predictive_test.py real-data/sample.csv
+
       - name: Bootstrap alpha stability
         run: |
           python analysis/bootstrap_alpha.py
@@ -299,6 +308,10 @@ jobs:
         run: |
           mkdir -p artifacts
           python analysis/phase_transition_scan.py
+
+      - name: High resolution phase scan
+        run: |
+          python analysis/high_resolution_phase_scan.py
 
       - name: Nonlinear phase transition scan
         run: |
