@@ -2,6 +2,8 @@ import random
 import json
 import hashlib
 
+from global_reproducibility_guard import enforce_global_determinism
+
 SEED = 42
 N = 1000
 
