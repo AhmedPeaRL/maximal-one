@@ -293,11 +293,21 @@ jobs:
           mkdir -p artifacts
           python analysis/phase_transition_scan.py
 
+      - name: Nonlinear phase transition scan
+        run: |
+          mkdir -p artifacts
+          python analysis/nonlinear_phase_scan.py
+
       - name: Upload spectral artifacts
         uses: actions/upload-artifact@v4
         with:
           name: phase-transition
           path: artifacts/phase_transition.png
+          
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nonlinear-phase-transition
+          path: artifacts/nonlinear_phase_transition.png
           
   stability-check:
     runs-on: ubuntu-24.04
