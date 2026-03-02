@@ -252,6 +252,7 @@ jobs:
         run: |
           mkdir -p artifacts
           pip freeze > artifacts/pip-freeze.txt
+          
 
       - name: Run deterministic kernel
         run: |
@@ -290,7 +291,7 @@ jobs:
       - name: Phase transition scan
         run: |
           mkdir -p artifacts
-          python analysis/phase_transition_scan.py
+          python analysis/phase_transition_scan.py > ../data/phase_transition_scan.txt
 
       - name: Upload spectral artifacts
         uses: actions/upload-artifact@v4
