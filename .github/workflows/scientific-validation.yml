@@ -291,7 +291,7 @@ jobs:
       - name: Phase transition scan
         run: |
           mkdir -p artifacts
-          python analysis/phase_transition_scan.py > ../data/phase_transition_scan.txt
+          python analysis/phase_transition_scan.py
 
       - name: Upload spectral artifacts
         uses: actions/upload-artifact@v4
