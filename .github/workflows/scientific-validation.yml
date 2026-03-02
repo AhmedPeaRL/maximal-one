@@ -284,6 +284,13 @@ jobs:
         run: |
           python analysis/numerical_spectral_verification.py
 
+      - name: Real Data Nonlinear Scan
+        if: hashFiles('real-data/*.csv') != ''
+        run: |
+          mkdir -p artifacts
+          python analysis/real_data_adapter.py real-data/sample.csv
+          python analysis/nonlinear_real_world_scan.py real-data/sample.csv > artifacts/real_world_scan.txt
+
       - name: Bootstrap alpha stability
         run: |
           python analysis/bootstrap_alpha.py
