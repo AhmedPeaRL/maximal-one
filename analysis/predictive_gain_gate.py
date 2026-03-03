@@ -43,10 +43,10 @@ ar_mse, hcm_mse = evaluate(series)
 delta = ar_mse - hcm_mse
 
 result = {
-    "ar_mse": ar_mse,
-    "hcm_mse": hcm_mse,
-    "delta_mse": delta,
-    "passed": delta > 0
+    "ar_mse": float(ar_mse),
+    "hcm_mse": float(hcm_mse),
+    "delta_mse": float(delta),
+    "passed": bool(delta > 0)
 }
 
 print(json.dumps(result))
