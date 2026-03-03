@@ -308,7 +308,9 @@ jobs:
           python analysis/predictive_gain_gate.py
 
       - name: External replication gate
-        run: python analysis/external_replication_gate.py
+        run: | 
+          mkdir -p artifacts
+          python analysis/external_replication_gate.py
 
       - name: Chaotic Superiority Gate
         if: hashFiles('real-data/*.csv') != ''
