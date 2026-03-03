@@ -300,6 +300,10 @@ jobs:
         run: |
           python analysis/real_world_predictive_test.py real-data/sample.csv
 
+      - name: Predictive Gain Gate
+        run: |
+          python analysis/predictive_gain_gate.py
+
       - name: Bootstrap alpha stability
         run: |
           python analysis/bootstrap_alpha.py
@@ -372,7 +376,7 @@ jobs:
 
       - name: Install scientific stack
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip==24.0
           pip install numpy==1.26.4 scipy==1.12.0 pandas==2.2.0 matplotlib==3.8.2 pyarrow
 
       - name: Run multi-seed sweep
