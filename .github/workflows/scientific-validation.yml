@@ -130,8 +130,6 @@ jobs:
 
   gate:
     runs-on: ubuntu-24.04
-    container:
-      image: python@sha256:90f8795536170fd08236d2ceb74fe7065dbf74f738d8b84bfbf263656654dc9b
     needs: build-report
     outputs:
       passed: ${{ steps.final_gate.outputs.passed }}
