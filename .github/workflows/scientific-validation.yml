@@ -307,6 +307,11 @@ jobs:
         run: |
           python analysis/predictive_gain_gate.py
 
+      - name: External replication gate
+        run: |
+          pip install scikit-learn
+          python analysis/external_replication_gate.py
+
       - name: Chaotic Superiority Gate
         if: hashFiles('real-data/*.csv') != ''
         run: |
