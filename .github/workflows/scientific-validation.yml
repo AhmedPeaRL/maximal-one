@@ -292,12 +292,11 @@ jobs:
         run: |
           python analysis/numerical_spectral_verification.py
 
-      - name: Real Data Nonlinear Scan
+      - name: Real Chaotic Benchmark
         if: hashFiles('real-data/*.csv') != ''
         run: |
-          mkdir -p artifacts
-          python analysis/real_data_adapter.py real-data/sample.csv
-          python analysis/nonlinear_real_world_scan.py real-data/sample.csv > artifacts/real_world_scan.txt
+         mkdir -p artifacts
+         python analysis/real_chaotic_benchmark.py real-data/sample.csv > artifacts/chaotic_benchmark.json
 
       - name: Predictive deviation test
         if: hashFiles('real-data/*.csv') != ''
@@ -307,6 +306,23 @@ jobs:
       - name: Predictive Gain Gate
         run: |
           python analysis/predictive_gain_gate.py
+
+      - name: Chaotic Superiority Gate
+        if: hashFiles('real-data/*.csv') != ''
+        run: |
+         RESULT=$(cat artifacts/chaotic_benchmark.json)
+         echo "$RESULT"
+
+         PASS=$(echo "$RESULT" | python -c "
+         import sys, json
+         d=json.load(sys.stdin)
+         print('true' if d['hcm_superior'] else 'false')
+         ")
+
+         if [ "$PASS" != "true" ]; then
+           echo 'Chaotic predictive superiority not achieved.'
+           exit 1
+         fi
 
       - name: Bootstrap alpha stability
         run: |
