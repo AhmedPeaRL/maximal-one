@@ -444,4 +444,4 @@ jobs:
           fi
 
           git commit -m "Automated multi-seed sweep update"
-          git push
+          git pull --rebase --autostash origin main
