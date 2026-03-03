@@ -392,8 +392,6 @@ jobs:
   sweep:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-24.04
-    container:
-      image: python@sha256:90f8795536170fd08236d2ceb74fe7065dbf74f738d8b84bfbf263656654dc9b
     needs: stability-check
 
     steps:
