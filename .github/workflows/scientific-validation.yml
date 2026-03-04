@@ -369,7 +369,7 @@ jobs:
 
       - name: Bootstrap alpha stability
         run: |
-          python analysis/bootstrap_alpha.py
+          python -m analysis.bootstrap_alpha
 
       - name: Phase transition scan
         run: |
