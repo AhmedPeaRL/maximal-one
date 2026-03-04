@@ -356,6 +356,10 @@ jobs:
            exit 1
          fi
 
+      - name: Adversarial robustness test
+        run: |
+          python analysis/adversarial_noise_test.py
+
       - name: Bootstrap alpha stability
         run: |
           python analysis/bootstrap_alpha.py
