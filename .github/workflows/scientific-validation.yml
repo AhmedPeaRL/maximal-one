@@ -331,6 +331,9 @@ jobs:
           python analysis/real_lorenz_benchmark.py > artifacts/lorenz.json
           cat artifacts/lorenz.json
 
+      - name: Practical significance gate
+        run: python analysis/effect_size_gate.py
+
       - name: Meta Predictor Scoring
         run: python analysis/meta_predictor_score.py
 
