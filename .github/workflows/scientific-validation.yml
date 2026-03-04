@@ -312,7 +312,7 @@ jobs:
           
       - name: Null Spectral Monte Carlo
         run: |
-          python analysis/null_spectral_montecarlo.py
+          python -m analysis.null_spectral_montecarlo
 
       - name: Real Chaotic Benchmark
         if: hashFiles('real-data/*.csv') != ''
