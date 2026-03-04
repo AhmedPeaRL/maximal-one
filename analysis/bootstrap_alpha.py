@@ -1,5 +1,9 @@
 import json
 import numpy as np
+import os
+
+if not os.path.exists("artifacts/spectral_profile.json"):
+    raise RuntimeError("spectral_profile.json was not generated. Pipeline order failure.")
 
 with open("artifacts/spectral_profile.json") as f:
     data = json.load(f)
