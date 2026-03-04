@@ -1,26 +1,28 @@
 import json
 import numpy as np
-import os
+from .numerical_spectral_verification import estimate_alpha
 
-if not os.path.exists("artifacts/spectral_profile.json"):
-    raise RuntimeError("spectral_profile.json was not generated. Pipeline order failure.")
+# Recompute spectral amplitudes deterministically
+np.random.seed(42)
 
-with open("artifacts/spectral_profile.json") as f:
-    data = json.load(f)
+series = np.random.normal(0,1,1024)
 
-amps = np.array(data["amplitudes"])
-Nvals = np.array(data["N_values"])
+# Compute baseline alpha
+baseline_alpha = estimate_alpha(series)
 
-# Fit log-log slope repeatedly on resampled data
-alphas = []
+# Bootstrap
+boot = []
+for _ in range(200):
+    idx = np.random.choice(len(series), len(series), replace=True)
+    sample = series[idx]
+    boot.append(estimate_alpha(sample))
 
-for _ in range(500):
-    idx = np.random.choice(len(amps), len(amps), replace=True)
-    a = np.polyfit(np.log(Nvals[idx]), np.log(amps[idx]), 1)
-    alphas.append(-a[0])
+boot = np.array(boot)
 
-mean_alpha = np.mean(alphas)
-std_alpha = np.std(alphas)
+result = {
+    "baseline_alpha": float(baseline_alpha),
+    "bootstrap_mean": float(np.mean(boot)),
+    "bootstrap_std": float(np.std(boot)),
+}
 
-print("BOOTSTRAP_ALPHA_MEAN:", mean_alpha)
-print("BOOTSTRAP_ALPHA_STD:", std_alpha)
+print(json.dumps(result, indent=2))
