@@ -23,6 +23,9 @@ if __name__ == "__main__":
 
     observed_alpha = estimate_alpha(generate_white_noise(5000))
 
+    print("min_null:", float(np.min(null_alphas)))
+    print("max_null:", float(np.max(null_alphas)))
+
     z_score = (observed_alpha - mean_null) / std_null
 
     print("==== NULL MONTE CARLO SPECTRAL TEST ====")
