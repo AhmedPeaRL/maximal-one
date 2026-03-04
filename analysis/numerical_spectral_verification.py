@@ -1,78 +1,39 @@
-# analysis/numerical_spectral_verification.py
-
 import numpy as np
-import json
-import os
+from scipy import stats
 
-# -----------------------------
-# Deterministic LCG parameters
-# -----------------------------
-p = 2**31 - 1  # prime modulus
-a = 48271      # Park-Miller multiplier
-seed = 123456
+def estimate_alpha(series):
+    """
+    Estimate spectral scaling exponent alpha
+    using log-log regression of FFT amplitude spectrum.
+    """
 
-max_N = 5000
-k = 1  # frequency index
+    n = len(series)
+    freqs = np.fft.rfftfreq(n)[1:]
+    spectrum = np.abs(np.fft.rfft(series))[1:]
 
-# -----------------------------
-# Generate LCG sequence
-# -----------------------------
-def generate_lcg(n):
-    x = seed
-    seq = []
-    for _ in range(n):
-        x = (a * x) % p
-        seq.append(x)
-    return np.array(seq, dtype=np.int64)
+    log_freqs = np.log(freqs)
+    log_spec = np.log(spectrum)
 
-# -----------------------------
-# Spectral amplitude
-# -----------------------------
-def spectral_amplitude(xs):
-    N = len(xs)
-    angles = 2 * np.pi * k * xs / p
-    exp_sum = np.exp(1j * angles).sum()
-    return abs(exp_sum) / N
+    slope, intercept, r_value, p_value, std_err = stats.linregress(log_freqs, log_spec)
 
-# -----------------------------
-# Empirical exponent estimation
-# -----------------------------
-def estimate_exponent(N_values, amplitudes):
-    logN = np.log(N_values)
-    logA = np.log(amplitudes)
-    slope, _ = np.polyfit(logN, logA, 1)
-    return -slope  # since amplitude ~ N^{-alpha}
+    alpha = -slope
+    return alpha
 
-# -----------------------------
-# Main profiling
-# -----------------------------
-N_values = np.unique(np.logspace(2, np.log10(max_N), 25).astype(int))
-amplitudes = []
 
-full_seq = generate_lcg(max_N)
+def generate_reference_series(n=5000, seed=42):
+    np.random.seed(seed)
+    return np.random.normal(0, 1, n)
 
-for N in N_values:
-    xs = full_seq[:N]
-    amp = spectral_amplitude(xs)
-    amplitudes.append(amp)
 
-amplitudes = np.array(amplitudes)
-alpha_est = estimate_exponent(N_values, amplitudes)
+if __name__ == "__main__":
 
-# -----------------------------
-# Output artifacts
-# -----------------------------
-os.makedirs("artifacts", exist_ok=True)
+    series = generate_reference_series()
+    alpha = estimate_alpha(series)
 
-profile = {
-    "N_values": N_values.tolist(),
-    "amplitudes": amplitudes.tolist(),
-    "estimated_alpha": float(alpha_est),
-    "reference_half": 0.5
-}
+    result = {
+        "estimated_alpha": float(alpha),
+        "reference_half": 0.5
+    }
 
-with open("artifacts/spectral_profile.json", "w") as f:
-    json.dump(profile, f, indent=2)
-
-print("==== SPECTRAL PROFILE ====")
-print(json.dumps(profile, indent=2))
+    print("==== SPECTRAL PROFILE ====")
+    print(result)
