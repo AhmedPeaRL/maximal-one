@@ -335,6 +335,25 @@ jobs:
           python analysis/real_lorenz_benchmark.py > artifacts/lorenz.json
           cat artifacts/lorenz.json
 
+      - name: Lorenz-96 Benchmark
+        run: |
+          mkdir -p artifacts
+          python -m analysis.lorenz96_benchmark > artifacts/lorenz96.json
+          cat artifacts/lorenz96.json
+
+      - name: Lorenz-96 Superiority Gate
+        run: |
+          RESULT=$(cat artifacts/lorenz96.json)
+          PASS=$(echo "$RESULT" | python -c "
+          import sys, json
+          d=json.load(sys.stdin)
+          print('true' if d['hcm_superior'] else 'false')
+          ")
+          if [ "$PASS" != "true" ]; then
+            echo 'No superiority on Lorenz-96.'
+            exit 1
+          fi
+
       - name: Practical significance gate
         run: python analysis/effect_size_gate.py
 
