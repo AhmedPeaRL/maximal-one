@@ -38,9 +38,9 @@ def run():
     mse_hcm = mean_squared_error(true, hcm)
 
     result = {
-        "mse_naive": float(mse_naive),
-        "mse_hcm": float(mse_hcm),
-        "hcm_superior": mse_hcm < mse_naive
+    "mse_naive": float(mse_naive),
+    "mse_hcm": float(mse_hcm),
+    "hcm_superior": bool(mse_hcm < mse_naive)
     }
 
     print(json.dumps(result, indent=2))
