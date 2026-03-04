@@ -2,7 +2,7 @@ import json
 import os
 import numpy as np
 
-from spectral_utils import estimate_alpha, generate_white_noise
+from analysis.spectral_utils import estimate_alpha, generate_white_noise
 
 os.makedirs("artifacts", exist_ok=True)
 
