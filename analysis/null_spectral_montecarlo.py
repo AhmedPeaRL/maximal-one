@@ -1,5 +1,5 @@
 import numpy as np
-from numerical_spectral_verification import estimate_alpha
+from .numerical_spectral_verification import estimate_alpha
 
 def generate_white_noise(n):
     return np.random.normal(0, 1, n)
