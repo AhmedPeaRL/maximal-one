@@ -308,8 +308,8 @@ jobs:
           
       - name: Run spectral verification
         run: |
-          python analysis/numerical_spectral_verification.py
-
+          python -m analysis.numerical_spectral_verification
+          
       - name: Null Spectral Monte Carlo
         run: |
           python analysis/null_spectral_montecarlo.py
