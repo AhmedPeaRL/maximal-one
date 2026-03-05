@@ -37,7 +37,6 @@ def hcm_predict(x):
     pred = x[1:] + 0.05 * dx
     return pred
 
-assert 'base_err' in locals()
 assert y_true is not None
 assert y_baseline is not None
 assert y_hcm is not None
