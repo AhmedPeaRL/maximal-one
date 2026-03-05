@@ -5,17 +5,6 @@ from statsmodels.tsa.ar_model import AutoReg
 
 rng = np.random.default_rng(42)
 
-n_boot = 1000
-improvements = []
-
-for i in range(n_boot):
-    idx = rng.choice(len(y_true), len(y_true), replace=True)
-    improvements.append(
-        rmse_baseline(idx) - rmse_hcm(idx)
-    )
-
-p_value = np.mean(np.array(improvements) <= 0)
-
 # ---- Generate synthetic data ----
 n = 500
 noise = np.random.normal(0, 0.2, n)
@@ -42,6 +31,17 @@ t_stat, p_value = stats.ttest_ind(
     (test - ar_pred)**2,
     (test - hcm_pred)**2
 )
+
+n_boot = 1000
+improvements = []
+
+for i in range(n_boot):
+    idx = rng.choice(len(y_true), len(y_true), replace=True)
+    improvements.append(
+        rmse_baseline(idx) - rmse_hcm(idx)
+    )
+
+p_value = np.mean(np.array(improvements) <= 0)
 
 significant = p_value < 0.05
 
