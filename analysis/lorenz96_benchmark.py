@@ -47,8 +47,11 @@ hcm_pred = hcm_predict(traj)
 baseline_err = rmse(target, baseline_pred)
 min_len = min(len(target), len(hcm_pred))
 hcm_err = rmse(target[:min_len], hcm_pred[:min_len])
+base_err = rmse(y_true, y_baseline)
 
 improvement = baseline_err - hcm_err
+
+assert 'base_err' in locals()
 
 # bootstrap significance
 boot = []
