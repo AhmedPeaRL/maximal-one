@@ -37,10 +37,15 @@ jobs:
 
       - name: Print trigger source
         run: echo "Triggered by ${{ github.event_name }}"
-        
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Network warmup
+        run: |
+         curl -I https://api.github.com
+         sleep 5
+        
+      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
+
+      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -61,7 +66,7 @@ jobs:
          npm run stability
          npm run attractor
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: node-hash-${{ matrix.node-version }}
           path: node_report.hash
@@ -73,7 +78,7 @@ jobs:
       image: python@sha256:90f8795536170fd08236d2ceb74fe7065dbf74f738d8b84bfbf263656654dc9b
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
 
       - name: Upgrade pip first
         run: python -m pip install --upgrade pip==24.0
@@ -123,17 +128,17 @@ jobs:
       - name: Final cryptographic hash
         run: sha256sum artifacts/canonical_report.json | cut -d " " -f1 > report.hash
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: canonical-report
           path: artifacts/canonical_report.json
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: report-hash
           path: report.hash
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: pip-freeze
           path: pip-freeze.txt
@@ -145,14 +150,14 @@ jobs:
       passed: ${{ steps.final_gate.outputs.passed }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@65c4c4a1ddee5b72efc98a32956543b6b77d6d1c
         with:
           name: canonical-report
           path: artifacts
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@65c4c4a1ddee5b72efc98a32956543b6b77d6d1c
         with:
           name: report-hash
           path: artifacts
@@ -186,7 +191,7 @@ jobs:
           }
           NODE
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
           node-version: 18.20.8
 
@@ -216,17 +221,17 @@ jobs:
     needs: gate
 
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@65c4c4a1ddee5b72efc98a32956543b6b77d6d1c
         with:
           name: node-hash-18.20.8
           path: node18
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@65c4c4a1ddee5b72efc98a32956543b6b77d6d1c
         with:
           name: node-hash-20.20.0
           path: node20
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@65c4c4a1ddee5b72efc98a32956543b6b77d6d1c
         with:
           name: node-hash-24.11.1
           path: node24
@@ -255,7 +260,7 @@ jobs:
     needs: consensus
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
 
       - name: Install pinned scientific stack
         run: |
@@ -347,6 +352,10 @@ jobs:
         run: |
           mkdir -p artifacts
           python experiments/multi_seed_sweep.py
+
+      - name: Long run replication
+        run: |
+          python experiments/long_run_sweep.py
 
       - name: Verify statistical significance
         run: |
@@ -446,12 +455,12 @@ jobs:
           python analysis/nonlinear_phase_scan.py
 
       - name: Upload spectral artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: phase-transition
           path: artifacts/phase_transition.png
           
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: nonlinear-phase-transition
           path: artifacts/nonlinear_phase_transition.png
@@ -463,8 +472,8 @@ jobs:
     needs: verify
     
     steps:
-      - uses: actions/checkout@v4
-
+      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
+      
       - name: Install deterministic scientific stack
         run: |
           python -m pip install --upgrade pip==24.0
@@ -493,7 +502,7 @@ jobs:
     needs: stability-check
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
         with:
           fetch-depth: 0
 
