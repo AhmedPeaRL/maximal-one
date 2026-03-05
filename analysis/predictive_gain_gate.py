@@ -1,49 +1,65 @@
 import numpy as np
 import pandas as pd
-
 from statsmodels.tsa.ar_model import AutoReg
 
 rng = np.random.default_rng(42)
 
-# -----------------------------------
+# --------------------------------
 # Load dataset
-# -----------------------------------
+# --------------------------------
 
 data = pd.read_csv("data/predictions.csv")
 
+if "y_true" not in data.columns or "hcm" not in data.columns:
+    raise SystemExit("predictions.csv must contain columns: y_true, hcm")
+
 series = data["y_true"].to_numpy()
 
-# -----------------------------------
+# --------------------------------
+# Minimum dataset gate
+# --------------------------------
+
+MIN_POINTS = 20
+
+if len(series) < MIN_POINTS:
+    raise SystemExit(
+        f"Dataset too small for predictive validation. "
+        f"Found {len(series)} points, need at least {MIN_POINTS}."
+    )
+
+# --------------------------------
 # Train / Test split
-# -----------------------------------
+# --------------------------------
 
 split = int(len(series) * 0.7)
 
 train = series[:split]
 test = series[split:]
 
-# -----------------------------------
-# Baseline model (AR)
-# -----------------------------------
+if len(train) < 5:
+    raise SystemExit("Training set too small for AR baseline.")
 
-ar_model = AutoReg(train, lags=1).fit()
+# --------------------------------
+# Baseline model
+# --------------------------------
+
+ar_model = AutoReg(train, lags=1, old_names=False).fit()
 
 baseline_pred = ar_model.predict(
     start=len(train),
     end=len(train) + len(test) - 1
 )
 
-# -----------------------------------
-# HCM predictions (provided)
-# -----------------------------------
+# --------------------------------
+# HCM predictions
+# --------------------------------
 
 hcm_pred = data["hcm"].to_numpy()[split:]
-
 y_true = test
 
-# -----------------------------------
+# --------------------------------
 # Bootstrap predictive gain
-# -----------------------------------
+# --------------------------------
 
 N_BOOT = 2000
 gains = []
@@ -59,8 +75,8 @@ for _ in range(N_BOOT):
 
 gains = np.array(gains)
 
-gain_mean = np.mean(gains)
-p_value = np.mean(gains <= 0)
+gain_mean = float(np.mean(gains))
+p_value = float(np.mean(gains <= 0))
 
 print("Predictive gain mean:", gain_mean)
 print("p-value:", p_value)
