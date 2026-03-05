@@ -343,43 +343,43 @@ jobs:
           python -m analysis.lorenz96_benchmark > artifacts/lorenz96.json
           cat artifacts/lorenz96.json
 
-      - name: Lorenz-96 Superiority Gate
+      - name: Verify statistical significance
         run: |
-          if [ ! -f artifacts/lorenz96.json ]; then
-            echo "Result file missing."
-            exit 1
-          fi
+         if [ ! -f artifacts/lorenz96.json ]; then
+           echo "Result file missing."
+           exit 1
+         fi
 
-          if [ ! -s artifacts/lorenz96.json ]; then
-            echo "Result file empty."
-            exit 1
-          fi
+         if [ ! -s artifacts/lorenz96.json ]; then
+           echo "Result file empty."
+           exit 1
+         fi
 
-           RESULT=$(cat artifacts/lorenz96.json)
+         RESULT=$(cat artifacts/lorenz96.json)
 
-           PASS=$(echo "$RESULT" | python - <<'PY'
-           import sys, json
+         PASS=$(echo "$RESULT" | python - <<'PY'
+         import sys, json
 
-           try:
-              d=json.load(sys.stdin)
-          except Exception as e:
-              print("false")
-              sys.exit(0)
+         try:
+           d = json.load(sys.stdin)
+         except Exception:
+          print("false")
+          sys.exit(0)
 
-          improvement=d.get("improvement",0)
-          p=d.get("p_value",1.0)
+         improvement = d.get("improvement", 0)
+         p = d.get("p_value", 1.0)
 
-          if improvement > 0 and p < 0.05:
-             print("true")
-          else:
-             print("false")
-             PY
-             )
+         if improvement > 0 and p < 0.05:
+           print("true")
+         else:
+           print("false")
+         PY
+         )
 
-          if [ "$PASS" != "true" ]; then
-            echo "Lorenz96 superiority not statistically significant."
-            exit 1
-          fi
+         if [ "$PASS" != "true" ]; then
+             echo "Lorenz96 superiority not statistically significant."
+           exit 1
+           fi
 
       - name: Practical significance gate
         run: python analysis/effect_size_gate.py
