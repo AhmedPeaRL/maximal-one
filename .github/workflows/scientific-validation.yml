@@ -346,7 +346,7 @@ jobs:
       - name: Run multi-seed experiment
         run: |
           mkdir -p artifacts
-          python experiments/multi_seed_lorenz96.py
+          python experiments/multi_seed_sweep.py
 
       - name: Verify statistical significance
         run: |
