@@ -30,8 +30,9 @@ def persistence_predict(x):
 
 
 def hcm_predict(x):
-    # placeholder simple nonlinear predictor
-    return x[:-1] + 0.05 * (x[:-1] - x[:-2])
+    dx = x[1:] - x[:-1]
+    pred = x[1:] + 0.05 * dx
+    return pred
 
 
 traj = generate_lorenz96()
