@@ -37,8 +37,20 @@ def hcm_predict(x):
     pred = x[1:] + 0.05 * dx
     return pred
 
+assert 'base_err' in locals()
+assert y_true is not None
+assert y_baseline is not None
+assert y_hcm is not None
 
-traj = generate_lorenz96()
+# Generate Lorenz96 trajectory
+trajectory = simulate_lorenz96(F=8.0, dim=5, steps=500)
+
+# split sequence
+X = trajectory[:-1]
+y_true = trajectory[1:]
+
+y_baseline = baseline_model(X)
+y_hcm = hcm_model(X)
 
 target = traj[2:]
 baseline_pred = persistence_predict(traj[1:])
@@ -46,12 +58,10 @@ hcm_pred = hcm_predict(traj)
 
 baseline_err = rmse(target, baseline_pred)
 min_len = min(len(target), len(hcm_pred))
-hcm_err = rmse(target[:min_len], hcm_pred[:min_len])
+hcm_err = rmse(y_true, y_hcm)
 base_err = rmse(y_true, y_baseline)
 
-improvement = baseline_err - hcm_err
-
-assert 'base_err' in locals()
+improvement = base_err - hcm_err
 
 # bootstrap significance
 boot = []
