@@ -343,6 +343,11 @@ jobs:
           python -m analysis.lorenz96_benchmark > artifacts/lorenz96.json
           cat artifacts/lorenz96.json
 
+      - name: Run multi-seed experiment
+        run: |
+          mkdir -p artifacts
+          python experiments/multi_seed_lorenz96.py
+
       - name: Verify statistical significance
         run: |
          if [ ! -f artifacts/lorenz96.json ]; then
