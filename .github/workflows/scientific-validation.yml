@@ -345,25 +345,40 @@ jobs:
 
       - name: Lorenz-96 Superiority Gate
         run: |
-          RESULT=$(cat artifacts/lorenz96.json)
+          if [ ! -f artifacts/lorenz96.json ]; then
+            echo "Result file missing."
+            exit 1
+          fi
 
-          PASS=$(echo "$RESULT" | python - <<'PY'
-          import sys, json
-          d=json.load(sys.stdin)
+          if [ ! -s artifacts/lorenz96.json ]; then
+            echo "Result file empty."
+            exit 1
+          fi
 
-          improvement=d["improvement"]
+           RESULT=$(cat artifacts/lorenz96.json)
+
+           PASS=$(echo "$RESULT" | python - <<'PY'
+           import sys, json
+
+           try:
+              d=json.load(sys.stdin)
+          except Exception as e:
+              print("false")
+              sys.exit(0)
+
+          improvement=d.get("improvement",0)
           p=d.get("p_value",1.0)
 
           if improvement > 0 and p < 0.05:
-            print("true")
+             print("true")
           else:
-            print("false")
-          PY
-          )
-          
+             print("false")
+             PY
+             )
+
           if [ "$PASS" != "true" ]; then
-          echo "Lorenz96 superiority not statistically significant."
-          exit 1
+            echo "Lorenz96 superiority not statistically significant."
+            exit 1
           fi
 
       - name: Practical significance gate
