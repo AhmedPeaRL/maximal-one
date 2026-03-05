@@ -4,6 +4,9 @@ from scipy import stats
 
 
 def rmse(a, b):
+    n = min(len(a), len(b))
+    a = a[:n]
+    b = b[:n]
     return np.sqrt(np.mean((a - b) ** 2))
 
 
@@ -42,7 +45,8 @@ baseline_pred = persistence_predict(traj[1:])
 hcm_pred = hcm_predict(traj)
 
 baseline_err = rmse(target, baseline_pred)
-hcm_err = rmse(target, hcm_pred)
+min_len = min(len(target), len(hcm_pred))
+hcm_err = rmse(target[:min_len], hcm_pred[:min_len])
 
 improvement = baseline_err - hcm_err
 
