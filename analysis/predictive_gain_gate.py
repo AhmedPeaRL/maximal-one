@@ -1,19 +1,33 @@
 import json
 import numpy as np
+import pandas as pd
 from scipy import stats
 from statsmodels.tsa.ar_model import AutoReg
 
 rng = np.random.default_rng(42)
 
-# ---- Generate synthetic data ----
-n = 500
-noise = np.random.normal(0, 0.2, n)
-series = np.zeros(n)
-for t in range(1, n):
-    series[t] = 0.8 * series[t-1] + noise[t]
+data = pd.read_csv("data/predictions.csv")
 
-train = series[:400]
-test = series[400:]
+y_true = data["y_true"].to_numpy()
+y_pred_baseline = data["baseline"].to_numpy()
+y_pred_hcm = data["hcm"].to_numpy()
+
+# ---- Generate synthetic data ----
+N_BOOT = 2000
+gains = []
+
+for _ in range(N_BOOT):
+    idx = rng.choice(len(y_true), len(y_true), replace=True)
+
+    mse_base = np.mean((y_true[idx] - y_pred_baseline[idx]) ** 2)
+    mse_hcm = np.mean((y_true[idx] - y_pred_hcm[idx]) ** 2)
+
+    gains.append(mse_base - mse_hcm)
+
+gains = np.array(gains)
+
+p_value = np.mean(gains <= 0)
+gain_mean = np.mean(gains)
 
 # ---- Baseline AR(1) ----
 ar_model = AutoReg(train, lags=1).fit()
@@ -32,18 +46,7 @@ t_stat, p_value = stats.ttest_ind(
     (test - hcm_pred)**2
 )
 
-n_boot = 1000
-improvements = []
-
-for i in range(n_boot):
-    idx = rng.choice(len(y_true), len(y_true), replace=True)
-    improvements.append(
-        rmse_baseline(idx) - rmse_hcm(idx)
-    )
-
-p_value = np.mean(np.array(improvements) <= 0)
-
-significant = p_value < 0.05
+significant = p_value < 0.01
 
 report = {
     "synthetic_series": series.tolist(),
@@ -69,6 +72,13 @@ if delta_mse <= 0 or not significant:
     print("Baseline RMSE:", baseline_rmse)
     print("HCM RMSE:", hcm_rmse)
     print("Delta:", baseline_rmse - hcm_rmse)
+    print("Predictive Gain Mean:", gain_mean)
+    print("p-value:", p_value)
+
+if p_value < 0.05:
+    print("Predictive gain statistically significant")
+else:
+    raise SystemExit("Predictive gain not significant")
     exit(1)
 
 print("PREDICTIVE_GATE_PASSED")
