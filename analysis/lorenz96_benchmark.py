@@ -1,4 +1,4 @@
-import json
+import json, os
 import numpy as np
 from scipy import stats
 
@@ -66,12 +66,16 @@ p_value = np.mean(boot <= 0)
 
 hcm_superior = (improvement > 0) and (p_value < 0.05)
 
+os.makedirs("artifacts", exist_ok=True)
+
 result = {
-    "baseline_rmse": float(baseline_err),
     "hcm_rmse": float(hcm_err),
-    "improvement": float(improvement),
-    "p_value": float(p_value),
-    "hcm_superior": bool(hcm_superior)
+    "baseline_rmse": float(base_err),
+    "improvement": float(base_err - hcm_err),
+    "p_value": float(p)
 }
+
+with open("artifacts/lorenz96.json","w") as f:
+    json.dump(result, f, indent=2)
 
 print(json.dumps(result))
