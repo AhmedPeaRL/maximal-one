@@ -3,7 +3,7 @@ import numpy as np
 from scipy import stats
 from statsmodels.tsa.ar_model import AutoReg
 
-np.random.seed(42)
+rng = np.random.default_rng(42)
 
 # ---- Generate synthetic data ----
 n_boot = 1000
