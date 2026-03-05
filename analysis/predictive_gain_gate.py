@@ -5,15 +5,6 @@ from statsmodels.tsa.ar_model import AutoReg
 
 rng = np.random.default_rng(42)
 
-# ---- Generate synthetic data ----
-n = 500
-noise = np.random.normal(0, 0.2, n)
-series = np.zeros(n)
-for t in range(1, n):
-    series[t] = 0.8 * series[t-1] + noise[t]
-
-train = series[:400]
-test = series[400:]
 n_boot = 1000
 improvements = []
 
@@ -24,6 +15,17 @@ for i in range(n_boot):
     )
 
 p_value = np.mean(np.array(improvements) <= 0)
+
+# ---- Generate synthetic data ----
+n = 500
+noise = np.random.normal(0, 0.2, n)
+series = np.zeros(n)
+for t in range(1, n):
+    series[t] = 0.8 * series[t-1] + noise[t]
+
+train = series[:400]
+test = series[400:]
+
 # ---- Baseline AR(1) ----
 ar_model = AutoReg(train, lags=1).fit()
 ar_pred = ar_model.predict(start=400, end=499)
