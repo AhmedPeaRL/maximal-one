@@ -390,6 +390,15 @@ jobs:
         run: |
           python -m analysis.bootstrap_alpha
 
+      - name: Observable invariance
+        run: python analysis/observable_invariant_test.py
+
+      - name: Topology preservation
+        run: python analysis/topology_preservation_test.py
+
+      - name: Real world leaderboard
+        run: python analysis/real_world_leaderboard.py
+
       - name: Phase transition scan
         run: |
           mkdir -p artifacts
