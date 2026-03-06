@@ -19,8 +19,8 @@ for g in gammas:
         "--gamma", str(g),
         "--beta", str(beta),
         "--seed", "42",
-        "gamma_critical": gamma_star,
-        "alpha": alpha_estimate
+        "gamma_critical", gamma_star,
+        "alpha", alpha_estimate
     ]
     output = subprocess.check_output(cmd)
     data = json.loads(output)
