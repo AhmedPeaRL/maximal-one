@@ -392,9 +392,9 @@ jobs:
          )
 
          if [ "$PASS" != "true" ]; then
-             echo "Lorenz96 superiority not statistically significant."
-             echo "No significant superiority yet."
-           fi
+           echo "Lorenz96 superiority not statistically significant."
+           exit 1
+         fi
 
       - name: Practical significance gate
         run: python analysis/effect_size_gate.py
@@ -466,6 +466,25 @@ jobs:
         with:
           name: nonlinear-phase-transition
           path: artifacts/nonlinear_phase_transition.png
+
+      - name: Persist artifacts into repository
+        run: |
+         git config user.name "github-actions"
+         git config user.email "actions@github.com"
+
+         mkdir -p data
+         cp artifacts/*.json data/ || true
+         cp artifacts/*.txt data/ || true
+
+         git add data/*.json data/*.txt || true
+
+         if git diff --cached --quiet; then
+          echo "No new results."
+          exit 0
+         fi
+
+         git commit -m "Automated scientific results update"
+         git push
           
   stability-check:
     runs-on: ubuntu-24.04
