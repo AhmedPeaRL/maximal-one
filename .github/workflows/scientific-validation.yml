@@ -426,13 +426,13 @@ jobs:
       - name: Upload spectral artifacts
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
-          name: phase-transition
-          path: artifacts/phase_transition.png
-          
-      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
-        with:
           name: nonlinear-phase-transition
           path: artifacts/nonlinear_phase_transition.png
+
+      - name: Install git
+        run: |
+          apt-get update
+          apt-get install -y git
 
       - name: Persist artifacts into repository
         run: |
