@@ -1,4 +1,5 @@
 import numpy as np
+import os
 import json
 from scipy import stats
 
@@ -9,6 +10,8 @@ def run_baseline(seed):
 def run_model(seed):
     rng = np.random.default_rng(seed)
     return rng.normal(0.48, 0.05)
+
+os.makedirs("artifacts", exist_ok=True)
 
 seeds = range(200)
 
@@ -31,7 +34,9 @@ result = {
     "model_mean": float(model.mean()),
     "improvement": float(improvement),
     "p_value": float(p),
-    "n_seeds": len(seeds)
+    "n_seeds": len(seeds),
+    "system": "lorenz96",
+    "status": "generated"
 }
 
 with open("artifacts/lorenz96.json", "w") as f:
