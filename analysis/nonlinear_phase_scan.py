@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 import numpy as np
 import subprocess
+import os
 import json
 import matplotlib.pyplot as plt
+
+os.makedirs("artifacts", exist_ok=True)
 
 gammas = np.linspace(0.5, 1.2, 40)
 beta = 0.15
@@ -15,7 +18,9 @@ for g in gammas:
         "repro-core/nonlinear_kernel.py",
         "--gamma", str(g),
         "--beta", str(beta),
-        "--seed", "42"
+        "--seed", "42",
+        "gamma_critical": gamma_star,
+        "alpha": alpha_estimate
     ]
     output = subprocess.check_output(cmd)
     data = json.loads(output)
@@ -29,3 +34,6 @@ plt.ylabel("Lyapunov Exponent")
 plt.title("Nonlinear Phase Scan")
 plt.tight_layout()
 plt.savefig("artifacts/nonlinear_phase_transition.png")
+
+with open("artifacts/nonlinear_phase_transition.json","w") as f:
+    json.dump(result,f)
