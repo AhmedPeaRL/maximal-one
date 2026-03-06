@@ -296,6 +296,9 @@ jobs:
           python repro-core/deterministic_kernel.py > artifacts/state.json
           python repro-core/environment_fingerprint.py > artifacts/environment.json
 
+      - name: Generate run summary
+        run: python analysis/run_summary.py
+
       - name: Dump state content
         run: |
           echo "==== STATE CONTENT ===="
