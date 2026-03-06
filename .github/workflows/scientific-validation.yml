@@ -147,12 +147,12 @@ jobs:
     steps:
       - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
 
-      - uses: actions/download-artifact@65c4c4a1ddee5b72efc98a32956543b6b77d6d1c
+      - uses: actions/download-artifact@v4
         with:
           name: canonical-report
           path: artifacts
 
-      - uses: actions/download-artifact@65c4c4a1ddee5b72efc98a32956543b6b77d6d1c
+      - uses: actions/actions/download-artifact@v4
         with:
           name: report-hash
           path: artifacts
@@ -216,17 +216,17 @@ jobs:
     needs: gate
 
     steps:
-      - uses: actions/download-artifact@65c4c4a1ddee5b72efc98a32956543b6b77d6d1c
+      - uses: actions/download-artifact@v4
         with:
           name: node-hash-18.20.8
           path: node18
 
-      - uses: actions/download-artifact@65c4c4a1ddee5b72efc98a32956543b6b77d6d1c
+      - uses: actions/download-artifact@v4
         with:
           name: node-hash-20.20.0
           path: node20
 
-      - uses: actions/download-artifact@65c4c4a1ddee5b72efc98a32956543b6b77d6d1c
+      - uses: actions/download-artifact@v4
         with:
           name: node-hash-24.11.1
           path: node24
