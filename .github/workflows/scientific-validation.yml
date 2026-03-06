@@ -265,6 +265,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Mark repository as safe
+        run: |
+         git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Install pinned scientific stack
         run: |
          python -m pip install --upgrade pip==24.0
@@ -436,16 +440,6 @@ jobs:
         with:
           name: nonlinear-phase-transition
           path: artifacts/nonlinear_phase_transition.png
-
-      - name: Verify git repository
-        run: |
-          pwd
-          ls -a
-          git status
-
-      - name: Configure safe git directory
-        run: |
-         git config --global --add safe.directory /__w/maximal-one/maximal-one
 
       - name: Persist artifacts into repository
         run: |
