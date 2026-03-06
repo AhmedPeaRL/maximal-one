@@ -37,11 +37,6 @@ jobs:
 
       - name: Print trigger source
         run: echo "Triggered by ${{ github.event_name }}"
-
-      - name: Network warmup
-        run: |
-         curl -I https://api.github.com
-         sleep 5
         
       - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
 
@@ -285,6 +280,7 @@ jobs:
 
       - name: Run deterministic kernel
         run: |
+          mkdir -p artifacts
           python repro-core/deterministic_kernel.py > artifacts/state.json
           python repro-core/environment_fingerprint.py > artifacts/environment.json
 
@@ -315,10 +311,12 @@ jobs:
           
       - name: Run spectral verification
         run: |
+          mkdir -p artifacts
           python -m analysis.numerical_spectral_verification
           
       - name: Null Spectral Monte Carlo
         run: |
+          mkdir -p artifacts
           python -m analysis.null_spectral_montecarlo
 
       - name: Real Chaotic Benchmark
@@ -330,6 +328,7 @@ jobs:
       - name: Predictive deviation test
         if: hashFiles('real-data/*.csv') != ''
         run: |
+          mkdir -p artifacts
           python analysis/real_world_predictive_test.py real-data/sample.csv
 
       - name: Predictive Gain Gate
@@ -355,10 +354,12 @@ jobs:
 
       - name: Long run replication
         run: |
+          mkdir -p artifacts
           python experiments/long_run_sweep.py
 
       - name: Verify statistical significance
         run: |
+         mkdir -p artifacts
          if [ ! -f artifacts/lorenz96.json ]; then
            echo "Result file missing."
            exit 1
@@ -429,6 +430,7 @@ jobs:
 
       - name: Bootstrap alpha stability
         run: |
+          mkdir -p artifacts
           python -m analysis.bootstrap_alpha
 
       - name: Observable invariance
