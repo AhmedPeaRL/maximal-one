@@ -583,3 +583,4 @@ jobs:
 
           git commit -m "Automated multi-seed sweep update"
           git pull --rebase --autostash origin main
+          git push origin HEAD:main
