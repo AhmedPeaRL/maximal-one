@@ -339,6 +339,7 @@ jobs:
         run: |
           mkdir -p artifacts
           python analysis/real_lorenz_benchmark.py > artifacts/lorenz.json
+          echo "=== Lorenz96 result ==="
           cat artifacts/lorenz.json
 
       - name: Lorenz-96 Benchmark
