@@ -255,7 +255,10 @@ jobs:
     needs: consensus
 
     steps:
-      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
+      - name: Checkout repository
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
+        with:
+          fetch-depth: 0
 
       - name: Install pinned scientific stack
         run: |
@@ -434,24 +437,38 @@ jobs:
           apt-get update
           apt-get install -y git
 
+      - name: Verify git repository
+        run: |
+          pwd
+          ls -a
+          git status
+
+      - name: Configure safe git directory
+        run: |
+         git config --global --add safe.directory /__w/maximal-one/maximal-one
+
       - name: Persist artifacts into repository
         run: |
-         git config user.name "github-actions"
-         git config user.email "actions@github.com"
+         git config --global user.name "github-actions"
+         git config --global user.email "actions@github.com"
+
+         git config --global --add safe.directory "$PWD"
 
          mkdir -p data
-         cp artifacts/*.json data/ || true
-         cp artifacts/*.txt data/ || true
+
+         cp artifacts/*.json data/ 2>/dev/null || true
+         cp artifacts/*.txt data/ 2>/dev/null || true
 
          git add data/*.json data/*.txt || true
 
          if git diff --cached --quiet; then
-          echo "No new results."
-          exit 0
+           echo "No new results."
+           exit 0
          fi
 
          git commit -m "Automated scientific results update"
-         git push
+
+         git push origin HEAD:main
           
   stability-check:
     runs-on: ubuntu-24.04
