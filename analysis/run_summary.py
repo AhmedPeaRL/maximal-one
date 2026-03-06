@@ -1,22 +1,21 @@
 import json
 import os
-import time
-import platform
-import hashlib
-import random
+import datetime
+from pathlib import Path
 
-os.makedirs("artifacts", exist_ok=True)
+artifacts = Path("artifacts")
+artifacts.mkdir(exist_ok=True)
 
-data = {
-    "timestamp": time.time(),
-    "system": platform.system(),
-    "python": platform.python_version(),
-    "seed": random.randint(0, 10_000_000),
+summary = {
+    "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+    "status": "run_completed",
+    "files_present": [],
 }
 
-fingerprint = hashlib.sha256(json.dumps(data,sort_keys=True).encode()).hexdigest()
+for f in artifacts.glob("*"):
+    summary["files_present"].append(f.name)
 
-data["fingerprint"] = fingerprint
+with open(artifacts / "run_summary.json","w") as f:
+    json.dump(summary,f,indent=2)
 
-with open("artifacts/run_summary.json","w") as f:
-    json.dump(data,f,indent=2)
+print("Run summary generated.")
