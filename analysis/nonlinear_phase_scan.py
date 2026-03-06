@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 
 os.makedirs("artifacts", exist_ok=True)
 
+gamma_star = max(results, key=lambda x: x["alpha"])["gamma"]
 gammas = np.linspace(0.5, 1.2, 40)
 beta = 0.15
 
