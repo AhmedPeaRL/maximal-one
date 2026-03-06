@@ -584,5 +584,7 @@ jobs:
             exit 0
           fi
 
+          sleep 3
+
           git commit -m "Automated multi-seed sweep update"
           git push origin HEAD:main
