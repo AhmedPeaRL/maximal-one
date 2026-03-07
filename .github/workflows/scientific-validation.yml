@@ -299,9 +299,6 @@ jobs:
       - name: Generate run summary
         run: python analysis/run_summary.py
 
-      - name: Generate chaotic dataset
-        run: python analysis/generate_lorenz_dataset.py
-
       - name: Dump state content
         run: |
           echo "==== STATE CONTENT ===="
@@ -365,6 +362,9 @@ jobs:
           mkdir -p artifacts
           python -m analysis.lorenz96_benchmark > artifacts/lorenz96.json
           cat artifacts/lorenz96.json
+
+      - name: Generate chaotic dataset
+        run: python analysis/generate_lorenz_dataset.py
 
       - name: Run multi-seed experiment
         run: |
