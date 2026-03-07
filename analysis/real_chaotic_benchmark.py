@@ -8,13 +8,25 @@ import sys
 np.random.seed(42)
 
 MIN_HISTORY = 10
+MIN_POINTS = 300
+
+
+def safe_exit(reason):
+    result = {
+        "hcm_superior": False,
+        "skipped": True,
+        "reason": reason
+    }
+    print(json.dumps(result))
+    sys.exit(0)
 
 
 def rolling_forecast(model_func, series, train_ratio=0.7):
+
     n = len(series)
 
     if n < MIN_HISTORY * 2:
-        raise ValueError("Series too short for rolling forecast")
+        safe_exit("series_too_short")
 
     split = int(n * train_ratio)
 
@@ -70,22 +82,8 @@ def run(file_path):
 
     series = df.iloc[:, 0].dropna().values.astype(float)
 
-    if len(series) < 50:
-        
-    MIN_POINTS = 300
-
-def safe_exit(reason):
-    result = {
-        "hcm_superior": False,
-        "skipped": True,
-        "reason": reason
-    }
-    print(json.dumps(result))
-    exit(0)
-
-
-if len(series) < MIN_POINTS:
-    safe_exit("dataset_too_small")
+    if len(series) < MIN_POINTS:
+        safe_exit("dataset_too_small")
 
     ar_mse = rolling_forecast(ar1_model, series)
     hcm_mse = rolling_forecast(hcm_recursive, series)
