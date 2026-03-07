@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-def generate_lorenz(n=5000, dt=0.01):
+def generate_lorenz(n=2000, dt=0.01):
     sigma = 10
     beta = 8/3
     rho = 28
