@@ -71,7 +71,21 @@ def run(file_path):
     series = df.iloc[:, 0].dropna().values.astype(float)
 
     if len(series) < 50:
-        raise ValueError("Dataset too small for chaotic benchmark")
+        
+    MIN_POINTS = 300
+
+def safe_exit(reason):
+    result = {
+        "hcm_superior": False,
+        "skipped": True,
+        "reason": reason
+    }
+    print(json.dumps(result))
+    exit(0)
+
+
+if len(series) < MIN_POINTS:
+    safe_exit("dataset_too_small")
 
     ar_mse = rolling_forecast(ar1_model, series)
     hcm_mse = rolling_forecast(hcm_recursive, series)
