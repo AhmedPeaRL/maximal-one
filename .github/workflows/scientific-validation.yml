@@ -283,6 +283,12 @@ jobs:
            cvxpy==1.4.2 \
            scikit-learn==1.4.2 \
            pyarrow==15.0.2
+
+      - name: Generate chaotic dataset if missing
+        run: |
+          if [ ! -f real-data/sample.csv ]; then
+            python analysis/generate_real_dataset.py
+          fi
           
       - name: Freeze environment snapshot
         run: |
