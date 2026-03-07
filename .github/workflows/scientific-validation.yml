@@ -285,10 +285,7 @@ jobs:
            pyarrow==15.0.2
 
       - name: Generate chaotic dataset if missing
-        run: |
-          if [ ! -f real-data/sample.csv ]; then
-            python analysis/generate_real_dataset.py
-          fi
+        run: python analysis/generate_real_dataset.py
           
       - name: Freeze environment snapshot
         run: |
