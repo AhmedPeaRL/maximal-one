@@ -326,15 +326,15 @@ jobs:
       - name: precision robustness
         run: |
           python analysis/precision_stability.py
-
-      - name: Prepare real datasets
-        run: |
-          python analysis/real_dataset_engine.py
           
       - name: Run spectral verification
         run: |
           mkdir -p artifacts
           python -m analysis.numerical_spectral_verification
+
+      - name: Prepare real datasets
+        run: |
+          python analysis/real_dataset_engine.py
           
       - name: Null Spectral Monte Carlo
         run: |
