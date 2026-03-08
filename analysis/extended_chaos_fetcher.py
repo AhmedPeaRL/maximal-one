@@ -18,6 +18,15 @@ def fetch_enso():
 
     rows = []
     for line in r.text.splitlines():
+
+    line = line.strip()
+
+    if not line:
+        continue
+
+    if line.startswith("#") or line.startswith("<"):
+        continue
+        
         parts = line.strip().split()
         if len(parts) < 13:
             continue
@@ -46,6 +55,15 @@ def fetch_cosmic_rays():
     rows = []
 
     for line in r.text.splitlines():
+
+    line = line.strip()
+
+    if not line:
+        continue
+
+    if line.startswith("#") or line.startswith("<"):
+        continue
+        
         parts = line.split()
 
         if len(parts) < 3:
@@ -53,7 +71,10 @@ def fetch_cosmic_rays():
 
         rows.append({
             "t": parts[0] + "T" + parts[1],
-            "value": float(parts[2])
+            try:
+        val = float(parts[2])
+            except:
+            continue
         })
 
     df = pd.DataFrame(rows)
@@ -69,8 +90,13 @@ def fetch_co2():
 
     for line in r.text.splitlines():
 
-        if line.startswith("#"):
-            continue
+    line = line.strip()
+
+    if not line:
+        continue
+
+    if line.startswith("#") or line.startswith("<"):
+        continue
 
         parts = line.split(",")
 
@@ -86,7 +112,10 @@ def fetch_co2():
 
         rows.append({
             "t": f"{year}-{month}",
-            "value": float(value)
+            try:
+        value = float(parts[3])
+            except:
+            continue
         })
 
     df = pd.DataFrame(rows)
@@ -106,6 +135,8 @@ def fetch_solar_wind():
         rows.append({
             "t": row[0],
             "value": float(row[2])
+            if row[2] is None:
+            continue
         })
 
     df = pd.DataFrame(rows)
