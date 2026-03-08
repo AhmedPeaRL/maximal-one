@@ -1,13 +1,10 @@
-import requests
-import pandas as pd
+import urllib.request
 from pathlib import Path
-
 
 DATASETS = {
     "sunspots":
     "https://raw.githubusercontent.com/jbrownlee/Datasets/master/monthly-sunspots.csv"
 }
-
 
 def download():
 
@@ -17,12 +14,9 @@ def download():
 
         print("Downloading", name)
 
-        r = requests.get(url)
-
         path = f"real-data/{name}.csv"
 
-        with open(path, "wb") as f:
-            f.write(r.content)
+        urllib.request.urlretrieve(url, path)
 
         print("Saved", path)
 
