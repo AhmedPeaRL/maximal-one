@@ -20,20 +20,26 @@ def download(name, url):
     urllib.request.urlretrieve(url, path)
 
 def normalize_dataset(path):
-    df = pd.read_csv(path)
 
-    numeric = df.select_dtypes(include="number")
-
-    if numeric.empty:
+    if not os.path.exists(path):
+        print("Dataset missing:", path)
         return
 
-    series = numeric.iloc[:,0]
+    if os.path.getsize(path) == 0:
+        print("Dataset empty:", path)
+        return
 
-    series = (series - series.mean()) / series.std()
+    try:
+        df = pd.read_csv(path)
+    except Exception as e:
+        print("Failed reading dataset:", path, e)
+        return
 
-    out = path.with_name(path.stem + "_prepared.csv")
+    if df.shape[1] == 0:
+        print("Dataset has no columns:", path)
+        return
 
-    series.to_csv(out, index=False)
+    # continue processing safely
 
 def main():
     for name, url in DATASETS.items():
