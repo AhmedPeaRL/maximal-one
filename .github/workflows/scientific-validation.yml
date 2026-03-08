@@ -284,6 +284,10 @@ jobs:
            scikit-learn==1.4.2 \
            pyarrow==15.0.2
 
+      - name: Fetch global chaos datasets
+        run: |
+          python analysis/global_chaos_fetcher.py
+
       - name: Generate chaotic dataset if missing
         run: python analysis/generate_real_dataset.py
 
