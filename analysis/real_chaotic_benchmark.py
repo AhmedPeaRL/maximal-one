@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from statsmodels.tsa.ar_model import AutoReg
 from sklearn.metrics import mean_squared_error
+from analysis.lyapunov_neural_predictor import LyapunovNeuralPredictor
 import json
 import sys
 
@@ -66,6 +67,14 @@ def ar1_model(history):
         model.predict(start=len(history), end=len(history))[0]
     )
 
+lnp = LyapunovNeuralPredictor()
+
+lnp.fit(train)
+
+pred_lnp = lnp.predict(test)
+
+mse_lnp = np.mean((pred_lnp - test[len(test)-len(pred_lnp):])**2)
+
 
 def hcm_recursive(history):
 
@@ -95,6 +104,7 @@ def run(file_path):
         "hcm_mse": float(hcm_mse),
         "delta_mse": float(delta),
         "hcm_superior": bool(delta > 0)
+        "lnp_mse": float(mse_lnp)
     }
 
     print(json.dumps(result, sort_keys=True))
