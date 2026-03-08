@@ -1,67 +1,47 @@
 import os
-import urllib.request
 import pandas as pd
-import numpy as np
+import urllib.request
+from pathlib import Path
 
 DATASETS = {
-    "sunspots": "https://raw.githubusercontent.com/jbrownlee/Datasets/master/monthly-sunspots.csv"
+    "sunspots": "https://raw.githubusercontent.com/jbrownlee/Datasets/master/monthly-sunspots.csv",
+    "airline_passengers": "https://raw.githubusercontent.com/jbrownlee/Datasets/master/airline-passengers.csv"
 }
 
-OUTPUT_DIR = "real-data"
+DATA_DIR = Path("real-data")
+DATA_DIR.mkdir(exist_ok=True)
 
+def download(name, url):
+    path = DATA_DIR / f"{name}.csv"
+    if path.exists():
+        return
 
-def download_dataset(name, url):
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-    path = os.path.join(OUTPUT_DIR, f"{name}.csv")
-
-    if os.path.exists(path):
-        print(f"{name} already exists")
-        return path
-
-    print(f"Downloading {name}...")
-
+    print(f"Downloading {name}")
     urllib.request.urlretrieve(url, path)
 
-    print(f"Saved to {path}")
-    return path
-
-
-def normalize_series(series):
-    series = np.array(series, dtype=float)
-
-    mean = np.mean(series)
-    std = np.std(series)
-
-    if std == 0:
-        return series
-
-    return (series - mean) / std
-
-
-def prepare_dataset(name, path):
-
+def normalize_dataset(path):
     df = pd.read_csv(path)
 
-    col = df.columns[-1]
+    numeric = df.select_dtypes(include="number")
 
-    series = normalize_series(df[col])
+    if numeric.empty:
+        return
 
-    out_path = os.path.join(OUTPUT_DIR, f"{name}_prepared.csv")
+    series = numeric.iloc[:,0]
 
-    pd.DataFrame({"value": series}).to_csv(out_path, index=False)
+    series = (series - series.mean()) / series.std()
 
-    print(f"Prepared dataset: {out_path}")
+    out = path.with_name(path.stem + "_prepared.csv")
 
+    series.to_csv(out, index=False)
 
 def main():
-
     for name, url in DATASETS.items():
+        download(name, url)
 
-        path = download_dataset(name, url)
-
-        prepare_dataset(name, path)
-
+    for f in DATA_DIR.glob("*.csv"):
+        if "prepared" not in f.name:
+            normalize_dataset(f)
 
 if __name__ == "__main__":
     main()
