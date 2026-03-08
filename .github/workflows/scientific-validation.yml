@@ -289,6 +289,7 @@ jobs:
       - name: Fetch global chaos datasets
         run: |
           python analysis/global_chaos_fetcher.py
+          python analysis/extended_chaos_fetcher.py
 
       - name: Generate chaotic dataset if missing
         run: python analysis/generate_real_dataset.py
@@ -355,6 +356,10 @@ jobs:
       - name: Prepare real datasets
         run: |
           python analysis/real_dataset_engine.py
+
+      - name: Chaos discovery engine
+        run: |
+          python analysis/chaos_discovery_engine.py
 
       - name: Real Chaotic Benchmark
         if: hashFiles('real-data/*.csv') != ''
