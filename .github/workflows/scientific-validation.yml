@@ -354,8 +354,8 @@ jobs:
         if: hashFiles('real-data/*.csv') != ''
         run: |
           mkdir -p artifacts
-          python analysis/real_chaotic_benchmark.py real-data/sunspots_prepared.csv > artifacts/chaotic_benchmark.json
-
+          python -m analysis.real_chaotic_benchmark real-data/sunspots_prepared.csv > artifacts/chaotic_benchmark.json
+     
       - name: Predictive deviation test
         if: hashFiles('real-data/*.csv') != ''
         run: |
