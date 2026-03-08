@@ -286,6 +286,10 @@ jobs:
 
       - name: Generate chaotic dataset if missing
         run: python analysis/generate_real_dataset.py
+
+      - name: Download real chaotic datasets
+        run: |
+          python analysis/chaos_data_crawler.py
           
       - name: Freeze environment snapshot
         run: |
@@ -587,7 +591,7 @@ jobs:
           git fetch origin
           git reset --soft origin/main
 
-          git add data//*.json data//.txt data/**/.csv || true
+          git add data/* || true
 
           if git diff --cached --quiet; then
             echo "No dataset changes."
