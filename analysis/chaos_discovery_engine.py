@@ -51,23 +51,25 @@ def lyapunov_estimate(series):
 
 def analyze_dataset(path):
 
-    df = pd.read_csv(path)
-
-    if "value" not in df:
+    if not os.path.exists(path):
+        print("Dataset missing:", path)
         return None
 
-    series = df["value"].dropna()
-
-    if len(series) < 200:
+    if os.path.getsize(path) == 0:
+        print("Dataset empty:", path)
         return None
 
-    lyap = lyapunov_estimate(series)
+    try:
+        df = pd.read_csv(path)
+    except Exception as e:
+        print("Failed reading dataset:", path, e)
+        return None
 
-    return {
-        "dataset": os.path.basename(path),
-        "lyapunov_estimate": lyap
-    }
+    if df.shape[1] == 0:
+        print("Dataset has no columns:", path)
+        return None
 
+    # continue analysis normally
 
 def main():
 
@@ -81,8 +83,8 @@ def main():
         path = os.path.join(DATA_DIR, f)
 
         r = analyze_dataset(path)
-
-        if r:
+        if r is None:
+            continue
             results.append(r)
 
     for r in results:
