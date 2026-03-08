@@ -17,30 +17,42 @@ def fetch_enso():
     r = requests.get(url, timeout=30)
 
     rows = []
+
     for line in r.text.splitlines():
 
-    line = line.strip()
+        line = line.strip()
 
-    if not line:
-        continue
+        if not line:
+            continue
 
-    if line.startswith("#") or line.startswith("<"):
-        continue
-        
-        parts = line.strip().split()
+        if line.startswith("#") or line.startswith("<"):
+            continue
+
+        parts = line.split()
+
         if len(parts) < 13:
             continue
 
-        year = int(parts[0])
+        try:
+            year = int(parts[0])
+        except:
+            continue
 
-        for i in range(1,13):
+        for i in range(1, 13):
+
             val = parts[i]
+
             if val == "-99.99":
+                continue
+
+            try:
+                value = float(val)
+            except:
                 continue
 
             rows.append({
                 "t": f"{year}-{i}",
-                "value": float(val)
+                "value": value
             })
 
     df = pd.DataFrame(rows)
@@ -48,33 +60,36 @@ def fetch_enso():
 
 
 def fetch_cosmic_rays():
+
     url = "https://www.nmdb.eu/nest/draw_graph.php?formchk=1&stations[]=OULU&tabchoice=revori&dtype=corr_for_efficiency&tresolution=60&yunits=0&date_choice=bydate&start_day=01&start_month=01&start_year=2020&start_hour=00&start_min=00&end_day=01&end_month=01&end_year=2024&end_hour=00&end_min=00&output=ascii"
-    
+
     r = requests.get(url, timeout=30)
 
     rows = []
 
     for line in r.text.splitlines():
 
-    line = line.strip()
+        line = line.strip()
 
-    if not line:
-        continue
+        if not line:
+            continue
 
-    if line.startswith("#") or line.startswith("<"):
-        continue
-        
+        if line.startswith("#") or line.startswith("<"):
+            continue
+
         parts = line.split()
 
         if len(parts) < 3:
             continue
 
+        try:
+            value = float(parts[2])
+        except:
+            continue
+
         rows.append({
             "t": parts[0] + "T" + parts[1],
-            try:
-        val = float(parts[2])
-            except:
-            continue
+            "value": value
         })
 
     df = pd.DataFrame(rows)
@@ -82,6 +97,7 @@ def fetch_cosmic_rays():
 
 
 def fetch_co2():
+
     url = "https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_mm_mlo.csv"
 
     r = requests.get(url, timeout=30)
@@ -90,13 +106,13 @@ def fetch_co2():
 
     for line in r.text.splitlines():
 
-    line = line.strip()
+        line = line.strip()
 
-    if not line:
-        continue
+        if not line:
+            continue
 
-    if line.startswith("#") or line.startswith("<"):
-        continue
+        if line.startswith("#"):
+            continue
 
         parts = line.split(",")
 
@@ -105,17 +121,18 @@ def fetch_co2():
 
         year = parts[0]
         month = parts[1]
-        value = parts[3]
 
-        if value == "-99.99":
+        try:
+            value = float(parts[3])
+        except:
+            continue
+
+        if value == -99.99:
             continue
 
         rows.append({
             "t": f"{year}-{month}",
-            try:
-        value = float(parts[3])
-            except:
-            continue
+            "value": value
         })
 
     df = pd.DataFrame(rows)
@@ -123,20 +140,28 @@ def fetch_co2():
 
 
 def fetch_solar_wind():
+
     url = "https://services.swpc.noaa.gov/products/solar-wind/plasma-7-day.json"
 
     r = requests.get(url, timeout=30)
+
     data = r.json()
 
     rows = []
 
     for row in data[1:]:
 
+        if row[2] is None:
+            continue
+
+        try:
+            value = float(row[2])
+        except:
+            continue
+
         rows.append({
             "t": row[0],
-            "value": float(row[2])
-            if row[2] is None:
-            continue
+            "value": value
         })
 
     df = pd.DataFrame(rows)
