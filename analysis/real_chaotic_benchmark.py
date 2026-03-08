@@ -43,52 +43,80 @@ def rolling_forecast(model_func, series, train_ratio=0.7):
     for t in range(len(test)):
 
         if len(history) < MIN_HISTORY:
-            preds.append(history[-1])
+            pred = history[-1]
+
         else:
             pred = model.predict(history)
-            preds.append(pred)
+
+            # ضمان أن القيمة رقم واحد فقط
+            if isinstance(pred, (list, np.ndarray)):
+                pred = float(np.asarray(pred).squeeze())
+
+        preds.append(float(pred))
 
         history.append(test[t])
 
-    return test, preds
+    return np.array(test), np.array(preds)
 
 
-def ar1_model(history):
+def compute_mse(model_func, series):
 
-    if len(history) < MIN_HISTORY:
-        return lambda last: last
+    test, preds = rolling_forecast(model_func, series)
 
-    model = AutoReg(history, lags=1, old_names=False).fit()
-
-    return lambda last: float(
-        model.predict(start=len(history), end=len(history))[0]
-    )
+    return mean_squared_error(test, preds)
 
 
-def hcm_recursive(history):
+def ar1_model():
 
-    alpha = 0.5087
+    class ARWrapper:
 
-    return lambda last: float(
-        last * (1 - alpha) + np.tanh(last) * alpha
-    )
+        def fit(self, history):
+            if len(history) < MIN_HISTORY:
+                self.model = None
+                return
+
+            self.model = AutoReg(history, lags=1, old_names=False).fit()
+
+        def predict(self, history):
+
+            if self.model is None:
+                return history[-1]
+
+            return float(
+                self.model.predict(start=len(history), end=len(history))[0]
+            )
+
+    return ARWrapper()
+
+
+def hcm_recursive():
+
+    class HCMModel:
+
+        def fit(self, history):
+            self.alpha = 0.5087
+
+        def predict(self, history):
+            last = history[-1]
+            return float(last * (1 - self.alpha) + np.tanh(last) * self.alpha)
+
+    return HCMModel()
 
 
 def run(file_path):
 
     df = pd.read_csv(file_path)
 
-    series = pd.read_csv(sys.argv[1]).values.squeeze()
-
-    test, preds = rolling_forecast(LyapunovNeuralPredictor, series)
-
-    mse = mean_squared_error(test, preds)
+    series = df.values.squeeze()
 
     if len(series) < MIN_POINTS:
         safe_exit("dataset_too_small")
 
-    ar_mse = rolling_forecast(ar1_model, series)
-    hcm_mse = rolling_forecast(hcm_recursive, series)
+    mse = compute_mse(LyapunovNeuralPredictor, series)
+
+    ar_mse = compute_mse(ar1_model, series)
+
+    hcm_mse = compute_mse(hcm_recursive, series)
 
     delta = ar_mse - hcm_mse
 
@@ -96,7 +124,7 @@ def run(file_path):
         "ar_mse": float(ar_mse),
         "hcm_mse": float(hcm_mse),
         "delta_mse": float(delta),
-        "hcm_superior": bool(mse < 0.9),
+        "hcm_superior": bool(hcm_mse < ar_mse),
         "mse": float(mse)
     }
 
