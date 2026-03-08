@@ -400,7 +400,7 @@ jobs:
           python analysis/external_replication_gate.py
 
       - name: Chaotic Superiority Gate
-        if: hashFiles('real-data/*.csv') != 'True'
+        if: hashFiles('real-data/*.csv') != ''
         run: |
          RESULT=$(cat artifacts/chaotic_benchmark.json)
          echo "$RESULT"
