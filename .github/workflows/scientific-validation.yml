@@ -337,25 +337,25 @@ jobs:
           mkdir -p artifacts
           python -m analysis.null_spectral_montecarlo
 
+      - name: Prepare real datasets
+        run: |
+          python analysis/real_dataset_engine.py
+
       - name: Real Chaotic Benchmark
         if: hashFiles('real-data/*.csv') != ''
         run: |
-         mkdir -p artifacts
-         python analysis/real_chaotic_benchmark.py real-data/sample.csv > artifacts/chaotic_benchmark.json
+          mkdir -p artifacts
+          python analysis/real_chaotic_benchmark.py real-data/sunspots_prepared.csv > artifacts/chaotic_benchmark.json
 
       - name: Predictive deviation test
         if: hashFiles('real-data/*.csv') != ''
         run: |
           mkdir -p artifacts
-          python analysis/real_world_predictive_test.py real-data/sample.csv
+          python analysis/real_world_predictive_test.py real-data/sunspots_prepared.csv
 
       - name: Predictive Gain Gate
         run: |
           python analysis/predictive_gain_gate.py
-
-      - name: Prepare real datasets
-        run: |
-          python analysis/real_dataset_engine.py
 
       - name: Real Lorenz Benchmark
         run: |
