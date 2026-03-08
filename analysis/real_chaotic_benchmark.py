@@ -65,15 +65,6 @@ def ar1_model(history):
     )
 
 
-lnp = LyapunovNeuralPredictor()
-
-lnp.fit(train)
-
-pred_lnp = lnp.predict(test)
-
-mse_lnp = np.mean((pred_lnp - test[len(test)-len(pred_lnp):])**2)
-
-
 def hcm_recursive(history):
 
     alpha = 0.5087
