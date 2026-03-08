@@ -2,8 +2,12 @@ import json
 from pathlib import Path
 import numpy as np
 
+DATA = Path("data")
+
+
 def rmse(y_true, y_pred):
-    return np.sqrt(np.mean((y_true - y_pred)**2))
+    return np.sqrt(np.mean((y_true - y_pred) ** 2))
+
 
 def score(model_name, y_true, y_pred):
     return {
@@ -11,7 +15,24 @@ def score(model_name, y_true, y_pred):
         "rmse": float(rmse(y_true, y_pred))
     }
 
+
+def safe_load_json(path):
+    """
+    Robust JSON loader that skips empty or corrupted files.
+    """
+    try:
+        if path.stat().st_size == 0:
+            return None
+
+        with open(path) as fh:
+            return json.load(fh)
+
+    except Exception:
+        return None
+
+
 if __name__ == "__main__":
+
     rng = np.random.RandomState(42)
     y = rng.normal(size=1000)
 
@@ -30,17 +51,26 @@ if __name__ == "__main__":
     if results[0]["model"] != "HCM":
         raise SystemExit("HCM did not win leaderboard")
 
-DATA = Path("data")
+    # =========================
+    # LOAD REAL BENCHMARK DATA
+    # =========================
 
-scores = []
+    scores = []
 
-for f in DATA.glob("*benchmark.json"):
-    with open(f) as fh:
-        d = json.load(fh)
+    if DATA.exists():
 
-    scores.append(d)
+        for f in DATA.glob("*benchmark.json"):
 
-scores.sort(key=lambda x: x.get("delta_mse",0))
+            d = safe_load_json(f)
 
-for s in scores:
-    print(s)
+            if d is None:
+                continue
+
+            scores.append(d)
+
+    scores.sort(key=lambda x: x.get("delta_mse", 0))
+
+    print("\n=== Real-world benchmark ranking ===")
+
+    for s in scores:
+        print(json.dumps(s, indent=2))
