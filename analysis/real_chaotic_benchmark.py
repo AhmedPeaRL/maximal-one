@@ -22,6 +22,23 @@ def safe_exit(reason):
     sys.exit(0)
 
 
+def to_scalar(x):
+    """
+    Convert prediction output to scalar robustly.
+    Works for float, list, ndarray, tensor-like outputs.
+    """
+
+    if isinstance(x, (float, int)):
+        return float(x)
+
+    arr = np.asarray(x).flatten()
+
+    if arr.size == 0:
+        return 0.0
+
+    return float(arr[-1])
+
+
 def rolling_forecast(model_func, series, train_ratio=0.7):
 
     n = len(series)
@@ -46,13 +63,10 @@ def rolling_forecast(model_func, series, train_ratio=0.7):
             pred = history[-1]
 
         else:
-            pred = model.predict(history)
+            raw_pred = model.predict(history)
+            pred = to_scalar(raw_pred)
 
-            # ضمان أن القيمة رقم واحد فقط
-            if isinstance(pred, (list, np.ndarray)):
-                pred = float(np.asarray(pred).squeeze())
-
-        preds.append(float(pred))
+        preds.append(pred)
 
         history.append(test[t])
 
@@ -71,6 +85,7 @@ def ar1_model():
     class ARWrapper:
 
         def fit(self, history):
+
             if len(history) < MIN_HISTORY:
                 self.model = None
                 return
@@ -82,9 +97,12 @@ def ar1_model():
             if self.model is None:
                 return history[-1]
 
-            return float(
-                self.model.predict(start=len(history), end=len(history))[0]
+            pred = self.model.predict(
+                start=len(history),
+                end=len(history)
             )
+
+            return float(pred[0])
 
     return ARWrapper()
 
@@ -97,8 +115,13 @@ def hcm_recursive():
             self.alpha = 0.5087
 
         def predict(self, history):
+
             last = history[-1]
-            return float(last * (1 - self.alpha) + np.tanh(last) * self.alpha)
+
+            return float(
+                last * (1 - self.alpha)
+                + np.tanh(last) * self.alpha
+            )
 
     return HCMModel()
 
