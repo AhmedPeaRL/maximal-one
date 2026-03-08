@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 import numpy as np
 
 def rmse(y_true, y_pred):
@@ -28,3 +29,18 @@ if __name__ == "__main__":
 
     if results[0]["model"] != "HCM":
         raise SystemExit("HCM did not win leaderboard")
+
+DATA = Path("data")
+
+scores = []
+
+for f in DATA.glob("*benchmark.json"):
+    with open(f) as fh:
+        d = json.load(fh)
+
+    scores.append(d)
+
+scores.sort(key=lambda x: x.get("delta_mse",0))
+
+for s in scores:
+    print(s)
