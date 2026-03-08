@@ -1,4 +1,4 @@
-import requests
+import urllib.request
 import pandas as pd
 from pathlib import Path
 
