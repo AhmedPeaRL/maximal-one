@@ -290,6 +290,11 @@ jobs:
       - name: Download real chaotic datasets
         run: |
           python analysis/chaos_data_crawler.py
+
+      - name: Check downloaded datasets
+        run: |
+          echo "==== REAL DATA ===="
+          ls -R real-data || true
           
       - name: Freeze environment snapshot
         run: |
