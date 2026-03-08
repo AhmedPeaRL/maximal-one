@@ -331,10 +331,6 @@ jobs:
         run: |
           mkdir -p artifacts
           python -m analysis.numerical_spectral_verification
-
-      - name: Prepare real datasets
-        run: |
-          python analysis/real_dataset_engine.py
           
       - name: Null Spectral Monte Carlo
         run: |
@@ -356,6 +352,10 @@ jobs:
       - name: Predictive Gain Gate
         run: |
           python analysis/predictive_gain_gate.py
+
+      - name: Prepare real datasets
+        run: |
+          python analysis/real_dataset_engine.py
 
       - name: Real Lorenz Benchmark
         run: |
