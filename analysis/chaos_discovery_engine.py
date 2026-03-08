@@ -30,9 +30,12 @@ def lyapunov_estimate(series):
 
     div = []
 
-    for i in range(len(vectors) - 10):
+    for i in range(len(vectors) - 2):
 
         j = indices[i][1]
+
+        if j + 1 >= len(vectors):
+            continue
 
         d0 = np.linalg.norm(vectors[i] - vectors[j])
         d1 = np.linalg.norm(vectors[i+1] - vectors[j+1])
