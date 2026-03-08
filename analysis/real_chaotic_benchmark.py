@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from statsmodels.tsa.ar_model import AutoReg
 from sklearn.metrics import mean_squared_error
-from analysis.lyapunov_neural_predictor import LyapunovNeuralPredictor
+from .lyapunov_neural_predictor import LyapunovNeuralPredictor
 import json
 import sys
 
