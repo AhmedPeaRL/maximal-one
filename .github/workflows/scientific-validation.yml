@@ -362,10 +362,16 @@ jobs:
           python analysis/chaos_discovery_engine.py
 
       - name: Real Chaotic Benchmark
-        if: hashFiles('real-data/*.csv') != ''
         run: |
           mkdir -p artifacts
-          python -m analysis.real_chaotic_benchmark real-data/sunspots_prepared.csv > artifacts/chaotic_benchmark.json
+
+          if [ -f real-data/sunspots_prepared.csv ]; then
+            echo "Running sunspots benchmark..."
+            python -m analysis.real_chaotic_benchmark real-data/sunspots_prepared.csv > artifacts/chaotic_benchmark.json
+          else
+            echo "Sunspots dataset missing — skipping benchmark"
+            echo '{"hcm_superior": false, "skipped": true}' > artifacts/chaotic_benchmark.json
+            fi
      
       - name: Predictive deviation test
         if: hashFiles('real-data/*.csv') != ''
