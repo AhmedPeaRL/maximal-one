@@ -1,0 +1,14 @@
+{
+  "datasets": [
+    {
+      "name": "sunspots",
+      "type": "solar_activity",
+      "chaotic": true
+    },
+    {
+      "name": "airline_passengers",
+      "type": "economic_series",
+      "chaotic": false
+    }
+  ]
+}
