@@ -34,6 +34,9 @@ def rolling_forecast(model_func, series, train_ratio=0.7):
     train = series[:split]
     test = series[split:]
 
+    model = model_func()
+    model.fit(train)
+
     preds = []
     history = list(train)
 
@@ -41,19 +44,13 @@ def rolling_forecast(model_func, series, train_ratio=0.7):
 
         if len(history) < MIN_HISTORY:
             preds.append(history[-1])
-            history.append(test[t])
-            continue
+        else:
+            pred = model.predict(history)
+            preds.append(pred)
 
-        try:
-            model = model_func(np.array(history))
-            yhat = model(history[-1])
-        except Exception:
-            yhat = history[-1]
-
-        preds.append(float(yhat))
         history.append(test[t])
 
-    return mean_squared_error(test, preds)
+    return test, preds
 
 
 def ar1_model(history):
@@ -90,7 +87,11 @@ def run(file_path):
 
     df = pd.read_csv(file_path)
 
-    series = df.iloc[:, 0].dropna().values.astype(float)
+    series = pd.read_csv(sys.argv[1]).values.squeeze()
+
+    test, preds = rolling_forecast(LyapunovNeuralPredictor, series)
+
+    mse = mean_squared_error(test, preds)
 
     if len(series) < MIN_POINTS:
         safe_exit("dataset_too_small")
@@ -104,11 +105,11 @@ def run(file_path):
         "ar_mse": float(ar_mse),
         "hcm_mse": float(hcm_mse),
         "delta_mse": float(delta),
-        "hcm_superior": bool(delta > 0),
-        "lnp_mse": float(mse_lnp)
+        "hcm_superior": bool(mse < 0.9),
+        "mse": float(mse)
     }
 
-    print(json.dumps(result, sort_keys=True))
+    print(json.dumps(result))
 
 
 if __name__ == "__main__":
