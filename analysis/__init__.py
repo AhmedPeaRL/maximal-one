@@ -1,5 +1,3 @@
-# Analysis module initialization
-
 """
 Analysis package for HCM scientific validation.
 
