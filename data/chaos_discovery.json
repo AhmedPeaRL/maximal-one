@@ -1,4 +1,12 @@
 [
   {
+    "dataset": "sample.csv",
     "hurst": 1.3823391324770202,
-    "chaotic_signature": 
+    "chaotic_signature": true
+  },
+  {
+    "dataset": "earthquake_magnitude.csv",
+    "hurst": 1.2628818983679533,
+    "chaotic_signature": true
+  }
+]
