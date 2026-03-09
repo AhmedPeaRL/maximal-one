@@ -363,6 +363,10 @@ jobs:
         run: |
           python analysis/chaos_discovery_engine.py
 
+      - name: Build Chaos Atlas
+        run: |
+          python analysis/chaos_atlas_index.py
+
       - name: Takens phase-space reconstruction
         run: |
           mkdir -p artifacts
