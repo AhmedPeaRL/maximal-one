@@ -378,7 +378,7 @@ jobs:
 
           if [ -f real-data/sunspots_global_prepared.csv ]; then
             echo "Running Takens reconstruction..."
-            python analysis/takens_reconstruction.py real-data/sunspots_prepared.csv
+            python analysis/takens_reconstruction.py real-data/sunspots_global_prepared.csv
           else
             echo "Dataset missing — Takens skipped"
           fi
@@ -389,7 +389,7 @@ jobs:
 
           if [ -f real-data/sunspots_global_prepared.csv ]; then
             echo "Estimating Lyapunov exponent..."
-            python analysis/lyapunov_estimator.py real-data/sunspots_prepared.csv
+            python analysis/lyapunov_estimator.py real-data/sunspots_global_prepared.csv
           else
             echo "Dataset missing — Lyapunov skipped"
           fi
@@ -400,7 +400,7 @@ jobs:
 
           if [ -f real-data/sunspots_global_prepared.csv ]; then
             echo "Running sunspots benchmark..."
-            python -m analysis.real_chaotic_benchmark real-data/sunspots_prepared.csv > artifacts/chaotic_benchmark.json
+            python -m analysis.real_chaotic_benchmark real-data/sunspots_global_prepared.csv > artifacts/chaotic_benchmark.json
           else
             echo "Sunspots dataset missing — skipping benchmark"
             echo '{"hcm_superior": false, "skipped": true}' > artifacts/chaotic_benchmark.json
@@ -412,7 +412,7 @@ jobs:
 
           if [ -f real-data/sunspots_global_prepared.csv ]; then
             echo "Running predictive deviation test..."
-            python analysis/real_world_predictive_test.py real-data/sunspots_prepared.csv
+            python analysis/real_world_predictive_test.py real-data/sunspots_global_prepared.csv
           else
             echo "Sunspots dataset missing — skipping predictive test"
             echo '{"predictive_test":"skipped"}' > artifacts/predictive_test.json
