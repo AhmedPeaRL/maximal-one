@@ -1,0 +1,71 @@
+{
+  "atlas_size": 11,
+  "datasets": [
+    {
+      "dataset": "enso_nino34.csv",
+      "path": "real-data/enso_nino34.csv",
+      "size_bytes": 1,
+      "timestamp": "2026-03-09T16:29:07.393007"
+    },
+    {
+      "dataset": "sunspots.csv",
+      "path": "real-data/sunspots.csv",
+      "size_bytes": 45039,
+      "timestamp": "2026-03-09T16:29:07.393034"
+    },
+    {
+      "dataset": "cosmic_rays.csv",
+      "path": "real-data/cosmic_rays.csv",
+      "size_bytes": 103171,
+      "timestamp": "2026-03-09T16:29:07.393045"
+    },
+    {
+      "dataset": "airline_passengers.csv",
+      "path": "real-data/airline_passengers.csv",
+      "size_bytes": 2180,
+      "timestamp": "2026-03-09T16:29:07.393053"
+    },
+    {
+      "dataset": "sunspots_live.csv",
+      "path": "real-data/sunspots_live.csv",
+      "size_bytes": 17369,
+      "timestamp": "2026-03-09T16:29:07.393059"
+    },
+    {
+      "dataset": "sample.csv",
+      "path": "real-data/sample.csv",
+      "size_bytes": 37170,
+      "timestamp": "2026-03-09T16:29:07.393066"
+    },
+    {
+      "dataset": "earthquake_magnitude.csv",
+      "path": "real-data/earthquake_magnitude.csv",
+      "size_bytes": 187841,
+      "timestamp": "2026-03-09T16:29:07.393073"
+    },
+    {
+      "dataset": "geomagnetic_kp.csv",
+      "path": "real-data/geomagnetic_kp.csv",
+      "size_bytes": 289,
+      "timestamp": "2026-03-09T16:29:07.393083"
+    },
+    {
+      "dataset": "sunspots_global.csv",
+      "path": "real-data/sunspots_global.csv",
+      "size_bytes": 1432803,
+      "timestamp": "2026-03-09T16:29:07.393096"
+    },
+    {
+      "dataset": "co2_atmospheric.csv",
+      "path": "real-data/co2_atmospheric.csv",
+      "size_bytes": 11558,
+      "timestamp": "2026-03-09T16:29:07.393107"
+    },
+    {
+      "dataset": "solar_wind_speed.csv",
+      "path": "real-data/solar_wind_speed.csv",
+      "size_bytes": 294518,
+      "timestamp": "2026-03-09T16:29:07.393118"
+    }
+  ]
+}
