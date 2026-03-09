@@ -292,6 +292,7 @@ jobs:
         run: |
           python analysis/global_chaos_fetcher.py
           python analysis/extended_chaos_fetcher.py
+          python analysis/dataset_preprocessor.py real-data/sunspots_global.csv
 
       - name: Generate chaotic dataset if missing
         run: python analysis/generate_real_dataset.py
