@@ -1,94 +1,78 @@
+import json
 import os
 import numpy as np
 import pandas as pd
-from sklearn.neighbors import NearestNeighbors
 
-DATA_DIR = "real-data"
+OUTPUT = "artifacts/chaos_discovery.json"
 
 
-def lyapunov_estimate(series):
+def hurst_exponent(ts):
+    lags = range(2, 50)
+    tau = [np.std(np.subtract(ts[lag:], ts[:-lag])) for lag in lags]
+    poly = np.polyfit(np.log(lags), np.log(tau), 1)
+    return poly[0] * 2.0
 
-    x = series.values
-    n = len(x)
 
-    if n < 100:
+def detect_chaos(series):
+
+    series = np.array(series)
+
+    if len(series) < 200:
         return None
 
-    emb_dim = 3
-    delay = 2
+    h = hurst_exponent(series)
 
-    vectors = []
+    chaotic = h > 0.55
 
-    for i in range(n - emb_dim * delay):
-        vec = [x[i + j * delay] for j in range(emb_dim)]
-        vectors.append(vec)
-
-    vectors = np.array(vectors)
-
-    nbrs = NearestNeighbors(n_neighbors=2).fit(vectors)
-    distances, indices = nbrs.kneighbors(vectors)
-
-    div = []
-
-    for i in range(len(vectors) - 2):
-
-        j = indices[i][1]
-
-        if j + 1 >= len(vectors):
-            continue
-
-        d0 = np.linalg.norm(vectors[i] - vectors[j])
-        d1 = np.linalg.norm(vectors[i+1] - vectors[j+1])
-
-        if d0 > 0 and d1 > 0:
-            div.append(np.log(d1/d0))
-
-    if len(div) == 0:
-        return None
-
-    return float(np.mean(div))
+    return {
+        "hurst": float(h),
+        "chaotic_signature": chaotic
+    }
 
 
-def analyze_dataset(path):
-
-    if not os.path.exists(path):
-        print("Dataset missing:", path)
-        return None
-
-    if os.path.getsize(path) == 0:
-        print("Dataset empty:", path)
-        return None
-
-    try:
-        df = pd.read_csv(path)
-    except Exception as e:
-        print("Failed reading dataset:", path, e)
-        return None
-
-    if df.shape[1] == 0:
-        print("Dataset has no columns:", path)
-        return None
-
-    # continue analysis normally
-
-def main():
+def scan():
 
     results = []
 
-    for f in os.listdir(DATA_DIR):
+    if not os.path.exists("real-data"):
+        return results
+
+    for f in os.listdir("real-data"):
 
         if not f.endswith(".csv"):
             continue
 
-        path = os.path.join(DATA_DIR, f)
+        path = os.path.join("real-data", f)
 
-        r = analyze_dataset(path)
-        if r is None:
+        try:
+            df = pd.read_csv(path)
+
+            col = df.columns[0]
+
+            series = df[col].values
+
+            r = detect_chaos(series)
+
+            if r:
+                r["dataset"] = f
+                results.append(r)
+
+        except Exception:
             continue
-            results.append(r)
 
-    for r in results:
-        print(r)
+    return results
+
+
+def main():
+
+    results = scan()
+
+    os.makedirs("artifacts", exist_ok=True)
+
+    with open(OUTPUT, "w") as f:
+        json.dump(results, f, indent=2)
+
+    print(json.dumps({"discoveries": len(results)}))
 
 
 if __name__ == "__main__":
