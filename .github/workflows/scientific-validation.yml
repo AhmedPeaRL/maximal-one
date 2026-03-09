@@ -376,7 +376,7 @@ jobs:
         run: |
           mkdir -p artifacts
 
-          if [ -f real-data/sunspots_prepared.csv ]; then
+          if [ -f real-data/sunspots_global_prepared.csv ]; then
             echo "Running Takens reconstruction..."
             python analysis/takens_reconstruction.py real-data/sunspots_prepared.csv
           else
@@ -387,7 +387,7 @@ jobs:
         run: |
           mkdir -p artifacts
 
-          if [ -f real-data/sunspots_prepared.csv ]; then
+          if [ -f real-data/sunspots_global_prepared.csv ]; then
             echo "Estimating Lyapunov exponent..."
             python analysis/lyapunov_estimator.py real-data/sunspots_prepared.csv
           else
@@ -398,7 +398,7 @@ jobs:
         run: |
           mkdir -p artifacts
 
-          if [ -f real-data/sunspots_prepared.csv ]; then
+          if [ -f real-data/sunspots_global_prepared.csv ]; then
             echo "Running sunspots benchmark..."
             python -m analysis.real_chaotic_benchmark real-data/sunspots_prepared.csv > artifacts/chaotic_benchmark.json
           else
@@ -410,7 +410,7 @@ jobs:
         run: |
           mkdir -p artifacts
 
-          if [ -f real-data/sunspots_prepared.csv ]; then
+          if [ -f real-data/sunspots_global_prepared.csv ]; then
             echo "Running predictive deviation test..."
             python analysis/real_world_predictive_test.py real-data/sunspots_prepared.csv
           else
