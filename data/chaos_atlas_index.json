@@ -1,0 +1,77 @@
+{
+  "atlas_size": 12,
+  "datasets": [
+    {
+      "dataset": "enso_nino34.csv",
+      "path": "real-data/enso_nino34.csv",
+      "size_bytes": 1,
+      "timestamp": "2026-03-09T23:15:49.693475"
+    },
+    {
+      "dataset": "sunspots.csv",
+      "path": "real-data/sunspots.csv",
+      "size_bytes": 45039,
+      "timestamp": "2026-03-09T23:15:49.693494"
+    },
+    {
+      "dataset": "cosmic_rays.csv",
+      "path": "real-data/cosmic_rays.csv",
+      "size_bytes": 103171,
+      "timestamp": "2026-03-09T23:15:49.693502"
+    },
+    {
+      "dataset": "airline_passengers.csv",
+      "path": "real-data/airline_passengers.csv",
+      "size_bytes": 2180,
+      "timestamp": "2026-03-09T23:15:49.693509"
+    },
+    {
+      "dataset": "sunspots_live.csv",
+      "path": "real-data/sunspots_live.csv",
+      "size_bytes": 17369,
+      "timestamp": "2026-03-09T23:15:49.693516"
+    },
+    {
+      "dataset": "sunspots_global_prepared.csv",
+      "path": "real-data/sunspots_global_prepared.csv",
+      "size_bytes": 1486449,
+      "timestamp": "2026-03-09T23:15:49.693522"
+    },
+    {
+      "dataset": "sample.csv",
+      "path": "real-data/sample.csv",
+      "size_bytes": 37170,
+      "timestamp": "2026-03-09T23:15:49.693529"
+    },
+    {
+      "dataset": "earthquake_magnitude.csv",
+      "path": "real-data/earthquake_magnitude.csv",
+      "size_bytes": 190089,
+      "timestamp": "2026-03-09T23:15:49.693538"
+    },
+    {
+      "dataset": "geomagnetic_kp.csv",
+      "path": "real-data/geomagnetic_kp.csv",
+      "size_bytes": 298,
+      "timestamp": "2026-03-09T23:15:49.693546"
+    },
+    {
+      "dataset": "sunspots_global.csv",
+      "path": "real-data/sunspots_global.csv",
+      "size_bytes": 1432803,
+      "timestamp": "2026-03-09T23:15:49.693553"
+    },
+    {
+      "dataset": "co2_atmospheric.csv",
+      "path": "real-data/co2_atmospheric.csv",
+      "size_bytes": 11558,
+      "timestamp": "2026-03-09T23:15:49.693575"
+    },
+    {
+      "dataset": "solar_wind_speed.csv",
+      "path": "real-data/solar_wind_speed.csv",
+      "size_bytes": 242648,
+      "timestamp": "2026-03-09T23:15:49.693583"
+    }
+  ]
+}
