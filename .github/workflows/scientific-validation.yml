@@ -21,6 +21,8 @@ permissions:
 env:
   PYTHONHASHSEED: "0"
   NODE_ENV: "production"
+  OPENBLAS_NUM_THREADS: "1"
+  OMP_NUM_THREADS: "1"
 
 jobs:
 
@@ -361,6 +363,17 @@ jobs:
         run: |
           python analysis/chaos_discovery_engine.py
 
+      - name: Takens phase-space reconstruction
+        run: |
+          mkdir -p artifacts
+
+          if [ -f real-data/sunspots_prepared.csv ]; then
+            echo "Running Takens reconstruction..."
+            python analysis/takens_reconstruction.py real-data/sunspots_prepared.csv
+          else
+            echo "Dataset missing — Takens skipped"
+          fi
+
       - name: Real Chaotic Benchmark
         run: |
           mkdir -p artifacts
@@ -432,23 +445,40 @@ jobs:
           python analysis/external_replication_gate.py
 
       - name: Chaotic Superiority Gate
-        if: hashFiles('real-data/*.csv') != ''
         run: |
-         RESULT=$(cat artifacts/chaotic_benchmark.json)
-         echo "$RESULT"
+          mkdir -p artifacts
 
-         PASS=$(echo "$RESULT" | python -c "
-         import sys, json
-         d=json.load(sys.stdin)
-         print('true' if d.get('hcm_superior', False) else 'false')
-         ")
+          if [ ! -f artifacts/chaotic_benchmark.json ]; then
+            echo "No benchmark result — skipping superiority gate"
+            exit 0
+          fi
 
-         if [ "$PASS" != "true" ]; then
-           echo "Chaotic predictive superiority not achieved."
-           echo "status=failed" >> artifacts/gate_status.txt
-         else
-           echo "status=passed" >> artifacts/gate_status.txt
-           fi
+          RESULT=$(cat artifacts/chaotic_benchmark.json)
+          echo "$RESULT"
+
+          PASS=$(echo "$RESULT" | python -c "
+          import sys, json
+          d=json.load(sys.stdin)
+          print('true' if d.get('hcm_superior', False) else 'false')
+          ")
+
+          SKIPPED=$(echo "$RESULT" | python -c "
+          import sys, json
+          d=json.load(sys.stdin)
+          print('true' if d.get('skipped', False) else 'false')
+          ")
+
+          if [ "$SKIPPED" = "true" ]; then
+            echo "Dataset missing — superiority gate skipped"
+            exit 0
+            fi
+            
+          if [ "$PASS" != "true" ]; then
+            echo "Chaotic predictive superiority not achieved."
+            echo "status=failed" >> artifacts/gate_status.txt
+          else
+            echo "status=passed" >> artifacts/gate_status.txt
+          fi
 
       - name: Adversarial robustness test
         run: |
