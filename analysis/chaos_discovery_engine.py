@@ -7,10 +7,17 @@ OUTPUT = "artifacts/chaos_discovery.json"
 
 
 def hurst_exponent(ts):
+
     lags = range(2, 50)
-    tau = [np.std(np.subtract(ts[lag:], ts[:-lag])) for lag in lags]
+
+    tau = [
+        np.std(np.subtract(ts[lag:], ts[:-lag]))
+        for lag in lags
+    ]
+
     poly = np.polyfit(np.log(lags), np.log(tau), 1)
-    return poly[0] * 2.0
+
+    return float(poly[0] * 2.0)
 
 
 def detect_chaos(series):
@@ -22,7 +29,7 @@ def detect_chaos(series):
 
     h = hurst_exponent(series)
 
-    chaotic = h > 0.55
+    chaotic = bool(h > 0.55)
 
     return {
         "hurst": float(h),
@@ -45,6 +52,7 @@ def scan():
         path = os.path.join("real-data", f)
 
         try:
+
             df = pd.read_csv(path)
 
             col = df.columns[0]
@@ -54,11 +62,15 @@ def scan():
             r = detect_chaos(series)
 
             if r:
-                r["dataset"] = f
-                results.append(r)
 
-        except Exception:
-            continue
+                results.append({
+                    "dataset": str(f),
+                    "hurst": float(r["hurst"]),
+                    "chaotic_signature": bool(r["chaotic_signature"])
+                })
+
+        except Exception as e:
+            print("dataset skipped:", f, str(e))
 
     return results
 
@@ -69,10 +81,18 @@ def main():
 
     os.makedirs("artifacts", exist_ok=True)
 
-    with open(OUTPUT, "w") as f:
-        json.dump(results, f, indent=2)
+    safe_results = json.loads(json.dumps(results))
 
-    print(json.dumps({"discoveries": len(results)}))
+    with open(OUTPUT, "w") as f:
+        json.dump(safe_results, f, indent=2)
+
+    print(
+        json.dumps(
+            {
+                "discoveries": int(len(safe_results))
+            }
+        )
+    )
 
 
 if __name__ == "__main__":
