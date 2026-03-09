@@ -382,6 +382,17 @@ jobs:
             echo "Dataset missing — Takens skipped"
           fi
 
+      - name: Lyapunov exponent estimation
+        run: |
+          mkdir -p artifacts
+
+          if [ -f real-data/sunspots_prepared.csv ]; then
+            echo "Estimating Lyapunov exponent..."
+            python analysis/lyapunov_estimator.py real-data/sunspots_prepared.csv
+          else
+            echo "Dataset missing — Lyapunov skipped"
+          fi
+
       - name: Real Chaotic Benchmark
         run: |
           mkdir -p artifacts
