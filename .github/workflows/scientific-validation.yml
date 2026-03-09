@@ -355,6 +355,10 @@ jobs:
           mkdir -p artifacts
           python -m analysis.null_spectral_montecarlo
 
+      - name: Autonomous Chaos Harvester
+        run: |
+          python analysis/autonomous_chaos_harvester.py
+
       - name: Prepare real datasets
         run: |
           python analysis/real_dataset_engine.py
