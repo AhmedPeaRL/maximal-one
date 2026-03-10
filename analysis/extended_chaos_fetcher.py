@@ -167,6 +167,14 @@ def fetch_solar_wind():
     df = pd.DataFrame(rows)
     save_dataset("solar_wind_speed", df)
 
+def download_dataset():
+    # placeholder for future remote dataset pack
+    raise RuntimeError("remote pack not available")
+
+
+def load_local_copy():
+    print("using local snapshot datasets")
+
 
 def main():
 
