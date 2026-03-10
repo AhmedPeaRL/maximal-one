@@ -10,6 +10,7 @@ np.random.seed(42)
 
 MIN_HISTORY = 10
 MIN_POINTS = 300
+MAX_POINTS = 5000
 
 
 def safe_exit(reason):
@@ -23,10 +24,6 @@ def safe_exit(reason):
 
 
 def to_scalar(x):
-    """
-    Convert prediction output to scalar robustly.
-    Works for float, list, ndarray, tensor-like outputs.
-    """
 
     if isinstance(x, (float, int)):
         return float(x)
@@ -128,18 +125,17 @@ def hcm_recursive():
 
 def run(file_path):
 
-    df = pd.read_csv(path)
+    df = pd.read_csv(file_path)
 
-# convert dataframe to 1D series
-series = df.values.squeeze()
+    series = df.values.squeeze()
 
-# CI stability limiter
-MAX_POINTS = 5000
+    if len(series) < MIN_POINTS:
+        safe_exit("dataset_too_small")
 
-if len(series) > MAX_POINTS:
-    step = len(series) // MAX_POINTS
-    series = series[::step]
-    
+    if len(series) > MAX_POINTS:
+        step = len(series) // MAX_POINTS
+        series = series[::step]
+
     mse = compute_mse(LyapunovNeuralPredictor, series)
 
     ar_mse = compute_mse(ar1_model, series)
