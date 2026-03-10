@@ -541,28 +541,32 @@ jobs:
       - name: Persist artifacts into repository
         if: always()
         run: |
-         git config --global user.name "github-actions"
-         git config --global user.email "actions@github.com"
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
 
-         mkdir -p data
+          mkdir -p data
 
-         find artifacts -type f -name "*.json" -exec cp {} data/ \;
-         find artifacts -type f -name "*.txt" -exec cp {} data/ \;
+          find artifacts -type f -name "*.json" -exec cp {} data/ \;
+          find artifacts -type f -name "*.txt" -exec cp {} data/ \;
 
-         git add data/
+          git add data/
 
-         if git diff --cached --quiet; then
-           echo "No new results."
-           exit 0
-           fi
+          if git diff --cached --quiet; then
+            echo "No new results."
+            exit 0
+          fi
 
-         git commit -m "Automated scientific results update"
-         
-                # synchronize with remote before push
-         git fetch origin
-         git pull --rebase origin main
+          git commit -m "Automated scientific results update"
+          
+          # ensure clean workspace before rebase
+          git stash --include-untracked
+          
+          git fetch origin
+          git pull --rebase origin main
 
-         git push origin HEAD:main
+          git stash pop || true
+
+          git push origin HEAD:main
           
   stability-check:
     runs-on: ubuntu-24.04
