@@ -132,9 +132,15 @@ def run(file_path):
 
     series = df.values.squeeze()
 
-    if len(series) < MIN_POINTS:
-        safe_exit("dataset_too_small")
+MAX_POINTS = 5000
 
+if len(series) > MAX_POINTS:
+    step = len(series) // MAX_POINTS
+    series = series[::step]
+
+if len(series) < MIN_POINTS:
+    safe_exit("dataset_too_small")
+    
     mse = compute_mse(LyapunovNeuralPredictor, series)
 
     ar_mse = compute_mse(ar1_model, series)
