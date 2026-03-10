@@ -128,18 +128,17 @@ def hcm_recursive():
 
 def run(file_path):
 
-    df = pd.read_csv(file_path)
+    df = pd.read_csv(path)
 
-    series = df.values.squeeze()
+# convert dataframe to 1D series
+series = df.values.squeeze()
 
+# CI stability limiter
 MAX_POINTS = 5000
 
 if len(series) > MAX_POINTS:
     step = len(series) // MAX_POINTS
     series = series[::step]
-
-if len(series) < MIN_POINTS:
-    safe_exit("dataset_too_small")
     
     mse = compute_mse(LyapunovNeuralPredictor, series)
 
