@@ -557,7 +557,12 @@ jobs:
            fi
 
          git commit -m "Automated scientific results update"
-         git push
+         
+                # synchronize with remote before push
+         git fetch origin
+         git pull --rebase origin main
+
+         git push origin HEAD:main
           
   stability-check:
     runs-on: ubuntu-24.04
