@@ -190,6 +190,12 @@ def main():
     except Exception as e:
         print("solar wind failed", e)
 
+    try:
+        download_dataset()
+    except Exception:
+        print("network failed — using local snapshot")
+        load_local_copy()
+
     print("extended chaos datasets ready")
 
 
