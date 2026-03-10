@@ -556,15 +556,10 @@ jobs:
             exit 0
           fi
 
-          git commit -m "Automated scientific results update"
-          
-          # ensure clean workspace before rebase
-          git stash --include-untracked
-          
           git fetch origin
-          git pull --rebase origin main
+          git reset --soft origin/main
 
-          git stash pop || true
+          git commit -m "Automated scientific results update"
 
           git push origin HEAD:main
           
