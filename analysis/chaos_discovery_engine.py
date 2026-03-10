@@ -54,6 +54,11 @@ def scan():
         try:
 
             df = pd.read_csv(path)
+            
+            for col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors="coerce")
+                
+                df = df.dropna()
 
             col = df.columns[0]
 
