@@ -301,6 +301,9 @@ jobs:
         run: |
           python analysis/chaos_data_crawler.py
 
+      - name: Global dataset registry
+        run: python analysis/global_dataset_registry.py
+
       - name: Dataset integrity manifest
         run: python analysis/dataset_guard.py
 
