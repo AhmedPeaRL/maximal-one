@@ -5,6 +5,11 @@ from pathlib import Path
 
 def prepare_dataset(path):
     df = pd.read_csv(path)
+    
+    for col in df.columns:
+       df[col] = pd.to_numeric(df[col], errors="coerce")
+    
+    df = df.dropna()
 
     # keep numeric columns only
     df = df.select_dtypes(include=[np.number])
