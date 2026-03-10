@@ -301,6 +301,9 @@ jobs:
         run: |
           python analysis/chaos_data_crawler.py
 
+      - name: Dataset integrity manifest
+        run: python analysis/dataset_guard.py
+
       - name: Check downloaded datasets
         run: |
           echo "==== REAL DATA ===="
@@ -443,6 +446,9 @@ jobs:
           mkdir -p artifacts
           python experiments/multi_seed_sweep.py
 
+      - name: Global Scientific Verdict
+        run: python analysis/global_scientific_verdict.py
+
       - name: Long run replication
         run: |
           mkdir -p artifacts
@@ -539,7 +545,7 @@ jobs:
           path: artifacts/nonlinear_phase_transition.png
 
       - name: Persist artifacts into repository
-        if: always()
+        if: always() && github.actor != 'github-actions[bot]'
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
