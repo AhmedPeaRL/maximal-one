@@ -101,6 +101,7 @@ jobs:
 
       - name: Generate deterministic report
         run: python scripts/generate_report.py --seed 42 --canonical
+             python analysis/experiment_history.py
 
       - name: Inject environment fingerprint
         run: |
