@@ -302,6 +302,18 @@ jobs:
         run: |
           python analysis/chaos_data_crawler.py
 
+      - name: Expand global datasets
+        run: python analysis/global_dataset_expander.py
+
+      - name: Fetch EEG dataset
+        run: python analysis/eeg_fetcher.py
+
+      - name: Extract invariants
+        run: python analysis/invariant_extractor.py
+
+      - name: Update invariant history
+        run: python analysis/invariant_history.py
+
       - name: Global dataset registry
         run: python analysis/global_dataset_registry.py
 
