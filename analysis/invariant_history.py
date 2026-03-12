@@ -1,32 +1,29 @@
 import json
 import os
+import pandas as pd
 from datetime import datetime
 
-HISTORY="data/invariant_history.json"
+SCAN="artifacts/invariant_scan.json"
+HISTORY="data/invariant_history.csv"
 
-def load():
+if not os.path.exists(SCAN):
+    exit()
 
-    if os.path.exists(HISTORY):
-        return json.load(open(HISTORY))
+data=json.load(open(SCAN))
 
-    return []
+rows=[]
+t=datetime.utcnow().isoformat()
 
-def main():
+for d in data:
+    d["time"]=t
+    rows.append(d)
 
-    hist=load()
+df=pd.DataFrame(rows)
 
-    new=json.load(open("artifacts/invariants.json"))
+if os.path.exists(HISTORY):
+    old=pd.read_csv(HISTORY)
+    df=pd.concat([old,df])
 
-    entry={
-        "time":datetime.utcnow().isoformat(),
-        "results":new
-    }
+df.to_csv(HISTORY,index=False)
 
-    hist.append(entry)
-
-    os.makedirs("data",exist_ok=True)
-
-    json.dump(hist,open(HISTORY,"w"),indent=2)
-
-if __name__=="__main__":
-    main()
+print("history updated:",len(df))
