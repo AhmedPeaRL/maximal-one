@@ -1,128 +1,75 @@
+import sys
+import json
 import numpy as np
 import pandas as pd
-from scipy.signal import welch
-from sklearn.neighbors import NearestNeighbors
-from scipy.stats import entropy
-import matplotlib.pyplot as plt
+from pathlib import Path
 
-def spectral_alpha(series):
+OUT = Path("artifacts/phase_space_invariants.json")
 
-    f, Pxx = welch(series, nperseg=256)
+def load_series(path):
+    df = pd.read_csv(path)
 
-    mask = (f > 0)
+    numeric = df.select_dtypes(include=[np.number])
 
-    f = f[mask]
-    Pxx = Pxx[mask]
+    if numeric.shape[1] == 0:
+        return None
 
-    logf = np.log10(f)
-    logP = np.log10(Pxx)
+    series = numeric.iloc[:,0].dropna()
 
-    slope, _ = np.polyfit(logf, logP, 1)
+    if len(series) < 100:
+        return None
 
-    return -slope
+    return series.values
 
 
-def entropy_slope(series, window=200):
+def estimate_dimension(x):
 
-    entropies = []
+    n = len(x)
 
-    for i in range(len(series) - window):
+    diff = np.abs(x[:-1] - x[1:])
 
-        segment = series[i:i+window]
+    eps = np.std(diff)
 
-        hist, _ = np.histogram(segment, bins=30)
+    c = np.sum(diff < eps) / n
 
-        entropies.append(entropy(hist + 1e-9))
+    if c <= 0:
+        return None
 
-    if len(entropies) < 10:
-        return np.nan
+    dim = np.log(c) / np.log(eps)
 
-    x = np.arange(len(entropies))
-
-    slope, _ = np.polyfit(x, entropies, 1)
-
-    return slope
+    return float(dim)
 
 
-def correlation_dimension(series, m=3, tau=2):
+def main():
 
-    N = len(series) - (m-1)*tau
+    if len(sys.argv) < 2:
+        print("Dataset path required")
+        sys.exit(0)
 
-    if N <= 50:
-        return np.nan
+    path = sys.argv[1]
 
-    embedded = np.zeros((N, m))
+    series = load_series(path)
 
-    for i in range(m):
-        embedded[:, i] = series[i*tau:i*tau+N]
+    if series is None:
+        print("Dataset invalid or too small")
+        sys.exit(0)
 
-    nbrs = NearestNeighbors(n_neighbors=5).fit(embedded)
+    dim = estimate_dimension(series)
 
-    distances, _ = nbrs.kneighbors(embedded)
+    OUT.parent.mkdir(exist_ok=True)
 
-    r = distances[:,1:]
-
-    log_r = np.log(r.flatten()+1e-10)
-
-    return np.mean(log_r)
-
-
-def analyze_dataset(name, series):
-
-    alpha = spectral_alpha(series)
-
-    ent = entropy_slope(series)
-
-    dim = correlation_dimension(series)
-
-    return {
-        "dataset": name,
-        "alpha": alpha,
-        "entropy_slope": ent,
-        "attractor_dimension": dim
-    }
-
-
-def plot_phase_space(df):
-
-    fig = plt.figure()
-
-    ax = fig.add_subplot(projection='3d')
-
-    ax.scatter(
-        df["alpha"],
-        df["entropy_slope"],
-        df["attractor_dimension"]
-    )
-
-    for i,row in df.iterrows():
-
-        ax.text(
-            row["alpha"],
-            row["entropy_slope"],
-            row["attractor_dimension"],
-            row["dataset"]
+    with open(OUT,"w") as f:
+        json.dump(
+            {
+                "dataset":path,
+                "attractor_dimension":dim
+            },
+            f,
+            indent=2
         )
 
-    ax.set_xlabel("spectral alpha")
-    ax.set_ylabel("entropy slope")
-    ax.set_zlabel("attractor dimension")
+    print("Phase space invariant saved")
 
-    plt.savefig("invariant_phase_space.png")
 
-def save_results(results):
-
-    import json, os
-
-    os.makedirs("artifacts", exist_ok=True)
-
-    with open("artifacts/phase_space_invariants.json","w") as f:
-        json.dump(results, f, indent=2)
-
-results = []
-
-for dataset in datasets:
-    r = analyze_dataset(name, series)
-    results.append(r)
-
-save_results(results)
+if __name__ == "__main__":
+    main()
