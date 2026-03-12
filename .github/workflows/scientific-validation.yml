@@ -389,6 +389,11 @@ jobs:
         run: |
           python analysis/real_dataset_engine.py
 
+      - name: Debug datasets before discovery
+        run: |
+          echo "==== DATASET LIST ===="
+          ls -lh real-data || true
+
       - name: Automatic Discovery Engine
         run: |
           python analysis/discovery_engine.py
@@ -396,6 +401,10 @@ jobs:
       - name: Chaos discovery engine
         run: |
           python analysis/chaos_discovery_engine.py
+
+      - name: Recurrence Quantification
+        run: |
+          python analysis/recurrence_quantification.py
 
       - name: Build Chaos Atlas
         run: |
