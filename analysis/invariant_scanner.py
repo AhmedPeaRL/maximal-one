@@ -36,10 +36,23 @@ def attractor_dim(x):
     return -np.log(C)/np.log(r)
 
 def load_series(path):
-    df = pd.read_csv(path)
+
+    try:
+        df = pd.read_csv(path)
+    except Exception:
+        return None
+
+    if df.empty:
+        return None
+
     for c in df.columns:
-        if df[c].dtype != object:
-            return df[c].dropna().values
+        try:
+            col = pd.to_numeric(df[c], errors="coerce").dropna()
+            if len(col) > 200:
+                return col.values
+        except:
+            pass
+
     return None
 
 results = []
