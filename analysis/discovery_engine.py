@@ -57,23 +57,38 @@ def extract_features(series):
     }
 
 
-def safe_read_csv(path):
-
-    if os.path.getsize(path) == 0:
-        print("Skipping empty file:", path)
-        return None
+def load_series(path):
 
     try:
         df = pd.read_csv(path)
+
     except Exception as e:
-        print("CSV read error:", path, str(e))
+        print("CSV read error:", path, e)
         return None
 
-    if df.shape[1] < 2:
-        print("Skipping malformed dataset:", path)
+    if df.shape[1] == 0:
+        print("Empty dataset:", path)
         return None
 
-    return df
+    # try numeric columns only
+    numeric = df.select_dtypes(include=[np.number])
+
+    if numeric.shape[1] == 0:
+        # attempt coercion
+        df = df.apply(pd.to_numeric, errors="coerce")
+        numeric = df.select_dtypes(include=[np.number])
+
+    if numeric.shape[1] == 0:
+        print("No numeric columns:", path)
+        return None
+
+    series = numeric.iloc[:,0].dropna().values
+
+    if len(series) < 32:
+        print("Dataset too small:", path)
+        return None
+
+    return series
 
 
 def main():
@@ -89,10 +104,10 @@ def main():
         if df is None:
             continue
 
-        series = df.iloc[:, 1].values
-
-        if len(series) < 100:
-            print("Skipping short dataset:", d)
+        series = load_series(path)
+        
+        if series is None:
+            print("Skipping malformed dataset:", path)
             continue
 
         features = extract_features(series)
