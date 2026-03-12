@@ -320,6 +320,12 @@ jobs:
       - name: Detect invariant patterns
         run: python analysis/invariant_detector.py
 
+      - name: Universal invariant scan
+        run: python analysis/universal_invariant_scanner.py
+
+      - name: Invariant field analysis
+        run: python analysis/invariant_field_analyzer.py
+
       - name: Global dataset registry
         run: python analysis/global_dataset_registry.py
 
