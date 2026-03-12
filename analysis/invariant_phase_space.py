@@ -1,111 +1,74 @@
+import sys
+import json
 import numpy as np
 import pandas as pd
-from scipy.signal import welch
 from sklearn.neighbors import NearestNeighbors
-from scipy.stats import entropy
-import matplotlib.pyplot as plt
 
-def spectral_alpha(series):
-
-    f, Pxx = welch(series, nperseg=256)
-
-    mask = (f > 0)
-
-    f = f[mask]
-    Pxx = Pxx[mask]
-
-    logf = np.log10(f)
-    logP = np.log10(Pxx)
-
-    slope, _ = np.polyfit(logf, logP, 1)
-
-    return -slope
+OUTPUT = "artifacts/phase_space_invariants.json"
 
 
-def entropy_slope(series, window=200):
+def correlation_dimension(data, r_vals):
+    N = len(data)
+    nbrs = NearestNeighbors(radius=max(r_vals)).fit(data)
+    corr = []
 
-    entropies = []
+    for r in r_vals:
+        count = 0
+        for point in data:
+            neighbors = nbrs.radius_neighbors([point], r, return_distance=False)[0]
+            count += len(neighbors)
 
-    for i in range(len(series) - window):
+        corr.append(count / (N * N))
 
-        segment = series[i:i+window]
+    log_r = np.log(r_vals)
+    log_c = np.log(corr)
 
-        hist, _ = np.histogram(segment, bins=30)
-
-        entropies.append(entropy(hist + 1e-9))
-
-    if len(entropies) < 10:
-        return np.nan
-
-    x = np.arange(len(entropies))
-
-    slope, _ = np.polyfit(x, entropies, 1)
-
-    return slope
+    slope = np.polyfit(log_r, log_c, 1)[0]
+    return float(slope)
 
 
-def correlation_dimension(series, m=3, tau=2):
-
-    N = len(series) - (m-1)*tau
-
-    if N <= 50:
-        return np.nan
-
-    embedded = np.zeros((N, m))
-
-    for i in range(m):
-        embedded[:, i] = series[i*tau:i*tau+N]
-
-    nbrs = NearestNeighbors(n_neighbors=5).fit(embedded)
-
-    distances, _ = nbrs.kneighbors(embedded)
-
-    r = distances[:,1:]
-
-    log_r = np.log(r.flatten()+1e-10)
-
-    return np.mean(log_r)
+def attractor_radius(data):
+    center = np.mean(data, axis=0)
+    dist = np.linalg.norm(data - center, axis=1)
+    return float(np.mean(dist))
 
 
-def analyze_dataset(name, series):
+def entropy_rate(series):
+    hist, _ = np.histogram(series, bins=50, density=True)
+    hist = hist[hist > 0]
+    return float(-np.sum(hist * np.log(hist)))
 
-    alpha = spectral_alpha(series)
 
-    ent = entropy_slope(series)
+def main(path):
 
-    dim = correlation_dimension(series)
+    df = pd.read_csv(path)
 
-    return {
-        "dataset": name,
-        "alpha": alpha,
-        "entropy_slope": ent,
-        "attractor_dimension": dim
+    series = df.iloc[:, 1].values
+    embedded = np.column_stack([
+        series[:-2],
+        series[1:-1],
+        series[2:]
+    ])
+
+    r_vals = np.logspace(-3, 0, 20)
+
+    dim = correlation_dimension(embedded, r_vals)
+
+    radius = attractor_radius(embedded)
+
+    entropy = entropy_rate(series)
+
+    result = {
+        "correlation_dimension": dim,
+        "attractor_radius": radius,
+        "entropy_rate": entropy
     }
 
+    with open(OUTPUT, "w") as f:
+        json.dump(result, f, indent=2)
 
-def plot_phase_space(df):
+    print(json.dumps(result, indent=2))
 
-    fig = plt.figure()
 
-    ax = fig.add_subplot(projection='3d')
-
-    ax.scatter(
-        df["alpha"],
-        df["entropy_slope"],
-        df["attractor_dimension"]
-    )
-
-    for i,row in df.iterrows():
-
-        ax.text(
-            row["alpha"],
-            row["entropy_slope"],
-            row["attractor_dimension"],
-            row["dataset"]
-        )
-
-    ax.set_xlabel("spectral alpha")
-    ax.set_ylabel("entropy slope")
-    ax.set_zlabel("attractor dimension")
-
-    plt.savefig("invariant_phase_space.png")
+if __name__ == "__main__":
+    main(sys.argv[1])
