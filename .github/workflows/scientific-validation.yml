@@ -389,6 +389,10 @@ jobs:
         run: |
           python analysis/real_dataset_engine.py
 
+      - name: Automatic Discovery Engine
+        run: |
+          python analysis/discovery_engine.py
+
       - name: Chaos discovery engine
         run: |
           python analysis/chaos_discovery_engine.py
@@ -406,6 +410,17 @@ jobs:
             python analysis/takens_reconstruction.py real-data/sunspots_global_prepared.csv
           else
             echo "Dataset missing — Takens skipped"
+          fi
+
+      - name: Phase Space Invariant Extraction
+        run: |
+          mkdir -p artifacts
+
+          if [ -f real-data/sunspots_global_prepared.csv ]; then
+            echo "Extracting phase-space invariants..."
+            python analysis/invariant_phase_space.py real-data/sunspots_global_prepared.csv
+          else
+            echo "Dataset missing — invariant extraction skipped"
           fi
 
       - name: Lyapunov exponent estimation
