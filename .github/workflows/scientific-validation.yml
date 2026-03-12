@@ -394,6 +394,9 @@ jobs:
           echo "==== DATASET LIST ===="
           ls -lh real-data || true
 
+      - name: Dataset health check
+        run: python analysis/dataset_health_check.py
+
       - name: Automatic Discovery Engine
         run: |
           python analysis/discovery_engine.py
