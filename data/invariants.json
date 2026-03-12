@@ -37,14 +37,14 @@
   },
   {
     "dataset": "earthquake_magnitude.csv",
-    "spectral_alpha": -2.130765736538269,
-    "entropy": 3.899737227988049,
-    "dimension": 13.341101799094083
+    "spectral_alpha": -2.1311215806011257,
+    "entropy": 3.9001677765296594,
+    "dimension": 13.341935726886604
   },
   {
     "dataset": "geomagnetic_kp.csv",
-    "spectral_alpha": -1.8032840965097805,
-    "entropy": 0.9600899628349033,
+    "spectral_alpha": -1.7449442428675532,
+    "entropy": 1.0461940429779175,
     "dimension": 8.483815777264256
   },
   {
@@ -61,8 +61,8 @@
   },
   {
     "dataset": "solar_wind_speed.csv",
-    "spectral_alpha": -0.9050289890466693,
-    "entropy": 3.4104629713251757,
-    "dimension": 13.240642285719252
+    "spectral_alpha": -0.891055105332732,
+    "entropy": 3.407542247644737,
+    "dimension": 13.240344146631417
   }
 ]
