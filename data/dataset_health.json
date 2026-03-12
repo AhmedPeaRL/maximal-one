@@ -1,0 +1,108 @@
+[
+  {
+    "file": "real-data/co2.csv",
+    "rows": 815,
+    "columns": 6,
+    "numeric_columns": 6,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/enso_nino34.csv",
+    "rows": 0,
+    "columns": 0,
+    "numeric_columns": 0,
+    "missing_ratio": 0.0,
+    "error": "unreadable"
+  },
+  {
+    "file": "real-data/sunspots.csv",
+    "rows": 2820,
+    "columns": 2,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/ecology.csv",
+    "rows": 3650,
+    "columns": 2,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/cosmic_rays.csv",
+    "rows": 3698,
+    "columns": 2,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/airline_passengers.csv",
+    "rows": 144,
+    "columns": 2,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/sunspots_live.csv",
+    "rows": 3326,
+    "columns": 1,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/sunspots_global_prepared.csv",
+    "rows": 0,
+    "columns": 1,
+    "numeric_columns": 0,
+    "missing_ratio": NaN
+  },
+  {
+    "file": "real-data/temperature.csv",
+    "rows": 3823,
+    "columns": 3,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/sample.csv",
+    "rows": 2000,
+    "columns": 1,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/earthquake_magnitude.csv",
+    "rows": 10383,
+    "columns": 2,
+    "numeric_columns": 2,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/geomagnetic_kp.csv",
+    "rows": 63,
+    "columns": 1,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/sunspots_global.csv",
+    "rows": 76030,
+    "columns": 2,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/co2_atmospheric.csv",
+    "rows": 816,
+    "columns": 2,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/solar_wind_speed.csv",
+    "rows": 9677,
+    "columns": 2,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
+  }
+]
