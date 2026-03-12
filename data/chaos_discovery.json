@@ -1,13 +1,13 @@
 [
   {
+    "dataset": "co2.csv",
+    "hurst": -0.0009267868775348851,
+    "chaotic_signature": false
+  },
+  {
     "dataset": "sunspots_live.csv",
     "hurst": 0.9240840783354255,
     "chaotic_signature": true
-  },
-  {
-    "dataset": "sunspots_global_prepared.csv",
-    "hurst": 0.057774591206446256,
-    "chaotic_signature": false
   },
   {
     "dataset": "sample.csv",
@@ -16,7 +16,7 @@
   },
   {
     "dataset": "earthquake_magnitude.csv",
-    "hurst": 1.2515225852248388,
+    "hurst": 1.2431473494875198,
     "chaotic_signature": true
   }
 ]
