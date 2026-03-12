@@ -311,8 +311,14 @@ jobs:
       - name: Extract invariants
         run: python analysis/invariant_extractor.py
 
+      - name: Invariant Scanner
+        run: python analysis/invariant_scanner.py
+
       - name: Update invariant history
         run: python analysis/invariant_history.py
+
+      - name: Detect invariant patterns
+        run: python analysis/invariant_detector.py
 
       - name: Global dataset registry
         run: python analysis/global_dataset_registry.py
