@@ -109,3 +109,20 @@ def plot_phase_space(df):
     ax.set_zlabel("attractor dimension")
 
     plt.savefig("invariant_phase_space.png")
+
+def save_results(results):
+
+    import json, os
+
+    os.makedirs("artifacts", exist_ok=True)
+
+    with open("artifacts/phase_space_invariants.json","w") as f:
+        json.dump(results, f, indent=2)
+
+results = []
+
+for dataset in datasets:
+    r = analyze_dataset(name, series)
+    results.append(r)
+
+save_results(results)
