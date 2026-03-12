@@ -1,9 +1,12 @@
 {
-  "timestamp": "2026-03-10T01:18:55.573596Z",
+  "timestamp": "2026-03-12T18:11:47.911698Z",
   "status": "run_completed",
   "files_present": [
+    "invariants.json",
     "pip-freeze.txt",
     "*.json",
+    "dataset_registry.json",
+    "dataset_manifest.json",
     "environment.json",
     "state.json"
   ]
