@@ -97,12 +97,7 @@ def main():
 
     results = {}
 
-    for d in datasets:
-
-        df = safe_read_csv(d)
-
-        if df is None:
-            continue
+    for path in datasets:
 
         series = load_series(path)
         
@@ -112,9 +107,9 @@ def main():
 
         features = extract_features(series)
 
-        results[d] = features
+        results[path] = features
 
-        print("Processed:", d)
+        print("Processed:", path)
 
     os.makedirs("artifacts", exist_ok=True)
 
@@ -122,7 +117,6 @@ def main():
         json.dump(results, f, indent=2)
 
     print("Discovery results saved.")
-
 
 if __name__ == "__main__":
     main()
