@@ -754,7 +754,7 @@ jobs:
           git fetch origin
           git reset --soft origin/main
 
-          git add data/* || true
+          git add -A data
 
           if git diff --cached --quiet; then
             echo "No dataset changes."
