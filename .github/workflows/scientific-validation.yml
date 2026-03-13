@@ -342,7 +342,6 @@ jobs:
           mkdir -p artifacts
           pip freeze > artifacts/pip-freeze.txt
           
-
       - name: Run deterministic kernel
         run: |
           mkdir -p artifacts
@@ -390,6 +389,9 @@ jobs:
       - name: Autonomous Chaos Harvester
         run: |
           python analysis/autonomous_chaos_harvester.py
+
+      - name: Autonomous Dataset Hunter
+        run: python analysis/autonomous_dataset_hunter.py
 
       - name: Prepare real datasets
         run: |
