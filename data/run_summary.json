@@ -1,14 +1,20 @@
 {
-  "timestamp": "2026-03-12T23:15:53.171267Z",
+  "timestamp": "2026-03-13T15:00:23.252527Z",
   "status": "run_completed",
   "files_present": [
     "invariants.json",
     "pip-freeze.txt",
+    "universal_invariants.json",
     "invariant_scan.json",
+    "surrogate_test.json",
     "*.json",
     "dataset_registry.json",
+    "cross_system_corr.json",
     "dataset_manifest.json",
     "environment.json",
-    "state.json"
+    "universal_invariant_test.json",
+    "windowed_spectral.json",
+    "state.json",
+    "invariant_field_report.json"
   ]
 }
