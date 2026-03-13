@@ -599,6 +599,11 @@ jobs:
           mkdir -p artifacts
           python analysis/scaling_collapse_test.py
 
+      - name: Null Structure Test
+        run: |
+          mkdir -p artifacts
+          python analysis/null_structure_test.py
+
       - name: Scaling Collapse Engine
         run: |
           mkdir -p artifacts
@@ -644,6 +649,11 @@ jobs:
         with:
           name: discovered-hypotheses
           path: artifacts/hypotheses.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: null-structure-test
+          path: artifacts/null_structure_test.json
 
       - name: Persist artifacts into repository
         if: always() && github.actor != 'github-actions[bot]'
