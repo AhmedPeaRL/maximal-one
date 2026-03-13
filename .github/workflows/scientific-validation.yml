@@ -338,6 +338,9 @@ jobs:
       - name: Universal invariant test
         run: python analysis/universal_invariant_test.py
 
+      - name: Surrogate chaos test
+        run: python analysis/surrogate_test.py
+
       - name: Global dataset registry
         run: python analysis/global_dataset_registry.py
 
