@@ -594,6 +594,11 @@ jobs:
       - name: Observable invariance
         run: python analysis/observable_invariant_test.py
 
+      - name: Universal Scaling Law Test
+        run: |
+          mkdir -p artifacts
+          python analysis/scaling_collapse_test.py
+
       - name: Topology preservation
         run: python analysis/topology_preservation_test.py
 
@@ -613,6 +618,11 @@ jobs:
         run: |
           mkdir -p artifacts
           python analysis/nonlinear_phase_scan.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scaling-law-test
+          path: artifacts/scaling_law_test.json
 
       - name: Upload spectral artifacts
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
