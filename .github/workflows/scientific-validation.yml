@@ -308,6 +308,15 @@ jobs:
       - name: Fetch EEG dataset
         run: python analysis/eeg_fetcher.py
 
+      - name: Sanitize datasets
+        run: python analysis/dataset_sanitizer.py
+
+      - name: Windowed spectral analysis
+        run: python analysis/windowed_spectral_analysis.py
+
+      - name: Cross-system correlation
+        run: python analysis/cross_system_correlation.py
+
       - name: Extract invariants
         run: python analysis/invariant_extractor.py
 
