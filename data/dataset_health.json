@@ -7,14 +7,6 @@
     "missing_ratio": 0.0
   },
   {
-    "file": "real-data/enso_nino34.csv",
-    "rows": 0,
-    "columns": 0,
-    "numeric_columns": 0,
-    "missing_ratio": 0.0,
-    "error": "unreadable"
-  },
-  {
     "file": "real-data/sunspots.csv",
     "rows": 2820,
     "columns": 2,
@@ -50,11 +42,18 @@
     "missing_ratio": 0.0
   },
   {
-    "file": "real-data/sunspots_global_prepared.csv",
-    "rows": 0,
-    "columns": 1,
-    "numeric_columns": 0,
-    "missing_ratio": NaN
+    "file": "real-data/daily_female_births.csv",
+    "rows": 365,
+    "columns": 2,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/sunspots_extended.csv",
+    "rows": 2820,
+    "columns": 2,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
   },
   {
     "file": "real-data/temperature.csv",
@@ -72,16 +71,9 @@
   },
   {
     "file": "real-data/earthquake_magnitude.csv",
-    "rows": 10380,
+    "rows": 10397,
     "columns": 2,
     "numeric_columns": 2,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/geomagnetic_kp.csv",
-    "rows": 63,
-    "columns": 1,
-    "numeric_columns": 1,
     "missing_ratio": 0.0
   },
   {
@@ -100,7 +92,7 @@
   },
   {
     "file": "real-data/solar_wind_speed.csv",
-    "rows": 9676,
+    "rows": 9675,
     "columns": 2,
     "numeric_columns": 1,
     "missing_ratio": 0.0
