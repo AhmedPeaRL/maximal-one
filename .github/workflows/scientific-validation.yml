@@ -599,6 +599,11 @@ jobs:
           mkdir -p artifacts
           python analysis/scaling_collapse_test.py
 
+      - name: Scaling Collapse Engine
+        run: |
+          mkdir -p artifacts
+          python analysis/scaling_collapse_engine.py
+
       - name: Topology preservation
         run: python analysis/topology_preservation_test.py
 
@@ -623,6 +628,11 @@ jobs:
         with:
           name: scaling-law-test
           path: artifacts/scaling_law_test.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scaling-collapse
+          path: artifacts/scaling_collapse_engine.json
 
       - name: Upload spectral artifacts
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
