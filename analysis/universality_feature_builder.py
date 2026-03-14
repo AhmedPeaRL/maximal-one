@@ -9,69 +9,98 @@ DATA_DIR = "real-data"
 OUT_PATH = "artifacts/universality_features.json"
 
 def spectral_alpha(x):
-    f, Pxx = welch(x, nperseg=min(256,len(x)))
+    f, Pxx = welch(x, nperseg=min(256, len(x)))
     f = f[1:]
     Pxx = Pxx[1:]
+    if len(f) < 5:
+        return None
     logf = np.log(f)
-    logp = np.log(Pxx)
+    logp = np.log(Pxx + 1e-12)
     slope = np.polyfit(logf, logp, 1)[0]
-    return -slope
+    return float(-slope)
 
 def hurst(ts):
-    lags = range(2,20)
-    tau = [np.std(np.subtract(ts[lag:],ts[:-lag])) for lag in lags]
-    poly = np.polyfit(np.log(lags),np.log(tau),1)
-    return poly[0]*2.0
+    if len(ts) < 50:
+        return None
+    lags = range(2, 20)
+    tau = [np.std(np.subtract(ts[lag:], ts[:-lag])) for lag in lags]
+    poly = np.polyfit(np.log(list(lags)), np.log(tau), 1)
+    return float(poly[0] * 2.0)
 
-def entropy_rate(x,bins=50):
-    hist,_ = np.histogram(x,bins=bins,density=True)
-    hist = hist[hist>0]
-    return entropy(hist)
+def entropy_rate(x, bins=50):
+    hist, _ = np.histogram(x, bins=bins, density=True)
+    hist = hist[hist > 0]
+    if len(hist) == 0:
+        return None
+    return float(entropy(hist))
 
-def attractor_dimension(x,m=5):
-    N=len(x)
-    if N<200:
+def attractor_dimension(x, m=5):
+    N = len(x)
+    if N < 200:
         return None
     emb = np.column_stack([x[i:N-m+i] for i in range(m)])
-    dists = np.sqrt(((emb[:,None]-emb[None,:])**2).sum(-1))
-    r = np.percentile(dists,5)
-    C = np.mean(dists<r)
-    if C<=0:
+    dists = np.sqrt(((emb[:, None] - emb[None, :]) ** 2).sum(-1))
+    r = np.percentile(dists, 5)
+    C = np.mean(dists < r)
+    if C <= 0:
         return None
-    return -np.log(C)/np.log(r+1e-9)
+    return float(-np.log(C) / np.log(r + 1e-9))
+
+def safe_read_csv(path):
+    try:
+        if os.path.getsize(path) == 0:
+            return None
+        df = pd.read_csv(path)
+        if df.empty:
+            return None
+        return df
+    except Exception:
+        return None
 
 def load_series(path):
-    df=pd.read_csv(path)
+    df = safe_read_csv(path)
+    if df is None:
+        return None
+
     for col in df.columns:
-        if np.issubdtype(df[col].dtype,np.number):
-            return df[col].dropna().values
+        if np.issubdtype(df[col].dtype, np.number):
+            series = df[col].dropna().values
+            if len(series) > 100:
+                return series
+
     return None
 
-features=[]
+features = []
 
 if os.path.isdir(DATA_DIR):
     for f in os.listdir(DATA_DIR):
         if not f.endswith(".csv"):
             continue
-        path=os.path.join(DATA_DIR,f)
-        ts=load_series(path)
-        if ts is None or len(ts)<200:
+
+        path = os.path.join(DATA_DIR, f)
+        ts = load_series(path)
+
+        if ts is None:
+            print("Skipping invalid dataset:", f)
             continue
+
         try:
-            feat={
-                "dataset":f,
-                "spectral_alpha":float(spectral_alpha(ts)),
-                "entropy_rate":float(entropy_rate(ts)),
-                "hurst_exponent":float(hurst(ts)),
-                "attractor_dimension":float(attractor_dimension(ts))
+            feat = {
+                "dataset": f,
+                "spectral_alpha": spectral_alpha(ts),
+                "entropy_rate": entropy_rate(ts),
+                "hurst_exponent": hurst(ts),
+                "attractor_dimension": attractor_dimension(ts)
             }
+
             features.append(feat)
-        except Exception:
-            continue
 
-os.makedirs("artifacts",exist_ok=True)
+        except Exception as e:
+            print("Feature extraction failed:", f, str(e))
 
-with open(OUT_PATH,"w") as f:
-    json.dump(features,f,indent=2)
+os.makedirs("artifacts", exist_ok=True)
 
-print("Extracted features:",len(features))
+with open(OUT_PATH, "w") as f:
+    json.dump(features, f, indent=2)
+
+print("Datasets processed:", len(features))
