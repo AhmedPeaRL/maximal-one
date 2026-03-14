@@ -77,6 +77,22 @@ def attractor_dimension(x, m=5):
 
     return float(-np.log(C) / np.log(r + 1e-9))
 
+def save_features(rows):
+
+    if not rows:
+        print("No features extracted")
+        return
+
+    df = pd.DataFrame(rows)
+
+    os.makedirs("artifacts", exist_ok=True)
+
+    path = "artifacts/universality_features.csv"
+
+    df.to_csv(path, index=False)
+
+    print(f"Features saved to {path}")
+
 def safe_read_csv(path):
     try:
         if os.path.getsize(path) == 0:
