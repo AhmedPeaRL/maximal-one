@@ -7,11 +7,18 @@ DATA_DIR = "real-data"
 OUT_PATH = "artifacts/null_structure_test.json"
 
 def spectral_alpha(series):
+
+    from scipy.signal import welch
+
     x = np.array(series)
     x = x - np.mean(x)
-    f = np.fft.rfft(x)
-    psd = np.abs(f)**2
-    freqs = np.fft.rfftfreq(len(x))
+
+    freqs, psd = welch(
+        x,
+        nperseg=min(512, len(x)//4),
+        scaling="density"
+    )
+
     mask = freqs > 0
     freqs = freqs[mask]
     psd = psd[mask]
@@ -20,7 +27,8 @@ def spectral_alpha(series):
     logp = np.log(psd)
 
     a,b = np.polyfit(logf,logp,1)
-    return -a
+
+    return float(-a)
 
 def collapse_score(alphas):
     alphas = np.array(alphas)
