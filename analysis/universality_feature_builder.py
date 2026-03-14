@@ -35,25 +35,46 @@ def entropy_rate(x, bins=50):
     return float(entropy(hist))
 
 def attractor_dimension(x, m=5):
-    N = len(x)
-    if N < 200:
+
+    x = np.array(x)
+
+    if len(x) < 300:
         return None
+
+    N = len(x)
+
+    try:
+        emb = np.column_stack([x[i:N-m+i] for i in range(m)])
+    except Exception:
+        return None
+
+    if emb.shape[0] < 50:
+        return None
+
     emb = emb[np.isfinite(emb).all(axis=1)]
-    
-    MAX_POINTS = 4000
-    
+
+    if len(emb) < 50:
+        return None
+
+    MAX_POINTS = 2000
+
     if len(emb) > MAX_POINTS:
         idx = np.random.choice(len(emb), MAX_POINTS, replace=False)
-        emb_sample = emb[idx]
-    else:
-        emb_sample = emb
-        
-        diff = emb_sample[:, None, :] - emb_sample[None, :, :]
-        dists = np.sqrt((diff ** 2).sum(axis=-1))
+        emb = emb[idx]
+
+    diff = emb[:, None, :] - emb[None, :, :]
+    dists = np.sqrt((diff ** 2).sum(axis=-1))
+
     r = np.percentile(dists, 5)
+
+    if r <= 0:
+        return None
+
     C = np.mean(dists < r)
+
     if C <= 0:
         return None
+
     return float(-np.log(C) / np.log(r + 1e-9))
 
 def safe_read_csv(path):
