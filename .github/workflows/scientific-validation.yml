@@ -335,6 +335,9 @@ jobs:
       - name: Invariant field analysis
         run: python analysis/invariant_field_analyzer.py
 
+      - name: Build universality features
+        run: python analysis/universality_feature_builder.py
+
       - name: Universality clustering
         run: python analysis/universality_cluster.py
 
