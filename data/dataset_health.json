@@ -7,12 +7,18 @@
     "missing_ratio": 0.0
   },
   {
-    "file": "real-data/enso_nino34.csv",
-    "rows": 0,
-    "columns": 0,
-    "numeric_columns": 0,
-    "missing_ratio": 0.0,
-    "error": "unreadable"
+    "file": "real-data/co2_atmospheric_clean.csv",
+    "rows": 816,
+    "columns": 1,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/sample_clean.csv",
+    "rows": 2000,
+    "columns": 1,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
   },
   {
     "file": "real-data/sunspots.csv",
@@ -50,16 +56,58 @@
     "missing_ratio": 0.0
   },
   {
-    "file": "real-data/sunspots_global_prepared.csv",
-    "rows": 0,
+    "file": "real-data/temperature_clean.csv",
+    "rows": 3823,
     "columns": 1,
-    "numeric_columns": 0,
-    "missing_ratio": NaN
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/solar_wind_speed_clean.csv",
+    "rows": 9648,
+    "columns": 1,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/ecology_clean.csv",
+    "rows": 3650,
+    "columns": 1,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/daily_female_births.csv",
+    "rows": 365,
+    "columns": 2,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/sunspots_extended.csv",
+    "rows": 2820,
+    "columns": 2,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
   },
   {
     "file": "real-data/temperature.csv",
     "rows": 3823,
     "columns": 3,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/co2_clean.csv",
+    "rows": 815,
+    "columns": 6,
+    "numeric_columns": 6,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/cosmic_rays_clean.csv",
+    "rows": 3698,
+    "columns": 1,
     "numeric_columns": 1,
     "missing_ratio": 0.0
   },
@@ -72,14 +120,14 @@
   },
   {
     "file": "real-data/earthquake_magnitude.csv",
-    "rows": 10380,
+    "rows": 10244,
     "columns": 2,
     "numeric_columns": 2,
     "missing_ratio": 0.0
   },
   {
-    "file": "real-data/geomagnetic_kp.csv",
-    "rows": 63,
+    "file": "real-data/sunspots_global_clean.csv",
+    "rows": 76030,
     "columns": 1,
     "numeric_columns": 1,
     "missing_ratio": 0.0
@@ -92,6 +140,20 @@
     "missing_ratio": 0.0
   },
   {
+    "file": "real-data/geomagnetic_kp_clean.csv",
+    "rows": 358,
+    "columns": 1,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/sunspots_clean.csv",
+    "rows": 2820,
+    "columns": 1,
+    "numeric_columns": 1,
+    "missing_ratio": 0.0
+  },
+  {
     "file": "real-data/co2_atmospheric.csv",
     "rows": 816,
     "columns": 2,
@@ -100,9 +162,16 @@
   },
   {
     "file": "real-data/solar_wind_speed.csv",
-    "rows": 9676,
+    "rows": 9648,
     "columns": 2,
     "numeric_columns": 1,
+    "missing_ratio": 0.0
+  },
+  {
+    "file": "real-data/earthquake_magnitude_clean.csv",
+    "rows": 10244,
+    "columns": 2,
+    "numeric_columns": 2,
     "missing_ratio": 0.0
   }
 ]
