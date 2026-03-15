@@ -147,7 +147,14 @@ if os.path.isdir(DATA_DIR):
 
 os.makedirs("artifacts", exist_ok=True)
 
-with open(OUT_PATH, "w") as f:
+# save JSON
+with open("artifacts/universality_features.json", "w") as f:
     json.dump(features, f, indent=2)
 
+# save CSV for clustering
+df = pd.DataFrame(features)
+df.to_csv("artifacts/universality_features.csv", index=False)
+
 print("Datasets processed:", len(features))
+print("Features saved to artifacts/universality_features.json")
+print("Features saved to artifacts/universality_features.csv")
