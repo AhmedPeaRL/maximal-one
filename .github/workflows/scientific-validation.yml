@@ -344,6 +344,9 @@ jobs:
       - name: Universal relation finder
         run: python analysis/universal_relation_finder.py
 
+      - name: Scaling relation finder
+        run: python analysis/scaling_relation_finder.py
+
       - name: Universal invariant test
         run: python analysis/universal_invariant_test.py
 
