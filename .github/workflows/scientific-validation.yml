@@ -435,6 +435,9 @@ jobs:
       - name: Dataset health check
         run: python analysis/dataset_health_check.py
 
+      - name: Generate chaos benchmark datasets
+        run: python analysis/chaos_generators.py
+
       - name: Automatic Discovery Engine
         run: |
           python analysis/discovery_engine.py
