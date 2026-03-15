@@ -311,6 +311,12 @@ jobs:
       - name: Sanitize datasets
         run: python analysis/dataset_sanitizer.py
 
+      - name: Dataset health check
+        run: python analysis/dataset_health_check.py
+
+      - name: Generate chaos benchmark datasets
+        run: python analysis/chaos_generators.py
+
       - name: Windowed spectral analysis
         run: python analysis/windowed_spectral_analysis.py
 
@@ -319,6 +325,12 @@ jobs:
 
       - name: Extract invariants
         run: python analysis/invariant_extractor.py
+
+      - name: Build universality features
+        run: python analysis/universality_feature_builder.py
+
+      - name: Universality clustering
+        run: python analysis/universality_cluster.py
 
       - name: Invariant Scanner
         run: python analysis/invariant_scanner.py
@@ -334,12 +346,6 @@ jobs:
 
       - name: Invariant field analysis
         run: python analysis/invariant_field_analyzer.py
-
-      - name: Build universality features
-        run: python analysis/universality_feature_builder.py
-
-      - name: Universality clustering
-        run: python analysis/universality_cluster.py
 
       - name: Universal relation finder
         run: python analysis/universal_relation_finder.py
@@ -431,12 +437,6 @@ jobs:
         run: |
           echo "==== DATASET LIST ===="
           ls -lh real-data || true
-
-      - name: Dataset health check
-        run: python analysis/dataset_health_check.py
-
-      - name: Generate chaos benchmark datasets
-        run: python analysis/chaos_generators.py
 
       - name: Automatic Discovery Engine
         run: |
