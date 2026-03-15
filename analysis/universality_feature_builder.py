@@ -63,7 +63,20 @@ def attractor_dimension(x, m=5):
         emb = emb[idx]
 
     diff = emb[:, None, :] - emb[None, :, :]
-    dists = np.sqrt((diff ** 2).sum(axis=-1))
+    
+    sq = (diff ** 2).sum(axis=-1)
+    
+    sq = sq[np.isfinite(sq)]
+    
+    if len(sq) < 10:
+        return None
+        
+        dists = np.sqrt(sq)
+        
+        dists = dists[np.isfinite(dists)]
+        
+        if len(dists) < 10:
+            return None
 
     r = np.percentile(dists, 5)
 
