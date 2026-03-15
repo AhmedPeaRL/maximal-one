@@ -326,6 +326,9 @@ jobs:
       - name: Extract invariants
         run: python analysis/invariant_extractor.py
 
+      - name: Chaos metrics extension
+        run: python analysis/chaos_metrics_extension.py
+
       - name: Build universality features
         run: python analysis/universality_feature_builder.py
 
