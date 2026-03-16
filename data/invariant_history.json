@@ -1838,7 +1838,7 @@
     ]
   },
   {
-    "time": "2026-03-16T23:54:59.150607",
+    "time": "2026-03-16T23:59:07.254904",
     "results": [
       {
         "dataset": "co2.csv",
@@ -1891,8 +1891,8 @@
       {
         "dataset": "solar_wind_speed_clean.csv",
         "spectral_alpha": -0.8900323128894275,
-        "entropy": 3.6400605073238554,
-        "dimension": 13.249261626599845
+        "entropy": 3.640249091514884,
+        "dimension": 13.250002267840449
       },
       {
         "dataset": "ecology_clean.csv",
@@ -1926,14 +1926,14 @@
       },
       {
         "dataset": "earthquake_magnitude.csv",
-        "spectral_alpha": -2.140687320047208,
-        "entropy": 3.8997322093082745,
-        "dimension": 13.312741174040973
+        "spectral_alpha": -2.1406307384292633,
+        "entropy": 3.8997630706186928,
+        "dimension": 13.312882955284357
       },
       {
         "dataset": "geomagnetic_kp.csv",
-        "spectral_alpha": -1.863246133411316,
-        "entropy": 1.0318496783683826,
+        "spectral_alpha": -1.8615882271052344,
+        "entropy": 1.023604214384183,
         "dimension": 8.483815777264256
       },
       {
@@ -1962,8 +1962,8 @@
       },
       {
         "dataset": "geomagnetic_kp_clean.csv",
-        "spectral_alpha": -1.863246133411316,
-        "entropy": 1.0318496783683826,
+        "spectral_alpha": -1.8615882271052344,
+        "entropy": 1.023604214384183,
         "dimension": 8.483815777264256
       },
       {
@@ -1981,14 +1981,14 @@
       {
         "dataset": "solar_wind_speed.csv",
         "spectral_alpha": -0.8900323128894275,
-        "entropy": 3.6400605073238554,
-        "dimension": 13.249261626599845
+        "entropy": 3.640249091514884,
+        "dimension": 13.250002267840449
       },
       {
         "dataset": "earthquake_magnitude_clean.csv",
-        "spectral_alpha": -2.140687320047208,
-        "entropy": 3.8997322093082745,
-        "dimension": 13.312741174040973
+        "spectral_alpha": -2.1406307384292633,
+        "entropy": 3.8997630706186928,
+        "dimension": 13.312882955284357
       }
     ]
   }
