@@ -14,7 +14,7 @@ def read(name):
 
 
 lyap=read("lyapunov.json")
-spec=read("spectral_verification.json")
+spec=read("spectral_profile.json")
 scale=read("scaling_collapse_engine.json")
 
 report={}
