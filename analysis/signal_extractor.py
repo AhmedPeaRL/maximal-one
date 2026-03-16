@@ -7,16 +7,28 @@ THRESHOLD_SIGNAL = 2.0
 
 signals = []
 
+def extract_numbers(obj):
+    if isinstance(obj, dict):
+        for v in obj.values():
+            extract_numbers(v)
+
+    elif isinstance(obj, list):
+        for v in obj:
+            extract_numbers(v)
+
+    elif isinstance(obj,(int,float)):
+        signals.append(float(obj))
+
+
 for f in glob.glob("artifacts/*.json"):
     try:
         with open(f) as fh:
             data = json.load(fh)
-    except:
+        extract_numbers(data)
+
+    except Exception:
         continue
 
-    for k,v in data.items():
-        if isinstance(v,(int,float)):
-            signals.append(v)
 
 if not signals:
     print(json.dumps({"status":"no-data"}))
@@ -26,8 +38,8 @@ signals = np.array(signals)
 
 mean = float(np.mean(signals))
 std = float(np.std(signals))
-snr = abs(mean)/(std+1e-9)
 
+snr = abs(mean)/(std+1e-9)
 stability = 1/(1+std)
 
 result = {
@@ -35,6 +47,7 @@ result = {
     "std":std,
     "snr":snr,
     "stability":stability,
+    "samples":len(signals),
     "passed": bool(
         snr > THRESHOLD_SIGNAL and
         stability > THRESHOLD_STABILITY
