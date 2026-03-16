@@ -2,6 +2,7 @@ import os
 import json
 import numpy as np
 import pandas as pd
+from sklearn.neighbors import KDTree
 from scipy.signal import welch
 from scipy.stats import entropy
 
@@ -23,16 +24,18 @@ def entropy_slope(x):
     return float(H)
 
 def attractor_dim(x):
-    N = len(x)
+    x = x.reshape(-1,1)
+    tree = KDTree(x)
+
     r = np.std(x) * 0.2
-    count = 0
-    for i in range(N):
-        for j in range(i+1,N):
-            if abs(x[i]-x[j]) < r:
-                count += 1
-    C = count / (N*(N-1)/2)
+
+    count = tree.query_radius(x, r=r, count_only=True)
+
+    C = np.sum(count - 1) / (len(x)*(len(x)-1))
+
     if C <= 0:
         return 0
+
     return -np.log(C)/np.log(r)
 
 def load_series(path):
