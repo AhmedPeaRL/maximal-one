@@ -653,6 +653,11 @@ jobs:
           mkdir -p artifacts
           python analysis/scaling_collapse_engine.py
 
+      - name: Debug artifact list
+        run: |
+          echo "=== ARTIFACTS ==="
+          ls -lh artifacts || true
+
       - name: Universality Gate
         run: |
           python analysis/universality_gate.py > artifacts/universality_gate.json
