@@ -371,6 +371,9 @@ jobs:
       - name: Robust universality filter
         run: python analysis/robust_universality_filter.py
 
+      - name: Invariant stability monitor
+        run: python analysis/invariant_stability_monitor.py
+
       - name: Null universe test
         run: python analysis/null_universe_test.py
 
