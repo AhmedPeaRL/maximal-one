@@ -1,7 +1,6 @@
 import json
 import glob
 import numpy as np
-import math
 
 THRESHOLD_STABILITY = 0.85
 THRESHOLD_SIGNAL = 2.0
@@ -18,8 +17,7 @@ def extract_numbers(obj):
             extract_numbers(v)
 
     elif isinstance(obj,(int,float)):
-        if not math.isnan(v:=float(obj)) and not math.isinf(v):
-            signals.append(v)
+        signals.append(float(obj))
 
 
 for f in glob.glob("artifacts/*.json"):
