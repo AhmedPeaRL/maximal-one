@@ -14,13 +14,6 @@
     "attractor_dimension": 1.4740179194527003
   },
   {
-    "dataset": "sample_clean.csv",
-    "spectral_alpha": 9.018714229409934,
-    "entropy_rate": 3.421822928799656,
-    "hurst_exponent": 1.8163571037221389,
-    "attractor_dimension": 8.235070954614528
-  },
-  {
     "dataset": "sunspots.csv",
     "spectral_alpha": 1.0573672898083595,
     "entropy_rate": 3.27924217808533,
@@ -91,13 +84,6 @@
     "attractor_dimension": -6.817834547605899
   },
   {
-    "dataset": "sample.csv",
-    "spectral_alpha": 9.018714229409813,
-    "entropy_rate": 3.421822928799656,
-    "hurst_exponent": 1.8163571037221389,
-    "attractor_dimension": 8.235070954614528
-  },
-  {
     "dataset": "earthquake_magnitude.csv",
     "spectral_alpha": 2.1302235117580115,
     "entropy_rate": 3.896444477098038,
@@ -117,13 +103,6 @@
     "entropy_rate": 3.912022953527792,
     "hurst_exponent": -0.07131925097817607,
     "attractor_dimension": 1.2200527682801445
-  },
-  {
-    "dataset": "rossler.csv",
-    "spectral_alpha": 6.68710533905026,
-    "entropy_rate": 3.6895547368761332,
-    "hurst_exponent": 1.9954361616847955,
-    "attractor_dimension": -22.336525371538656
   },
   {
     "dataset": "sunspots_global.csv",
