@@ -5,6 +5,7 @@ from pathlib import Path
 INPUT = "artifacts/universality_features.json"
 OUT = "artifacts/robust_universality_features.json"
 
+
 def mad_filter(values):
 
     median = np.median(values)
@@ -27,17 +28,34 @@ def run():
     with open(INPUT) as f:
         data = json.load(f)
 
-    names = list(data.keys())
+    records = []
 
-    alpha = np.array([data[n]["spectral_alpha"] for n in names])
+    # case 1 : list format
+    if isinstance(data, list):
+        records = data
+
+    # case 2 : dict format
+    elif isinstance(data, dict):
+        for name,vals in data.items():
+            r = vals
+            r["dataset"] = name
+            records.append(r)
+
+    else:
+        print("Unknown data format")
+        return
+
+    alpha = np.array([
+        r.get("spectral_alpha", np.nan) for r in records
+    ])
 
     mask = mad_filter(alpha)
 
-    filtered = {}
+    filtered = []
 
-    for i,name in enumerate(names):
+    for i,r in enumerate(records):
         if mask[i]:
-            filtered[name] = data[name]
+            filtered.append(r)
 
     Path("artifacts").mkdir(exist_ok=True)
 
@@ -45,7 +63,7 @@ def run():
         json.dump(filtered,f,indent=2)
 
     print("Filtered systems:",len(filtered))
-    print("Original systems:",len(names))
+    print("Original systems:",len(records))
 
 
 if __name__ == "__main__":
