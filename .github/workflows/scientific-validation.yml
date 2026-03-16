@@ -359,6 +359,9 @@ jobs:
       - name: Critical exponent estimation
         run: python analysis/critical_exponent_estimator.py
 
+      - name: Universality manifold test
+        run: python analysis/universality_manifold_test.py
+
       - name: Universal signature scanner
         run: python analysis/universal_signature_scanner.py
 
