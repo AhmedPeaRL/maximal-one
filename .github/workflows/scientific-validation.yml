@@ -335,6 +335,9 @@ jobs:
       - name: Universality clustering
         run: python analysis/universality_cluster.py
 
+      - name: Universality Map Builder
+        run: python analysis/universality_map_builder.py
+
       - name: Invariant Scanner
         run: python analysis/invariant_scanner.py
 
