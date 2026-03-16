@@ -368,6 +368,9 @@ jobs:
       - name: Universal invariant test
         run: python analysis/universal_invariant_test.py
 
+      - name: Null universe test
+        run: python analysis/null_universe_test.py
+
       - name: Surrogate chaos test
         run: python analysis/surrogate_test.py
 
