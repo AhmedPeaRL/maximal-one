@@ -1,14 +1,33 @@
 {
-  "timestamp": "2026-03-12T23:15:53.171267Z",
+  "timestamp": "2026-03-16T20:08:58.516367Z",
   "status": "run_completed",
   "files_present": [
     "invariants.json",
     "pip-freeze.txt",
+    "universal_signatures.json",
+    "dataset_health.json",
+    "universality_features.json",
+    "universal_invariants.json",
     "invariant_scan.json",
+    "surrogate_test.json",
+    "universality_features.csv",
     "*.json",
+    "universality_manifold.json",
+    "universal_relations.json",
     "dataset_registry.json",
+    "cross_system_corr.json",
     "dataset_manifest.json",
+    "invariant_stability_history.json",
     "environment.json",
-    "state.json"
+    "universality_clusters.json",
+    "universal_invariant_test.json",
+    "windowed_spectral.json",
+    "robust_universality_features.json",
+    "critical_exponents.json",
+    "state.json",
+    "universality_map.json",
+    "scaling_relations.json",
+    "invariant_field_report.json",
+    "null_universe_test.json"
   ]
 }
