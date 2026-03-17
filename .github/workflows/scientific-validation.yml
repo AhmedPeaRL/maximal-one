@@ -664,6 +664,11 @@ jobs:
       - name: Universality Debugger
         run: python analysis/universality_debugger.py
 
+      - name: Extract global signal
+        run: |
+          python analysis/signal_extractor.py > artifacts/global_signal.json
+          cat artifacts/global_signal.json
+
       - name: Universality Gate
         run: |
           python analysis/universality_gate.py > artifacts/universality_gate.json
@@ -698,11 +703,6 @@ jobs:
         run: |
           mkdir -p artifacts
           python analysis/nonlinear_phase_scan.py
-
-      - name: Extract global signal
-        run: |
-          python analysis/signal_extractor.py > artifacts/global_signal.json
-          cat artifacts/global_signal.json
 
       - name: Signal gate
         run: |
