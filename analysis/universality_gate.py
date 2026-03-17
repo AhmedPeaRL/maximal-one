@@ -14,9 +14,6 @@ def load_json(name):
 
 
 def normalize_to_dict(data):
-    """
-    نفس منطق feature_ranking
-    """
     if isinstance(data, dict):
         return data
 
@@ -41,7 +38,7 @@ def score_feature_stability():
     features = normalize_to_dict(raw)
 
     scores = []
-    for k, v in features.items():
+    for v in features.values():
         if isinstance(v, dict):
             var = v.get("variance", None)
             if var is None:
@@ -65,11 +62,14 @@ def cross_domain_consistency():
         return 0.0
 
     if isinstance(clusters, dict):
-    sizes = [len(v) for v in clusters.values() if isinstance(v, list)]
-elif isinstance(clusters, list):
-    sizes = [len(c) for c in clusters if isinstance(c, list)]
-else:
-    sizes = []
+        sizes = [len(v) for v in clusters.values() if isinstance(v, list)]
+
+    elif isinstance(clusters, list):
+        sizes = [len(c) for c in clusters if isinstance(c, list)]
+
+    else:
+        sizes = []
+
     if not sizes:
         return 0.0
 
@@ -85,9 +85,6 @@ def entropy_signal():
 
 
 def identity_coherence():
-    """
-    يقيس هل عندنا أسماء features حقيقية ولا مجرد feature_0,1,2
-    """
     raw = load_json("universality_features.json")
     if not raw:
         return 0.0
@@ -95,7 +92,6 @@ def identity_coherence():
     features = normalize_to_dict(raw)
 
     names = list(features.keys())
-
     meaningful = [n for n in names if not n.startswith("feature_")]
 
     if not names:
