@@ -4,13 +4,20 @@ import os
 ART="artifacts"
 
 def read(name):
-    path=os.path.join(ART,name)
-    if not os.path.exists(path):
-        return None
-    try:
-        return json.load(open(path))
-    except:
-        return None
+
+    paths = [
+        os.path.join("artifacts",name),
+        os.path.join("data",name)
+    ]
+
+    for p in paths:
+        if os.path.exists(p):
+            try:
+                return json.load(open(p))
+            except:
+                pass
+
+    return None
 
 
 lyap=read("lyapunov.json")
@@ -43,7 +50,7 @@ else:
 if scale is None:
     missing.append("scaling_collapse_engine.json")
 else:
-    err=scale.get("collapse_error")
+    err=scale.get("collapse_error") or scale.get("collapse_score")
     report["collapse_error"]=err
     if err is None or err>0.2:
         passed=False
