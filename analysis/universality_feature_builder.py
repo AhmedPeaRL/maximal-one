@@ -25,14 +25,11 @@ def spectral_alpha(x):
 
 
 def hurst(ts):
-
     if len(ts) < 50:
         return None
 
     lags = range(2, 20)
-
     tau = [np.std(ts[lag:] - ts[:-lag]) for lag in lags]
-
     tau = np.array(tau)
 
     if np.any(tau <= 0):
@@ -44,9 +41,7 @@ def hurst(ts):
 
 
 def entropy_rate(x, bins=50):
-
     hist, _ = np.histogram(x, bins=bins, density=True)
-
     hist = hist[hist > 0]
 
     if len(hist) == 0:
@@ -56,7 +51,6 @@ def entropy_rate(x, bins=50):
 
 
 def attractor_dimension(x, m=5):
-
     x = np.array(x)
 
     if len(x) < 300:
@@ -84,16 +78,13 @@ def attractor_dimension(x, m=5):
         emb = emb[idx]
 
     diff = emb[:, None, :] - emb[None, :, :]
-
     sq = (diff ** 2).sum(axis=-1)
-
     sq = sq[np.isfinite(sq)]
 
     if len(sq) < 10:
         return None
 
     dists = np.sqrt(sq)
-
     dists = dists[np.isfinite(dists)]
 
     if len(dists) < 10:
@@ -112,37 +103,18 @@ def attractor_dimension(x, m=5):
     return float(-np.log(C) / np.log(r + 1e-9))
 
 
-def safe_read_csv(path):
-
+def load_series(path):
     try:
-
-        if os.path.getsize(path) == 0:
-            return None
-
         df = pd.read_csv(path)
-
-        if df.empty:
-            return None
-
-        return df
-
-    except Exception:
+    except:
         return None
 
-
-def load_series(path):
-
-    df = safe_read_csv(path)
-
-    if df is None:
+    if df.empty:
         return None
 
     for col in df.columns:
-
         if np.issubdtype(df[col].dtype, np.number):
-
             series = df[col].dropna().values
-
             if len(series) > 100:
                 return series
 
@@ -166,22 +138,31 @@ if os.path.isdir(DATA_DIR):
             print("Skipping invalid dataset:", f)
             continue
 
+        dataset_name = f.replace(".csv", "")
+
         try:
+            alpha = spectral_alpha(ts)
+            ent = entropy_rate(ts)
+            h = hurst(ts)
+            dim = attractor_dimension(ts)
+
+            values = [v for v in [alpha, ent, h] if v is not None]
+
+            variance = float(np.var(values)) if values else None
 
             feat = {
-                "name": f"{dataset_name}_alpha_entropy_hurst",
+                "name": f"{dataset_name}_signature",
                 "dataset": dataset_name,
-                "spectral_alpha": spectral_alpha,
-                "entropy_rate": entropy_rate,
-                "hurst_exponent": hurst_exponent,
-                "attractor_dimension": attractor_dimension,
+                "spectral_alpha": alpha,
+                "entropy_rate": ent,
+                "hurst_exponent": h,
+                "attractor_dimension": dim,
                 "variance": variance
             }
 
             features.append(feat)
 
         except Exception as e:
-
             print("Feature extraction failed:", f, str(e))
 
 
@@ -190,10 +171,7 @@ os.makedirs("artifacts", exist_ok=True)
 with open("artifacts/universality_features.json", "w") as f:
     json.dump(features, f, indent=2)
 
-df = pd.DataFrame(features)
-
-df.to_csv("artifacts/universality_features.csv", index=False)
+pd.DataFrame(features).to_csv("artifacts/universality_features.csv", index=False)
 
 print("Datasets processed:", len(features))
-print("Features saved to artifacts/universality_features.json")
-print("Features saved to artifacts/universality_features.csv")
+print("Features saved.")
