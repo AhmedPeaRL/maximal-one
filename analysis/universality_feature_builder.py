@@ -169,11 +169,13 @@ if os.path.isdir(DATA_DIR):
         try:
 
             feat = {
-                "dataset": f,
-                "spectral_alpha": spectral_alpha(ts),
-                "entropy_rate": entropy_rate(ts),
-                "hurst_exponent": hurst(ts),
-                "attractor_dimension": attractor_dimension(ts)
+                "name": f"{dataset_name}_alpha_entropy_hurst",
+                "dataset": dataset_name,
+                "spectral_alpha": spectral_alpha,
+                "entropy_rate": entropy_rate,
+                "hurst_exponent": hurst_exponent,
+                "attractor_dimension": attractor_dimension,
+                "variance": variance
             }
 
             features.append(feat)
