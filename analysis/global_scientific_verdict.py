@@ -1,9 +1,8 @@
 import json
 import pathlib
+import math
 
 ART = pathlib.Path("artifacts")
-
-scores = []
 
 def load(name):
     p = ART / name
@@ -11,25 +10,46 @@ def load(name):
         return json.loads(p.read_text())
     return None
 
+def score_signal(d):
+    if not d:
+        return 0.0
+
+    base = 1.0 if d.get("hcm_superior", False) else 0.0
+
+    # soft confidence boost لو فيه structure
+    confidence = d.get("confidence", 0.5)
+    return base * confidence
+
 lorenz = load("lorenz.json")
 lorenz96 = load("lorenz96.json")
 bench = load("chaotic_benchmark.json")
 
-if lorenz:
-    scores.append(lorenz.get("hcm_superior",False))
+scores = [
+    score_signal(lorenz),
+    score_signal(lorenz96),
+    score_signal(bench)
+]
 
-if lorenz96:
-    scores.append(lorenz96.get("hcm_superior",False))
+scores = [s for s in scores if s is not None]
 
-if bench:
-    scores.append(bench.get("hcm_superior",False))
+total = sum(scores)
+n = len(scores)
+
+# continuous superiority بدل binary
+ratio = total / n if n > 0 else 0
 
 result = {
-    "tests_run": len(scores),
-    "positive": sum(scores),
-    "global_superiority": sum(scores) > len(scores)/2
+    "tests_run": n,
+    "score_sum": total,
+    "score_ratio": ratio,
+    "global_superiority": ratio > 0.55,   # بدل 0.5 hard cut
+    "confidence_level": (
+        "strong" if ratio > 0.75 else
+        "moderate" if ratio > 0.55 else
+        "weak"
+    )
 }
 
-(ART/"global_verdict.json").write_text(json.dumps(result,indent=2))
+(ART/"global_verdict.json").write_text(json.dumps(result, indent=2))
 
 print(result)
