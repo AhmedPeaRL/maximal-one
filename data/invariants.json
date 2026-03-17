@@ -7,7 +7,7 @@
   },
   {
     "dataset": "geomagnetic_kp_clean_clean.csv",
-    "spectral_alpha": -1.8112485973076473,
+    "spectral_alpha": -1.8165011912537807,
     "entropy": 0.9952817465607029,
     "dimension": 8.487840033823051
   },
@@ -115,9 +115,9 @@
   },
   {
     "dataset": "solar_wind_speed_clean.csv",
-    "spectral_alpha": -0.8907734265407217,
-    "entropy": 3.670902422418908,
-    "dimension": 13.260625556068229
+    "spectral_alpha": -0.8886264254626713,
+    "entropy": 3.671873327307002,
+    "dimension": 13.260772552353533
   },
   {
     "dataset": "co2_atmospheric_clean_clean.csv",
@@ -188,12 +188,12 @@
   {
     "dataset": "earthquake_magnitude.csv",
     "spectral_alpha": -2.140316820901664,
-    "entropy": 3.9000554363487527,
-    "dimension": 13.320941540334559
+    "entropy": 3.900035360653682,
+    "dimension": 13.320800548881639
   },
   {
     "dataset": "geomagnetic_kp.csv",
-    "spectral_alpha": -1.8112485973076473,
+    "spectral_alpha": -1.8165011912537807,
     "entropy": 0.9952817465607029,
     "dimension": 8.487840033823051
   },
@@ -206,8 +206,8 @@
   {
     "dataset": "earthquake_magnitude_clean_clean.csv",
     "spectral_alpha": -2.140316820901664,
-    "entropy": 3.9000554363487527,
-    "dimension": 13.320941540334559
+    "entropy": 3.900035360653682,
+    "dimension": 13.320800548881639
   },
   {
     "dataset": "solar_wind_speed_clean_clean.csv",
@@ -235,7 +235,7 @@
   },
   {
     "dataset": "geomagnetic_kp_clean.csv",
-    "spectral_alpha": -1.8112485973076473,
+    "spectral_alpha": -1.8165011912537807,
     "entropy": 0.9952817465607029,
     "dimension": 8.487840033823051
   },
@@ -277,14 +277,14 @@
   },
   {
     "dataset": "solar_wind_speed.csv",
-    "spectral_alpha": -0.8907734265407217,
-    "entropy": 3.670902422418908,
-    "dimension": 13.260625556068229
+    "spectral_alpha": -0.8886264254626713,
+    "entropy": 3.671873327307002,
+    "dimension": 13.260772552353533
   },
   {
     "dataset": "earthquake_magnitude_clean.csv",
     "spectral_alpha": -2.140316820901664,
-    "entropy": 3.9000554363487527,
-    "dimension": 13.320941540334559
+    "entropy": 3.900035360653682,
+    "dimension": 13.320800548881639
   }
 ]
