@@ -569,6 +569,21 @@ jobs:
       - name: Global Scientific Verdict
         run: python analysis/global_scientific_verdict.py
 
+      - name: Verdict Gate (Soft Scientific)
+        run: |
+          RESULT=$(cat artifacts/global_verdict.json)
+            echo "$RESULT"
+
+          PASS=$(echo "$RESULT" | python -c "
+          import sys,json
+          d=json.load(sys.stdin)
+          print('true' if d.get('score_ratio',0) > 0.55 else 'false')
+          ")
+
+          if [ "$PASS" != "true" ]; then
+            echo "Scientific signal not strong enough yet"
+          fi
+
       - name: Long run replication
         run: |
           mkdir -p artifacts
