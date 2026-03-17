@@ -1,8 +1,55 @@
 {
-  "samples": 109,
-  "mean_signal": -1.9967025293614239e-16,
-  "std": 0.9999999982998692,
-  "snr": 1.9967025307593769e-16,
-  "stability": 0.5000000004250327,
-  "passed": false
+  "features": [
+    {
+      "feature": "entropy_rate",
+      "samples": 86,
+      "mean": 3.398597190884079,
+      "std": 0.699432694706592,
+      "cv": 0.2058004097622548,
+      "stable": true
+    },
+    {
+      "feature": "alpha",
+      "samples": 94,
+      "mean": 1.0611430680117182,
+      "std": 0.6915997950942333,
+      "cv": 0.6517498113975769,
+      "stable": false
+    },
+    {
+      "feature": "hurst_exponent",
+      "samples": 86,
+      "mean": 0.4456069444947605,
+      "std": 0.5390656884009519,
+      "cv": 1.2097335866307548,
+      "stable": false
+    },
+    {
+      "feature": "spectral_alpha",
+      "samples": 323,
+      "mean": 0.8076933823704912,
+      "std": 2.688046234287644,
+      "cv": 3.3280528101771387,
+      "stable": false
+    },
+    {
+      "feature": "attractor_dimension",
+      "samples": 78,
+      "mean": -0.39814692994055506,
+      "std": 4.329388135985203,
+      "cv": 10.873845305695946,
+      "stable": false
+    }
+  ],
+  "stable_features": [
+    {
+      "feature": "entropy_rate",
+      "samples": 86,
+      "mean": 3.398597190884079,
+      "std": 0.699432694706592,
+      "cv": 0.2058004097622548,
+      "stable": true
+    }
+  ],
+  "passed": true
 }
