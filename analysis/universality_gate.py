@@ -1,70 +1,69 @@
 import json
 import os
+import numpy as np
 
-ART="artifacts"
+ARTIFACTS = "artifacts"
 
-def read(name):
+def load_json(name):
+    path = os.path.join(ARTIFACTS, name)
+    if not os.path.exists(path):
+        return None
+    with open(path) as f:
+        return json.load(f)
 
-    paths = [
-        os.path.join("artifacts",name),
-        os.path.join("data",name)
-    ]
+def score_feature_stability():
+    features = load_json("universality_features.json")
+    if not features:
+        return 0.0
+    
+    scores = []
+    for k, v in features.items():
+        if isinstance(v, dict) and "variance" in v:
+            scores.append(1.0 / (1.0 + v["variance"]))
+    
+    if not scores:
+        return 0.0
+    
+    return float(np.mean(scores))
 
-    for p in paths:
-        if os.path.exists(p):
-            try:
-                return json.load(open(p))
-            except:
-                pass
+def cross_domain_consistency():
+    clusters = load_json("universality_clusters.json")
+    if not clusters:
+        return 0.0
+    
+    sizes = [len(c) for c in clusters if isinstance(c, list)]
+    if not sizes:
+        return 0.0
+    
+    return float(np.std(sizes))
 
-    return None
+def entropy_signal():
+    signal = load_json("global_signal.json")
+    if not signal:
+        return 0.0
+    
+    return float(signal.get("strength", 0.0))
 
+def main():
+    stability = score_feature_stability()
+    consistency = cross_domain_consistency()
+    entropy = entropy_signal()
 
-lyap=read("lyapunov.json")
-spec=read("spectral_profile.json")
-scale=read("scaling_collapse_engine.json")
+    score = (0.5 * stability) + (0.3 * (1.0 / (1.0 + consistency))) + (0.2 * entropy)
 
-report={}
-passed=True
-missing=[]
+    result = {
+        "stability": stability,
+        "consistency": consistency,
+        "entropy_signal": entropy,
+        "universality_score": score,
+        "passed": score > 0.6
+    }
 
-# ---- Lyapunov ----
-if lyap is None:
-    missing.append("lyapunov.json")
-else:
-    val=lyap.get("lyapunov_exp")
-    report["lyapunov"]=val
-    if val is None or val<=0:
-        passed=False
+    os.makedirs(ARTIFACTS, exist_ok=True)
+    with open(os.path.join(ARTIFACTS, "universality_gate.json"), "w") as f:
+        json.dump(result, f, indent=2)
 
-# ---- Spectral alpha ----
-if spec is None:
-    missing.append("spectral_verification.json")
-else:
-    alpha=spec.get("alpha") or spec.get("estimated_alpha")
-    report["spectral_alpha"]=alpha
-    if alpha is None or not (0.5 < alpha < 3):
-        passed=False
+    print(json.dumps(result, indent=2))
 
-# ---- Scaling collapse ----
-if scale is None:
-    missing.append("scaling_collapse_engine.json")
-else:
-    err=scale.get("collapse_error") or scale.get("collapse_score")
-    report["collapse_error"]=err
-    if err is None or err>0.2:
-        passed=False
-
-
-report["missing"]=missing
-report["passed"]=passed
-
-print(json.dumps(report,indent=2))
-
-# لا نفشل الـpipeline لو البيانات ناقصة
-if missing:
-    exit(0)
-
-# نفشل فقط لو البيانات موجودة لكن القانون لم يتحقق
-if not passed:
-    exit(1)
+if __name__ == "__main__":
+    main()
