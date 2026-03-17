@@ -15,8 +15,7 @@ result = {
     "temporal_signal": False,
     "improvement": 0.0,
     "p_value": 1.0,
-    "significant": False,
-    "signal_strength": 0.0
+    "significant": False
 }
 
 if long_run:
@@ -26,12 +25,7 @@ if long_run:
     result["improvement"] = improvement
     result["p_value"] = p
 
-    # continuous signal بدل binary
-    if improvement > 0:
-        strength = improvement * (-1 if p <= 0 else (1.0 / (p + 1e-12)))
-        result["signal_strength"] = strength
-
-    # شرط صارم
+    # الشرط الحقيقي
     if improvement > 0.01 and p < 1e-5:
         result["temporal_signal"] = True
         result["significant"] = True
