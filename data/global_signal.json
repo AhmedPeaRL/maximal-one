@@ -1,5 +1,55 @@
 {
-  "strength": 0.0,
-  "passed": false,
-  "note": "low_diversity"
+  "features": [
+    {
+      "feature": "entropy_rate",
+      "samples": 86,
+      "mean": 3.3897932807593083,
+      "std": 0.7364475901216694,
+      "cv": 0.21725442494813485,
+      "stable": true
+    },
+    {
+      "feature": "alpha",
+      "samples": 54,
+      "mean": 1.2830321881964835,
+      "std": 0.8291815328843201,
+      "cv": 0.6462671317729031,
+      "stable": false
+    },
+    {
+      "feature": "hurst_exponent",
+      "samples": 86,
+      "mean": 0.4354317235038384,
+      "std": 0.5290457184476645,
+      "cv": 1.214991211424699,
+      "stable": false
+    },
+    {
+      "feature": "spectral_alpha",
+      "samples": 322,
+      "mean": 0.8093573629891948,
+      "std": 2.688957417846601,
+      "cv": 3.3223363837614994,
+      "stable": false
+    },
+    {
+      "feature": "attractor_dimension",
+      "samples": 78,
+      "mean": -0.3671166066302827,
+      "std": 4.216651307774896,
+      "cv": 11.48586367419645,
+      "stable": false
+    }
+  ],
+  "stable_features": [
+    {
+      "feature": "entropy_rate",
+      "samples": 86,
+      "mean": 3.3897932807593083,
+      "std": 0.7364475901216694,
+      "cv": 0.21725442494813485,
+      "stable": true
+    }
+  ],
+  "passed": true
 }
