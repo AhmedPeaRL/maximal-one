@@ -30,10 +30,11 @@ def extract_signal(features):
                 except:
                     vals.append(0.0)
 
-        if vals:
+        if len(vals) >= 2:
             vectors.append(vals)
 
-    if not vectors:
+    if len(vectors) < 2:
+        # مش كفاية لبناء covariance
         return 0.0
 
     X = np.array(vectors)
@@ -41,21 +42,27 @@ def extract_signal(features):
     # normalize
     X = (X - np.mean(X, axis=0)) / (np.std(X, axis=0) + 1e-8)
 
-    # covariance structure
-    cov = np.cov(X.T)
+    try:
+        cov = np.cov(X.T)
 
-    eigvals = np.linalg.eigvals(cov)
-    eigvals = np.real(eigvals)
+        # تأكيد إنها matrix
+        if cov.ndim < 2:
+            return 0.0
 
-    total = np.sum(eigvals)
+        eigvals = np.linalg.eigvals(cov)
+        eigvals = np.real(eigvals)
 
-    if total <= 0:
+        total = np.sum(eigvals)
+
+        if total <= 0:
+            return 0.0
+
+        signal = np.max(eigvals) / total
+
+        return float(signal)
+
+    except Exception:
         return 0.0
-
-    # signal strength = dominance of first mode
-    signal = np.max(eigvals) / total
-
-    return float(signal)
 
 
 def main():
@@ -73,7 +80,8 @@ def main():
 
         result = {
             "strength": strength,
-            "passed": strength > 0.25
+            "passed": strength > 0.25,
+            "note": "low_diversity" if strength == 0.0 else "ok"
         }
 
     os.makedirs(ARTIFACTS, exist_ok=True)
