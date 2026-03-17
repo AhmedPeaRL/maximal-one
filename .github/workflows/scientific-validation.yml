@@ -658,10 +658,24 @@ jobs:
           echo "=== ARTIFACTS ==="
           ls -lh artifacts || true
 
+      - name: Feature Ranking
+        run: python analysis/feature_ranking.py
+
       - name: Universality Gate
         run: |
           python analysis/universality_gate.py > artifacts/universality_gate.json
           cat artifacts/universality_gate.json
+
+          PASS=$(cat artifacts/universality_gate.json | python -c "
+          import sys,json
+          d=json.load(sys.stdin)
+          print('true' if d.get('passed',False) else 'false')
+          ")
+
+          if [ "$PASS" != "true" ]; then
+            echo "Universality condition NOT satisfied"
+            exit 1
+          fi
 
       - name: Topology preservation
         run: python analysis/topology_preservation_test.py
