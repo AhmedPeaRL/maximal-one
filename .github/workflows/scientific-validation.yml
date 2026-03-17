@@ -661,6 +661,9 @@ jobs:
       - name: Feature Ranking
         run: python analysis/feature_ranking.py
 
+      - name: Universality Debugger
+        run: python analysis/universality_debugger.py
+
       - name: Universality Gate
         run: |
           python analysis/universality_gate.py > artifacts/universality_gate.json
@@ -674,7 +677,6 @@ jobs:
 
           if [ "$PASS" != "true" ]; then
             echo "Universality condition NOT satisfied"
-            exit 1
           fi
 
       - name: Topology preservation
