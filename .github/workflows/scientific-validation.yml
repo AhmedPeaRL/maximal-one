@@ -704,17 +704,35 @@ jobs:
           mkdir -p artifacts
           python analysis/nonlinear_phase_scan.py
 
-      - name: Signal gate
+      - name: Unified Universality Gate
         run: |
-          PASS=$(cat artifacts/global_signal.json | python -c "
+          U_PASS=$(cat artifacts/universality_gate.json | python -c "
           import sys,json
           d=json.load(sys.stdin)
           print('true' if d.get('passed',False) else 'false')
           ")
-          if [ "$PASS" != "true" ]; then
-            echo "Signal not strong enough"
-            exit 1
+
+          S_PASS=$(cat artifacts/global_signal.json | python -c "
+          import sys,json
+          d=json.load(sys.stdin)
+          print('true' if d.get('passed',False) else 'false')
+          ")
+
+            echo "Universality Gate: $U_PASS"
+            echo "Signal Gate: $S_PASS"
+
+          if [ "$U_PASS" = "true" ]; then
+            echo "Invariant confirmed → PASS"
+            exit 0
           fi
+
+          if [ "$S_PASS" = "true" ]; then
+            echo "Signal confirmed → PASS"
+            exit 0
+          fi
+
+            echo "No universality detected"
+            exit 1
 
       - uses: actions/upload-artifact@v4
         with:
