@@ -566,6 +566,9 @@ jobs:
           mkdir -p artifacts
           python experiments/multi_seed_sweep.py
 
+      - name: Temporal Dominance Gate
+        run: python analysis/temporal_dominance_gate.py
+
       - name: Global Scientific Verdict
         run: python analysis/global_scientific_verdict.py
 
