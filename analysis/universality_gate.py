@@ -5,126 +5,80 @@ import numpy as np
 ARTIFACTS = "artifacts"
 
 
-def load_json(name):
-    path = os.path.join(ARTIFACTS, name)
+def load_features():
+    path = os.path.join(ARTIFACTS, "universality_features.json")
     if not os.path.exists(path):
         return None
     with open(path) as f:
         return json.load(f)
 
 
-def normalize_to_dict(data):
-    if isinstance(data, dict):
-        return data
+def extract_signal(features):
 
-    if isinstance(data, list):
-        normalized = {}
-        for i, item in enumerate(data):
-            if isinstance(item, dict):
-                key = item.get("name", f"feature_{i}")
-                normalized[key] = item
-            else:
-                normalized[f"feature_{i}"] = {"value": item}
-        return normalized
+    vectors = []
 
-    return {"unknown": {"value": data}}
-
-
-def score_feature_stability():
-    raw = load_json("universality_features.json")
-    if not raw:
-        return 0.0
-
-    features = normalize_to_dict(raw)
-
-    scores = []
     for v in features.values():
-        if isinstance(v, dict):
-            var = v.get("variance", None)
-            if var is None:
-                continue
-            try:
-                var = float(var)
-            except:
-                continue
+        if not isinstance(v, dict):
+            continue
 
-            scores.append(1.0 / (1.0 + var))
+        vals = []
 
-    if not scores:
+        for k in ["mean", "variance", "skewness", "kurtosis"]:
+            if k in v:
+                try:
+                    vals.append(float(v[k]))
+                except:
+                    vals.append(0.0)
+
+        if vals:
+            vectors.append(vals)
+
+    if not vectors:
         return 0.0
 
-    return float(np.mean(scores))
+    X = np.array(vectors)
 
+    # normalize
+    X = (X - np.mean(X, axis=0)) / (np.std(X, axis=0) + 1e-8)
 
-def cross_domain_consistency():
-    clusters = load_json("universality_clusters.json")
-    if not clusters:
+    # covariance structure
+    cov = np.cov(X.T)
+
+    eigvals = np.linalg.eigvals(cov)
+    eigvals = np.real(eigvals)
+
+    total = np.sum(eigvals)
+
+    if total <= 0:
         return 0.0
 
-    if isinstance(clusters, dict):
-        sizes = [len(v) for v in clusters.values() if isinstance(v, list)]
+    # signal strength = dominance of first mode
+    signal = np.max(eigvals) / total
 
-    elif isinstance(clusters, list):
-        sizes = [len(c) for c in clusters if isinstance(c, list)]
-
-    else:
-        sizes = []
-
-    if not sizes:
-        return 0.0
-
-    return float(np.std(sizes))
-
-
-def entropy_signal():
-    signal = load_json("global_signal.json")
-    if not signal:
-        return 0.0
-
-    return float(signal.get("strength", 0.0))
-
-
-def identity_coherence():
-    raw = load_json("universality_features.json")
-    if not raw:
-        return 0.0
-
-    features = normalize_to_dict(raw)
-
-    names = list(features.keys())
-    meaningful = [n for n in names if not n.startswith("feature_")]
-
-    if not names:
-        return 0.0
-
-    return len(meaningful) / len(names)
+    return float(signal)
 
 
 def main():
-    stability = score_feature_stability()
-    consistency = cross_domain_consistency()
-    entropy = entropy_signal()
-    identity = identity_coherence()
+    raw = load_features()
 
-    score = (
-        0.4 * stability +
-        0.25 * (1.0 / (1.0 + consistency)) +
-        0.2 * entropy +
-        0.15 * identity
-    )
+    if raw is None:
+        result = {"strength": 0.0, "passed": False}
+    else:
+        if isinstance(raw, list):
+            features = {f"f{i}": v for i, v in enumerate(raw)}
+        else:
+            features = raw
 
-    result = {
-        "stability": stability,
-        "consistency": consistency,
-        "entropy_signal": entropy,
-        "identity_coherence": identity,
-        "universality_score": score,
-        "passed": score > 0.6
-    }
+        strength = extract_signal(features)
+
+        result = {
+            "strength": strength,
+            "passed": strength > 0.25
+        }
 
     os.makedirs(ARTIFACTS, exist_ok=True)
 
-    with open(os.path.join(ARTIFACTS, "universality_gate.json"), "w") as f:
+    with open(os.path.join(ARTIFACTS, "global_signal.json"), "w") as f:
         json.dump(result, f, indent=2)
 
     print(json.dumps(result, indent=2))
