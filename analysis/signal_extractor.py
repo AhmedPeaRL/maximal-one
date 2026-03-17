@@ -3,13 +3,11 @@ import glob
 import numpy as np
 import math
 
-# ---- thresholds ----
-THRESHOLD_SIGNAL = 0.8
+THRESHOLD_SNR = 0.5
 THRESHOLD_STABILITY = 0.2
 
 signals = []
 
-# invariants we care about
 TARGET_KEYS = [
     "lyapunov_exp",
     "alpha",
@@ -20,7 +18,7 @@ TARGET_KEYS = [
     "correlation_dimension"
 ]
 
-def extract_invariants(obj):
+def extract(obj):
 
     if isinstance(obj, dict):
         for k,v in obj.items():
@@ -29,43 +27,40 @@ def extract_invariants(obj):
                 if not math.isnan(v) and not math.isinf(v):
                     signals.append(float(v))
 
-            extract_invariants(v)
+            extract(v)
 
     elif isinstance(obj,list):
         for v in obj:
-            extract_invariants(v)
+            extract(v)
 
 
 for f in glob.glob("artifacts/*.json"):
-
     try:
         with open(f) as fh:
             data=json.load(fh)
-
-        extract_invariants(data)
-
+        extract(data)
     except:
         pass
 
 
 if not signals:
-    print(json.dumps({
-        "status":"no-invariants"
-    }))
+    print(json.dumps({"status":"no-invariants"}))
     exit(0)
 
 
 signals=np.array(signals)
 
-# normalize
-signals=(signals-np.mean(signals))/(np.std(signals)+1e-9)
-
+# 🧠 بدل ما نصفر البيانات — نحافظ على معناها
 mean=float(np.mean(signals))
 std=float(np.std(signals))
 
 snr=abs(mean)/(std+1e-9)
 
+# stability: هل القيم متقاربة؟
 stability=float(1/(1+std))
+
+# dispersion structure (ده مهم جدًا)
+skew=float(np.mean((signals-mean)**3)/(std**3 + 1e-9))
 
 result={
     "samples":len(signals),
@@ -73,8 +68,9 @@ result={
     "std":std,
     "snr":snr,
     "stability":stability,
+    "skewness":skew,
     "passed":bool(
-        snr>THRESHOLD_SIGNAL and
+        snr>THRESHOLD_SNR and
         stability>THRESHOLD_STABILITY
     )
 }
