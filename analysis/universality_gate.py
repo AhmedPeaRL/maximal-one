@@ -66,7 +66,7 @@ def cross_domain_consistency():
 
     if isinstance(clusters, dict):
     sizes = [len(v) for v in clusters.values() if isinstance(v, list)]
-    if isinstance(clusters, list):
+elif isinstance(clusters, list):
     sizes = [len(c) for c in clusters if isinstance(c, list)]
 else:
     sizes = []
