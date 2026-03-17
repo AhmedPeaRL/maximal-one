@@ -566,6 +566,11 @@ jobs:
           mkdir -p artifacts
           python experiments/multi_seed_sweep.py
 
+      - name: Long run replication
+        run: |
+          mkdir -p artifacts
+          python experiments/long_run_sweep.py
+
       - name: Temporal Dominance Gate
         run: python analysis/temporal_dominance_gate.py
 
@@ -586,11 +591,6 @@ jobs:
           if [ "$PASS" != "true" ]; then
             echo "Scientific signal not strong enough yet"
           fi
-
-      - name: Long run replication
-        run: |
-          mkdir -p artifacts
-          python experiments/long_run_sweep.py
 
       - name: Verify statistical significance
         run: |
