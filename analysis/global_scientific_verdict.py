@@ -38,10 +38,17 @@ n = len(scores)
 temporal = load("temporal_dominance.json")
 
 temporal_boost = 0.0
-if temporal and temporal.get("temporal_signal"):
-    temporal_boost = 0.4   # boost تقيل لأنه أقوى دليل
 
-# continuous superiority بدل binary
+if temporal:
+    # soft contribution حتى لو مش passed
+    strength = temporal.get("signal_strength", 0.0)
+
+    if temporal.get("temporal_signal"):
+        temporal_boost = 0.4
+    else:
+        temporal_boost = min(0.2, strength * 0.01)  # boost ناعم
+        
+# continuous superiority
 ratio = (total / n if n > 0 else 0) + temporal_boost
 
 result = {
