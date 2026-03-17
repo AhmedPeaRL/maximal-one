@@ -2,20 +2,20 @@ import json
 import glob
 import numpy as np
 import math
+from collections import defaultdict
 
-THRESHOLD_SNR = 0.5
-THRESHOLD_STABILITY = 0.2
+THRESHOLD_CV = 0.3  # key threshold
 
-signals = []
+features = defaultdict(list)
 
 TARGET_KEYS = [
+    "entropy_rate",
+    "spectral_alpha",
+    "hurst_exponent",
+    "attractor_dimension",
     "lyapunov_exp",
     "alpha",
-    "estimated_alpha",
-    "collapse_score",
-    "collapse_error",
-    "hurst",
-    "correlation_dimension"
+    "estimated_alpha"
 ]
 
 def extract(obj):
@@ -25,7 +25,7 @@ def extract(obj):
 
             if k in TARGET_KEYS and isinstance(v,(int,float)):
                 if not math.isnan(v) and not math.isinf(v):
-                    signals.append(float(v))
+                    features[k].append(float(v))
 
             extract(v)
 
@@ -43,36 +43,39 @@ for f in glob.glob("artifacts/*.json"):
         pass
 
 
-if not signals:
-    print(json.dumps({"status":"no-invariants"}))
-    exit(0)
+results = []
+
+for k,vals in features.items():
+
+    if len(vals) < 5:
+        continue
+
+    vals = np.array(vals)
+
+    mean = float(np.mean(vals))
+    std = float(np.std(vals))
+
+    cv = std / (abs(mean) + 1e-9)
+
+    results.append({
+        "feature": k,
+        "samples": len(vals),
+        "mean": mean,
+        "std": std,
+        "cv": cv,
+        "stable": cv < THRESHOLD_CV
+    })
 
 
-signals=np.array(signals)
+# sort by stability
+results.sort(key=lambda x: x["cv"])
 
-# 🧠 بدل ما نصفر البيانات — نحافظ على معناها
-mean=float(np.mean(signals))
-std=float(np.std(signals))
+passed = any(r["stable"] for r in results)
 
-snr=abs(mean)/(std+1e-9)
-
-# stability: هل القيم متقاربة؟
-stability=float(1/(1+std))
-
-# dispersion structure (ده مهم جدًا)
-skew=float(np.mean((signals-mean)**3)/(std**3 + 1e-9))
-
-result={
-    "samples":len(signals),
-    "mean_signal":mean,
-    "std":std,
-    "snr":snr,
-    "stability":stability,
-    "skewness":skew,
-    "passed":bool(
-        snr>THRESHOLD_SNR and
-        stability>THRESHOLD_STABILITY
-    )
+output = {
+    "features": results,
+    "stable_features": [r for r in results if r["stable"]],
+    "passed": passed
 }
 
-print(json.dumps(result,indent=2))
+print(json.dumps(output, indent=2))
