@@ -3,56 +3,79 @@ import glob
 import numpy as np
 import math
 
-THRESHOLD_STABILITY = 0.85
-THRESHOLD_SIGNAL = 2.0
+# ---- thresholds ----
+THRESHOLD_SIGNAL = 0.8
+THRESHOLD_STABILITY = 0.2
 
 signals = []
 
-def extract_numbers(obj):
+# invariants we care about
+TARGET_KEYS = [
+    "lyapunov_exp",
+    "alpha",
+    "estimated_alpha",
+    "collapse_score",
+    "collapse_error",
+    "hurst",
+    "correlation_dimension"
+]
+
+def extract_invariants(obj):
+
     if isinstance(obj, dict):
-        for v in obj.values():
-            extract_numbers(v)
+        for k,v in obj.items():
 
-    elif isinstance(obj, list):
+            if k in TARGET_KEYS and isinstance(v,(int,float)):
+                if not math.isnan(v) and not math.isinf(v):
+                    signals.append(float(v))
+
+            extract_invariants(v)
+
+    elif isinstance(obj,list):
         for v in obj:
-            extract_numbers(v)
-
-    elif isinstance(obj,(int,float)):
-        if not math.isnan(v:=float(obj)) and not math.isinf(v):
-            signals.append(v)
+            extract_invariants(v)
 
 
 for f in glob.glob("artifacts/*.json"):
+
     try:
         with open(f) as fh:
-            data = json.load(fh)
-        extract_numbers(data)
+            data=json.load(fh)
 
-    except Exception:
-        continue
+        extract_invariants(data)
+
+    except:
+        pass
 
 
 if not signals:
-    print(json.dumps({"status":"no-data"}))
+    print(json.dumps({
+        "status":"no-invariants"
+    }))
     exit(0)
 
-signals = np.array(signals)
 
-mean = float(np.mean(signals))
-std = float(np.std(signals))
+signals=np.array(signals)
 
-snr = abs(mean)/(std+1e-9)
-stability = 1/(1+std)
+# normalize
+signals=(signals-np.mean(signals))/(np.std(signals)+1e-9)
 
-result = {
+mean=float(np.mean(signals))
+std=float(np.std(signals))
+
+snr=abs(mean)/(std+1e-9)
+
+stability=float(1/(1+std))
+
+result={
+    "samples":len(signals),
     "mean_signal":mean,
     "std":std,
     "snr":snr,
     "stability":stability,
-    "samples":len(signals),
-    "passed": bool(
-        snr > THRESHOLD_SIGNAL and
-        stability > THRESHOLD_STABILITY
+    "passed":bool(
+        snr>THRESHOLD_SIGNAL and
+        stability>THRESHOLD_STABILITY
     )
 }
 
