@@ -35,8 +35,14 @@ scores = [s for s in scores if s is not None]
 total = sum(scores)
 n = len(scores)
 
+temporal = load("temporal_dominance.json")
+
+temporal_boost = 0.0
+if temporal and temporal.get("temporal_signal"):
+    temporal_boost = 0.4   # boost تقيل لأنه أقوى دليل
+
 # continuous superiority بدل binary
-ratio = total / n if n > 0 else 0
+ratio = (total / n if n > 0 else 0) + temporal_boost
 
 result = {
     "tests_run": n,
