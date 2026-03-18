@@ -7,7 +7,7 @@
   },
   {
     "dataset": "geomagnetic_kp_clean_clean.csv",
-    "spectral_alpha": -1.7347645651373944,
+    "spectral_alpha": -1.7345117699795307,
     "entropy": 0.6075143438622708,
     "dimension": 8.483815777264256
   },
@@ -115,8 +115,8 @@
   },
   {
     "dataset": "solar_wind_speed_clean.csv",
-    "spectral_alpha": -0.8824422721736523,
-    "entropy": 3.6628910892973896,
+    "spectral_alpha": -0.8856183429604275,
+    "entropy": 3.6615407703517047,
     "dimension": 13.259596162488423
   },
   {
@@ -187,13 +187,13 @@
   },
   {
     "dataset": "earthquake_magnitude.csv",
-    "spectral_alpha": -2.1386176154288874,
-    "entropy": 3.9006747146843797,
+    "spectral_alpha": -2.139752804286971,
+    "entropy": 3.9010057704177012,
     "dimension": 13.339710847346453
   },
   {
     "dataset": "geomagnetic_kp.csv",
-    "spectral_alpha": -1.7347645651373944,
+    "spectral_alpha": -1.7345117699795307,
     "entropy": 0.6075143438622708,
     "dimension": 8.483815777264256
   },
@@ -205,8 +205,8 @@
   },
   {
     "dataset": "earthquake_magnitude_clean_clean.csv",
-    "spectral_alpha": -2.1386176154288874,
-    "entropy": 3.9006747146843797,
+    "spectral_alpha": -2.139752804286971,
+    "entropy": 3.9010057704177012,
     "dimension": 13.339710847346453
   },
   {
@@ -235,7 +235,7 @@
   },
   {
     "dataset": "geomagnetic_kp_clean.csv",
-    "spectral_alpha": -1.7347645651373944,
+    "spectral_alpha": -1.7345117699795307,
     "entropy": 0.6075143438622708,
     "dimension": 8.483815777264256
   },
@@ -277,14 +277,14 @@
   },
   {
     "dataset": "solar_wind_speed.csv",
-    "spectral_alpha": -0.8824422721736523,
-    "entropy": 3.6628910892973896,
+    "spectral_alpha": -0.8856183429604275,
+    "entropy": 3.6615407703517047,
     "dimension": 13.259596162488423
   },
   {
     "dataset": "earthquake_magnitude_clean.csv",
-    "spectral_alpha": -2.1386176154288874,
-    "entropy": 3.9006747146843797,
+    "spectral_alpha": -2.139752804286971,
+    "entropy": 3.9010057704177012,
     "dimension": 13.339710847346453
   }
 ]
