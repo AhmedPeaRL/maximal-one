@@ -596,6 +596,9 @@ jobs:
 
       - name: Cross Invariant Consistency
         run: python analysis/cross_invariant_consistency.py
+
+      - name: Build Invariant Field
+        run: python analysis/invariant_field_builder.py
           
       - name: Predictive Gain Gate
         run: |
