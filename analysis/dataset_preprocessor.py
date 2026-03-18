@@ -1,33 +1,44 @@
 import pandas as pd
-import numpy as np
 import sys
-from pathlib import Path
+import os
 
-def prepare_dataset(path):
-    df = pd.read_csv(path)
-    
-    for col in df.columns:
-       df[col] = pd.to_numeric(df[col], errors="coerce")
-    
-    df = df.dropna()
+def run(file_path):
 
-    # keep numeric columns only
-    df = df.select_dtypes(include=[np.number])
+    df = pd.read_csv(file_path)
 
-    if df.shape[1] == 0:
-        raise ValueError("No numeric columns found")
+    print("==== RAW DATA PREVIEW ====")
+    print(df.head())
+    print("Columns:", df.columns.tolist())
+    print("Shape:", df.shape)
 
-    # take first numeric column
-    series = df.iloc[:,0].dropna()
+    # 🧠 اختار أول column رقمي فعلاً
+    numeric_cols = df.select_dtypes(include=['number']).columns
 
-    # normalize
-    series = (series - series.mean()) / series.std()
+    if len(numeric_cols) == 0:
+        print("No numeric columns found — FAIL")
+        sys.exit(1)
 
-    out = Path(path).with_name(Path(path).stem + "_prepared.csv")
+    col = numeric_cols[0]
 
-    series.to_csv(out, index=False)
+    print(f"Using column: {col}")
 
-    print("prepared dataset:", out)
+    series = df[col].dropna()
+
+    print("After dropna:", len(series))
+
+    if len(series) < 200:
+        print("Too few data points after cleaning — FAIL")
+        sys.exit(1)
+
+    # normalize (optional but safe)
+    series = (series - series.mean()) / (series.std() + 1e-8)
+
+    out_path = file_path.replace(".csv", "_prepared.csv")
+
+    series.to_csv(out_path, index=False, header=["value"])
+
+    print(f"Prepared dataset saved: {out_path}")
+    print("Final length:", len(series))
 
 if __name__ == "__main__":
-    prepare_dataset(sys.argv[1])
+    run(sys.argv[1])
