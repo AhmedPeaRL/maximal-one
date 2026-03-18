@@ -315,6 +315,12 @@ jobs:
             exit 1
           fi
 
+            echo "==== VERIFY DATA CONTENT ===="
+
+            wc -l real-data/sunspots_global_prepared.csv
+
+            head real-data/sunspots_global_prepared.csv
+
             echo "==== DATASET AFTER PREP ===="
             ls -lh real-data || true
 
