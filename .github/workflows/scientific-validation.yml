@@ -590,6 +590,9 @@ jobs:
 
       - name: Multi-System Temporal Test
         run: python analysis/multi_system_temporal_test.py
+
+      - name: Advanced Temporal Structure Test
+        run: python analysis/advanced_temporal_test.py
           
       - name: Predictive Gain Gate
         run: |
