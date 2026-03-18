@@ -578,6 +578,9 @@ jobs:
 
       - name: Real Temporal Dominance
         run: python analysis/real_temporal_dominance.py
+
+      - name: Multi-System Temporal Test
+        run: python analysis/multi_system_temporal_test.py
           
       - name: Predictive Gain Gate
         run: |
