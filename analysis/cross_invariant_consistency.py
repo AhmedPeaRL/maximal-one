@@ -12,11 +12,7 @@ def load(name):
 
 # ===== load invariants =====
 
-files = [
-    "invariant_history.json",
-    "universal_invariants.json",
-    "scaling_law_test.json"
-]
+files = list(pathlib.Path("artifacts").glob("*.json"))
 
 vectors = []
 
