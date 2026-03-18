@@ -298,10 +298,32 @@ jobs:
         run: |
           python analysis/global_chaos_fetcher.py
           python analysis/extended_chaos_fetcher.py
-          python analysis/dataset_preprocessor.py real-data/sunspots_global.csv
+            
+            echo "==== CHECK SUNSPOTS RAW ===="
 
-      - name: Generate chaotic dataset if missing
-        run: python analysis/generate_real_dataset.py
+          if [ ! -f real-data/sunspots_global.csv ]; then
+            echo "Sunspots raw dataset missing — forcing generation..."
+
+            python analysis/generate_real_dataset.py
+          fi
+
+          if [ -f real-data/sunspots_global.csv ]; then
+            echo "Preparing sunspots dataset..."
+            python analysis/dataset_preprocessor.py real-data/sunspots_global.csv
+          else
+            echo "FAILED: sunspots dataset still missing"
+            exit 1
+          fi
+
+            echo "==== DATASET AFTER PREP ===="
+            ls -lh real-data || true
+
+            echo "==== VERIFY PREPARED FILE ===="
+
+            if [ ! -f real-data/sunspots_global_prepared.csv ]; then
+              echo "Prepared dataset missing after preprocessing"
+              exit 1
+            fi
 
       - name: Download real chaotic datasets
         run: |
@@ -533,12 +555,16 @@ jobs:
         run: |
           mkdir -p artifacts
 
+          echo "==== CHECK BEFORE PREDICTIVE ===="
+
+          ls -lh real-data || true
+
           if [ -f real-data/sunspots_global_prepared.csv ]; then
             echo "Running predictive deviation test..."
             python analysis/real_world_predictive_test.py real-data/sunspots_global_prepared.csv
           else
-            echo "Sunspots dataset missing — skipping predictive test"
-            echo '{"predictive_test":"skipped"}' > artifacts/predictive_test.json
+            echo "Sunspots dataset missing — HARD FAIL"
+            exit 1
           fi
 
       - name: Build real temporal series
