@@ -53,15 +53,52 @@ def run(file_path):
         print("dataset too small")
         sys.exit(0)
 
-    mse_persist = rolling_test(series, persistence_model)
-    mse_ar = rolling_test(series, ar1_forecast)
-    mse_hcm = rolling_test(series, hcm_forecast)
+    split = int(len(series)*0.7)
+
+    train = list(series[:split])
+    test = series[split:]
+
+    history = train.copy()
+
+    preds_p = []
+    preds_ar = []
+    preds_hcm = []
+    residuals = []
+
+    for t in range(len(test)):
+
+        p = persistence_model(history)
+        ar = ar1_forecast(history)
+        hcm = hcm_forecast(history)
+
+        real = test[t]
+
+        preds_p.append(p)
+        preds_ar.append(ar)
+        preds_hcm.append(hcm)
+
+        # 🔥 أهم حاجة: residual
+        residuals.append(real - hcm)
+
+        history.append(real)
+
+    mse_persist = mean_squared_error(test, preds_p)
+    mse_ar = mean_squared_error(test, preds_ar)
+    mse_hcm = mean_squared_error(test, preds_hcm)
 
     result = {
         "persistence_mse": float(mse_persist),
         "ar1_mse": float(mse_ar),
-        "hcm_mse": float(mse_hcm)
+        "hcm_mse": float(mse_hcm),
+        "residuals": residuals
     }
+
+    import pathlib
+    
+    pathlib.Path("artifacts").mkdir(exist_ok=True)
+
+    with open("artifacts/predictive_test.json","w") as f:
+        json.dump(result,f,indent=2)
 
     print(json.dumps(result,indent=2))
 
