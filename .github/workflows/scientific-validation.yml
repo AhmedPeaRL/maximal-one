@@ -599,6 +599,9 @@ jobs:
 
       - name: Build Invariant Field
         run: python analysis/invariant_field_builder.py
+
+      - name: Invariant Geometry Test
+        run: python analysis/invariant_geometry.py
           
       - name: Predictive Gain Gate
         run: |
