@@ -602,6 +602,9 @@ jobs:
 
       - name: Invariant Geometry Test
         run: python analysis/invariant_geometry.py
+
+      - name: Invariant Embedding Test
+        run: python analysis/invariant_embedding.py
           
       - name: Predictive Gain Gate
         run: |
