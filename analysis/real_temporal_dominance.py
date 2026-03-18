@@ -11,7 +11,6 @@ def load_series(name):
         return np.array(json.loads(p.read_text()))
     return None
 
-# نحاول نستخدم بيانات حقيقية من pipeline
 real = load_series("real_series.json")
 model = load_series("model_series.json")
 
@@ -23,21 +22,36 @@ result = {
 }
 
 if real is not None and model is not None:
+
     n = min(len(real), len(model))
-    real = real[:n]
-    model = model[:n]
 
-    diff = real - model
+    if n < 50:
+        print("Too few samples — skipping temporal dominance")
+    else:
+        real = real[:n]
+        model = model[:n]
 
-    improvement = float(np.mean(diff))
-    t, p = stats.ttest_1samp(diff, 0)
+        diff = real - model
 
-    result.update({
-        "real_temporal_signal": improvement > 0 and p < 1e-5,
-        "improvement": improvement,
-        "p_value": float(p),
-        "n": n
-    })
+        improvement = float(np.mean(diff))
+
+        try:
+            t, p = stats.ttest_1samp(diff, 0)
+        except Exception as e:
+            print("Stat test failed:", e)
+            t, p = 0.0, 1.0
+
+        result.update({
+            "real_temporal_signal": bool(improvement > 0 and p < 1e-5),
+            "improvement": float(improvement),
+            "p_value": float(p),
+            "n": int(n)
+        })
+
+# 🔒 enforce JSON-safe types بالكامل
+result = json.loads(json.dumps(result))
 
 (ART / "real_temporal.json").write_text(json.dumps(result, indent=2))
-print(result)
+
+print("==== REAL TEMPORAL RESULT ====")
+print(json.dumps(result, indent=2))
