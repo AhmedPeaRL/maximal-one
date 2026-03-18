@@ -12,9 +12,10 @@ def load_series(name):
     return None
 
 systems = {
-    "sunspots": ("real_series.json", "model_series.json"),
-    "lorenz": ("lorenz_real.json", "lorenz_model.json"),
-    "ecology": ("eco_real.json", "eco_model.json"),
+    "sunspots": ("sunspots_real.json", "sunspots_model.json"),
+    "climate": ("climate_real.json", "climate_model.json"),
+    "internet": ("internet_real.json", "internet_model.json"),
+    "eeg": ("eeg_real.json", "eeg_model.json"),
 }
 
 results = {}
