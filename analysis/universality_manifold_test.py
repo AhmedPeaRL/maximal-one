@@ -8,6 +8,13 @@ DATA_DIR = "real-data"
 OUT = "artifacts/universality_manifold.json"
 
 
+EPS = 1e-12
+
+
+def safe_log(x):
+    return np.log(np.clip(x, EPS, None))
+
+
 def spectral_alpha(x):
 
     x = x - np.mean(x)
@@ -22,8 +29,14 @@ def spectral_alpha(x):
     freqs = freqs[mask]
     psd = psd[mask]
 
-    logf = np.log(freqs)
-    logp = np.log(psd)
+    if len(freqs) < 10:
+        return np.nan
+
+    logf = safe_log(freqs)
+    logp = safe_log(psd)
+
+    if np.any(~np.isfinite(logf)) or np.any(~np.isfinite(logp)):
+        return np.nan
 
     slope = np.polyfit(logf, logp, 1)[0]
 
@@ -34,36 +47,42 @@ def hurst(x):
 
     N = len(x)
 
-    T = np.arange(1, N+1)
+    if N < 50:
+        return np.nan
 
     Y = np.cumsum(x - np.mean(x))
 
-    R = np.maximum.accumulate(Y) - np.minimum.accumulate(Y)
+    R = np.max(Y) - np.min(Y)
 
     S = np.std(x)
 
-    if S == 0:
+    if S < EPS or R < EPS:
         return np.nan
 
-    return np.log(R[-1]/S) / np.log(N)
+    return np.log(R / S) / np.log(N)
 
 
 def entropy(x, bins=50):
 
-    hist,_ = np.histogram(x, bins=bins, density=True)
+    hist, _ = np.histogram(x, bins=bins, density=True)
 
-    hist = hist[hist>0]
+    hist = hist[hist > 0]
 
-    return -np.sum(hist*np.log(hist))
+    if len(hist) < 5:
+        return np.nan
+
+    return -np.sum(hist * np.log(hist))
 
 
 def features(series):
 
-    return [
+    f = [
         spectral_alpha(series),
         hurst(series),
         entropy(series)
     ]
+
+    return np.array(f, dtype=float)
 
 
 def run():
@@ -74,7 +93,6 @@ def run():
     for f in Path(DATA_DIR).glob("*.csv"):
 
         try:
-
             df = pd.read_csv(f)
 
             col = df.columns[0]
@@ -84,13 +102,34 @@ def run():
             if len(x) < 300:
                 continue
 
-            X.append(features(x))
+            feat = features(x)
+
+            if np.any(~np.isfinite(feat)):
+                continue
+
+            X.append(feat)
             names.append(f.name)
 
         except Exception:
-            pass
+            continue
+
+    if len(X) < 3:
+        result = {
+            "error": "not enough valid systems",
+            "n_valid": len(X)
+        }
+
+        Path("artifacts").mkdir(exist_ok=True)
+        with open(OUT, "w") as f:
+            json.dump(result, f, indent=2)
+
+        print(result)
+        return
 
     X = np.array(X)
+
+    # normalization (مهم جدًا)
+    X = (X - np.mean(X, axis=0)) / (np.std(X, axis=0) + EPS)
 
     pca = PCA(n_components=2)
 
@@ -99,15 +138,16 @@ def run():
     result = {
         "systems": names,
         "explained_variance": pca.explained_variance_ratio_.tolist(),
-        "coordinates": coords.tolist()
+        "coordinates": coords.tolist(),
+        "n_systems": len(names)
     }
 
     Path("artifacts").mkdir(exist_ok=True)
 
-    with open(OUT,"w") as f:
-        json.dump(result,f,indent=2)
+    with open(OUT, "w") as f:
+        json.dump(result, f, indent=2)
 
-    print(json.dumps(result,indent=2))
+    print(json.dumps(result, indent=2))
 
 
 if __name__ == "__main__":
