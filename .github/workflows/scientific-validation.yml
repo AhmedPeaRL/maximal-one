@@ -540,6 +540,12 @@ jobs:
             echo "Sunspots dataset missing — skipping predictive test"
             echo '{"predictive_test":"skipped"}' > artifacts/predictive_test.json
           fi
+
+      - name: Build real temporal series
+        run: python analysis/build_real_series.py
+
+      - name: Real Temporal Dominance
+        run: python analysis/real_temporal_dominance.py
           
       - name: Predictive Gain Gate
         run: |
