@@ -576,6 +576,12 @@ jobs:
       - name: Build real temporal series
         run: python analysis/build_real_series.py
 
+      - name: Build Lorenz temporal series
+        run: python analysis/build_lorenz_series.py
+
+      - name: Build Ecology temporal series
+        run: python analysis/build_ecology_series.py
+
       - name: Real Temporal Dominance
         run: python analysis/real_temporal_dominance.py
 
