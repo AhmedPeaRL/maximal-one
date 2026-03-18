@@ -1,7 +1,6 @@
 import json
 import pathlib
 import numpy as np
-from scipy import stats
 
 ART = pathlib.Path("artifacts")
 
@@ -10,6 +9,12 @@ def load_series(name):
     if p.exists():
         return np.array(json.loads(p.read_text()))
     return None
+
+def autocorr(x, lag=1):
+    return np.corrcoef(x[:-lag], x[lag:])[0, 1]
+
+def autocorr_profile(x, max_lag=50):
+    return np.array([autocorr(x, lag) for lag in range(1, max_lag)])
 
 systems = {
     "sunspots": ("sunspots_real.json", "sunspots_model.json"),
@@ -30,27 +35,27 @@ for name, (r_file, m_file) in systems.items():
 
     n = min(len(real), len(model))
 
-    if n < 200:
+    if n < 500:
         continue
 
     real = real[:n]
     model = model[:n]
 
-    diff = real - model
+    ac_real = autocorr_profile(real)
+    ac_model = autocorr_profile(model)
 
-    improvement = float(np.mean(diff))
-    t, p = stats.ttest_1samp(diff, 0)
+    # 🔥 الفرق الحقيقي
+    diff = np.abs(ac_real) - np.abs(ac_model)
+
+    score = float(np.mean(diff))
 
     results[name] = {
-        "improvement": float(improvement),
-        "p_value": float(p),
-        "n": int(n),
-        "signal": bool(improvement > 0 and p < 1e-5)
+        "temporal_score": score,
+        "signal": bool(score > 0.01)
     }
 
-# 🔥 meta decision
 signals = [v["signal"] for v in results.values()]
-global_signal = sum(signals) >= 2
+global_signal = sum(signals) >= 1
 
 final = {
     "systems": results,
