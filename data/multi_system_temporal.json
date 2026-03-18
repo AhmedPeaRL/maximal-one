@@ -1,0 +1,24 @@
+{
+  "systems": {
+    "sunspots": {
+      "improvement": 0.020229612968388443,
+      "p_value": 0.0,
+      "n": 22809,
+      "signal": true
+    },
+    "lorenz": {
+      "improvement": 0.0,
+      "p_value": 1.0,
+      "n": 5000,
+      "signal": false
+    },
+    "ecology": {
+      "improvement": 0.0,
+      "p_value": 1.0,
+      "n": 5000,
+      "signal": false
+    }
+  },
+  "global_signal": false,
+  "num_systems": 3
+}
