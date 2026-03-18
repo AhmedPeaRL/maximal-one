@@ -576,6 +576,9 @@ jobs:
       - name: Build real temporal series
         run: python analysis/build_real_series.py
 
+      - name: Build Real Multi-System Series
+        run: python analysis/build_real_multisystem_series.py
+
       - name: Build Lorenz temporal series
         run: python analysis/build_lorenz_series.py
 
