@@ -57,13 +57,13 @@
     },
     {
       "dataset": "real-data/earthquake_magnitude.csv",
-      "alpha": 0.11369228966076987,
-      "r2": 0.0077079916876783465
+      "alpha": 0.10821223741513887,
+      "r2": 0.006771609482601223
     },
     {
       "dataset": "real-data/earthquake_magnitude_clean_clean.csv",
-      "alpha": 0.11369228966076987,
-      "r2": 0.0077079916876783465
+      "alpha": 0.10821223741513887,
+      "r2": 0.006771609482601223
     },
     {
       "dataset": "real-data/sunspots_global.csv",
@@ -77,16 +77,16 @@
     },
     {
       "dataset": "real-data/solar_wind_speed.csv",
-      "alpha": 0.9205617853067161,
-      "r2": 0.339532959568842
+      "alpha": 0.9154190534855983,
+      "r2": 0.32935568001100946
     },
     {
       "dataset": "real-data/earthquake_magnitude_clean.csv",
-      "alpha": 0.11369228966076987,
-      "r2": 0.0077079916876783465
+      "alpha": 0.10821223741513887,
+      "r2": 0.006771609482601223
     }
   ],
-  "mean_alpha": 1.3364378992095942,
-  "std_alpha": 0.8888664339070148,
+  "mean_alpha": 1.3351683175297115,
+  "std_alpha": 0.8903400213504076,
   "n_systems": 17
 }
