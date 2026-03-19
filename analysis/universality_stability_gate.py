@@ -1,5 +1,6 @@
 import json
 import os
+import math
 
 # ⚠️ IMPORTANT: persistent history inside repo
 HISTORY_FILE = "data/universality_history.json"
@@ -43,10 +44,16 @@ def main():
 
     save_json(HISTORY_FILE, history)
 
-    # حساب الاستقرار الحقيقي
-    stable_runs = sum(1 for x in history if x > 0.75)
+    # ✅ snapshot للartifact علشان يتـcommit
+    save_json("artifacts/universality_history.json", history)
 
-    passed = stable_runs >= 5
+    # حساب الاستقرار الحقيقي
+    weights = [math.exp(-0.3*i) for i in range(len(history))]
+    weights.reverse()
+
+    score = sum(w for w, x in zip(weights, history) if x > 0.75)
+
+    passed = score > 3.5
 
     result = {
         "stable_runs": stable_runs,
