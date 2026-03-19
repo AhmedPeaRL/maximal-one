@@ -56,29 +56,63 @@ for file in ART.glob("*.json"):
 
 vectors = np.array(vectors)
 
+# =============================
+# CORE LOGIC
+# =============================
+
 if len(vectors) < 3:
     result = {
         "status": "not_enough_data",
-        "num_vectors": len(vectors)
+        "num_vectors": int(len(vectors))
     }
+
 else:
-    # normalize
-    mean = np.mean(vectors, axis=0)
-    std = np.std(vectors, axis=0) + 1e-9
-    vectors = (vectors - mean) / std
+    # check variance BEFORE normalization
+    raw_std = np.std(vectors, axis=0)
 
-    # covariance spectrum
-    cov = np.cov(vectors.T)
-    eigvals = np.linalg.eigvalsh(cov)
-    eigvals = np.flip(np.sort(eigvals))
+    if np.all(raw_std < 1e-12):
+        result = {
+            "status": "degenerate_input",
+            "num_vectors": int(len(vectors)),
+            "message": "All feature vectors are nearly identical → no structure possible",
+            "low_dimensional_structure": False
+        }
 
-    explained = eigvals / np.sum(eigvals)
+    else:
+        # normalize safely
+        std = raw_std + 1e-9
+        mean = np.mean(vectors, axis=0)
+        vectors = (vectors - mean) / std
 
-    result = {
-        "num_vectors": int(len(vectors)),
-        "explained_variance": explained[:5].tolist(),
-        "low_dimensional_structure": float(np.sum(explained[:2])) > 0.75
-    }
+        cov = np.cov(vectors.T)
+
+        eigvals = np.linalg.eigvalsh(cov)
+        eigvals = np.flip(np.sort(eigvals))
+
+        total = np.sum(eigvals)
+
+        if total < 1e-12:
+            result = {
+                "status": "zero_spectrum",
+                "num_vectors": int(len(vectors)),
+                "message": "Covariance spectrum collapsed → no variance in system",
+                "low_dimensional_structure": False
+            }
+
+        else:
+            explained = eigvals / total
+
+            result = {
+                "status": "ok",
+                "num_vectors": int(len(vectors)),
+                "explained_variance": explained[:5].tolist(),
+                "low_dimensional_structure": float(np.sum(explained[:2])) > 0.75,
+                "spectrum_energy": float(total)
+            }
+
+# =============================
+# SAVE
+# =============================
 
 (ART / "invariant_embedding.json").write_text(
     json.dumps(result, indent=2)
