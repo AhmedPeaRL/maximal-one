@@ -365,6 +365,9 @@ jobs:
       - name: Build universality features
         run: python analysis/universality_feature_builder.py
 
+      - name: Amplify universality signal
+        run: python analysis/universality_signal_amplifier.py
+
       - name: Universality clustering
         run: python analysis/universality_cluster.py
 
