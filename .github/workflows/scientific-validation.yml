@@ -872,7 +872,17 @@ jobs:
 
           mkdir -p data
 
+          # copy ALL artifacts
           find artifacts -type f -name "*.json" -exec cp {} data/ \;
+
+          # ✅ ensure history persists
+          if [ -f data/universality_history.json ]; then
+            echo "History exists"
+          else
+            echo "Initializing history"
+            echo "[]" > data/universality_history.json
+          fi
+         
           find artifacts -type f -name "*.txt" -exec cp {} data/ \;
 
           git add data/
