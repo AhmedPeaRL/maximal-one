@@ -1,21 +1,21 @@
 {
   "co2.csv": {
-    "spectral_alpha": 4.709783600275183,
+    "spectral_alpha": 4.709783600275181,
     "entropy": 3.9116309510462997,
     "dimension_proxy": 3.111224160030455e-09
   },
   "geomagnetic_kp_clean_clean.csv": {
-    "spectral_alpha": 1.8195876672108067,
-    "entropy": 0.6235411286158388,
-    "dimension_proxy": 0.16854003266962536
+    "spectral_alpha": 1.8056762471597896,
+    "entropy": 0.5975367497225388,
+    "dimension_proxy": 0.05499430164198183
   },
   "co2_atmospheric_clean.csv": {
-    "spectral_alpha": 1.6657078281698752,
+    "spectral_alpha": 1.6657078281698747,
     "entropy": 3.8342356960918873,
     "dimension_proxy": 0.0014002002515075963
   },
   "sunspots_global_clean_clean.csv": {
-    "spectral_alpha": 2.628390993578099,
+    "spectral_alpha": 2.628390993578095,
     "entropy": 3.9120229535277917,
     "dimension_proxy": 5.356130663256084e-11
   },
@@ -35,37 +35,37 @@
     "dimension_proxy": 1.5640199777032473
   },
   "ecology.csv": {
-    "spectral_alpha": 0.9005748663524161,
+    "spectral_alpha": 0.9005748663524165,
     "entropy": 3.450071867779483,
     "dimension_proxy": 0.45003340644345396
   },
   "ecology_clean_clean.csv": {
-    "spectral_alpha": 0.9005748663524161,
+    "spectral_alpha": 0.9005748663524165,
     "entropy": 3.450071867779483,
     "dimension_proxy": 0.45003340644345396
   },
   "lorenz63.csv": {
-    "spectral_alpha": 6.383543156781175,
+    "spectral_alpha": 6.383543156781173,
     "entropy": 3.9120230054281464,
     "dimension_proxy": 2.9020404688480485e-32
   },
   "cosmic_rays.csv": {
-    "spectral_alpha": 1.3061012910198453,
+    "spectral_alpha": 1.3061012910198448,
     "entropy": 3.3710424966800536,
     "dimension_proxy": 0.10084331836196381
   },
   "sunspots_live.csv": {
-    "spectral_alpha": 1.0458398029392164,
+    "spectral_alpha": 1.0458398029392169,
     "entropy": 3.2906953819382236,
     "dimension_proxy": 0.1641201547804551
   },
   "henon_map.csv": {
-    "spectral_alpha": -0.5333270834176804,
+    "spectral_alpha": -0.5333270834176802,
     "entropy": 3.7896558026684186,
     "dimension_proxy": 2.5813190667294448
   },
   "co2_clean_clean.csv": {
-    "spectral_alpha": 4.709783600275183,
+    "spectral_alpha": 4.709783600275181,
     "entropy": 3.9116309510462997,
     "dimension_proxy": 3.111224160030455e-09
   },
@@ -75,12 +75,12 @@
     "dimension_proxy": 0.0029950239524956777
   },
   "temperature_clean_clean.csv": {
-    "spectral_alpha": 1.0087285873556862,
+    "spectral_alpha": 1.0087285873556873,
     "entropy": 3.3946911766770254,
     "dimension_proxy": 0.11907328320590789
   },
   "temperature_clean.csv": {
-    "spectral_alpha": 1.0087285873556862,
+    "spectral_alpha": 1.0087285873556873,
     "entropy": 3.3946911766770254,
     "dimension_proxy": 0.11907328320590789
   },
@@ -90,17 +90,17 @@
     "dimension_proxy": 0.1566148013794653
   },
   "solar_wind_speed_clean.csv": {
-    "spectral_alpha": 0.8800219004090131,
-    "entropy": 3.679187205945214,
-    "dimension_proxy": 0.01816761738780413
+    "spectral_alpha": 0.8662409179132963,
+    "entropy": 3.676450681231791,
+    "dimension_proxy": 0.018253788122545567
   },
   "co2_atmospheric_clean_clean.csv": {
-    "spectral_alpha": 1.6657078281698752,
+    "spectral_alpha": 1.6657078281698747,
     "entropy": 3.8342356960918873,
     "dimension_proxy": 0.0014002002515075963
   },
   "ecology_clean.csv": {
-    "spectral_alpha": 0.9005748663524161,
+    "spectral_alpha": 0.9005748663524165,
     "entropy": 3.450071867779483,
     "dimension_proxy": 0.45003340644345396
   },
@@ -110,7 +110,7 @@
     "dimension_proxy": 1.5640199777032473
   },
   "sunspots_global_prepared.csv": {
-    "spectral_alpha": 2.5396012206342164,
+    "spectral_alpha": 2.5396012206342204,
     "entropy": 3.9120229535277904,
     "dimension_proxy": 5.3561306632455044e-11
   },
@@ -120,32 +120,32 @@
     "dimension_proxy": 0.1566148013794653
   },
   "sunspots_global_prepared_clean.csv": {
-    "spectral_alpha": 2.5396012206342164,
+    "spectral_alpha": 2.5396012206342204,
     "entropy": 3.9120229535277904,
     "dimension_proxy": 5.3561306632455044e-11
   },
   "temperature.csv": {
-    "spectral_alpha": 1.0087285873556862,
+    "spectral_alpha": 1.0087285873556873,
     "entropy": 3.3946911766770254,
     "dimension_proxy": 0.11907328320590789
   },
   "co2_clean.csv": {
-    "spectral_alpha": 4.709783600275183,
+    "spectral_alpha": 4.709783600275181,
     "entropy": 3.9116309510462997,
     "dimension_proxy": 3.111224160030455e-09
   },
   "lorenz63_clean.csv": {
-    "spectral_alpha": 6.383543156781175,
+    "spectral_alpha": 6.383543156781173,
     "entropy": 3.9120230054281464,
     "dimension_proxy": 2.9020404688480485e-32
   },
   "cosmic_rays_clean.csv": {
-    "spectral_alpha": 1.3061012910198453,
+    "spectral_alpha": 1.3061012910198448,
     "entropy": 3.3710424966800536,
     "dimension_proxy": 0.10084331836196381
   },
   "logistic_map_clean.csv": {
-    "spectral_alpha": -0.8109811392249022,
+    "spectral_alpha": -0.8109811392249021,
     "entropy": 3.68694022152519,
     "dimension_proxy": 3.015138885448211
   },
@@ -160,24 +160,24 @@
     "dimension_proxy": 0.0029950239524956777
   },
   "earthquake_magnitude.csv": {
-    "spectral_alpha": 2.133251511905695,
-    "entropy": 3.8993444861360835,
-    "dimension_proxy": 1.2957246331584075e-07
+    "spectral_alpha": 2.134949765399885,
+    "entropy": 3.899330480986385,
+    "dimension_proxy": 1.307519049491878e-07
   },
   "geomagnetic_kp.csv": {
-    "spectral_alpha": 1.8195876672108067,
-    "entropy": 0.6235411286158388,
-    "dimension_proxy": 0.16854003266962536
+    "spectral_alpha": 1.8056762471597896,
+    "entropy": 0.5975367497225388,
+    "dimension_proxy": 0.05499430164198183
   },
   "sunspots_global_clean.csv": {
-    "spectral_alpha": 2.628390993578099,
+    "spectral_alpha": 2.628390993578095,
     "entropy": 3.9120229535277917,
     "dimension_proxy": 5.356130663256084e-11
   },
   "earthquake_magnitude_clean_clean.csv": {
-    "spectral_alpha": 2.133251511905695,
-    "entropy": 3.8993444861360835,
-    "dimension_proxy": 1.2957246331584075e-07
+    "spectral_alpha": 2.134949765399885,
+    "entropy": 3.899330480986385,
+    "dimension_proxy": 1.307519049491878e-07
   },
   "solar_wind_speed_clean_clean.csv": {
     "spectral_alpha": 0.8899484585889855,
@@ -185,42 +185,42 @@
     "dimension_proxy": 0.02846853210241561
   },
   "rossler.csv": {
-    "spectral_alpha": 6.68710533905026,
+    "spectral_alpha": 6.687105339050257,
     "entropy": 3.689554736886439,
     "dimension_proxy": 0.00014315289867368998
   },
   "sunspots_global.csv": {
-    "spectral_alpha": 2.628390993578099,
+    "spectral_alpha": 2.628390993578095,
     "entropy": 3.9120229535277917,
     "dimension_proxy": 5.356130663256084e-11
   },
   "logistic_map.csv": {
-    "spectral_alpha": -0.8109811392249022,
+    "spectral_alpha": -0.8109811392249021,
     "entropy": 3.68694022152519,
     "dimension_proxy": 3.015138885448211
   },
   "geomagnetic_kp_clean.csv": {
-    "spectral_alpha": 1.8195876672108067,
-    "entropy": 0.6235411286158388,
-    "dimension_proxy": 0.16854003266962536
+    "spectral_alpha": 1.8056762471597896,
+    "entropy": 0.5975367497225388,
+    "dimension_proxy": 0.05499430164198183
   },
   "rossler_clean.csv": {
-    "spectral_alpha": 6.687105339050834,
+    "spectral_alpha": 6.68710533905083,
     "entropy": 3.689554736886439,
     "dimension_proxy": 0.00014315289867368998
   },
   "sunspots_live_clean.csv": {
-    "spectral_alpha": 1.0458398029392164,
+    "spectral_alpha": 1.0458398029392169,
     "entropy": 3.2906953819382236,
     "dimension_proxy": 0.1641201547804551
   },
   "cosmic_rays_clean_clean.csv": {
-    "spectral_alpha": 1.3061012910198453,
+    "spectral_alpha": 1.3061012910198448,
     "entropy": 3.3710424966800536,
     "dimension_proxy": 0.10084331836196381
   },
   "henon_map_clean.csv": {
-    "spectral_alpha": -0.5333270834176804,
+    "spectral_alpha": -0.5333270834176802,
     "entropy": 3.7896558026684186,
     "dimension_proxy": 2.5813190667294448
   },
@@ -230,18 +230,18 @@
     "dimension_proxy": 0.1566148013794653
   },
   "co2_atmospheric.csv": {
-    "spectral_alpha": 1.6657078281698752,
+    "spectral_alpha": 1.6657078281698747,
     "entropy": 3.8342356960918873,
     "dimension_proxy": 0.0014002002515075963
   },
   "solar_wind_speed.csv": {
-    "spectral_alpha": 0.8800219004090131,
-    "entropy": 3.679187205945214,
-    "dimension_proxy": 0.01816761738780413
+    "spectral_alpha": 0.8662409179132963,
+    "entropy": 3.676450681231791,
+    "dimension_proxy": 0.018253788122545567
   },
   "earthquake_magnitude_clean.csv": {
-    "spectral_alpha": 2.133251511905695,
-    "entropy": 3.8993444861360835,
-    "dimension_proxy": 1.2957246331584075e-07
+    "spectral_alpha": 2.134949765399885,
+    "entropy": 3.899330480986385,
+    "dimension_proxy": 1.307519049491878e-07
   }
 }
