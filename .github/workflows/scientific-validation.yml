@@ -600,6 +600,9 @@ jobs:
       - name: Build Invariant Field
         run: python analysis/invariant_field_builder.py
 
+      - name: Degeneracy Breaker
+        run: python analysis/invariant_degeneracy_breaker.py
+
       - name: Invariant Geometry Test
         run: python analysis/invariant_geometry.py
 
