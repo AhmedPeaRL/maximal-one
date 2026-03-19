@@ -13,7 +13,8 @@ def extract_numbers(obj, acc):
         for v in obj:
             extract_numbers(v, acc)
     elif isinstance(obj, (int, float)):
-        acc.append(float(obj))
+        if np.isfinite(obj):  # ✅ filter NaN / inf early
+            acc.append(float(obj))
 
 vectors = []
 
@@ -29,31 +30,69 @@ for file in ART.glob("*.json"):
     if len(nums) < 20:
         continue
 
-    v = np.array(nums)
-    v = (v - np.mean(v)) / (np.std(v) + 1e-9)
+    v = np.array(nums, dtype=np.float64)
 
-    v = v[:128]
-    if len(v) == 128:
-        vectors.append(v)
+    # ✅ remove any residual non-finite values
+    v = v[np.isfinite(v)]
 
-vectors = np.array(vectors)
+    if len(v) < 20:
+        continue
 
-if len(vectors) < 3:
+    std = np.std(v)
+
+    # ✅ skip degenerate vectors (zero variance)
+    if std < 1e-12:
+        continue
+
+    v = (v - np.mean(v)) / std
+
+    # ✅ enforce fixed dimension safely
+    if len(v) >= 128:
+        v = v[:128]
+    else:
+        continue
+
+    # ✅ final safety check
+    if not np.all(np.isfinite(v)):
+        continue
+
+    vectors.append(v)
+
+vectors = np.array(vectors, dtype=np.float64)
+
+# ✅ global sanity check
+if len(vectors) == 0 or not np.all(np.isfinite(vectors)):
+    result = {
+        "status": "invalid_vectors",
+        "num_vectors": int(len(vectors))
+    }
+
+elif len(vectors) < 3:
     result = {
         "status": "not_enough_data",
-        "num_vectors": len(vectors)
+        "num_vectors": int(len(vectors))
     }
+
 else:
-    pca = PCA(n_components=3)
-    proj = pca.fit_transform(vectors)
+    # ✅ extra guard before PCA
+    vectors = vectors[np.all(np.isfinite(vectors), axis=1)]
 
-    explained = pca.explained_variance_ratio_
+    if len(vectors) < 3:
+        result = {
+            "status": "filtered_too_much",
+            "num_vectors": int(len(vectors))
+        }
+    else:
+        pca = PCA(n_components=3)
+        proj = pca.fit_transform(vectors)
 
-    result = {
-        "num_vectors": int(len(vectors)),
-        "explained_variance": explained.tolist(),
-        "low_dimensional_structure": float(np.sum(explained[:2])) > 0.75
-    }
+        explained = pca.explained_variance_ratio_
+
+        result = {
+            "num_vectors": int(len(vectors)),
+            "explained_variance": explained.tolist(),
+            "low_dimensional_structure": float(np.sum(explained[:2])) > 0.75
+        }
 
 (ART / "invariant_geometry.json").write_text(
     json.dumps(result, indent=2)
