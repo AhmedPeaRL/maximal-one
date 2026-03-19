@@ -80,12 +80,10 @@ def attractor_dimension(x, m=5):
     diff = emb[:, None, :] - emb[None, :, :]
     sq = (diff ** 2).sum(axis=-1)
     sq = sq[np.isfinite(sq)]
-    sq = sq[sq >= 0]
 
     if len(sq) < 10:
         return None
 
-    sq = np.clip(sq, 0, None)
     dists = np.sqrt(sq)
     dists = dists[np.isfinite(dists)]
 
