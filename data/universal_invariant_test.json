@@ -5,15 +5,9 @@
     "dimension_proxy": 3.111224160030455e-09
   },
   "geomagnetic_kp_clean_clean.csv": {
-<<<<<<< Updated upstream
-    "spectral_alpha": 1.7804973875652985,
-    "entropy": 1.1911844839792605,
-    "dimension_proxy": 0.12417935592342016
-=======
-    "spectral_alpha": 1.7935512858511828,
-    "entropy": 1.1951420024330752,
-    "dimension_proxy": 0.12416037802886615
->>>>>>> Stashed changes
+    "spectral_alpha": 1.7557915399830433,
+    "entropy": 1.185232748151236,
+    "dimension_proxy": 0.12412087657209274
   },
   "co2_atmospheric_clean.csv": {
     "spectral_alpha": 1.6657078281698752,
@@ -96,15 +90,9 @@
     "dimension_proxy": 0.1566148013794653
   },
   "solar_wind_speed_clean.csv": {
-<<<<<<< Updated upstream
-    "spectral_alpha": 0.8607557220484274,
-    "entropy": 3.7487634054340613,
-    "dimension_proxy": 0.01573329102863629
-=======
-    "spectral_alpha": 0.8634143385044941,
-    "entropy": 3.7478747944987387,
-    "dimension_proxy": 0.015734812469929402
->>>>>>> Stashed changes
+    "spectral_alpha": 0.8764763158355175,
+    "entropy": 3.744142068000033,
+    "dimension_proxy": 0.015755595572010877
   },
   "co2_atmospheric_clean_clean.csv": {
     "spectral_alpha": 1.6657078281698752,
@@ -172,25 +160,14 @@
     "dimension_proxy": 0.0029950239524956777
   },
   "earthquake_magnitude.csv": {
-<<<<<<< Updated upstream
-    "spectral_alpha": 2.1310170600148144,
-    "entropy": 3.902639898648014,
-    "dimension_proxy": 1.225700195046043e-07
+    "spectral_alpha": 2.1369626149055887,
+    "entropy": 3.9026151950132806,
+    "dimension_proxy": 1.2210245059294854e-07
   },
   "geomagnetic_kp.csv": {
-    "spectral_alpha": 1.7804973875652985,
-    "entropy": 1.1911844839792605,
-    "dimension_proxy": 0.12417935592342016
-=======
-    "spectral_alpha": 2.1312657559580845,
-    "entropy": 3.9024383650926535,
-    "dimension_proxy": 1.2303228759601155e-07
-  },
-  "geomagnetic_kp.csv": {
-    "spectral_alpha": 1.7935512858511828,
-    "entropy": 1.1951420024330752,
-    "dimension_proxy": 0.12416037802886615
->>>>>>> Stashed changes
+    "spectral_alpha": 1.7557915399830433,
+    "entropy": 1.185232748151236,
+    "dimension_proxy": 0.12412087657209274
   },
   "sunspots_global_clean.csv": {
     "spectral_alpha": 2.628390993578099,
@@ -198,15 +175,9 @@
     "dimension_proxy": 5.356130663256084e-11
   },
   "earthquake_magnitude_clean_clean.csv": {
-<<<<<<< Updated upstream
-    "spectral_alpha": 2.1310170600148144,
-    "entropy": 3.902639898648014,
-    "dimension_proxy": 1.225700195046043e-07
-=======
-    "spectral_alpha": 2.1312657559580845,
-    "entropy": 3.9024383650926535,
-    "dimension_proxy": 1.2303228759601155e-07
->>>>>>> Stashed changes
+    "spectral_alpha": 2.1369626149055887,
+    "entropy": 3.9026151950132806,
+    "dimension_proxy": 1.2210245059294854e-07
   },
   "solar_wind_speed_clean_clean.csv": {
     "spectral_alpha": 0.8899484585889855,
@@ -229,15 +200,9 @@
     "dimension_proxy": 3.015138885448211
   },
   "geomagnetic_kp_clean.csv": {
-<<<<<<< Updated upstream
-    "spectral_alpha": 1.7804973875652985,
-    "entropy": 1.1911844839792605,
-    "dimension_proxy": 0.12417935592342016
-=======
-    "spectral_alpha": 1.7935512858511828,
-    "entropy": 1.1951420024330752,
-    "dimension_proxy": 0.12416037802886615
->>>>>>> Stashed changes
+    "spectral_alpha": 1.7557915399830433,
+    "entropy": 1.185232748151236,
+    "dimension_proxy": 0.12412087657209274
   },
   "rossler_clean.csv": {
     "spectral_alpha": 6.687105339050834,
@@ -270,24 +235,13 @@
     "dimension_proxy": 0.0014002002515075963
   },
   "solar_wind_speed.csv": {
-<<<<<<< Updated upstream
-    "spectral_alpha": 0.8607557220484274,
-    "entropy": 3.7487634054340613,
-    "dimension_proxy": 0.01573329102863629
+    "spectral_alpha": 0.8764763158355175,
+    "entropy": 3.744142068000033,
+    "dimension_proxy": 0.015755595572010877
   },
   "earthquake_magnitude_clean.csv": {
-    "spectral_alpha": 2.1310170600148144,
-    "entropy": 3.902639898648014,
-    "dimension_proxy": 1.225700195046043e-07
-=======
-    "spectral_alpha": 0.8634143385044941,
-    "entropy": 3.7478747944987387,
-    "dimension_proxy": 0.015734812469929402
-  },
-  "earthquake_magnitude_clean.csv": {
-    "spectral_alpha": 2.1312657559580845,
-    "entropy": 3.9024383650926535,
-    "dimension_proxy": 1.2303228759601155e-07
->>>>>>> Stashed changes
+    "spectral_alpha": 2.1369626149055887,
+    "entropy": 3.9026151950132806,
+    "dimension_proxy": 1.2210245059294854e-07
   }
 }

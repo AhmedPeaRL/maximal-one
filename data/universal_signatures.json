@@ -1,54 +1,30 @@
 [
   {
     "feature": "entropy_rate",
-<<<<<<< Updated upstream
-    "mean": 3.467670746418822,
-    "std": 0.6232159054234881,
-    "coefficient_of_variation": 0.17972176454961988,
-=======
-    "mean": 3.467860493809005,
-    "std": 0.6223241397739224,
-    "coefficient_of_variation": 0.17945477936177825,
->>>>>>> Stashed changes
+    "mean": 3.4671272956920727,
+    "std": 0.6244368773916592,
+    "coefficient_of_variation": 0.180102091482919,
     "systems": 50
   },
   {
     "feature": "spectral_alpha",
-<<<<<<< Updated upstream
-    "mean": 2.3095374023078974,
-    "std": 2.4716929425581906,
-    "coefficient_of_variation": 1.0702112639908983,
-=======
-    "mean": 2.31044190261989,
-    "std": 2.4714638380245266,
-    "coefficient_of_variation": 1.0696931332582085,
->>>>>>> Stashed changes
+    "mean": 2.3090406084978925,
+    "std": 2.471625660482746,
+    "coefficient_of_variation": 1.070412383128515,
     "systems": 50
   },
   {
     "feature": "hurst_exponent",
-<<<<<<< Updated upstream
-    "mean": 0.46287544849466294,
-    "std": 0.6014575078499859,
-    "coefficient_of_variation": 1.2993938430003396,
-=======
-    "mean": 0.46264771689145406,
-    "std": 0.6012928674370621,
-    "coefficient_of_variation": 1.2996775850903786,
->>>>>>> Stashed changes
+    "mean": 0.4620839393215243,
+    "std": 0.6007821348878548,
+    "coefficient_of_variation": 1.3001580097546355,
     "systems": 50
   },
   {
     "feature": "attractor_dimension",
-<<<<<<< Updated upstream
-    "mean": -0.731665049039937,
-    "std": 6.209763165410364,
-    "coefficient_of_variation": 8.48716659837528,
-=======
-    "mean": -0.3763031420802928,
-    "std": 4.898386222278699,
-    "coefficient_of_variation": 13.017128146204842,
->>>>>>> Stashed changes
+    "mean": -0.46513114296661623,
+    "std": 5.172850194618836,
+    "coefficient_of_variation": 11.121272511718498,
     "systems": 46
   }
 ]
