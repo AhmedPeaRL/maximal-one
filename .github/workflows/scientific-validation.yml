@@ -882,7 +882,9 @@ jobs:
          
           find artifacts -type f -name "*.txt" -exec cp {} data/ \;
 
+          git stash --include-untracked || true
           git pull --rebase origin main || true
+          git stash pop || true
           
           git add data/
 
