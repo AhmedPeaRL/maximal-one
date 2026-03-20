@@ -53,7 +53,15 @@ def main():
 
     score = sum(w for w, x in zip(weights, history) if x > 0.75)
 
-    passed = score > 3.5
+    # hybrid stability condition (strength + persistence)
+    min_runs = 5
+    strong_ratio = sum(1 for x in history if x > 0.75) / len(history)
+
+    passed = (
+        len(history) >= min_runs and
+        strong_ratio > 0.8 and
+        score > 3.5
+    )
 
     result = {
         "weights": weights,
