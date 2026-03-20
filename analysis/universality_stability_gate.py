@@ -39,8 +39,8 @@ def main():
     # append new strength
     history.append(current["strength"])
 
-    # keep last 10 runs فقط
-    history = history[-10:]
+    # keep last 20 runs فقط
+    history = history[-20:]
 
     save_json(HISTORY_FILE, history)
 
@@ -58,16 +58,25 @@ def main():
     strong_ratio = sum(1 for x in history if x > 0.75) / len(history)
 
     passed = (
-        len(history) >= min_runs and
-        strong_ratio > 0.8 and
-        score > 3.5
+    len(history) >= min_runs and
+    strong_ratio > 0.8 and
+    score > 3.5
     )
+    
+    progress = {
+        "runs": len(history),
+        "strong_ratio": strong_ratio,
+        "score": score,
+        "target_score": 3.5,
+        "target_runs": min_runs
+     }
 
     result = {
         "weights": weights,
         "history": history,
         "score" : score,
-        "passed": passed
+        "passed": passed,
+        "progress": progress
     }
 
     print(json.dumps(result))
