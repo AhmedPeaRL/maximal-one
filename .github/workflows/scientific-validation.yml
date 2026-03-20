@@ -882,7 +882,7 @@ jobs:
          
           find artifacts -type f -name "*.txt" -exec cp {} data/ \;
 
-          git pull --rebase origin main
+          git pull --rebase origin main || true
           
           git add data/
 
