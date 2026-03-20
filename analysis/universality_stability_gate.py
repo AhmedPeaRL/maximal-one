@@ -52,7 +52,9 @@ def main():
     # keep last 20 runs فقط
     history = history[-20:]
 
-    save_json(HISTORY_FILE, history)
+    # prevent accidental reset
+    if len(history) > 0:
+        save_json(HISTORY_FILE, history)
 
     # ✅ snapshot للartifact علشان يتـcommit
     save_json("artifacts/universality_history.json", history)
