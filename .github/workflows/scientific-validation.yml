@@ -770,6 +770,11 @@ jobs:
             echo "Universality condition NOT satisfied"
           fi
 
+      - name: Debug history before stability gate
+        run: |
+          echo "==== HISTORY FILE ===="
+          cat data/universality_history.json || echo "No history"
+
       - name: Universality Stability Gate
         run: |
           python analysis/universality_stability_gate.py > artifacts/universality_stability.json
@@ -882,9 +887,13 @@ jobs:
          
           find artifacts -type f -name "*.txt" -exec cp {} data/ \;
 
-          git stash --include-untracked || true
-          git pull --rebase origin main || true
-          git stash pop || true
+          # ensure latest history
+          git fetch origin
+          git reset --hard origin/main
+
+          # re-copy artifacts AFTER pull
+          find artifacts -type f -name "*.json" -exec cp {} data/ \;
+          find artifacts -type f -name "*.txt" -exec cp {} data/ \;
           
           git add data/
 
