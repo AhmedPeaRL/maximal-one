@@ -32,9 +32,19 @@ def main():
         return
 
     history = load_json(HISTORY_FILE)
-
-    if history is None:
+    
+    if history is None or not isinstance(history, list):
         history = []
+
+    # 🧠 enforce float + clean corruption
+    clean_history = []
+    for x in history:
+        try:
+            clean_history.append(float(x))
+            except:
+                pass
+                
+                history = clean_history
 
     # append new strength
     history.append(current["strength"])
