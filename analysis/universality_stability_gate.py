@@ -41,7 +41,7 @@ def main():
     for x in history:
         try:
             clean_history.append(float(x))
-            except:
+        except:
                 pass
                 
                 history = clean_history
