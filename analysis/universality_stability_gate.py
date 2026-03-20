@@ -32,9 +32,19 @@ def main():
         return
 
     history = load_json(HISTORY_FILE)
-
-    if history is None:
+    
+    if history is None or not isinstance(history, list):
         history = []
+
+    # 🧠 enforce float + clean corruption
+    clean_history = []
+    for x in history:
+        try:
+            clean_history.append(float(x))
+            except:
+                pass
+                
+                history = clean_history
 
     # append new strength
     history.append(current["strength"])
@@ -42,7 +52,9 @@ def main():
     # keep last 20 runs فقط
     history = history[-20:]
 
-    save_json(HISTORY_FILE, history)
+    # prevent accidental reset
+    if len(history) > 0:
+        save_json(HISTORY_FILE, history)
 
     # ✅ snapshot للartifact علشان يتـcommit
     save_json("artifacts/universality_history.json", history)
