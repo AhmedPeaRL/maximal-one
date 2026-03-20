@@ -7,9 +7,6 @@ concurrency:
 on:
   push:
   pull_request:
-    paths-ignore:
-      - "data/**"
-      - "README.md"
   workflow_dispatch:
   schedule:
     - cron: "0 3 * * 0"
@@ -892,8 +889,7 @@ jobs:
             exit 0
           fi
 
-          git fetch origin
-          git reset --soft origin/main
+          git pull --rebase origin main
 
           git commit -m "Automated scientific results update"
 
