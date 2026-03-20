@@ -31,21 +31,28 @@ def main():
 
     history = load_json(HISTORY_FILE)
 
-    if history is None or not isinstance(history, list):
+    # HARD GUARANTEE: always valid list
+    if not isinstance(history, list):
         history = []
 
-    # ✅ FIXED CLEANING
+    # defensive: remove corrupt entries
     clean_history = []
     for x in history:
         try:
-            clean_history.append(float(x))
+            v = float(x)
+            if 0 <= v <= 1:
+                clean_history.append(v)
         except:
-            pass
+            continue
 
     history = clean_history
 
     # append new strength
     history.append(float(current["strength"]))
+
+    # prevent duplicate consecutive entries
+    if len(history) >= 2 and abs(history[-1] - history[-2]) < 1e-9:
+        history = history[:-1]
 
     # keep last 20 runs
     history = history[-20:]
