@@ -1,30 +1,30 @@
 [
   {
     "feature": "entropy_rate",
-    "mean": 3.440925048526296,
-    "std": 0.7198666414304012,
-    "coefficient_of_variation": 0.20920730073406013,
+    "mean": 3.4630578325023738,
+    "std": 0.6391888011652395,
+    "coefficient_of_variation": 0.1845735278129524,
     "systems": 50
   },
   {
     "feature": "spectral_alpha",
-    "mean": 2.3109792707437413,
-    "std": 2.4711431149702507,
-    "coefficient_of_variation": 1.069305616997146,
+    "mean": 2.3045653551540273,
+    "std": 2.4727343417050056,
+    "coefficient_of_variation": 1.072972105640171,
     "systems": 50
   },
   {
     "feature": "hurst_exponent",
-    "mean": 0.4671990101382864,
-    "std": 0.6043199183564808,
-    "coefficient_of_variation": 1.2934957164776697,
+    "mean": 0.44794367141644875,
+    "std": 0.5944950693296448,
+    "coefficient_of_variation": 1.327164791612713,
     "systems": 50
   },
   {
     "feature": "attractor_dimension",
-    "mean": -0.4843389615086286,
-    "std": 5.27324010123865,
-    "coefficient_of_variation": 10.887499293497795,
+    "mean": -0.6236372229920063,
+    "std": 5.801318743610462,
+    "coefficient_of_variation": 9.302393330176224,
     "systems": 46
   }
 ]
