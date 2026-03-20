@@ -5,9 +5,9 @@
     "variance": 384.4202609500295
   },
   "real-data/geomagnetic_kp_clean_clean.csv": {
-    "spectral_alpha": -1.9412198909538236e-15,
-    "entropy": -195.60115027140708,
-    "variance": 0.0
+    "spectral_alpha": -1.2552190876763267,
+    "entropy": -188.7382644489061,
+    "variance": 0.029782154115040094
   },
   "real-data/co2_atmospheric_clean.csv": {
     "spectral_alpha": -1.7960521311447957,
@@ -95,9 +95,9 @@
     "variance": 1887.1436708918059
   },
   "real-data/solar_wind_speed_clean.csv": {
-    "spectral_alpha": -0.9169355121422056,
-    "entropy": 0.6830940552316875,
-    "variance": 13266.569775128284
+    "spectral_alpha": -0.9183142832500151,
+    "entropy": 0.6827669048680739,
+    "variance": 13207.128097736375
   },
   "real-data/co2_atmospheric_clean_clean.csv": {
     "spectral_alpha": -1.7960521311447957,
@@ -165,9 +165,9 @@
     "variance": 59.844445474648694
   },
   "real-data/earthquake_magnitude.csv": {
-    "spectral_alpha": -1.802831647419123,
-    "entropy": 4.179837428206483e-07,
-    "variance": 5.2804403212979245e+17
+    "spectral_alpha": -1.8026920923274632,
+    "entropy": 4.1804549558144326e-07,
+    "variance": 5.273258966086396e+17
   },
   "real-data/sunspots_global_clean.csv": {
     "spectral_alpha": -1.8045798339819648,
@@ -175,9 +175,9 @@
     "variance": 3610.975962453115
   },
   "real-data/earthquake_magnitude_clean_clean.csv": {
-    "spectral_alpha": -1.802831647419123,
-    "entropy": 4.179837428206483e-07,
-    "variance": 5.2804403212979245e+17
+    "spectral_alpha": -1.8026920923274632,
+    "entropy": 4.1804549558144326e-07,
+    "variance": 5.273258966086396e+17
   },
   "real-data/solar_wind_speed_clean_clean.csv": {
     "spectral_alpha": -0.9151676897046442,
@@ -200,9 +200,9 @@
     "variance": 0.08918663310275192
   },
   "real-data/geomagnetic_kp_clean.csv": {
-    "spectral_alpha": -1.9412198909538236e-15,
-    "entropy": -195.60115027140708,
-    "variance": 0.0
+    "spectral_alpha": -1.2552190876763267,
+    "entropy": -188.7382644489061,
+    "variance": 0.029782154115040094
   },
   "real-data/rossler_clean.csv": {
     "spectral_alpha": -1.9651477365478351,
@@ -235,13 +235,13 @@
     "variance": 1090.9576605138348
   },
   "real-data/solar_wind_speed.csv": {
-    "spectral_alpha": -0.9169355121422056,
-    "entropy": 0.6830940552316875,
-    "variance": 13266.569775128284
+    "spectral_alpha": -0.9183142832500151,
+    "entropy": 0.6827669048680739,
+    "variance": 13207.128097736375
   },
   "real-data/earthquake_magnitude_clean.csv": {
-    "spectral_alpha": -1.802831647419123,
-    "entropy": 4.179837428206483e-07,
-    "variance": 5.2804403212979245e+17
+    "spectral_alpha": -1.8026920923274632,
+    "entropy": 4.1804549558144326e-07,
+    "variance": 5.273258966086396e+17
   }
 }
