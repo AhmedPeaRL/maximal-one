@@ -56,8 +56,9 @@ def main():
     passed = score > 3.5
 
     result = {
-        "stable_runs": stable_runs,
+        "weights": weights,
         "history": history,
+        "score" : score,
         "passed": passed
     }
 
