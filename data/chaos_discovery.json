@@ -6,12 +6,8 @@
   },
   {
     "dataset": "geomagnetic_kp_clean_clean.csv",
-<<<<<<< Updated upstream
-    "hurst": 0.6233755436788627,
-=======
-    "hurst": 0.6251781832959835,
->>>>>>> Stashed changes
-    "chaotic_signature": true
+    "hurst": 0.5066381457983906,
+    "chaotic_signature": false
   },
   {
     "dataset": "co2_atmospheric_clean.csv",
@@ -80,11 +76,7 @@
   },
   {
     "dataset": "solar_wind_speed_clean.csv",
-<<<<<<< Updated upstream
-    "hurst": 0.1930573994109108,
-=======
-    "hurst": 0.19231097341328027,
->>>>>>> Stashed changes
+    "hurst": 0.19384644827311281,
     "chaotic_signature": false
   },
   {
@@ -139,11 +131,7 @@
   },
   {
     "dataset": "earthquake_magnitude.csv",
-<<<<<<< Updated upstream
-    "hurst": 1.2430690715072819,
-=======
-    "hurst": 1.2423784560733455,
->>>>>>> Stashed changes
+    "hurst": 1.2411850220789014,
     "chaotic_signature": true
   },
   {
@@ -153,11 +141,7 @@
   },
   {
     "dataset": "earthquake_magnitude_clean_clean.csv",
-<<<<<<< Updated upstream
-    "hurst": 1.2430690715072819,
-=======
-    "hurst": 1.2423784560733455,
->>>>>>> Stashed changes
+    "hurst": 1.2411850220789014,
     "chaotic_signature": true
   },
   {
@@ -177,12 +161,8 @@
   },
   {
     "dataset": "geomagnetic_kp_clean.csv",
-<<<<<<< Updated upstream
-    "hurst": 0.6233755436788627,
-=======
-    "hurst": 0.6251781832959835,
->>>>>>> Stashed changes
-    "chaotic_signature": true
+    "hurst": 0.5066381457983906,
+    "chaotic_signature": false
   },
   {
     "dataset": "rossler_clean.csv",
@@ -211,11 +191,7 @@
   },
   {
     "dataset": "earthquake_magnitude_clean.csv",
-<<<<<<< Updated upstream
-    "hurst": 1.2430690715072819,
-=======
-    "hurst": 1.2423784560733455,
->>>>>>> Stashed changes
+    "hurst": 1.2411850220789014,
     "chaotic_signature": true
   }
 ]
