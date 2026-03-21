@@ -778,6 +778,9 @@ jobs:
             echo "Universality condition NOT satisfied"
           fi
 
+      - name: Universality Stability Accelerator
+        run: python analysis/universality_stability_accelerator.py
+
       - name: Debug history before stability gate
         run: |
           echo "==== HISTORY FILE ===="
