@@ -1,6 +1,9 @@
 import json
 import pathlib
 
+with open("core-scientific/gate_orchestrator.json") as f:
+    orchestrator = json.load(f)
+
 ART = pathlib.Path("artifacts")
 
 def load(name):
@@ -33,7 +36,36 @@ raw_scores = [
 ]
 
 # استبعاد skipped فقط
-scores = [s for s in raw_scores if s is not None]
+score = 0.0
+
+if determinism_passed:
+    score += 0.25
+else:
+    if orchestrator["decision"]["fail_fast_if_strict_breaks"]:
+        print("Determinism failed → HARD FAIL")
+        exit(1)
+
+if statistical_significance < 0.05:
+    score += 0.15
+
+if predictive_score > 0.55:
+    score += 0.15
+
+if universality_passed:
+    score += 0.20
+
+if invariant_stable:
+    score += 0.15
+
+if topology_ok:
+    score += 0.10
+
+result = {
+    "score": score,
+    "passed": score >= 0.65
+}
+
+print(json.dumps(result))
 
 total = sum(scores)
 n = len(scores)
