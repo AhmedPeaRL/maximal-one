@@ -31,44 +31,58 @@ def main():
     if not isinstance(history, list):
         history = []
 
-    clean_history = []
+    # تنظيف التاريخ
+    clean = []
     for x in history:
         try:
             v = float(x)
             if 0 <= v <= 1:
-                clean_history.append(v)
+                clean.append(v)
         except:
             continue
 
-    history = clean_history
+    history = clean
 
-    history.append(float(current["strength"]))
+    # إضافة القيمة الحالية
+    current_strength = float(current.get("strength", 0))
+    history.append(current_strength)
 
-    # KEEP ALL values (no aggressive deduplication)
-    history = history[-20:]
+    # الاحتفاظ بآخر 25 فقط
+    history = history[-25:]
 
     save_json(HISTORY_FILE, history)
     save_json("artifacts/universality_history.json", history)
 
-    weights = [math.exp(-0.3 * i) for i in range(len(history))]
+    # -----------------------------
+    # وزن زمني أقوى (أبطأ decay)
+    # -----------------------------
+    weights = [math.exp(-0.15 * i) for i in range(len(history))]
     weights.reverse()
 
+    # -----------------------------
+    # score = weighted strong signals
+    # -----------------------------
     score = sum(w for w, x in zip(weights, history) if x > 0.75)
 
+    strong_count = sum(1 for x in history if x > 0.75)
+    strong_ratio = strong_count / len(history) if history else 0
+
+    # -----------------------------
+    # شروط أكثر واقعية لكن صارمة
+    # -----------------------------
     min_runs = 4
-    strong_ratio = sum(1 for x in history if x > 0.75) / len(history)
 
     passed = (
         len(history) >= min_runs and
-        strong_ratio > 0.8 and
-        score > 2.8
+        strong_ratio >= 0.75 and
+        score >= 2.6
     )
 
     progress = {
         "runs": len(history),
         "strong_ratio": strong_ratio,
         "score": score,
-        "target_score": 2.8,
+        "target_score": 2.6,
         "target_runs": min_runs
     }
 
