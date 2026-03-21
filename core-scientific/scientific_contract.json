@@ -1,0 +1,47 @@
+{
+  "model_name": "Hybrid Consciousness Model - HCM",
+  "version": "1.0.0",
+  "contract_type": "scientific_validation",
+
+  "claims": [
+    {
+      "id": "HCM-001",
+      "description": "Existence of universal invariant structures across chaotic systems",
+      "validation": [
+        "universality_gate",
+        "invariant_scanner",
+        "cross_system_correlation"
+      ]
+    },
+    {
+      "id": "HCM-002",
+      "description": "Predictive superiority over classical chaotic baselines",
+      "validation": [
+        "predictive_gain_gate",
+        "real_chaotic_benchmark",
+        "lorenz96_benchmark"
+      ]
+    },
+    {
+      "id": "HCM-003",
+      "description": "Statistical significance of observed patterns",
+      "validation": [
+        "bootstrap_alpha",
+        "effect_size_gate",
+        "null_structure_test"
+      ]
+    }
+  ],
+
+  "constraints": {
+    "determinism": true,
+    "cross_version_consistency": true,
+    "hash_integrity": true
+  },
+
+  "failure_policy": {
+    "any_claim_fail": "mark_system_unverified",
+    "partial_pass": "mark_inconclusive",
+    "full_pass": "mark_verified"
+  }
+}
