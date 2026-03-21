@@ -46,7 +46,7 @@ if temporal:
     strength = temporal.get("signal_strength", 0.0)
 
     if temporal.get("temporal_signal"):
-        temporal_boost = 0.4
+        temporal_boost = 0.5
     else:
         temporal_boost = min(0.2, strength * 0.01)
 
