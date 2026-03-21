@@ -1,0 +1,46 @@
+{
+  "version": "1.0",
+  "philosophy": "gradient_truth_emergence",
+
+  "gates": {
+    "determinism": {
+      "weight": 0.25,
+      "strict": true,
+      "description": "Cross-version reproducibility must hold exactly"
+    },
+    "statistical_significance": {
+      "weight": 0.15,
+      "strict": false,
+      "threshold": 0.05
+    },
+    "predictive_power": {
+      "weight": 0.15,
+      "strict": false,
+      "threshold": 0.55
+    },
+    "universality": {
+      "weight": 0.20,
+      "strict": false
+    },
+    "invariant_stability": {
+      "weight": 0.15,
+      "strict": false
+    },
+    "topology_preservation": {
+      "weight": 0.10,
+      "strict": false
+    }
+  },
+
+  "decision": {
+    "mode": "weighted_consensus",
+    "pass_threshold": 0.65,
+    "fail_fast_if_strict_breaks": true
+  },
+
+  "emergence": {
+    "allow_partial_truth": true,
+    "log_gradient_score": true,
+    "store_all_scores": true
+  }
+}
