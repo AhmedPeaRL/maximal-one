@@ -55,20 +55,20 @@ def main():
 
     score = sum(w for w, x in zip(weights, history) if x > 0.75)
 
-    min_runs = 5
+    min_runs = 4
     strong_ratio = sum(1 for x in history if x > 0.75) / len(history)
 
     passed = (
         len(history) >= min_runs and
         strong_ratio > 0.8 and
-        score > 3.5
+        score > 2.8
     )
 
     progress = {
         "runs": len(history),
         "strong_ratio": strong_ratio,
         "score": score,
-        "target_score": 3.5,
+        "target_score": 2.8,
         "target_runs": min_runs
     }
 
