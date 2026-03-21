@@ -626,6 +626,9 @@ jobs:
           python -m analysis.lorenz96_benchmark > artifacts/lorenz96.json
           cat artifacts/lorenz96.json
 
+      - name: Patch Lorenz96 signal
+        run: python analysis/lorenz96_patch.py
+
       - name: Generate chaotic dataset
         run: python analysis/generate_lorenz_dataset.py
 
