@@ -629,6 +629,9 @@ jobs:
       - name: Generate chaotic dataset
         run: python analysis/generate_lorenz_dataset.py
 
+      - name: Generate predictions dataset
+        run: python analysis/generate_predictions_dataset.py
+
       - name: Run multi-seed experiment
         run: |
           mkdir -p artifacts
@@ -702,13 +705,15 @@ jobs:
 
           if [ "$SKIPPED" = "true" ]; then
             echo "Dataset missing — superiority gate skipped"
-            exit 0
-            fi
+            echo "status=skipped" >> artifacts/gate_status.txt
+          exit 0
+          fi
             
           if [ "$PASS" != "true" ]; then
             echo "Chaotic predictive superiority not achieved."
             echo "status=failed" >> artifacts/gate_status.txt
           else
+            echo "Chaotic predictive superiority confirmed."
             echo "status=passed" >> artifacts/gate_status.txt
           fi
 
