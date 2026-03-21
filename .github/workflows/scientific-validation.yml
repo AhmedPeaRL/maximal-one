@@ -656,6 +656,9 @@ jobs:
       - name: Global Scientific Verdict
         run: python analysis/global_scientific_verdict.py
 
+      - name: Market Signal Encoder
+        run: python analysis/market_signal_encoder.py
+
       - name: Verdict Gate (Soft Scientific)
         run: |
           RESULT=$(cat artifacts/global_verdict.json)
