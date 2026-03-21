@@ -192,6 +192,11 @@ jobs:
           node-version: 18.20.8
 
       - run: npm ci --ignore-scripts --no-audit
+
+      - name: Load Scientific Contract
+        run: |
+          echo "=== SCIENTIFIC CONTRACT ==="
+          cat core-scientific/scientific_contract.json
       
       - name: Adaptive Attractor Gate
         run: |
