@@ -874,25 +874,22 @@ jobs:
 
           mkdir -p data
 
-          # copy ALL artifacts
-          find artifacts -type f -name "*.json" -exec cp {} data/ \;
+          # ✅ FIRST: sync with remote safely
+          git fetch origin
+          git reset --hard origin/main
 
-          # ✅ ensure history persists
+          # ✅ ensure history exists
           if [ -f data/universality_history.json ]; then
             echo "History exists"
           else
             echo "Initializing history"
             echo "[]" > data/universality_history.json
           fi
-         
-          find artifacts -type f -name "*.txt" -exec cp {} data/ \;
 
-          git pull --rebase origin main
-
-          # re-copy artifacts AFTER pull
+          # ✅ copy artifacts AFTER sync
           find artifacts -type f -name "*.json" -exec cp {} data/ \;
           find artifacts -type f -name "*.txt" -exec cp {} data/ \;
-          
+
           git add data/
 
           if git diff --cached --quiet; then
@@ -901,7 +898,6 @@ jobs:
           fi
 
           git commit -m "Automated scientific results update"
-
           git push origin HEAD:main
           
   stability-check:
