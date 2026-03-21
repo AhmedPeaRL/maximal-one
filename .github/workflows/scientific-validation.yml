@@ -888,8 +888,7 @@ jobs:
           find artifacts -type f -name "*.txt" -exec cp {} data/ \;
 
           # ensure latest history
-          git fetch origin
-          git reset --hard origin/main
+          git pull --rebase origin main
 
           # re-copy artifacts AFTER pull
           find artifacts -type f -name "*.json" -exec cp {} data/ \;
