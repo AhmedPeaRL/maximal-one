@@ -7,9 +7,9 @@
   },
   {
     "dataset": "geomagnetic_kp_clean_clean.csv",
-    "spectral_alpha": 1.1694540912721532,
-    "entropy": -6.773646810497702,
-    "attractor_dim": 0.08843799114507975
+    "spectral_alpha": 1.672272984332827,
+    "entropy": -25.49372254209325,
+    "attractor_dim": 0.0190690965641849
   },
   {
     "dataset": "co2_atmospheric_clean.csv",
@@ -109,9 +109,9 @@
   },
   {
     "dataset": "solar_wind_speed_clean.csv",
-    "spectral_alpha": 0.9243150629151127,
-    "entropy": 0.875619074646676,
-    "attractor_dim": -0.1134731108682774
+    "spectral_alpha": 1.000968338793983,
+    "entropy": 0.874232952740128,
+    "attractor_dim": -0.11576658737134553
   },
   {
     "dataset": "co2_atmospheric_clean_clean.csv",
@@ -193,15 +193,15 @@
   },
   {
     "dataset": "earthquake_magnitude.csv",
-    "spectral_alpha": 1.8033511434135552,
-    "entropy": 5.351597113784239e-07,
-    "attractor_dim": -0.034468780451367156
+    "spectral_alpha": 1.8034212372438583,
+    "entropy": 5.352202504506185e-07,
+    "attractor_dim": -0.034611993100263354
   },
   {
     "dataset": "geomagnetic_kp.csv",
-    "spectral_alpha": 1.1694540912721532,
-    "entropy": -6.773646810497702,
-    "attractor_dim": 0.08843799114507975
+    "spectral_alpha": 1.672272984332827,
+    "entropy": -25.49372254209325,
+    "attractor_dim": 0.0190690965641849
   },
   {
     "dataset": "sunspots_global_clean.csv",
@@ -211,9 +211,9 @@
   },
   {
     "dataset": "earthquake_magnitude_clean_clean.csv",
-    "spectral_alpha": 1.8033511434135552,
-    "entropy": 5.351597113784239e-07,
-    "attractor_dim": -0.034468780451367156
+    "spectral_alpha": 1.8034212372438583,
+    "entropy": 5.352202504506185e-07,
+    "attractor_dim": -0.034611993100263354
   },
   {
     "dataset": "solar_wind_speed_clean_clean.csv",
@@ -241,9 +241,9 @@
   },
   {
     "dataset": "geomagnetic_kp_clean.csv",
-    "spectral_alpha": 1.1694540912721532,
-    "entropy": -6.773646810497702,
-    "attractor_dim": 0.08843799114507975
+    "spectral_alpha": 1.672272984332827,
+    "entropy": -25.49372254209325,
+    "attractor_dim": 0.0190690965641849
   },
   {
     "dataset": "rossler_clean.csv",
@@ -283,14 +283,14 @@
   },
   {
     "dataset": "solar_wind_speed.csv",
-    "spectral_alpha": 0.9243150629151127,
-    "entropy": 0.875619074646676,
-    "attractor_dim": -0.1134731108682774
+    "spectral_alpha": 1.000968338793983,
+    "entropy": 0.874232952740128,
+    "attractor_dim": -0.11576658737134553
   },
   {
     "dataset": "earthquake_magnitude_clean.csv",
-    "spectral_alpha": 1.8033511434135552,
-    "entropy": 5.351597113784239e-07,
-    "attractor_dim": -0.034468780451367156
+    "spectral_alpha": 1.8034212372438583,
+    "entropy": 5.352202504506185e-07,
+    "attractor_dim": -0.034611993100263354
   }
 ]
