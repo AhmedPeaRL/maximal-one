@@ -28,7 +28,7 @@ def main():
         "certificate": "HCM_IRREVERSIBILITY_PROOF",
         "timestamp": datetime.utcnow().isoformat() + "Z",
         "status": "confirmed",
-        "confidence": irr.get("confidence"),
+        "confidence": "empirical-high" if irr.get("confidence") == "high" else "bounded",
         "score": irr.get("irreversibility_score"),
 
         "scientific_basis": {
