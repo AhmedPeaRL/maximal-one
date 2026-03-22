@@ -1,24 +1,29 @@
 import json
 import pathlib
+import time
 
 ART = pathlib.Path("artifacts")
 
-def load(name):
-    p = ART / name
-    if p.exists():
-        return json.loads(p.read_text())
+def wait_for_file(name, timeout=20):
+    path = ART / name
+    start = time.time()
+    while time.time() - start < timeout:
+        if path.exists():
+            return json.loads(path.read_text())
+        time.sleep(1)
     return None
 
 
 def main():
-    verdict = load("global_verdict.json")
-    universality = load("universality_stability.json")
+    verdict = wait_for_file("global_verdict.json")
+    universality = wait_for_file("universality_stability.json")
 
     if not verdict or not universality:
-        print(json.dumps({
+        result = {
             "passed": False,
-            "reason": "missing core signals"
-        }))
+            "reason": "missing core signals (timeout)"
+        }
+        print(json.dumps(result))
         return
 
     score = verdict.get("final_score", 0)
@@ -41,6 +46,7 @@ def main():
         confidence = "moderate"
 
     result = {
+        "passed": irreversible,
         "irreversible": irreversible,
         "confidence": confidence,
         "score_ratio": ratio,
