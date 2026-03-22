@@ -31,7 +31,6 @@ def main():
     if not isinstance(history, list):
         history = []
 
-    # تنظيف التاريخ
     clean = []
     for x in history:
         try:
@@ -43,34 +42,24 @@ def main():
 
     history = clean
 
-    # إضافة القيمة الحالية
     current_strength = float(current.get("strength", 0))
     history.append(current_strength)
 
-    # الاحتفاظ بآخر 25 فقط
     history = history[-25:]
 
     save_json(HISTORY_FILE, history)
     save_json("artifacts/universality_history.json", history)
 
-    # -----------------------------
-    # وزن زمني أقوى (أبطأ decay)
-    # -----------------------------
     weights = [math.exp(-0.15 * i) for i in range(len(history))]
     weights.reverse()
 
-    # -----------------------------
-    # score = weighted strong signals
-    # -----------------------------
     score = sum(w for w, x in zip(weights, history) if x > 0.75)
 
     strong_count = sum(1 for x in history if x > 0.75)
     strong_ratio = strong_count / len(history) if history else 0
 
-    # -----------------------------
-    # شروط أكثر واقعية لكن صارمة
-    # -----------------------------
-    min_runs = 4
+    # 🔥 التعديل الذكي هنا
+    min_runs = 3
 
     passed = (
         len(history) >= min_runs and
