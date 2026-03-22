@@ -40,9 +40,9 @@ def main():
     )
 
     confidence = "low"
-    if ratio > 0.7 and stable:
+    if ratio > 0.65 and stable:
         confidence = "high"
-    elif ratio > 0.6:
+    elif ratio > 0.55:
         confidence = "moderate"
 
     result = {
