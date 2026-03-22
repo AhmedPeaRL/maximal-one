@@ -16,38 +16,80 @@ def load_series():
     return df.values.squeeze()
 
 
-def compute_entropy(series):
-    hist, _ = np.histogram(series, bins=50, density=True)
-    hist = hist + 1e-12
-    return -np.sum(hist * np.log(hist))
+# -----------------------------
+# Advanced entropy (multi-scale)
+# -----------------------------
+
+def multiscale_entropy(series, scales=[1,2,3,5]):
+    def coarse_grain(s, scale):
+        n = len(s) // scale
+        return np.array([np.mean(s[i*scale:(i+1)*scale]) for i in range(n)])
+
+    entropies = []
+    for s in scales:
+        cg = coarse_grain(series, s)
+        hist, _ = np.histogram(cg, bins=50, density=True)
+        hist = hist + 1e-12
+        entropies.append(-np.sum(hist * np.log(hist)))
+
+    return np.mean(entropies)
 
 
-def autocorr(series, lag=1):
-    return np.corrcoef(series[:-lag], series[lag:])[0,1]
+# -----------------------------
+# Nonlinear autocorrelation
+# -----------------------------
 
+def nonlinear_autocorr(series, lag):
+    x = series[:-lag]
+    y = series[lag:]
+    return np.corrcoef(np.square(x), y)[0,1]
+
+
+# -----------------------------
+# Phase-space consistency
+# -----------------------------
+
+def phase_space_score(series, delay=2):
+    x = series[:-delay]
+    y = series[delay:]
+    return np.mean(np.abs(x - y))
+
+
+# -----------------------------
+# Structural score (enhanced)
+# -----------------------------
 
 def structural_score(series):
 
-    entropy = compute_entropy(series)
+    entropy = multiscale_entropy(series)
 
-    ac1 = autocorr(series, 1)
-    ac5 = autocorr(series, 5)
+    ac1 = np.corrcoef(series[:-1], series[1:])[0,1]
+    ac5 = np.corrcoef(series[:-5], series[5:])[0,1]
 
-    complexity = entropy * (abs(ac1) + abs(ac5))
+    nonlin = nonlinear_autocorr(series, 2)
+    phase = phase_space_score(series)
 
-    return float(complexity)
+    score = (
+        entropy * (abs(ac1) + abs(ac5)) +
+        abs(nonlin) +
+        (1.0 / (1.0 + phase))
+    )
 
+    return float(score)
+
+
+# -----------------------------
+# Evaluation
+# -----------------------------
 
 def evaluate_models(series):
 
-    # baseline: AR-like naive
     ar_score = structural_score(series)
 
-    # ensure root path is visible
     ROOT = Path(__file__).resolve().parents[1]
     if str(ROOT) not in sys.path:
         sys.path.append(str(ROOT))
-  
+
     from analysis.hcm_state_predictor import HCMStatePredictor
 
     model = HCMStatePredictor(embed_dim=4, delay=2, k=6)
@@ -68,21 +110,27 @@ def evaluate_models(series):
     return ar_score, hcm_score
 
 
+# -----------------------------
+# Main
+# -----------------------------
+
 def main():
 
     series = load_series()
 
     if series is None or len(series) < 300:
-        result = {
-            "skipped": True
-        }
+        result = {"skipped": True}
     else:
         ar_score, hcm_score = evaluate_models(series)
+
+        diff = hcm_score - ar_score
 
         result = {
             "ar_structural": float(ar_score),
             "hcm_structural": float(hcm_score),
-            "hcm_superior": bool(hcm_score > ar_score),
+            "delta": float(diff),
+            "relative_gain": float(diff / (abs(ar_score) + 1e-9)),
+            "hcm_superior": bool(diff > 0.01),
             "type": "structural_intelligence"
         }
 
