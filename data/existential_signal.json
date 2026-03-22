@@ -1,0 +1,36 @@
+{
+  "stabilized_features": [
+    {
+      "feature": "entropy_rate",
+      "stability_score": 25.332333605748648,
+      "cv": 0.1780662707347105,
+      "samples": 90
+    },
+    {
+      "feature": "alpha",
+      "stability_score": 6.4917019124940865,
+      "cv": 0.6254810485105134,
+      "samples": 57
+    },
+    {
+      "feature": "hurst_exponent",
+      "stability_score": 3.566750832615991,
+      "cv": 1.2646961202102205,
+      "samples": 90
+    },
+    {
+      "feature": "spectral_alpha",
+      "stability_score": 1.7919282890333468,
+      "cv": 3.247943109131732,
+      "samples": 336
+    },
+    {
+      "feature": "attractor_dimension",
+      "stability_score": 0.48428952412608245,
+      "cv": 9.124376851803738,
+      "samples": 82
+    }
+  ],
+  "strong_count": 3,
+  "passed": true
+}
