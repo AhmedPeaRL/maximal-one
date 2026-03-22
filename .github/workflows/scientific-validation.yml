@@ -822,6 +822,9 @@ jobs:
       - name: External Blind Validation
         run: python analysis/external_blind_validation.py
 
+      - name: Reality Gap Detector
+        run: python analysis/reality_gap_detector.py
+
       - name: Irreversibility Enforcer
         run: python analysis/irreversibility_enforcer.py
 
