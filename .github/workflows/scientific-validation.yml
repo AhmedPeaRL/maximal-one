@@ -777,6 +777,10 @@ jobs:
           python analysis/signal_extractor.py > artifacts/global_signal.json
           cat artifacts/global_signal.json
 
+      - name: Existential Signal Stabilizer
+        run: |
+          python analysis/existential_signal_stabilizer.py
+
       - name: Universality Gate
         run: |
           python analysis/universality_gate.py > artifacts/universality_gate.json
@@ -933,7 +937,7 @@ jobs:
           fi
 
           # ✅ copy artifacts AFTER sync
-          find artifacts -type f -name "*.json" -exec cp {} data/ \;
+          ls artifacts/*.json | xargs -P 4 -I {} cp {} data/
           find artifacts -type f -name "*.txt" -exec cp {} data/ \;
 
           git add data/
