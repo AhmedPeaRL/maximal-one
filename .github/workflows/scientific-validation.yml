@@ -819,6 +819,9 @@ jobs:
             echo "Universality NOT stable yet"
           fi
 
+      - name: External Blind Validation
+        run: python analysis/external_blind_validation.py
+
       - name: Irreversibility Enforcer
         run: python analysis/irreversibility_enforcer.py
 
