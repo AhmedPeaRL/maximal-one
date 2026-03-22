@@ -1,9 +1,2 @@
-"""
-Analysis package for HCM scientific validation.
-
-Contains:
-- chaotic benchmarks
-- spectral analysis
-- predictive evaluation
-- real-world dataset engines
-"""
+# HCM analysis package initializer
+# ensures module visibility across execution contexts
