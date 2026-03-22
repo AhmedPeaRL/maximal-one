@@ -659,6 +659,12 @@ jobs:
       - name: Market Signal Encoder
         run: python analysis/market_signal_encoder.py
 
+      - name: Ensure core signals exist
+        run: |
+          ls -lh artifacts || true
+            cat artifacts/global_verdict.json || echo "Missing verdict"
+            cat artifacts/universality_stability.json || echo "Missing universality"
+
       - name: Irreversibility Gate
         run: |
           python analysis/irreversibility_gate.py
