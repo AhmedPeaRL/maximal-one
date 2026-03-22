@@ -29,9 +29,9 @@ def main():
     # Irreversibility logic
     # -----------------------------
     irreversible = (
-    ratio > 0.6 and
-    score > 0.55 and
-    stable
+        ratio > 0.6 and
+        score > 0.55 and
+        stable
     )
 
     confidence = "low"
