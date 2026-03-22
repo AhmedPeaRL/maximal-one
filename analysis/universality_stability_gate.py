@@ -59,12 +59,12 @@ def main():
     strong_ratio = strong_count / len(history) if history else 0
 
     # 🔥 التعديل الذكي هنا
-    min_runs = 3
+    min_runs = 4
 
     passed = (
         len(history) >= min_runs and
         strong_ratio >= 0.75 and
-        score >= 2.6
+        score >= 2.75
     )
 
     progress = {
