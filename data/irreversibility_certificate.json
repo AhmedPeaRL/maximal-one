@@ -1,0 +1,18 @@
+{
+  "certificate": "HCM_IRREVERSIBILITY_PROOF",
+  "timestamp": "2026-03-22T11:22:15.869977Z",
+  "status": "confirmed",
+  "confidence": "bounded",
+  "score": 1.0,
+  "scientific_basis": {
+    "predictive_score": 0.6666666666666666,
+    "final_score": 0.6,
+    "universality_runs": 5,
+    "stability_score": 3.7879659848225753
+  },
+  "integrity": {
+    "verdict_hash": "d3d9b9f7c0e1f0c146cd32580a25e746f23b67428cfa2f2a8641613cf8070b5c",
+    "irreversibility_hash": "3dc7dc1c4c4e8643eec9a7d7f92d0248c0bdcace88aebc6b21d3c0ecca849441",
+    "universality_hash": "60a690318ec95d7e801aa972b6228cbf92d07c5baeff08b155777f68cc8aa180"
+  }
+}
