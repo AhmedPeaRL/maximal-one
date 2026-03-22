@@ -561,6 +561,10 @@ jobs:
             echo "Sunspots dataset missing — skipping benchmark"
             echo '{"hcm_superior": false, "skipped": true}' > artifacts/chaotic_benchmark.json
             fi
+
+      - name: Structural Intelligence Test
+        run: |
+          python analysis/structural_intelligence_test.py
      
       - name: Predictive deviation test
         run: |
