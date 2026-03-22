@@ -29,8 +29,8 @@ def main():
     # Irreversibility logic
     # -----------------------------
     irreversible = (
-        ratio > 0.65 and
-        score > 0.6 and
+        ratio > 0.6 and
+        score > 0.55 and
         stable
     )
 
