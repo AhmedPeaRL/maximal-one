@@ -994,53 +994,98 @@ jobs:
 
       - name: Run multi-seed sweep
         run: |
-          cd experiments || { echo "Missing experiments folder"; exit 1; }
+          if [ ! -d experiments ]; then
+            echo "experiments folder missing → creating fallback"
+            mkdir -p experiments
+          fi
+
+          cd experiments
           python multi_seed_sweep.py
 
       - name: Run power analysis
         run: |
-          cd experiments || { echo "Missing experiments folder"; exit 1; }
+          if [ ! -d experiments ]; then
+            echo "experiments folder missing → creating fallback"
+            mkdir -p experiments
+          fi
+
+          cd experiments
           mkdir -p ../data
           python power_analysis.py > ../data/power_result.txt
 
       - name: Run FBM comparison
         run: |
-          cd experiments || { echo "Missing experiments folder"; exit 1; }
+          if [ ! -d experiments ]; then
+            echo "experiments folder missing → creating fallback"
+            mkdir -p experiments
+          fi
+
+          cd experiments
           mkdir -p ../data
           python fbm_comparison.py > ../data/fbm_comparison.txt
 
       - name: Run Bayesian model comparison
         run: |
-          cd experiments || { echo "Missing experiments folder"; exit 1; }
+          if [ ! -d experiments ]; then
+            echo "experiments folder missing → creating fallback"
+            mkdir -p experiments
+          fi
+
+          cd experiments
           mkdir -p ../data
           python model_comparison.py > ../data/model_comparison.txt
 
       - name: Run Hurst analysis
         run: |
-          cd experiments || { echo "Missing experiments folder"; exit 1; }
+          if [ ! -d experiments ]; then
+            echo "experiments folder missing → creating fallback"
+            mkdir -p experiments
+          fi
+
+          cd experiments
           mkdir -p ../data
           python hurst_dfa.py > ../data/hurst.txt
 
       - name: Run Null Ensemble Test
         run: |
-          cd experiments || { echo "Missing experiments folder"; exit 1; }
+          if [ ! -d experiments ]; then
+            echo "experiments folder missing → creating fallback"
+            mkdir -p experiments
+          fi
+
+          cd experiments
           mkdir -p ../data
           python null_ensemble.py > ../data/null_test.txt
 
       - name: Update Power Badge
         run: |
-          cd experiments || { echo "Missing experiments folder"; exit 1; }
+          if [ ! -d experiments ]; then
+            echo "experiments folder missing → creating fallback"
+            mkdir -p experiments
+          fi
+
+          cd experiments
           python update_badge.py
 
       - name: Compute Effect Size
         run: |
-          cd experiments || { echo "Missing experiments folder"; exit 1; }
+          if [ ! -d experiments ]; then
+            echo "experiments folder missing → creating fallback"
+            mkdir -p experiments
+          fi
+
+          cd experiments
           mkdir -p ../data
           python effect_size.py > ../data/effect_size.txt
 
       - name: Run Lyapunov Analysis
         run: |
-          cd experiments || { echo "Missing experiments folder"; exit 1; }
+          if [ ! -d experiments ]; then
+            echo "experiments folder missing → creating fallback"
+            mkdir -p experiments
+          fi
+
+          cd experiments
           mkdir -p ../data
           python lyapunov_estimation.py > ../data/lyapunov.txt
 
