@@ -665,10 +665,6 @@ jobs:
             cat artifacts/global_verdict.json || echo "Missing verdict"
             cat artifacts/universality_stability.json || echo "Missing universality"
 
-      - name: Irreversibility Gate
-        run: |
-          python analysis/irreversibility_gate.py
-
       - name: Verdict Gate (Soft Scientific)
         run: |
           RESULT=$(cat artifacts/global_verdict.json)
@@ -818,6 +814,27 @@ jobs:
           if [ "$PASS" != "true" ]; then
             echo "Universality NOT stable yet"
           fi
+
+      - name: Irreversibility Gate (Final Layer)
+        run: |
+          echo "=== WAIT FOR FINAL SIGNALS ==="
+          ls -lh artifacts || true
+
+          if [ ! -f artifacts/global_verdict.json ]; then
+            echo "Missing global verdict → FAIL"
+            exit 1
+          fi
+
+          if [ ! -f artifacts/universality_stability.json ]; then
+            echo "Missing universality stability → FAIL"
+            exit 1
+          fi
+
+          echo "=== RUN IRREVERSIBILITY ==="
+          python analysis/irreversibility_gate.py
+
+          echo "=== RESULT ==="
+          cat artifacts/irreversibility.json || echo "No result generated"
 
       - name: Topology preservation
         run: python analysis/topology_preservation_test.py
@@ -977,53 +994,53 @@ jobs:
 
       - name: Run multi-seed sweep
         run: |
-          cd experiments
+          cd experiments || { echo "Missing experiments folder"; exit 1; }
           python multi_seed_sweep.py
 
       - name: Run power analysis
         run: |
-          cd experiments
+          cd experiments || { echo "Missing experiments folder"; exit 1; }
           mkdir -p ../data
           python power_analysis.py > ../data/power_result.txt
 
       - name: Run FBM comparison
         run: |
-          cd experiments
+          cd experiments || { echo "Missing experiments folder"; exit 1; }
           mkdir -p ../data
           python fbm_comparison.py > ../data/fbm_comparison.txt
 
       - name: Run Bayesian model comparison
         run: |
-          cd experiments
+          cd experiments || { echo "Missing experiments folder"; exit 1; }
           mkdir -p ../data
           python model_comparison.py > ../data/model_comparison.txt
 
       - name: Run Hurst analysis
         run: |
-          cd experiments
+          cd experiments || { echo "Missing experiments folder"; exit 1; }
           mkdir -p ../data
           python hurst_dfa.py > ../data/hurst.txt
 
       - name: Run Null Ensemble Test
         run: |
-          cd experiments
+          cd experiments || { echo "Missing experiments folder"; exit 1; }
           mkdir -p ../data
           python null_ensemble.py > ../data/null_test.txt
 
       - name: Update Power Badge
         run: |
-          cd experiments
+          cd experiments || { echo "Missing experiments folder"; exit 1; }
           python update_badge.py
 
       - name: Compute Effect Size
         run: |
-          cd experiments
+          cd experiments || { echo "Missing experiments folder"; exit 1; }
           mkdir -p ../data
           python effect_size.py > ../data/effect_size.txt
 
       - name: Run Lyapunov Analysis
         run: |
-          cd experiments
+          cd experiments || { echo "Missing experiments folder"; exit 1; }
           mkdir -p ../data
           python lyapunov_estimation.py > ../data/lyapunov.txt
 
