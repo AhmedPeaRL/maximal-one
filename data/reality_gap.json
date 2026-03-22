@@ -1,5 +1,8 @@
 {
-  "reality_check_passed": true,
-  "gaps": [],
-  "severity": "none"
+  "reality_check_passed": false,
+  "gaps": [
+    "predictive_power_not_dominant",
+    "no_signal_beyond_randomness"
+  ],
+  "severity": "critical"
 }
