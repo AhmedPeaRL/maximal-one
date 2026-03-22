@@ -564,7 +564,7 @@ jobs:
 
       - name: Structural Intelligence Test
         run: |
-          python analysis/structural_intelligence_test.py
+          python -m analysis.structural_intelligence_test
      
       - name: Predictive deviation test
         run: |
