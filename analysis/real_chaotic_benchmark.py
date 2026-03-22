@@ -106,16 +106,19 @@ def ar1_model():
 
 def hcm_recursive():
 
-    from analysis.hcm_state_predictor import HCMStatePredictor
-
     class HCMModel:
 
         def fit(self, history):
-            self.model = HCMStatePredictor(embed_dim=4, delay=2, k=6)
-            self.model.fit(history)
+            self.alpha = 0.5087
 
         def predict(self, history):
-            return self.model.predict(history)
+
+            last = history[-1]
+
+            return float(
+                last * (1 - self.alpha)
+                + np.tanh(last) * self.alpha
+            )
 
     return HCMModel()
 
