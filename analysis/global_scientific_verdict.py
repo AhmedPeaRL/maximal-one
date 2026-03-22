@@ -22,6 +22,7 @@ temporal = load("temporal_dominance.json")
 universality = load("universality_gate.json")
 universality_stability = load("universality_stability.json")
 topology = load("topology.json")  # optional
+structural = load("structural_test.json")
 
 
 # -----------------------------
@@ -116,6 +117,11 @@ if universality_stable:
 # topology (soft)
 if topology_ok:
     score += 0.05
+
+# structural
+if structural and not structural.get("skipped", False):
+    if structural.get("hcm_superior", False):
+        score += 0.2
 
 
 # -----------------------------
