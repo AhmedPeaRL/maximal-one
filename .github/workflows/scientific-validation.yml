@@ -659,6 +659,10 @@ jobs:
       - name: Market Signal Encoder
         run: python analysis/market_signal_encoder.py
 
+      - name: Irreversibility Gate
+        run: |
+          python analysis/irreversibility_gate.py
+
       - name: Verdict Gate (Soft Scientific)
         run: |
           RESULT=$(cat artifacts/global_verdict.json)
