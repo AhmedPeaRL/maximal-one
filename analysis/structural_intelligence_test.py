@@ -1,5 +1,6 @@
 import numpy as np
 import json
+import sys
 from pathlib import Path
 
 ART = Path("artifacts")
@@ -42,7 +43,11 @@ def evaluate_models(series):
     # baseline: AR-like naive
     ar_score = structural_score(series)
 
-    # HCM proxy (reconstructed state space)
+    # ensure root path is visible
+    ROOT = Path(__file__).resolve().parents[1]
+    if str(ROOT) not in sys.path:
+        sys.path.append(str(ROOT))
+  
     from analysis.hcm_state_predictor import HCMStatePredictor
 
     model = HCMStatePredictor(embed_dim=4, delay=2, k=6)
