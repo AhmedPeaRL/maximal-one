@@ -100,10 +100,10 @@ score = 0.0
 
 # base predictive evidence
 if ratio > 0.55:
-    score += 0.45
+    score += 0.4
 
 if ratio > 0.65:
-    score += 0.15
+    score += 0.1
 
 # universality
 if universality_passed:
@@ -134,7 +134,7 @@ result = {
         "weak"
     ),
     "final_score": score,
-    "passed": score >= 0.6
+    "passed": score >= 0.65
 }
 
 ART.mkdir(exist_ok=True)
