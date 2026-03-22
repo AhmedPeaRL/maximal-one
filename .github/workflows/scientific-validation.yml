@@ -822,6 +822,12 @@ jobs:
       - name: Irreversibility Enforcer
         run: python analysis/irreversibility_enforcer.py
 
+      - name: Generate Irreversibility Certificate
+        run: python analysis/irreversibility_certificate.py
+
+      - name: Export Public Signal
+        run: python analysis/public_signal_export.py
+
       - name: Irreversibility Gate (Final Layer)
         run: |
           echo "=== WAIT FOR FINAL SIGNALS ==="
