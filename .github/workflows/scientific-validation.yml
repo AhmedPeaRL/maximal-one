@@ -838,6 +838,9 @@ jobs:
       - name: Reality Gap Closer
         run: python analysis/reality_gap_closer.py
 
+      - name: Reality Gap Hardener
+        run: python analysis/reality_gap_hardener.py
+
       - name: Reality Breaker Test
         run: python analysis/reality_breaker_test.py
 
