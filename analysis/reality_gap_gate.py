@@ -4,24 +4,41 @@ from pathlib import Path
 ART = Path("artifacts")
 
 
+def load(name):
+    p = ART / name
+    if p.exists():
+        return json.loads(p.read_text())
+    return None
+
+
 def main():
 
-    p = ART / "reality_gap_closer.json"
+    closer = load("reality_gap_closer.json")
+    detector_v2 = load("reality_gap_detector_v2.json")
 
-    if not p.exists():
-        print(json.dumps({"passed": False, "reason": "missing"}))
+    if not closer:
+        print(json.dumps({"passed": False, "reason": "missing_closer"}))
         return
 
-    d = json.loads(p.read_text())
-
-    if d.get("skipped", False):
+    if closer.get("skipped", False):
         print(json.dumps({"passed": False, "reason": "skipped"}))
         return
 
-    if d.get("beyond_random", False):
-        result = {"passed": True, "reason": "signal_beyond_random"}
+    if not closer.get("beyond_random", False):
+        print(json.dumps({"passed": False, "reason": "still_random"}))
+        return
+
+    # 🔥 NEW: detector consistency check
+    if detector_v2 and detector_v2.get("gap_detected", False):
+        result = {
+            "passed": False,
+            "reason": "detector_inconsistency"
+        }
     else:
-        result = {"passed": False, "reason": "still_random_like"}
+        result = {
+            "passed": True,
+            "reason": "signal_beyond_random_and_structured"
+        }
 
     (ART / "reality_gap_fixed.json").write_text(
         json.dumps(result, indent=2)
