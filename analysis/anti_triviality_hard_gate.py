@@ -57,9 +57,9 @@ def phase_scramble(series):
 def persistence(history):
     return history[-1]
 
-from analysis.hcm_invariant_predictor import HCMInvariantPredictor
+from analysis.hcm_dynamical_predictor import HCMDynamicalPredictor
 
-model = HCMInvariantPredictor()
+model = HCMDynamicalPredictor()
 
 def hcm_predict(history):
     return model.predict(history)
