@@ -841,6 +841,9 @@ jobs:
       - name: Reality Gap Hardener
         run: python analysis/reality_gap_hardener.py
 
+      - name: Anti-Triviality Test
+        run: python analysis/anti_triviality_test.py
+
       - name: Reality Breaker Test
         run: python analysis/reality_breaker_test.py
 
