@@ -15,6 +15,7 @@ def main():
 
     closer = load("reality_gap_closer.json")
     detector_v2 = load("reality_gap_detector_v2.json")
+    hardener = load("reality_gap_hardener.json")
 
     if not closer:
         print(json.dumps({"passed": False, "reason": "missing_closer"}))
@@ -33,6 +34,11 @@ def main():
         result = {
             "passed": False,
             "reason": "detector_inconsistency"
+        }
+    if hardener and not hardener.get("non_trivial", False):
+        result = {
+            "passed": False,
+            "reason": "trivial_autocorrelation"
         }
     else:
         result = {
