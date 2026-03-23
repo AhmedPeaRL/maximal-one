@@ -39,6 +39,16 @@ def noise_injection(series, noise_level=0.2):
     noise = np.random.normal(0, noise_level*np.std(series), size=len(series))
     return series + noise
 
+def phase_scramble(series):
+    fft = np.fft.rfft(series)
+    phases = np.angle(fft)
+    magnitudes = np.abs(fft)
+
+    random_phases = np.random.uniform(-np.pi, np.pi, size=len(phases))
+    scrambled = magnitudes * np.exp(1j * random_phases)
+
+    return np.fft.irfft(scrambled, n=len(series))
+
 
 # -----------------------------
 # predictors
@@ -49,10 +59,21 @@ def persistence(history):
 
 
 def hcm_predict(history):
-    alpha = 0.5087
-    last = history[-1]
-    return last*(1-alpha) + np.tanh(last)*alpha
+    alpha = 0.41
+    beta = 0.27
 
+    last = history[-1]
+
+    # temporal gradient
+    if len(history) > 1:
+        delta = history[-1] - history[-2]
+    else:
+        delta = 0
+
+    # nonlinear field interaction
+    field = np.tanh(last) + beta * np.tanh(delta)
+
+    return last*(1-alpha) + alpha * field
 
 # -----------------------------
 # evaluation
@@ -93,6 +114,9 @@ def evaluate(series):
 
     # noisy
     tests["noisy"] = noise_injection(series)
+ 
+    # scramble
+    tests["phase"] = phase_scramble(series)
 
     results = {}
 
@@ -125,7 +149,10 @@ def main():
         # pass condition: HCM wins in at least 2 hard regimes
         wins = sum(1 for r in result.values() if r["hcm_better"])
 
-        result["hard_non_trivial"] = wins >= 2
+        result["hard_non_trivial"] = (
+            wins >= 2 and 
+            result.get("diff", {}).get("hcm_better", False)
+        )
 
     ART.mkdir(exist_ok=True)
     (ART / "anti_triviality_hard.json").write_text(
