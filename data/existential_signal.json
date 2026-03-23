@@ -2,32 +2,32 @@
   "stabilized_features": [
     {
       "feature": "entropy_rate",
-      "stability_score": 23.151540295286512,
-      "cv": 0.1948395785957675,
+      "stability_score": 23.489187679692645,
+      "cv": 0.19203882564355218,
       "samples": 90
     },
     {
       "feature": "alpha",
-      "stability_score": 6.479770873270471,
-      "cv": 0.6266327328833714,
+      "stability_score": 6.4846970736893415,
+      "cv": 0.6261567008771991,
       "samples": 57
     },
     {
       "feature": "hurst_exponent",
-      "stability_score": 3.554526464155208,
-      "cv": 1.2690455388302941,
+      "stability_score": 3.554228760145854,
+      "cv": 1.2691518348140818,
       "samples": 90
     },
     {
       "feature": "spectral_alpha",
-      "stability_score": 1.7824319712119863,
-      "cv": 3.2652472811980338,
+      "stability_score": 1.778426851781628,
+      "cv": 3.2726008078965703,
       "samples": 336
     },
     {
       "feature": "attractor_dimension",
-      "stability_score": 0.5026234147848173,
-      "cv": 8.791552433077502,
+      "stability_score": 0.5308999785721434,
+      "cv": 8.323300537289716,
       "samples": 82
     }
   ],
