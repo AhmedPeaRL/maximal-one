@@ -57,12 +57,53 @@ def phase_scramble(series):
 def persistence(history):
     return history[-1]
 
-from analysis.hcm_dynamical_predictor import HCMDynamicalPredictor
-
-model = HCMDynamicalPredictor()
-
 def hcm_predict(history):
-    return model.predict(history)
+    window = 20
+
+    if len(history) < window:
+        return history[-1]
+
+    series = np.array(history[-window:])
+
+    # normalize
+    series = (series - np.mean(series)) / (np.std(series) + 1e-8)
+
+    # --- Takens embedding (light) ---
+    tau = 2
+    dim = 3
+
+    embedded = []
+    for i in range(len(series) - tau * dim):
+        point = [series[i + j * tau] for j in range(dim)]
+        embedded.append(point)
+
+    embedded = np.array(embedded)
+
+    if len(embedded) < 5:
+        return history[-1]
+
+    current = embedded[-1]
+
+    # --- nearest neighbors ---
+    dists = np.linalg.norm(embedded - current, axis=1)
+    idx = np.argsort(dists)[1:4]
+
+    future = []
+
+    for i in idx:
+        if i + 1 < len(embedded):
+            future.append(embedded[i + 1][-1])
+
+    if len(future) == 0:
+        return history[-1]
+
+    # --- evolve state ---
+    prediction = np.mean(future)
+
+    # denormalize
+    prediction = prediction * np.std(history[-window:]) + np.mean(history[-window:])
+
+    return float(prediction)
     
 # -----------------------------
 # evaluation
