@@ -57,23 +57,43 @@ def phase_scramble(series):
 def persistence(history):
     return history[-1]
 
-
 def hcm_predict(history):
-    alpha = 0.41
-    beta = 0.27
+    alpha = 0.35
+    beta = 0.25
+    gamma = 0.15
 
-    last = history[-1]
+    window = 12
+    
+    if len(history) < window:
+        return history[-1]
 
-    # temporal gradient
-    if len(history) > 1:
-        delta = history[-1] - history[-2]
-    else:
-        delta = 0
+    recent = np.array(history[-window:])
 
-    # nonlinear field interaction
-    field = np.tanh(last) + beta * np.tanh(delta)
+    # normalize (critical for phase robustness)
+    recent = (recent - np.mean(recent)) / (np.std(recent) + 1e-8)
 
-    return last*(1-alpha) + alpha * field
+    # structure features
+    mean = np.mean(recent)
+    trend = recent[-1] - recent[0]
+
+    diffs = np.diff(recent)
+    curvature = np.mean(diffs[-3:]) - np.mean(diffs[:3])
+
+    # nonlinear field
+    field = (
+        np.tanh(mean) +
+        beta * np.tanh(trend) +
+        0.2 * np.tanh(curvature)
+    )
+
+    # memory interaction
+    interaction = np.sum(np.tanh(recent)) / window
+
+    return (
+        (1 - alpha) * history[-1] +
+        alpha * field +
+        gamma * interaction
+    )
 
 # -----------------------------
 # evaluation
