@@ -832,6 +832,9 @@ jobs:
       - name: Reality Gap Detector
         run: python analysis/reality_gap_detector.py
 
+      - name: Reality Gap Detector v2
+        run: python analysis/reality_gap_detector_v2.py
+
       - name: Reality Gap Closer
         run: python analysis/reality_gap_closer.py
 
