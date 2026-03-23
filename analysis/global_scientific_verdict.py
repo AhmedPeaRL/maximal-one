@@ -23,6 +23,7 @@ universality = load("universality_gate.json")
 universality_stability = load("universality_stability.json")
 topology = load("topology.json")  # optional
 structural = load("structural_test.json")
+structural_dom = load("structural_dominance.json")
 
 
 # -----------------------------
@@ -122,6 +123,10 @@ if topology_ok:
 if structural and not structural.get("skipped", False):
     if structural.get("hcm_superior", False):
         score += 0.2
+
+# structural dominance (new layer)
+if structural_dom and structural_dom.get("passed", False):
+    score += 0.25
 
 
 # -----------------------------
