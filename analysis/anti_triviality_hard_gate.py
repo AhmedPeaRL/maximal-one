@@ -58,43 +58,53 @@ def persistence(history):
     return history[-1]
 
 def hcm_predict(history):
-    alpha = 0.35
-    beta = 0.25
-    gamma = 0.15
+    window = 20
 
-    window = 12
-    
     if len(history) < window:
         return history[-1]
 
-    recent = np.array(history[-window:])
+    series = np.array(history[-window:])
 
-    # normalize (critical for phase robustness)
-    recent = (recent - np.mean(recent)) / (np.std(recent) + 1e-8)
+    # normalize
+    series = (series - np.mean(series)) / (np.std(series) + 1e-8)
 
-    # structure features
-    mean = np.mean(recent)
-    trend = recent[-1] - recent[0]
+    # --- Takens embedding (light) ---
+    tau = 2
+    dim = 3
 
-    diffs = np.diff(recent)
-    curvature = np.mean(diffs[-3:]) - np.mean(diffs[:3])
+    embedded = []
+    for i in range(len(series) - tau * dim):
+        point = [series[i + j * tau] for j in range(dim)]
+        embedded.append(point)
 
-    # nonlinear field
-    field = (
-        np.tanh(mean) +
-        beta * np.tanh(trend) +
-        0.2 * np.tanh(curvature)
-    )
+    embedded = np.array(embedded)
 
-    # memory interaction
-    interaction = np.sum(np.tanh(recent)) / window
+    if len(embedded) < 5:
+        return history[-1]
 
-    return (
-        (1 - alpha) * history[-1] +
-        alpha * field +
-        gamma * interaction
-    )
+    current = embedded[-1]
 
+    # --- nearest neighbors ---
+    dists = np.linalg.norm(embedded - current, axis=1)
+    idx = np.argsort(dists)[1:4]
+
+    future = []
+
+    for i in idx:
+        if i + 1 < len(embedded):
+            future.append(embedded[i + 1][-1])
+
+    if len(future) == 0:
+        return history[-1]
+
+    # --- evolve state ---
+    prediction = np.mean(future)
+
+    # denormalize
+    prediction = prediction * np.std(history[-window:]) + np.mean(history[-window:])
+
+    return float(prediction)
+    
 # -----------------------------
 # evaluation
 # -----------------------------
