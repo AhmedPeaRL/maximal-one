@@ -1,0 +1,28 @@
+{
+  "original": {
+    "persistence_mse": 2.1292840722772903e-09,
+    "hcm_mse": 3.323613721366693e-08,
+    "hcm_better": false
+  },
+  "diff": {
+    "persistence_mse": 1.4522150572775306e-10,
+    "hcm_mse": 6.371794529120573e-11,
+    "hcm_better": true
+  },
+  "shuffled": {
+    "persistence_mse": 0.10288161985635495,
+    "hcm_mse": 0.4179900484941689,
+    "hcm_better": false
+  },
+  "noisy": {
+    "persistence_mse": 0.07989021857668221,
+    "hcm_mse": 0.05419414643610785,
+    "hcm_better": true
+  },
+  "phase": {
+    "persistence_mse": 0.00015848743289760385,
+    "hcm_mse": 0.0006138373573214424,
+    "hcm_better": false
+  },
+  "hard_non_trivial": true
+}
