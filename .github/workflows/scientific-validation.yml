@@ -832,6 +832,12 @@ jobs:
       - name: Reality Gap Detector
         run: python analysis/reality_gap_detector.py
 
+      - name: Reality Gap Gate
+        run: python analysis/reality_gap_gate.py
+
+      - name: Reality Gap Closer
+        run: python analysis/reality_gap_closer.py
+
       - name: Irreversibility Enforcer
         run: python analysis/irreversibility_enforcer.py
 
