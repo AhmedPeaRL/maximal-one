@@ -845,7 +845,7 @@ jobs:
         run: python analysis/anti_triviality_test.py
 
       - name: Anti-Triviality HARD Gate
-        run: python analysis/anti_triviality_hard_gate.py
+        run: python -m analysis.anti_triviality_hard_gate
 
       - name: Reality Breaker Test
         run: python analysis/reality_breaker_test.py
