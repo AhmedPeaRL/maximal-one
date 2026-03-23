@@ -106,18 +106,18 @@ def ar1_model():
 
 def hcm_recursive():
 
-    from analysis.hcm_state_predictor import HCMStatePredictor
-
+    from analysis.hcm_dynamical_predictor import HCMDynamicalPredictor
+    
     class HCMModel:
-
+        
         def fit(self, history):
-            self.model = HCMStatePredictor(embed_dim=4, delay=2, k=6)
+            self.model = HCMDynamicalPredictor(embed_dim=4, delay=2, k=8)
             self.model.fit(history)
-
+            
         def predict(self, history):
             return self.model.predict(history)
-
-    return HCMModel()
+            
+            return HCMModel()
 
 
 def run(file_path):
