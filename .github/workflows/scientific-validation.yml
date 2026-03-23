@@ -565,6 +565,9 @@ jobs:
       - name: Structural Intelligence Test
         run: |
           python -m analysis.structural_intelligence_test
+
+      - name: Structural Dominance Gate
+        run: python analysis/structural_dominance_gate.py
      
       - name: Predictive deviation test
         run: |
