@@ -35,9 +35,9 @@ class HCMInvariantPredictor:
         self.local_scale = np.std(norm[-100:]) + 1e-8
 
     def predict(self, history):
-
-    if len(history) < 60:
-        return history[-1]
+        
+        if len(history) < 60:
+            return history[-1]
 
     # --- smart caching ---
     if not hasattr(self, "_last_len") or self._last_len != len(history):
