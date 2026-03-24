@@ -58,24 +58,23 @@ def persistence(history):
     return history[-1]
     
 from analysis.hcm_dynamical_predictor import HCMDynamicalPredictor
-
-model = HCMDynamicalPredictor()
-
 from analysis.hcm_invariant_predictor import HCMInvariantPredictor
-model = HCMInvariantPredictor()
-
 from analysis.hcm_robust_predictor import HCMRobustPredictor
 
-model = HCMRobustPredictor()
+models = [
+    HCMDynamicalPredictor(),
+    HCMInvariantPredictor(),
+    HCMRobustPredictor()
+]
 
 def hcm_predict(history):
-    return model.predict(history)
-
-if hasattr(self, "_last_len") and self._last_len == len(history):
-    pass
-else:
-    self.fit(history)
-    self._last_len = len(history)
+    preds = []
+    for m in models:
+        try:
+            preds.append(m.predict(history))
+        except:
+            preds.append(history[-1])
+    return float(np.median(preds))
     
 # -----------------------------
 # evaluation
