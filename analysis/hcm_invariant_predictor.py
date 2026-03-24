@@ -44,16 +44,23 @@ class HCMInvariantPredictor:
         if len(self.embedded) < self.k + 2:
             return history[-1]
 
-        current = self.embedded[-1]
-
         # distance with weighting (geometry aware)
+        base = self.embedded[:-1]
+        target = self.embedded[1:]
+        
+        current = self.embedded[-1]
+        
         weights = np.linspace(1.0, 2.0, self.embed_dim)
-        dists = np.linalg.norm((self.embedded - current) * weights, axis=1)
-
-        idx = np.argsort(dists)[1:self.k+1]
-
-        X = self.embedded[idx]
-        Y = self.embedded[idx + 1]
+        
+        dists = np.linalg.norm((base - current) * weights, axis=1)
+        
+        idx = np.argsort(dists)[:self.k]
+      
+        if len(idx) < self.k:
+            return history[-1]
+            
+        X = base[idx]
+        Y = target[idx]
 
         # --- robust local mapping ---
         try:
