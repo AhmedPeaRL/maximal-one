@@ -44,6 +44,12 @@ class HCMInvariantPredictor:
         if len(self.embedded) < self.k + 2:
             return history[-1]
 
+        if hasattr(self, "_last_len") and self._last_len == len(history):
+            pass
+        else:
+            self.fit(history)
+            self._last_len = len(history)
+
         # distance with weighting (geometry aware)
         base = self.embedded[:-1]
         target = self.embedded[1:]
