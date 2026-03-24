@@ -36,55 +36,47 @@ class HCMInvariantPredictor:
 
     def predict(self, history):
 
-        if len(history) < 60:
-            return history[-1]
+    if len(history) < 60:
+        return history[-1]
 
+    # --- smart caching ---
+    if not hasattr(self, "_last_len") or self._last_len != len(history):
         self.fit(history)
+        self._last_len = len(history)
 
-        if len(self.embedded) < self.k + 2:
-            return history[-1]
+    if len(self.embedded) < self.k + 2:
+        return history[-1]
 
-        if hasattr(self, "_last_len") and self._last_len == len(history):
-            pass
-        else:
-            self.fit(history)
-            self._last_len = len(history)
+    base = self.embedded[:-1]
+    target = self.embedded[1:]
+    
+    current = self.embedded[-1]
+    
+    weights = np.linspace(1.0, 2.0, self.embed_dim)
+    
+    dists = np.linalg.norm((base - current) * weights, axis=1)
+    
+    idx = np.argsort(dists)[:self.k]
 
-        # distance with weighting (geometry aware)
-        base = self.embedded[:-1]
-        target = self.embedded[1:]
+    if len(idx) < self.k:
+        return history[-1]
         
-        current = self.embedded[-1]
-        
-        weights = np.linspace(1.0, 2.0, self.embed_dim)
-        
-        dists = np.linalg.norm((base - current) * weights, axis=1)
-        
-        idx = np.argsort(dists)[:self.k]
-      
-        if len(idx) < self.k:
-            return history[-1]
-            
-        X = base[idx]
-        Y = target[idx]
+    X = base[idx]
+    Y = target[idx]
 
-        # --- robust local mapping ---
-        try:
-            A, _, _, _ = np.linalg.lstsq(X, Y, rcond=None)
-        except:
-            return history[-1]
+    try:
+        A, _, _, _ = np.linalg.lstsq(X, Y, rcond=None)
+    except:
+        return history[-1]
 
-        next_state = current @ A
+    next_state = current @ A
 
-        # --- invariant projection ---
-        pred = np.median(Y[:, -1])
+    pred = np.median(Y[:, -1])
 
-        # combine both (structure + invariant)
-        alpha = 0.7
-        pred = alpha * pred + (1 - alpha) * next_state[-1]
+    alpha = 0.7
+    pred = alpha * pred + (1 - alpha) * next_state[-1]
 
-        # denormalize using local invariant scale
-        window = history[-100:]
-        pred = pred * np.std(window) + np.mean(window)
+    window = history[-100:]
+    pred = pred * np.std(window) + np.mean(window)
 
-        return float(pred)
+    return float(pred)
