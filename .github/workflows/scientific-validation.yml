@@ -422,7 +422,7 @@ jobs:
         run: python -m analysis.surrogate_test
 
       - name: Global dataset registry
-        run: python -m analysis/global_dataset_registry
+        run: python -m analysis.global_dataset_registry
 
       - name: Dataset integrity manifest
         run: python -m analysis.dataset_guard
