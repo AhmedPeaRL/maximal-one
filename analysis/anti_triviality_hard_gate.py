@@ -136,7 +136,7 @@ def evaluate(series):
 # -----------------------------
 
 if time.time() - START_TIME > MAX_RUNTIME:
-    break
+break
 
 
 def main():
