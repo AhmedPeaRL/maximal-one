@@ -80,7 +80,7 @@ def rolling_mse(series, model, max_steps=300):
     test = series[split:]
 
     if time.time() - START_TIME > MAX_RUNTIME:
-        break
+    break
 
     # 🔥 NEW: limit steps
     if len(test) > max_steps:
