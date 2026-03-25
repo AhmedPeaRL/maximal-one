@@ -37,6 +37,11 @@ class HCMStatePredictor:
         if len(history) < (self.embed_dim * self.delay):
             return history[-1]
 
+        # --- smart caching ---
+        if not hasattr(self, "_last_len") or self._last_len != len(history):
+            self.fit(history)
+            self._last_len = len(history)
+
         emb = self.embed(np.array(history))
 
         if emb is None or len(emb) < self.k:
