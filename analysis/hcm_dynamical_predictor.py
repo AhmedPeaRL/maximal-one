@@ -30,7 +30,10 @@ class HCMDynamicalPredictor:
         if len(history) < 50:
             return history[-1]
 
-        self.fit(history)
+        # --- smart caching ---
+        if not hasattr(self, "_last_len") or self._last_len != len(history):
+            self.fit(history)
+            self._last_len = len(history)
 
         if len(self.embedded) < self.k + 2:
             return history[-1]
