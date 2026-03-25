@@ -298,8 +298,8 @@ jobs:
 
       - name: Fetch global chaos datasets
         run: |
-          python analysis/global_chaos_fetcher.py
-          python analysis/extended_chaos_fetcher.py
+          python -m analysis.global_chaos_fetcher
+          python -m analysis.extended_chaos_fetcher
             
             echo "==== CHECK SUNSPOTS RAW ===="
 
@@ -335,97 +335,97 @@ jobs:
 
       - name: Download real chaotic datasets
         run: |
-          python analysis/chaos_data_crawler.py
+          python -m analysis.chaos_data_crawler
 
       - name: Expand global datasets
-        run: python analysis/global_dataset_expander.py
+        run: python -m analysis.global_dataset_expander
 
       - name: Fetch EEG dataset
-        run: python analysis/eeg_fetcher.py
+        run: python -m analysis.eeg_fetcher
 
       - name: Sanitize datasets
-        run: python analysis/dataset_sanitizer.py
+        run: python -m analysis.dataset_sanitizer
 
       - name: Dataset health check
-        run: python analysis/dataset_health_check.py
+        run: python -m analysis.dataset_health_check
 
       - name: Generate chaos benchmark datasets
-        run: python analysis/chaos_generators.py
+        run: python -m analysis.chaos_generators
 
       - name: Windowed spectral analysis
-        run: python analysis/windowed_spectral_analysis.py
+        run: python -m analysis.windowed_spectral_analysis
 
       - name: Cross-system correlation
-        run: python analysis/cross_system_correlation.py
+        run: python -m analysis.cross_system_correlation
 
       - name: Extract invariants
-        run: python analysis/invariant_extractor.py
+        run: python -m analysis.invariant_extractor
 
       - name: Chaos metrics extension
-        run: python analysis/chaos_metrics_extension.py
+        run: python -m analysis.chaos_metrics_extension
 
       - name: Build universality features
-        run: python analysis/universality_feature_builder.py
+        run: python -m analysis.universality_feature_builder
 
       - name: Amplify universality signal
-        run: python analysis/universality_signal_amplifier.py
+        run: python -m analysis.universality_signal_amplifier
 
       - name: Universality clustering
-        run: python analysis/universality_cluster.py
+        run: python -m analysis.universality_cluster
 
       - name: Universality Map Builder
-        run: python analysis/universality_map_builder.py
+        run: python -m analysis.universality_map_builder
 
       - name: Invariant Scanner
-        run: python analysis/invariant_scanner.py
+        run: python -m analysis.invariant_scanner
 
       - name: Update invariant history
-        run: python analysis/invariant_history.py
+        run: python -m analysis.invariant_history
 
       - name: Detect invariant patterns
-        run: python analysis/invariant_detector.py
+        run: python -m analysis.invariant_detector
 
       - name: Universal invariant scan
-        run: python analysis/universal_invariant_scanner.py
+        run: python -m analysis.universal_invariant_scanner
 
       - name: Invariant field analysis
-        run: python analysis/invariant_field_analyzer.py
+        run: python -m analysis.invariant_field_analyzer
 
       - name: Universal relation finder
-        run: python analysis/universal_relation_finder.py
+        run: python -m analysis.universal_relation_finder
 
       - name: Scaling relation finder
-        run: python analysis/scaling_relation_finder.py
+        run: python -m analysis.scaling_relation_finder
 
       - name: Critical exponent estimation
-        run: python analysis/critical_exponent_estimator.py
+        run: python -m analysis.critical_exponent_estimator
 
       - name: Universality manifold test
-        run: python analysis/universality_manifold_test.py
+        run: python -m analysis.universality_manifold_test
 
       - name: Universal signature scanner
-        run: python analysis/universal_signature_scanner.py
+        run: python -m analysis.universal_signature_scanner
 
       - name: Universal invariant test
-        run: python analysis/universal_invariant_test.py
+        run: python -m analysis.universal_invariant_test
 
       - name: Robust universality filter
-        run: python analysis/robust_universality_filter.py
+        run: python -m analysis.robust_universality_filter
 
       - name: Invariant stability monitor
-        run: python analysis/invariant_stability_monitor.py
+        run: python -m analysis.invariant_stability_monitor
 
       - name: Null universe test
-        run: python analysis/null_universe_test.py
+        run: python -m analysis.null_universe_test
 
       - name: Surrogate chaos test
-        run: python analysis/surrogate_test.py
+        run: python -m analysis.surrogate_test
 
       - name: Global dataset registry
-        run: python analysis/global_dataset_registry.py
+        run: python -m analysis/global_dataset_registry
 
       - name: Dataset integrity manifest
-        run: python analysis/dataset_guard.py
+        run: python -m analysis.dataset_guard
 
       - name: Check downloaded datasets
         run: |
@@ -469,7 +469,7 @@ jobs:
 
       - name: precision robustness
         run: |
-          python analysis/precision_stability.py
+          python -m analysis.precision_stability
           
       - name: Run spectral verification
         run: |
@@ -483,14 +483,14 @@ jobs:
 
       - name: Autonomous Chaos Harvester
         run: |
-          python analysis/autonomous_chaos_harvester.py
+          python -m analysis.autonomous_chaos_harvester
 
       - name: Autonomous Dataset Hunter
-        run: python analysis/autonomous_dataset_hunter.py
+        run: python -m analysis.autonomous_dataset_hunter
 
       - name: Prepare real datasets
         run: |
-          python analysis/real_dataset_engine.py
+          python -m analysis.real_dataset_engine
 
       - name: Debug datasets before discovery
         run: |
@@ -499,23 +499,23 @@ jobs:
 
       - name: Automatic Discovery Engine
         run: |
-          python analysis/discovery_engine.py
+          python -m analysis.discovery_engine
 
       - name: Hypothesis discovery engine
         run: |
-          python analysis/hypothesis_generator.py
+          python -m analysis.hypothesis_generator
 
       - name: Chaos discovery engine
         run: |
-          python analysis/chaos_discovery_engine.py
+          python -m analysis.chaos_discovery_engine
 
       - name: Recurrence Quantification
         run: |
-          python analysis/recurrence_quantification.py
+          python -m analysis.recurrence_quantification
 
       - name: Build Chaos Atlas
         run: |
-          python analysis/chaos_atlas_index.py
+          python -m analysis.chaos_atlas_index
 
       - name: Takens phase-space reconstruction
         run: |
@@ -567,7 +567,7 @@ jobs:
           python -m analysis.structural_intelligence_test
 
       - name: Structural Dominance Gate
-        run: python analysis/structural_dominance_gate.py
+        run: python -m analysis.structural_dominance_gate
      
       - name: Predictive deviation test
         run: |
@@ -586,40 +586,40 @@ jobs:
           fi
 
       - name: Build real temporal series
-        run: python analysis/build_real_series.py
+        run: python -m analysis.build_real_series
 
       - name: Build Real Multi-System Series
-        run: python analysis/build_real_multisystem_series.py
+        run: python -m analysis.build_real_multisystem_series
 
       - name: Build Lorenz temporal series
-        run: python analysis/build_lorenz_series.py
+        run: python -m analysis.build_lorenz_series
 
       - name: Build Ecology temporal series
-        run: python analysis/build_ecology_series.py
+        run: python -m analysis.build_ecology_series
 
       - name: Real Temporal Dominance
-        run: python analysis/real_temporal_dominance.py
+        run: python -m analysis.real_temporal_dominance
 
       - name: Multi-System Temporal Test
-        run: python analysis/multi_system_temporal_test.py
+        run: python -m analysis.multi_system_temporal_test
 
       - name: Advanced Temporal Structure Test
-        run: python analysis/advanced_temporal_test.py
+        run: python -m analysis.advanced_temporal_test
 
       - name: Cross Invariant Consistency
-        run: python analysis/cross_invariant_consistency.py
+        run: python -m analysis.cross_invariant_consistency
 
       - name: Build Invariant Field
-        run: python analysis/invariant_field_builder.py
+        run: python -m analysis.invariant_field_builder
 
       - name: Degeneracy Breaker
-        run: python analysis/invariant_degeneracy_breaker.py
+        run: python -m analysis.invariant_degeneracy_breaker
 
       - name: Invariant Geometry Test
-        run: python analysis/invariant_geometry.py
+        run: python -m analysis.invariant_geometry
 
       - name: Invariant Embedding Test
-        run: python analysis/invariant_embedding.py
+        run: python -m analysis.invariant_embedding
           
       - name: Predictive Gain Gate
         run: |
@@ -639,32 +639,32 @@ jobs:
           cat artifacts/lorenz96.json
 
       - name: Patch Lorenz96 signal
-        run: python analysis/lorenz96_patch.py
+        run: python -m analysis.lorenz96_patch
 
       - name: Generate chaotic dataset
-        run: python analysis/generate_lorenz_dataset.py
+        run: python -m analysis.generate_lorenz_dataset
 
       - name: Generate predictions dataset
-        run: python analysis/generate_predictions_dataset.py
+        run: python -m analysis.generate_predictions_dataset
 
       - name: Run multi-seed experiment
         run: |
           mkdir -p artifacts
-          python experiments/multi_seed_sweep.py
+          python -m experiments.multi_seed_sweep
 
       - name: Long run replication
         run: |
           mkdir -p artifacts
-          python experiments/long_run_sweep.py
+          python -m experiments.long_run_sweep
 
       - name: Temporal Dominance Gate
-        run: python analysis/temporal_dominance_gate.py
+        run: python -m analysis.temporal_dominance_gate
 
       - name: Global Scientific Verdict
-        run: python analysis/global_scientific_verdict.py
+        run: python -m analysis.global_scientific_verdict
 
       - name: Market Signal Encoder
-        run: python analysis/market_signal_encoder.py
+        run: python -m analysis.market_signal_encoder
 
       - name: Ensure core signals exist
         run: |
@@ -693,15 +693,15 @@ jobs:
          cat artifacts/lorenz_gate.json
 
       - name: Practical significance gate
-        run: python analysis/effect_size_gate.py
+        run: python -m analysis.effect_size_gate
 
       - name: Meta Predictor Scoring
-        run: python analysis/meta_predictor_score.py
+        run: python -m analysis.meta_predictor_score
 
       - name: External replication gate
         run: | 
           mkdir -p artifacts
-          python analysis/external_replication_gate.py
+          python -m analysis.external_replication_gate
 
       - name: Chaotic Superiority Gate
         run: |
@@ -743,7 +743,7 @@ jobs:
 
       - name: Adversarial robustness test
         run: |
-          python analysis/adversarial_noise_test.py
+          python -m analysis.adversarial_noise_test
 
       - name: Bootstrap alpha stability
         run: |
@@ -751,22 +751,22 @@ jobs:
           python -m analysis.bootstrap_alpha
 
       - name: Observable invariance
-        run: python analysis/observable_invariant_test.py
+        run: python -m analysis.observable_invariant_test
 
       - name: Universal Scaling Law Test
         run: |
           mkdir -p artifacts
-          python analysis/scaling_collapse_test.py
+          python -m analysis.scaling_collapse_test
 
       - name: Null Structure Test
         run: |
           mkdir -p artifacts
-          python analysis/null_structure_test.py
+          python -m analysis.null_structure_test
 
       - name: Scaling Collapse Engine
         run: |
           mkdir -p artifacts
-          python analysis/scaling_collapse_engine.py
+          python -m analysis.scaling_collapse_engine
 
       - name: Debug artifact list
         run: |
@@ -774,10 +774,10 @@ jobs:
           ls -lh artifacts || true
 
       - name: Feature Ranking
-        run: python analysis/feature_ranking.py
+        run: python -m analysis.feature_ranking
 
       - name: Universality Debugger
-        run: python analysis/universality_debugger.py
+        run: python -m analysis.universality_debugger
 
       - name: Extract global signal
         run: |
@@ -786,7 +786,7 @@ jobs:
 
       - name: Existential Signal Stabilizer
         run: |
-          python analysis/existential_signal_stabilizer.py
+          python -m analysis.existential_signal_stabilizer
 
       - name: Universality Gate
         run: |
@@ -804,7 +804,7 @@ jobs:
           fi
 
       - name: Universality Stability Accelerator
-        run: python analysis/universality_stability_accelerator.py
+        run: python -m analysis.universality_stability_accelerator
 
       - name: Debug history before stability gate
         run: |
@@ -827,40 +827,40 @@ jobs:
           fi
 
       - name: External Blind Validation
-        run: python analysis/external_blind_validation.py
+        run: python -m analysis.external_blind_validation
 
       - name: Reality Gap Detector
-        run: python analysis/reality_gap_detector.py
+        run: python -m analysis.reality_gap_detector
 
       - name: Reality Gap Detector v2
-        run: python analysis/reality_gap_detector_v2.py
+        run: python -m analysis.reality_gap_detector_v2
 
       - name: Reality Gap Closer
-        run: python analysis/reality_gap_closer.py
+        run: python -m analysis.reality_gap_closer
 
       - name: Reality Gap Hardener
-        run: python analysis/reality_gap_hardener.py
+        run: python -m analysis.reality_gap_hardener
 
       - name: Anti-Triviality Test
-        run: python analysis/anti_triviality_test.py
+        run: python -m analysis.anti_triviality_test
 
       - name: Anti-Triviality HARD Gate
         run: python -m analysis.anti_triviality_hard_gate
 
       - name: Reality Breaker Test
-        run: python analysis/reality_breaker_test.py
+        run: python -m analysis.reality_breaker_test
 
       - name: Reality Gap Gate
-        run: python analysis/reality_gap_gate.py
+        run: python -m analysis.reality_gap_gate
 
       - name: Irreversibility Enforcer
-        run: python analysis/irreversibility_enforcer.py
+        run: python -m analysis.irreversibility_enforcer
 
       - name: Generate Irreversibility Certificate
-        run: python analysis/irreversibility_certificate.py
+        run: python -m analysis.irreversibility_certificate
 
       - name: Export Public Signal
-        run: python analysis/public_signal_export.py
+        run: python -m analysis.public_signal_export
 
       - name: Irreversibility Gate (Final Layer)
         run: |
@@ -884,19 +884,19 @@ jobs:
           cat artifacts/irreversibility.json || echo "No result generated"
 
       - name: Topology preservation
-        run: python analysis/topology_preservation_test.py
+        run: python -m analysis.topology_preservation_test
 
       - name: Real world leaderboard
-        run: python analysis/real_world_leaderboard.py
+        run: python -m analysis.real_world_leaderboard
 
       - name: Phase transition scan
         run: |
           mkdir -p artifacts
-          python analysis/phase_transition_scan.py
+          python -m analysis.phase_transition_scan
 
       - name: High resolution phase scan
         run: |
-          python analysis/high_resolution_phase_scan.py
+          python -m analysis.high_resolution_phase_scan
 
       - name: Nonlinear phase transition scan
         run: |
