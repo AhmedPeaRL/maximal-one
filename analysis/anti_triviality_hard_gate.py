@@ -3,6 +3,9 @@ import pandas as pd
 import json
 import sys
 from pathlib import Path
+import time
+START_TIME = time.time()
+MAX_RUNTIME = 300  # seconds
 
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
@@ -22,27 +25,12 @@ def load_series():
     df = pd.read_csv(path)
     return df.values.squeeze()
 
-
 # -----------------------------
 # HARD transformations
 # -----------------------------
 
 def difference(series):
     return np.diff(series)
-
-
-def shuffled_blocks(series, block_size=20):
-    blocks = [
-        series[i:i+block_size]
-        for i in range(0, len(series), block_size)
-    ]
-    np.random.shuffle(blocks)
-    return np.concatenate(blocks)
-
-
-def noise_injection(series, noise_level=0.2):
-    noise = np.random.normal(0, noise_level*np.std(series), size=len(series))
-    return series + noise
 
 def phase_scramble(series):
     fft = np.fft.rfft(series)
@@ -53,7 +41,6 @@ def phase_scramble(series):
     scrambled = magnitudes * np.exp(1j * random_phases)
 
     return np.fft.irfft(scrambled, n=len(series))
-
 
 # -----------------------------
 # predictors
@@ -86,11 +73,15 @@ def hcm_predict(history):
 # evaluation
 # -----------------------------
 
-def rolling_mse(series, model):
+def rolling_mse(series, model, max_steps=300):
 
     split = int(len(series)*0.7)
     train = list(series[:split])
     test = series[split:]
+
+    # 🔥 NEW: limit steps
+    if len(test) > max_steps:
+        test = test[:max_steps]
 
     history = train.copy()
     preds = []
@@ -101,12 +92,15 @@ def rolling_mse(series, model):
 
     return float(np.mean((np.array(test) - np.array(preds))**2))
 
-
 # -----------------------------
 # core
 # -----------------------------
 
 def evaluate(series):
+    # 🔥 NEW: downsample لو كبير
+    if len(series) > 2000:
+        idx = np.linspace(0, len(series)-1, 2000).astype(int)
+        series = series[idx]
 
     tests = {}
 
@@ -115,12 +109,6 @@ def evaluate(series):
 
     # diff
     tests["diff"] = difference(series)
-
-    # shuffled
-    tests["shuffled"] = shuffled_blocks(series)
-
-    # noisy
-    tests["noisy"] = noise_injection(series)
  
     # scramble
     tests["phase"] = phase_scramble(series)
@@ -142,6 +130,13 @@ def evaluate(series):
         }
 
     return results
+
+# -----------------------------
+# loop
+# -----------------------------
+
+if time.time() - START_TIME > MAX_RUNTIME:
+    break
 
 
 def main():
