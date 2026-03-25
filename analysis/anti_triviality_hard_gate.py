@@ -79,6 +79,9 @@ def rolling_mse(series, model, max_steps=300):
     train = list(series[:split])
     test = series[split:]
 
+    if time.time() - START_TIME > MAX_RUNTIME:
+        break
+
     # 🔥 NEW: limit steps
     if len(test) > max_steps:
         test = test[:max_steps]
@@ -130,13 +133,6 @@ def evaluate(series):
         }
 
     return results
-
-# -----------------------------
-# loop
-# -----------------------------
-
-if time.time() - START_TIME > MAX_RUNTIME:
-break
 
 
 def main():
