@@ -79,10 +79,11 @@ def rolling_mse(series, model, max_steps=300):
     train = list(series[:split])
     test = series[split:]
 
+    # ⛔ FIX: proper runtime guard
     if time.time() - START_TIME > MAX_RUNTIME:
-    break
+        return float("nan")
 
-    # 🔥 NEW: limit steps
+    # 🔥 limit steps
     if len(test) > max_steps:
         test = test[:max_steps]
 
@@ -90,10 +91,18 @@ def rolling_mse(series, model, max_steps=300):
     preds = []
 
     for t in range(len(test)):
+
+        # ⛔ runtime guard INSIDE loop (critical)
+        if time.time() - START_TIME > MAX_RUNTIME:
+            break
+
         preds.append(model(history))
         history.append(test[t])
 
-    return float(np.mean((np.array(test) - np.array(preds))**2))
+    if len(preds) == 0:
+        return float("nan")
+
+    return float(np.mean((np.array(test[:len(preds)]) - np.array(preds))**2))
 
 # -----------------------------
 # core
