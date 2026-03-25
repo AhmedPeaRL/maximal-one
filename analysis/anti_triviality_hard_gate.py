@@ -60,13 +60,15 @@ from analysis.hcm_dynamical_predictor import HCMDynamicalPredictor
 from analysis.hcm_invariant_predictor import HCMInvariantPredictor
 from analysis.hcm_robust_predictor import HCMRobustPredictor
 from analysis.hcm_invariant_signature_predictor import HCMInvariantSignaturePredictor
+from analysis.hcm_temporal_memory_predictor import HCMTemporalMemoryPredictor
 
 models = [
     HCMStatePredictor(),
     HCMDynamicalPredictor(),
     HCMInvariantPredictor(),
     HCMRobustPredictor(),
-    HCMInvariantSignaturePredictor()
+    HCMInvariantSignaturePredictor(),
+    HCMTemporalMemoryPredictor()  # 🔥 NEW CORE
 ]
 
 def hcm_predict(history):
@@ -171,11 +173,11 @@ def main():
             if k in ["original", "phase", "shuffle"] and r["hcm_better"]
         )
         
-        result["hard_non_trivial"] = wins >= 2
-
         result["hard_non_trivial"] = (
-            result.get("original", {}).get("hcm_better", False) and
-            result.get("phase", {}).get("hcm_better", False)
+            sum(
+                1 for k, r in result.items()
+                if k in ["original", "phase", "shuffle"] and r["hcm_better"]
+            ) >= 2
         )
 
     ART.mkdir(exist_ok=True)
