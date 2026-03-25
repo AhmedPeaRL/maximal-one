@@ -107,15 +107,21 @@ def ar1_model():
 def hcm_recursive():
 
     from analysis.hcm_dynamical_predictor import HCMDynamicalPredictor
+    from analysis.hcm_temporal_memory_predictor import HCMTemporalMemoryPredictor
     
     class HCMModel:
         
         def fit(self, history):
-            self.model = HCMDynamicalPredictor(embed_dim=4, delay=2, k=8)
-            self.model.fit(history)
+            self.dyn = HCMDynamicalPredictor(embed_dim=4, delay=2, k=8)
+            self.mem = HCMTemporalMemoryPredictor(window=40, k=5)
+
+            self.dyn.fit(history)
             
         def predict(self, history):
-            return self.model.predict(history)
+            p1 = self.dyn.predict(history)
+            p2 = self.mem.predict(history)
+
+            return 0.5 * p1 + 0.5 * p2
             
     return HCMModel()
 
