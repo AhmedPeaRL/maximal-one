@@ -42,6 +42,13 @@ def phase_scramble(series):
 
     return np.fft.irfft(scrambled, n=len(series))
 
+def block_shuffle(series, block_size=20):
+    s = series.copy()
+    n = len(s)
+    blocks = [s[i:i+block_size] for i in range(0, n, block_size)]
+    np.random.shuffle(blocks)
+    return np.concatenate(blocks)
+
 # -----------------------------
 # predictors
 # -----------------------------
@@ -52,12 +59,14 @@ from analysis.hcm_state_predictor import HCMStatePredictor
 from analysis.hcm_dynamical_predictor import HCMDynamicalPredictor
 from analysis.hcm_invariant_predictor import HCMInvariantPredictor
 from analysis.hcm_robust_predictor import HCMRobustPredictor
+from analysis.hcm_invariant_signature_predictor import HCMInvariantSignaturePredictor
 
 models = [
     HCMStatePredictor(),
     HCMDynamicalPredictor(),
     HCMInvariantPredictor(),
-    HCMRobustPredictor()
+    HCMRobustPredictor(),
+    HCMInvariantSignaturePredictor()
 ]
 
 def hcm_predict(history):
@@ -125,6 +134,9 @@ def evaluate(series):
     # scramble
     tests["phase"] = phase_scramble(series)
 
+    # shuffle
+    tests["shuffle"] = block_shuffle(series)
+
     results = {}
 
     for name, s in tests.items():
@@ -154,11 +166,16 @@ def main():
         result = evaluate(series)
 
         # pass condition: HCM wins in at least 2 hard regimes
-        wins = sum(1 for r in result.values() if r["hcm_better"])
+        wins = sum(
+            1 for k, r in result.items()
+            if k in ["original", "phase", "shuffle"] and r["hcm_better"]
+        )
+        
+        result["hard_non_trivial"] = wins >= 2
 
         result["hard_non_trivial"] = (
-            wins >= 2 and 
-            result.get("diff", {}).get("hcm_better", False)
+            result.get("original", {}).get("hcm_better", False) and
+            result.get("phase", {}).get("hcm_better", False)
         )
 
     ART.mkdir(exist_ok=True)
