@@ -96,6 +96,13 @@ if topology:
 # Final scoring logic (clean)
 # -----------------------------
 
+valid_tests = [t for t in tests if t["status"] != "skipped"]
+
+passed = sum(1 for t in valid_tests if t["status"] == "passed")
+total = len(valid_tests)
+
+score_ratio = passed / total if total > 0 else 0
+
 ratio = (total / n if n > 0 else 0) + temporal_boost
 
 score = 0.0
