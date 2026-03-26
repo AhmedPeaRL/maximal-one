@@ -4,14 +4,29 @@
     "entropy": 3.1079063639109283,
     "variance": 384.4202609500295
   },
+  "real-data/geomagnetic_kp_clean_clean.csv": {
+    "spectral_alpha": -1.6435015448905037,
+    "entropy": -27.49561382836668,
+    "variance": 0.7035048843669048
+  },
   "real-data/co2_atmospheric_clean.csv": {
-    "spectral_alpha": -1.7960521311447957,
+    "spectral_alpha": -1.7960521311447952,
     "entropy": 1.987323116376711,
     "variance": 1090.9576605138348
   },
+  "real-data/predictions.csv": {
+    "spectral_alpha": -2.3895497785061703,
+    "entropy": 4.346569598067862,
+    "variance": 56.34892899881255
+  },
+  "real-data/sunspots_global_clean_clean.csv": {
+    "spectral_alpha": -1.8045798339819648,
+    "entropy": 1.2822655179106772,
+    "variance": 3610.975962453115
+  },
   "real-data/sample_clean.csv": {
     "spectral_alpha": -2.2533307140378955,
-    "entropy": 3.9671680338306246,
+    "entropy": 3.967168033830624,
     "variance": 59.844445474648694
   },
   "real-data/sunspots.csv": {
@@ -19,53 +34,93 @@
     "entropy": 0.9660688983328354,
     "variance": 1887.1436708918059
   },
+  "real-data/daily_female_births_clean.csv": {
+    "spectral_alpha": -0.356350074565206,
+    "entropy": 3.3155836292107552,
+    "variance": 53.84894726965659
+  },
   "real-data/ecology.csv": {
-    "spectral_alpha": -0.7402813684016054,
+    "spectral_alpha": -0.7402813684016059,
     "entropy": 5.337676428689172,
     "variance": 16.575313309063613
   },
+  "real-data/ecology_clean_clean.csv": {
+    "spectral_alpha": -0.7402813684016059,
+    "entropy": 5.337676428689172,
+    "variance": 16.575313309063613
+  },
+  "real-data/lorenz63.csv": {
+    "spectral_alpha": -1.8033711837635433,
+    "entropy": 2.302765367030582,
+    "variance": 833.333325
+  },
   "real-data/cosmic_rays.csv": {
-    "spectral_alpha": -1.3180353480910767,
-    "entropy": 10.126966119977107,
+    "spectral_alpha": -1.3180353480910778,
+    "entropy": 10.126966119977105,
     "variance": 1.5456530309524452
   },
   "real-data/airline_passengers.csv": {
-    "spectral_alpha": -1.760544988870228,
+    "spectral_alpha": -1.7605449888702311,
     "entropy": 0.5621587643911375,
     "variance": 14291.973331404319
   },
   "real-data/sunspots_live.csv": {
-    "spectral_alpha": -0.9906919657154589,
+    "spectral_alpha": -0.9906919657154598,
     "entropy": 0.673735154029147,
     "variance": 4571.841132551746
   },
   "real-data/henon_map.csv": {
-    "spectral_alpha": 0.47524564515469925,
+    "spectral_alpha": 0.4752456451546994,
     "entropy": 15.96506709865985,
     "variance": 0.5288568718240823
   },
-  "real-data/temperature_clean.csv": {
-    "spectral_alpha": -1.2118268453674972,
+  "real-data/co2_clean_clean.csv": {
+    "spectral_alpha": -1.795328516332387,
+    "entropy": 3.1079063639109283,
+    "variance": 384.4202609500295
+  },
+  "real-data/sample_clean_clean.csv": {
+    "spectral_alpha": -2.2533307140378955,
+    "entropy": 3.967168033830624,
+    "variance": 59.844445474648694
+  },
+  "real-data/temperature_clean_clean.csv": {
+    "spectral_alpha": -1.2118268453674976,
     "entropy": 8.096748964846011,
     "variance": 0.16290710746914147
   },
+  "real-data/temperature_clean.csv": {
+    "spectral_alpha": -1.2118268453674976,
+    "entropy": 8.096748964846011,
+    "variance": 0.16290710746914147
+  },
+  "real-data/sunspots_clean_clean.csv": {
+    "spectral_alpha": -1.0666364335620997,
+    "entropy": 0.9660688983328354,
+    "variance": 1887.1436708918059
+  },
   "real-data/solar_wind_speed_clean.csv": {
-    "spectral_alpha": -0.9542702601790751,
-    "entropy": 0.66867373661875,
-    "variance": 10576.563679386427
+    "spectral_alpha": -0.8919909336391456,
+    "entropy": 0.6557316261363568,
+    "variance": 8913.214831693012
+  },
+  "real-data/co2_atmospheric_clean_clean.csv": {
+    "spectral_alpha": -1.7960521311447952,
+    "entropy": 1.987323116376711,
+    "variance": 1090.9576605138348
   },
   "real-data/ecology_clean.csv": {
-    "spectral_alpha": -0.7402813684016054,
+    "spectral_alpha": -0.7402813684016059,
     "entropy": 5.337676428689172,
     "variance": 16.575313309063613
   },
   "real-data/daily_female_births.csv": {
-    "spectral_alpha": -0.3563500745652076,
+    "spectral_alpha": -0.356350074565206,
     "entropy": 3.3155836292107552,
     "variance": 53.84894726965659
   },
   "real-data/sunspots_global_prepared.csv": {
-    "spectral_alpha": -1.8045798339818646,
+    "spectral_alpha": -1.8045798339818653,
     "entropy": 17.93335358062897,
     "variance": 0.9999868469642996
   },
@@ -75,12 +130,12 @@
     "variance": 1887.1436708918059
   },
   "real-data/sunspots_global_prepared_clean.csv": {
-    "spectral_alpha": -1.8045798339818646,
+    "spectral_alpha": -1.8045798339818653,
     "entropy": 17.93335358062897,
     "variance": 0.9999868469642996
   },
   "real-data/temperature.csv": {
-    "spectral_alpha": -1.2118268453674972,
+    "spectral_alpha": -1.2118268453674976,
     "entropy": 8.096748964846011,
     "variance": 0.16290710746914147
   },
@@ -89,28 +144,58 @@
     "entropy": 3.1079063639109283,
     "variance": 384.4202609500295
   },
+  "real-data/predictions_clean.csv": {
+    "spectral_alpha": -2.3895497785061703,
+    "entropy": 4.346569598067862,
+    "variance": 56.34892899881255
+  },
+  "real-data/lorenz63_clean.csv": {
+    "spectral_alpha": -1.8033711837635433,
+    "entropy": 2.302765367030582,
+    "variance": 833.333325
+  },
   "real-data/cosmic_rays_clean.csv": {
-    "spectral_alpha": -1.3180353480910767,
-    "entropy": 10.126966119977107,
+    "spectral_alpha": -1.3180353480910778,
+    "entropy": 10.126966119977105,
     "variance": 1.5456530309524452
+  },
+  "real-data/logistic_map_clean.csv": {
+    "spectral_alpha": 0.7625112729411081,
+    "entropy": -20.05751434975248,
+    "variance": 0.08918663310275192
+  },
+  "real-data/sunspots_extended_clean.csv": {
+    "spectral_alpha": -1.0666364335620997,
+    "entropy": 0.9660688983328354,
+    "variance": 1887.1436708918059
   },
   "real-data/sample.csv": {
     "spectral_alpha": -2.2533307140378955,
-    "entropy": 3.9671680338306246,
+    "entropy": 3.967168033830624,
     "variance": 59.844445474648694
   },
   "real-data/earthquake_magnitude.csv": {
-    "spectral_alpha": -1.803343987567759,
-    "entropy": 4.1807792949346805e-07,
-    "variance": 5.466693692140936e+17
+    "spectral_alpha": -1.8032205426486776,
+    "entropy": 4.181993808198561e-07,
+    "variance": 5.4113084857515514e+17
   },
   "real-data/sunspots_global_clean.csv": {
     "spectral_alpha": -1.8045798339819648,
     "entropy": 1.2822655179106772,
     "variance": 3610.975962453115
   },
+  "real-data/earthquake_magnitude_clean_clean.csv": {
+    "spectral_alpha": -1.8032205426486776,
+    "entropy": 4.181993808198561e-07,
+    "variance": 5.4113084857515514e+17
+  },
+  "real-data/solar_wind_speed_clean_clean.csv": {
+    "spectral_alpha": -0.8985935933089158,
+    "entropy": 0.663299320207785,
+    "variance": 9756.442621162207
+  },
   "real-data/rossler.csv": {
-    "spectral_alpha": -1.9651477365478351,
+    "spectral_alpha": -1.9651477365478354,
     "entropy": 6.712598285629205,
     "variance": 20.473776053269404
   },
@@ -119,15 +204,40 @@
     "entropy": 1.2822655179106772,
     "variance": 3610.975962453115
   },
+  "real-data/sunspots_global_prepared_clean_clean.csv": {
+    "spectral_alpha": -1.8045798339818653,
+    "entropy": 17.93335358062897,
+    "variance": 0.9999868469642996
+  },
   "real-data/logistic_map.csv": {
     "spectral_alpha": 0.7625112729411081,
     "entropy": -20.05751434975248,
     "variance": 0.08918663310275192
   },
   "real-data/geomagnetic_kp_clean.csv": {
-    "spectral_alpha": -1.6798344533653269,
-    "entropy": -9.196318887310193,
-    "variance": 1.7270762460597364
+    "spectral_alpha": -1.6435015448905037,
+    "entropy": -27.49561382836668,
+    "variance": 0.7035048843669048
+  },
+  "real-data/rossler_clean.csv": {
+    "spectral_alpha": -1.9651477365478351,
+    "entropy": 6.712598285629205,
+    "variance": 20.473776053269404
+  },
+  "real-data/sunspots_live_clean.csv": {
+    "spectral_alpha": -0.9906919657154598,
+    "entropy": 0.673735154029147,
+    "variance": 4571.841132551746
+  },
+  "real-data/cosmic_rays_clean_clean.csv": {
+    "spectral_alpha": -1.3180353480910778,
+    "entropy": 10.126966119977105,
+    "variance": 1.5456530309524452
+  },
+  "real-data/henon_map_clean.csv": {
+    "spectral_alpha": 0.4752456451546994,
+    "entropy": 15.96506709865985,
+    "variance": 0.5288568718240823
   },
   "real-data/sunspots_clean.csv": {
     "spectral_alpha": -1.0666364335620997,
@@ -135,18 +245,18 @@
     "variance": 1887.1436708918059
   },
   "real-data/co2_atmospheric.csv": {
-    "spectral_alpha": -1.7960521311447957,
+    "spectral_alpha": -1.7960521311447952,
     "entropy": 1.987323116376711,
     "variance": 1090.9576605138348
   },
   "real-data/solar_wind_speed.csv": {
-    "spectral_alpha": -0.9542702601790751,
-    "entropy": 0.66867373661875,
-    "variance": 10576.563679386427
+    "spectral_alpha": -0.8919909336391456,
+    "entropy": 0.6557316261363568,
+    "variance": 8913.214831693012
   },
   "real-data/earthquake_magnitude_clean.csv": {
-    "spectral_alpha": -1.803343987567759,
-    "entropy": 4.1807792949346805e-07,
-    "variance": 5.466693692140936e+17
+    "spectral_alpha": -1.8032205426486776,
+    "entropy": 4.181993808198561e-07,
+    "variance": 5.4113084857515514e+17
   }
 }
