@@ -12,8 +12,11 @@ Given:
 Then:
 
 If the system is spectrally self-consistent,
-the bootstrap mean of the estimated spectral exponent α
-remains statistically indistinguishable from 1/2.
+α_null ≈ 1/2 (baseline regime)
+
+The system also exhibits a distinct attractor regime:
+
+α_star ≈ 1.809 (empirical invariant)
 
 ---
 
