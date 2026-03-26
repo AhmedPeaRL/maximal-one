@@ -1,8 +1,8 @@
 import json
 import pathlib
-import sys
 
 ART = pathlib.Path("artifacts")
+
 
 def load(name):
     p = ART / name
@@ -84,7 +84,7 @@ if universality_stability:
 
 
 # -----------------------------
-# Topology (optional soft signal)
+# Topology (optional)
 # -----------------------------
 
 topology_ok = False
@@ -93,14 +93,14 @@ if topology:
 
 
 # -----------------------------
-# Final scoring logic (clean)
+# Final scoring logic
 # -----------------------------
 
 ratio = (total / n if n > 0 else 0) + temporal_boost
 
 score = 0.0
 
-# base predictive evidence
+# predictive evidence
 if ratio > 0.55:
     score += 0.45
 
@@ -124,7 +124,7 @@ if structural and not structural.get("skipped", False):
     if structural.get("hcm_superior", False):
         score += 0.2
 
-# structural dominance (new layer)
+# structural dominance
 if structural_dom and structural_dom.get("passed", False):
     score += 0.25
 
