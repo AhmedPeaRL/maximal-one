@@ -2,184 +2,184 @@
   "atlas_size": 30,
   "datasets": [
     {
-      "dataset": "co2.csv",
-      "path": "real-data/co2.csv",
-      "size_bytes": 37318,
-      "timestamp": "2026-03-26T07:26:10.567333"
-    },
-    {
-      "dataset": "co2_atmospheric_clean.csv",
-      "path": "real-data/co2_atmospheric_clean.csv",
-      "size_bytes": 5640,
-      "timestamp": "2026-03-26T07:26:10.567353"
-    },
-    {
-      "dataset": "sample_clean.csv",
-      "path": "real-data/sample_clean.csv",
-      "size_bytes": 36979,
-      "timestamp": "2026-03-26T07:26:10.567361"
-    },
-    {
-      "dataset": "sunspots.csv",
-      "path": "real-data/sunspots.csv",
-      "size_bytes": 45039,
-      "timestamp": "2026-03-26T07:26:10.567368"
-    },
-    {
-      "dataset": "ecology.csv",
-      "path": "real-data/ecology.csv",
-      "size_bytes": 67921,
-      "timestamp": "2026-03-26T07:26:10.567398"
-    },
-    {
-      "dataset": "cosmic_rays.csv",
-      "path": "real-data/cosmic_rays.csv",
-      "size_bytes": 103171,
-      "timestamp": "2026-03-26T07:26:10.567407"
-    },
-    {
-      "dataset": "airline_passengers.csv",
-      "path": "real-data/airline_passengers.csv",
-      "size_bytes": 2180,
-      "timestamp": "2026-03-26T07:26:10.567414"
-    },
-    {
-      "dataset": "sunspots_live.csv",
-      "path": "real-data/sunspots_live.csv",
-      "size_bytes": 17369,
-      "timestamp": "2026-03-26T07:26:10.567424"
-    },
-    {
-      "dataset": "henon_map.csv",
-      "path": "real-data/henon_map.csv",
-      "size_bytes": 97138,
-      "timestamp": "2026-03-26T07:26:10.567431"
-    },
-    {
-      "dataset": "temperature_clean.csv",
-      "path": "real-data/temperature_clean.csv",
-      "size_bytes": 25205,
-      "timestamp": "2026-03-26T07:26:10.567442"
-    },
-    {
-      "dataset": "solar_wind_speed_clean.csv",
-      "path": "real-data/solar_wind_speed_clean.csv",
-      "size_bytes": 58326,
-      "timestamp": "2026-03-26T07:26:10.567450"
-    },
-    {
-      "dataset": "ecology_clean.csv",
-      "path": "real-data/ecology_clean.csv",
-      "size_bytes": 16813,
-      "timestamp": "2026-03-26T07:26:10.567456"
-    },
-    {
-      "dataset": "daily_female_births.csv",
-      "path": "real-data/daily_female_births.csv",
-      "size_bytes": 6220,
-      "timestamp": "2026-03-26T07:26:10.567466"
-    },
-    {
-      "dataset": "sunspots_global_prepared.csv",
-      "path": "real-data/sunspots_global_prepared.csv",
-      "size_bytes": 1486527,
-      "timestamp": "2026-03-26T07:26:10.567473"
-    },
-    {
-      "dataset": "sunspots_extended.csv",
-      "path": "real-data/sunspots_extended.csv",
-      "size_bytes": 45039,
-      "timestamp": "2026-03-26T07:26:10.567479"
-    },
-    {
-      "dataset": "sunspots_global_prepared_clean.csv",
-      "path": "real-data/sunspots_global_prepared_clean.csv",
-      "size_bytes": 1466862,
-      "timestamp": "2026-03-26T07:26:10.567486"
-    },
-    {
-      "dataset": "temperature.csv",
-      "path": "real-data/temperature.csv",
-      "size_bytes": 83924,
-      "timestamp": "2026-03-26T07:26:10.567495"
-    },
-    {
-      "dataset": "co2_clean.csv",
-      "path": "real-data/co2_clean.csv",
-      "size_bytes": 30054,
-      "timestamp": "2026-03-26T07:26:10.567502"
-    },
-    {
-      "dataset": "cosmic_rays_clean.csv",
-      "path": "real-data/cosmic_rays_clean.csv",
-      "size_bytes": 25511,
-      "timestamp": "2026-03-26T07:26:10.567508"
-    },
-    {
-      "dataset": "sample.csv",
-      "path": "real-data/sample.csv",
-      "size_bytes": 37170,
-      "timestamp": "2026-03-26T07:26:10.567515"
-    },
-    {
-      "dataset": "earthquake_magnitude.csv",
-      "path": "real-data/earthquake_magnitude.csv",
-      "size_bytes": 197404,
-      "timestamp": "2026-03-26T07:26:10.567521"
-    },
-    {
-      "dataset": "sunspots_global_clean.csv",
-      "path": "real-data/sunspots_global_clean.csv",
-      "size_bytes": 675847,
-      "timestamp": "2026-03-26T07:26:10.567527"
-    },
-    {
       "dataset": "rossler.csv",
       "path": "real-data/rossler.csv",
       "size_bytes": 95018,
-      "timestamp": "2026-03-26T07:26:10.567535"
-    },
-    {
-      "dataset": "sunspots_global.csv",
-      "path": "real-data/sunspots_global.csv",
-      "size_bytes": 1432803,
-      "timestamp": "2026-03-26T07:26:10.567542"
+      "timestamp": "2026-03-26T17:15:32.987694"
     },
     {
       "dataset": "logistic_map.csv",
       "path": "real-data/logistic_map.csv",
       "size_bytes": 95758,
-      "timestamp": "2026-03-26T07:26:10.567548"
+      "timestamp": "2026-03-26T17:15:32.987712"
     },
     {
-      "dataset": "geomagnetic_kp_clean.csv",
-      "path": "real-data/geomagnetic_kp_clean.csv",
-      "size_bytes": 1438,
-      "timestamp": "2026-03-26T07:26:10.567554"
+      "dataset": "temperature.csv",
+      "path": "real-data/temperature.csv",
+      "size_bytes": 83924,
+      "timestamp": "2026-03-26T17:15:32.987720"
     },
     {
-      "dataset": "sunspots_clean.csv",
-      "path": "real-data/sunspots_clean.csv",
-      "size_bytes": 14010,
-      "timestamp": "2026-03-26T07:26:10.567560"
+      "dataset": "co2.csv",
+      "path": "real-data/co2.csv",
+      "size_bytes": 37318,
+      "timestamp": "2026-03-26T17:15:32.987726"
+    },
+    {
+      "dataset": "cosmic_rays_clean.csv",
+      "path": "real-data/cosmic_rays_clean.csv",
+      "size_bytes": 25511,
+      "timestamp": "2026-03-26T17:15:32.987732"
+    },
+    {
+      "dataset": "solar_wind_speed_clean.csv",
+      "path": "real-data/solar_wind_speed_clean.csv",
+      "size_bytes": 58284,
+      "timestamp": "2026-03-26T17:15:32.987739"
+    },
+    {
+      "dataset": "sample_clean.csv",
+      "path": "real-data/sample_clean.csv",
+      "size_bytes": 36979,
+      "timestamp": "2026-03-26T17:15:32.987745"
     },
     {
       "dataset": "co2_atmospheric.csv",
       "path": "real-data/co2_atmospheric.csv",
       "size_bytes": 11558,
-      "timestamp": "2026-03-26T07:26:10.567569"
+      "timestamp": "2026-03-26T17:15:32.987754"
     },
     {
-      "dataset": "solar_wind_speed.csv",
-      "path": "real-data/solar_wind_speed.csv",
-      "size_bytes": 291608,
-      "timestamp": "2026-03-26T07:26:10.567575"
+      "dataset": "sunspots_extended.csv",
+      "path": "real-data/sunspots_extended.csv",
+      "size_bytes": 45039,
+      "timestamp": "2026-03-26T17:15:32.987761"
+    },
+    {
+      "dataset": "sunspots_global_prepared_clean.csv",
+      "path": "real-data/sunspots_global_prepared_clean.csv",
+      "size_bytes": 1466862,
+      "timestamp": "2026-03-26T17:15:32.987768"
+    },
+    {
+      "dataset": "sunspots_live.csv",
+      "path": "real-data/sunspots_live.csv",
+      "size_bytes": 17369,
+      "timestamp": "2026-03-26T17:15:32.987774"
+    },
+    {
+      "dataset": "co2_clean.csv",
+      "path": "real-data/co2_clean.csv",
+      "size_bytes": 30054,
+      "timestamp": "2026-03-26T17:15:32.987780"
+    },
+    {
+      "dataset": "sunspots.csv",
+      "path": "real-data/sunspots.csv",
+      "size_bytes": 45039,
+      "timestamp": "2026-03-26T17:15:32.987790"
+    },
+    {
+      "dataset": "sunspots_global.csv",
+      "path": "real-data/sunspots_global.csv",
+      "size_bytes": 1432803,
+      "timestamp": "2026-03-26T17:15:32.987796"
+    },
+    {
+      "dataset": "temperature_clean.csv",
+      "path": "real-data/temperature_clean.csv",
+      "size_bytes": 25205,
+      "timestamp": "2026-03-26T17:15:32.987802"
+    },
+    {
+      "dataset": "sunspots_global_prepared.csv",
+      "path": "real-data/sunspots_global_prepared.csv",
+      "size_bytes": 1486527,
+      "timestamp": "2026-03-26T17:15:32.987808"
     },
     {
       "dataset": "earthquake_magnitude_clean.csv",
       "path": "real-data/earthquake_magnitude_clean.csv",
-      "size_bytes": 196949,
-      "timestamp": "2026-03-26T07:26:10.567581"
+      "size_bytes": 196372,
+      "timestamp": "2026-03-26T17:15:32.987814"
+    },
+    {
+      "dataset": "sample.csv",
+      "path": "real-data/sample.csv",
+      "size_bytes": 37170,
+      "timestamp": "2026-03-26T17:15:32.987820"
+    },
+    {
+      "dataset": "cosmic_rays.csv",
+      "path": "real-data/cosmic_rays.csv",
+      "size_bytes": 103171,
+      "timestamp": "2026-03-26T17:15:32.987826"
+    },
+    {
+      "dataset": "airline_passengers.csv",
+      "path": "real-data/airline_passengers.csv",
+      "size_bytes": 2180,
+      "timestamp": "2026-03-26T17:15:32.987832"
+    },
+    {
+      "dataset": "ecology_clean.csv",
+      "path": "real-data/ecology_clean.csv",
+      "size_bytes": 16813,
+      "timestamp": "2026-03-26T17:15:32.987838"
+    },
+    {
+      "dataset": "solar_wind_speed.csv",
+      "path": "real-data/solar_wind_speed.csv",
+      "size_bytes": 291398,
+      "timestamp": "2026-03-26T17:15:32.987866"
+    },
+    {
+      "dataset": "earthquake_magnitude.csv",
+      "path": "real-data/earthquake_magnitude.csv",
+      "size_bytes": 196827,
+      "timestamp": "2026-03-26T17:15:32.987873"
+    },
+    {
+      "dataset": "sunspots_global_clean.csv",
+      "path": "real-data/sunspots_global_clean.csv",
+      "size_bytes": 675847,
+      "timestamp": "2026-03-26T17:15:32.987879"
+    },
+    {
+      "dataset": "sunspots_clean.csv",
+      "path": "real-data/sunspots_clean.csv",
+      "size_bytes": 14010,
+      "timestamp": "2026-03-26T17:15:32.987885"
+    },
+    {
+      "dataset": "ecology.csv",
+      "path": "real-data/ecology.csv",
+      "size_bytes": 67921,
+      "timestamp": "2026-03-26T17:15:32.987891"
+    },
+    {
+      "dataset": "henon_map.csv",
+      "path": "real-data/henon_map.csv",
+      "size_bytes": 97138,
+      "timestamp": "2026-03-26T17:15:32.987897"
+    },
+    {
+      "dataset": "daily_female_births.csv",
+      "path": "real-data/daily_female_births.csv",
+      "size_bytes": 6220,
+      "timestamp": "2026-03-26T17:15:32.987905"
+    },
+    {
+      "dataset": "geomagnetic_kp_clean.csv",
+      "path": "real-data/geomagnetic_kp_clean.csv",
+      "size_bytes": 1438,
+      "timestamp": "2026-03-26T17:15:32.987911"
+    },
+    {
+      "dataset": "co2_atmospheric_clean.csv",
+      "path": "real-data/co2_atmospheric_clean.csv",
+      "size_bytes": 5640,
+      "timestamp": "2026-03-26T17:15:32.987916"
     }
   ]
 }
