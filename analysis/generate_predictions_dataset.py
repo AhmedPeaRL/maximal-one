@@ -1,33 +1,43 @@
 import numpy as np
 import pandas as pd
+from sklearn.linear_model import LinearRegression
 
-def lorenz(x, y, z, s=10, r=28, b=2.667):
-    dx = s*(y - x)
-    dy = r*x - y - x*z
-    dz = x*y - b*z
-    return dx, dy, dz
+np.random.seed(42)
 
-dt = 0.01
-steps = 1000
+def generate_lorenz_like(n=1000):
+    x = np.zeros(n)
+    for i in range(1, n):
+        x[i] = 0.9 * x[i-1] + np.sin(x[i-1]) + np.random.normal(0, 0.1)
+    return x
 
-xs = np.empty(steps)
-ys = np.empty(steps)
-zs = np.empty(steps)
+series = generate_lorenz_like(1200)
 
-xs[0], ys[0], zs[0] = (0., 1., 1.05)
+# split
+train = series[:1000]
+test = series[1000:]
 
-for i in range(steps-1):
-    dx, dy, dz = lorenz(xs[i], ys[i], zs[i])
-    xs[i+1] = xs[i] + dx*dt
-    ys[i+1] = ys[i] + dy*dt
-    zs[i+1] = zs[i] + dz*dt
+# build lag features
+def build_features(data, lag=5):
+    X, y = [], []
+    for i in range(lag, len(data)):
+        X.append(data[i-lag:i])
+        y.append(data[i])
+    return np.array(X), np.array(y)
+
+X_train, y_train = build_features(train)
+X_test, y_test = build_features(test)
+
+# train real model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
 
 df = pd.DataFrame({
-    "x": xs,
-    "y": ys,
-    "z": zs
+    "y_true": y_test,
+    "y_pred": y_pred
 })
 
-df.to_csv("real-data/predictions.csv", index=False)
+df.to_csv("data/predictions.csv", index=False)
 
-print("Generated 1000-row Lorenz dataset.")
+print("Real predictions generated.")
