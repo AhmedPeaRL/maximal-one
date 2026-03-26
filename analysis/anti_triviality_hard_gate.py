@@ -59,13 +59,6 @@ def persistence(history):
 from analysis.hcm_phase_space_predictor import HCMPhaseSpacePredictor
 
 models = [
-    HCMStatePredictor(),
-    HCMDynamicalPredictor(),
-    HCMInvariantPredictor(),
-    HCMRobustPredictor(),
-    HCMInvariantSignaturePredictor(),
-    HCMTemporalMemoryPredictor(),
-    HCMCrossScalePredictor(),
     HCMPhaseSpacePredictor()  # 🔥 NEW CORE
 ]
 
