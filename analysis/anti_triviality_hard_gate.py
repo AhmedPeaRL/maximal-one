@@ -62,7 +62,6 @@ from analysis.hcm_robust_predictor import HCMRobustPredictor
 from analysis.hcm_invariant_signature_predictor import HCMInvariantSignaturePredictor
 from analysis.hcm_temporal_memory_predictor import HCMTemporalMemoryPredictor
 from analysis.hcm_cross_scale_predictor import HCMCrossScalePredictor
-from analysis.hcm_phase_space_predictor import HCMPhaseSpacePredictor
 
 models = [
     HCMStatePredictor(),
@@ -71,8 +70,7 @@ models = [
     HCMRobustPredictor(),
     HCMInvariantSignaturePredictor(),
     HCMTemporalMemoryPredictor(),
-    HCMCrossScalePredictor(),
-    HCMPhaseSpacePredictor()  # 🔥 NEW CORE
+    HCMCrossScalePredictor()  # 🔥 NEW
 ]
 
 def hcm_predict(history):
@@ -98,13 +96,7 @@ def hcm_predict(history):
     median = np.median(preds)
     deviations = np.abs(preds - median)
 
-    # penalize consensus collapse
-    spread = np.std(preds)
-
-    if spread < 1e-6:
-        return history[-1]
-
-    weights = 1 / (1 + deviations + 0.1 * (1/spread))
+    weights = 1 / (1 + deviations)
 
     # normalize
     weights = weights / np.sum(weights)
