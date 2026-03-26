@@ -61,6 +61,7 @@ from analysis.hcm_invariant_predictor import HCMInvariantPredictor
 from analysis.hcm_robust_predictor import HCMRobustPredictor
 from analysis.hcm_invariant_signature_predictor import HCMInvariantSignaturePredictor
 from analysis.hcm_temporal_memory_predictor import HCMTemporalMemoryPredictor
+from analysis.hcm_cross_scale_predictor import HCMCrossScalePredictor
 
 models = [
     HCMStatePredictor(),
@@ -68,17 +69,42 @@ models = [
     HCMInvariantPredictor(),
     HCMRobustPredictor(),
     HCMInvariantSignaturePredictor(),
-    HCMTemporalMemoryPredictor()  # 🔥 NEW CORE
+    HCMTemporalMemoryPredictor(),
+    HCMCrossScalePredictor()  # 🔥 NEW
 ]
 
 def hcm_predict(history):
     preds = []
+
     for m in models:
         try:
-            preds.append(m.predict(history))
+            p = m.predict(history)
+
+            # فلترة القيم الشاذة
+            if np.isfinite(p):
+                preds.append(p)
+
         except:
-            preds.append(history[-1])
-    return float(np.median(preds))
+            continue
+
+    if not preds:
+        return history[-1]
+
+    preds = np.array(preds)
+
+    # 🔥 CORE FIX: consistency weighting
+    median = np.median(preds)
+    deviations = np.abs(preds - median)
+
+    weights = 1 / (1 + deviations)
+
+    # normalize
+    weights = weights / np.sum(weights)
+
+    # weighted consensus
+    final = np.sum(preds * weights)
+
+    return float(final)
     
 # -----------------------------
 # evaluation
