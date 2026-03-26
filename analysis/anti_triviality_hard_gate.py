@@ -55,13 +55,7 @@ def block_shuffle(series, block_size=20):
 
 def persistence(history):
     return history[-1]
-from analysis.hcm_state_predictor import HCMStatePredictor
-from analysis.hcm_dynamical_predictor import HCMDynamicalPredictor
-from analysis.hcm_invariant_predictor import HCMInvariantPredictor
-from analysis.hcm_robust_predictor import HCMRobustPredictor
-from analysis.hcm_invariant_signature_predictor import HCMInvariantSignaturePredictor
-from analysis.hcm_temporal_memory_predictor import HCMTemporalMemoryPredictor
-from analysis.hcm_cross_scale_predictor import HCMCrossScalePredictor
+
 from analysis.hcm_phase_space_predictor import HCMPhaseSpacePredictor
 
 models = [
