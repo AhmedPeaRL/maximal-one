@@ -5,14 +5,39 @@
     "chaotic_signature": false
   },
   {
+    "dataset": "geomagnetic_kp_clean_clean.csv",
+    "hurst": 0.8292758704303015,
+    "chaotic_signature": true
+  },
+  {
     "dataset": "co2_atmospheric_clean.csv",
     "hurst": 0.09242333229491954,
+    "chaotic_signature": false
+  },
+  {
+    "dataset": "sunspots_global_clean_clean.csv",
+    "hurst": 0.05777459120643507,
     "chaotic_signature": false
   },
   {
     "dataset": "sample_clean.csv",
     "hurst": 1.3823391324770202,
     "chaotic_signature": true
+  },
+  {
+    "dataset": "daily_female_births_clean.csv",
+    "hurst": 0.009480578162527448,
+    "chaotic_signature": false
+  },
+  {
+    "dataset": "ecology_clean_clean.csv",
+    "hurst": 0.1539874891850932,
+    "chaotic_signature": false
+  },
+  {
+    "dataset": "lorenz63.csv",
+    "hurst": -0.019486268942800346,
+    "chaotic_signature": false
   },
   {
     "dataset": "sunspots_live.csv",
@@ -25,13 +50,38 @@
     "chaotic_signature": false
   },
   {
+    "dataset": "co2_clean_clean.csv",
+    "hurst": -0.0009267868775348851,
+    "chaotic_signature": false
+  },
+  {
+    "dataset": "sample_clean_clean.csv",
+    "hurst": 1.3823391324770202,
+    "chaotic_signature": true
+  },
+  {
+    "dataset": "temperature_clean_clean.csv",
+    "hurst": 0.2754756903999744,
+    "chaotic_signature": false
+  },
+  {
     "dataset": "temperature_clean.csv",
     "hurst": 0.2754756903999744,
     "chaotic_signature": false
   },
   {
+    "dataset": "sunspots_clean_clean.csv",
+    "hurst": 0.9160605009746816,
+    "chaotic_signature": true
+  },
+  {
     "dataset": "solar_wind_speed_clean.csv",
-    "hurst": 0.19186955023226196,
+    "hurst": 0.19106028626143062,
+    "chaotic_signature": false
+  },
+  {
+    "dataset": "co2_atmospheric_clean_clean.csv",
+    "hurst": 0.09242333229491954,
     "chaotic_signature": false
   },
   {
@@ -55,8 +105,23 @@
     "chaotic_signature": false
   },
   {
+    "dataset": "lorenz63_clean.csv",
+    "hurst": -0.019486268942800346,
+    "chaotic_signature": false
+  },
+  {
     "dataset": "cosmic_rays_clean.csv",
     "hurst": 0.6064414531411214,
+    "chaotic_signature": true
+  },
+  {
+    "dataset": "logistic_map_clean.csv",
+    "hurst": 0.013314391265094271,
+    "chaotic_signature": false
+  },
+  {
+    "dataset": "sunspots_extended_clean.csv",
+    "hurst": 0.9160605009746816,
     "chaotic_signature": true
   },
   {
@@ -66,7 +131,7 @@
   },
   {
     "dataset": "earthquake_magnitude.csv",
-    "hurst": 1.178970576875749,
+    "hurst": 1.1929638716674649,
     "chaotic_signature": true
   },
   {
@@ -75,9 +140,24 @@
     "chaotic_signature": false
   },
   {
+    "dataset": "earthquake_magnitude_clean_clean.csv",
+    "hurst": 1.1929638716674649,
+    "chaotic_signature": true
+  },
+  {
+    "dataset": "solar_wind_speed_clean_clean.csv",
+    "hurst": 0.1911024920061418,
+    "chaotic_signature": false
+  },
+  {
     "dataset": "rossler.csv",
     "hurst": 1.976684883914872,
     "chaotic_signature": true
+  },
+  {
+    "dataset": "sunspots_global_prepared_clean_clean.csv",
+    "hurst": 0.05777459120644295,
+    "chaotic_signature": false
   },
   {
     "dataset": "logistic_map.csv",
@@ -86,8 +166,28 @@
   },
   {
     "dataset": "geomagnetic_kp_clean.csv",
-    "hurst": 0.7746851453980815,
+    "hurst": 0.8292758704303015,
     "chaotic_signature": true
+  },
+  {
+    "dataset": "rossler_clean.csv",
+    "hurst": 1.976684883914872,
+    "chaotic_signature": true
+  },
+  {
+    "dataset": "sunspots_live_clean.csv",
+    "hurst": 0.9240840783354255,
+    "chaotic_signature": true
+  },
+  {
+    "dataset": "cosmic_rays_clean_clean.csv",
+    "hurst": 0.6064414531411214,
+    "chaotic_signature": true
+  },
+  {
+    "dataset": "henon_map_clean.csv",
+    "hurst": 0.001721652001883816,
+    "chaotic_signature": false
   },
   {
     "dataset": "sunspots_clean.csv",
@@ -96,7 +196,7 @@
   },
   {
     "dataset": "earthquake_magnitude_clean.csv",
-    "hurst": 1.178970576875749,
+    "hurst": 1.1929638716674649,
     "chaotic_signature": true
   }
 ]
