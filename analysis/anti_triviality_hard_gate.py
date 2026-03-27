@@ -152,37 +152,31 @@ def rolling_mse(series, model, max_steps=300):
 # -----------------------------
 
 def evaluate(series):
-    # 🔥 NEW: downsample لو كبير
-    if len(series) > 2000:
-        idx = np.linspace(0, len(series)-1, 2000).astype(int)
-        series = series[idx]
+
+    split = int(len(series)*0.7)
+    train_base = series[:split]
+    test_base = series[split:]
+
+    def apply_transform(train, test, transform):
+        return transform(train), transform(test)
 
     tests = {}
 
-    # original
-    tests["original"] = series
-
-    # diff
-    tests["diff"] = difference(series)
-
-    # transform
-    tests["nonlinear"] = nonlinear_transform(series)
- 
-    # scramble
-    tests["phase"] = phase_scramble(series)
-
-    # shuffle
-    tests["shuffle"] = block_shuffle(series)
+    tests["original"] = (train_base, test_base)
+    tests["diff"] = (difference(train_base), difference(test_base))
+    tests["nonlinear"] = apply_transform(train_base, test_base, nonlinear_transform)
+    tests["phase"] = apply_transform(train_base, test_base, phase_scramble)
+    tests["shuffle"] = apply_transform(train_base, test_base, block_shuffle)
 
     results = {}
 
-    for name, s in tests.items():
+    for name, (train, test) in tests.items():
 
-        if len(s) < 100:
+        if len(train) < 50 or len(test) < 50:
             continue
 
-        mse_p = rolling_mse(s, persistence)
-        mse_h = rolling_mse(s, hcm_predict)
+        mse_p = rolling_mse_split(train, test, persistence)
+        mse_h = rolling_mse_split(train, test, hcm_predict)
 
         results[name] = {
             "persistence_mse": mse_p,
@@ -191,6 +185,51 @@ def evaluate(series):
         }
 
     return results
+
+def rolling_mse_split(train, test, model):
+
+    history = list(train)
+    preds = []
+
+    for t in range(len(test)):
+        preds.append(model(history))
+        history.append(test[t])
+
+    return float(np.mean((np.array(test) - np.array(preds))**2))
+
+def multi_seed_eval(series, seeds=5):
+
+    all_results = []
+
+    for s in range(seeds):
+        np.random.seed(s)
+        res = evaluate(series)
+        all_results.append(res)
+
+    return all_results
+
+def aggregate_results(all_results):
+
+    summary = {}
+
+    for key in all_results[0].keys():
+
+        p_vals = []
+        h_vals = []
+
+        for r in all_results:
+            if key in r:
+                p_vals.append(r[key]["persistence_mse"])
+                h_vals.append(r[key]["hcm_mse"])
+
+        if p_vals:
+            summary[key] = {
+                "persistence_mean": float(np.mean(p_vals)),
+                "hcm_mean": float(np.mean(h_vals)),
+                "hcm_better": np.mean(h_vals) < np.mean(p_vals)
+            }
+
+    return summary
 
 
 def main():
@@ -202,18 +241,14 @@ def main():
     else:
         result = evaluate(series)
 
-        # pass condition: HCM wins in at least 2 hard regimes
-        wins = sum(
-            1 for k, r in result.items()
-            if k in ["original", "phase", "shuffle"] and r["hcm_better"]
-        )
-        
-        result["hard_non_trivial"] = (
-            sum(
-                1 for k, r in result.items()
-                if k in ["original", "phase", "shuffle"] and r["hcm_better"]
-            ) >= 2
-        )
+    critical = ["phase", "shuffle"]
+
+    score = sum(
+        1 for k in critical
+        if k in result and result[k]["hcm_better"]
+    )
+    
+    result["hard_non_trivial"] = (score == len(critical))
 
     ART.mkdir(exist_ok=True)
     (ART / "anti_triviality_hard.json").write_text(
