@@ -32,6 +32,9 @@ def load_series():
 def difference(series):
     return np.diff(series)
 
+def nonlinear_transform(series):
+    return np.tanh(series) + 0.1 * np.sin(series)
+
 def phase_scramble(series):
     fft = np.fft.rfft(series)
     phases = np.angle(fft)
@@ -58,8 +61,16 @@ def persistence(history):
 
 from analysis.hcm_phase_space_predictor import HCMPhaseSpacePredictor
 
+class HCMDelayVariant(HCMPhaseSpacePredictor):
+    def __init__(self, delay, dim):
+        super().__init__(delay=delay, dim=dim)
+
 models = [
-    HCMPhaseSpacePredictor()  # 🔥 NEW CORE
+    HCMPhaseSpacePredictor(delay=1, dim=3),
+    HCMPhaseSpacePredictor(delay=2, dim=3),
+    HCMPhaseSpacePredictor(delay=3, dim=3),
+    HCMPhaseSpacePredictor(delay=2, dim=4),
+    HCMPhaseSpacePredictor(delay=3, dim=5),
 ]
 
 def hcm_predict(history):
@@ -89,7 +100,7 @@ def hcm_predict(history):
     spread = np.std(preds)
 
     if spread < 1e-6:
-        return history[-1]
+        return float(np.mean(preds))
 
     weights = 1 / (1 + deviations + 0.1 * (1/spread))
 
@@ -153,6 +164,9 @@ def evaluate(series):
 
     # diff
     tests["diff"] = difference(series)
+
+    # transform
+    tests["nonlinear"] = nonlinear_transform(series)
  
     # scramble
     tests["phase"] = phase_scramble(series)
