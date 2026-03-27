@@ -35,28 +35,34 @@ class HCMPhaseSpacePredictor:
 
         distances = np.linalg.norm(emb[:-1] - target, axis=1)
 
-        # 🔥 NEW: take k-nearest instead of 1
         k = min(5, len(distances))
         idxs = np.argsort(distances)[:k]
 
         future_vals = []
+        valid_distances = []
+
         for idx in idxs:
             if idx + 1 < len(series):
                 future_vals.append(series[idx + 1])
-                
+                valid_distances.append(distances[idx])
+
         if not future_vals:
             return history[-1]
 
-        trend = np.mean(np.diff(history[-10:]))
-        base_pred = float(np.sum(np.array(future_vals) * weights))
-        return base_pred + 0.3 * trend
+        future_vals = np.array(future_vals)
+        valid_distances = np.array(valid_distances) + 1e-8
 
-        noise = np.std(history[-20:])
-        return base_pred + 0.3 * trend + np.random.normal(0, 0.01 * noise)
-
-        # 🔥 weighted average (closer = stronger)
-        d = distances[idxs] + 1e-8
-        weights = 1 / d
+        # ✅ weights صح
+        weights = 1 / valid_distances
         weights /= np.sum(weights)
 
-        return float(np.sum(np.array(future_vals) * weights))
+        base_pred = float(np.sum(future_vals * weights))
+
+        # ✅ trend component
+        trend = np.mean(np.diff(history[-10:]))
+
+        # ✅ noise stabilizer
+        noise = np.std(history[-20:])
+        stochastic = np.random.normal(0, 0.01 * noise)
+
+        return base_pred + 0.3 * trend + stochastic
