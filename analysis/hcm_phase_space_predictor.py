@@ -28,6 +28,7 @@ class HCMPhaseSpacePredictor:
     series = np.array(history)
 
     emb = self.reconstruct(series)
+   
     if emb is None or len(emb) < 5:
         return history[-1]
 
