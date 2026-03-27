@@ -47,6 +47,13 @@ class HCMPhaseSpacePredictor:
         if not future_vals:
             return history[-1]
 
+        trend = np.mean(np.diff(history[-10:]))
+        base_pred = float(np.sum(np.array(future_vals) * weights))
+        return base_pred + 0.3 * trend
+
+        noise = np.std(history[-20:])
+        return base_pred + 0.3 * trend + np.random.normal(0, 0.01 * noise)
+
         # 🔥 weighted average (closer = stronger)
         d = distances[idxs] + 1e-8
         weights = 1 / d
