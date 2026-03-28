@@ -1,4 +1,5 @@
 import numpy as np
+from analysis.invariant_core import extract_invariants
 
 class InvariantProjectionPredictor:
 
@@ -7,31 +8,24 @@ class InvariantProjectionPredictor:
 
     def predict(self, history):
 
-        if len(history) < self.window:
-            return history[-1]
+    if len(history) < self.window:
+        return history[-1]
 
-        h = np.array(history[-self.window:])
+    h = np.array(history[-self.window:])
 
-        # 🔥 normalize (remove scale bias)
-        h_norm = (h - np.mean(h)) / (np.std(h) + 1e-8)
+    inv = extract_invariants(h)
 
-        # 🔥 local geometry
-        grad = np.gradient(h_norm)
-        curvature = np.gradient(grad)
+    if inv is None:
+        return history[-1]
 
-        # 🔥 invariant direction (principal flow)
-        direction = np.mean(grad[-5:])
-        curvature_signal = np.mean(curvature[-5:])
+    energy, entropy, curvature, phase = inv
 
-        # 🔥 phase-consistent projection
-        phase = np.sin(h_norm[-1])
+    # 🔥 invariant-driven dynamics
+    delta = (
+        0.4 * curvature +
+        0.3 * phase +
+        0.2 * entropy +
+        0.1 * energy
+    )
 
-        # 🔥 projected step
-        delta = (
-            0.5 * direction +
-            0.3 * curvature_signal +
-            0.2 * phase
-        )
-
-        # 🔥 return to original scale
-        return float(h[-1] + delta * np.std(h))
+    return float(h[-1] + delta * np.std(h))
