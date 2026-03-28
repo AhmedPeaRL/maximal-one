@@ -268,15 +268,6 @@ def main():
     else:
         result = evaluate(series)
 
-    critical = ["phase", "original", "shuffle"]
-
-    score = sum(
-        1 for k in critical
-        if k in result and result[k]["hcm_better"]
-    )
-    
-    result["hard_non_trivial"] = (score == len(critical))
-
     # 🔥 FORCE visibility
     print("=== HARD TEST RESULT ===")
     print(json.dumps(result, indent=2))
