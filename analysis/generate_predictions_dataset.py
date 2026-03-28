@@ -37,7 +37,7 @@ def build_features(data, lag=10):
 X_train, y_train = build_features(train)
 X_test, y_test = build_features(test)
 
-# train real model
+# ✅ baseline simple model (deterministic & interpretable)
 model = LinearRegression()
 model.fit(X_train, y_train)
 
