@@ -102,44 +102,48 @@ models = [
     HCMPhaseSpacePredictor(delay=3, dim=5),
 ]
 
+from analysis.invariant_projection_predictor import InvariantProjectionPredictor
+
+inv_model = InvariantProjectionPredictor()
+
 def hcm_predict(history):
+
     preds = []
 
+    # HCM phase-space
     for m in models:
         try:
             p = m.predict(history)
-
-            # فلترة القيم الشاذة
             if np.isfinite(p):
                 preds.append(p)
-
         except:
             continue
+
+    # 🔥 invariant projection
+    try:
+        p_inv = inv_model.predict(history)
+        if np.isfinite(p_inv):
+            preds.append(p_inv)
+    except:
+        pass
 
     if not preds:
         return history[-1]
 
     preds = np.array(preds)
 
-    # 🔥 CORE FIX: consistency weighting
     median = np.median(preds)
     deviations = np.abs(preds - median)
 
-    # penalize consensus collapse
     spread = np.std(preds)
 
     if spread < 1e-6:
         return float(np.mean(preds))
 
-    weights = 1 / (1 + deviations + 0.1 * (1/spread))
-
-    # normalize
+    weights = 1 / (1 + deviations + 0.05 * (1/spread))
     weights = weights / np.sum(weights)
 
-    # weighted consensus
-    final = np.sum(preds * weights)
-
-    return float(final)
+    return float(np.sum(preds * weights))
     
 # -----------------------------
 # evaluation
