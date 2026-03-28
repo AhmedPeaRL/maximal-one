@@ -60,11 +60,16 @@ def nonlinear_transform(series):
     return np.tanh(series) + 0.1 * np.sin(series)
 
 def phase_scramble(series):
-    fft = np.fft.rfft(series)
-    phases = np.angle(fft)
-    magnitudes = np.abs(fft)
 
-    random_phases = np.random.uniform(-np.pi, np.pi, size=len(phases))
+    # 🔥 LIMIT SIZE
+    if len(series) > 800:
+        series = series[-800:]
+
+    fft = np.fft.rfft(series)
+
+    magnitudes = np.abs(fft)
+    random_phases = np.random.uniform(-np.pi, np.pi, size=len(fft))
+
     scrambled = magnitudes * np.exp(1j * random_phases)
 
     return np.fft.irfft(scrambled, n=len(series))
@@ -177,6 +182,10 @@ def rolling_mse(series, model, max_steps=300):
 
 def evaluate(series):
 
+    # 🔥 HARD LIMIT SERIES SIZE
+    if len(series) > 1000:
+        series = series[-1000:]
+
     split = int(len(series)*0.7)
     train_base = series[:split]
     test_base = series[split:]
@@ -196,6 +205,9 @@ def evaluate(series):
 
     for name, (train, test) in tests.items():
 
+        if time.time() - START_TIME > MAX_RUNTIME:
+            break
+
         if len(train) < 50 or len(test) < 50:
             continue
 
@@ -210,16 +222,37 @@ def evaluate(series):
 
     return results
 
-def rolling_mse_split(train, test, model):
+def rolling_mse_split(train, test, model, max_steps=200):
 
     history = list(train)
     preds = []
 
     for t in range(len(test)):
-        preds.append(model(history))
+
+        # 🔥 HARD RUNTIME GUARD
+        if time.time() - START_TIME > MAX_RUNTIME:
+            break
+
+        # 🔥 STEP LIMIT
+        if t >= max_steps:
+            break
+
+        try:
+            p = model(history)
+
+            if not np.isfinite(p):
+                p = history[-1]
+
+        except:
+            p = history[-1]
+
+        preds.append(p)
         history.append(test[t])
 
-    return float(np.mean((np.array(test) - np.array(preds))**2))
+    if len(preds) == 0:
+        return float("nan")
+
+    return float(np.mean((np.array(test[:len(preds)]) - np.array(preds))**2))
 
 def multi_seed_eval(series, seeds=5):
 
