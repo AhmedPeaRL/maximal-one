@@ -51,7 +51,7 @@ if len(train) < 5:
 # Baseline model
 # --------------------------------
 
-ar_model = AutoReg(train, lags=1, old_names=False).fit()
+ar_model = AutoReg(train, lags=3, old_names=False).fit()
 
 baseline_pred = ar_model.predict(
     start=len(train),
