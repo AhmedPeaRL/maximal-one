@@ -1,23 +1,32 @@
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+
+model = RandomForestRegressor(
+    n_estimators=200,
+    max_depth=10,
+    random_state=42
+)
 
 np.random.seed(42)
 
-def generate_lorenz_like(n=1000):
+def generate_chaotic_series(n=1500):
     x = np.zeros(n)
+    x[0] = 0.1
+
     for i in range(1, n):
-        x[i] = 0.9 * x[i-1] + np.sin(x[i-1]) + np.random.normal(0, 0.1)
+        x[i] = 3.9 * x[i-1] * (1 - x[i-1]) + np.random.normal(0, 0.01)
+
     return x
 
-series = generate_lorenz_like(1200)
+series = generate_chaotic_series(1200)
 
 # split
 train = series[:1000]
 test = series[1000:]
 
 # build lag features
-def build_features(data, lag=5):
+def build_features(data, lag=10):
     X, y = [], []
     for i in range(lag, len(data)):
         X.append(data[i-lag:i])
