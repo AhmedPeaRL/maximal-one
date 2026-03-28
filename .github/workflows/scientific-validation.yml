@@ -967,9 +967,14 @@ jobs:
 
           mkdir -p data
 
-          # ✅ FIRST: sync with remote safely
+          # 🔥 SAFE SYNC (NO DATA LOSS)
           git fetch origin
-          git reset --hard origin/main
+
+          if git diff --quiet && git diff --cached --quiet; then
+            git pull origin main --rebase
+          else
+            echo "Local changes detected → skipping hard reset"
+          fi
 
           # ✅ ensure history exists
           if [ -f data/universality_history.json ]; then
