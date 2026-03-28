@@ -1,122 +1,48 @@
-import json
 import numpy as np
-import pandas as pd
-from glob import glob
-import os
+import json
+from pathlib import Path
 
-OUTPUT = "artifacts/discovery_candidates.json"
+ART = Path("artifacts")
 
+def detect_pattern(series):
 
-def spectral_alpha(x):
+    diffs = np.diff(series)
 
-    if len(x) < 64:
-        return None
-
-    f = np.fft.rfft(x)
-    power = np.abs(f) ** 2
-    freqs = np.arange(len(power))
-
-    mask = freqs > 0
-
-    if np.sum(mask) < 10:
-        return None
-
-    slope = np.polyfit(
-        np.log(freqs[mask]),
-        np.log(power[mask] + 1e-12),
-        1
-    )[0]
-
-    return float(slope)
-
-
-def entropy_feature(x):
-
-    hist, _ = np.histogram(x, bins=50, density=True)
-
-    hist = hist[hist > 0]
-
-    if len(hist) == 0:
-        return None
-
-    return float(-np.sum(hist * np.log(hist)))
-
-
-def extract_features(series):
-
-    alpha = spectral_alpha(series)
-
-    ent = entropy_feature(series)
-
-    var = float(np.var(series))
+    mean = np.mean(diffs)
+    std = np.std(diffs)
 
     return {
-        "spectral_alpha": alpha,
-        "entropy": ent,
-        "variance": var
+        "mean_drift": float(mean),
+        "volatility": float(std),
+        "signal_to_noise": float(abs(mean)/(std+1e-8))
     }
 
+def run_discovery(series):
 
-def load_series(path):
+    patterns = detect_pattern(series)
 
-    try:
-        df = pd.read_csv(path)
+    score = patterns["signal_to_noise"]
 
-    except Exception as e:
-        print("CSV read error:", path, e)
-        return None
+    result = {
+        "pattern": patterns,
+        "discovered": score > 0.5
+    }
 
-    if df.shape[1] == 0:
-        print("Empty dataset:", path)
-        return None
+    ART.mkdir(exist_ok=True)
 
-    # try numeric columns only
-    numeric = df.select_dtypes(include=[np.number])
+    (ART / "discovery.json").write_text(json.dumps(result, indent=2))
 
-    if numeric.shape[1] == 0:
-        # attempt coercion
-        df = df.apply(pd.to_numeric, errors="coerce")
-        numeric = df.select_dtypes(include=[np.number])
-
-    if numeric.shape[1] == 0:
-        print("No numeric columns:", path)
-        return None
-
-    series = numeric.iloc[:,0].dropna().values
-
-    if len(series) < 32:
-        print("Dataset too small:", path)
-        return None
-
-    return series
-
-
-def main():
-
-    datasets = glob("real-data/*.csv")
-
-    results = {}
-
-    for path in datasets:
-
-        series = load_series(path)
-        
-        if series is None:
-            print("Skipping malformed dataset:", path)
-            continue
-
-        features = extract_features(series)
-
-        results[path] = features
-
-        print("Processed:", path)
-
-    os.makedirs("artifacts", exist_ok=True)
-
-    with open(OUTPUT, "w") as f:
-        json.dump(results, f, indent=2)
-
-    print("Discovery results saved.")
+    print(json.dumps(result, indent=2))
 
 if __name__ == "__main__":
-    main()
+    import pandas as pd
+
+    path = "real-data/sunspots_global_prepared.csv"
+
+    if not Path(path).exists():
+        print("Dataset missing")
+        exit(0)
+
+    df = pd.read_csv(path)
+
+    run_discovery(df.values.squeeze())
