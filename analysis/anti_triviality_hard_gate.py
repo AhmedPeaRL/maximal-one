@@ -19,10 +19,34 @@ ART = Path("artifacts")
 
 def load_series():
     path = Path("real-data/sunspots_global_prepared.csv")
+
+    # 🔥 HARD GUARANTEE
     if not path.exists():
+        print("Dataset missing → forcing regeneration...")
+
+        import subprocess
+
+        subprocess.run(
+            ["python", "-m", "analysis.generate_real_dataset"],
+            check=False
+        )
+
+        subprocess.run(
+            ["python", "analysis/dataset_preprocessor.py", "real-data/sunspots_global.csv"],
+            check=False
+        )
+
+    if not path.exists():
+        print("Dataset STILL missing → aborting safely")
         return None
 
     df = pd.read_csv(path)
+
+    # 🔥 sanity check
+    if len(df) < 100:
+        print("Dataset too small → invalid")
+        return None
+
     return df.values.squeeze()
 
 # -----------------------------
@@ -237,11 +261,14 @@ def main():
     series = load_series()
 
     if series is None:
-        result = {"skipped": True}
+        result = {
+            "skipped": True,
+            "reason": "dataset_missing_or_invalid"
+        }
     else:
         result = evaluate(series)
 
-    critical = ["phase", "shuffle"]
+    critical = ["phase", "original", "shuffle"]
 
     score = sum(
         1 for k in critical
@@ -250,12 +277,15 @@ def main():
     
     result["hard_non_trivial"] = (score == len(critical))
 
+    # 🔥 FORCE visibility
+    print("=== HARD TEST RESULT ===")
+    print(json.dumps(result, indent=2))
+
     ART.mkdir(exist_ok=True)
+
     (ART / "anti_triviality_hard.json").write_text(
         json.dumps(result, indent=2)
     )
-
-    print(json.dumps(result, indent=2))
 
 
 if __name__ == "__main__":
