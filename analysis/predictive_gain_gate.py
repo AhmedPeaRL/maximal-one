@@ -10,8 +10,16 @@ rng = np.random.default_rng(42)
 
 data = pd.read_csv("data/predictions.csv")
 
-if "y_true" not in data.columns or "hcm" not in data.columns:
-    raise SystemExit("predictions.csv must contain columns: y_true, hcm")
+# 🔥 FLEXIBLE COLUMN HANDLING
+if "y_true" not in data.columns:
+    raise SystemExit("predictions.csv must contain column: y_true")
+
+if "hcm" in data.columns:
+    hcm_col = "hcm"
+elif "y_pred" in data.columns:
+    hcm_col = "y_pred"
+else:
+    raise SystemExit("predictions.csv must contain either 'hcm' or 'y_pred'")
 
 series = data["y_true"].to_numpy()
 
@@ -54,8 +62,15 @@ baseline_pred = ar_model.predict(
 # HCM predictions
 # --------------------------------
 
-hcm_pred = data["hcm"].to_numpy()[split:]
+hcm_pred = data[hcm_col].to_numpy()[split:]
 y_true = test
+
+# 🔥 ALIGN LENGTHS (CRITICAL FIX)
+min_len = min(len(y_true), len(hcm_pred), len(baseline_pred))
+
+y_true = y_true[:min_len]
+hcm_pred = hcm_pred[:min_len]
+baseline_pred = baseline_pred[:min_len]
 
 # --------------------------------
 # Bootstrap predictive gain
