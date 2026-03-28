@@ -616,6 +616,9 @@ jobs:
 
       - name: Invariant Embedding Test
         run: python -m analysis.invariant_embedding
+
+      - name: Generate predictions dataset
+        run: python -m analysis.generate_predictions_dataset
           
       - name: Predictive Gain Gate
         run: |
@@ -639,9 +642,6 @@ jobs:
 
       - name: Generate chaotic dataset
         run: python -m analysis.generate_lorenz_dataset
-
-      - name: Generate predictions dataset
-        run: python -m analysis.generate_predictions_dataset
 
       - name: Run multi-seed experiment
         run: |
