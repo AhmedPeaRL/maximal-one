@@ -497,10 +497,6 @@ jobs:
           echo "==== DATASET LIST ===="
           ls -lh real-data || true
 
-      - name: Automatic Discovery Engine
-        run: |
-          python -m analysis.discovery_engine
-
       - name: Hypothesis discovery engine
         run: |
           python -m analysis.hypothesis_generator
@@ -846,6 +842,15 @@ jobs:
 
       - name: Anti-Triviality HARD Gate
         run: python -m analysis.anti_triviality_hard_gate
+
+      - name: Information Gain Test
+        run: python -m analysis.information_gain
+
+      - name: Causal Structure Extraction
+        run: python -m analysis.causal_structure
+
+      - name: Discovery Engine
+        run: python -m analysis.discovery_engine
 
       - name: Reality Breaker Test
         run: python -m analysis.reality_breaker_test
