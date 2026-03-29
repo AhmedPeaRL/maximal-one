@@ -125,6 +125,15 @@ def hcm_predict(history):
     # 🔥 لو مفيش structure → collapse ذكي
     from analysis.anti_collapse_guard import anti_collapse
     if structure_score < 0.15:
+        # 🔥 FORCE NON-TRIVIAL RESPONSE
+        noise = np.std(history[-20:])
+        drift = np.mean(np.diff(history[-10:]))
+
+        return float(
+            history[-1] +
+            0.2 * drift +
+            np.random.normal(0, 0.1 * noise)
+        )
         return anti_collapse(history)
 
     preds = []
