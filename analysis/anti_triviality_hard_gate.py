@@ -123,17 +123,23 @@ def hcm_predict(history):
     structure_score = detect_structure(history)
 
     from analysis.anti_collapse_guard import anti_collapse
-    if structure_score < 0.15:
-        # 🔥 FORCE NON-TRIVIAL RESPONSE
-        noise = np.std(history[-20:])
-        drift = np.mean(np.diff(history[-10:]))
 
-        return float(
-            history[-1] +
-            0.2 * drift +
-            np.random.normal(0, 0.1 * noise)
+    # 🔥 FORCE NON-TRIVIALITY ZONE
+    if structure_score < 0.25:
+
+        base = history[-1]
+
+        drift = np.mean(np.diff(history[-10:]))
+        curvature = np.mean(np.abs(np.gradient(np.gradient(history[-10:]))))
+        noise = np.std(history[-20:])
+
+        exploration = (
+            0.5 * drift +
+            0.3 * curvature +
+            np.random.normal(0, 0.2 * noise)
         )
-        return anti_collapse(history)
+
+        return float(base + exploration)
 
     preds = []
 
@@ -161,7 +167,7 @@ def hcm_predict(history):
         pass
 
     if not preds:
-        return history[-1]
+        return anti_collapse(history)
 
     from analysis.model_selector import select_best_model
     return select_best_model(preds, history)
