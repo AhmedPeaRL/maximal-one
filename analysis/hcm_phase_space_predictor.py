@@ -63,13 +63,9 @@ class HCMPhaseSpacePredictor:
 
         # ✅ noise stabilizer
         noise = np.std(history[-20:])
-        stochastic = np.random.normal(0, 0.01 * noise)
-
+        
         # 🔥 local causal gradient
         grad = np.mean(np.gradient(history[-10:]))
 
-        # 🔥 phase-aware correction
-        phase_signal = np.sin(history[-1]) * 0.05
-
         # 🔥 final composition
-        return base_pred + 0.3 * trend + 0.2 * grad + phase_signal + stochastic
+        return base_pred + 0.3 * trend + 0.2 * grad
