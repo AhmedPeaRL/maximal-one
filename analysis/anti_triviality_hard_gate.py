@@ -114,10 +114,22 @@ struct_models = [
     HCMStructuralPredictor(delay=3, dim=4),
 ]
 
+from analysis.structural_consensus import structural_consensus
+
 def hcm_predict(history):
 
     preds = []
 
+    # phase-space models
+    for m in models:
+        try:
+            p = m.predict(history)
+            if np.isfinite(p):
+                preds.append(p)
+        except:
+            continue
+
+    # structural models
     for m in struct_models:
         try:
             p = m.predict(history)
@@ -126,19 +138,18 @@ def hcm_predict(history):
         except:
             continue
 
+    # invariant model
+    try:
+        p = inv_model.predict(history)
+        if np.isfinite(p):
+            preds.append(p)
+    except:
+        pass
+
     if not preds:
         return history[-1]
 
-    preds = np.array(preds)
-
-    # 🔥 robust aggregation
-    median = np.median(preds)
-    mad = np.median(np.abs(preds - median)) + 1e-8
-
-    weights = np.exp(-np.abs(preds - median) / mad)
-    weights /= np.sum(weights)
-
-    return float(np.sum(preds * weights))
+    return structural_consensus(preds, history)
     
 # -----------------------------
 # evaluation
