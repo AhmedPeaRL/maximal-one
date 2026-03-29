@@ -308,6 +308,33 @@ def aggregate_results(all_results):
 
     return summary
 
+# -----------------------------
+# JSON SAFE CONVERTER (CRITICAL FIX)
+# -----------------------------
+
+def to_json_safe(obj):
+    import numpy as np
+
+    if isinstance(obj, dict):
+        return {k: to_json_safe(v) for k, v in obj.items()}
+
+    elif isinstance(obj, list):
+        return [to_json_safe(v) for v in obj]
+
+    elif isinstance(obj, (np.bool_,)):
+        return bool(obj)
+
+    elif isinstance(obj, (np.integer,)):
+        return int(obj)
+
+    elif isinstance(obj, (np.floating,)):
+        return float(obj)
+
+    elif isinstance(obj, (np.ndarray,)):
+        return obj.tolist()
+
+    return obj
+    
 
 def main():
 
@@ -322,13 +349,15 @@ def main():
         all_results = multi_seed_eval(series, seeds=5)
         result = aggregate_results(all_results)
 
+    safe_result = to_json_safe(result)
+
     print("=== HARD TEST RESULT ===")
-    print(json.dumps(result, indent=2))
+    print(json.dumps(safe_result, indent=2))
 
     ART.mkdir(exist_ok=True)
 
     (ART / "anti_triviality_hard.json").write_text(
-        json.dumps(result, indent=2)
+        json.dumps(safe_result, indent=2)
     )
 
 
