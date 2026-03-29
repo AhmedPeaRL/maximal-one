@@ -123,8 +123,9 @@ def hcm_predict(history):
     structure_score = detect_structure(history)
 
     # 🔥 لو مفيش structure → collapse ذكي
+    from analysis.anti_collapse_guard import anti_collapse
     if structure_score < 0.15:
-        return history[-1]
+        return anti_collapse(history)
 
     preds = []
 
