@@ -20,12 +20,21 @@ class InvariantProjectionPredictor:
 
         energy, entropy, curvature, phase = inv
 
-        # 🔥 invariant-driven dynamics
+        # 🔥 dynamic weighting based on signal condition
+
+        vol = np.std(h)
+        trend = np.mean(np.diff(h))
+
+        w_curv = 0.3 + 0.2 * np.tanh(vol)
+        w_phase = 0.3 + 0.2 * np.tanh(abs(trend))
+        w_entropy = 0.2
+        w_energy = 0.2
+
         delta = (
-            0.4 * curvature +
-            0.3 * phase +
-            0.2 * entropy +
-            0.1 * energy
+            w_curv * curvature +
+            w_phase * phase +
+            w_entropy * entropy +
+            w_energy * energy
         )
 
         return float(h[-1] + delta * np.std(h))
