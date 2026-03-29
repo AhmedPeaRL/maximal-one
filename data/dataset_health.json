@@ -1,26 +1,5 @@
 [
   {
-    "file": "real-data/rossler.csv",
-    "rows": 5000,
-    "columns": 1,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/logistic_map.csv",
-    "rows": 5000,
-    "columns": 1,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/logistic_map_clean.csv",
-    "rows": 5000,
-    "columns": 1,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
     "file": "real-data/temperature.csv",
     "rows": 3823,
     "columns": 3,
@@ -32,20 +11,6 @@
     "rows": 815,
     "columns": 6,
     "numeric_columns": 6,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/geomagnetic_kp_clean_clean.csv",
-    "rows": 358,
-    "columns": 1,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/lorenz63.csv",
-    "rows": 10000,
-    "columns": 2,
-    "numeric_columns": 2,
     "missing_ratio": 0.0
   },
   {
@@ -77,73 +42,10 @@
     "missing_ratio": 0.0
   },
   {
-    "file": "real-data/ecology_clean_clean.csv",
-    "rows": 3650,
-    "columns": 1,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/earthquake_magnitude_clean_clean.csv",
-    "rows": 10738,
-    "columns": 2,
-    "numeric_columns": 2,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/sunspots_live_clean.csv",
-    "rows": 3326,
-    "columns": 1,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/sunspots_extended.csv",
-    "rows": 2820,
-    "columns": 2,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
     "file": "real-data/sunspots_global_prepared_clean.csv",
     "rows": 76030,
     "columns": 1,
     "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/sunspots_live.csv",
-    "rows": 3326,
-    "columns": 1,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/sunspots_clean_clean.csv",
-    "rows": 2820,
-    "columns": 1,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/sunspots_global_prepared_clean_clean.csv",
-    "rows": 76030,
-    "columns": 1,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/sunspots_extended_clean.csv",
-    "rows": 2820,
-    "columns": 1,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/co2_clean_clean.csv",
-    "rows": 815,
-    "columns": 6,
-    "numeric_columns": 6,
     "missing_ratio": 0.0
   },
   {
@@ -162,22 +64,8 @@
   },
   {
     "file": "real-data/geomagnetic_kp.csv",
-    "rows": 358,
+    "rows": 344,
     "columns": 2,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/lorenz63_clean.csv",
-    "rows": 10000,
-    "columns": 2,
-    "numeric_columns": 2,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/cosmic_rays_clean_clean.csv",
-    "rows": 3698,
-    "columns": 1,
     "numeric_columns": 1,
     "missing_ratio": 0.0
   },
@@ -204,7 +92,7 @@
   },
   {
     "file": "real-data/earthquake_magnitude_clean.csv",
-    "rows": 10715,
+    "rows": 10759,
     "columns": 2,
     "numeric_columns": 2,
     "missing_ratio": 0.0
@@ -224,20 +112,6 @@
     "missing_ratio": 0.0
   },
   {
-    "file": "real-data/airline_passengers.csv",
-    "rows": 144,
-    "columns": 2,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/temperature_clean_clean.csv",
-    "rows": 3823,
-    "columns": 1,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
     "file": "real-data/ecology_clean.csv",
     "rows": 3650,
     "columns": 1,
@@ -252,35 +126,14 @@
     "missing_ratio": 0.0
   },
   {
-    "file": "real-data/daily_female_births_clean.csv",
-    "rows": 365,
-    "columns": 1,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
     "file": "real-data/earthquake_magnitude.csv",
-    "rows": 10715,
+    "rows": 10759,
     "columns": 2,
     "numeric_columns": 2,
     "missing_ratio": 0.0
   },
   {
-    "file": "real-data/rossler_clean.csv",
-    "rows": 5000,
-    "columns": 1,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
     "file": "real-data/sunspots_global_clean.csv",
-    "rows": 76030,
-    "columns": 1,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/sunspots_global_clean_clean.csv",
     "rows": 76030,
     "columns": 1,
     "numeric_columns": 1,
@@ -293,20 +146,6 @@
     "numeric_columns": 0,
     "missing_ratio": 0.0,
     "error": "unreadable"
-  },
-  {
-    "file": "real-data/solar_wind_speed_clean_clean.csv",
-    "rows": 9704,
-    "columns": 1,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/henon_map_clean.csv",
-    "rows": 5000,
-    "columns": 1,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
   },
   {
     "file": "real-data/sunspots_clean.csv",
@@ -323,42 +162,14 @@
     "missing_ratio": 0.0
   },
   {
-    "file": "real-data/henon_map.csv",
-    "rows": 5000,
-    "columns": 1,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/daily_female_births.csv",
-    "rows": 365,
-    "columns": 2,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
     "file": "real-data/geomagnetic_kp_clean.csv",
-    "rows": 358,
-    "columns": 1,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/sample_clean_clean.csv",
-    "rows": 2000,
+    "rows": 344,
     "columns": 1,
     "numeric_columns": 1,
     "missing_ratio": 0.0
   },
   {
     "file": "real-data/co2_atmospheric_clean.csv",
-    "rows": 816,
-    "columns": 1,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
-    "file": "real-data/co2_atmospheric_clean_clean.csv",
     "rows": 816,
     "columns": 1,
     "numeric_columns": 1,
