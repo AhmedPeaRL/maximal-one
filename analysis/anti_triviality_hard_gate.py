@@ -149,7 +149,8 @@ def hcm_predict(history):
     if not preds:
         return history[-1]
 
-    return structural_consensus(preds, history)
+    from analysis.model_selector import select_best_model
+    return select_best_model(preds, history)
     
 # -----------------------------
 # evaluation
