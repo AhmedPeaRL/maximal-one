@@ -116,11 +116,18 @@ struct_models = [
 
 from analysis.structural_consensus import structural_consensus
 
+from analysis.structure_detector import detect_structure
+
 def hcm_predict(history):
+
+    structure_score = detect_structure(history)
+
+    # 🔥 لو مفيش structure → collapse ذكي
+    if structure_score < 0.15:
+        return history[-1]
 
     preds = []
 
-    # phase-space models
     for m in models:
         try:
             p = m.predict(history)
@@ -129,7 +136,6 @@ def hcm_predict(history):
         except:
             continue
 
-    # structural models
     for m in struct_models:
         try:
             p = m.predict(history)
@@ -138,7 +144,6 @@ def hcm_predict(history):
         except:
             continue
 
-    # invariant model
     try:
         p = inv_model.predict(history)
         if np.isfinite(p):
@@ -193,6 +198,8 @@ def rolling_mse(series, model, max_steps=300):
 
 def evaluate(series):
 
+    from analysis.structure_detector import detect_structure
+
     # 🔥 HARD LIMIT SERIES SIZE
     if len(series) > 1000:
         series = series[-1000:]
@@ -224,11 +231,13 @@ def evaluate(series):
 
         mse_p = rolling_mse_split(train, test, persistence)
         mse_h = rolling_mse_split(train, test, hcm_predict)
-
+        structure_score = detect_structure(train)
+        
         results[name] = {
             "persistence_mse": mse_p,
             "hcm_mse": mse_h,
-            "hcm_better": mse_h < mse_p
+            "hcm_better": mse_h < mse_p,
+            "structure_score": structure_score
         }
 
     return results
@@ -310,9 +319,9 @@ def main():
             "reason": "dataset_missing_or_invalid"
         }
     else:
-        result = evaluate(series)
+        all_results = multi_seed_eval(series, seeds=5)
+        result = aggregate_results(all_results)
 
-    # 🔥 FORCE visibility
     print("=== HARD TEST RESULT ===")
     print(json.dumps(result, indent=2))
 
