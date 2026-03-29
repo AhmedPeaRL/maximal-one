@@ -1,0 +1,27 @@
+{
+  "original": {
+    "persistence_mse": 2.132359451208956e-09,
+    "hcm_mse": 2.1483731546955134e-09,
+    "hcm_better": false
+  },
+  "diff": {
+    "persistence_mse": 1.4538814440201732e-10,
+    "hcm_mse": 6.356809279258814e-11,
+    "hcm_better": true
+  },
+  "nonlinear": {
+    "persistence_mse": 2.334046640079398e-11,
+    "hcm_mse": 2.3753340821378614e-11,
+    "hcm_better": false
+  },
+  "phase": {
+    "persistence_mse": 0.04559615361741055,
+    "hcm_mse": 0.28054341051814713,
+    "hcm_better": false
+  },
+  "shuffle": {
+    "persistence_mse": 1.654890938507482e-06,
+    "hcm_mse": 3.285210526936446e-05,
+    "hcm_better": false
+  }
+}
