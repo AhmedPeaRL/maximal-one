@@ -37,4 +37,6 @@ class InvariantProjectionPredictor:
             w_energy * energy
         )
 
-        return float(h[-1] + delta * np.std(h))
+        amplification = 1.5 + np.tanh(vol)
+        
+        return float(h[-1] + delta * np.std(h) * amplification)
