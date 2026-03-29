@@ -106,12 +106,19 @@ from analysis.invariant_projection_predictor import InvariantProjectionPredictor
 
 inv_model = InvariantProjectionPredictor()
 
+from analysis.hcm_structural_predictor import HCMStructuralPredictor
+
+struct_models = [
+    HCMStructuralPredictor(delay=1, dim=3),
+    HCMStructuralPredictor(delay=2, dim=4),
+    HCMStructuralPredictor(delay=3, dim=4),
+]
+
 def hcm_predict(history):
 
     preds = []
 
-    # HCM phase-space
-    for m in models:
+    for m in struct_models:
         try:
             p = m.predict(history)
             if np.isfinite(p):
@@ -119,29 +126,17 @@ def hcm_predict(history):
         except:
             continue
 
-    # 🔥 invariant projection
-    try:
-        p_inv = inv_model.predict(history)
-        if np.isfinite(p_inv):
-            preds.append(p_inv)
-    except:
-        pass
-
     if not preds:
         return history[-1]
 
     preds = np.array(preds)
 
+    # 🔥 robust aggregation
     median = np.median(preds)
-    deviations = np.abs(preds - median)
+    mad = np.median(np.abs(preds - median)) + 1e-8
 
-    spread = np.std(preds)
-
-    if spread < 1e-6:
-        return float(np.mean(preds))
-
-    weights = 1 / (1 + deviations + 0.05 * (1/spread))
-    weights = weights / np.sum(weights)
+    weights = np.exp(-np.abs(preds - median) / mad)
+    weights /= np.sum(weights)
 
     return float(np.sum(preds * weights))
     
