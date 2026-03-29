@@ -40,10 +40,13 @@ def select_best_model(preds, history):
 
     # 🔥 if uncertain → DO NOT collapse to persistence
     if confidence < 0.25:
-        # 🔥 choose most structurally different prediction
+        # 🔥 instead of max diversity only
         diversity = np.abs(preds - last)
-        idx = np.argmax(diversity)
-        return float(preds[idx])
+
+        exploration = preds + np.random.normal(0, np.std(preds) * 0.05, size=len(preds))
+
+        idx = np.argmax(np.abs(exploration - last))
+        return float(exploration[idx]))
 
     # 🔥 final weighted prediction
     return float(np.sum(preds * weights))
