@@ -7,29 +7,81 @@
     "alpha": -0.7625112729411256,
     "hurst": 0.44374623178577305
   },
+  "logistic_map_clean.csv": {
+    "alpha": -0.7625112729411256,
+    "hurst": 0.44374623178577305
+  },
   "co2.csv": {
     "alpha": 1.7953285163323955,
     "hurst": 0.8751349026660706
+  },
+  "geomagnetic_kp_clean_clean.csv": {
+    "alpha": NaN,
+    "hurst": 0.820451274812611
+  },
+  "lorenz63.csv": {
+    "alpha": 1.8033711837635458,
+    "hurst": 0.9091251595508352
   },
   "cosmic_rays_clean.csv": {
     "alpha": 1.3180353480910891,
     "hurst": 0.7663229412899278
   },
   "solar_wind_speed_clean.csv": {
-    "alpha": 0.9461915223866488,
-    "hurst": 0.9101202366239781
+    "alpha": 1.0309602279896766,
+    "hurst": 0.9111760005482656
   },
   "sample_clean.csv": {
     "alpha": 2.2533307140379,
     "hurst": 0.7772264934553241
   },
+  "ecology_clean_clean.csv": {
+    "alpha": 0.7402813684016072,
+    "hurst": 0.6927177832151837
+  },
+  "earthquake_magnitude_clean_clean.csv": {
+    "alpha": 1.802299338837749,
+    "hurst": 0.9098534835649408
+  },
+  "sunspots_live_clean.csv": {
+    "alpha": 0.9906919657154576,
+    "hurst": 0.7288688121857675
+  },
   "sunspots_global_prepared_clean.csv": {
     "alpha": 1.8045798339819632,
     "hurst": 0.9255276414598521
   },
+  "sunspots_live.csv": {
+    "alpha": 0.9906919657154576,
+    "hurst": 0.7288688121857675
+  },
+  "sunspots_clean_clean.csv": {
+    "alpha": 1.0666364335621017,
+    "hurst": 0.770886952317803
+  },
+  "sunspots_global_prepared_clean_clean.csv": {
+    "alpha": 1.8045798339819632,
+    "hurst": 0.9255276414598521
+  },
+  "sunspots_extended_clean.csv": {
+    "alpha": 1.0666364335621017,
+    "hurst": 0.770886952317803
+  },
+  "co2_clean_clean.csv": {
+    "alpha": 1.7953285163323955,
+    "hurst": 0.8751349026660706
+  },
   "co2_clean.csv": {
     "alpha": 1.7953285163323955,
     "hurst": 0.8751349026660706
+  },
+  "lorenz63_clean.csv": {
+    "alpha": 1.8033711837635458,
+    "hurst": 0.9091251595508352
+  },
+  "cosmic_rays_clean_clean.csv": {
+    "alpha": 1.3180353480910891,
+    "hurst": 0.7663229412899278
   },
   "temperature_clean.csv": {
     "alpha": 1.211826845367627,
@@ -40,24 +92,48 @@
     "hurst": 0.9255276414598521
   },
   "earthquake_magnitude_clean.csv": {
-    "alpha": 1.8033019467672635,
-    "hurst": 0.909876559397135
+    "alpha": 1.8035981705422923,
+    "hurst": 0.9098051109376815
   },
   "sample.csv": {
     "alpha": 2.2533307140379,
     "hurst": 0.7772264934553241
   },
+  "temperature_clean_clean.csv": {
+    "alpha": 1.211826845367627,
+    "hurst": 0.8781997004273706
+  },
   "ecology_clean.csv": {
     "alpha": 0.7402813684016072,
     "hurst": 0.6927177832151837
   },
+  "daily_female_births_clean.csv": {
+    "alpha": 0.3563500745652068,
+    "hurst": 0.686595350759332
+  },
   "earthquake_magnitude.csv": {
-    "alpha": 1.8033019467672635,
-    "hurst": 0.909876559397135
+    "alpha": 1.8035981705422923,
+    "hurst": 0.9098051109376815
+  },
+  "rossler_clean.csv": {
+    "alpha": 1.9651477365478958,
+    "hurst": 0.7211481982838059
   },
   "sunspots_global_clean.csv": {
     "alpha": 1.8045798339819639,
     "hurst": 0.9255276414598519
+  },
+  "sunspots_global_clean_clean.csv": {
+    "alpha": 1.8045798339819639,
+    "hurst": 0.9255276414598519
+  },
+  "solar_wind_speed_clean_clean.csv": {
+    "alpha": 0.9676857848453804,
+    "hurst": 0.9108408409086843
+  },
+  "henon_map_clean.csv": {
+    "alpha": -0.4752456451547045,
+    "hurst": 0.4347812880769482
   },
   "sunspots_clean.csv": {
     "alpha": 1.0666364335621017,
@@ -68,10 +144,18 @@
     "hurst": 0.4347812880769482
   },
   "geomagnetic_kp_clean.csv": {
-    "alpha": 1.774650158960262,
-    "hurst": 0.8584280662037325
+    "alpha": NaN,
+    "hurst": 0.820451274812611
+  },
+  "sample_clean_clean.csv": {
+    "alpha": 2.2533307140379,
+    "hurst": 0.7772264934553241
   },
   "co2_atmospheric_clean.csv": {
+    "alpha": 1.7960521311447977,
+    "hurst": 0.8735241611395028
+  },
+  "co2_atmospheric_clean_clean.csv": {
     "alpha": 1.7960521311447977,
     "hurst": 0.8735241611395028
   }
