@@ -30,6 +30,12 @@
     "attractor_dim": 0.47358921912990315
   },
   {
+    "dataset": "solar_wind_speed_clean.csv",
+    "spectral_alpha": 0.9461915223866488,
+    "entropy": 0.8608719793703561,
+    "attractor_dim": -0.1283328965080726
+  },
+  {
     "dataset": "sample_clean.csv",
     "spectral_alpha": 2.2533307140379,
     "entropy": 5.060392873625303,
@@ -61,9 +67,9 @@
   },
   {
     "dataset": "geomagnetic_kp.csv",
-    "spectral_alpha": 1.6106738443066273,
-    "entropy": -38.86921508491224,
-    "attractor_dim": 0.013139101063976541
+    "spectral_alpha": 1.774650158960262,
+    "entropy": -38.1124190055654,
+    "attractor_dim": 0.006921815217875412
   },
   {
     "dataset": "sunspots_global.csv",
@@ -85,9 +91,9 @@
   },
   {
     "dataset": "earthquake_magnitude_clean.csv",
-    "spectral_alpha": 1.803138161931361,
-    "entropy": 5.351072435924128e-07,
-    "attractor_dim": -0.03432483552958053
+    "spectral_alpha": 1.8033019467672635,
+    "entropy": 5.353423818991154e-07,
+    "attractor_dim": -0.034472815232698815
   },
   {
     "dataset": "sample.csv",
@@ -108,10 +114,16 @@
     "attractor_dim": -1.2844198662132564
   },
   {
+    "dataset": "solar_wind_speed.csv",
+    "spectral_alpha": 0.9461915223866488,
+    "entropy": 0.8608719793703561,
+    "attractor_dim": -0.1283328965080726
+  },
+  {
     "dataset": "earthquake_magnitude.csv",
-    "spectral_alpha": 1.803138161931361,
-    "entropy": 5.351072435924128e-07,
-    "attractor_dim": -0.03432483552958053
+    "spectral_alpha": 1.8033019467672635,
+    "entropy": 5.353423818991154e-07,
+    "attractor_dim": -0.034472815232698815
   },
   {
     "dataset": "sunspots_global_clean.csv",
@@ -139,9 +151,9 @@
   },
   {
     "dataset": "geomagnetic_kp_clean.csv",
-    "spectral_alpha": 1.6106738443066273,
-    "entropy": -38.86921508491224,
-    "attractor_dim": 0.013139101063976541
+    "spectral_alpha": 1.774650158960262,
+    "entropy": -38.1124190055654,
+    "attractor_dim": 0.006921815217875412
   },
   {
     "dataset": "co2_atmospheric_clean.csv",

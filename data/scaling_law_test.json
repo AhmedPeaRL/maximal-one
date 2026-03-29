@@ -37,8 +37,8 @@
     },
     {
       "dataset": "real-data/earthquake_magnitude_clean.csv",
-      "alpha": 0.05498487011009652,
-      "r2": 0.0018456433751991132
+      "alpha": 0.05710957543254116,
+      "r2": 0.00186729394301814
     },
     {
       "dataset": "real-data/cosmic_rays.csv",
@@ -51,9 +51,14 @@
       "r2": 0.7156148697370548
     },
     {
+      "dataset": "real-data/solar_wind_speed.csv",
+      "alpha": 0.9461915223866484,
+      "r2": 0.33519754366063786
+    },
+    {
       "dataset": "real-data/earthquake_magnitude.csv",
-      "alpha": 0.05498487011009652,
-      "r2": 0.0018456433751991132
+      "alpha": 0.05710957543254116,
+      "r2": 0.00186729394301814
     },
     {
       "dataset": "real-data/ecology.csv",
@@ -66,7 +71,7 @@
       "r2": 0.06073925784353807
     }
   ],
-  "mean_alpha": 1.2840313979785736,
-  "std_alpha": 0.8217100460553712,
-  "n_systems": 13
+  "mean_alpha": 1.2602035076252138,
+  "std_alpha": 0.7961266412052566,
+  "n_systems": 14
 }
