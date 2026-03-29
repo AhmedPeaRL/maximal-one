@@ -1,5 +1,5 @@
 import numpy as np
-from analysis.invariant_core import extract_invariants
+from analysis.invariant_core_v2 import extract_strong_invariants
 
 class InvariantProjectionPredictor:
 
@@ -13,12 +13,12 @@ class InvariantProjectionPredictor:
             
         h = np.array(history[-self.window:])
        
-        inv = extract_invariants(h)
+        inv = extract_strong_invariants(h)
     
         if inv is None:
             return history[-1]
 
-        energy, entropy, curvature, phase = inv
+        spec_energy, spec_entropy, rank_entropy, curvature, zero_cross = inv
 
         # 🔥 dynamic weighting based on signal condition
 
@@ -31,10 +31,10 @@ class InvariantProjectionPredictor:
         w_energy = 0.2
 
         delta = (
-            w_curv * curvature +
-            w_phase * phase +
-            w_entropy * entropy +
-            w_energy * energy
+            0.3 * spec_entropy +
+            0.25 * rank_entropy +
+            0.25 * curvature +
+            0.2 * zero_cross
         )
 
         amplification = 1.5 + np.tanh(vol)
