@@ -123,6 +123,9 @@ def hcm_predict(history):
     structure_score = detect_structure(history)
 
     from analysis.anti_collapse_guard import anti_collapse
+    from analysis.invariant_latent_predictor import InvariantLatentPredictor
+
+    latent_model = InvariantLatentPredictor()
 
     # 🔥 FORCE NON-TRIVIALITY ZONE
     if structure_score < 0.25:
@@ -163,6 +166,13 @@ def hcm_predict(history):
         p = inv_model.predict(history)
         if np.isfinite(p):
             preds.append(p)
+    except:
+        pass
+
+    try:
+        p_latent = latent_model.predict(history)
+        if np.isfinite(p_latent):
+            preds.append(p_latent)
     except:
         pass
 
