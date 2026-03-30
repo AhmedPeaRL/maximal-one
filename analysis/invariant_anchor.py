@@ -32,5 +32,5 @@ def invariant_anchor(history):
         0.1 * curvature
     )
 
-    # 🔥 controlled projection (NOT persistence)
-    return float(state)
+    # 🔥 normalize against scale explosion
+    return float(state / (1.0 + abs(state)))
