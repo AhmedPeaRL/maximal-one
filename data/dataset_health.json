@@ -21,13 +21,6 @@
     "missing_ratio": 0.0
   },
   {
-    "file": "real-data/solar_wind_speed_clean.csv",
-    "rows": 9705,
-    "columns": 1,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
     "file": "real-data/sample_clean.csv",
     "rows": 2000,
     "columns": 1,
@@ -92,7 +85,7 @@
   },
   {
     "file": "real-data/earthquake_magnitude_clean.csv",
-    "rows": 10691,
+    "rows": 10696,
     "columns": 2,
     "numeric_columns": 2,
     "missing_ratio": 0.0
@@ -119,15 +112,8 @@
     "missing_ratio": 0.0
   },
   {
-    "file": "real-data/solar_wind_speed.csv",
-    "rows": 9705,
-    "columns": 2,
-    "numeric_columns": 1,
-    "missing_ratio": 0.0
-  },
-  {
     "file": "real-data/earthquake_magnitude.csv",
-    "rows": 10691,
+    "rows": 10696,
     "columns": 2,
     "numeric_columns": 2,
     "missing_ratio": 0.0
