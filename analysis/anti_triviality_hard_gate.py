@@ -171,11 +171,12 @@ def hcm_predict(history):
 
     from analysis.model_selector import select_best_model
     from analysis.invariant_dominance import invariant_guard
+    from analysis.invariant_fusion_predictor import invariant_projection, blend
 
-    raw_pred = select_best_model(preds, history)
+    struct_pred = select_best_model(preds, history)
+    inv_pred = invariant_projection(history)
 
-    # 🔥 invariant correction layer
-    final_pred = invariant_guard(history, raw_pred)
+    final_pred = blend(inv_pred, struct_pred, history)
 
     return final_pred
     
