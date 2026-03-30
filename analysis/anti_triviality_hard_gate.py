@@ -120,6 +120,10 @@ from analysis.structure_detector import detect_structure
 
 def hcm_predict(history):
 
+    # 🔥 FORCE CAUSAL BASELINE
+    causal_pred = causal_invariant_predict(history)
+    preds = [causal_pred]
+
     structure_score = detect_structure(history)
 
     from analysis.anti_collapse_guard import anti_collapse
@@ -163,6 +167,8 @@ def hcm_predict(history):
         )
 
         return float(base + exploration)
+
+    from analysis.causal_invariant_predictor import causal_invariant_predict
 
     preds = []
 
@@ -228,7 +234,6 @@ def hcm_predict(history):
     except:
         pass
 
-    # 🔥 remove near-persistence predictions
     preds = [p for p in preds if abs(p - history[-1]) > 1e-6]
 
     # 🔥 force diversity
