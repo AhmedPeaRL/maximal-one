@@ -239,11 +239,22 @@ def hcm_predict(history):
 
     anchor = invariant_anchor(history)
 
-    # 🔥 HARD override logic
+    # 🔥 STRICT INVARIANT DOMINANCE (HARD FIX)
+
     if instability:
+        # FULL isolation — no structure allowed
         final_pred = anchor
+
     else:
-        final_pred = 0.5 * anchor + 0.5 * blend(inv_pred, struct_pred, history)
+        # only allow invariant-consistent blending
+        consistency = abs(anchor - struct_pred) / (abs(anchor) + 1e-8)
+
+        if consistency < 0.2:
+            # structure aligned → allow weak blend
+            final_pred = 0.8 * anchor + 0.2 * struct_pred
+        else:
+            # structure misleading → ignore
+            final_pred = anchor
 
     from analysis.invariant_resilience_gate import enforce_invariant_resilience
 
