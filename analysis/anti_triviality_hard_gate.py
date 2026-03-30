@@ -262,6 +262,15 @@ def hcm_predict(history):
 
     from analysis.invariant_resilience_gate import enforce_invariant_resilience
 
+    from analysis.invariant_breaker import invariant_break
+
+    # apply breaker BEFORE final enforcement
+    breaker_pred = invariant_break(history)
+
+    # 🔥 allow divergence if meaningful
+    if abs(breaker_pred - history[-1]) > 1e-3:
+        final_pred = 0.7 * final_pred + 0.3 * breaker_pred
+
     final_pred = enforce_invariant_resilience(history, final_pred)
 
     return final_pred
