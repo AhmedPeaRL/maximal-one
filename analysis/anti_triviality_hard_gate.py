@@ -154,7 +154,7 @@ def hcm_predict(history):
 
     if instability:
 
-        base = np.mean(history[-5:])  # NOT last value
+        base = invariant_anchor(history)
 
         exploration = (
             0.4 * drift +
@@ -235,7 +235,7 @@ def hcm_predict(history):
     if len(preds) > 5:
         preds = preds[:5]
 
-    from analysis.invariant_anchor import invariant_anchor
+    from analysis.true_invariant_anchor import true_invariant_anchor as invariant_anchor
 
     anchor = invariant_anchor(history)
 
