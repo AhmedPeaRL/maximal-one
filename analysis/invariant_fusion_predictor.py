@@ -31,15 +31,15 @@ def blend(inv_pred, struct_pred, history):
 
     last = history[-1]
 
-    # distance from persistence
     d_inv = abs(inv_pred - last)
     d_struct = abs(struct_pred - last)
 
-    # 🔥 enforce anti-triviality
-    w_inv = d_inv + 1e-8
-    w_struct = d_struct + 1e-8
+    # 🔥 لو invariants قوية → override
+    if d_inv > d_struct * 1.2:
+        return float(inv_pred)
 
-    weights = np.array([w_inv, w_struct])
-    weights /= np.sum(weights)
+    # 🔥 لو structure أقوى بس مش trivial
+    if d_struct > 1e-6:
+        return float(0.6 * struct_pred + 0.4 * inv_pred)
 
-    return float(weights[0] * inv_pred + weights[1] * struct_pred)
+    return float(inv_pred)
