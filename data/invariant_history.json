@@ -1777,5 +1777,172 @@
         "dimension": 9.672425341971495
       }
     ]
+  },
+  {
+    "time": "2026-03-30T01:39:25.291828",
+    "results": [
+      {
+        "dataset": "rossler.csv",
+        "spectral_alpha": -6.739590943630651,
+        "entropy": 3.6895547368761337,
+        "dimension": 12.287712379549449
+      },
+      {
+        "dataset": "logistic_map.csv",
+        "spectral_alpha": 0.8109811392345658,
+        "entropy": 3.686940221524831,
+        "dimension": 12.287712379549449
+      },
+      {
+        "dataset": "temperature.csv",
+        "spectral_alpha": -1.0087285873997682,
+        "entropy": 3.394691176672271,
+        "dimension": 11.900489484834647
+      },
+      {
+        "dataset": "co2.csv",
+        "spectral_alpha": -4.709794348342171,
+        "entropy": 3.911630951046246,
+        "dimension": 9.67065624911844
+      },
+      {
+        "dataset": "cosmic_rays_clean.csv",
+        "spectral_alpha": -1.3061012910229322,
+        "entropy": 3.371042496657691,
+        "dimension": 11.852529509404196
+      },
+      {
+        "dataset": "solar_wind_speed_clean.csv",
+        "spectral_alpha": -0.8596536717168043,
+        "entropy": 3.6430633796769674,
+        "dimension": 13.24317398347295
+      },
+      {
+        "dataset": "sample_clean.csv",
+        "spectral_alpha": -9.036795830305145,
+        "entropy": 3.421822928799656,
+        "dimension": 10.965784284662087
+      },
+      {
+        "dataset": "co2_atmospheric.csv",
+        "spectral_alpha": -1.6657078281751068,
+        "entropy": 3.834235696073472,
+        "dimension": 9.672425341971495
+      },
+      {
+        "dataset": "sunspots_global_prepared_clean.csv",
+        "spectral_alpha": -2.628429358150538,
+        "entropy": 3.912022953527792,
+        "dimension": 16.214281170621472
+      },
+      {
+        "dataset": "co2_clean.csv",
+        "spectral_alpha": -4.709794348342171,
+        "entropy": 3.911630951046246,
+        "dimension": 9.67065624911844
+      },
+      {
+        "dataset": "sunspots.csv",
+        "spectral_alpha": -1.05736728980836,
+        "entropy": 3.279242178085331,
+        "dimension": 11.461479447286155
+      },
+      {
+        "dataset": "geomagnetic_kp.csv",
+        "spectral_alpha": -1.8404023265347758,
+        "entropy": 0.9076248372088846,
+        "dimension": 8.417852514885897
+      },
+      {
+        "dataset": "sunspots_global.csv",
+        "spectral_alpha": -2.6284293581504965,
+        "entropy": 3.912022953527792,
+        "dimension": 16.214281170621472
+      },
+      {
+        "dataset": "temperature_clean.csv",
+        "spectral_alpha": -1.0087285873997682,
+        "entropy": 3.394691176672271,
+        "dimension": 11.900489484834647
+      },
+      {
+        "dataset": "sunspots_global_prepared.csv",
+        "spectral_alpha": -2.628429358150538,
+        "entropy": 3.912022953527792,
+        "dimension": 16.214281170621472
+      },
+      {
+        "dataset": "earthquake_magnitude_clean.csv",
+        "spectral_alpha": -2.119691243667139,
+        "entropy": 3.903030916980444,
+        "dimension": 13.38275910405649
+      },
+      {
+        "dataset": "sample.csv",
+        "spectral_alpha": -9.036795830304959,
+        "entropy": 3.421822928799656,
+        "dimension": 10.965784284662087
+      },
+      {
+        "dataset": "cosmic_rays.csv",
+        "spectral_alpha": -1.3061012910229322,
+        "entropy": 3.371042496657691,
+        "dimension": 11.852529509404196
+      },
+      {
+        "dataset": "ecology_clean.csv",
+        "spectral_alpha": -0.9005748663524894,
+        "entropy": 3.4500718677349322,
+        "dimension": 11.833680748654743
+      },
+      {
+        "dataset": "solar_wind_speed.csv",
+        "spectral_alpha": -0.8596536717168043,
+        "entropy": 3.6430633796769674,
+        "dimension": 13.24317398347295
+      },
+      {
+        "dataset": "earthquake_magnitude.csv",
+        "spectral_alpha": -2.119691243667139,
+        "entropy": 3.903030916980444,
+        "dimension": 13.38275910405649
+      },
+      {
+        "dataset": "sunspots_global_clean.csv",
+        "spectral_alpha": -2.6284293581504965,
+        "entropy": 3.912022953527792,
+        "dimension": 16.214281170621472
+      },
+      {
+        "dataset": "sunspots_clean.csv",
+        "spectral_alpha": -1.05736728980836,
+        "entropy": 3.279242178085331,
+        "dimension": 11.461479447286155
+      },
+      {
+        "dataset": "ecology.csv",
+        "spectral_alpha": -0.9005748663524894,
+        "entropy": 3.4500718677349322,
+        "dimension": 11.833680748654743
+      },
+      {
+        "dataset": "henon_map.csv",
+        "spectral_alpha": 0.5333270834189168,
+        "entropy": 3.789655802667781,
+        "dimension": 12.287712379549449
+      },
+      {
+        "dataset": "geomagnetic_kp_clean.csv",
+        "spectral_alpha": -1.8404023265347758,
+        "entropy": 0.9076248372088846,
+        "dimension": 8.417852514885897
+      },
+      {
+        "dataset": "co2_atmospheric_clean.csv",
+        "spectral_alpha": -1.6657078281751068,
+        "entropy": 3.834235696073472,
+        "dimension": 9.672425341971495
+      }
+    ]
   }
 ]
