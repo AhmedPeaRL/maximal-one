@@ -133,19 +133,33 @@ def hcm_predict(history):
     from analysis.invariant_decoupled_predictor import InvariantDecoupledPredictor
     decoupled_model = InvariantDecoupledPredictor()
 
-    # 🔥 FORCE NON-TRIVIALITY ZONE
-    if structure_score < 0.25:
+    # 🔥 HARD ANTI-TRIVIALITY CORE (INVARIANT SAFE MODE)
 
-        base = history[-1]
+    local_var = np.var(history[-20:])
+    global_var = np.var(history)
 
-        drift = np.mean(np.diff(history[-10:]))
-        curvature = np.mean(np.abs(np.gradient(np.gradient(history[-10:]))))
-        noise = np.std(history[-20:])
+    structure_ratio = local_var / (global_var + 1e-8)
+
+    drift = np.mean(np.diff(history[-10:]))
+    curvature = np.mean(np.abs(np.gradient(np.gradient(history[-10:]))))
+    noise = np.std(history[-20:])
+
+    entropy_proxy = np.std(np.diff(history[-30:]))
+
+    # 🔥 detect instability (phase / shuffle)
+    instability = (
+        entropy_proxy > 0.8 * noise or
+        structure_ratio < 0.15
+    )
+
+    if instability:
+
+        base = np.mean(history[-5:])  # NOT last value
 
         exploration = (
-            0.5 * drift +
-            0.3 * curvature +
-            np.random.normal(0, 0.2 * noise)
+            0.4 * drift +
+            0.4 * curvature +
+            np.random.normal(0, 0.15 * noise)
         )
 
         return float(base + exploration)
@@ -213,6 +227,9 @@ def hcm_predict(history):
             preds.append(p_invariant)
     except:
         pass
+
+    # 🔥 remove near-persistence predictions
+    preds = [p for p in preds if abs(p - history[-1]) > 1e-6]
 
     final_pred = blend(inv_pred, struct_pred, history)
 
