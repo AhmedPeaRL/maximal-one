@@ -231,7 +231,19 @@ def hcm_predict(history):
     # 🔥 remove near-persistence predictions
     preds = [p for p in preds if abs(p - history[-1]) > 1e-6]
 
-    final_pred = blend(inv_pred, struct_pred, history)
+    # 🔥 force diversity
+    if len(preds) > 5:
+        preds = preds[:5]
+
+    from analysis.invariant_anchor import invariant_anchor
+
+    anchor = invariant_anchor(history)
+
+    # 🔥 HARD override logic
+    if instability:
+        final_pred = anchor
+    else:
+        final_pred = 0.5 * anchor + 0.5 * blend(inv_pred, struct_pred, history)
 
     from analysis.invariant_resilience_gate import enforce_invariant_resilience
 
