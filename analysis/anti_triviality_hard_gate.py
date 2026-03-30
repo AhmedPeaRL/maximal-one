@@ -239,11 +239,10 @@ def hcm_predict(history):
 
     anchor = invariant_anchor(history)
 
-    # 🔥 STRICT INVARIANT DOMINANCE (HARD FIX)
+    from analysis.irreversible_predictor import irreversible_predict
 
     if instability:
-        # FULL isolation — no structure allowed
-        final_pred = anchor
+        final_pred = irreversible_predict(history, anchor)
 
     else:
         # only allow invariant-consistent blending
