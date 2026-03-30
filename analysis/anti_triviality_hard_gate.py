@@ -234,6 +234,8 @@ def hcm_predict(history):
     except:
         pass
 
+    preds = [p for p in preds if abs(p - history[-1]) > 1e-6]
+
     # 🔥 force diversity
     if len(preds) > 5:
         preds = preds[:5]
