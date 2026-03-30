@@ -129,6 +129,9 @@ def hcm_predict(history):
 
     from analysis.invariant_master_controller import invariant_master_predict
 
+    from analysis.invariant_decoupled_predictor import InvariantDecoupledPredictor
+    decoupled_model = InvariantDecoupledPredictor()
+
     # 🔥 FORCE NON-TRIVIALITY ZONE
     if structure_score < 0.25:
 
@@ -183,6 +186,13 @@ def hcm_predict(history):
         p_master = invariant_master_predict(history)
         if np.isfinite(p_master):
             preds.append(p_master)
+    except:
+        pass
+
+    try:
+        p_decoupled = decoupled_model.predict(history)
+        if np.isfinite(p_decoupled):
+            preds.append(p_decoupled)
     except:
         pass
 
