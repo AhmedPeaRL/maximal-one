@@ -128,6 +128,7 @@ def hcm_predict(history):
     latent_model = InvariantLatentPredictor()
 
     from analysis.invariant_master_controller import invariant_master_predict
+    from analysis.invariant_structure_enforcer import invariant_prediction
 
     from analysis.invariant_decoupled_predictor import InvariantDecoupledPredictor
     decoupled_model = InvariantDecoupledPredictor()
@@ -205,6 +206,13 @@ def hcm_predict(history):
 
     struct_pred = select_best_model(preds, history)
     inv_pred = invariant_projection(history)
+
+    try:
+        p_invariant = invariant_prediction(history)
+        if np.isfinite(p_invariant):
+            preds.append(p_invariant)
+    except:
+        pass
 
     final_pred = blend(inv_pred, struct_pred, history)
 
