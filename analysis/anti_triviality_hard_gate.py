@@ -170,7 +170,14 @@ def hcm_predict(history):
         return anti_collapse(history)
 
     from analysis.model_selector import select_best_model
-    return select_best_model(preds, history)
+    from analysis.invariant_dominance import invariant_guard
+
+    raw_pred = select_best_model(preds, history)
+
+    # 🔥 invariant correction layer
+    final_pred = invariant_guard(history, raw_pred)
+
+    return final_pred
     
 # -----------------------------
 # evaluation
