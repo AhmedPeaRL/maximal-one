@@ -271,7 +271,12 @@ def hcm_predict(history):
     if abs(breaker_pred - history[-1]) > 1e-3:
         final_pred = 0.7 * final_pred + 0.3 * breaker_pred
 
+    from analysis.information_divergence_enforcer import enforce_information_divergence
+
     final_pred = enforce_invariant_resilience(history, final_pred)
+
+    # 🔥 CRITICAL: force non-triviality
+    final_pred = enforce_information_divergence(history, final_pred)
 
     return final_pred
     
