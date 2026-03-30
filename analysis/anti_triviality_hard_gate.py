@@ -198,6 +198,10 @@ def hcm_predict(history):
 
     final_pred = blend(inv_pred, struct_pred, history)
 
+    from analysis.invariant_resilience_gate import enforce_invariant_resilience
+
+    final_pred = enforce_invariant_resilience(history, final_pred)
+
     return final_pred
     
 # -----------------------------
