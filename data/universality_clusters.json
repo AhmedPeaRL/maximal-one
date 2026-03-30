@@ -1,13 +1,14 @@
 {
-  "0": [
+  "1": [
     "rossler"
   ],
-  "1": [
+  "0": [
     "logistic_map",
     "temperature",
     "co2",
     "cosmic_rays_clean",
     "solar_wind_speed_clean",
+    "co2_atmospheric",
     "sunspots_global_prepared_clean",
     "co2_clean",
     "sunspots",
@@ -22,7 +23,8 @@
     "sunspots_global_clean",
     "sunspots_clean",
     "ecology",
-    "henon_map"
+    "henon_map",
+    "co2_atmospheric_clean"
   ],
   "2": [
     "sample_clean",
