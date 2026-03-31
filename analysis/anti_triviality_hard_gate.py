@@ -224,15 +224,35 @@ def hcm_predict(history):
 
     conf = confidence_score(history)
 
+    base = history[-1]
+
+    # 🔥 FORCED ANTI-PERSISTENCE CORE
+
+    if preds:
+        struct_pred = np.mean(preds)
+    else:
+        struct_pred = base
+
+    divergence = abs(struct_pred - base)
+
+    # 🔥 minimum divergence enforcement
+    MIN_DIV = 1e-3
+
+    if divergence < MIN_DIV:
+        direction = np.sign(np.mean(np.diff(history[-5:])))
+        struct_pred = base + MIN_DIV * direction
+
+    # 🔥 confidence-controlled amplification (NOT suppression)
     if conf < 0.3:
-        # 🔥 بدل collapse → weak structural attempt
-        trend = np.mean(np.diff(history[-5:]))
-        return history[-1] + 0.2 * trend
+        final = 0.6 * base + 0.4 * struct_pred
 
     elif conf < 0.6:
-        base = history[-1]
-        struct_pred = np.mean(preds) if preds else base
-        return 0.7 * base + 0.3 * struct_pred
+        final = 0.4 * base + 0.6 * struct_pred
+
+    else:
+        final = struct_pred
+
+    return float(final)
 
     from analysis.model_selector import select_best_model
     from analysis.invariant_dominance import invariant_guard
