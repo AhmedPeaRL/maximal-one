@@ -323,10 +323,6 @@ def hcm_predict(history):
     if abs(final_pred - history[-1]) < 1e-6:
         final_pred = final_pred + 1e-3 * np.sign(np.mean(np.diff(history[-5:])))
 
-    from analysis.anti_persistence_force import anti_persistence_force
-
-    final_pred = anti_persistence_force(history, final_pred)
-
     return final_pred
     
 # -----------------------------
