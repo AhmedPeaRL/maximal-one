@@ -164,16 +164,12 @@ def hcm_predict(history):
     )
 
     if instability:
-
         base = invariant_anchor(history)
 
-        exploration = (
-            0.4 * drift +
-            0.4 * curvature +
-            np.random.normal(0, 0.15 * noise)
-        )
+        # 🔥 NO RANDOMNESS — deterministic correction only
+        correction = 0.3 * drift + 0.2 * curvature
 
-        return float(base + exploration)
+        return float(base + correction)
 
     from analysis.causal_invariant_predictor import causal_invariant_predict
 
@@ -228,18 +224,14 @@ def hcm_predict(history):
 
     conf = confidence_score(history)
 
-    # 🔥 adaptive behavior
     if conf < 0.3:
-        # low confidence → stay simple
-        final_pred = history[-1]
+        return history[-1]
 
     elif conf < 0.6:
-        # medium → partial freedom
-        final_pred = 0.7 * history[-1] + 0.3 * final_pred
-
-    else:
-        # high confidence → full HCM
-        pass  # keep final_pred as is
+        base = history[-1]
+        struct_pred = np.mean(preds) if preds 
+    else base
+        return 0.7 * base + 0.3 * struct_pred
 
     from analysis.model_selector import select_best_model
     from analysis.invariant_dominance import invariant_guard
@@ -255,7 +247,10 @@ def hcm_predict(history):
     except:
         pass
 
-    preds = [p for p in preds if abs(p - history[-1]) > 1e-6]
+    preds = [
+        p for p in preds
+        if np.isfinite(p) and abs(p - history[-1]) > 1e-4
+    ]
 
     # 🔥 force diversity
     if len(preds) > 5:
@@ -299,6 +294,10 @@ def hcm_predict(history):
 
     if conf > 0.5:
         final_pred = enforce_information_divergence(history, final_pred)
+
+    # 🔥 anti-persistence collapse
+    if abs(final_pred - history[-1]) < 1e-6:
+        final_pred = final_pred + 1e-3 * np.sign(np.mean(np.diff(history[-5:])))
 
     return final_pred
     
