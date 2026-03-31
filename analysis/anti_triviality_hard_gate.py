@@ -226,33 +226,32 @@ def hcm_predict(history):
 
     base = history[-1]
 
-    # 🔥 FORCED ANTI-PERSISTENCE CORE
+    # ✅ CLEAN DECISION CORE
 
-    if preds:
-        struct_pred = np.mean(preds)
-    else:
-        struct_pred = base
+    persistence_pred = history[-1]
 
-    divergence = abs(struct_pred - base)
+    candidates = []
 
-    # 🔥 minimum divergence enforcement
-    MIN_DIV = 1e-3
+    # collect valid predictions
+    for p in preds:
+        if np.isfinite(p):
+            candidates.append(p)
 
-    if divergence < MIN_DIV:
-        direction = np.sign(np.mean(np.diff(history[-5:])))
-        struct_pred = base + MIN_DIV * direction
+    candidates.append(persistence_pred)
 
-    # 🔥 confidence-controlled amplification (NOT suppression)
-    if conf < 0.3:
-        final = 0.6 * base + 0.4 * struct_pred
+    # fallback
+    if not candidates:
+        return float(persistence_pred)
 
-    elif conf < 0.6:
-        final = 0.4 * base + 0.6 * struct_pred
+    # evaluate on recent window
+    window = history[-10:]
 
-    else:
-        final = struct_pred
+    def error(p):
+        return np.mean((np.array(window) - p)**2)
 
-    return float(final)
+    best = min(candidates, key=error)
+
+    return float(best)
 
     from analysis.model_selector import select_best_model
     from analysis.invariant_dominance import invariant_guard
