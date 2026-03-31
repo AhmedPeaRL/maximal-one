@@ -230,7 +230,11 @@ def hcm_predict(history):
 
     persistence_pred = history[-1]
 
-    candidates = []
+    # 🔥 FORCE NON-PERSISTENCE
+    candidates = [
+        p for p in candidates
+        if abs(p - history[-1]) > 1e-5
+    ] or candidates
 
     # collect valid predictions
     for p in preds:
@@ -243,15 +247,9 @@ def hcm_predict(history):
     if not candidates:
         return float(persistence_pred)
 
-    # evaluate on recent window
-    window = history[-10:]
+    from analysis.hcm_predict_core_fix import select_prediction
 
-    def error(p):
-        return np.mean((np.array(window) - p)**2)
-
-    best = min(candidates, key=error)
-
-    return float(best)
+    return select_prediction(history, candidates)
 
     from analysis.model_selector import select_best_model
     from analysis.invariant_dominance import invariant_guard
