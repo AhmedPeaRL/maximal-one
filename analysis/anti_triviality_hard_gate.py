@@ -120,6 +120,13 @@ from analysis.structure_detector import detect_structure
 
 def hcm_predict(history):
 
+    from analysis.pre_decision_divergence import pre_decision_divergence
+
+    pre_div = pre_decision_divergence(history)
+
+    if pre_div is not None:
+        return pre_div
+
     # 🔥 FORCE CAUSAL BASELINE
     causal_pred = causal_invariant_predict(history)
     preds = [causal_pred]
