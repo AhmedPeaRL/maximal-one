@@ -225,7 +225,9 @@ def hcm_predict(history):
     conf = confidence_score(history)
 
     if conf < 0.3:
-        return history[-1]
+        # 🔥 بدل collapse → weak structural attempt
+        trend = np.mean(np.diff(history[-5:]))
+        return history[-1] + 0.2 * trend
 
     elif conf < 0.6:
         base = history[-1]
@@ -291,12 +293,20 @@ def hcm_predict(history):
 
     final_pred = enforce_invariant_resilience(history, final_pred)
 
+    # 🔥 allow escape if stuck
+    if abs(final_pred - history[-1]) < 1e-5:
+        final_pred += 0.002 * np.sign(np.mean(np.diff(history[-5:])))
+
     if conf > 0.5:
         final_pred = enforce_information_divergence(history, final_pred)
 
     # 🔥 anti-persistence collapse
     if abs(final_pred - history[-1]) < 1e-6:
         final_pred = final_pred + 1e-3 * np.sign(np.mean(np.diff(history[-5:])))
+
+    from analysis.anti_persistence_force import anti_persistence_force
+
+    final_pred = anti_persistence_force(history, final_pred)
 
     return final_pred
     
