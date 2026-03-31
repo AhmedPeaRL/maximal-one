@@ -278,8 +278,9 @@ def hcm_predict(history):
             # structure aligned → allow weak blend
             final_pred = 0.8 * anchor + 0.2 * struct_pred
         else:
-            # structure misleading → ignore
-            final_pred = anchor
+            from analysis.irreversible_decision_core import irreversible_decision
+            
+            final_pred = irreversible_decision(history, preds)
 
     from analysis.invariant_resilience_gate import enforce_invariant_resilience
 
