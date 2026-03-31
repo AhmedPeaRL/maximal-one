@@ -227,6 +227,23 @@ def hcm_predict(history):
     if not preds:
         return anti_collapse(history)
 
+    from analysis.hcm_confidence_gate import confidence_score
+
+    conf = confidence_score(history)
+
+    # 🔥 adaptive behavior
+    if conf < 0.3:
+        # low confidence → stay simple
+        final_pred = history[-1]
+
+    elif conf < 0.6:
+        # medium → partial freedom
+        final_pred = 0.7 * history[-1] + 0.3 * final_pred
+
+    else:
+        # high confidence → full HCM
+        pass  # keep final_pred as is
+
     from analysis.model_selector import select_best_model
     from analysis.invariant_dominance import invariant_guard
     from analysis.invariant_fusion_predictor import invariant_projection, blend
@@ -282,8 +299,8 @@ def hcm_predict(history):
 
     final_pred = enforce_invariant_resilience(history, final_pred)
 
-    # 🔥 CRITICAL: force non-triviality
-    final_pred = enforce_information_divergence(history, final_pred)
+    if conf > 0.5:
+        final_pred = enforce_information_divergence(history, final_pred)
 
     return final_pred
     
