@@ -224,9 +224,6 @@ def hcm_predict(history):
     except:
         pass
 
-    if not preds:
-        return anti_collapse(history)
-
     from analysis.hcm_confidence_gate import confidence_score
 
     conf = confidence_score(history)
@@ -243,6 +240,9 @@ def hcm_predict(history):
     else:
         # high confidence → full HCM
         pass  # keep final_pred as is
+
+    if not preds:
+        return anti_collapse(history)
 
     from analysis.model_selector import select_best_model
     from analysis.invariant_dominance import invariant_guard
