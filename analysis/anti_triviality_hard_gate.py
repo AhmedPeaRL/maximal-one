@@ -241,9 +241,6 @@ def hcm_predict(history):
         # high confidence → full HCM
         pass  # keep final_pred as is
 
-    if not preds:
-        return anti_collapse(history)
-
     from analysis.model_selector import select_best_model
     from analysis.invariant_dominance import invariant_guard
     from analysis.invariant_fusion_predictor import invariant_projection, blend
