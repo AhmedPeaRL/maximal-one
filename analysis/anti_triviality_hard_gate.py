@@ -229,9 +229,7 @@ def hcm_predict(history):
 
     elif conf < 0.6:
         base = history[-1]
-        struct_pred = np.mean(preds) 
-        if preds 
-    else base
+        struct_pred = np.mean(preds) if preds else base
         return 0.7 * base + 0.3 * struct_pred
 
     from analysis.model_selector import select_best_model
