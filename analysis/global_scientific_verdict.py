@@ -12,140 +12,98 @@ def load(name):
 
 
 # -----------------------------
-# Load all signals
+# Load signals
 # -----------------------------
 
 lorenz = load("lorenz.json")
 lorenz96 = load("lorenz96.json")
 bench = load("chaotic_benchmark.json")
+
 temporal = load("temporal_dominance.json")
 universality = load("universality_gate.json")
 universality_stability = load("universality_stability.json")
-topology = load("topology.json")  # optional
-structural = load("structural_test.json")
-structural_dom = load("structural_dominance.json")
 
 
 # -----------------------------
-# Signal scoring
+# HARD REALITY CHECK
 # -----------------------------
 
-def score_signal(d):
-    if not d:
+def predictive_success(d):
+    if not d or d.get("skipped", False):
         return None
-
-    if d.get("skipped", False):
-        return None
-
-    base = 1.0 if d.get("hcm_superior", False) else 0.0
-    confidence = d.get("confidence", 0.5)
-
-    return base * confidence
+    return d.get("hcm_superior", False)
 
 
-raw_scores = [
-    score_signal(lorenz),
-    score_signal(lorenz96),
-    score_signal(bench)
+predictive_results = [
+    predictive_success(lorenz),
+    predictive_success(lorenz96),
+    predictive_success(bench)
 ]
 
-scores = [s for s in raw_scores if s is not None]
+valid = [r for r in predictive_results if r is not None]
 
-total = sum(scores)
-n = len(scores)
+real_pass_ratio = sum(valid) / len(valid) if valid else 0.0
+
+
+# 🔥 HARD GATE: لا نجاح بدون تفوق حقيقي
+HARD_THRESHOLD = 0.6
+predictive_pass = real_pass_ratio >= HARD_THRESHOLD
 
 
 # -----------------------------
-# Temporal boost
+# Temporal signal
 # -----------------------------
 
 temporal_boost = 0.0
 
 if temporal:
-    strength = temporal.get("signal_strength", 0.0)
-
     if temporal.get("temporal_signal"):
-        temporal_boost = 0.5
-    else:
-        temporal_boost = min(0.2, strength * 0.01)
+        temporal_boost = 0.2
 
 
 # -----------------------------
 # Universality
 # -----------------------------
 
-universality_passed = False
-if universality:
-    universality_passed = universality.get("passed", False)
-
-universality_stable = False
-if universality_stability:
-    universality_stable = universality_stability.get("passed", False)
+universality_passed = universality and universality.get("passed", False)
+universality_stable = universality_stability and universality_stability.get("passed", False)
 
 
 # -----------------------------
-# Topology (optional)
+# FINAL SCORE (بعد التصحيح)
 # -----------------------------
-
-topology_ok = False
-if topology:
-    topology_ok = topology.get("passed", False)
-
-
-# -----------------------------
-# Final scoring logic
-# -----------------------------
-
-ratio = (total / n if n > 0 else 0) + temporal_boost
 
 score = 0.0
 
-# predictive evidence
-if ratio > 0.55:
-    score += 0.45
+# 🚨 predictive is dominant now
+score += real_pass_ratio * 0.7
 
-if ratio > 0.65:
-    score += 0.15
-
-# universality
 if universality_passed:
-    score += 0.2
-
-# stability
-if universality_stable:
     score += 0.15
 
-# topology (soft)
-if topology_ok:
-    score += 0.05
+if universality_stable:
+    score += 0.1
 
-# structural
-if structural and not structural.get("skipped", False):
-    if structural.get("hcm_superior", False):
-        score += 0.2
-
-# structural dominance
-if structural_dom and structural_dom.get("passed", False):
-    score += 0.25
+score += temporal_boost
 
 
 # -----------------------------
-# Final result
+# FINAL DECISION
 # -----------------------------
 
 result = {
-    "tests_run": n,
-    "score_sum": total,
-    "score_ratio": ratio,
+    "predictive_pass_ratio": real_pass_ratio,
+    "predictive_pass": predictive_pass,
     "temporal_boost": temporal_boost,
-    "global_superiority": ratio > 0.55,
-    "confidence_level": (
-        "strong" if ratio > 0.75 else
-        "moderate" if ratio > 0.55 else
-        "weak"
-    ),
+    "universality_passed": universality_passed,
+    "universality_stable": universality_stable,
     "final_score": score,
-    "passed": score >= 0.6
+    "passed": predictive_pass and score >= 0.6,
+    "confidence_level": (
+        "strong" if score > 0.8 else
+        "moderate" if score > 0.6 else
+        "weak"
+    )
 }
 
 ART.mkdir(exist_ok=True)
