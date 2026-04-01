@@ -67,41 +67,63 @@ class HCMMetaPredictor:
     # -----------------------------
     def predict(self, history):
 
-        base = self.baseline(history)
+    base = self.baseline(history)
 
-        # 🔥 structure awareness
-        structure = detect_structure(history)
+    structure = detect_structure(history)
 
-        preds = []
+    preds = []
 
-        for m in self.models:
-            try:
-                p = m.predict(history)
-                if np.isfinite(p):
-                    preds.append(p)
-            except:
-                continue
+    for m in self.models:
+        try:
+            p = m.predict(history)
+            if np.isfinite(p):
+                preds.append(p)
+        except:
+            continue
 
-        if len(preds) == 0:
-            return base
+    if len(preds) == 0:
+        return base
 
-        # 🔥 filter garbage
-        preds = self.filter_preds(preds, history)
+    preds = self.filter_preds(preds, history)
 
-        hcm_pred = float(np.mean(preds))
+    preds = np.array(preds)
 
-        conf = self.confidence(preds)
+    hcm_pred = float(np.mean(preds))
 
-        # 🔥 structure-based damping
-        structure_factor = min(1.0, structure * 1.5)
+    # -----------------------------
+    # 🔥 direction agreement
+    # -----------------------------
+    directions = np.sign(preds - history[-1])
+    agreement = np.mean(directions == np.sign(hcm_pred - history[-1]))
 
-        # 🔥 final alpha (VERY IMPORTANT)
-        alpha = 0.3 * conf * structure_factor
+    # -----------------------------
+    # 🔥 confidence
+    # -----------------------------
+    conf = self.confidence(preds)
 
-        final = (1 - alpha) * base + alpha * hcm_pred
+    # -----------------------------
+    # 🔥 structure factor
+    # -----------------------------
+    structure_factor = min(1.0, structure * 1.5)
 
-        # 🔥 HARD CLAMP
-        std = np.std(history[-30:]) + 1e-8
-        final = np.clip(final, history[-1] - 1.5*std, history[-1] + 1.5*std)
+    # -----------------------------
+    # 🔥 improved alpha
+    # -----------------------------
+    alpha = min(0.7, conf * structure_factor * (0.5 + 0.5 * agreement))
 
-        return float(final)
+    # -----------------------------
+    # 🔥 micro edge boost
+    # -----------------------------
+    delta = hcm_pred - base
+    if abs(delta) < np.std(history[-30:]) * 0.1:
+        hcm_pred += delta * 0.5
+
+    final = (1 - alpha) * base + alpha * hcm_pred
+
+    # -----------------------------
+    # 🔥 stability clamp
+    # -----------------------------
+    std = np.std(history[-30:]) + 1e-8
+    final = np.clip(final, history[-1] - 1.5*std, history[-1] + 1.5*std)
+
+    return float(final)
