@@ -4,6 +4,7 @@ from statsmodels.tsa.ar_model import AutoReg
 from analysis.hcm_phase_space_predictor import HCMPhaseSpacePredictor
 from analysis.hcm_structural_predictor import HCMStructuralPredictor
 from analysis.invariant_projection_predictor import InvariantProjectionPredictor
+from analysis.structure_detector import detect_structure
 
 
 class HCMMetaPredictor:
@@ -30,23 +31,46 @@ class HCMMetaPredictor:
             return history[-1]
 
     # -----------------------------
-    # 🔥 CONFIDENCE ESTIMATION
+    # 🔥 FILTER BAD PREDICTIONS
     # -----------------------------
-    def confidence(self, preds):
+    def filter_preds(self, preds, history):
         preds = np.array(preds)
 
+        if len(preds) == 0:
+            return preds
+
+        last = history[-1]
+        std = np.std(history[-30:]) + 1e-8
+
+        # ❗ remove extreme deviations
+        mask = np.abs(preds - last) < 2 * std
+
+        filtered = preds[mask]
+
+        if len(filtered) == 0:
+            return np.array([last])  # fallback
+
+        return filtered
+
+    # -----------------------------
+    # 🔥 CONFIDENCE
+    # -----------------------------
+    def confidence(self, preds):
         if len(preds) < 2:
             return 0.0
 
         spread = np.std(preds)
-        return float(np.exp(-spread))  # أقل spread = ثقة أعلى
+        return float(np.exp(-spread))
 
     # -----------------------------
-    # 🔥 FINAL PREDICT
+    # 🔥 MAIN
     # -----------------------------
     def predict(self, history):
 
         base = self.baseline(history)
+
+        # 🔥 structure awareness
+        structure = detect_structure(history)
 
         preds = []
 
@@ -61,17 +85,23 @@ class HCMMetaPredictor:
         if len(preds) == 0:
             return base
 
-        conf = self.confidence(preds)
+        # 🔥 filter garbage
+        preds = self.filter_preds(preds, history)
 
         hcm_pred = float(np.mean(preds))
 
-        # 🔥 CONTROLLED BLENDING
-        alpha = min(0.5, conf)  # عمره ما يطغى بالكامل
+        conf = self.confidence(preds)
+
+        # 🔥 structure-based damping
+        structure_factor = min(1.0, structure * 1.5)
+
+        # 🔥 final alpha (VERY IMPORTANT)
+        alpha = 0.3 * conf * structure_factor
 
         final = (1 - alpha) * base + alpha * hcm_pred
 
-        # 🔥 STABILITY CLAMP
-        std = np.std(history[-30:])
-        final = np.clip(final, history[-1] - 2*std, history[-1] + 2*std)
+        # 🔥 HARD CLAMP
+        std = np.std(history[-30:]) + 1e-8
+        final = np.clip(final, history[-1] - 1.5*std, history[-1] + 1.5*std)
 
         return float(final)
