@@ -2,8 +2,8 @@
   "datasets": [
     {
       "dataset": "real-data/co2.csv",
-      "alpha": 1.7979546225493555,
-      "r2": 0.9720404227913668
+      "alpha": 1.7960521311447974,
+      "r2": 0.9732940118072736
     },
     {
       "dataset": "real-data/lorenz63.csv",
@@ -22,8 +22,8 @@
     },
     {
       "dataset": "real-data/co2_clean.csv",
-      "alpha": 1.7979546225493555,
-      "r2": 0.9720404227913668
+      "alpha": 1.7960521311447974,
+      "r2": 0.9732940118072736
     },
     {
       "dataset": "real-data/sunspots.csv",
@@ -32,13 +32,13 @@
     },
     {
       "dataset": "real-data/sunspots_global.csv",
-      "alpha": 1.8045798339819636,
-      "r2": 0.990179063691199
+      "alpha": 1.8045819261580502,
+      "r2": 0.990178770877664
     },
     {
       "dataset": "real-data/earthquake_magnitude_clean.csv",
-      "alpha": 0.07852896593104466,
-      "r2": 0.00368300405519249
+      "alpha": 0.05454488666164591,
+      "r2": 0.0016423447520711042
     },
     {
       "dataset": "real-data/cosmic_rays.csv",
@@ -52,13 +52,13 @@
     },
     {
       "dataset": "real-data/solar_wind_speed.csv",
-      "alpha": 0.9827818790674245,
-      "r2": 0.35009372593057647
+      "alpha": 1.041200533871995,
+      "r2": 0.3716473087346056
     },
     {
       "dataset": "real-data/earthquake_magnitude.csv",
-      "alpha": 0.07852896593104466,
-      "r2": 0.00368300405519249
+      "alpha": 0.05454488666164591,
+      "r2": 0.0016423447520711042
     },
     {
       "dataset": "real-data/ecology.csv",
@@ -71,7 +71,7 @@
       "r2": 0.06073925784353807
     }
   ],
-  "mean_alpha": 1.2658770174593414,
-  "std_alpha": 0.7905330399012763,
+  "mean_alpha": 1.2663518464331085,
+  "std_alpha": 0.7941999119032808,
   "n_systems": 14
 }
