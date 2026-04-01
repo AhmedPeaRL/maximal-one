@@ -251,14 +251,34 @@ def hcm_predict(history):
 
     from analysis.hcm_clean_predictor import hcm_clean_predict
 
-    return hcm_clean_predict(
-        history,
-        predictors=[
-            lambda h: m.predict(h) for m in models
-        ] + [
-            lambda h: m.predict(h) for m in struct_models
-        ]
-    )
+    from analysis.decision_collapse_engine import collapse_decision
+
+    candidates = []
+
+    for m in models:
+        try:
+            p = m.predict(history)
+            if np.isfinite(p):
+                candidates.append(p)
+        except:
+            continue
+
+    for m in struct_models:
+        try:
+            p = m.predict(history)
+            if np.isfinite(p):
+                candidates.append(p)
+        except:
+            continue
+
+    # add invariant anchor
+    from analysis.true_invariant_anchor import true_invariant_anchor
+    anchor = true_invariant_anchor(history)
+
+    candidates.append(anchor)
+
+    # 🔥 FINAL COLLAPSE
+    return collapse_decision(history, candidates)
     from analysis.model_selector import select_best_model
     from analysis.invariant_dominance import invariant_guard
     from analysis.invariant_fusion_predictor import invariant_projection, blend
