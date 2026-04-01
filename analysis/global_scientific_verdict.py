@@ -75,8 +75,14 @@ universality_stable = universality_stability and universality_stability.get("pas
 
 score = 0.0
 
-# 🚨 predictive is dominant now
-score += real_pass_ratio * 0.7
+structural = load("structural_advantage.json")
+
+structure_bonus = 0.0
+if structural and structural.get("structure_preserved", False):
+    structure_bonus = 0.25
+
+score += real_pass_ratio * 0.5
+score += structure_bonus
 
 if universality_passed:
     score += 0.15
