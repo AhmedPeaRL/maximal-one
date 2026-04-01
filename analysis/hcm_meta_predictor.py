@@ -1,10 +1,10 @@
 import numpy as np
+from statsmodels.tsa.ar_model import AutoReg
 
 from analysis.hcm_phase_space_predictor import HCMPhaseSpacePredictor
 from analysis.hcm_structural_predictor import HCMStructuralPredictor
 from analysis.invariant_projection_predictor import InvariantProjectionPredictor
-from analysis.hcm_true_predictor import HCMTruePredictor
-from analysis.structural_consensus import structural_consensus
+
 
 class HCMMetaPredictor:
 
@@ -14,12 +14,42 @@ class HCMMetaPredictor:
             HCMStructuralPredictor(delay=2, dim=4),
             InvariantProjectionPredictor(),
         ]
-        self.true_model = HCMTruePredictor()
 
+    # -----------------------------
+    # 🔥 BASELINE (ANCHOR)
+    # -----------------------------
+    def baseline(self, history):
+        if len(history) < 20:
+            return history[-1]
+
+        try:
+            model = AutoReg(history, lags=1, old_names=False).fit()
+            pred = model.predict(start=len(history), end=len(history))
+            return float(pred[0])
+        except:
+            return history[-1]
+
+    # -----------------------------
+    # 🔥 CONFIDENCE ESTIMATION
+    # -----------------------------
+    def confidence(self, preds):
+        preds = np.array(preds)
+
+        if len(preds) < 2:
+            return 0.0
+
+        spread = np.std(preds)
+        return float(np.exp(-spread))  # أقل spread = ثقة أعلى
+
+    # -----------------------------
+    # 🔥 FINAL PREDICT
+    # -----------------------------
     def predict(self, history):
-       
+
+        base = self.baseline(history)
+
         preds = []
-        
+
         for m in self.models:
             try:
                 p = m.predict(history)
@@ -28,22 +58,20 @@ class HCMMetaPredictor:
             except:
                 continue
 
-        # 🔥 add true predictor (HIGH PRIORITY)
-        try:
-            self.true_model.fit(history)
-            p_true = self.true_model.predict(history)
-            preds.append(p_true * 1.2)  # boost
-        except:
-            pass
-
         if len(preds) == 0:
-            return history[-1]
+            return base
 
-        # 🔥 force diversity
-        preds = np.array(preds)
+        conf = self.confidence(preds)
 
-        if np.std(preds) < 1e-6:
-            noise = np.std(history[-20:]) * 0.2
-            preds = preds + np.random.randn(len(preds)) * noise
+        hcm_pred = float(np.mean(preds))
 
-        return structural_consensus(preds, history)
+        # 🔥 CONTROLLED BLENDING
+        alpha = min(0.5, conf)  # عمره ما يطغى بالكامل
+
+        final = (1 - alpha) * base + alpha * hcm_pred
+
+        # 🔥 STABILITY CLAMP
+        std = np.std(history[-30:])
+        final = np.clip(final, history[-1] - 2*std, history[-1] + 2*std)
+
+        return float(final)
