@@ -67,63 +67,63 @@ class HCMMetaPredictor:
     # -----------------------------
     def predict(self, history):
 
-    base = self.baseline(history)
+        base = self.baseline(history)
 
-    structure = detect_structure(history)
+        structure = detect_structure(history)
 
-    preds = []
+        preds = []
 
-    for m in self.models:
-        try:
-            p = m.predict(history)
-            if np.isfinite(p):
-                preds.append(p)
-        except:
-            continue
+        for m in self.models:
+            try:
+                p = m.predict(history)
+                if np.isfinite(p):
+                    preds.append(p)
+            except:
+                continue
 
-    if len(preds) == 0:
-        return base
+        if len(preds) == 0:
+            return base
 
-    preds = self.filter_preds(preds, history)
+        preds = self.filter_preds(preds, history)
 
-    preds = np.array(preds)
+        preds = np.array(preds)
 
-    hcm_pred = float(np.mean(preds))
+        hcm_pred = float(np.mean(preds))
 
-    # -----------------------------
-    # 🔥 direction agreement
-    # -----------------------------
-    directions = np.sign(preds - history[-1])
-    agreement = np.mean(directions == np.sign(hcm_pred - history[-1]))
+        # -----------------------------
+        # 🔥 direction agreement
+        # -----------------------------
+        directions = np.sign(preds - history[-1])
+        agreement = np.mean(directions == np.sign(hcm_pred - history[-1]))
 
-    # -----------------------------
-    # 🔥 confidence
-    # -----------------------------
-    conf = self.confidence(preds)
+        # -----------------------------
+        # 🔥 confidence
+        # -----------------------------
+        conf = self.confidence(preds)
 
-    # -----------------------------
-    # 🔥 structure factor
-    # -----------------------------
-    structure_factor = min(1.0, structure * 1.5)
+        # -----------------------------
+        # 🔥 structure factor
+        # -----------------------------
+        structure_factor = min(1.0, structure * 1.5)
 
-    # -----------------------------
-    # 🔥 improved alpha
-    # -----------------------------
-    alpha = min(0.7, conf * structure_factor * (0.5 + 0.5 * agreement))
+        # -----------------------------
+        # 🔥 improved alpha
+        # -----------------------------
+        alpha = min(0.7, conf * structure_factor * (0.5 + 0.5 * agreement))
 
-    # -----------------------------
-    # 🔥 micro edge boost
-    # -----------------------------
-    delta = hcm_pred - base
-    if abs(delta) < np.std(history[-30:]) * 0.1:
-        hcm_pred += delta * 0.5
+        # -----------------------------
+        # 🔥 micro edge boost
+        # -----------------------------
+        delta = hcm_pred - base
+        if abs(delta) < np.std(history[-30:]) * 0.1:
+            hcm_pred += delta * 0.5
 
-    final = (1 - alpha) * base + alpha * hcm_pred
+        final = (1 - alpha) * base + alpha * hcm_pred
 
-    # -----------------------------
-    # 🔥 stability clamp
-    # -----------------------------
-    std = np.std(history[-30:]) + 1e-8
-    final = np.clip(final, history[-1] - 1.5*std, history[-1] + 1.5*std)
+        # -----------------------------
+        # 🔥 stability clamp
+        # -----------------------------
+        std = np.std(history[-30:]) + 1e-8
+        final = np.clip(final, history[-1] - 1.5*std, history[-1] + 1.5*std)
 
-    return float(final)
+        return float(final)
