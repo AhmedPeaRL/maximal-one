@@ -67,5 +67,10 @@ class HCMPhaseSpacePredictor:
         # 🔥 local causal gradient
         grad = np.mean(np.gradient(history[-10:]))
 
-        # 🔥 final composition
-        return base_pred + 0.3 * trend + 0.2 * grad
+        # 🔥 anti-collapse boost
+        deviation = base_pred - history[-1]
+
+        if abs(deviation) < 1e-6:
+            deviation += np.std(history[-20:]) * 0.2
+            
+        return float(base_pred + 0.2 * trend + 0.3 * grad + deviation * 0.5)
