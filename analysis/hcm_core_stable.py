@@ -14,24 +14,17 @@ def invariant_anchor(history):
     return float(history[-1])
 
 
+from analysis.hcm_attractor_predictor import HCMAttractorPredictor
+
+_model = HCMAttractorPredictor(dim=4, delay=2, k=6)
+
 def stable_predict(history):
 
-    base = invariant_anchor(history)
+    if len(history) < 50:
+        return history[-1]
 
-    drift, vol, curv = stable_structure_signal(history)
-
-    # 🔥 stability score
-    stability = vol / (abs(base) + 1e-8)
-
-    # 🔥 deterministic regime selection
-    if stability < 0.05:
-        # stable regime → follow drift
-        return float(base + drift)
-
-    elif stability < 0.2:
-        # semi-chaotic → damped response
-        return float(base + 0.5 * drift + 0.2 * curv)
-
-    else:
-        # chaotic regime → anchor-preserving correction
-        return float(base + 0.3 * drift + 0.3 * curv)
+    try:
+        _model.fit(history)
+        return _model.predict(history)
+    except:
+        return history[-1]
