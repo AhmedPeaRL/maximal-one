@@ -118,7 +118,13 @@ from analysis.structural_consensus import structural_consensus
 
 from analysis.structure_detector import detect_structure
 
-from analysis.hcm_core_stable import stable_predict as hcm_predict
+from analysis.hcm_true_predictor import HCMTruePredictor
+
+model_instance = HCMTruePredictor()
+
+def hcm_predict(history):
+    model_instance.fit(history)
+    return model_instance.predict(history)
     
 # -----------------------------
 # evaluation
