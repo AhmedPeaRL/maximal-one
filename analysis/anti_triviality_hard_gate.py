@@ -118,13 +118,12 @@ from analysis.structural_consensus import structural_consensus
 
 from analysis.structure_detector import detect_structure
 
-from analysis.hcm_true_predictor import HCMTruePredictor
+from analysis.hcm_meta_predictor import HCMMetaPredictor
 
-model_instance = HCMTruePredictor()
+meta_model = HCMMetaPredictor()
 
 def hcm_predict(history):
-    model_instance.fit(history)
-    return model_instance.predict(history)
+    return meta_model.predict(history)
     
 # -----------------------------
 # evaluation
@@ -205,7 +204,9 @@ def evaluate(series):
         results[name] = {
             "persistence_mse": mse_p,
             "hcm_mse": mse_h,
+            "delta": float(mse_p - mse_h),
             "hcm_better": mse_h < mse_p,
+            "relative_gain": float((mse_p - mse_h) / (mse_p + 1e-8)),
             "structure_score": structure_score
         }
 
