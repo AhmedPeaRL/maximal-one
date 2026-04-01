@@ -656,6 +656,10 @@ jobs:
       - name: Temporal Dominance Gate
         run: python -m analysis.temporal_dominance_gate
 
+      - name: Structural Advantage Test
+        run: |
+          python -m analysis.structural_advantage
+
       - name: Global Scientific Verdict
         run: python -m analysis.global_scientific_verdict
 
