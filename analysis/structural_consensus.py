@@ -1,31 +1,33 @@
 import numpy as np
 
 def structural_consensus(preds, history):
-    
+
     preds = np.array(preds)
 
     if len(preds) == 0:
         return history[-1]
 
-    # 🔥 local consistency test
-    diffs = np.abs(preds - history[-1])
+    last = history[-1]
 
-    # 🔥 structural stability score
-    stability = 1 / (diffs + 1e-8)
+    # 🔥 deviation awareness
+    deviations = preds - last
 
-    # 🔥 normalize
-    weights = stability / np.sum(stability)
+    # 🔥 kill trivial predictions
+    mask = np.abs(deviations) > 1e-6
 
-    # 🔥 entropy penalty (spread awareness)
-    entropy = -np.sum(weights * np.log(weights + 1e-8))
+    if np.sum(mask) > 0:
+        preds = preds[mask]
+        deviations = deviations[mask]
 
-    confidence = 1 / (1 + entropy)
+    # 🔥 if all trivial → force escape
+    if len(preds) == 0:
+        std = np.std(history[-20:])
+        return float(last + np.sign(np.random.randn()) * std * 0.1)
 
-    # 🔥 final decision
+    # 🔥 weight by magnitude (not closeness)
+    weights = np.abs(deviations) + 1e-8
+    weights /= np.sum(weights)
+
     pred = np.sum(preds * weights)
-
-    # 🔥 blend with last state if uncertain
-    if confidence < 0.3:
-        return history[-1]
 
     return float(pred)
