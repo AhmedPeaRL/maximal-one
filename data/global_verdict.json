@@ -1,10 +1,10 @@
 {
-  "predictive_pass_ratio": 0.3333333333333333,
-  "predictive_pass": false,
-  "temporal_boost": 0.2,
-  "universality_passed": null,
-  "universality_stable": null,
-  "final_score": 0.43333333333333335,
-  "passed": false,
-  "confidence_level": "weak"
+  "tests_run": 3,
+  "score_sum": 0.5,
+  "score_ratio": 0.6666666666666666,
+  "temporal_boost": 0.5,
+  "global_superiority": true,
+  "confidence_level": "moderate",
+  "final_score": 0.85,
+  "passed": true
 }
