@@ -249,8 +249,16 @@ def hcm_predict(history):
 
     from analysis.hcm_predict_core_fix import select_prediction
 
-    return select_prediction(history, candidates)
+    from analysis.hcm_clean_predictor import hcm_clean_predict
 
+    return hcm_clean_predict(
+        history,
+        predictors=[
+            lambda h: m.predict(h) for m in models
+        ] + [
+            lambda h: m.predict(h) for m in struct_models
+        ]
+    )
     from analysis.model_selector import select_best_model
     from analysis.invariant_dominance import invariant_guard
     from analysis.invariant_fusion_predictor import invariant_projection, blend
