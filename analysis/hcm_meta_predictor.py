@@ -6,6 +6,7 @@ from analysis.hcm_structural_predictor import HCMStructuralPredictor
 from analysis.invariant_projection_predictor import InvariantProjectionPredictor
 from analysis.structure_detector import detect_structure
 from analysis.predictability_gate import is_predictable
+from analysis.invariant_core import invariant_predict
 
 
 class HCMMetaPredictor:
@@ -53,6 +54,14 @@ class HCMMetaPredictor:
             except:
                 continue
 
+        # 🔥 ADD INVARIANT MODEL
+        try:
+            inv_p = invariant_predict(history)
+            if np.isfinite(inv_p):
+                preds.append(inv_p)
+        except:
+            pass
+
         if len(preds) == 0:
             return base
 
@@ -67,19 +76,22 @@ class HCMMetaPredictor:
         # 🔥 REGIME SWITCH LOGIC
         # =============================
 
-        # 🟢 LOW STRUCTURE → STAY BASELINE
-        if structure_score < 0.1:
-            return base
+        # 🔥 REMOVE HARD BASELINE ESCAPE
 
-        # 🟡 WEAK PREDICTABILITY → CONSERVATIVE BLEND
-        if not predictable:
-            alpha = 0.2
+        # 🟢 LOW STRUCTURE → DO NOT FALL BACK
+        if structure_score < 0.1:
+            alpha = 0.3
             return float((1 - alpha) * base + alpha * hcm_pred)
 
-        # 🔴 STRONG STRUCTURE → BREAK BASELINE HARD
-        if structure_score > 0.3 and pred_score > 0.1:
+        # 🟡 WEAK PREDICTABILITY → STILL USE SIGNAL
+        if not predictable:
+            alpha = 0.4
+            return float((1 - alpha) * base + alpha * hcm_pred)
+
+        # 🔴 STRONG STRUCTURE → FULL HCM
+        if structure_score > 0.25 and pred_score > 0.08:
             return hcm_pred
 
-        # 🟠 MID ZONE → ADAPTIVE
-        alpha = min(0.8, structure_score + pred_score)
+        # 🟠 MID ZONE
+        alpha = min(0.9, structure_score + pred_score + 0.2)
         return float((1 - alpha) * base + alpha * hcm_pred)
