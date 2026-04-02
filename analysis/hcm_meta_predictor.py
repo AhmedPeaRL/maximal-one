@@ -32,21 +32,16 @@ class HCMMetaPredictor:
             return history[-1]
 
     # -----------------------------
-    # CONFIDENCE WEIGHTING
-    # -----------------------------
-    def confidence_weight(self, preds):
-        if len(preds) < 2:
-            return 0.0
-
-        spread = np.std(preds)
-        return float(np.exp(-spread))
-
-    # -----------------------------
-    # MAIN
+    # CORE DECISION ENGINE
     # -----------------------------
     def predict(self, history):
 
         base = self.baseline(history)
+
+        # 🔥 STRUCTURE DETECTION
+        structure_score = detect_structure(history)
+
+        predictable, pred_score = is_predictable(history)
 
         preds = []
 
@@ -62,25 +57,29 @@ class HCMMetaPredictor:
             return base
 
         preds = np.array(preds)
-
-        # 🔥 بدل median فقط → weighted blend
-        hcm_pred = float(np.mean(preds))
+        hcm_pred = float(np.median(preds))
 
         std = np.std(history[-30:]) + 1e-8
 
         deviation = abs(hcm_pred - base)
 
-        # 🔥 key idea:
-        # سيب مساحة للنموذج يخرج بره baseline
-        if deviation < 0.05 * std:
-            # blend بدل collapse
-            alpha = 0.3
+        # =============================
+        # 🔥 REGIME SWITCH LOGIC
+        # =============================
+
+        # 🟢 LOW STRUCTURE → STAY BASELINE
+        if structure_score < 0.1:
+            return base
+
+        # 🟡 WEAK PREDICTABILITY → CONSERVATIVE BLEND
+        if not predictable:
+            alpha = 0.2
             return float((1 - alpha) * base + alpha * hcm_pred)
 
-        # 🔥 strong signal → خليه يسيطر
-        if deviation > 0.2 * std:
+        # 🔴 STRONG STRUCTURE → BREAK BASELINE HARD
+        if structure_score > 0.3 and pred_score > 0.1:
             return hcm_pred
 
-        # 🔥 منطقة وسط
-        alpha = 0.6
+        # 🟠 MID ZONE → ADAPTIVE
+        alpha = min(0.8, structure_score + pred_score)
         return float((1 - alpha) * base + alpha * hcm_pred)
