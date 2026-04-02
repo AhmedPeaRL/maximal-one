@@ -208,6 +208,16 @@ def evaluate(series):
         mse_p = rolling_mse_split(train, test, persistence)
         mse_h = rolling_mse_split(train, test, hcm_predict)
         structure_score = detect_structure(train)
+
+        # 🔥 SKIP TRIVIAL SERIES
+        var = np.var(test)
+
+        if var < 1e-10:
+            results[name] = {
+                "skipped": True,
+                "reason": "trivial_signal"
+            }
+            continue
         
         results[name] = {
             "persistence_mse": mse_p,
