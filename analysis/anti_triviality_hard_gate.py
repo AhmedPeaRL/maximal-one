@@ -283,19 +283,42 @@ def aggregate_results(all_results):
         h_vals = []
 
         for r in all_results:
-            if key in r:
-                p_vals.append(r[key]["persistence_mse"])
-                h_vals.append(r[key]["hcm_mse"])
 
-        if p_vals:
+            if key not in r:
+                continue
+
+            val = r[key]
+
+            # 🔥 CRITICAL FIX: skip invalid / skipped entries
+            if not isinstance(val, dict):
+                continue
+
+            if val.get("skipped", False):
+                continue
+
+            if "persistence_mse" not in val or "hcm_mse" not in val:
+                continue
+
+            if not np.isfinite(val["persistence_mse"]) or not np.isfinite(val["hcm_mse"]):
+                continue
+
+            p_vals.append(val["persistence_mse"])
+            h_vals.append(val["hcm_mse"])
+
+        if len(p_vals) > 0:
             summary[key] = {
                 "persistence_mean": float(np.mean(p_vals)),
                 "hcm_mean": float(np.mean(h_vals)),
-                "hcm_better": np.mean(h_vals) < np.mean(p_vals)
+                "hcm_better": float(np.mean(h_vals)) < float(np.mean(p_vals)),
+                "samples": len(p_vals)  # 🔥 transparency
+            }
+        else:
+            summary[key] = {
+                "skipped": True,
+                "reason": "no_valid_samples"
             }
 
     return summary
-
 # -----------------------------
 # JSON SAFE CONVERTER (CRITICAL FIX)
 # -----------------------------
