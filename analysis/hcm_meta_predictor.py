@@ -77,7 +77,7 @@ class HCMMetaPredictor:
         activation = max(confidence, nonlinear_boost * 0.6)
 
         # clip آمن
-        activation = min(0.7, activation)
+        activation = min(0.85, activation)
 
         # -----------------------------
         # BLENDING
