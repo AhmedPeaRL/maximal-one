@@ -65,7 +65,7 @@ class HCMMetaPredictor:
     # -----------------------------
     # 🔥 MAIN
     # -----------------------------
-from analysis.predictability_gate import is_predictable
+    from analysis.predictability_gate import is_predictable
 
     def predict(self, history):
 
