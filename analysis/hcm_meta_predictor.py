@@ -33,7 +33,7 @@ class HCMMetaPredictor:
             return history[-1]
 
     # -----------------------------
-    # CORE DECISION ENGINE
+    # CORE DECISION ENGINE (UPGRADED)
     # -----------------------------
     def predict(self, history):
 
@@ -64,14 +64,22 @@ class HCMMetaPredictor:
 
         hcm_pred = float(np.median(preds))
 
-        # 🔥 CRITICAL SHIFT: confidence gating
+        # -----------------------------
+        # 🔥 NEW LOGIC: NONLINEAR ACTIVATION
+        # -----------------------------
+
         confidence = structure_score * pred_score
 
-        # 🔥 HARD THRESHOLD (game changer)
-        if confidence < 0.15:
-            return base
+        # بدل ما نهرب → نزود HCM لما structure يبقى ضعيف
+        nonlinear_boost = 1.0 - structure_score
 
-        # 🔥 controlled blending (not aggressive)
-        alpha = min(0.4, confidence)
+        # دمج الاتنين
+        activation = max(confidence, nonlinear_boost * 0.6)
 
-        return float((1 - alpha) * base + alpha * hcm_pred)
+        # clip آمن
+        activation = min(0.7, activation)
+
+        # -----------------------------
+        # BLENDING
+        # -----------------------------
+        return float((1 - activation) * base + activation * hcm_pred)
