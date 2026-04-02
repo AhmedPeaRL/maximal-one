@@ -128,8 +128,7 @@ def hcm_predict(history):
 
     std = np.std(history[-20:]) + 1e-8
 
-    # 🔥 stronger symmetry breaking
-    noise = 1e-3 * std * np.random.randn()
+    noise = 0.0
 
     return float(p + noise)
     
