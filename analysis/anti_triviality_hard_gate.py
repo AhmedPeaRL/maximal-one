@@ -123,7 +123,13 @@ from analysis.hcm_meta_predictor import HCMMetaPredictor
 meta_model = HCMMetaPredictor()
 
 def hcm_predict(history):
-    return meta_model.predict(history)
+
+    p = meta_model.predict(history)
+
+    # 🔥 symmetry breaker
+    noise = 1e-6 * np.std(history[-20:]) * np.random.randn()
+
+    return float(p + noise)
     
 # -----------------------------
 # evaluation
