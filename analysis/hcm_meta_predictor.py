@@ -37,48 +37,41 @@ class HCMMetaPredictor:
     # -----------------------------
     def predict(self, history):
 
-        base = self.baseline(history)
+    base = self.baseline(history)
 
-        # 🔥 STRUCTURE DETECTION
-        structure_score = detect_structure(history)
+    structure_score = detect_structure(history)
+    predictable, pred_score = is_predictable(history)
 
-        predictable, pred_score = is_predictable(history)
+    preds = []
 
-        preds = []
-
-        for m in self.models:
-            try:
-                p = m.predict(history)
-                if np.isfinite(p):
-                    preds.append(p)
-            except:
-                continue
-
-        # 🔥 ADD INVARIANT MODEL
+    for m in self.models:
         try:
-            inv_p = invariant_predict(history)
-            if np.isfinite(inv_p):
-                preds.append(inv_p)
+            p = m.predict(history)
+            if np.isfinite(p):
+                preds.append(p)
         except:
-            pass
+            continue
 
-        if len(preds) == 0:
-            return base
+    try:
+        inv_p = invariant_predict(history)
+        if np.isfinite(inv_p):
+            preds.append(inv_p)
+    except:
+        pass
 
-        preds = np.array(preds)
-        hcm_pred = float(np.median(preds))
+    if len(preds) == 0:
+        return base
 
-        std = np.std(history[-30:]) + 1e-8
+    hcm_pred = float(np.median(preds))
 
-        deviation = abs(hcm_pred - base)
+    # 🔥 CRITICAL SHIFT: confidence gating
+    confidence = structure_score * pred_score
 
-        # =============================
-        # 🔥 REGIME SWITCH LOGIC
-        # =============================
+    # 🔥 HARD THRESHOLD (game changer)
+    if confidence < 0.15:
+        return base
 
-        # 🔥 ALWAYS USE HCM SIGNAL
+    # 🔥 controlled blending (not aggressive)
+    alpha = min(0.4, confidence)
 
-        alpha = 0.3 + 0.5 * structure_score + 0.3 * pred_score
-        alpha = max(0.2, min(0.95, alpha))
-
-        return float((1 - alpha) * base + alpha * hcm_pred)
+    return float((1 - alpha) * base + alpha * hcm_pred)
