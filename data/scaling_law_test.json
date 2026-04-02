@@ -7,8 +7,8 @@
     },
     {
       "dataset": "real-data/lorenz63.csv",
-      "alpha": 3.0774125762234594,
-      "r2": 0.8717140519411538
+      "alpha": 3.0774125762234634,
+      "r2": 0.8717140519411555
     },
     {
       "dataset": "real-data/co2_atmospheric.csv",
@@ -17,8 +17,8 @@
     },
     {
       "dataset": "real-data/sunspots_extended.csv",
-      "alpha": 1.0666364335620993,
-      "r2": 0.3838178246161781
+      "alpha": 1.0666364335620988,
+      "r2": 0.3838178246161778
     },
     {
       "dataset": "real-data/co2_clean.csv",
@@ -27,56 +27,56 @@
     },
     {
       "dataset": "real-data/sunspots.csv",
-      "alpha": 1.0666364335620993,
-      "r2": 0.3838178246161781
+      "alpha": 1.0666364335620988,
+      "r2": 0.3838178246161778
     },
     {
       "dataset": "real-data/sunspots_global.csv",
-      "alpha": 0.15829870400722715,
-      "r2": 0.0113328701443457
+      "alpha": 0.1353149061622986,
+      "r2": 0.008722834693351448
     },
     {
       "dataset": "real-data/earthquake_magnitude_clean.csv",
-      "alpha": 0.07568901113430508,
-      "r2": 0.003278758536121045
+      "alpha": 0.07205254619629219,
+      "r2": 0.0030702214059634327
     },
     {
       "dataset": "real-data/cosmic_rays.csv",
       "alpha": 1.31803534809109,
-      "r2": 0.5044358700590922
+      "r2": 0.5044358700590921
     },
     {
       "dataset": "real-data/airline_passengers.csv",
-      "alpha": 1.7605449888702287,
-      "r2": 0.7156148697370548
+      "alpha": 1.7605449888702291,
+      "r2": 0.7156148697370551
     },
     {
       "dataset": "real-data/solar_wind_speed.csv",
-      "alpha": 0.9947201510764521,
-      "r2": 0.3601361056976437
+      "alpha": 0.9571851712785311,
+      "r2": 0.3479297247962992
     },
     {
       "dataset": "real-data/earthquake_magnitude.csv",
-      "alpha": 0.07568901113430508,
-      "r2": 0.003278758536121045
+      "alpha": 0.07205254619629219,
+      "r2": 0.0030702214059634327
     },
     {
       "dataset": "real-data/sunspots_global_clean.csv",
-      "alpha": 0.15829870400722715,
-      "r2": 0.011332870144345699
+      "alpha": 0.13531490616229855,
+      "r2": 0.008722834693351441
     },
     {
       "dataset": "real-data/ecology.csv",
-      "alpha": 0.7402813684016079,
-      "r2": 0.22970312474224233
+      "alpha": 0.7402813684016073,
+      "r2": 0.22970312474224222
     },
     {
       "dataset": "real-data/daily_female_births.csv",
-      "alpha": 0.35635007456520784,
+      "alpha": 0.3563500745652078,
       "r2": 0.06073925784353807
     }
   ],
-  "mean_alpha": 1.08244994653798,
-  "std_alpha": 0.833091299795357,
+  "mean_alpha": 1.0763982461803934,
+  "std_alpha": 0.8374067625739565,
   "n_systems": 15
 }
