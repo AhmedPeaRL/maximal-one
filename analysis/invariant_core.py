@@ -4,50 +4,59 @@ def invariant_features(series):
 
     x = np.array(series)
 
-    if len(x) < 10:
-        return np.array([0.0])
+    if len(x) < 20:
+        return np.zeros(20)
 
-    # 🔥 distribution invariant
-    mean = np.mean(x)
-    std = np.std(x) + 1e-8
+    # 🔥 normalize
+    x = (x - np.mean(x)) / (np.std(x) + 1e-8)
 
-    norm = (x - mean) / std
+    # -----------------------
+    # distribution
+    # -----------------------
+    hist, _ = np.histogram(x, bins=10, density=True)
 
-    # 🔥 histogram signature
-    hist, _ = np.histogram(norm, bins=20, density=True)
-
-    # 🔥 spectral invariant (magnitude only)
-    fft = np.fft.rfft(norm)
+    # -----------------------
+    # spectral magnitude
+    # -----------------------
+    fft = np.fft.rfft(x)
     mag = np.abs(fft)
+    mag = mag[:10] / (np.sum(mag[:10]) + 1e-8)
 
-    # 🔥 compress
-    feat = np.concatenate([
-        hist[:10],
-        mag[:10]
-    ])
+    # -----------------------
+    # autocorrelation (CRITICAL)
+    # -----------------------
+    ac = []
+    for lag in range(1, 6):
+        if len(x) > lag:
+            ac.append(np.corrcoef(x[:-lag], x[lag:])[0,1])
+        else:
+            ac.append(0.0)
 
-    return feat
+    ac = np.nan_to_num(ac)
+
+    return np.concatenate([hist, mag, ac])
 
 
 def invariant_predict(history):
 
-    if len(history) < 20:
+    if len(history) < 30:
         return history[-1]
 
     feats = []
+    targets = []
 
-    for i in range(10, len(history)):
+    for i in range(20, len(history)):
         feats.append(invariant_features(history[:i]))
+        targets.append(history[i])
 
     feats = np.array(feats)
-
-    target = history[10:]
+    targets = np.array(targets)
 
     try:
         from sklearn.linear_model import Ridge
 
-        model = Ridge(alpha=1.0)
-        model.fit(feats, target)
+        model = Ridge(alpha=0.5)
+        model.fit(feats, targets)
 
         pred_feat = invariant_features(history).reshape(1, -1)
 
