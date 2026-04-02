@@ -27,9 +27,6 @@ def predictability_score(series):
     return float(score)
 
 
-# 🔥 RELAXED GATE
-def is_predictable(series, threshold=0.02):
+def is_predictable(series, threshold=0.05):
     score = predictability_score(series)
-
-    # 🔥 NEVER fully block
-    return True, score
+    return score > threshold, score
