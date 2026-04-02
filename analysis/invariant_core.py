@@ -55,7 +55,7 @@ def invariant_predict(history):
     try:
         from sklearn.linear_model import Ridge
 
-        model = Ridge(alpha=10.0)
+        model = Ridge(alpha=50.0)
         model.fit(feats, targets)
 
         pred_feat = invariant_features(history).reshape(1, -1)
