@@ -9,8 +9,6 @@ session = requests.Session()
 retries = Retry(total=3, backoff_factor=1)
 session.mount("https://", HTTPAdapter(max_retries=retries))
 
-r = session.get(url, timeout=30)
-
 DATA_DIR = "real-data"
 os.makedirs(DATA_DIR, exist_ok=True)
 
@@ -25,6 +23,8 @@ def fetch_sunspots():
     url = "https://www.sidc.be/silso/DATA/SN_d_tot_V2.0.txt"
     rows = []
 
+    r = session.get(url, timeout=30)
+    
     try:
         r = requests.get(url, timeout=30)
         r.raise_for_status()
