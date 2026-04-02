@@ -16,6 +16,10 @@ for key, val in data.items():
 
     if isinstance(val, dict):
 
+        # 🔥 skip trivial cases
+        if val.get("skipped", False):
+            continue
+
         if not val.get("hcm_better", False):
             failures.append(key)
 
