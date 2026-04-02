@@ -1,38 +1,57 @@
 import numpy as np
 
-def extract_invariants(series):
+def invariant_features(series):
 
     x = np.array(series)
 
-    if len(x) < 50:
-        return None
+    if len(x) < 10:
+        return np.array([0.0])
 
-    # 🔥 normalize
-    x = (x - np.mean(x)) / (np.std(x) + 1e-8)
+    # 🔥 distribution invariant
+    mean = np.mean(x)
+    std = np.std(x) + 1e-8
 
-    # 🔥 first derivative
-    dx = np.gradient(x)
+    norm = (x - mean) / std
 
-    # 🔥 second derivative
-    ddx = np.gradient(dx)
+    # 🔥 histogram signature
+    hist, _ = np.histogram(norm, bins=20, density=True)
 
-    # 🔥 energy
-    energy = np.mean(x**2)
+    # 🔥 spectral invariant (magnitude only)
+    fft = np.fft.rfft(norm)
+    mag = np.abs(fft)
 
-    # 🔥 entropy approximation
-    hist, _ = np.histogram(x, bins=20, density=True)
-    hist = hist + 1e-8
-    entropy = -np.sum(hist * np.log(hist))
-
-    # 🔥 curvature invariant
-    curvature = np.mean(np.abs(ddx))
-
-    # 🔥 phase invariant
-    phase = np.mean(np.sin(x))
-
-    return np.array([
-        energy,
-        entropy,
-        curvature,
-        phase
+    # 🔥 compress
+    feat = np.concatenate([
+        hist[:10],
+        mag[:10]
     ])
+
+    return feat
+
+
+def invariant_predict(history):
+
+    if len(history) < 20:
+        return history[-1]
+
+    feats = []
+
+    for i in range(10, len(history)):
+        feats.append(invariant_features(history[:i]))
+
+    feats = np.array(feats)
+
+    target = history[10:]
+
+    try:
+        from sklearn.linear_model import Ridge
+
+        model = Ridge(alpha=1.0)
+        model.fit(feats, target)
+
+        pred_feat = invariant_features(history).reshape(1, -1)
+
+        return float(model.predict(pred_feat)[0])
+
+    except:
+        return history[-1]
