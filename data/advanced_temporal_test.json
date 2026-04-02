@@ -2,12 +2,12 @@
   "systems": {
     "sunspots": {
       "scores": {
-        "shuffled": 0.9979550990381212,
-        "phase_randomized": 0.0015517623279036924,
-        "ar1": 0.0007565212758034536
+        "shuffled": 0.9807259293213272,
+        "phase_randomized": 0.058288596698791356,
+        "ar1": 0.04877497054760737
       },
-      "nontrivial_temporal_structure": false
+      "nontrivial_temporal_structure": true
     }
   },
-  "breaks_all_surrogates": false
+  "breaks_all_surrogates": true
 }
