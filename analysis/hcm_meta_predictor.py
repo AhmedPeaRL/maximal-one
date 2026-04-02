@@ -76,22 +76,9 @@ class HCMMetaPredictor:
         # 🔥 REGIME SWITCH LOGIC
         # =============================
 
-        # 🔥 REMOVE HARD BASELINE ESCAPE
+        # 🔥 ALWAYS USE HCM SIGNAL
 
-        # 🟢 LOW STRUCTURE → DO NOT FALL BACK
-        if structure_score < 0.1:
-            alpha = 0.3
-            return float((1 - alpha) * base + alpha * hcm_pred)
+        alpha = 0.3 + 0.5 * structure_score + 0.3 * pred_score
+        alpha = max(0.2, min(0.95, alpha))
 
-        # 🟡 WEAK PREDICTABILITY → STILL USE SIGNAL
-        if not predictable:
-            alpha = 0.4
-            return float((1 - alpha) * base + alpha * hcm_pred)
-
-        # 🔴 STRONG STRUCTURE → FULL HCM
-        if structure_score > 0.25 and pred_score > 0.08:
-            return hcm_pred
-
-        # 🟠 MID ZONE
-        alpha = min(0.9, structure_score + pred_score + 0.2)
         return float((1 - alpha) * base + alpha * hcm_pred)
