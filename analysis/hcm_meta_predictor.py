@@ -5,6 +5,7 @@ from analysis.hcm_phase_space_predictor import HCMPhaseSpacePredictor
 from analysis.hcm_structural_predictor import HCMStructuralPredictor
 from analysis.invariant_projection_predictor import InvariantProjectionPredictor
 from analysis.structure_detector import detect_structure
+from analysis.predictability_gate import is_predictable
 
 
 class HCMMetaPredictor:
@@ -17,7 +18,7 @@ class HCMMetaPredictor:
         ]
 
     # -----------------------------
-    # 🔥 BASELINE (ANCHOR)
+    # BASELINE
     # -----------------------------
     def baseline(self, history):
         if len(history) < 20:
@@ -31,31 +32,9 @@ class HCMMetaPredictor:
             return history[-1]
 
     # -----------------------------
-    # 🔥 FILTER BAD PREDICTIONS
+    # CONFIDENCE WEIGHTING
     # -----------------------------
-    def filter_preds(self, preds, history):
-        preds = np.array(preds)
-
-        if len(preds) == 0:
-            return preds
-
-        last = history[-1]
-        std = np.std(history[-30:]) + 1e-8
-
-        # ❗ remove extreme deviations
-        mask = np.abs(preds - last) < 2 * std
-
-        filtered = preds[mask]
-
-        if len(filtered) == 0:
-            return np.array([last])  # fallback
-
-        return filtered
-
-    # -----------------------------
-    # 🔥 CONFIDENCE
-    # -----------------------------
-    def confidence(self, preds):
+    def confidence_weight(self, preds):
         if len(preds) < 2:
             return 0.0
 
@@ -63,13 +42,9 @@ class HCMMetaPredictor:
         return float(np.exp(-spread))
 
     # -----------------------------
-    # 🔥 MAIN
+    # MAIN
     # -----------------------------
-    from analysis.predictability_gate import is_predictable
-
     def predict(self, history):
-
-        predictable, score = is_predictable(history)
 
         base = self.baseline(history)
 
@@ -88,15 +63,24 @@ class HCMMetaPredictor:
 
         preds = np.array(preds)
 
-        # 🔥 remove bias toward baseline
-        hcm_pred = float(np.median(preds))
+        # 🔥 بدل median فقط → weighted blend
+        hcm_pred = float(np.mean(preds))
 
-        # 🔥 adaptive dominance
         std = np.std(history[-30:]) + 1e-8
 
-        if abs(hcm_pred - base) < 0.1 * std:
-            # لو الفرق ضعيف → خليه baseline
-            return base
+        deviation = abs(hcm_pred - base)
 
-        # 🔥 strong override
-        return hcm_pred
+        # 🔥 key idea:
+        # سيب مساحة للنموذج يخرج بره baseline
+        if deviation < 0.05 * std:
+            # blend بدل collapse
+            alpha = 0.3
+            return float((1 - alpha) * base + alpha * hcm_pred)
+
+        # 🔥 strong signal → خليه يسيطر
+        if deviation > 0.2 * std:
+            return hcm_pred
+
+        # 🔥 منطقة وسط
+        alpha = 0.6
+        return float((1 - alpha) * base + alpha * hcm_pred)
