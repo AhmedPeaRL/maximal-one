@@ -71,10 +71,6 @@ class HCMMetaPredictor:
 
         predictable, score = is_predictable(history)
 
-        # 🔥 لو مفيش signal → ارجع baseline فوراً
-        if not predictable:
-            return self.baseline(history)
-
         base = self.baseline(history)
 
         preds = []
@@ -92,11 +88,15 @@ class HCMMetaPredictor:
 
         preds = np.array(preds)
 
-        hcm_pred = float(np.mean(preds))
+        # 🔥 remove bias toward baseline
+        hcm_pred = float(np.median(preds))
 
-        # 🔥 blending بسيط جداً (تقليل التعقيد)
-        alpha = min(0.3, score)
+        # 🔥 adaptive dominance
+        std = np.std(history[-30:]) + 1e-8
 
-        final = (1 - alpha) * base + alpha * hcm_pred
+        if abs(hcm_pred - base) < 0.1 * std:
+            # لو الفرق ضعيف → خليه baseline
+            return base
 
-        return float(final)
+        # 🔥 strong override
+        return hcm_pred
