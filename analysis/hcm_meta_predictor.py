@@ -37,41 +37,41 @@ class HCMMetaPredictor:
     # -----------------------------
     def predict(self, history):
 
-    base = self.baseline(history)
+        base = self.baseline(history)
 
-    structure_score = detect_structure(history)
-    predictable, pred_score = is_predictable(history)
+        structure_score = detect_structure(history)
+        predictable, pred_score = is_predictable(history)
 
-    preds = []
+        preds = []
 
-    for m in self.models:
+        for m in self.models:
+            try:
+                p = m.predict(history)
+                if np.isfinite(p):
+                    preds.append(p)
+            except:
+                continue
+
         try:
-            p = m.predict(history)
-            if np.isfinite(p):
-                preds.append(p)
+            inv_p = invariant_predict(history)
+            if np.isfinite(inv_p):
+                preds.append(inv_p)
         except:
-            continue
+            pass
 
-    try:
-        inv_p = invariant_predict(history)
-        if np.isfinite(inv_p):
-            preds.append(inv_p)
-    except:
-        pass
+        if len(preds) == 0:
+            return base
 
-    if len(preds) == 0:
-        return base
+        hcm_pred = float(np.median(preds))
 
-    hcm_pred = float(np.median(preds))
+        # 🔥 CRITICAL SHIFT: confidence gating
+        confidence = structure_score * pred_score
 
-    # 🔥 CRITICAL SHIFT: confidence gating
-    confidence = structure_score * pred_score
+        # 🔥 HARD THRESHOLD (game changer)
+        if confidence < 0.15:
+            return base
 
-    # 🔥 HARD THRESHOLD (game changer)
-    if confidence < 0.15:
-        return base
+        # 🔥 controlled blending (not aggressive)
+        alpha = min(0.4, confidence)
 
-    # 🔥 controlled blending (not aggressive)
-    alpha = min(0.4, confidence)
-
-    return float((1 - alpha) * base + alpha * hcm_pred)
+        return float((1 - alpha) * base + alpha * hcm_pred)
