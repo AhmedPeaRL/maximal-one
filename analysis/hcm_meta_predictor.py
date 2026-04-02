@@ -62,23 +62,39 @@ class HCMMetaPredictor:
         if len(preds) == 0:
             return base
 
-        hcm_pred = float(np.median(preds))
+    def memory_correction(history, pred):
+
+        if len(history) < 50:
+            return pred
+
+        window = np.array(history[-50:])
+        trend = np.mean(np.diff(window))
+
+        return pred + 0.3 * trend
+
+        hcm_pred = memory_correction(history, hcm_pred)
 
         # -----------------------------
-        # 🔥 NEW LOGIC: NONLINEAR ACTIVATION
+        # 🔥 STRUCTURE-AWARE ACTIVATION (FIXED)
         # -----------------------------
 
+        if not predictable:
+            return base  # 🚫 متدخلش في chaos عشوائي
+
+        # nonlinear detection
+        nonlinear_score = 1.0 - structure_score
+
+        # confidence لازم يبقى حقيقي
         confidence = structure_score * pred_score
 
-        # بدل ما نهرب → نزود HCM لما structure يبقى ضعيف
-        nonlinear_boost = 1.0 - structure_score
+        # activation مضبوط
+        activation = (
+            0.6 * confidence +
+            0.4 * nonlinear_score
+        )
 
-        # دمج الاتنين
-        activation = max(confidence, nonlinear_boost * 0.6)
-
-        # clip آمن
-        activation = min(0.85, activation)
-
+        activation = np.clip(activation, 0.0, 0.75)
+    
         # -----------------------------
         # BLENDING
         # -----------------------------
