@@ -126,8 +126,10 @@ def hcm_predict(history):
 
     p = meta_model.predict(history)
 
-    # 🔥 symmetry breaker
-    noise = 1e-6 * np.std(history[-20:]) * np.random.randn()
+    std = np.std(history[-20:]) + 1e-8
+
+    # 🔥 stronger symmetry breaking
+    noise = 1e-3 * std * np.random.randn()
 
     return float(p + noise)
     
