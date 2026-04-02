@@ -4,48 +4,80 @@ def invariant_features(series):
 
     x = np.array(series)
 
-    if len(x) < 20:
-        return np.zeros(20)
+    if len(x) < 30:
+        return np.zeros(30)
 
-    # 🔥 normalize
+    # normalize
     x = (x - np.mean(x)) / (np.std(x) + 1e-8)
 
-    # -----------------------
-    # distribution
-    # -----------------------
-    hist, _ = np.histogram(x, bins=10, density=True)
+    feats = []
 
     # -----------------------
-    # spectral magnitude
+    # 1. distribution
+    # -----------------------
+    hist, _ = np.histogram(x, bins=12, density=True)
+    feats.extend(hist)
+
+    # -----------------------
+    # 2. spectral (extended)
     # -----------------------
     fft = np.fft.rfft(x)
     mag = np.abs(fft)
-    mag = mag[:10] / (np.sum(mag[:10]) + 1e-8)
+    mag = mag[:15] / (np.sum(mag[:15]) + 1e-8)
+    feats.extend(mag)
 
     # -----------------------
-    # autocorrelation (CRITICAL)
+    # 3. autocorrelation
     # -----------------------
-    ac = []
-    for lag in range(1, 6):
+    for lag in range(1, 8):
         if len(x) > lag:
-            ac.append(np.corrcoef(x[:-lag], x[lag:])[0,1])
+            feats.append(np.corrcoef(x[:-lag], x[lag:])[0,1])
         else:
-            ac.append(0.0)
+            feats.append(0.0)
 
-    ac = np.nan_to_num(ac)
+    # -----------------------
+    # 🔥 4. nonlinear curvature (CRITICAL)
+    # -----------------------
+    dx = np.diff(x)
+    ddx = np.diff(dx)
 
-    return np.concatenate([hist, mag, ac])
+    curvature = np.mean(np.abs(ddx))
+    feats.append(curvature)
+
+    # -----------------------
+    # 🔥 5. local energy bursts
+    # -----------------------
+    window = 10
+    energies = []
+
+    for i in range(len(x) - window):
+        segment = x[i:i+window]
+        energies.append(np.var(segment))
+
+    if energies:
+        feats.append(np.mean(energies))
+        feats.append(np.std(energies))
+    else:
+        feats.extend([0.0, 0.0])
+
+    # -----------------------
+    # 🔥 6. nonlinear mixing indicator
+    # -----------------------
+    nonlinear_mix = np.mean(np.tanh(x) * x)
+    feats.append(nonlinear_mix)
+
+    return np.nan_to_num(np.array(feats))
 
 
 def invariant_predict(history):
 
-    if len(history) < 30:
+    if len(history) < 40:
         return history[-1]
 
     feats = []
     targets = []
 
-    for i in range(20, len(history)):
+    for i in range(30, len(history)):
         feats.append(invariant_features(history[:i]))
         targets.append(history[i])
 
@@ -55,7 +87,8 @@ def invariant_predict(history):
     try:
         from sklearn.linear_model import Ridge
 
-        model = Ridge(alpha=50.0)
+        # 🔥 stronger model
+        model = Ridge(alpha=10.0)
         model.fit(feats, targets)
 
         pred_feat = invariant_features(history).reshape(1, -1)
