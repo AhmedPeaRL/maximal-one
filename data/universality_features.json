@@ -2,110 +2,110 @@
   {
     "name": "rossler_signature",
     "dataset": "rossler",
-    "spectral_alpha": 6.687105339050257,
+    "spectral_alpha": 6.68710533905026,
     "entropy_rate": 3.6895547368761332,
-    "hurst_exponent": 1.9954361616847944,
-    "attractor_dimension": -23.04569950466062,
-    "variance": 3.7630118921382114
+    "hurst_exponent": 1.9954361616847955,
+    "attractor_dimension": -20.555562964519098,
+    "variance": 3.763011892138214
   },
   {
     "name": "logistic_map_signature",
     "dataset": "logistic_map",
-    "spectral_alpha": -0.8109811392249021,
+    "spectral_alpha": -0.8109811392249022,
     "entropy_rate": 3.6869402215248304,
-    "hurst_exponent": 0.02978439850653823,
-    "attractor_dimension": -1.7025427014467613,
+    "hurst_exponent": 0.029784398506538638,
+    "attractor_dimension": -1.7067355720137225,
     "variance": 3.812552441195796
   },
   {
     "name": "temperature_signature",
     "dataset": "temperature",
-    "spectral_alpha": 1.0087285873556873,
+    "spectral_alpha": 1.0087285873556862,
     "entropy_rate": 3.394691176672271,
-    "hurst_exponent": 0.3238414528332056,
-    "attractor_dimension": -2.0418637622273206,
-    "variance": 1.7324450990061306
+    "hurst_exponent": 0.3238414528332055,
+    "attractor_dimension": -2.0304579905795923,
+    "variance": 1.7324450990061313
   },
   {
     "name": "co2_signature",
     "dataset": "co2",
-    "spectral_alpha": 4.709783600275181,
+    "spectral_alpha": 4.709783600275183,
     "entropy_rate": 3.9116174254521803,
-    "hurst_exponent": 0.01984440870642205,
+    "hurst_exponent": 0.0198444087064237,
     "attractor_dimension": 2.19741753338521,
-    "variance": 4.197610675234954
+    "variance": 4.1976106752349525
   },
   {
     "name": "cosmic_rays_clean_signature",
     "dataset": "cosmic_rays_clean",
-    "spectral_alpha": 1.3061012910198448,
+    "spectral_alpha": 1.3061012910198453,
     "entropy_rate": 3.37104249665769,
-    "hurst_exponent": 0.6338646440247097,
-    "attractor_dimension": -7.072090357214702,
-    "variance": 1.3564474321387594
+    "hurst_exponent": 0.6338646440247098,
+    "attractor_dimension": -6.833002381895907,
+    "variance": 1.356447432138759
   },
   {
     "name": "solar_wind_speed_clean_signature",
     "dataset": "solar_wind_speed_clean",
-    "spectral_alpha": 0.8053592996988872,
-    "entropy_rate": 3.2653626940325227,
-    "hurst_exponent": 0.12737523308710233,
-    "attractor_dimension": 0.9877705650152564,
-    "variance": 1.8175827110847942
+    "spectral_alpha": 0.8055796419496455,
+    "entropy_rate": 3.269004706504035,
+    "hurst_exponent": 0.1269312248689386,
+    "attractor_dimension": 0.99727191327754,
+    "variance": 1.8224058318528271
   },
   {
     "name": "sample_clean_signature",
     "dataset": "sample_clean",
     "spectral_alpha": 9.018714229409934,
     "entropy_rate": 3.421822928799656,
-    "hurst_exponent": 1.8163571037221387,
+    "hurst_exponent": 1.8163571037221389,
     "attractor_dimension": 8.235070954614528,
     "variance": 9.530740101364955
   },
   {
     "name": "co2_atmospheric_signature",
     "dataset": "co2_atmospheric",
-    "spectral_alpha": 1.6657078281698747,
+    "spectral_alpha": 1.6657078281698752,
     "entropy_rate": 3.8342356960734727,
-    "hurst_exponent": -0.06868092672453498,
-    "attractor_dimension": 1.4740179194527,
-    "variance": 2.5492639590546347
+    "hurst_exponent": -0.06868092672453557,
+    "attractor_dimension": 1.4740179194527003,
+    "variance": 2.549263959054636
   },
   {
     "name": "sunspots_global_prepared_clean_signature",
     "dataset": "sunspots_global_prepared_clean",
-    "spectral_alpha": 5.898842043115921,
+    "spectral_alpha": 5.898842043115923,
     "entropy_rate": 3.9120230054281464,
-    "hurst_exponent": -0.06283422947357474,
+    "hurst_exponent": -0.06283422947356508,
     "attractor_dimension": -1.846848917803488,
-    "variance": 6.143169322836191
+    "variance": 6.143169322836173
   },
   {
     "name": "co2_clean_signature",
     "dataset": "co2_clean",
-    "spectral_alpha": 4.709783600275181,
+    "spectral_alpha": 4.709783600275183,
     "entropy_rate": 3.9116174254521803,
-    "hurst_exponent": 0.01984440870642205,
+    "hurst_exponent": 0.0198444087064237,
     "attractor_dimension": 2.19741753338521,
-    "variance": 4.197610675234954
+    "variance": 4.1976106752349525
   },
   {
     "name": "sunspots_signature",
     "dataset": "sunspots",
     "spectral_alpha": 1.0573672898083595,
     "entropy_rate": 3.27924217808533,
-    "hurst_exponent": 0.6498469728906852,
-    "attractor_dimension": 0.9960969365139561,
+    "hurst_exponent": 0.6498469728906849,
+    "attractor_dimension": 0.9932492823955527,
     "variance": 1.335168885884119
   },
   {
     "name": "geomagnetic_kp_signature",
     "dataset": "geomagnetic_kp",
-    "spectral_alpha": 1.7721719093938604,
-    "entropy_rate": 1.6048906917702612,
-    "hurst_exponent": 0.7193120961055725,
+    "spectral_alpha": 1.7996344171051901,
+    "entropy_rate": 1.4747973781356913,
+    "hurst_exponent": 0.8038725872711469,
     "attractor_dimension": null,
-    "variance": 0.21341624903405831
+    "variance": 0.17191119984861628
   },
   {
     "name": "sunspots_global_signature",
@@ -119,74 +119,74 @@
   {
     "name": "temperature_clean_signature",
     "dataset": "temperature_clean",
-    "spectral_alpha": 1.0087285873556873,
+    "spectral_alpha": 1.0087285873556862,
     "entropy_rate": 3.394691176672271,
-    "hurst_exponent": 0.3238414528332056,
-    "attractor_dimension": -2.045158653796503,
-    "variance": 1.7324450990061306
+    "hurst_exponent": 0.3238414528332055,
+    "attractor_dimension": -2.062308313337397,
+    "variance": 1.7324450990061313
   },
   {
     "name": "sunspots_global_prepared_signature",
     "dataset": "sunspots_global_prepared",
-    "spectral_alpha": 5.898842043115921,
+    "spectral_alpha": 5.898842043115923,
     "entropy_rate": 3.9120230054281464,
-    "hurst_exponent": -0.06283422947357474,
+    "hurst_exponent": -0.06283422947356508,
     "attractor_dimension": -1.846848917803488,
-    "variance": 6.143169322836191
+    "variance": 6.143169322836173
   },
   {
     "name": "earthquake_magnitude_clean_signature",
     "dataset": "earthquake_magnitude_clean",
-    "spectral_alpha": 2.112600800464154,
-    "entropy_rate": 3.9052456803995694,
-    "hurst_exponent": 1.130863682593678,
-    "attractor_dimension": 0.1611577821657554,
-    "variance": 1.3193976559902998
+    "spectral_alpha": 2.1126694090540807,
+    "entropy_rate": 3.9050677007415926,
+    "hurst_exponent": 1.1298059817980177,
+    "attractor_dimension": 0.16113359367917465,
+    "variance": 1.3200877512572768
   },
   {
     "name": "sample_signature",
     "dataset": "sample",
     "spectral_alpha": 9.018714229409813,
     "entropy_rate": 3.421822928799656,
-    "hurst_exponent": 1.8163571037221387,
+    "hurst_exponent": 1.8163571037221389,
     "attractor_dimension": 8.235070954614528,
     "variance": 9.530740101364612
   },
   {
     "name": "cosmic_rays_signature",
     "dataset": "cosmic_rays",
-    "spectral_alpha": 1.3061012910198448,
+    "spectral_alpha": 1.3061012910198453,
     "entropy_rate": 3.37104249665769,
-    "hurst_exponent": 0.6338646440247097,
-    "attractor_dimension": -6.625033243149254,
-    "variance": 1.3564474321387594
+    "hurst_exponent": 0.6338646440247098,
+    "attractor_dimension": -6.624654124331018,
+    "variance": 1.356447432138759
   },
   {
     "name": "ecology_clean_signature",
     "dataset": "ecology_clean",
-    "spectral_alpha": 0.9005748663524165,
+    "spectral_alpha": 0.9005748663524161,
     "entropy_rate": 3.450071867734932,
-    "hurst_exponent": 0.08820493593997272,
-    "attractor_dimension": 2.066226169750645,
+    "hurst_exponent": 0.08820493593997242,
+    "attractor_dimension": 2.054835730541725,
     "variance": 2.0513365701103567
   },
   {
     "name": "solar_wind_speed_signature",
     "dataset": "solar_wind_speed",
-    "spectral_alpha": 0.8053592996988872,
-    "entropy_rate": 3.2653626940325227,
-    "hurst_exponent": 0.12737523308710233,
-    "attractor_dimension": 0.9896870459719752,
-    "variance": 1.8175827110847942
+    "spectral_alpha": 0.8055796419496455,
+    "entropy_rate": 3.269004706504035,
+    "hurst_exponent": 0.1269312248689386,
+    "attractor_dimension": 0.9894875477863508,
+    "variance": 1.8224058318528271
   },
   {
     "name": "earthquake_magnitude_signature",
     "dataset": "earthquake_magnitude",
-    "spectral_alpha": 2.112600800464154,
-    "entropy_rate": 3.9052456803995694,
-    "hurst_exponent": 1.130863682593678,
-    "attractor_dimension": 0.16121442940007985,
-    "variance": 1.3193976559902998
+    "spectral_alpha": 2.1126694090540807,
+    "entropy_rate": 3.9050677007415926,
+    "hurst_exponent": 1.1298059817980177,
+    "attractor_dimension": 0.16107829758105963,
+    "variance": 1.3200877512572768
   },
   {
     "name": "sunspots_global_clean_signature",
@@ -202,44 +202,44 @@
     "dataset": "sunspots_clean",
     "spectral_alpha": 1.0573672898083595,
     "entropy_rate": 3.27924217808533,
-    "hurst_exponent": 0.6498469728906852,
-    "attractor_dimension": 0.9970794401798401,
+    "hurst_exponent": 0.6498469728906849,
+    "attractor_dimension": 0.9966531321484127,
     "variance": 1.335168885884119
   },
   {
     "name": "ecology_signature",
     "dataset": "ecology",
-    "spectral_alpha": 0.9005748663524165,
+    "spectral_alpha": 0.9005748663524161,
     "entropy_rate": 3.450071867734932,
-    "hurst_exponent": 0.08820493593997272,
-    "attractor_dimension": 2.0600048421668995,
+    "hurst_exponent": 0.08820493593997242,
+    "attractor_dimension": 2.0627734396297814,
     "variance": 2.0513365701103567
   },
   {
     "name": "henon_map_signature",
     "dataset": "henon_map",
-    "spectral_alpha": -0.5333270834176802,
+    "spectral_alpha": -0.5333270834176804,
     "entropy_rate": 3.7896558026677813,
-    "hurst_exponent": 0.0059782369113758295,
-    "attractor_dimension": -4.793227863564596,
-    "variance": 3.6994719092812587
+    "hurst_exponent": 0.005978236911375739,
+    "attractor_dimension": -4.987232801288377,
+    "variance": 3.699471909281259
   },
   {
     "name": "geomagnetic_kp_clean_signature",
     "dataset": "geomagnetic_kp_clean",
-    "spectral_alpha": 1.7721719093938604,
-    "entropy_rate": 1.6048906917702612,
-    "hurst_exponent": 0.7193120961055725,
+    "spectral_alpha": 1.7996344171051901,
+    "entropy_rate": 1.4747973781356913,
+    "hurst_exponent": 0.8038725872711469,
     "attractor_dimension": null,
-    "variance": 0.21341624903405831
+    "variance": 0.17191119984861628
   },
   {
     "name": "co2_atmospheric_clean_signature",
     "dataset": "co2_atmospheric_clean",
-    "spectral_alpha": 1.6657078281698747,
+    "spectral_alpha": 1.6657078281698752,
     "entropy_rate": 3.8342356960734727,
-    "hurst_exponent": -0.06868092672453498,
-    "attractor_dimension": 1.4740179194527,
-    "variance": 2.5492639590546347
+    "hurst_exponent": -0.06868092672453557,
+    "attractor_dimension": 1.4740179194527003,
+    "variance": 2.549263959054636
   }
 ]
