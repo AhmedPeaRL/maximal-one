@@ -72,6 +72,7 @@ class HCMMetaPredictor:
 
         return pred + 0.3 * trend
 
+        hcm_pred = float(np.median(preds))
         hcm_pred = memory_correction(history, hcm_pred)
 
         # -----------------------------
