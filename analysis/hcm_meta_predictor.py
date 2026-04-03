@@ -18,6 +18,9 @@ class HCMMetaPredictor:
             InvariantProjectionPredictor(),
         ]
 
+    # -----------------------------
+    # BASELINE
+    # -----------------------------
     def baseline(self, history):
         if len(history) < 20:
             return history[-1]
@@ -37,8 +40,11 @@ class HCMMetaPredictor:
         window = np.array(history[-50:])
         trend = np.mean(np.diff(window))
 
-        return pred + 0.2 * trend
+        return pred + 0.3 * trend
 
+    # -----------------------------
+    # CORE DECISION ENGINE (FIXED)
+    # -----------------------------
     def predict(self, history):
 
         base = self.baseline(history)
@@ -66,11 +72,15 @@ class HCMMetaPredictor:
         if len(preds) == 0:
             return base
 
-        # ✅ FIX: proper order
+        # ✅ FIX: build prediction correctly
         hcm_pred = float(np.median(preds))
+
+        # ✅ APPLY memory correction AFTER
         hcm_pred = self.memory_correction(history, hcm_pred)
 
-        # 🚫 لا تدخل في chaos
+        # -----------------------------
+        # STRUCTURE-AWARE ACTIVATION
+        # -----------------------------
         if not predictable:
             return base
 
@@ -78,10 +88,10 @@ class HCMMetaPredictor:
         confidence = structure_score * pred_score
 
         activation = (
-            0.7 * confidence +
-            0.3 * nonlinear_score
+            0.6 * confidence +
+            0.4 * nonlinear_score
         )
 
-        activation = np.clip(activation, 0.0, 0.8)
+        activation = np.clip(activation, 0.0, 0.75)
 
         return float((1 - activation) * base + activation * hcm_pred)
