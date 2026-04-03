@@ -43,7 +43,7 @@ class HCMMetaPredictor:
         errors = []
 
         # 🔥 SAMPLE instead of full sweep
-        indices = np.linspace(40, len(history) - 2, 10).astype(int)
+        indices = np.linspace(40, len(history) - 2, 25).astype(int)
 
         for i in indices:
             sub_hist = history[:i]
