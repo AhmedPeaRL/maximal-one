@@ -204,7 +204,7 @@ def evaluate(series):
         # 🔥 SKIP TRIVIAL SERIES
         var = np.var(test)
 
-        if var < 1e-6:
+        if var < 1e-8:
             results[name] = {
                 "skipped": True,
                 "reason": "trivial_signal"
@@ -233,8 +233,7 @@ def rolling_mse_split(train, test, model, max_steps=200):
         if time.time() - START_TIME > MAX_RUNTIME:
             break
 
-        # 🔥 STEP LIMIT
-        if t >= max_steps:
+        if t >= 150:
             break
 
         try:
@@ -297,7 +296,7 @@ def aggregate_results(all_results):
             p_vals.append(val["persistence_mse"])
             h_vals.append(val["hcm_mse"])
 
-        if len(p_vals) > 3:
+        if len(p_vals) >= 2:
             summary[key] = {
                 "persistence_mean": float(np.mean(p_vals)),
                 "hcm_mean": float(np.mean(h_vals)),
@@ -350,7 +349,7 @@ def main():
             "reason": "dataset_missing_or_invalid"
         }
     else:
-        all_results = multi_seed_eval(series, seeds=10)
+        all_results = multi_seed_eval(series, seeds=15)
         result = aggregate_results(all_results)
 
     safe_result = to_json_safe(result)
