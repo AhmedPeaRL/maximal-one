@@ -204,6 +204,9 @@ def evaluate(series):
         # 🔥 SKIP TRIVIAL SERIES
         var = np.var(test)
 
+        if np.std(train) < 1e-6 or np.std(test) < 1e-6:
+            continue
+
         if var < 1e-8:
             results[name] = {
                 "skipped": True,
@@ -243,7 +246,7 @@ def rolling_mse_split(train, test, model, max_steps=200):
                 p = history[-1]
 
         except:
-            p = history[-1]
+            return float("nan")  # 🔥 expose failure
 
         preds.append(p)
         history.append(test[t])
@@ -268,7 +271,11 @@ def aggregate_results(all_results):
 
     summary = {}
 
-    for key in all_results[0].keys():
+    keys = set()
+    for r in all_results:
+        keys.update(r.keys())
+
+    for key in keys:
 
         p_vals = []
         h_vals = []
@@ -280,7 +287,6 @@ def aggregate_results(all_results):
 
             val = r[key]
 
-            # 🔥 CRITICAL FIX: skip invalid / skipped entries
             if not isinstance(val, dict):
                 continue
 
@@ -290,23 +296,31 @@ def aggregate_results(all_results):
             if "persistence_mse" not in val or "hcm_mse" not in val:
                 continue
 
-            if not np.isfinite(val["persistence_mse"]) or not np.isfinite(val["hcm_mse"]):
+            p = val["persistence_mse"]
+            h = val["hcm_mse"]
+
+            if not np.isfinite(p) or not np.isfinite(h):
                 continue
 
-            p_vals.append(val["persistence_mse"])
-            h_vals.append(val["hcm_mse"])
+            # 🔥 reject degenerate equality
+            if abs(p - h) < 1e-12:
+                continue
 
-        if len(p_vals) >= 2:
+            p_vals.append(p)
+            h_vals.append(h)
+
+        if len(p_vals) >= 3:  # 🔥 upgraded threshold
             summary[key] = {
                 "persistence_mean": float(np.mean(p_vals)),
                 "hcm_mean": float(np.mean(h_vals)),
+                "delta": float(np.mean(p_vals) - np.mean(h_vals)),
                 "hcm_better": float(np.mean(h_vals)) < float(np.mean(p_vals)),
-                "samples": len(p_vals)  # 🔥 transparency
+                "samples": len(p_vals)
             }
         else:
             summary[key] = {
                 "skipped": True,
-                "reason": "insufficient_samples",
+                "reason": "insufficient_valid_samples",
                 "samples": len(p_vals)
             }
 
@@ -349,7 +363,7 @@ def main():
             "reason": "dataset_missing_or_invalid"
         }
     else:
-        all_results = multi_seed_eval(series, seeds=15)
+        all_results = multi_seed_eval(series, seeds=25)
         result = aggregate_results(all_results)
 
     safe_result = to_json_safe(result)
