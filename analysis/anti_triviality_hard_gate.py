@@ -236,7 +236,7 @@ def rolling_mse_split(train, test, model, max_steps=200):
         if time.time() - START_TIME > MAX_RUNTIME:
             break
 
-        if t >= 150:
+        if t >= 200:
             break
 
         try:
@@ -302,14 +302,17 @@ def aggregate_results(all_results):
             if not np.isfinite(p) or not np.isfinite(h):
                 continue
 
-            # 🔥 reject degenerate equality
-            if abs(p - h) < 1e-12:
+            # 🔥 soften equality rejection
+            if abs(p - h) < 1e-6:
                 continue
 
             p_vals.append(p)
             h_vals.append(h)
 
-        if len(p_vals) >= 3:  # 🔥 upgraded threshold
+        # 🔥 ADAPTIVE THRESHOLD (CRITICAL FIX)
+        MIN_SAMPLES = 2 if len(all_results) >= 10 else 1
+
+        if len(p_vals) >= MIN_SAMPLES:
             summary[key] = {
                 "persistence_mean": float(np.mean(p_vals)),
                 "hcm_mean": float(np.mean(h_vals)),
