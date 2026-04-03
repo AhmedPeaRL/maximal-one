@@ -109,8 +109,9 @@ class HCMMetaPredictor:
         if best_pred is None:
             return base
 
+        # 🔥 allow weak activation instead of shutdown
         if not predictable:
-            return base
+            return float(0.7 * base + 0.3 * best_pred) if best_pred is not None else base
 
         confidence = structure_score * pred_score
         activation = np.clip(confidence, 0.0, 0.85)
