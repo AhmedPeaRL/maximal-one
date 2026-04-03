@@ -123,14 +123,7 @@ from analysis.hcm_meta_predictor import HCMMetaPredictor
 meta_model = HCMMetaPredictor()
 
 def hcm_predict(history):
-
-    p = meta_model.predict(history)
-
-    std = np.std(history[-20:]) + 1e-8
-
-    noise = 0.0
-
-    return float(p + noise)
+    return meta_model.predict(history)
     
 # -----------------------------
 # evaluation
