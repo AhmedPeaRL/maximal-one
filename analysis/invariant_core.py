@@ -94,12 +94,13 @@ def invariant_predict(history):
     try:
         from sklearn.linear_model import Ridge
 
-        # 🔥 stronger model
+        feats = np.clip(feats, -5, 5)
+
         model = Ridge(alpha=10.0)
         model.fit(feats, targets)
 
         pred_feat = invariant_features(history).reshape(1, -1)
-        feats = np.clip(feats, -5, 5)
+        pred_feat = np.clip(pred_feat, -5, 5)
         
         return float(model.predict(pred_feat)[0])
         
