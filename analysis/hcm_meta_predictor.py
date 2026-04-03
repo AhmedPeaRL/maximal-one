@@ -32,18 +32,69 @@ class HCMMetaPredictor:
         except:
             return history[-1]
 
-    def memory_correction(self, history, pred):
+    # -----------------------------
+    # 🔥 MODEL SCORING (NEW)
+    # -----------------------------
+    def score_model(self, history, model):
 
-        if len(history) < 50:
-            return pred
+        if len(history) < 60:
+            return 0.0
 
-        window = np.array(history[-50:])
-        trend = np.mean(np.diff(window))
+        errors = []
 
-        return pred + 0.3 * trend
+        for i in range(40, len(history) - 1):
+            sub_hist = history[:i]
+
+            try:
+                pred = model.predict(sub_hist)
+                true = history[i]
+
+                if np.isfinite(pred):
+                    errors.append((pred - true) ** 2)
+            except:
+                continue
+
+        if len(errors) == 0:
+            return 0.0
+
+        return 1.0 / (np.mean(errors) + 1e-8)
 
     # -----------------------------
-    # CORE DECISION ENGINE (FIXED)
+    # 🔥 COMPETITIVE SELECTION
+    # -----------------------------
+    def select_best_prediction(self, history):
+
+        scored_preds = []
+
+        for m in self.models:
+            try:
+                pred = m.predict(history)
+                if not np.isfinite(pred):
+                    continue
+
+                score = self.score_model(history, m)
+                scored_preds.append((score, pred))
+            except:
+                continue
+
+        # invariant model
+        try:
+            inv_pred = invariant_predict(history)
+            if np.isfinite(inv_pred):
+                score = self.score_model(history, self)
+                scored_preds.append((score * 0.8, inv_pred))  # slight penalty
+        except:
+            pass
+
+        if len(scored_preds) == 0:
+            return None
+
+        # 🔥 choose BEST, not average
+        best = max(scored_preds, key=lambda x: x[0])
+        return best[1]
+
+    # -----------------------------
+    # FINAL PREDICT
     # -----------------------------
     def predict(self, history):
 
@@ -52,46 +103,19 @@ class HCMMetaPredictor:
         structure_score = detect_structure(history)
         predictable, pred_score = is_predictable(history)
 
-        preds = []
+        best_pred = self.select_best_prediction(history)
 
-        for m in self.models:
-            try:
-                p = m.predict(history)
-                if np.isfinite(p):
-                    preds.append(p)
-            except:
-                continue
-
-        try:
-            inv_p = invariant_predict(history)
-            if np.isfinite(inv_p):
-                preds.append(inv_p)
-        except:
-            pass
-
-        if len(preds) == 0:
+        if best_pred is None:
             return base
 
-        # ✅ FIX: build prediction correctly
-        hcm_pred = float(np.median(preds))
-
-        # ✅ APPLY memory correction AFTER
-        hcm_pred = self.memory_correction(history, hcm_pred)
-
         # -----------------------------
-        # STRUCTURE-AWARE ACTIVATION
+        # SMART ACTIVATION
         # -----------------------------
         if not predictable:
             return base
 
-        nonlinear_score = 1.0 - structure_score
         confidence = structure_score * pred_score
 
-        activation = (
-            0.6 * confidence +
-            0.4 * nonlinear_score
-        )
+        activation = np.clip(confidence, 0.0, 0.85)
 
-        activation = np.clip(activation, 0.0, 0.75)
-
-        return float((1 - activation) * base + activation * hcm_pred)
+        return float((1 - activation) * base + activation * best_pred)
