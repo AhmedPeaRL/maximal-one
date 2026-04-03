@@ -21,7 +21,7 @@
   },
   {
     "dataset": "solar_wind_speed_clean.csv",
-    "hurst": 0.18680031327308333,
+    "hurst": 0.14560061011632663,
     "chaotic_signature": false
   },
   {
@@ -56,7 +56,7 @@
   },
   {
     "dataset": "earthquake_magnitude_clean.csv",
-    "hurst": 1.2067479317651315,
+    "hurst": 1.208238115303407,
     "chaotic_signature": true
   },
   {
@@ -71,7 +71,7 @@
   },
   {
     "dataset": "earthquake_magnitude.csv",
-    "hurst": 1.2067479317651315,
+    "hurst": 1.208238115303407,
     "chaotic_signature": true
   },
   {
@@ -91,8 +91,8 @@
   },
   {
     "dataset": "geomagnetic_kp_clean.csv",
-    "hurst": 0.8250680284554945,
-    "chaotic_signature": true
+    "hurst": 0.5233290465829306,
+    "chaotic_signature": false
   },
   {
     "dataset": "co2_atmospheric_clean.csv",
