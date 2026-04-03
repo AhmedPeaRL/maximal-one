@@ -30,8 +30,11 @@ def run(file_path):
         print("Too few data points after cleaning — FAIL")
         sys.exit(1)
 
-    # normalize (optional but safe)
-    series = (series - series.mean()) / (series.std() + 1e-8)
+    # 🔥 REMOVE TREND
+    series = np.diff(series)
+
+    # 🔥 NORMALIZE
+    series = (series - np.mean(series)) / (np.std(series) + 1e-8)
 
     out_path = file_path.replace(".csv", "_prepared.csv")
 
