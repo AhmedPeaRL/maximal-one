@@ -8,11 +8,23 @@ ART = Path("artifacts")
 ART.mkdir(exist_ok=True)
 
 
-def generate_structured_series(n=800):
+def to_native(obj):
+    """
+    🔥 Convert numpy types to pure Python types for JSON safety
+    """
+    if isinstance(obj, np.generic):
+        return obj.item()
+    if isinstance(obj, dict):
+        return {k: to_native(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [to_native(v) for v in obj]
+    return obj
 
+
+def generate_structured_series(n=800):
     t = np.arange(n)
 
-    # 🔥 nonlinear + multi-scale + chaos mix
+    # nonlinear + multi-scale + chaos mix
     series = (
         np.sin(2*np.pi*t/11)
         + 0.5*np.sin(2*np.pi*t/3)
@@ -26,14 +38,11 @@ def generate_structured_series(n=800):
 
 
 def destroy_local_predictability(series):
-
-    # 🔥 kill persistence advantage
     noise = np.random.normal(0, 0.3, size=len(series))
     return series + noise
 
 
 def evaluate(series, model):
-
     split = int(len(series)*0.7)
     train = list(series[:split])
     test = series[split:]
@@ -50,7 +59,6 @@ def evaluate(series, model):
 
 
 def main():
-
     np.random.seed(42)
 
     base_series = generate_structured_series()
@@ -62,10 +70,13 @@ def main():
     mse_corrupt = evaluate(corrupted, model)
 
     result = {
-        "clean_mse": float(mse_clean),
-        "corrupted_mse": float(mse_corrupt),
+        "clean_mse": mse_clean,
+        "corrupted_mse": mse_corrupt,
         "structure_detected": mse_clean < mse_corrupt
     }
+
+    # 🔥 تحويل آمن قبل الطباعة والحفظ
+    result = to_native(result)
 
     print("=== STRUCTURE TEST ===")
     print(json.dumps(result, indent=2))
