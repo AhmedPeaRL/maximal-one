@@ -858,6 +858,9 @@ jobs:
       - name: Anti-Triviality HARD Test
         run: python -m analysis.anti_triviality_hard_gate
 
+      - name: Anti-Triviality Structure Test
+        run: python -m analysis.anti_triviality_structure_test
+
       - name: Anti-Triviality Decision Gate
         run: python -m analysis.anti_triviality_gate
 
