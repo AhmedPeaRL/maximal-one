@@ -18,9 +18,6 @@ class HCMMetaPredictor:
             InvariantProjectionPredictor(),
         ]
 
-    # -----------------------------
-    # BASELINE
-    # -----------------------------
     def baseline(self, history):
         if len(history) < 20:
             return history[-1]
@@ -32,7 +29,7 @@ class HCMMetaPredictor:
         except:
             return history[-1]
 
-    def memory_correction(history, pred):
+    def memory_correction(self, history, pred):
 
         if len(history) < 50:
             return pred
@@ -40,11 +37,8 @@ class HCMMetaPredictor:
         window = np.array(history[-50:])
         trend = np.mean(np.diff(window))
 
-        return pred + 0.3 * trend
+        return pred + 0.2 * trend
 
-    # -----------------------------
-    # CORE DECISION ENGINE (UPGRADED)
-    # -----------------------------
     def predict(self, history):
 
         base = self.baseline(history)
@@ -71,32 +65,23 @@ class HCMMetaPredictor:
 
         if len(preds) == 0:
             return base
-            
-        hcm_pred = memory_correction(history, hcm_pred)
+
+        # ✅ FIX: proper order
         hcm_pred = float(np.median(preds))
+        hcm_pred = self.memory_correction(history, hcm_pred)
 
-        # -----------------------------
-        # 🔥 STRUCTURE-AWARE ACTIVATION (FIXED)
-        # -----------------------------
-
+        # 🚫 لا تدخل في chaos
         if not predictable:
-            return base  # 🚫 متدخلش في chaos عشوائي
+            return base
 
-        # nonlinear detection
         nonlinear_score = 1.0 - structure_score
-
-        # confidence لازم يبقى حقيقي
         confidence = structure_score * pred_score
 
-        # activation مضبوط
         activation = (
-            0.6 * confidence +
-            0.4 * nonlinear_score
+            0.7 * confidence +
+            0.3 * nonlinear_score
         )
 
-        activation = np.clip(activation, 0.0, 0.75)
-    
-        # -----------------------------
-        # BLENDING
-        # -----------------------------
+        activation = np.clip(activation, 0.0, 0.8)
+
         return float((1 - activation) * base + activation * hcm_pred)
