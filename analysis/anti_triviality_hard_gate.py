@@ -204,7 +204,7 @@ def evaluate(series):
         # 🔥 SKIP TRIVIAL SERIES
         var = np.var(test)
 
-        if var < 1e-10:
+        if var < 1e-6:
             results[name] = {
                 "skipped": True,
                 "reason": "trivial_signal"
@@ -297,7 +297,7 @@ def aggregate_results(all_results):
             p_vals.append(val["persistence_mse"])
             h_vals.append(val["hcm_mse"])
 
-        if len(p_vals) > 0:
+        if len(p_vals) > 3:
             summary[key] = {
                 "persistence_mean": float(np.mean(p_vals)),
                 "hcm_mean": float(np.mean(h_vals)),
@@ -307,7 +307,8 @@ def aggregate_results(all_results):
         else:
             summary[key] = {
                 "skipped": True,
-                "reason": "no_valid_samples"
+                "reason": "insufficient_samples",
+                "samples": len(p_vals)
             }
 
     return summary
@@ -349,7 +350,7 @@ def main():
             "reason": "dataset_missing_or_invalid"
         }
     else:
-        all_results = multi_seed_eval(series, seeds=5)
+        all_results = multi_seed_eval(series, seeds=10)
         result = aggregate_results(all_results)
 
     safe_result = to_json_safe(result)
