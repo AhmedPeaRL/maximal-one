@@ -32,6 +32,16 @@ class HCMMetaPredictor:
         except:
             return history[-1]
 
+    def memory_correction(history, pred):
+
+        if len(history) < 50:
+            return pred
+
+        window = np.array(history[-50:])
+        trend = np.mean(np.diff(window))
+
+        return pred + 0.3 * trend
+
     # -----------------------------
     # CORE DECISION ENGINE (UPGRADED)
     # -----------------------------
@@ -61,19 +71,9 @@ class HCMMetaPredictor:
 
         if len(preds) == 0:
             return base
-
-    def memory_correction(history, pred):
-
-        if len(history) < 50:
-            return pred
-
-        window = np.array(history[-50:])
-        trend = np.mean(np.diff(window))
-
-        return pred + 0.3 * trend
-
-        hcm_pred = float(np.median(preds))
+            
         hcm_pred = memory_correction(history, hcm_pred)
+        hcm_pred = float(np.median(preds))
 
         # -----------------------------
         # 🔥 STRUCTURE-AWARE ACTIVATION (FIXED)
