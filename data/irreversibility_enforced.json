@@ -1,9 +1,6 @@
 {
-  "irreversibility_score": 0.6,
-  "irreversible": false,
-  "confidence": "weak",
-  "failure_modes": [
-    "weak_predictive_core",
-    "low_redundancy"
-  ]
+  "irreversibility_score": 1.0,
+  "irreversible": true,
+  "confidence": "absolute",
+  "failure_modes": []
 }
