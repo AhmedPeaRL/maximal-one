@@ -66,6 +66,13 @@ def invariant_features(series):
     nonlinear_mix = np.mean(np.tanh(x) * x)
     feats.append(nonlinear_mix)
 
+    # -----------------------
+    # 🔥 7. recurrence density
+    # -----------------------
+    threshold = 0.5
+    rec = np.abs(x[:, None] - x[None, :]) < threshold
+    feats.append(np.mean(rec))
+
     return np.nan_to_num(np.array(feats))
 
 
