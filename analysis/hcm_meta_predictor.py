@@ -33,16 +33,19 @@ class HCMMetaPredictor:
             return history[-1]
 
     # -----------------------------
-    # 🔥 MODEL SCORING (NEW)
+    # ⚡ FAST SCORING (FIXED)
     # -----------------------------
-    def score_model(self, history, model):
+    def score_model_fast(self, history, model):
 
-        if len(history) < 60:
+        if len(history) < 80:
             return 0.0
 
         errors = []
 
-        for i in range(40, len(history) - 1):
+        # 🔥 SAMPLE instead of full sweep
+        indices = np.linspace(40, len(history) - 2, 10).astype(int)
+
+        for i in indices:
             sub_hist = history[:i]
 
             try:
@@ -60,7 +63,7 @@ class HCMMetaPredictor:
         return 1.0 / (np.mean(errors) + 1e-8)
 
     # -----------------------------
-    # 🔥 COMPETITIVE SELECTION
+    # 🔥 SAFE SELECTION
     # -----------------------------
     def select_best_prediction(self, history):
 
@@ -72,24 +75,22 @@ class HCMMetaPredictor:
                 if not np.isfinite(pred):
                     continue
 
-                score = self.score_model(history, m)
+                score = self.score_model_fast(history, m)
                 scored_preds.append((score, pred))
             except:
                 continue
 
-        # invariant model
+        # ✅ invariant WITHOUT recursive scoring
         try:
             inv_pred = invariant_predict(history)
             if np.isfinite(inv_pred):
-                score = self.score_model(history, self)
-                scored_preds.append((score * 0.8, inv_pred))  # slight penalty
+                scored_preds.append((0.5, inv_pred))  # fixed weight
         except:
             pass
 
         if len(scored_preds) == 0:
             return None
 
-        # 🔥 choose BEST, not average
         best = max(scored_preds, key=lambda x: x[0])
         return best[1]
 
@@ -108,14 +109,10 @@ class HCMMetaPredictor:
         if best_pred is None:
             return base
 
-        # -----------------------------
-        # SMART ACTIVATION
-        # -----------------------------
         if not predictable:
             return base
 
         confidence = structure_score * pred_score
-
         activation = np.clip(confidence, 0.0, 0.85)
 
         return float((1 - activation) * base + activation * best_pred)
