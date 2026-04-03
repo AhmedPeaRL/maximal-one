@@ -99,8 +99,10 @@ def invariant_predict(history):
         model.fit(feats, targets)
 
         pred_feat = invariant_features(history).reshape(1, -1)
-
+        
         return float(model.predict(pred_feat)[0])
 
+        feats = np.clip(feats, -5, 5)
+        
     except:
         return history[-1]
