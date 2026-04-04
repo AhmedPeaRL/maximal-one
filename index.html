@@ -127,6 +127,7 @@
   <script src="core/time_probe.js"></script>
   <script src="infrastructure/measurement_engine.js"></script>
   <script src="./core-scientific/kernel/witness.js"></script>
+  <script type="module" src="core/collective_brain.js"></script>
 
   <script>
     const input = document.getElementById("witness-input");
@@ -141,7 +142,7 @@
       state.innerText = "received";
       eventBox.innerText = "";
       
-    witness(value).then(result => {
+    collectiveProcess(value).then(result => {
       if (result && result.event) {
         eventBox.innerText = result.event;
       } else {
