@@ -856,7 +856,7 @@ jobs:
         run: python -m analysis.reality_gap_hardener
 
       - name: Anti-Triviality HARD Test
-        run: python -m analysis.anti_triviality_hard_runner
+        run: python -m analysis.anti_triviality_hard_gate
         
       - name: Anti-Triviality Structure Test
         run: python -m analysis.anti_triviality_structure_test
