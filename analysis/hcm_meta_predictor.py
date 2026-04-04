@@ -18,9 +18,6 @@ class HCMMetaPredictor:
             InvariantProjectionPredictor(),
         ]
 
-    # -----------------------------
-    # BASELINE
-    # -----------------------------
     def baseline(self, history):
         if len(history) < 20:
             return history[-1]
@@ -32,9 +29,6 @@ class HCMMetaPredictor:
         except:
             return history[-1]
 
-    # -----------------------------
-    # ⚡ FAST SCORING (FIXED)
-    # -----------------------------
     def score_model_fast(self, history, model):
 
         if len(history) < 80:
@@ -42,7 +36,6 @@ class HCMMetaPredictor:
 
         errors = []
 
-        # 🔥 SAMPLE instead of full sweep
         indices = np.linspace(40, len(history) - 2, 25).astype(int)
 
         for i in indices:
@@ -62,9 +55,6 @@ class HCMMetaPredictor:
 
         return 1.0 / (np.mean(errors) + 1e-8)
 
-    # -----------------------------
-    # 🔥 SAFE SELECTION
-    # -----------------------------
     def select_best_prediction(self, history):
 
         scored_preds = []
@@ -80,11 +70,10 @@ class HCMMetaPredictor:
             except:
                 continue
 
-        # ✅ invariant WITHOUT recursive scoring
         try:
             inv_pred = invariant_predict(history)
             if np.isfinite(inv_pred):
-                scored_preds.append((0.5, inv_pred))  # fixed weight
+                scored_preds.append((0.6, inv_pred))  # 🔥 increased weight
         except:
             pass
 
@@ -94,9 +83,6 @@ class HCMMetaPredictor:
         best = max(scored_preds, key=lambda x: x[0])
         return best[1]
 
-    # -----------------------------
-    # FINAL PREDICT
-    # -----------------------------
     def predict(self, history):
 
         base = self.baseline(history)
@@ -109,11 +95,10 @@ class HCMMetaPredictor:
         if best_pred is None:
             return base
 
-        # 🔥 allow weak activation instead of shutdown
-        if not predictable:
-            return float(0.7 * base + 0.3 * best_pred) if best_pred is not None else base
+        # 🔥 CRITICAL CHANGE: DO NOT KILL SIGNAL
+        confidence = structure_score * (0.5 + 0.5 * pred_score)
 
-        confidence = structure_score * pred_score
-        activation = np.clip(confidence, 0.0, 0.85)
+        # 🔥 allow stronger activation
+        activation = np.clip(confidence, 0.15, 0.95)
 
         return float((1 - activation) * base + activation * best_pred)
