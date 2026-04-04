@@ -31,12 +31,12 @@ class HCMMetaPredictor:
 
     def score_model_fast(self, history, model):
 
-        if len(history) < 80:
-            return 0.0
+        if len(history) < 60:
+            return 0.2  # 🔥 بدل صفر → سماح ضعيف
 
         errors = []
 
-        indices = np.linspace(40, len(history) - 2, 25).astype(int)
+        indices = np.linspace(30, len(history) - 2, 20).astype(int)
 
         for i in indices:
             sub_hist = history[:i]
@@ -50,10 +50,10 @@ class HCMMetaPredictor:
             except:
                 continue
 
-        if len(errors) == 0:
-            return 0.0
+        if len(errors) < 5:
+            return 0.3  # 🔥 weak evidence بدل zero
 
-        return 1.0 / (np.mean(errors) + 1e-8)
+        return 1.0 / (np.mean(errors) + 1e-6)
 
     def select_best_prediction(self, history):
 
@@ -73,7 +73,7 @@ class HCMMetaPredictor:
         try:
             inv_pred = invariant_predict(history)
             if np.isfinite(inv_pred):
-                scored_preds.append((0.6, inv_pred))  # 🔥 increased weight
+                scored_preds.append((0.7, inv_pred))  # 🔥 boost
         except:
             pass
 
@@ -95,10 +95,13 @@ class HCMMetaPredictor:
         if best_pred is None:
             return base
 
-        # 🔥 CRITICAL CHANGE: DO NOT KILL SIGNAL
-        confidence = structure_score * (0.5 + 0.5 * pred_score)
+        # 🔥 إعادة تعريف الثقة (أهم تعديل)
+        confidence = (
+            0.4 * structure_score +
+            0.3 * pred_score +
+            0.3
+        )
 
-        # 🔥 allow stronger activation
-        activation = np.clip(confidence, 0.15, 0.95)
+        activation = np.clip(confidence, 0.25, 0.9)
 
         return float((1 - activation) * base + activation * best_pred)
