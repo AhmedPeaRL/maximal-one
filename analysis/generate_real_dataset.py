@@ -30,6 +30,6 @@ df = pd.DataFrame({"value": series})
 import os
 os.makedirs("real-data", exist_ok=True)
 
-df.to_csv("real-data/sample.csv", index=False)
+df.to_csv("real-data/sunspots_global.csv", index=False)
 
 print("Dataset generated:", len(df))
