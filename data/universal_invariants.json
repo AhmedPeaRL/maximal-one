@@ -31,9 +31,9 @@
   },
   {
     "dataset": "solar_wind_speed_clean.csv",
-    "spectral_alpha": 1.0496208630850608,
-    "entropy": 0.6764276541345017,
-    "attractor_dim": -0.09173520397332216
+    "spectral_alpha": 0.9624855950740074,
+    "entropy": 0.6908561499691838,
+    "attractor_dim": -0.09623368306768781
   },
   {
     "dataset": "sample_clean.csv",
@@ -67,9 +67,9 @@
   },
   {
     "dataset": "geomagnetic_kp.csv",
-    "spectral_alpha": 1.717454233784671,
-    "entropy": -4.897442514263631,
-    "attractor_dim": 0.05991163058729118
+    "spectral_alpha": 1.760812667007724,
+    "entropy": -83.4419554535819,
+    "attractor_dim": 0.007454938115543356
   },
   {
     "dataset": "sunspots_global.csv",
@@ -91,9 +91,9 @@
   },
   {
     "dataset": "earthquake_magnitude_clean.csv",
-    "spectral_alpha": 1.8030897434347053,
-    "entropy": 5.352959347947506e-07,
-    "attractor_dim": -0.03575534616174818
+    "spectral_alpha": 1.8030715975567506,
+    "entropy": 5.350477113886337e-07,
+    "attractor_dim": -0.03596694752025939
   },
   {
     "dataset": "sample.csv",
@@ -115,15 +115,15 @@
   },
   {
     "dataset": "solar_wind_speed.csv",
-    "spectral_alpha": 1.0496208630850608,
-    "entropy": 0.6764276541345017,
-    "attractor_dim": -0.09173520397332216
+    "spectral_alpha": 0.9624855950740074,
+    "entropy": 0.6908561499691838,
+    "attractor_dim": -0.09623368306768781
   },
   {
     "dataset": "earthquake_magnitude.csv",
-    "spectral_alpha": 1.8030897434347053,
-    "entropy": 5.352959347947506e-07,
-    "attractor_dim": -0.03575534616174818
+    "spectral_alpha": 1.8030715975567506,
+    "entropy": 5.350477113886337e-07,
+    "attractor_dim": -0.03596694752025939
   },
   {
     "dataset": "sunspots_global_clean.csv",
@@ -151,9 +151,9 @@
   },
   {
     "dataset": "geomagnetic_kp_clean.csv",
-    "spectral_alpha": 1.717454233784671,
-    "entropy": -4.897442514263631,
-    "attractor_dim": 0.05991163058729118
+    "spectral_alpha": 1.760812667007724,
+    "entropy": -83.4419554535819,
+    "attractor_dim": 0.007454938115543356
   },
   {
     "dataset": "co2_atmospheric_clean.csv",
