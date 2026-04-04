@@ -22,7 +22,7 @@
   },
   {
     "file": "real-data/solar_wind_speed_clean.csv",
-    "rows": 9694,
+    "rows": 9689,
     "columns": 1,
     "numeric_columns": 1,
     "missing_ratio": 0.0
@@ -43,7 +43,7 @@
   },
   {
     "file": "real-data/sunspots_global_prepared_clean.csv",
-    "rows": 76061,
+    "rows": 2000,
     "columns": 1,
     "numeric_columns": 1,
     "missing_ratio": 0.0
@@ -71,9 +71,9 @@
   },
   {
     "file": "real-data/sunspots_global.csv",
-    "rows": 76061,
+    "rows": 2000,
     "columns": 2,
-    "numeric_columns": 1,
+    "numeric_columns": 2,
     "missing_ratio": 0.0
   },
   {
@@ -85,14 +85,14 @@
   },
   {
     "file": "real-data/sunspots_global_prepared.csv",
-    "rows": 76061,
+    "rows": 2000,
     "columns": 1,
     "numeric_columns": 1,
     "missing_ratio": 0.0
   },
   {
     "file": "real-data/earthquake_magnitude_clean.csv",
-    "rows": 11106,
+    "rows": 11062,
     "columns": 2,
     "numeric_columns": 2,
     "missing_ratio": 0.0
@@ -120,23 +120,23 @@
   },
   {
     "file": "real-data/solar_wind_speed.csv",
-    "rows": 9694,
+    "rows": 9689,
     "columns": 2,
     "numeric_columns": 1,
     "missing_ratio": 0.0
   },
   {
     "file": "real-data/earthquake_magnitude.csv",
-    "rows": 11106,
+    "rows": 11062,
     "columns": 2,
     "numeric_columns": 2,
     "missing_ratio": 0.0
   },
   {
     "file": "real-data/sunspots_global_clean.csv",
-    "rows": 76061,
-    "columns": 1,
-    "numeric_columns": 1,
+    "rows": 2000,
+    "columns": 2,
+    "numeric_columns": 2,
     "missing_ratio": 0.0
   },
   {
