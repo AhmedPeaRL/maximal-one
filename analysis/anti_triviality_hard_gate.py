@@ -307,12 +307,10 @@ def aggregate_results(all_results):
             if not np.isfinite(h):
                 h = 1e6
 
-            # 🔥 allow near-equality
             if abs(p - h) < 1e-8:
+                p_vals.append(p)
+                h_vals.append(h)
                 continue
-
-            p_vals.append(p)
-            h_vals.append(h)
 
         # 🔥 ADAPTIVE THRESHOLD (CRITICAL FIX)
         MIN_SAMPLES = 2 if len(all_results) >= 10 else 1
