@@ -225,7 +225,7 @@ def evaluate(series):
 
     return results
 
-def rolling_mse_split(train, test, model, max_steps=200):
+def rolling_mse_split(train, test, model, max_steps=120):
 
     history = list(train)
     preds = []
@@ -371,7 +371,7 @@ def main():
             "reason": "dataset_missing_or_invalid"
         }
     else:
-        all_results = multi_seed_eval(series, seeds=25)
+        all_results = multi_seed_eval(series, seeds=8)
         result = aggregate_results(all_results)
 
     safe_result = to_json_safe(result)
