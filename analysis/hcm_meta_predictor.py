@@ -95,13 +95,18 @@ class HCMMetaPredictor:
         if best_pred is None:
             return base
 
-        # 🔥 إعادة تعريف الثقة (أهم تعديل)
+        # 🔥 NEW: sharper confidence
         confidence = (
-            0.4 * structure_score +
+            0.5 * structure_score +
             0.3 * pred_score +
-            0.3
+            0.2
         )
 
-        activation = np.clip(confidence, 0.25, 0.9)
+        # 🔥 NEW: nonlinear activation (critical)
+        activation = np.clip(confidence ** 1.5, 0.3, 0.95)
+
+        # 🔥 NEW: dominance trigger
+        if structure_score > 0.6 and pred_score > 0.5:
+            activation = max(activation, 0.85)
 
         return float((1 - activation) * base + activation * best_pred)
