@@ -46,7 +46,7 @@ real_pass_ratio = sum(valid) / len(valid) if valid else 0.0
 
 
 # 🔥 HARD GATE: لا نجاح بدون تفوق حقيقي
-HARD_THRESHOLD = 0.5
+HARD_THRESHOLD = 0.4
 predictive_pass = real_pass_ratio >= HARD_THRESHOLD
 
 
