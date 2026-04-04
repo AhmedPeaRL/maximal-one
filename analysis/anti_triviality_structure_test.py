@@ -21,7 +21,7 @@ def to_native(obj):
     return obj
 
 
-def generate_structured_series(n=800):
+def generate_structured_series(n=300):
     t = np.arange(n)
 
     # nonlinear + multi-scale + chaos mix
