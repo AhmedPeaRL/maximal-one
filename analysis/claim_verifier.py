@@ -1,6 +1,8 @@
 import json
 import numpy as np
 from pathlib import Path
+from analysis.json_safe import to_json_safe
+result = to_json_safe(result)
 
 # === LOAD CLAIM ===
 with open("core-scientific/minimal_claim.json") as f:
@@ -34,7 +36,7 @@ within_range = np.logical_and(samples >= alpha_min, samples <= alpha_max)
 probability = np.mean(within_range)
 
 # === FINAL DECISION ===
-passed_probability = probability >= confidence_threshold
+passed_probability = bool(probability >= confidence_threshold)
 
 result = {
     "alpha": alpha,
