@@ -65,6 +65,19 @@
   </style>
 </head>
 
+<script>
+fetch('./data/global_verdict.json')
+  .then(r => r.json())
+  .then(d => {
+    document.getElementById("field-state").innerText =
+      d.passed ? "stable" : "probing";
+
+    document.getElementById("state").innerText =
+      d.layer || "present";
+  })
+  .catch(() => {});
+         </script>
+  
 <body>
 
   <a href="/orientation/" class="nav-orientation">orientation</a>
