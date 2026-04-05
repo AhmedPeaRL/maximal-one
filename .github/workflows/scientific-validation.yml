@@ -37,7 +37,7 @@ jobs:
       - name: Print trigger source
         run: echo "Triggered by ${{ github.event_name }}"
         
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
@@ -72,7 +72,7 @@ jobs:
       image: python@sha256:90f8795536170fd08236d2ceb74fe7065dbf74f738d8b84bfbf263656654dc9b
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Upgrade pip first
         run: python -m pip install --upgrade pip==24.0
 
@@ -146,14 +146,14 @@ jobs:
       passed: ${{ steps.final_gate.outputs.passed }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: canonical-report
           path: artifacts
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: report-hash
           path: artifacts
@@ -245,17 +245,17 @@ jobs:
     needs: gate
 
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: node-hash-18.20.8
           path: node18
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: node-hash-20.20.0
           path: node20
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: node-hash-24.11.1
           path: node24
@@ -290,11 +290,11 @@ jobs:
           apt-get install -y git
           
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: real-data
           key: chaos-datasets-${{ hashFiles('analysis/**/*.py') }}
@@ -319,6 +319,9 @@ jobs:
            pyarrow==15.0.2 \
            requests==2.31.0
 
+      - name: Init Runtime Guard
+        run: python repro-core/runtime_guard.py
+  
       - name: Fetch global chaos datasets
         run: |
           python -m analysis.global_chaos_fetcher
@@ -401,6 +404,9 @@ jobs:
 
       - name: Build Real Multi-System Series
         run: python -m analysis.build_real_multisystem_series
+
+      - name: Runtime checkpoint
+        run: python -c "import repro_core.runtime_guard as rg; rg.checkpoint()"
 
       - name: Windowed spectral analysis
         run: python -m analysis.windowed_spectral_analysis
@@ -827,12 +833,12 @@ jobs:
             echo "No universality detected"
             exit 1
         
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: scaling-law-test
           path: artifacts/scaling_law_test.json
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: scaling-collapse
           path: artifacts/scaling_collapse_engine.json
@@ -843,15 +849,18 @@ jobs:
           name: nonlinear-phase-transition
           path: artifacts/nonlinear_phase_transition.png
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: discovered-hypotheses
           path: artifacts/hypotheses.json
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: null-structure-test
           path: artifacts/null_structure_test.json
+
+      - name: Final runtime report
+        run: python -c "import repro_core.runtime_guard as rg; rg.final_report()"
 
       - name: Persist artifacts into repository
         if: always() && github.actor != 'github-actions[bot]'
@@ -899,7 +908,7 @@ jobs:
     needs: verify
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Install deterministic scientific stack
         run: |
@@ -929,7 +938,7 @@ jobs:
     needs: stability-check
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
