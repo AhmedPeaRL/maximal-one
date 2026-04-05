@@ -656,6 +656,10 @@ jobs:
           mkdir -p artifacts
           python -m analysis.external_replication_gate
 
+      - name: Claim Verification Engine
+        run: |
+          python analysis/claim_verifier.py
+
       - name: Universality Gate
         run: |
           python analysis/universality_gate.py > artifacts/universality_gate.json
