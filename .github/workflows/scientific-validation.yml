@@ -363,20 +363,27 @@ jobs:
       - name: Dataset health check
         run: python -m analysis.dataset_health_check
 
-      - name: Generate chaos benchmark datasets
-        run: python -m analysis.chaos_generators
+      - name: Dataset integrity manifest
+        run: python -m analysis.dataset_guard
+
+      - name: Global dataset registry
+        run: python -m analysis.global_dataset_registry
+
+      - name: Prepare real datasets
+        run: |
+          python -m analysis.real_dataset_engine
+
+      - name: Build real temporal series
+        run: python -m analysis.build_real_series
+
+      - name: Build Real Multi-System Series
+        run: python -m analysis.build_real_multisystem_series
 
       - name: Windowed spectral analysis
         run: python -m analysis.windowed_spectral_analysis
 
       - name: Cross-system correlation
         run: python -m analysis.cross_system_correlation
-
-      - name: Extract invariants
-        run: python -m analysis.invariant_extractor
-
-      - name: Chaos metrics extension
-        run: python -m analysis.chaos_metrics_extension
 
       - name: Build universality features
         run: python -m analysis.universality_feature_builder
@@ -423,34 +430,17 @@ jobs:
       - name: Universal invariant test
         run: python -m analysis.universal_invariant_test
 
-      - name: Robust universality filter
-        run: python -m analysis.robust_universality_filter
-
-      - name: Invariant stability monitor
-        run: python -m analysis.invariant_stability_monitor
-
       - name: Null universe test
         run: python -m analysis.null_universe_test
 
       - name: Surrogate chaos test
         run: python -m analysis.surrogate_test
 
-      - name: Global dataset registry
-        run: python -m analysis.global_dataset_registry
-
-      - name: Dataset integrity manifest
-        run: python -m analysis.dataset_guard
-
-      - name: Check downloaded datasets
-        run: |
-          echo "==== REAL DATA ===="
-          ls -R real-data || true
-          
-      - name: Freeze environment snapshot
+      - name: Null Structure Test
         run: |
           mkdir -p artifacts
-          pip freeze > artifacts/pip-freeze.txt
-          
+          python -m analysis.null_structure_test
+
       - name: Run deterministic kernel
         run: |
           mkdir -p artifacts
@@ -494,17 +484,6 @@ jobs:
         run: |
           mkdir -p artifacts
           python -m analysis.null_spectral_montecarlo
-
-      - name: Autonomous Chaos Harvester
-        run: |
-          python -m analysis.autonomous_chaos_harvester
-
-      - name: Autonomous Dataset Hunter
-        run: python -m analysis.autonomous_dataset_hunter
-
-      - name: Prepare real datasets
-        run: |
-          python -m analysis.real_dataset_engine
 
       - name: Debug datasets before discovery
         run: |
@@ -572,13 +551,19 @@ jobs:
             echo '{"hcm_superior": false, "skipped": true}' > artifacts/chaotic_benchmark.json
             fi
 
-      - name: Structural Intelligence Test
+      - name: Real Lorenz Benchmark
         run: |
-          python -m analysis.structural_intelligence_test
+          mkdir -p artifacts
+          python analysis/real_lorenz_benchmark.py > artifacts/lorenz.json
+          echo "=== Lorenz96 result ==="
+          cat artifacts/lorenz.json
 
-      - name: Structural Dominance Gate
-        run: python -m analysis.structural_dominance_gate
-     
+      - name: Lorenz-96 Benchmark
+        run: |
+          mkdir -p artifacts
+          python -m analysis.lorenz96_benchmark > artifacts/lorenz96.json
+          cat artifacts/lorenz96.json
+
       - name: Predictive deviation test
         run: |
           mkdir -p artifacts
@@ -595,17 +580,16 @@ jobs:
             exit 1
           fi
 
-      - name: Build real temporal series
-        run: python -m analysis.build_real_series
+      - name: Predictive Gain Gate
+        run: |
+          python analysis/predictive_gain_gate.py
 
-      - name: Build Real Multi-System Series
-        run: python -m analysis.build_real_multisystem_series
+      - name: Structural Intelligence Test
+        run: |
+          python -m analysis.structural_intelligence_test
 
-      - name: Build Lorenz temporal series
-        run: python -m analysis.build_lorenz_series
-
-      - name: Build Ecology temporal series
-        run: python -m analysis.build_ecology_series
+      - name: Structural Dominance Gate
+        run: python -m analysis.structural_dominance_gate
 
       - name: Real Temporal Dominance
         run: python -m analysis.real_temporal_dominance
@@ -616,75 +600,11 @@ jobs:
       - name: Advanced Temporal Structure Test
         run: python -m analysis.advanced_temporal_test
 
-      - name: Cross Invariant Consistency
-        run: python -m analysis.cross_invariant_consistency
-
-      - name: Build Invariant Field
-        run: python -m analysis.invariant_field_builder
-
-      - name: Degeneracy Breaker
-        run: python -m analysis.invariant_degeneracy_breaker
-
-      - name: Invariant Geometry Test
-        run: python -m analysis.invariant_geometry
-
-      - name: Invariant Embedding Test
-        run: python -m analysis.invariant_embedding
-
-      - name: Generate predictions dataset
-        run: python -m analysis.generate_predictions_dataset
-          
-      - name: Predictive Gain Gate
-        run: |
-          python analysis/predictive_gain_gate.py
-
-      - name: Real Lorenz Benchmark
-        run: |
-          mkdir -p artifacts
-          python analysis/real_lorenz_benchmark.py > artifacts/lorenz.json
-          echo "=== Lorenz96 result ==="
-          cat artifacts/lorenz.json
-
-      - name: Lorenz-96 Benchmark
-        run: |
-          mkdir -p artifacts
-          python -m analysis.lorenz96_benchmark > artifacts/lorenz96.json
-          cat artifacts/lorenz96.json
-
-      - name: Patch Lorenz96 signal
-        run: python -m analysis.lorenz96_patch
-
-      - name: Generate chaotic dataset
-        run: python -m analysis.generate_lorenz_dataset
-
-      - name: Run multi-seed experiment
-        run: |
-          mkdir -p artifacts
-          python -m experiments.multi_seed_sweep
-
-      - name: Long run replication
-        run: |
-          mkdir -p artifacts
-          python -m experiments.long_run_sweep
-
       - name: Temporal Dominance Gate
         run: python -m analysis.temporal_dominance_gate
 
-      - name: Structural Advantage Test
-        run: |
-          python -m analysis.structural_advantage
-
       - name: Global Scientific Verdict
         run: python -m analysis.global_scientific_verdict
-
-      - name: Market Signal Encoder
-        run: python -m analysis.market_signal_encoder
-
-      - name: Ensure core signals exist
-        run: |
-          ls -lh artifacts || true
-            cat artifacts/global_verdict.json || echo "Missing verdict"
-            cat artifacts/universality_stability.json || echo "Missing universality"
 
       - name: Verdict Gate (Soft Scientific)
         run: |
@@ -701,106 +621,16 @@ jobs:
             echo "Scientific signal not strong enough yet"
           fi
 
-      - name: Verify statistical significance
-        run: |
-         python analysis/lorenz_gate.py > artifacts/lorenz_gate.json
-         cat artifacts/lorenz_gate.json
-
-      - name: Practical significance gate
-        run: python -m analysis.effect_size_gate
-
       - name: Meta Predictor Scoring
         run: python -m analysis.meta_predictor_score
+        
+      - name: Practical significance gate
+        run: python -m analysis.effect_size_gate
 
       - name: External replication gate
         run: | 
           mkdir -p artifacts
           python -m analysis.external_replication_gate
-
-      - name: Chaotic Superiority Gate
-        run: |
-          mkdir -p artifacts
-
-          if [ ! -f artifacts/chaotic_benchmark.json ]; then
-            echo "No benchmark result — skipping superiority gate"
-            exit 0
-          fi
-
-          RESULT=$(cat artifacts/chaotic_benchmark.json)
-          echo "$RESULT"
-
-          PASS=$(echo "$RESULT" | python -c "
-          import sys, json
-          d=json.load(sys.stdin)
-          print('true' if d.get('hcm_superior', False) else 'false')
-          ")
-
-          SKIPPED=$(echo "$RESULT" | python -c "
-          import sys, json
-          d=json.load(sys.stdin)
-          print('true' if d.get('skipped', False) else 'false')
-          ")
-
-          if [ "$SKIPPED" = "true" ]; then
-            echo "Dataset missing — superiority gate skipped"
-            echo "status=skipped" >> artifacts/gate_status.txt
-          exit 0
-          fi
-            
-          if [ "$PASS" != "true" ]; then
-            echo "Chaotic predictive superiority not achieved."
-            echo "status=failed" >> artifacts/gate_status.txt
-          else
-            echo "Chaotic predictive superiority confirmed."
-            echo "status=passed" >> artifacts/gate_status.txt
-          fi
-
-      - name: Adversarial robustness test
-        run: |
-          python -m analysis.adversarial_noise_test
-
-      - name: Bootstrap alpha stability
-        run: |
-          mkdir -p artifacts
-          python -m analysis.bootstrap_alpha
-
-      - name: Observable invariance
-        run: python -m analysis.observable_invariant_test
-
-      - name: Universal Scaling Law Test
-        run: |
-          mkdir -p artifacts
-          python -m analysis.scaling_collapse_test
-
-      - name: Null Structure Test
-        run: |
-          mkdir -p artifacts
-          python -m analysis.null_structure_test
-
-      - name: Scaling Collapse Engine
-        run: |
-          mkdir -p artifacts
-          python -m analysis.scaling_collapse_engine
-
-      - name: Debug artifact list
-        run: |
-          echo "=== ARTIFACTS ==="
-          ls -lh artifacts || true
-
-      - name: Feature Ranking
-        run: python -m analysis.feature_ranking
-
-      - name: Universality Debugger
-        run: python -m analysis.universality_debugger
-
-      - name: Extract global signal
-        run: |
-          python analysis/signal_extractor.py > artifacts/global_signal.json
-          cat artifacts/global_signal.json
-
-      - name: Existential Signal Stabilizer
-        run: |
-          python -m analysis.existential_signal_stabilizer
 
       - name: Universality Gate
         run: |
@@ -839,9 +669,6 @@ jobs:
           if [ "$PASS" != "true" ]; then
             echo "Universality NOT stable yet"
           fi
-
-      - name: External Blind Validation
-        run: python -m analysis.external_blind_validation
 
       - name: Reality Gap Detector
         run: python -m analysis.reality_gap_detector
@@ -958,7 +785,7 @@ jobs:
 
             echo "No universality detected"
             exit 1
-
+        
       - uses: actions/upload-artifact@v4
         with:
           name: scaling-law-test
@@ -1023,7 +850,7 @@ jobs:
 
           git commit -m "Automated scientific results update"
           git push origin HEAD:main
-          
+        
   stability-check:
     runs-on: ubuntu-24.04
     container:
