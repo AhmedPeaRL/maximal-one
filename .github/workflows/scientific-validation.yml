@@ -614,7 +614,7 @@ jobs:
           PASS=$(echo "$RESULT" | python -c "
           import sys,json
           d=json.load(sys.stdin)
-          print('true' if d.get('score_ratio',0) > 0.55 else 'false')
+          print('true' if d.get('final_score',0) > 0.55 else 'false')
           ")
 
           if [ "$PASS" != "true" ]; then
