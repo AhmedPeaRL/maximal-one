@@ -22,6 +22,9 @@ bench = load("chaotic_benchmark.json")
 temporal = load("temporal_dominance.json")
 universality = load("universality_gate.json")
 universality_stability = load("universality_stability.json")
+external = load("external_validation.json")
+
+external_pass = bool(external and external.get("passed", False))
 
 
 # -----------------------------
@@ -111,6 +114,14 @@ if score > 0.8:
 
 
 # -----------------------------
+# External Validation
+# -----------------------------
+
+if external_pass:
+    score += 0.2
+
+
+# -----------------------------
 # FINAL DECISION
 # -----------------------------
 
@@ -122,6 +133,7 @@ result = {
     "universality_stable": universality_stable,
     "final_score": score,
     "passed": predictive_pass and score >= 0.6,
+    "external_validation": external_pass,
     "layer": layer
 }
 
