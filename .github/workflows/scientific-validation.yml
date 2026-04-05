@@ -197,6 +197,24 @@ jobs:
         run: |
           echo "=== SCIENTIFIC CONTRACT ==="
           cat core-scientific/scientific_contract.json
+
+      - name: Validate Minimal Claim
+        run: |
+            echo "=== MINIMAL CLAIM ==="
+            cat core-scientific/minimal_claim.json
+
+            node - <<'NODE'
+            const fs = require('fs');
+
+            const claim = JSON.parse(fs.readFileSync('core-scientific/minimal_claim.json','utf8'));
+
+            if (!claim.statement || !claim.test_protocol) {
+            console.error("Invalid minimal claim structure");
+            process.exit(1);
+            }
+
+            console.log("Minimal claim structure valid.");
+            NODE
       
       - name: Adaptive Attractor Gate
         run: |
