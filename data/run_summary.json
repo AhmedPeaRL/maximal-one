@@ -1,8 +1,9 @@
 {
-  "timestamp": "2026-04-05T02:54:54.936999Z",
+  "timestamp": "2026-04-05T05:07:58.812483Z",
   "status": "run_completed",
   "files_present": [
     "universality_map.json",
+    "null_structure_test.json",
     "dataset_manifest.json",
     "null_universe_test.json",
     "universality_clusters.json",
@@ -12,12 +13,11 @@
     "dataset_health.json",
     "surrogate_test.json",
     "universality_manifold.json",
+    "sunspots_real.json",
     "universality_features.csv",
     "universal_signatures.json",
-    "invariants.json",
     "cross_system_corr.json",
     "scaling_relations.json",
-    "pip-freeze.txt",
     "dataset_registry.json",
     "universal_invariants.json",
     "*.json",
@@ -26,10 +26,9 @@
     "universal_relations.json",
     "state.json",
     "critical_exponents.json",
-    "invariant_stability_history.json",
     "windowed_spectral.json",
     "universality_amplified.json",
-    "robust_universality_features.json",
-    "environment.json"
+    "environment.json",
+    "sunspots_model.json"
   ]
 }
