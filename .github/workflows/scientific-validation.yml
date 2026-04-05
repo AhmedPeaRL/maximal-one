@@ -606,6 +606,9 @@ jobs:
       - name: Global Scientific Verdict
         run: python -m analysis.global_scientific_verdict
 
+      - name: Build Global Signal
+        run: python -m analysis.global_signal_builder
+
       - name: Verdict Gate (Soft Scientific)
         run: |
           RESULT=$(cat artifacts/global_verdict.json)
@@ -764,11 +767,16 @@ jobs:
           print('true' if d.get('passed',False) else 'false')
           ")
 
-          S_PASS=$(cat artifacts/global_signal.json | python -c "
+          if [ -f artifacts/global_signal.json ]; then
+            S_PASS=$(cat artifacts/global_signal.json | python -c "
           import sys,json
           d=json.load(sys.stdin)
           print('true' if d.get('passed',False) else 'false')
           ")
+          else
+            echo "Missing global_signal.json"
+            S_PASS="false"
+          fi
 
             echo "Universality Gate: $U_PASS"
             echo "Signal Gate: $S_PASS"
