@@ -663,10 +663,10 @@ jobs:
 
       - name: Claim Verification Engine
         run: |
-          python analysis/claim_verifier.py
+          python -m analysis.claim_verifier
 
       - name: Track claim stability
-        run: python analysis/claim_stability_tracker.py
+        run: python -m analysis.claim_stability_tracker
 
       - name: Universality Gate
         run: |
