@@ -4,6 +4,8 @@ import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 
+from analysis.json_safe import to_json_safe  # ✅ FIX
+
 ART = "artifacts"
 
 
@@ -40,7 +42,7 @@ def baseline_model(series):
     pred = model.predict(X[split:])
     mse = mean_squared_error(y[split:], pred)
 
-    return mse
+    return float(mse)  # ✅ مهم
 
 
 def hcm_result():
@@ -75,11 +77,14 @@ def main():
             improvement = (baseline - hcm_mse) / baseline
 
             result = {
-                "baseline_mse": baseline,
-                "hcm_mse": hcm_mse,
-                "relative_improvement": improvement,
-                "passed": improvement > 0.1  # لازم يتفوق بنسبة 10% على الأقل
+                "baseline_mse": float(baseline),
+                "hcm_mse": float(hcm_mse),
+                "relative_improvement": float(improvement),
+                "passed": bool(improvement > 0.1)  # ✅ أهم نقطة
             }
+
+    # ✅ تحويل شامل آمن
+    result = to_json_safe(result)
 
     os.makedirs(ART, exist_ok=True)
 
