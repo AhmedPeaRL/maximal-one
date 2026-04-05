@@ -19,9 +19,9 @@
   },
   {
     "dataset": "solar_wind_speed_clean.csv",
-    "spectral_alpha": 0.8726912822448503,
-    "entropy": 0.7359064792727881,
-    "attractor_dim": -0.10668774805331145
+    "spectral_alpha": 0.8804957535083622,
+    "entropy": 0.7367800827014002,
+    "attractor_dim": -0.10652500001951835
   },
   {
     "dataset": "sample_clean.csv",
@@ -55,9 +55,9 @@
   },
   {
     "dataset": "geomagnetic_kp.csv",
-    "spectral_alpha": 1.6020654758908746,
-    "entropy": -45.874043311677276,
-    "attractor_dim": 0.02225988013300336
+    "spectral_alpha": NaN,
+    "entropy": -47.21927899186157,
+    "attractor_dim": 0.015358578328633792
   },
   {
     "dataset": "sunspots_global.csv",
@@ -79,9 +79,9 @@
   },
   {
     "dataset": "earthquake_magnitude_clean.csv",
-    "spectral_alpha": 1.8032981348741315,
-    "entropy": 5.351975161745422e-07,
-    "attractor_dim": -0.03581042514386873
+    "spectral_alpha": 1.8027331408676757,
+    "entropy": 5.352941810983451e-07,
+    "attractor_dim": -0.03575792997927195
   },
   {
     "dataset": "sample.csv",
@@ -103,15 +103,15 @@
   },
   {
     "dataset": "solar_wind_speed.csv",
-    "spectral_alpha": 0.8726912822448503,
-    "entropy": 0.7359064792727881,
-    "attractor_dim": -0.10668774805331145
+    "spectral_alpha": 0.8804957535083622,
+    "entropy": 0.7367800827014002,
+    "attractor_dim": -0.10652500001951835
   },
   {
     "dataset": "earthquake_magnitude.csv",
-    "spectral_alpha": 1.8032981348741315,
-    "entropy": 5.351975161745422e-07,
-    "attractor_dim": -0.03581042514386873
+    "spectral_alpha": 1.8027331408676757,
+    "entropy": 5.352941810983451e-07,
+    "attractor_dim": -0.03575792997927195
   },
   {
     "dataset": "sunspots_global_clean.csv",
@@ -133,9 +133,9 @@
   },
   {
     "dataset": "geomagnetic_kp_clean.csv",
-    "spectral_alpha": 1.6020654758908746,
-    "entropy": -45.874043311677276,
-    "attractor_dim": 0.02225988013300336
+    "spectral_alpha": NaN,
+    "entropy": -47.21927899186157,
+    "attractor_dim": 0.015358578328633792
   },
   {
     "dataset": "co2_atmospheric_clean.csv",
