@@ -105,11 +105,15 @@ result = {
     "universality_stable": universality_stable,
     "final_score": score,
     "passed": predictive_pass and score >= 0.6,
-    "confidence_level": (
-        "strong" if score > 0.8 else
-        "moderate" if score > 0.6 else
-        "weak"
-    )
+    layer = "core" if predictive_pass else "extended"
+
+    if universality_stable:
+        layer = "stable"
+
+    if score > 0.8:
+        layer = "frontier"
+        
+    result["layer"] = layer
 }
 
 ART.mkdir(exist_ok=True)
