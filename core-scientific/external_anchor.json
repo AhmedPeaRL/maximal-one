@@ -1,0 +1,46 @@
+{
+  "external_anchor": {
+    "definition": "An irreversible, external validation layer that cannot be influenced by the system itself.",
+    "principle": "No scientific system can validate its own universality claim without an external, uncontrolled reference.",
+    
+    "requirements": [
+      "Data must originate from independent, globally recognized sources",
+      "Test protocols must be reproducible outside the repository",
+      "Results must be falsifiable by third-party systems",
+      "No internal parameter tuning allowed after data exposure"
+    ],
+
+    "approved_sources": [
+      "NOAA",
+      "NASA",
+      "PhysioNet",
+      "UCI Machine Learning Repository",
+      "Human Connectome Project"
+    ],
+
+    "forbidden_patterns": [
+      "self-generated datasets without external validation",
+      "post-hoc parameter tuning",
+      "closed-loop evaluation",
+      "non-falsifiable metrics"
+    ],
+
+    "verification_protocol": {
+      "step_1": "Fetch dataset from external source",
+      "step_2": "Freeze dataset hash",
+      "step_3": "Run full pipeline without modification",
+      "step_4": "Compare results with baseline models",
+      "step_5": "Export reproducible artifact"
+    },
+
+    "success_condition": {
+      "description": "System demonstrates consistent advantage over baseline models across independent datasets",
+      "threshold": "statistically significant improvement (p < 0.05)"
+    },
+
+    "failure_condition": {
+      "description": "System fails to generalize or shows no advantage over baseline",
+      "action": "invalidate universality claim"
+    }
+  }
+}
