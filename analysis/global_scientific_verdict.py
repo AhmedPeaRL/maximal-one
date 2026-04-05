@@ -24,8 +24,6 @@ universality = load("universality_gate.json")
 universality_stability = load("universality_stability.json")
 external = load("external_validation.json")
 
-external_pass = bool(external and external.get("passed", False))
-
 
 # -----------------------------
 # HARD REALITY CHECK
@@ -116,6 +114,8 @@ if score > 0.8:
 # -----------------------------
 # External Validation
 # -----------------------------
+
+external_pass = bool(external and external.get("passed", False))
 
 if external_pass:
     score += 0.2
