@@ -320,7 +320,7 @@ jobs:
            requests==2.31.0
 
       - name: Init Runtime Guard
-        run: python repro-core/runtime_guard.py
+        run: python -m repro-core.runtime_guard
   
       - name: Fetch global chaos datasets
         run: |
