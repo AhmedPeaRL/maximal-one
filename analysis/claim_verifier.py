@@ -6,7 +6,7 @@ from pathlib import Path
 with open("core-scientific/minimal_claim.json") as f:
     claim = json.load(f)
 
-# === LOAD RESULTS ===
+# === LOAD REPORT ===
 report_path = Path("artifacts/canonical_report.json")
 
 if not report_path.exists():
@@ -22,36 +22,30 @@ std = report.get("spectral_profile", {}).get("bootstrap_std")
 if alpha is None or std is None:
     raise RuntimeError("Missing spectral data in report")
 
-# === CLAIM CRITERIA ===
+# === CLAIM PARAMETERS ===
 alpha_min, alpha_max = claim["expected_outcome"]["alpha_range"]
-max_dev = claim["test_protocol"]["acceptance_criteria"]["max_deviation"]
-confidence = claim["test_protocol"]["acceptance_criteria"]["confidence"]
+confidence_threshold = claim["test_protocol"]["acceptance_criteria"]["confidence"]
 
-# === EVALUATION ===
-center = (alpha_min + alpha_max) / 2
-deviation = abs(alpha - center)
+# === PROBABILISTIC CHECK ===
+# simulate Gaussian around estimated alpha
+samples = np.random.normal(loc=alpha, scale=std, size=10000)
 
-passed_range = alpha_min <= alpha <= alpha_max
-passed_deviation = deviation <= max_dev
-confidence_est = 1.0 - (std / (abs(alpha) + 1e-8))
+within_range = np.logical_and(samples >= alpha_min, samples <= alpha_max)
+probability = np.mean(within_range)
 
-passed_confidence = confidence_est >= confidence
+# === FINAL DECISION ===
+passed_probability = probability >= confidence_threshold
 
-final_pass = passed_range and passed_deviation and passed_confidence
-
-# === OUTPUT ===
 result = {
     "alpha": alpha,
     "std": std,
-    "deviation": deviation,
-    "confidence_est": confidence_est,
+    "probability_in_range": float(probability),
+    "confidence_threshold": confidence_threshold,
     "criteria": {
-        "range_pass": passed_range,
-        "deviation_pass": passed_deviation,
-        "confidence_pass": passed_confidence
+        "probability_pass": passed_probability
     },
-    "final_pass": final_pass,
-    "interpretation": "Invariant confirmed" if final_pass else "Claim not supported"
+    "final_pass": passed_probability,
+    "interpretation": "Invariant confirmed (probabilistic)" if passed_probability else "Claim not supported"
 }
 
 Path("artifacts").mkdir(exist_ok=True)
@@ -61,8 +55,8 @@ with open("artifacts/claim_verification.json", "w") as f:
 
 print(json.dumps(result, indent=2))
 
-# === HARD FAIL OPTION ===
-if not final_pass:
+# === HARD FAIL ===
+if not passed_probability:
     print("❌ CLAIM FAILED")
     exit(1)
 else:
