@@ -603,6 +603,9 @@ jobs:
       - name: Temporal Dominance Gate
         run: python -m analysis.temporal_dominance_gate
 
+      - name: External Adversarial Validation
+        run: python -m analysis.external_adversarial_validator
+
       - name: Global Scientific Verdict
         run: python -m analysis.global_scientific_verdict
 
