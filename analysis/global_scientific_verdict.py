@@ -45,7 +45,7 @@ valid = [r for r in predictive_results if r is not None]
 real_pass_ratio = sum(valid) / len(valid) if valid else 0.0
 
 
-# 🔥 HARD GATE: لا نجاح بدون تفوق حقيقي
+# 🔥 HARD GATE
 HARD_THRESHOLD = 0.4
 predictive_pass = real_pass_ratio >= HARD_THRESHOLD
 
@@ -65,15 +65,13 @@ if temporal:
 # Universality
 # -----------------------------
 
-universality_passed = universality and universality.get("passed", False)
-universality_stable = universality_stability and universality_stability.get("passed", False)
+universality_passed = bool(universality and universality.get("passed", False))
+universality_stable = bool(universality_stability and universality_stability.get("passed", False))
 
 
 # -----------------------------
-# FINAL SCORE (بعد التصحيح)
+# Structural signal
 # -----------------------------
-
-score = 0.0
 
 structural = load("structural_advantage.json")
 
@@ -81,6 +79,12 @@ structure_bonus = 0.0
 if structural and structural.get("structure_preserved", False):
     structure_bonus = 0.25
 
+
+# -----------------------------
+# FINAL SCORE
+# -----------------------------
+
+score = 0.0
 score += real_pass_ratio * 0.5
 score += structure_bonus
 
@@ -92,13 +96,19 @@ if universality_stable:
 
 score += temporal_boost
 
+
+# -----------------------------
+# LAYER CLASSIFICATION
+# -----------------------------
+
 layer = "core" if predictive_pass else "extended"
 
 if universality_stable:
-        layer = "stable"
+    layer = "stable"
 
-    if score > 0.8:
-        layer = "frontier"
+if score > 0.8:
+    layer = "frontier"
+
 
 # -----------------------------
 # FINAL DECISION
@@ -112,7 +122,7 @@ result = {
     "universality_stable": universality_stable,
     "final_score": score,
     "passed": predictive_pass and score >= 0.6,
-    "layer" : layer
+    "layer": layer
 }
 
 ART.mkdir(exist_ok=True)
