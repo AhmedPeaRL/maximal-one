@@ -198,6 +198,11 @@ jobs:
           echo "=== SCIENTIFIC CONTRACT ==="
           cat core-scientific/scientific_contract.json
 
+      - name: Load External Anchor
+        run: |
+          echo "=== EXTERNAL ANCHOR ==="
+          cat core-scientific/external_anchor.json
+
       - name: Validate Minimal Claim
         run: |
             echo "=== MINIMAL CLAIM ==="
