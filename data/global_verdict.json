@@ -1,10 +1,11 @@
 {
   "predictive_pass_ratio": 0.3333333333333333,
   "predictive_pass": false,
-  "temporal_boost": 0.2,
-  "universality_passed": null,
-  "universality_stable": null,
+  "temporal_boost": 0.0,
+  "universality_passed": false,
+  "universality_stable": false,
   "final_score": 0.3666666666666667,
   "passed": false,
-  "confidence_level": "weak"
+  "external_validation": true,
+  "layer": "extended"
 }
