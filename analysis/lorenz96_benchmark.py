@@ -2,6 +2,25 @@ import json
 import numpy as np
 
 # -----------------------------
+# JSON SAFE CONVERTER
+# -----------------------------
+def to_json_safe(obj):
+    if isinstance(obj, dict):
+        return {k: to_json_safe(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [to_json_safe(v) for v in obj]
+    elif isinstance(obj, (np.bool_,)):
+        return bool(obj)
+    elif isinstance(obj, (np.integer,)):
+        return int(obj)
+    elif isinstance(obj, (np.floating,)):
+        return float(obj)
+    elif isinstance(obj, (np.ndarray,)):
+        return obj.tolist()
+    return obj
+
+
+# -----------------------------
 # Lorenz96 system
 # -----------------------------
 
@@ -25,14 +44,12 @@ def rmse(a, b):
 
 
 # -----------------------------
-# HCM predictor (REAL)
+# HCM predictor
 # -----------------------------
 
-from analysis.hcm_phase_space_predictor import HCMPhaseSpacePredictor
 from analysis.hcm_meta_predictor import HCMMetaPredictor
 
 meta_model = HCMMetaPredictor()
-
 
 def hcm_predict(history):
     return meta_model.predict(history)
@@ -67,21 +84,18 @@ def rollout_predict(X, predictor):
 traj = simulate_lorenz96()
 
 X = traj[:-1]
-y_true = traj[1:, -1]  # predict last dimension only
+y_true = traj[1:, -1]
 
 
-# -------- baseline --------
+# baseline
 y_baseline = X[:, -1]
 
-
-# -------- HCM --------
+# HCM
 y_hcm = rollout_predict(X, hcm_predict)
 
-
-# -------- metrics --------
+# metrics
 base_err = rmse(y_true, y_baseline)
 hcm_err = rmse(y_true, y_hcm)
-
 
 result = {
     "baseline_rmse": float(base_err),
@@ -90,4 +104,7 @@ result = {
     "hcm_superior": hcm_err < base_err
 }
 
-print(json.dumps(result, indent=2))
+# 🔥 CRITICAL FIX
+safe_result = to_json_safe(result)
+
+print(json.dumps(safe_result, indent=2))
