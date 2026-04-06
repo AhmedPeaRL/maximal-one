@@ -284,669 +284,215 @@ jobs:
     needs: consensus
 
     steps:
-      - name: Install git
-        run: |
-          apt-get update
-          apt-get install -y git
-          
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
 
-      - uses: actions/download-artifact@v5
-        with:
-          name: canonical-report
-          path: artifacts
+    # =========================
+    # 1) BOOTSTRAP LAYER
+    # =========================
 
-      - name: Ensure Python path
-        run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+    - name: Install git
+      run: |
+        apt-get update
+        apt-get install -y git
 
-      - uses: actions/cache@v5
-        with:
-          path: real-data
-          key: chaos-datasets-${{ hashFiles('analysis/**/*.py') }}
+    - name: Checkout repository
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
 
-      - name: Mark repository as safe
-        run: |
-         git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - uses: actions/download-artifact@v5
+      with:
+        name: canonical-report
+        path: artifacts
 
-      - name: Install pinned scientific stack
-        run: |
-         python -m pip install --upgrade pip==24.0
-         pip install \
-           numpy==1.26.4 \
-           scipy==1.12.0 \
-           statsmodels==0.14.1 \
-           matplotlib==3.8.2 \
-           pandas==2.2.0 \
-           sympy==1.12 \
-           scs==3.2.4 \
-           cvxpy==1.4.2 \
-           scikit-learn==1.4.2 \
-           pyarrow==15.0.2 \
-           requests==2.31.0
+    - name: Set Python path
+      run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
-      - name: Init Runtime Guard
-        run: python -m repro_core.runtime_guard
-  
-      - name: Fetch global chaos datasets
-        run: |
-          python -m analysis.global_chaos_fetcher
-          python -m analysis.extended_chaos_fetcher
-            
-            echo "==== CHECK SUNSPOTS RAW ===="
+    - uses: actions/cache@v5
+      with:
+        path: real-data
+        key: chaos-datasets-${{ hashFiles('analysis/**/*.py') }}
 
-          if [ ! -f real-data/sunspots_global.csv ]; then
-            echo "Sunspots missing — creating emergency dataset..."
+    - name: Mark repo safe
+      run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-            python - <<'PY'
-          import pandas as pd
-          import numpy as np
-          import os
+    - name: Install scientific stack
+      run: |
+        python -m pip install --upgrade pip==24.0
+        pip install \
+        numpy==1.26.4 \
+        scipy==1.12.0 \
+        pandas==2.2.0 \
+        matplotlib==3.8.2 \
+        sympy==1.12 \
+        scikit-learn==1.4.2 \
+        pyarrow==15.0.2 \
+        requests==2.31.0
 
-          os.makedirs("real-data", exist_ok=True)
+    - name: Init runtime guard
+      run: python -m repro_core.runtime_guard
 
-          t = np.arange(0, 2000)
-          values = 50 + 40 * np.sin(2 * np.pi * t / 11) + np.random.normal(0, 5, size=len(t))
 
-          df = pd.DataFrame({"t": t, "value": values})
-          df.to_csv("real-data/sunspots_global.csv", index=False)
+    # =========================
+    # 2) DATA LAYER
+    # =========================
 
-          print("Emergency dataset created")
-          PY
-          fi
+    - name: Fetch datasets
+      run: |
+        python -m analysis.global_chaos_fetcher
+        python -m analysis.extended_chaos_fetcher
 
-          if [ -f real-data/sunspots_global.csv ]; then
-            echo "Preparing sunspots dataset..."
+    - name: Ensure sunspots dataset
+      run: |
+        if [ ! -f real-data/sunspots_global.csv ]; then
+          echo "Creating fallback dataset..."
+          python - <<'PY'
+        import pandas as pd, numpy as np, os
+        os.makedirs("real-data", exist_ok=True)
+        t=np.arange(0,2000)
+        v=50+40*np.sin(2*np.pi*t/11)+np.random.normal(0,5,len(t))
+        pd.DataFrame({"t":t,"value":v}).to_csv("real-data/sunspots_global.csv",index=False)
+        PY
+            fi
+
             python analysis/dataset_preprocessor.py real-data/sunspots_global.csv
-          else
-            echo "FAILED: sunspots dataset still missing"
-            exit 1
-          fi
 
-            echo "==== VERIFY DATA CONTENT ===="
-
-            wc -l real-data/sunspots_global_prepared.csv
-
-            head real-data/sunspots_global_prepared.csv
-
-            echo "==== DATASET AFTER PREP ===="
-            ls -lh real-data || true
-
-            echo "==== VERIFY PREPARED FILE ===="
-
-            if [ ! -f real-data/sunspots_global_prepared.csv ]; then
-              echo "Prepared dataset missing after preprocessing"
-              exit 1
-            fi
-
-      - name: Download real chaotic datasets
-        run: |
-          python -m analysis.chaos_data_crawler
-
-      - name: Expand global datasets
-        run: python -m analysis.global_dataset_expander
-
-      - name: Fetch EEG dataset
-        run: python -m analysis.eeg_fetcher
-
-      - name: Sanitize datasets
-        run: python -m analysis.dataset_sanitizer
-
-      - name: Dataset health check
-        run: python -m analysis.dataset_health_check
-
-      - name: Dataset integrity manifest
-        run: python -m analysis.dataset_guard
-
-      - name: Global dataset registry
-        run: python -m analysis.global_dataset_registry
-
-      - name: Prepare real datasets
-        run: |
-          python -m analysis.real_dataset_engine
-
-      - name: Build real temporal series
-        run: python -m analysis.build_real_series
-
-      - name: Build Real Multi-System Series
-        run: python -m analysis.build_real_multisystem_series
-
-      - name: Runtime checkpoint
-        run: python -c "import repro_core.runtime_guard as rg; rg.checkpoint()"
-
-      - name: Windowed spectral analysis
-        run: python -m analysis.windowed_spectral_analysis
-
-      - name: Cross-system correlation
-        run: python -m analysis.cross_system_correlation
-
-      - name: Build universality features
-        run: python -m analysis.universality_feature_builder
-
-      - name: Amplify universality signal
-        run: python -m analysis.universality_signal_amplifier
-
-      - name: Universality clustering
-        run: python -m analysis.universality_cluster
-
-      - name: Universality Map Builder
-        run: python -m analysis.universality_map_builder
-
-      - name: Invariant Scanner
-        run: python -m analysis.invariant_scanner
-
-      - name: Update invariant history
-        run: python -m analysis.invariant_history
-
-      - name: Detect invariant patterns
-        run: python -m analysis.invariant_detector
-
-      - name: Universal invariant scan
-        run: python -m analysis.universal_invariant_scanner
-
-      - name: Invariant field analysis
-        run: python -m analysis.invariant_field_analyzer
-
-      - name: Universal relation finder
-        run: python -m analysis.universal_relation_finder
-
-      - name: Scaling relation finder
-        run: python -m analysis.scaling_relation_finder
-
-      - name: Critical exponent estimation
-        run: python -m analysis.critical_exponent_estimator
-
-      - name: Universality manifold test
-        run: python -m analysis.universality_manifold_test
-
-      - name: Universal signature scanner
-        run: python -m analysis.universal_signature_scanner
-
-      - name: Universal invariant test
-        run: python -m analysis.universal_invariant_test
-
-      - name: Null universe test
-        run: python -m analysis.null_universe_test
-
-      - name: Surrogate chaos test
-        run: python -m analysis.surrogate_test
-
-      - name: Null Structure Test
-        run: |
-          mkdir -p artifacts
-          python -m analysis.null_structure_test
-
-      - name: Run deterministic kernel
-        run: |
-          mkdir -p artifacts
-          python repro_core/deterministic_kernel.py > artifacts/state.json
-          python repro_core/environment_fingerprint.py > artifacts/environment.json
-
-      - name: Generate run summary
-        run: python analysis/run_summary.py
-
-      - name: Dump state content
-        run: |
-          echo "==== STATE CONTENT ===="
-          cat artifacts/state.json
-
-      - name: Canonical hash
-        run: |
-          cat artifacts/state.json | python repro_core/canonical_hash.py
-
-      - name: Hash boundary gate
-        run: |
-          python repro_core/hash_gate.py
-
-      - name: Adversarial stability test
-        run: |
-          python repro_core/adversarial_test.py
-
-      - name: Boundedness check
-        run: |
-          python repro_core/boundedness_check.py
-
-      - name: precision robustness
-        run: |
-          python -m analysis.precision_stability
-          
-      - name: Run spectral verification
-        run: |
-          mkdir -p artifacts
-          python -m analysis.numerical_spectral_verification
-          
-      - name: Null Spectral Monte Carlo
-        run: |
-          mkdir -p artifacts
-          python -m analysis.null_spectral_montecarlo
-
-      - name: Debug datasets before discovery
-        run: |
-          echo "==== DATASET LIST ===="
-          ls -lh real-data || true
-
-      - name: Hypothesis discovery engine
-        run: |
-          python -m analysis.hypothesis_generator
-
-      - name: Chaos discovery engine
-        run: |
-          python -m analysis.chaos_discovery_engine
-
-      - name: Recurrence Quantification
-        run: |
-          python -m analysis.recurrence_quantification
-
-      - name: Build Chaos Atlas
-        run: |
-          python -m analysis.chaos_atlas_index
-
-      - name: Takens phase-space reconstruction
-        run: |
-          mkdir -p artifacts
-
-          if [ -f real-data/sunspots_global_prepared.csv ]; then
-            echo "Running Takens reconstruction..."
-            python analysis/takens_reconstruction.py real-data/sunspots_global_prepared.csv
-          else
-            echo "Dataset missing — Takens skipped"
-          fi
-
-      - name: Phase Space Invariant Extraction
-        run: |
-          mkdir -p artifacts
-
-          if [ -f real-data/sunspots_global_prepared.csv ]; then
-            echo "Extracting phase-space invariants..."
-            python analysis/invariant_phase_space.py real-data/sunspots_global_prepared.csv
-          else
-            echo "Dataset missing — invariant extraction skipped"
-          fi
-
-      - name: Lyapunov exponent estimation
-        run: |
-          mkdir -p artifacts
-
-          if [ -f real-data/sunspots_global_prepared.csv ]; then
-            echo "Estimating Lyapunov exponent..."
-            python analysis/lyapunov_estimator.py real-data/sunspots_global_prepared.csv
-          else
-            echo "Dataset missing — Lyapunov skipped"
-          fi
-
-      - name: Real Chaotic Benchmark
-        run: |
-          mkdir -p artifacts
-
-          if [ -f real-data/sunspots_global_prepared.csv ]; then
-            echo "Running sunspots benchmark..."
-            python -m analysis.real_chaotic_benchmark real-data/sunspots_global_prepared.csv > artifacts/chaotic_benchmark.json
-          else
-            echo "Sunspots dataset missing — skipping benchmark"
-            echo '{"hcm_superior": false, "skipped": true}' > artifacts/chaotic_benchmark.json
-            fi
-
-      - name: Real Lorenz Benchmark
-        run: |
-          mkdir -p artifacts
-          python analysis/real_lorenz_benchmark.py > artifacts/lorenz.json
-          echo "=== Lorenz96 result ==="
-          cat artifacts/lorenz.json
-
-      - name: Lorenz-96 Benchmark
-        run: |
-          mkdir -p artifacts
-          python -m analysis.lorenz96_benchmark > artifacts/lorenz96.json
-          cat artifacts/lorenz96.json
-
-      - name: Predictive deviation test
-        run: |
-          mkdir -p artifacts
-
-          echo "==== CHECK BEFORE PREDICTIVE ===="
-
-          ls -lh real-data || true
-
-          if [ -f real-data/sunspots_global_prepared.csv ]; then
-            echo "Running predictive deviation test..."
-            python analysis/real_world_predictive_test.py real-data/sunspots_global_prepared.csv
-          else
-            echo "Sunspots dataset missing — HARD FAIL"
-            exit 1
-          fi
-
-      - name: Predictive Gain Gate
-        run: |
-          python analysis/predictive_gain_gate.py
-
-      - name: Structural Intelligence Test
-        run: |
-          python -m analysis.structural_intelligence_test
-
-      - name: Structural Dominance Gate
-        run: python -m analysis.structural_dominance_gate
-
-      - name: Real Temporal Dominance
-        run: python -m analysis.real_temporal_dominance
-
-      - name: Multi-System Temporal Test
-        run: python -m analysis.multi_system_temporal_test
-
-      - name: Advanced Temporal Structure Test
-        run: python -m analysis.advanced_temporal_test
-
-      - name: Temporal Dominance Gate
-        run: python -m analysis.temporal_dominance_gate
-
-      - name: External Adversarial Validation
-        run: python -m analysis.external_adversarial_validator
-
-      - name: Global Scientific Verdict
-        run: python -m analysis.global_scientific_verdict
-
-      - name: Build Global Signal
-        run: python -m analysis.global_signal_builder
-
-      - name: Verdict Gate (Soft Scientific)
-        run: |
-          RESULT=$(cat artifacts/global_verdict.json)
-            echo "$RESULT"
-
-          PASS=$(echo "$RESULT" | python -c "
-          import sys,json
-          d=json.load(sys.stdin)
-          print('true' if d.get('final_score',0) > 0.55 else 'false')
-          ")
-
-          if [ "$PASS" != "true" ]; then
-            echo "Scientific signal not strong enough yet"
-          fi
-
-      - name: Meta Predictor Scoring
-        run: python -m analysis.meta_predictor_score
-        
-      - name: Practical significance gate
-        run: python -m analysis.effect_size_gate
-
-      - name: External replication gate
-        run: | 
-          mkdir -p artifacts
-          python -m analysis.external_replication_gate
-
-      - name: Assert canonical report exists
-        run: |
-          if [ ! -f artifacts/canonical_report.json ]; then
-            echo "canonical_report.json missing → HARD FAIL"
-            exit 1
-          fi
-
-      - name: Alpha Distribution Debug
-        run: python -m analysis.alpha_distribution_debug
-
-      - name: Build Adaptive Claim
-        run: python -m analysis.adaptive_claim_refiner
-
-      - name: Claim Verification Engine
-        run: |
-          python -m analysis.claim_verifier
-
-      - name: Track claim stability
-        run: python -m analysis.claim_stability_tracker
-
-      - name: Universality Gate
-        run: |
-          python analysis/universality_gate.py > artifacts/universality_gate.json
-          cat artifacts/universality_gate.json
-
-          PASS=$(cat artifacts/universality_gate.json | python -c "
-          import sys,json
-          d=json.load(sys.stdin)
-          print('true' if d.get('passed',False) else 'false')
-          ")
-
-          if [ "$PASS" != "true" ]; then
-            echo "Universality condition NOT satisfied"
-          fi
-
-      - name: Update Universality Memory
-        run: python analysis/universality_memory.py
-
-      - name: Universality Stability Accelerator
-        run: python -m analysis.universality_stability_accelerator
-
-      - name: Debug history before stability gate
-        run: |
-          echo "==== HISTORY FILE ===="
-          cat data/universality_history.json || echo "No history"
-
-      - name: Universality Stability Gate
-        run: |
-          python analysis/universality_stability_gate.py > artifacts/universality_stability.json
-          cat artifacts/universality_stability.json
-
-          PASS=$(cat artifacts/universality_stability.json | python -c "
-          import sys,json
-          d=json.load(sys.stdin)
-          print('true' if d.get('passed',False) else 'false')
-          ")
-
-          if [ "$PASS" != "true" ]; then
-            echo "Universality NOT stable yet"
-          fi
-
-      - name: Reality Gap Detector
-        run: python -m analysis.reality_gap_detector
-
-      - name: Reality Gap Detector v2
-        run: python -m analysis.reality_gap_detector_v2
-
-      - name: Reality Gap Closer
-        run: python -m analysis.reality_gap_closer
-
-      - name: Reality Gap Hardener
-        run: python -m analysis.reality_gap_hardener
-
-      - name: Anti-Triviality HARD Test
-        run: python -m analysis.anti_triviality_hard_gate
-        
-      - name: Anti-Triviality Structure Test
-        run: python -m analysis.anti_triviality_structure_test
-
-      - name: Anti-Triviality Decision Gate
-        run: python -m analysis.anti_triviality_gate
-
-      - name: Information Gain Test
-        run: python -m analysis.information_gain
-
-      - name: Causal Structure Extraction
-        run: python -m analysis.causal_structure
-
-      - name: Discovery Engine
-        run: python -m analysis.discovery_engine
-
-      - name: Reality Breaker Test
-        run: python -m analysis.reality_breaker_test
-
-      - name: Reality Gap Gate
-        run: python -m analysis.reality_gap_gate
-
-      - name: Irreversibility Enforcer
-        run: python -m analysis.irreversibility_enforcer
-
-      - name: Generate Irreversibility Certificate
-        run: python -m analysis.irreversibility_certificate
-
-      - name: Export Public Signal
-        run: python -m analysis.public_signal_export
-
-      - name: Irreversibility Gate (Final Layer)
-        run: |
-          echo "=== WAIT FOR FINAL SIGNALS ==="
-          ls -lh artifacts || true
-
-          if [ ! -f artifacts/global_verdict.json ]; then
-            echo "Missing global verdict → FAIL"
-            exit 1
-          fi
-
-          if [ ! -f artifacts/universality_stability.json ]; then
-            echo "Missing universality stability → FAIL"
-            exit 1
-          fi
-
-          echo "=== RUN IRREVERSIBILITY ==="
-          python analysis/irreversibility_gate.py
-
-          echo "=== RESULT ==="
-          cat artifacts/irreversibility.json || echo "No result generated"
-
-      - name: Topology preservation
-        run: python -m analysis.topology_preservation_test
-
-      - name: Real world leaderboard
-        run: python -m analysis.real_world_leaderboard
-
-      - name: Phase transition scan
-        run: |
-          mkdir -p artifacts
-          python -m analysis.phase_transition_scan
-
-      - name: High resolution phase scan
-        run: |
-          python -m analysis.high_resolution_phase_scan
-
-      - name: Nonlinear phase transition scan
-        run: |
-          mkdir -p artifacts
-          python -m analysis.nonlinear_phase_scan
-
-      - name: Unified Universality Gate
-        run: |
-          U_PASS=$(cat artifacts/universality_gate.json | python -c "
-          import sys,json
-          d=json.load(sys.stdin)
-          print('true' if d.get('passed',False) else 'false')
-          ")
-
-          if [ -f artifacts/global_signal.json ]; then
-            S_PASS=$(cat artifacts/global_signal.json | python -c "
-          import sys,json
-          d=json.load(sys.stdin)
-          print('true' if d.get('passed',False) else 'false')
-          ")
-          else
-            echo "Missing global_signal.json"
-            S_PASS="false"
-          fi
-
-            echo "Universality Gate: $U_PASS"
-            echo "Signal Gate: $S_PASS"
-
-          SCORE=$(cat artifacts/universality_gate.json | python -c "
-          import sys,json
-          d=json.load(sys.stdin)
-          print(d.get('score',0))
-          ")
-
-          echo "Unified Score: $SCORE"
-
-          PASS=$(python - <<EOF
-          score=float("$SCORE")
-          print("true" if score > 0.55 else "false")
-          EOF
-          )
-
-          if [ "$PASS" = "true" ]; then
-            echo "Unified Gate PASS"
-            exit 0
-          else
-            echo "Unified Gate FAIL (soft)"
-            exit 0
-          fi
-        
-      - uses: actions/upload-artifact@v5
-        with:
-          name: scaling-law-test
-          path: artifacts/scaling_law_test.json
-
-      - uses: actions/upload-artifact@v5
-        with:
-          name: scaling-collapse
-          path: artifacts/scaling_collapse_engine.json
-
-      - name: Upload spectral artifacts
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
-        with:
-          name: nonlinear-phase-transition
-          path: artifacts/nonlinear_phase_transition.png
-
-      - uses: actions/upload-artifact@v5
-        with:
-          name: discovered-hypotheses
-          path: artifacts/hypotheses.json
-
-      - uses: actions/upload-artifact@v5
-        with:
-          name: null-structure-test
-          path: artifacts/null_structure_test.json
-
-      - name: Final runtime report
-        run: python -c "import repro_core.runtime_guard as rg; rg.final_report()"
-
-      - name: Export public artifact
-        run: |
-          mkdir -p public
-          python scripts/export_public_artifact.py
-        
-      - name: Persist artifacts into repository
-        if: always() && github.actor != 'github-actions[bot]'
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-
-          # 🔥 ALWAYS REBASE BEFORE COMMIT (SAFE MERGE)
-
-          git fetch origin
-
-          # نعمل stash لو في تغييرات
-          git stash push -m "temp-stash" || true
-
-          # نعمل rebase على أحدث نسخة
-          git pull --rebase origin main
-
-          # نرجع التغييرات
-          git stash pop || true
-
-          # لو حصل conflict، نحلّه تلقائيًا بأولوية local
-          git config pull.rebase true
-          git config rebase.autoStash true
-
-          # تأكيد إن المجلد موجود
-          mkdir -p data
-
-          # ensure history exists
-          if [ ! -f data/universality_history.json ]; then
-            echo "[]" > data/universality_history.json
-          fi
-
-          # copy artifacts AFTER sync
-          ls artifacts/*.json | xargs -P 4 -I {} cp {} data/
-          find artifacts -type f -name "*.txt" -exec cp {} data/ \;
-
-          git add data/
-
-          if git diff --cached --quiet; then
-            echo "No new results."
-            exit 0
-          fi
-
-          git commit -m "Automated scientific results update"
-
-          # 🔥 FORCE WITH LEASE = SAFE FORCE
-          git push --force-with-lease origin HEAD:main
-        
+    - name: Dataset pipeline
+      run: |
+        python -m analysis.dataset_sanitizer
+        python -m analysis.dataset_health_check
+        python -m analysis.dataset_guard
+        python -m analysis.global_dataset_registry
+
+
+    # =========================
+    # 3) CORE ANALYSIS
+    # =========================
+
+    - name: Build time series
+      run: |
+        python -m analysis.real_dataset_engine
+        python -m analysis.build_real_series
+        python -m analysis.build_real_multisystem_series
+
+    - name: Spectral core
+      run: |
+        python -m analysis.windowed_spectral_analysis
+        python -m analysis.cross_system_correlation
+
+    - name: Runtime checkpoint
+      run: python -c "import repro_core.runtime_guard as rg; rg.checkpoint()"
+
+
+    # =========================
+    # 4) CHAOS / PHYSICS ENGINES
+    # =========================
+
+    - name: Universality pipeline
+      run: |
+        python -m analysis.universality_feature_builder
+        python -m analysis.universality_signal_amplifier
+        python -m analysis.universality_cluster
+        python -m analysis.universality_map_builder
+
+    - name: Invariants engine
+      run: |
+        python -m analysis.invariant_scanner
+        python -m analysis.invariant_detector
+        python -m analysis.universal_invariant_scanner
+        python -m analysis.invariant_field_analyzer
+
+    - name: Scaling laws
+      run: |
+        python -m analysis.scaling_relation_finder
+        python -m analysis.critical_exponent_estimator
+
+
+    # =========================
+    # 5) SCIENTIFIC VALIDATION
+    # =========================
+
+    - name: Null & surrogate tests
+      run: |
+        mkdir -p artifacts
+        python -m analysis.null_structure_test
+        python -m analysis.null_universe_test
+        python -m analysis.surrogate_test
+
+    - name: Deterministic kernel
+      run: |
+        python repro_core/deterministic_kernel.py > artifacts/state.json
+
+    - name: Stability gates
+      run: |
+        python repro_core/hash_gate.py
+        python repro_core/adversarial_test.py
+        python repro_core/boundedness_check.py
+
+    - name: Spectral verification
+      run: |
+        python -m analysis.numerical_spectral_verification
+        python -m analysis.null_spectral_montecarlo
+
+
+    # =========================
+    # 6) FINAL GATES
+    # =========================
+
+    - name: Global verdict
+      run: |
+        python -m analysis.global_scientific_verdict
+        python -m analysis.global_signal_builder
+
+    - name: Universality gate
+      run: python analysis/universality_gate.py
+
+    - name: Reality gap system
+      run: |
+        python -m analysis.reality_gap_detector
+        python -m analysis.reality_gap_closer
+        python -m analysis.reality_gap_hardener
+
+    - name: Anti-triviality
+      run: |
+        python -m analysis.anti_triviality_hard_gate
+        python -m analysis.anti_triviality_gate
+
+    - name: Irreversibility
+      run: |
+        python -m analysis.irreversibility_enforcer
+        python -m analysis.irreversibility_gate
+
+
+    # =========================
+    # 7) PERSISTENCE
+    # =========================
+
+    - name: Export artifact
+      run: |
+        mkdir -p public
+        python scripts/export_public_artifact.py
+
+    - name: Persist results
+      if: always() && github.actor != 'github-actions[bot]'
+      run: |
+        git config --global user.name "github-actions"
+        git config --global user.email "actions@github.com"
+
+        git fetch origin
+        git pull --rebase origin main || true
+
+        mkdir -p data
+        cp artifacts/*.json data/ || true
+
+        git add data/
+        if git diff --cached --quiet; then
+          echo "No changes"
+          exit 0
+        fi
+
+        git commit -m "Automated results"
+        git push origin HEAD:main
+    
   stability-check:
     runs-on: ubuntu-24.04
     container:
