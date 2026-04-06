@@ -1,4 +1,4 @@
-# repro-core/global_reproducibility_guard.py
+# repro_core/global_reproducibility_guard.py
 
 import os
 import numpy as np
