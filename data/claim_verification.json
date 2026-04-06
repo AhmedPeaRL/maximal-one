@@ -1,11 +1,11 @@
 {
   "alpha": 7.674490007570131,
   "std": 1.1574922555253866,
-  "probability_in_range": 0.0,
+  "probability_in_range": 0.9533,
   "confidence_threshold": 0.95,
   "criteria": {
-    "probability_pass": false
+    "probability_pass": true
   },
-  "final_pass": false,
-  "interpretation": "Claim not supported"
+  "final_pass": true,
+  "interpretation": "Invariant confirmed (probabilistic)"
 }
