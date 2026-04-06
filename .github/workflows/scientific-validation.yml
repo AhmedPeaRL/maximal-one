@@ -323,7 +323,7 @@ jobs:
            requests==2.31.0
 
       - name: Init Runtime Guard
-        run: python -m repro-core.runtime_guard
+        run: python -m repro_core.runtime_guard
   
       - name: Fetch global chaos datasets
         run: |
@@ -409,7 +409,7 @@ jobs:
         run: python -m analysis.build_real_multisystem_series
 
       - name: Runtime checkpoint
-        run: python -c "import repro-core.runtime_guard as rg; rg.checkpoint()"
+        run: python -c "import repro_core.runtime_guard as rg; rg.checkpoint()"
 
       - name: Windowed spectral analysis
         run: python -m analysis.windowed_spectral_analysis
@@ -476,8 +476,8 @@ jobs:
       - name: Run deterministic kernel
         run: |
           mkdir -p artifacts
-          python repro-core/deterministic_kernel.py > artifacts/state.json
-          python repro-core/environment_fingerprint.py > artifacts/environment.json
+          python repro_core/deterministic_kernel.py > artifacts/state.json
+          python repro_core/environment_fingerprint.py > artifacts/environment.json
 
       - name: Generate run summary
         run: python analysis/run_summary.py
@@ -493,15 +493,15 @@ jobs:
 
       - name: Hash boundary gate
         run: |
-          python repro-core/hash_gate.py
+          python repro_core/hash_gate.py
 
       - name: Adversarial stability test
         run: |
-          python repro-core/adversarial_test.py
+          python repro_core/adversarial_test.py
 
       - name: Boundedness check
         run: |
-          python repro-core/boundedness_check.py
+          python repro_core/boundedness_check.py
 
       - name: precision robustness
         run: |
@@ -799,7 +799,7 @@ jobs:
       - name: Nonlinear phase transition scan
         run: |
           mkdir -p artifacts
-          python analysis/nonlinear_phase_scan.py
+          python -m analysis.nonlinear_phase_scan
 
       - name: Unified Universality Gate
         run: |
@@ -863,8 +863,8 @@ jobs:
           path: artifacts/null_structure_test.json
 
       - name: Final runtime report
-        run: python -c "import repro-core.runtime_guard as rg; rg.final_report()"
-
+        run: python -c "import repro_core.runtime_guard as rg; rg.final_report()"
+        
       - name: Persist artifacts into repository
         if: always() && github.actor != 'github-actions[bot]'
         run: |
