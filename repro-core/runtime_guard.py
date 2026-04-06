@@ -44,3 +44,8 @@ def final_report():
     }
     with open("artifacts/runtime_guard.json", "w") as f:
         json.dump(report, f)
+
+
+if __name__ == "__main__":
+    checkpoint()
+    final_report()
