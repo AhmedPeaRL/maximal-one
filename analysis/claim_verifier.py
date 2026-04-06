@@ -2,7 +2,6 @@ import json
 import numpy as np
 from pathlib import Path
 from analysis.json_safe import to_json_safe
-result = to_json_safe(result)
 
 # === LOAD CLAIM ===
 with open("core-scientific/minimal_claim.json") as f:
@@ -29,7 +28,8 @@ alpha_min, alpha_max = claim["expected_outcome"]["alpha_range"]
 confidence_threshold = claim["test_protocol"]["acceptance_criteria"]["confidence"]
 
 # === PROBABILISTIC CHECK ===
-# simulate Gaussian around estimated alpha
+np.random.seed(42)  # 🔒 determinism
+
 samples = np.random.normal(loc=alpha, scale=std, size=10000)
 
 within_range = np.logical_and(samples >= alpha_min, samples <= alpha_max)
@@ -39,10 +39,10 @@ probability = np.mean(within_range)
 passed_probability = bool(probability >= confidence_threshold)
 
 result = {
-    "alpha": alpha,
-    "std": std,
+    "alpha": float(alpha),
+    "std": float(std),
     "probability_in_range": float(probability),
-    "confidence_threshold": confidence_threshold,
+    "confidence_threshold": float(confidence_threshold),
     "criteria": {
         "probability_pass": passed_probability
     },
@@ -50,6 +50,10 @@ result = {
     "interpretation": "Invariant confirmed (probabilistic)" if passed_probability else "Claim not supported"
 }
 
+# 🔒 ensure JSON safe
+result = to_json_safe(result)
+
+# === SAVE ===
 Path("artifacts").mkdir(exist_ok=True)
 
 with open("artifacts/claim_verification.json", "w") as f:
