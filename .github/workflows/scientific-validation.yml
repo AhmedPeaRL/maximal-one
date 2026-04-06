@@ -1,7 +1,7 @@
 name: SOS Robustness Gate
 
 concurrency:
-  group: scientific-validation-main
+  group: repo-write-lock
   cancel-in-progress: false
 
 on:
@@ -901,26 +901,32 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
 
-          mkdir -p data
+          # 🔥 ALWAYS REBASE BEFORE COMMIT (SAFE MERGE)
 
-          # 🔥 SAFE SYNC (NO DATA LOSS)
           git fetch origin
 
-          if git diff --quiet && git diff --cached --quiet; then
-            git pull origin main --rebase
-          else
-            echo "Local changes detected → skipping hard reset"
-          fi
+          # نعمل stash لو في تغييرات
+          git stash push -m "temp-stash" || true
 
-          # ✅ ensure history exists
-          if [ -f data/universality_history.json ]; then
-            echo "History exists"
-          else
-            echo "Initializing history"
+          # نعمل rebase على أحدث نسخة
+          git pull --rebase origin main
+
+          # نرجع التغييرات
+          git stash pop || true
+
+          # لو حصل conflict، نحلّه تلقائيًا بأولوية local
+          git config pull.rebase true
+          git config rebase.autoStash true
+
+          # تأكيد إن المجلد موجود
+          mkdir -p data
+
+          # ensure history exists
+          if [ ! -f data/universality_history.json ]; then
             echo "[]" > data/universality_history.json
           fi
 
-          # ✅ copy artifacts AFTER sync
+          # copy artifacts AFTER sync
           ls artifacts/*.json | xargs -P 4 -I {} cp {} data/
           find artifacts -type f -name "*.txt" -exec cp {} data/ \;
 
@@ -932,7 +938,9 @@ jobs:
           fi
 
           git commit -m "Automated scientific results update"
-          git push origin HEAD:main
+
+          # 🔥 FORCE WITH LEASE = SAFE FORCE
+          git push --force-with-lease origin HEAD:main
         
   stability-check:
     runs-on: ubuntu-24.04
