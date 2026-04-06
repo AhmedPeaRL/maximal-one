@@ -76,7 +76,22 @@ fetch('./data/global_verdict.json')
       d.layer || "present";
   })
   .catch(() => {});
-         </script>
+</script>
+
+<script>
+fetch('./public/artifact.json')
+  .then(r => r.json())
+  .then(d => {
+    const eventBox = document.getElementById("event");
+
+    eventBox.innerText =
+      "STATE: " + d.state +
+      "\nSCORE: " + d.score +
+      "\nSIGNATURE: " + d.signature.slice(0,16);
+
+  })
+  .catch(() => {});
+</script>
   
 <body>
 
