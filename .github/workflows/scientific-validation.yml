@@ -315,15 +315,18 @@ jobs:
     - name: Mark repo safe
       run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-    - name: Install scientific stack
+    - name: Install scientific stack (FULL CONSISTENT)
       run: |
         python -m pip install --upgrade pip==24.0
         pip install \
         numpy==1.26.4 \
         scipy==1.12.0 \
-        pandas==2.2.0 \
+        statsmodels==0.14.1 \
         matplotlib==3.8.2 \
+        pandas==2.2.0 \
         sympy==1.12 \
+        scs==3.2.4 \
+        cvxpy==1.4.2 \
         scikit-learn==1.4.2 \
         pyarrow==15.0.2 \
         requests==2.31.0
