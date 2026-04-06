@@ -682,6 +682,9 @@ jobs:
             exit 1
           fi
 
+      - name: Alpha Distribution Debug
+        run: python -m analysis.alpha_distribution_debug
+
       - name: Claim Verification Engine
         run: |
           python -m analysis.claim_verifier
