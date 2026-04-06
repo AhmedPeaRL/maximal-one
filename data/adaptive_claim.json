@@ -1,0 +1,14 @@
+{
+  "statement": "Adaptive invariant range derived from empirical spectral distribution",
+  "expected_outcome": {
+    "alpha_range": [
+      5.359505496519358,
+      9.989474518620904
+    ]
+  },
+  "test_protocol": {
+    "acceptance_criteria": {
+      "confidence": 0.95
+    }
+  }
+}
