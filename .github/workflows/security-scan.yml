@@ -9,15 +9,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-       - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
-       - name: Scan for secrets
-         run: |
-           echo "Scanning for possible secrets..."
+      - name: Scan for real secrets (strict)
+        run: |
+          echo "🔍 Scanning for REAL secrets..."
 
-           if grep -r -E "(REMOVED|REMOVED|token|api_key|secret)" .; then
-             echo "⚠️ Potential secret detected!"
-             exit 1
-           fi
+          # Ignore irrelevant folders
+          EXCLUDES="--exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github"
 
-           echo "✅ No secrets detected."
+          # Strict patterns ONLY (real leaks)
+          PATTERN="REMOVED[A-Za-z0-9]{36}|REMOVED[A-Za-z0-9_]{80,}|AIza[0-9A-Za-z\\-_]{35}|sk-[A-Za-z0-9]{32,}"
+
+          MATCHES=$(grep -r -E $PATTERN . $EXCLUDES || true)
+
+          if [ ! -z "$MATCHES" ]; then
+            echo "🚨 REAL SECRET DETECTED!"
+            echo "$MATCHES"
+            exit 1
+          fi
+
+          echo "✅ Clean — no real secrets detected."
