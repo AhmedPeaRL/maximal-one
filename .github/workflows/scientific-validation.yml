@@ -241,6 +241,12 @@ jobs:
             echo "✅ Attractor stable."
           fi
 
+      - name: Auto-revoke warning
+        if: failure()
+        run: |
+          echo "⚠️ Potential leak detected."
+          echo "👉 Action required: rotate tokens immediately."
+
   consensus:
     runs-on: ubuntu-24.04
     container:
