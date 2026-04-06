@@ -1,182 +1,182 @@
 {
   "temperature.csv": {
     "real_alpha": 1.0087285873556862,
-    "surrogate_alpha": -0.039375427784518885,
-    "difference": 1.048104015140205
+    "surrogate_alpha": -0.018525962131611486,
+    "difference": 1.0272545494872976
   },
   "co2.csv": {
     "real_alpha": 4.709783600275183,
-    "surrogate_alpha": -0.023136189902898213,
-    "difference": 4.732919790178081
+    "surrogate_alpha": -0.05723525439001391,
+    "difference": 4.7670188546651975
   },
   "geomagnetic_kp_clean_clean.csv": {
-    "real_alpha": 1.7202066070056796,
-    "surrogate_alpha": -0.12468082032742513,
-    "difference": 1.8448874273331048
+    "real_alpha": 1.711954772473919,
+    "surrogate_alpha": -0.06767446505196803,
+    "difference": 1.779629237525887
   },
   "cosmic_rays_clean.csv": {
     "real_alpha": 1.3061012910198453,
-    "surrogate_alpha": -0.04332729726367488,
-    "difference": 1.3494285882835202
+    "surrogate_alpha": 0.01086104218957013,
+    "difference": 1.2952402488302752
   },
   "solar_wind_speed_clean.csv": {
-    "real_alpha": 0.816391776923085,
-    "surrogate_alpha": -0.007421468294009905,
-    "difference": 0.8238132452170949
+    "real_alpha": 0.8149046393544342,
+    "surrogate_alpha": -0.013842397447275287,
+    "difference": 0.8287470368017096
   },
   "sample_clean.csv": {
     "real_alpha": 9.018714229409934,
-    "surrogate_alpha": -0.06467752681714785,
-    "difference": 9.083391756227082
+    "surrogate_alpha": -0.00889485784910934,
+    "difference": 9.027609087259043
   },
   "co2_atmospheric.csv": {
     "real_alpha": 1.6657078281698752,
-    "surrogate_alpha": 0.07687055320643892,
-    "difference": 1.5888372749634363
+    "surrogate_alpha": -0.027364648572144802,
+    "difference": 1.69307247674202
   },
   "ecology_clean_clean.csv": {
     "real_alpha": 0.9005748663524161,
-    "surrogate_alpha": 0.001477851106119474,
-    "difference": 0.8990970152462967
+    "surrogate_alpha": -0.025260631486867198,
+    "difference": 0.9258354978392833
   },
   "earthquake_magnitude_clean_clean.csv": {
     "real_alpha": 2.1166129814015924,
-    "surrogate_alpha": -0.020231832494294773,
-    "difference": 2.136844813895887
+    "surrogate_alpha": 0.01907514197321807,
+    "difference": 2.0975378394283744
   },
   "sunspots_global_prepared_clean.csv": {
     "real_alpha": 2.5396665629003454,
-    "surrogate_alpha": 0.007171266568093878,
-    "difference": 2.5324952963322516
+    "surrogate_alpha": 0.002087733217915984,
+    "difference": 2.5375788296824293
   },
   "sunspots_clean_clean.csv": {
     "real_alpha": 1.0573672898083595,
-    "surrogate_alpha": 0.002286655860946986,
-    "difference": 1.0550806339474126
+    "surrogate_alpha": 0.026379667569987154,
+    "difference": 1.0309876222383723
   },
   "sunspots_global_prepared_clean_clean.csv": {
     "real_alpha": 2.5396665629003454,
-    "surrogate_alpha": -0.004225534543722889,
-    "difference": 2.5438920974440684
+    "surrogate_alpha": 0.0024644163412444243,
+    "difference": 2.537202146559101
   },
   "co2_clean_clean.csv": {
     "real_alpha": 4.709783600275183,
-    "surrogate_alpha": 0.04573728937674208,
-    "difference": 4.664046310898441
+    "surrogate_alpha": 0.07181780603496725,
+    "difference": 4.637965794240216
   },
   "co2_clean.csv": {
     "real_alpha": 4.709783600275183,
-    "surrogate_alpha": -0.008483076278501183,
-    "difference": 4.718266676553684
+    "surrogate_alpha": 0.04863389319495123,
+    "difference": 4.661149707080232
   },
   "sunspots.csv": {
     "real_alpha": 1.0573672898083595,
-    "surrogate_alpha": 0.025986242911482927,
-    "difference": 1.0313810468968765
+    "surrogate_alpha": 0.010661125118028058,
+    "difference": 1.0467061646903315
   },
   "geomagnetic_kp.csv": {
-    "real_alpha": 1.7202066070056796,
-    "surrogate_alpha": -0.09701384072997361,
-    "difference": 1.8172204477356533
+    "real_alpha": 1.711954772473919,
+    "surrogate_alpha": 0.24630247295425567,
+    "difference": 1.4656522995196632
   },
   "cosmic_rays_clean_clean.csv": {
     "real_alpha": 1.3061012910198453,
-    "surrogate_alpha": -0.012129066399335147,
-    "difference": 1.3182303574191805
+    "surrogate_alpha": 0.028148959012491932,
+    "difference": 1.2779523320073534
   },
   "sunspots_global.csv": {
     "real_alpha": 2.628564374643198,
-    "surrogate_alpha": 0.004647672950929261,
-    "difference": 2.623916701692269
+    "surrogate_alpha": -0.003309383544047114,
+    "difference": 2.631873758187245
   },
   "temperature_clean.csv": {
     "real_alpha": 1.0087285873556862,
-    "surrogate_alpha": 0.021105282267354235,
-    "difference": 0.987623305088332
+    "surrogate_alpha": 0.022766496796338166,
+    "difference": 0.985962090559348
   },
   "sunspots_global_prepared.csv": {
     "real_alpha": 2.5396665629003454,
-    "surrogate_alpha": 0.007123145962981865,
-    "difference": 2.5325434169373637
+    "surrogate_alpha": -0.005307968294093945,
+    "difference": 2.5449745311944394
   },
   "earthquake_magnitude_clean.csv": {
-    "real_alpha": 2.1087189249848377,
-    "surrogate_alpha": 0.011149937226467881,
-    "difference": 2.0975689877583696
+    "real_alpha": 2.107528184110215,
+    "surrogate_alpha": -0.0005600209480139354,
+    "difference": 2.108088205058229
   },
   "sample.csv": {
     "real_alpha": 9.018714229409813,
-    "surrogate_alpha": 0.010555131771677103,
-    "difference": 9.008159097638137
+    "surrogate_alpha": -0.05630473533529355,
+    "difference": 9.075018964745107
   },
   "cosmic_rays.csv": {
     "real_alpha": 1.3061012910198453,
-    "surrogate_alpha": 0.05587611121654707,
-    "difference": 1.2502251798032982
+    "surrogate_alpha": -0.023861790215737543,
+    "difference": 1.329963081235583
   },
   "temperature_clean_clean.csv": {
     "real_alpha": 1.0087285873556862,
-    "surrogate_alpha": 0.03303075215921128,
-    "difference": 0.9756978351964749
+    "surrogate_alpha": 0.004948396527034641,
+    "difference": 1.0037801908286514
   },
   "ecology_clean.csv": {
     "real_alpha": 0.9005748663524161,
-    "surrogate_alpha": 0.022532021809219215,
-    "difference": 0.8780428445431969
+    "surrogate_alpha": -0.002432436712057911,
+    "difference": 0.9030073030644741
   },
   "solar_wind_speed.csv": {
-    "real_alpha": 0.816391776923085,
-    "surrogate_alpha": -0.009481913387017173,
-    "difference": 0.8258736903101022
+    "real_alpha": 0.8149046393544342,
+    "surrogate_alpha": 0.012740478781103633,
+    "difference": 0.8021641605733306
   },
   "earthquake_magnitude.csv": {
-    "real_alpha": 2.1087189249848377,
-    "surrogate_alpha": -0.015466073265209957,
-    "difference": 2.1241849982500476
+    "real_alpha": 2.107528184110215,
+    "surrogate_alpha": 0.011332647061963484,
+    "difference": 2.0961955370482515
   },
   "sunspots_global_clean.csv": {
     "real_alpha": 2.628564374643198,
-    "surrogate_alpha": 0.0007532110458591148,
-    "difference": 2.627811163597339
+    "surrogate_alpha": -0.004887863277562026,
+    "difference": 2.63345223792076
   },
   "sunspots_global_clean_clean.csv": {
     "real_alpha": 2.628564374643198,
-    "surrogate_alpha": 0.005670613312466521,
-    "difference": 2.6228937613307317
+    "surrogate_alpha": 0.003979026782682636,
+    "difference": 2.6245853478605157
   },
   "solar_wind_speed_clean_clean.csv": {
     "real_alpha": 0.7931802638056655,
-    "surrogate_alpha": -0.02842194320789602,
-    "difference": 0.8216022070135616
+    "surrogate_alpha": 0.02493566564269688,
+    "difference": 0.7682445981629686
   },
   "sunspots_clean.csv": {
     "real_alpha": 1.0573672898083595,
-    "surrogate_alpha": -0.01374789135229723,
-    "difference": 1.0711151811606567
+    "surrogate_alpha": 0.05911337654321689,
+    "difference": 0.9982539132651426
   },
   "ecology.csv": {
     "real_alpha": 0.9005748663524161,
-    "surrogate_alpha": 0.015547640770323452,
-    "difference": 0.8850272255820927
+    "surrogate_alpha": 0.006813002929007084,
+    "difference": 0.893761863423409
   },
   "geomagnetic_kp_clean.csv": {
-    "real_alpha": 1.7202066070056796,
-    "surrogate_alpha": 0.09350145526019314,
-    "difference": 1.6267051517454865
+    "real_alpha": 1.711954772473919,
+    "surrogate_alpha": 0.2770008851713281,
+    "difference": 1.4349538873025909
   },
   "sample_clean_clean.csv": {
     "real_alpha": 9.018714229409934,
-    "surrogate_alpha": 0.06149921332518797,
-    "difference": 8.957215016084746
+    "surrogate_alpha": -0.03290504079885199,
+    "difference": 9.051619270208786
   },
   "co2_atmospheric_clean.csv": {
     "real_alpha": 1.6657078281698752,
-    "surrogate_alpha": -0.05756789169228164,
-    "difference": 1.7232757198621569
+    "surrogate_alpha": 0.0845412583262799,
+    "difference": 1.5811665698435953
   },
   "co2_atmospheric_clean_clean.csv": {
     "real_alpha": 1.6657078281698752,
-    "surrogate_alpha": -0.06830314437430175,
-    "difference": 1.734010972544177
+    "surrogate_alpha": -0.10305998314203428,
+    "difference": 1.7687678113119094
   }
 }
