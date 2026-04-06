@@ -294,6 +294,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Ensure Python path
+        run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+
       - uses: actions/cache@v5
         with:
           path: real-data
@@ -406,7 +409,7 @@ jobs:
         run: python -m analysis.build_real_multisystem_series
 
       - name: Runtime checkpoint
-        run: python -c "import repro_core.runtime_guard as rg; rg.checkpoint()"
+        run: python -c "import repro-core.runtime_guard as rg; rg.checkpoint()"
 
       - name: Windowed spectral analysis
         run: python -m analysis.windowed_spectral_analysis
@@ -860,7 +863,7 @@ jobs:
           path: artifacts/null_structure_test.json
 
       - name: Final runtime report
-        run: python -c "import repro_core.runtime_guard as rg; rg.final_report()"
+        run: python -c "import repro-core.runtime_guard as rg; rg.final_report()"
 
       - name: Persist artifacts into repository
         if: always() && github.actor != 'github-actions[bot]'
