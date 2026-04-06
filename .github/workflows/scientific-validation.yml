@@ -685,6 +685,9 @@ jobs:
       - name: Alpha Distribution Debug
         run: python -m analysis.alpha_distribution_debug
 
+      - name: Build Adaptive Claim
+        run: python -m analysis.adaptive_claim_refiner
+
       - name: Claim Verification Engine
         run: |
           python -m analysis.claim_verifier
