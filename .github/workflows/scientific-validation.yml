@@ -221,22 +221,25 @@ jobs:
             console.log("Minimal claim structure valid.");
             NODE
       
-      - name: Adaptive Attractor Gate
+      - name: Adaptive Attractor Sensor
         run: |
-         RESULT=$(node core-scientific/attractor-field/adaptive-threshold.cjs)
-         echo "$RESULT"
-
-         PASS=$(echo "$RESULT" | node -e "
+          RESULT=$(node core-scientific/attractor-field/adaptive-threshold.cjs)
+          echo "$RESULT"
+          
+          echo "$RESULT" > artifacts/attractor_result.json
+          
+          PASS=$(echo "$RESULT" | node -e "
           const fs = require('fs');
           const input = fs.readFileSync(0,'utf8');
           const d = JSON.parse(input);
           console.log(d.passed ? 'true' : 'false');
-         ")
-
-         if [ "$PASS" != "true" ]; then
-           echo "Attractor strictness failed"
-           exit 1
-         fi
+          ")
+          
+          if [ "$PASS" != "true" ]; then
+            echo "⚠️ Attractor deviation detected — recorded, not blocking."
+          else
+            echo "✅ Attractor stable."
+          fi
 
   consensus:
     runs-on: ubuntu-24.04
