@@ -1,4 +1,6 @@
 import numpy as np
+
+# 🔥 SAFE IMPORT (CRITICAL FIX)
 try:
     from statsmodels.tsa.ar_model import AutoReg
     HAS_STATSMODELS = True
@@ -22,30 +24,34 @@ class HCMMetaPredictor:
             InvariantProjectionPredictor(),
         ]
 
+    # =========================
+    # 🔥 ROBUST BASELINE
+    # =========================
     def baseline(self, history):
+
         if len(history) < 20:
             return history[-1]
 
-        try:
-            if not HAS_STATSMODELS or len(history) < 20:
-                return history[-1]
+        # 🔥 fallback لو statsmodels مش موجود
+        if not HAS_STATSMODELS:
+            return history[-1]
 
-            try:
-                model = AutoReg(history, lags=1, old_names=False).fit()
-                pred = model.predict(start=len(history), end=len(history))
-                return float(pred[0])
-            except Exception:
-                return history[-1]
+        try:
+            model = AutoReg(history, lags=1, old_names=False).fit()
+            pred = model.predict(start=len(history), end=len(history))
+            return float(pred[0])
         except:
             return history[-1]
 
+    # =========================
+    # FAST SCORING
+    # =========================
     def score_model_fast(self, history, model):
 
         if len(history) < 60:
-            return 0.2  # 🔥 بدل صفر → سماح ضعيف
+            return 0.2
 
         errors = []
-
         indices = np.linspace(30, len(history) - 2, 20).astype(int)
 
         for i in indices:
@@ -61,10 +67,13 @@ class HCMMetaPredictor:
                 continue
 
         if len(errors) < 5:
-            return 0.3  # 🔥 weak evidence بدل zero
+            return 0.3
 
         return 1.0 / (np.mean(errors) + 1e-6)
 
+    # =========================
+    # MODEL SELECTION
+    # =========================
     def select_best_prediction(self, history):
 
         scored_preds = []
@@ -83,7 +92,7 @@ class HCMMetaPredictor:
         try:
             inv_pred = invariant_predict(history)
             if np.isfinite(inv_pred):
-                scored_preds.append((0.7, inv_pred))  # 🔥 boost
+                scored_preds.append((0.7, inv_pred))
         except:
             pass
 
@@ -93,6 +102,9 @@ class HCMMetaPredictor:
         best = max(scored_preds, key=lambda x: x[0])
         return best[1]
 
+    # =========================
+    # FINAL PREDICT
+    # =========================
     def predict(self, history):
 
         base = self.baseline(history)
@@ -105,17 +117,14 @@ class HCMMetaPredictor:
         if best_pred is None:
             return base
 
-        # 🔥 NEW: sharper confidence
         confidence = (
             0.5 * structure_score +
             0.3 * pred_score +
             0.2
         )
 
-        # 🔥 NEW: nonlinear activation (critical)
         activation = np.clip(confidence ** 1.5, 0.3, 0.95)
 
-        # 🔥 NEW: dominance trigger
         if structure_score > 0.6 and pred_score > 0.5:
             activation = max(activation, 0.85)
 
