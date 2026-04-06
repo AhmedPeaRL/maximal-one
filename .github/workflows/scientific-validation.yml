@@ -489,7 +489,7 @@ jobs:
 
       - name: Canonical hash
         run: |
-          cat artifacts/state.json | python repro-core/canonical_hash.py
+          cat artifacts/state.json | python repro_core/canonical_hash.py
 
       - name: Hash boundary gate
         run: |
