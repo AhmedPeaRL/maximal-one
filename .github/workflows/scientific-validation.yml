@@ -294,6 +294,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: actions/download-artifact@v5
+        with:
+          name: canonical-report
+          path: artifacts
+
       - name: Ensure Python path
         run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
@@ -669,6 +674,13 @@ jobs:
         run: | 
           mkdir -p artifacts
           python -m analysis.external_replication_gate
+
+      - name: Assert canonical report exists
+        run: |
+          if [ ! -f artifacts/canonical_report.json ]; then
+            echo "canonical_report.json missing → HARD FAIL"
+            exit 1
+          fi
 
       - name: Claim Verification Engine
         run: |
