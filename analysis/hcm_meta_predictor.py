@@ -1,9 +1,5 @@
 import numpy as np
-try:
-    from statsmodels.tsa.ar_model import AutoReg
-    HAS_STATSMODELS = True
-except Exception:
-    HAS_STATSMODELS = False
+from statsmodels.tsa.ar_model import AutoReg
 
 from analysis.hcm_phase_space_predictor import HCMPhaseSpacePredictor
 from analysis.hcm_structural_predictor import HCMStructuralPredictor
@@ -27,15 +23,9 @@ class HCMMetaPredictor:
             return history[-1]
 
         try:
-            if not HAS_STATSMODELS or len(history) < 20:
-                return history[-1]
-
-            try:
-                model = AutoReg(history, lags=1, old_names=False).fit()
-                pred = model.predict(start=len(history), end=len(history))
-                return float(pred[0])
-            except Exception:
-                return history[-1]
+            model = AutoReg(history, lags=1, old_names=False).fit()
+            pred = model.predict(start=len(history), end=len(history))
+            return float(pred[0])
         except:
             return history[-1]
 
