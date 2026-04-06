@@ -894,6 +894,11 @@ jobs:
 
       - name: Final runtime report
         run: python -c "import repro_core.runtime_guard as rg; rg.final_report()"
+
+      - name: Export public artifact
+        run: |
+          mkdir -p public
+          python scripts/export_public_artifact.py
         
       - name: Persist artifacts into repository
         if: always() && github.actor != 'github-actions[bot]'
