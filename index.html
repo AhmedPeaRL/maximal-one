@@ -172,11 +172,15 @@ fetch('./public/artifact.json')
       eventBox.innerText = "";
       
     collectiveProcess(value).then(result => {
-      if (result && result.event) {
-        eventBox.innerText = result.event;
-      } else {
-        eventBox.innerText = renderLogos(value);
-      }
+    sendWitness(value);
+
+    if (result && result.event) {
+      eventBox.innerText = result.event;
+    } 
+    else {
+      eventBox.innerText = renderLogos(value);
+    }
+      
       state.innerText = "present";
     });
   </script>
