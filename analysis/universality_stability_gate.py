@@ -43,7 +43,9 @@ def main():
     history = clean
 
     current_strength = float(current.get("strength", 0))
-    history.append(current_strength)
+  
+    if isinstance(current_strength, (int, float)):
+        history.append(float(current_strength))
 
     history = history[-25:]
 
