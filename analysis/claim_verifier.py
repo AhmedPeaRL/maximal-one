@@ -4,8 +4,14 @@ from pathlib import Path
 from analysis.json_safe import to_json_safe
 
 # === LOAD CLAIM ===
-with open("core-scientific/minimal_claim.json") as f:
-    claim = json.load(f)
+claim_path = Path("artifacts/adaptive_claim.json")
+
+if claim_path.exists():
+    with open(claim_path) as f:
+        claim = json.load(f)
+else:
+    with open("core-scientific/minimal_claim.json") as f:
+        claim = json.load(f)
 
 # === LOAD REPORT ===
 report_path = Path("artifacts/canonical_report.json")
