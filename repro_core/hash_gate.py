@@ -7,7 +7,7 @@ STATE_FILE = "artifacts/state.json"
 
 def compute_hash():
     result = subprocess.check_output(
-        ["python", "repro-core/canonical_hash.py"],
+        ["python", "repro_core/canonical_hash.py"],
         input=open(STATE_FILE, "rb").read()
     )
     return result.decode().strip()
