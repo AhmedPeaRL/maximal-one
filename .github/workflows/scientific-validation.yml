@@ -5,6 +5,8 @@ concurrency:
   cancel-in-progress: false
 
 on:
+  repository_dispatch:
+    types: [external_witness]
   push:
   pull_request:
   workflow_dispatch:
@@ -22,6 +24,33 @@ env:
   OMP_NUM_THREADS: "1"
 
 jobs:
+  
+  ingest-witness:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Store external witness
+        run: |
+          mkdir -p data/external
+
+          echo '${{ toJson(github.event.client_payload) }}' > data/external/witness_$(date +%s).json
+
+      - name: Commit witness
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+
+          git add data/external/
+
+          if git diff --cached --quiet; then
+            echo "No new witness"
+            exit 0
+          fi
+
+          git commit -m "External witness ingestion"
+          git push
 
   compute:
     runs-on: ubuntu-24.04
