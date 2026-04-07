@@ -49,21 +49,18 @@ jobs:
             exit 0
           fi
 
-          git commit -m "External witness ingestion"
-
-          echo "Attempting safe push with rebase..."
+          git commit -m "External witness ingestion" || exit 0
 
           for i in 1 2 3 4 5
           do
-            git fetch origin main
-            git rebase origin/main || git rebase --abort
+            git pull --rebase origin main || true
 
             if git push origin HEAD:main; then
               echo "Push succeeded"
               exit 0
             fi
 
-            echo "Push failed, retrying ($i)..."
+            echo "Retry $i..."
             sleep 2
           done
 
