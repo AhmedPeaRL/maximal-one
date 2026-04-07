@@ -1,7 +1,8 @@
 // unified_field.js
-// The binding layer between runtime, artifacts, and witness
+// Stable deterministic binding layer
 
 import { resolveState } from './state_resolver.js';
+import { bindSystemLayers } from './system_binding.js';
 
 export async function unifiedField(input) {
   const state = await resolveState();
@@ -10,28 +11,20 @@ export async function unifiedField(input) {
     timestamp: Date.now(),
     input: input,
     layer: state.layer || "unknown",
-    field: state.field || "unstable",
-    event: null
+    field: state.field || "unstable"
   };
 
   // deterministic signature
   const signature = await generateSignature(input, field);
-
   field.signature = signature;
 
-  // event synthesis
-  field.event = synthesizeEvent(field);
+  // bind system layers
+  const bound = bindSystemLayers(input, field.layer, input.length);
+
+  // synthesize event
+  field.event = synthesizeEvent(field, bound);
 
   return field;
-}
-
-import { bindSystemLayers } from './system_binding.js';
-
-export async function unifiedField(input) {
-  const state = "active";
-  const analysis = input.length;
-
-  const bound = bindSystemLayers(input, state, analysis);
 }
 
 // deterministic hashing
@@ -45,8 +38,8 @@ async function generateSignature(input, state) {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// event generator (non-random, state-driven)
-function synthesizeEvent(field) {
+// event generator
+function synthesizeEvent(field, bound) {
   const base = field.signature.slice(0, 8);
 
   return {
