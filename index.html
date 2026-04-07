@@ -65,22 +65,6 @@
   </style>
 </head>
 
-<script type="module">
-import { resolveState } from './core/state_resolver.js';
-
-resolveState().then(d => {
-  document.getElementById("field-state").innerText = d.field;
-  document.getElementById("state").innerText = d.layer;
-
-  if (d.event) {
-    document.getElementById("event").innerText =
-      "STATE: " + d.event.state +
-      "\nSCORE: " + d.event.score +
-      "\nSIGNATURE: " + d.event.signature.slice(0,16);
-  }
-});
-</script>
-  
 <body>
 
   <a href="/orientation/" class="nav-orientation">orientation</a>
@@ -93,90 +77,55 @@ resolveState().then(d => {
     <span id="field-state">present</span>
   </div>
 
-  <div class="state">
-    The field is active.
-  </div>
+  <div class="state">The field is active.</div>
 
-  <div class="contact-note">
-    Contact is allowed.<br />
-    Silence remains complete.
-  </div>
-
-  <div class="covenant">
-    Contact is guaranteed.<br />
-    Outcome is not negotiable.
-  </div>
-
-  <div class="capacity">
-    This field does not adapt to you.
-  </div>
-
-  <div class="residual">
-    If something changed, it did not happen here.
-  </div>
-
-  <div class="fixation">
-    This field is no longer in time.
-  </div>
-
-  <section class="autonomous">
-    Interaction is optional.
-    The field remains independent.
-  </section>
-
-  <footer class="residual">
-    Continuing without extension.
-  </footer>
-
-  <textarea
-    id="witness-input"
-    placeholder="…"
-    autocomplete="off"
-    spellcheck="false"
-  ></textarea>
-
+  <textarea id="witness-input" placeholder="…" autocomplete="off"></textarea>
   <button id="witness-submit">Invoke</button>
 
   <div id="event"></div>
 
-  <script src="core/network_probe.js"></script>
-  <script src="infrastructure/statistical_engine.js"></script>
-  <script src="core/time_probe.js"></script>
-  <script src="infrastructure/measurement_engine.js"></script>
-  <script src="./core-scientific/kernel/witness.js"></script>
-  <script type="module" src="core/collective_brain.js"></script>
-
   <script type="module">
+    import { resolveState } from './core/state_resolver.js';
+    import { unifiedField } from './core/unified_field.js';
+
     const input = document.getElementById("witness-input");
     const submit = document.getElementById("witness-submit");
     const state = document.getElementById("state");
     const eventBox = document.getElementById("event");
 
-    submit.addEventListener("click", () => {
+    // Initial state
+    resolveState().then(d => {
+      document.getElementById("field-state").innerText = d.field;
+      state.innerText = d.layer;
+    });
+
+    submit.addEventListener("click", async () => {
       const value = input.value.trim();
       if (!value) return;
 
-      state.innerText = "received";
+      state.innerText = "processing";
       eventBox.innerText = "";
-      
-    import { unifiedField } from './core/unified_field.js';
 
-    unifiedField(value).then(result => {
-    sendWitness(value);
+      try {
+        const result = await unifiedField(value);
 
-    if (result && result.event) {
-      eventBox.innerText = result.event;
-    } 
-    else {
-      eventBox.innerText = renderLogos(value);
-    }
-      
+        if (result?.event) {
+          eventBox.innerText = result.event;
+        } else {
+          eventBox.innerText = "[no structured event]";
+        }
+
+        if (typeof sendWitness === "function") {
+          sendWitness(value);
+        }
+
+      } catch (err) {
+        eventBox.innerText = "ERROR: " + err.message;
+      }
+
       state.innerText = "present";
     });
   </script>
-
-  <script src="core/deterministic_signature.js"></script>
-  <script src="core/field_generator.js"></script>
 
 </body>
 </html>
