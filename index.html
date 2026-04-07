@@ -116,9 +116,8 @@
           eventBox.innerText = "[no structured event]";
         }
 
-        import { commitWitness } from './api/commit_witness.js';
-
-        await commitWitness(result);
+        import { sendWitnessSecure } from './api/secure_witness.js';
+        await sendWitnessSecure(result);
 
       } catch (err) {
         eventBox.innerText = "ERROR: " + err.message;
