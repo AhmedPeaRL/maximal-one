@@ -11,21 +11,26 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Scan for real secrets (strict)
+      - name: Smart Secret Scan
         run: |
-          echo "🔍 Scanning for REAL secrets..."
+          echo "🔍 Running smart secret scan..."
 
-          # Ignore irrelevant folders
-          EXCLUDES="--exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github"
+          # Ignore known safe paths
+          EXCLUDES="--exclude-dir=.git --exclude-dir=node_modules"
 
-          # Strict patterns ONLY (real leaks)
-          PATTERN="REMOVED[A-Za-z0-9]{36}|REMOVED[A-Za-z0-9_]{80,}|AIza[0-9A-Za-z\\-_]{35}|sk-[A-Za-z0-9]{32,}"
+          # Scan only real risky patterns (not generic words)
+          if grep -r -E "(REMOVED[A-Za-z0-9]{20,}|REMOVED[A-Za-z0-9_]{20,})" . $EXCLUDES; then
+            echo "❌ Real GitHub token detected!"
+            exit 1
+          fi
 
-          MATCHES=$(grep -r -E $PATTERN . $EXCLUDES || true)
+          if grep -r -E "(api_key\s*=\s*['\"][A-Za-z0-9]{16,})" . $EXCLUDES; then
+            echo "❌ API key pattern detected!"
+            exit 1
+          fi
 
-          if [ ! -z "$MATCHES" ]; then
-            echo "🚨 REAL SECRET DETECTED!"
-            echo "$MATCHES"
+          if grep -r -E "(secret\s*=\s*['\"][^'\"]+['\"])" . $EXCLUDES; then
+            echo "❌ Hardcoded secret detected!"
             exit 1
           fi
 
