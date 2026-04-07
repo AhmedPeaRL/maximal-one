@@ -65,32 +65,20 @@
   </style>
 </head>
 
-<script>
-fetch('./data/global_verdict.json')
-  .then(r => r.json())
-  .then(d => {
-    document.getElementById("field-state").innerText =
-      d.passed ? "stable" : "probing";
+<script type="module">
+import { resolveState } from './core/state_resolver.js';
 
-    document.getElementById("state").innerText =
-      d.layer || "present";
-  })
-  .catch(() => {});
-</script>
+resolveState().then(d => {
+  document.getElementById("field-state").innerText = d.field;
+  document.getElementById("state").innerText = d.layer;
 
-<script>
-fetch('./public/artifact.json')
-  .then(r => r.json())
-  .then(d => {
-    const eventBox = document.getElementById("event");
-
-    eventBox.innerText =
-      "STATE: " + d.state +
-      "\nSCORE: " + d.score +
-      "\nSIGNATURE: " + d.signature.slice(0,16);
-
-  })
-  .catch(() => {});
+  if (d.event) {
+    document.getElementById("event").innerText =
+      "STATE: " + d.event.state +
+      "\nSCORE: " + d.event.score +
+      "\nSIGNATURE: " + d.event.signature.slice(0,16);
+  }
+});
 </script>
   
 <body>
