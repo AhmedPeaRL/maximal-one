@@ -35,13 +35,19 @@ jobs:
         run: |
           mkdir -p data/external
 
-          echo '${{ toJson(github.event.client_payload) }}' > data/external/witness_$(date +%s).json
+          RAW='${{ toJson(github.event.client_payload) }}'
+
+          if [ "$RAW" = "null" ] || [ -z "$RAW" ]; then
+            echo '{"_empty": true, "timestamp": "'$(date -Iseconds)'"}' > data/external/witness_$(date +%s).json
+          else
+            echo "$RAW" > data/external/witness_$(date +%s).json
+          fi
 
       - name: Validate witness payload
         run: |
           RAW='${{ toJson(github.event.client_payload) }}'
 
-          # fallback لو مفيش payload
+          # Normalize payload
           if [ "$RAW" = "null" ] || [ -z "$RAW" ]; then
             echo '{"_empty": true}' > payload.json
           else
@@ -50,20 +56,36 @@ jobs:
 
           node - <<'NODE'
           const fs = require('fs');
-          const data = JSON.parse(fs.readFileSync('payload.json','utf8'));
 
-          // allow empty witness لكن معلّم عليه
+          let data;
+          try {
+            data = JSON.parse(fs.readFileSync('payload.json','utf8'));
+          } catch (e) {
+            console.error("Malformed JSON");
+            process.exit(1);
+          }
+
+          // Reject null explicitly
+          if (data === null) {
+            console.error("Null payload rejected");
+            process.exit(1);
+          }
+
+          // Allow empty but mark it
           if (data._empty === true) {
             console.log("Empty witness accepted.");
             process.exit(0);
           }
 
-          if (typeof data !== 'object') {
-            console.error("Invalid payload");
+          // Reject empty object (silent noise)
+          if (typeof data === 'object' && Object.keys(data).length === 0) {
+            console.error("Empty object payload rejected");
             process.exit(1);
           }
 
-          if (JSON.stringify(data).length > 5000) {
+          // Size guard
+          const size = JSON.stringify(data).length;
+          if (size > 5000) {
             console.error("Payload too large");
             process.exit(1);
           }
