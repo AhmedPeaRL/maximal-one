@@ -1,6 +1,3 @@
-// commit_witness.js
-// SAFE bridge: UI → Secure backend → GitHub
-
 export async function commitWitness(entry) {
   try {
     const payload = {
@@ -8,11 +5,11 @@ export async function commitWitness(entry) {
       entry
     };
 
-    // 🔐 call YOUR secure backend instead of GitHub directly
     const response = await fetch("/api/witness", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "x-witness-key": "public-gateway"
       },
       body: JSON.stringify(payload)
     });
