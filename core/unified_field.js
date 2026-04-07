@@ -25,6 +25,15 @@ export async function unifiedField(input) {
   return field;
 }
 
+import { bindSystemLayers } from './system_binding.js';
+
+export async function unifiedField(input) {
+  const state = "active";
+  const analysis = input.length;
+
+  const bound = bindSystemLayers(input, state, analysis);
+}
+
 // deterministic hashing
 async function generateSignature(input, state) {
   const encoder = new TextEncoder();
@@ -43,6 +52,7 @@ function synthesizeEvent(field) {
   return {
     state: field.field,
     score: parseInt(base, 16) % 1000,
-    signature: field.signature
+    signature: field.signature,
+    event: JSON.stringify(bound, null, 2)
   };
 }
