@@ -123,6 +123,10 @@ jobs:
           echo "Push failed after retries"
           exit 1
 
+      - name: Append to witness chain
+        run: |
+          python analysis/witness_chain.py "$(cat payload.json)"
+
   compute:
     runs-on: ubuntu-24.04
     container:
