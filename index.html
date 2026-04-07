@@ -87,6 +87,7 @@
   <script type="module">
     import { resolveState } from './core/state_resolver.js';
     import { unifiedField } from './core/unified_field.js';
+    import { persistWitness } from './core/witness_persistence.js';
 
     const input = document.getElementById("witness-input");
     const submit = document.getElementById("witness-submit");
@@ -124,6 +125,8 @@
       }
 
       state.innerText = "present";
+
+    persistWitness(result);
     });
   </script>
 
