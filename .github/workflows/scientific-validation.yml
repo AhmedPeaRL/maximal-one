@@ -37,6 +37,27 @@ jobs:
 
           echo '${{ toJson(github.event.client_payload) }}' > data/external/witness_$(date +%s).json
 
+      - name: Validate witness payload
+        run: |
+          echo '${{ toJson(github.event.client_payload) }}' > payload.json
+          
+          node - <<'NODE'
+          const fs = require('fs');
+          const data = JSON.parse(fs.readFileSync('payload.json','utf8'));
+
+          if (!data || typeof data !== 'object') {
+            console.error("Invalid payload");
+            process.exit(1);
+          }
+
+          if (JSON.stringify(data).length > 5000) {
+            console.error("Payload too large");
+            process.exit(1);
+          }
+
+          console.log("Payload validated.");
+          NODE
+          
       - name: Commit witness (safe push)
         run: |
           git config user.name "github-actions"
