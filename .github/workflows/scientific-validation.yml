@@ -37,7 +37,7 @@ jobs:
 
           echo '${{ toJson(github.event.client_payload) }}' > data/external/witness_$(date +%s).json
 
-      - name: Commit witness
+      - name: Commit witness (safe push)
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
@@ -50,7 +50,25 @@ jobs:
           fi
 
           git commit -m "External witness ingestion"
-          git push
+
+          echo "Attempting safe push with rebase..."
+
+          for i in 1 2 3 4 5
+          do
+            git fetch origin main
+            git rebase origin/main || git rebase --abort
+
+            if git push origin HEAD:main; then
+              echo "Push succeeded"
+              exit 0
+            fi
+
+            echo "Push failed, retrying ($i)..."
+            sleep 2
+          done
+
+          echo "Push failed after retries"
+          exit 1
 
   compute:
     runs-on: ubuntu-24.04
