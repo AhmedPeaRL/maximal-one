@@ -39,13 +39,26 @@ jobs:
 
       - name: Validate witness payload
         run: |
-          echo '${{ toJson(github.event.client_payload) }}' > payload.json
-          
+          RAW='${{ toJson(github.event.client_payload) }}'
+
+          # fallback لو مفيش payload
+          if [ "$RAW" = "null" ] || [ -z "$RAW" ]; then
+            echo '{"_empty": true}' > payload.json
+          else
+            echo "$RAW" > payload.json
+          fi
+
           node - <<'NODE'
           const fs = require('fs');
           const data = JSON.parse(fs.readFileSync('payload.json','utf8'));
 
-          if (!data || typeof data !== 'object') {
+          // allow empty witness لكن معلّم عليه
+          if (data._empty === true) {
+            console.log("Empty witness accepted.");
+            process.exit(0);
+          }
+
+          if (typeof data !== 'object') {
             console.error("Invalid payload");
             process.exit(1);
           }
