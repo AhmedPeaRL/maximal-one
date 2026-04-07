@@ -1,5 +1,5 @@
 // commit_witness.js
-// real system bridge: UI → GitHub → Pipeline
+// SAFE bridge: UI → Secure backend → GitHub
 
 export async function commitWitness(entry) {
   try {
@@ -8,18 +8,13 @@ export async function commitWitness(entry) {
       entry
     };
 
-    // GitHub API endpoint (replace with your repo)
-    const response = await fetch("https://api.github.com/repos/ahmedpearl/maximal-one/dispatches", {
+    // 🔐 call YOUR secure backend instead of GitHub directly
+    const response = await fetch("/api/witness", {
       method: "POST",
       headers: {
-        "Accept": "application/vnd.github+json",
-        "Authorization": "Bearer YOUR_GITHUB_TOKEN",
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        event_type: "external_witness",
-        client_payload: payload
-      })
+      body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
