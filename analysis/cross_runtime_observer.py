@@ -1,6 +1,16 @@
 import json
 import os
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+def load_hash(path):
+    try:
+        full_path = os.path.join(BASE_DIR, "..", path)
+        with open(full_path) as f:
+            return f.read().strip()
+    except:
+        return None
+
 def load_hash(path):
     try:
         with open(path) as f:
