@@ -1,6 +1,6 @@
 export async function sendWitness(value) {
 try {
-await fetch("https://api.github.com/repos/YOUR_USERNAME/maximal-one/dispatches", {
+await fetch("https://api.github.com/repos/AhmedPeaRL/maximal-one/dispatches", {
 method: "POST",
 headers: {
 "Accept": "application/vnd.github+json",
