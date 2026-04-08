@@ -36,3 +36,19 @@ try {
   console.error(e.message);
   process.exit(1);
     }
+
+const intent = require('../core/intent_signature.json');
+
+function checkIntentAlignment(output) {
+  if (!output) return false;
+
+  const str = JSON.stringify(output).toLowerCase();
+
+  for (const forbidden of intent.forbidden_patterns) {
+    if (str.includes(forbidden)) {
+      throw new Error("Intent violation: " + forbidden);
+    }
+  }
+
+  return true;
+}
