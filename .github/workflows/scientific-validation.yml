@@ -584,6 +584,9 @@ jobs:
         python -m analysis.numerical_spectral_verification
         python -m analysis.null_spectral_montecarlo
 
+    - name: Self Attack Protocol
+      run: python analysis/self_attack_protocol.py
+
 
     # =========================
     # 6) FINAL GATES
@@ -596,6 +599,9 @@ jobs:
 
     - name: Self Revocation Guard
       run: python analysis/self_revocation_guard.py
+
+    - name: Wisdom Extraction
+      run: python analysis/wisdom_extractor.py
 
     - name: Universality gate
       run: python analysis/universality_gate.py
