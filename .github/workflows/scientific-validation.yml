@@ -442,9 +442,6 @@ jobs:
             exit 1
           fi
 
-      - name: 
-        run: python analysis/cross_runtime_observer.py
-
   verify:
     runs-on: ubuntu-24.04
     container:
