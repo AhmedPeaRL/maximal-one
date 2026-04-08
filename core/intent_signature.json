@@ -1,0 +1,8 @@
+{
+  "core_intent": "Preserve coherence, reject noise, allow truth emergence",
+  "forbidden_patterns": [
+    "random output",
+    "non-deterministic drift",
+    "unbounded entropy"
+  ]
+}
