@@ -127,9 +127,13 @@
 
       eventBox.innerText = JSON.stringify(envelope, null, 2);
 
-      const { sendWitnessSecure } = await import('./api/secure_witness.js');
-
-      await sendWitnessSecure(envelope);
+      await fetch("/api/dispatch", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(envelope)
+      });
 
       persistWitness(envelope);
 
