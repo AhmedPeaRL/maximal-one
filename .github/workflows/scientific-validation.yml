@@ -393,6 +393,15 @@ jobs:
     needs: gate
 
     steps:
+      - uses: actions/checkout@v5
+
+      - name: Debug repo structure
+        run: |
+          echo "==== CURRENT PATH ===="
+          pwd
+          echo "==== FILE TREE ===="
+          ls -R
+          
       - uses: actions/download-artifact@v5
         with:
           name: node-hash-18.20.8
@@ -426,31 +435,17 @@ jobs:
 
           echo "Deterministic consensus verified."
 
-      - name: Analyze runtime divergence (robust path resolution)
+      - name: Ensure observer exists
         run: |
-          echo "=== LOCATING cross_runtime_observer.py ==="
+          if [ ! -f "analysis/cross_runtime_observer.py" ]; then
+            echo "❌ Observer missing — system blind"
+            exit 1
+          fi
 
-          if [ -f "maximal-one/analysis/cross_runtime_observer.py" ]; then  
-            TARGET="maximal-one/analysis/cross_runtime_observer.py"
-
-          elif [ -f "$GITHUB_WORKSPACE/maximal-one/analysis/cross_runtime_observer.py" ]; then  
-            TARGET="$GITHUB_WORKSPACE/maximal-one/analysis/cross_runtime_observer.py"
-
-          elif [ -f "analysis/cross_runtime_observer.py" ]; then  
-            TARGET="analysis/cross_runtime_observer.py"
-
-          elif [ -f "$GITHUB_WORKSPACE/analysis/cross_runtime_observer.py" ]; then  
-            TARGET="$GITHUB_WORKSPACE/analysis/cross_runtime_observer.py"
-
-          else  
-            echo "❌ cross_runtime_observer.py NOT FOUND"  
-            echo "=== DEBUG TREE ==="  
-            ls -R  
-            exit 1  
-          fi  
-
-          echo "Using: $TARGET"  
-          python "$TARGET"
+      - name: Analyze runtime divergence
+        run: |
+          echo "=== RUNNING cross_runtime_observer ==="
+          python analysis/cross_runtime_observer.py
   
   verify:
     runs-on: ubuntu-24.04
