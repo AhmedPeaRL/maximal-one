@@ -127,7 +127,10 @@
 
       eventBox.innerText = JSON.stringify(envelope, null, 2);
 
-      await fetch("/api/dispatch", {
+      import { dispatchIntent } from './core/intent_dispatcher.js';
+
+      const dispatchResult = await dispatchIntent(envelope);
+      console.log(dispatchResult);
         method: "POST",
         headers: {
           "Content-Type": "application/json"
