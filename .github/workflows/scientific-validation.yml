@@ -437,6 +437,10 @@ jobs:
     # 1) BOOTSTRAP LAYER
     # =========================
 
+    - name: Autonomous Witness Injection
+      run: |
+        python analysis/autonomous_witness.py
+
     - name: Install git
       run: |
         apt-get update
@@ -486,7 +490,7 @@ jobs:
     # =========================
     # 2) DATA LAYER
     # =========================
-
+        
     - name: Fetch datasets
       run: |
         python -m analysis.global_chaos_fetcher
