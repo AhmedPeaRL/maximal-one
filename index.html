@@ -112,13 +112,21 @@
   async function refreshWitnessPanel() {
     const panel = document.getElementById("witness-panel");
 
-    const d = await loadLiveWitness();
+    try {
+      const res = await fetch('./artifacts/external_validation.json', { cache: "no-store" });
+      const ext = await res.json();
 
-    if (!panel) return;
+      const d = await loadLiveWitness();
 
-    panel.innerText = d.valid
-      ? `α: ${d.alpha} | σ: ${d.std}`
-      : "No scientific signal";
+      if (!panel) return;
+
+      panel.innerText =
+        `α: ${d.alpha} | σ: ${d.std}\n` +
+        `EXT: ${ext.status} | hash: ${ext.proof?.hash?.slice(0,12) || "none"}`;
+
+    } catch {
+      panel.innerText = "No signal";
+    }
   }
 
   // refresh every 3 seconds
