@@ -11,13 +11,6 @@ def load_hash(path):
     except:
         return None
 
-def load_hash(path):
-    try:
-        with open(path) as f:
-            return f.read().strip()
-    except:
-        return None
-
 h18 = load_hash("node18/node_report.hash")
 h20 = load_hash("node20/node_report.hash")
 h24 = load_hash("node24/node_report.hash")
