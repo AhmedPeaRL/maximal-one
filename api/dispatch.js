@@ -19,6 +19,10 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Payload too large" });
     }
 
+    if (!process.env.GITHUB_TOKEN) {
+      throw new Error("Missing GITHUB_TOKEN");
+    }
+
     const response = await fetch(
       "https://api.github.com/repos/ahmedpearl/maximal-one/dispatches",
       {
