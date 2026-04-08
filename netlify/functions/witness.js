@@ -3,7 +3,7 @@ export async function handler(event) {
     const payload = JSON.parse(event.body || "{}");
 
     const response = await fetch(
-      "https://api.github.com/repos/AhmedPeaRL/maximal-one/dispatches",
+      "https://api.github.com/repos/ahmedpearl/maximal-one/dispatches",
       {
         method: "POST",
         headers: {
