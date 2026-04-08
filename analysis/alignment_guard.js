@@ -1,6 +1,10 @@
 import fs from "fs";
 import path from "path";
-import intent from "../core/intent_signature.json" assert { type: "json" };
+
+// ✅ deterministic JSON load (no import assertions)
+const intent = JSON.parse(
+  fs.readFileSync(new URL("../core/intent_signature.json", import.meta.url))
+);
 
 const policy = JSON.parse(
   fs.readFileSync("policy/hcm_alignment.json", "utf8")
