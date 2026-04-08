@@ -1,5 +1,5 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
 const policy = JSON.parse(
   fs.readFileSync("policy/hcm_alignment.json", "utf8")
