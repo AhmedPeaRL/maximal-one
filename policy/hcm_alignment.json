@@ -1,0 +1,15 @@
+{
+  "principles": [
+    "non-coercion",
+    "deterministic integrity",
+    "no hidden side effects",
+    "full observability",
+    "reproducibility first"
+  ],
+  "forbidden_patterns": [
+    "Math.random()",
+    "eval(",
+    "setTimeout(",
+    "console.log(\"debug\")"
+  ]
+}
