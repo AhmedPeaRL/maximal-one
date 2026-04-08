@@ -588,6 +588,10 @@ jobs:
     # 5) SCIENTIFIC VALIDATION
     # =========================
 
+    - name: External Reality Anchor
+      run: |
+        python analysis/external_validation_bridge.py
+          
     - name: Null & surrogate tests
       run: |
         mkdir -p artifacts
