@@ -31,6 +31,13 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Secret scan (basic)
+        run: |
+          if grep -r "Bearer " .; then
+            echo "Potential secret leak detected"
+            exit 1
+          fi
+
       - name: Store external witness
         run: |
           mkdir -p data/external
