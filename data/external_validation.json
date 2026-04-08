@@ -1,6 +1,11 @@
 {
-  "baseline_mse": 0.36004461490744194,
-  "hcm_mse": 0.05495728760349893,
-  "relative_improvement": 0.847359784515519,
-  "passed": true
+  "status": "ok",
+  "proof": {
+    "signature": {
+      "mean": -0.007460266806173178,
+      "std": 0.40361752621651786,
+      "spectral_power": 8.134542161175027
+    },
+    "hash": "d6332ff395db32cac7670e4333e10066d4b82a0f9aa6b3bdb98ed7943996688d"
+  }
 }
