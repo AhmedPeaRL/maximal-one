@@ -686,6 +686,9 @@ jobs:
         python -m analysis.irreversibility_enforcer
         python -m analysis.irreversibility_gate
 
+    - name: Export market artifact
+      run: python scripts/export_market_artifact.py
+
 
     # =========================
     # 7) PERSISTENCE
