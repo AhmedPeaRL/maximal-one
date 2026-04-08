@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import intent from "../core/intent_signature.json" assert { type: "json" };
 
 const policy = JSON.parse(
   fs.readFileSync("policy/hcm_alignment.json", "utf8")
@@ -35,9 +36,7 @@ try {
 } catch (e) {
   console.error(e.message);
   process.exit(1);
-    }
-
-const intent = require('../core/intent_signature.json');
+}
 
 function checkIntentAlignment(output) {
   if (!output) return false;
