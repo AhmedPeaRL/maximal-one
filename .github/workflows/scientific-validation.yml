@@ -437,9 +437,6 @@ jobs:
     # 1) BOOTSTRAP LAYER
     # =========================
 
-    - name: Autonomous Witness Injection
-      run: python analysis/autonomous_witness.py
-
     - name: Install git
       run: |
         apt-get update
@@ -449,6 +446,21 @@ jobs:
       uses: actions/checkout@v5
       with:
         fetch-depth: 0
+
+    - name: Autonomous Witness Injection
+      run: |
+        if [ -f analysis/autonomous_witness.py ]; then
+          python analysis/autonomous_witness.py
+        else
+          echo "⚠️ autonomous_witness.py not found — skipping"
+        fi
+
+    - name: Upload autonomous witness
+      if: always()
+      uses: actions/upload-artifact@v5
+      with:
+        name: autonomous-witness
+        path: data/autonomous/
 
     - uses: actions/download-artifact@v5
       with:
