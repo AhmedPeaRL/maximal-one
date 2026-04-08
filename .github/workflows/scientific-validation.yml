@@ -175,6 +175,9 @@ jobs:
       - name: Run deterministic Node suite
         run: |
          npm run validate
+
+      - name: HCM Alignment Guard
+        run: node analysis/alignment_guard.js
          npm run verify
          npm run stability
          npm run attractor
@@ -582,6 +585,9 @@ jobs:
         python -m analysis.reality_gap_detector
         python -m analysis.reality_gap_closer
         python -m analysis.reality_gap_hardener
+
+    - name: Predictive Guard (Failure Foresight)
+      run: python -m analysis.predictive_guard
 
     - name: Anti-triviality
       run: |
