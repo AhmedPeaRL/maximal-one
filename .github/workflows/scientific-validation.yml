@@ -426,7 +426,23 @@ jobs:
 
           echo "Deterministic consensus verified."
 
+      - name: Debug repo structure (CRITICAL)
+        run: |
+          echo "==== CURRENT PATH ===="
+          pwd
+          echo "==== FILE TREE ===="
+          ls -R
+
       - name: Analyze runtime divergence
+        run: |
+          if [ -f "$GITHUB_WORKSPACE/analysis/cross_runtime_observer.py" ]; then
+            python "$GITHUB_WORKSPACE/analysis/cross_runtime_observer.py"
+          else
+            echo "❌ cross_runtime_observer.py NOT FOUND"
+            exit 1
+          fi
+
+      - name: 
         run: python analysis/cross_runtime_observer.py
 
   verify:
