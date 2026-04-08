@@ -661,6 +661,9 @@ jobs:
     - name: Self Revocation Guard
       run: python analysis/self_revocation_guard.py
 
+    - name: Log Intelligence Extraction
+      run: python analysis/log_intelligence.py
+
     - name: Wisdom Extraction
       run: python analysis/wisdom_extractor.py
 
