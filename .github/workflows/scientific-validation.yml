@@ -176,11 +176,12 @@ jobs:
         run: |
          npm run validate
 
-      - name: HCM Alignment Guard
-        run: node analysis/alignment_guard.js
-         npm run verify
-         npm run stability
-         npm run attractor
+      - name: HCM Alignment Guard + Node Suite
+        run: |
+          node analysis/alignment_guard.js
+          npm run verify
+          npm run stability
+          npm run attractor
 
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
