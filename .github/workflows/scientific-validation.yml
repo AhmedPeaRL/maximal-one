@@ -439,7 +439,7 @@ jobs:
 
     - name: Autonomous Witness Injection
       run: |
-        python analysis/autonomous_witness.py
+        python -m analysis.autonomous_witness
 
     - name: Install git
       run: |
