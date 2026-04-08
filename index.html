@@ -144,27 +144,18 @@
 
     try {
       const result = await unifiedField(value);
-
       const envelope = buildWitnessEnvelope(result);
 
       eventBox.innerText = JSON.stringify(envelope, null, 2);
 
-      import { dispatchIntent } from './core/intent_dispatcher.js';
+      // NEW: Fetch latest market artifact
+      const res = await fetch('./market/', { cache: "no-store" });
 
-      const dispatchResult = await dispatchIntent(envelope);
-      console.log(dispatchResult);
+      state.innerText = "artifact-ready";
 
-      try {
-        await fetch("/api/witness", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(envelope)
-        });
-      } catch (e) {
-        console.log("No backend — running in pure field mode");
-      }
+    } catch (e) {
+      eventBox.innerText = "error";
+    }
 
     state.innerText = "present";
   });
