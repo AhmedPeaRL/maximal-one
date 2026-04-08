@@ -2,6 +2,10 @@ export async function handler(event) {
   try {
     const payload = JSON.parse(event.body || "{}");
 
+    if (!process.env.GITHUB_TOKEN) {
+      throw new Error("Missing GITHUB_TOKEN");
+    }
+
     const response = await fetch(
       "https://api.github.com/repos/ahmedpearl/maximal-one/dispatches",
       {
