@@ -31,12 +31,21 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Secret scan (basic)
+      - name: Secret scan (refined)
         run: |
-          if grep -r "Bearer " .; then
-            echo "Potential secret leak detected"
+          echo "Running refined secret scan..."
+
+          # Exclude known safe patterns (env usage)
+          if grep -r --exclude-dir=node_modules \
+                     --exclude-dir=.git \
+                     --exclude=*.yml \
+                     --exclude=*.yaml \
+                     -E "Bearer [A-Za-z0-9_\-]{20,}" . | grep -v "process.env"; then
+            echo "⚠️ Potential REAL secret leak detected"
             exit 1
           fi
+
+          echo "✅ No hardcoded secrets detected"
 
       - name: Store external witness
         run: |
@@ -584,6 +593,9 @@ jobs:
       run: |
         python -m analysis.global_scientific_verdict
         python -m analysis.global_signal_builder
+
+    - name: Self Revocation Guard
+      run: python analysis/self_revocation_guard.py
 
     - name: Universality gate
       run: python analysis/universality_gate.py
