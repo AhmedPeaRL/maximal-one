@@ -447,12 +447,23 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Pre-run Witness (anticipation layer)
+      run: python analysis/pre_run_witness.py
+
+    - name: Debug repo structure (CRITICAL)
+      run: |
+        echo "==== CURRENT PATH ===="
+        pwd
+        echo "==== FILE TREE ===="
+        ls -R
+
     - name: Autonomous Witness Injection
       run: |
-        if [ -f analysis/autonomous_witness.py ]; then
-          python analysis/autonomous_witness.py
+        if [ -f "$GITHUB_WORKSPACE/analysis/autonomous_witness.py" ]; then
+          python "$GITHUB_WORKSPACE/analysis/autonomous_witness.py"
         else
-          echo "⚠️ autonomous_witness.py not found — skipping"
+          echo "❌ autonomous_witness.py NOT FOUND"
+          exit 1
         fi
 
     - name: Upload autonomous witness
