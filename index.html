@@ -85,50 +85,61 @@
   <div id="event"></div>
 
   <script type="module">
-    import { resolveState } from './core/state_resolver.js';
-    import { unifiedField } from './core/unified_field.js';
-    import { persistWitness } from './core/witness_persistence.js';
+  import { resolveState } from './core/state_resolver.js';
+  import { unifiedField } from './core/unified_field.js';
+  import { persistWitness } from './core/witness_persistence.js';
+  import { buildWitnessEnvelope } from './core/witness_integrity.js';
 
-    const input = document.getElementById("witness-input");
-    const submit = document.getElementById("witness-submit");
-    const state = document.getElementById("state");
-    const eventBox = document.getElementById("event");
+  const input = document.getElementById("witness-input");
+  const submit = document.getElementById("witness-submit");
+  const state = document.getElementById("state");
+  const eventBox = document.getElementById("event");
 
-    // Initial state
-    resolveState().then(d => {
-      document.getElementById("field-state").innerText = d.field;
-      state.innerText = d.layer;
-    });
+  async function refreshState() {
+    try {
+      const res = await fetch('./data/latest_state.json', { cache: "no-store" });
+      if (!res.ok) return;
 
-    import { buildWitnessEnvelope } from './core/witness_integrity.js';
+      const d = await res.json();
 
-    submit.addEventListener("click", async () => {
-      const value = input.value.trim();
-      if (!value) return;
+      document.getElementById("field-state").innerText = d.field || "unknown";
+      state.innerText = d.layer || "unknown";
 
-      state.innerText = "processing";
-      eventBox.innerText = "";
+    } catch {}
+  }
 
-      try {
-        const result = await unifiedField(value);
+  // refresh every 3 seconds
+  setInterval(refreshState, 3000);
 
-        const envelope = buildWitnessEnvelope(result);
+  refreshState();
 
-        eventBox.innerText = JSON.stringify(envelope, null, 2);
+  submit.addEventListener("click", async () => {
+    const value = input.value.trim();
+    if (!value) return;
 
-        const { sendWitnessSecure } = await import('./api/secure_witness.js');
+    state.innerText = "processing";
+    eventBox.innerText = "";
 
-        await sendWitnessSecure(envelope);
+    try {
+      const result = await unifiedField(value);
 
-        persistWitness(envelope);
+      const envelope = buildWitnessEnvelope(result);
 
-      } catch (err) {
-        eventBox.innerText = "ERROR: " + err.message;
-      }
+      eventBox.innerText = JSON.stringify(envelope, null, 2);
 
-      state.innerText = "present";
-    });
-  </script>
+      const { sendWitnessSecure } = await import('./api/secure_witness.js');
+
+      await sendWitnessSecure(envelope);
+
+      persistWitness(envelope);
+
+    } catch (err) {
+      eventBox.innerText = "ERROR: " + err.message;
+    }
+
+    state.innerText = "present";
+  });
+</script>
 
 </body>
 </html>
