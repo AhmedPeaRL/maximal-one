@@ -1,3 +1,5 @@
+import crypto from "crypto";
+
 export async function dispatchIntent(envelope) {
   const intentScore = evaluateIntent(envelope);
 
@@ -6,14 +8,13 @@ export async function dispatchIntent(envelope) {
   }
 
   const targets = ["log", "external", "public"];
-
   const results = [];
 
   for (const t of targets) {
     results.push({
       target: t,
       status: "executed",
-      timestamp: Date.now()
+      timestamp: envelope.timestamp || Date.now()
     });
   }
 
@@ -32,7 +33,24 @@ function evaluateIntent(envelope) {
   if (envelope.hash) score += 0.3;
   if (envelope.timestamp) score += 0.2;
 
-  score += Math.random() * 0.2;
+  // Deterministic entropy (NO randomness)
+  const entropy = deterministicEntropy(envelope);
+  score += entropy * 0.2;
 
   return Math.min(score, 1);
 }
+
+function deterministicEntropy(envelope) {
+  const base = JSON.stringify({
+    signal: envelope.signal || "",
+    hash: envelope.hash || "",
+    timestamp: envelope.timestamp || ""
+  });
+
+  const hash = crypto.createHash("sha256").update(base).digest("hex");
+
+  // take first 8 chars → convert to number → normalize
+  const num = parseInt(hash.slice(0, 8), 16);
+
+  return (num % 1000) / 1000; // value between 0 and 1
+                                                               }
