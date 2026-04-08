@@ -100,6 +100,8 @@
       state.innerText = d.layer;
     });
 
+    import { buildWitnessEnvelope } from './core/witness_integrity.js';
+
     submit.addEventListener("click", async () => {
       const value = input.value.trim();
       if (!value) return;
@@ -110,22 +112,21 @@
       try {
         const result = await unifiedField(value);
 
-        if (result?.event) {
-          eventBox.innerText = result.event;
-        } else {
-          eventBox.innerText = "[no structured event]";
-        }
+        const envelope = buildWitnessEnvelope(result);
 
-        import { sendWitnessSecure } from './api/secure_witness.js';
-        await sendWitnessSecure(result);
+        eventBox.innerText = JSON.stringify(envelope, null, 2);
+
+        const { sendWitnessSecure } = await import('./api/secure_witness.js');
+
+        await sendWitnessSecure(envelope);
+
+        persistWitness(envelope);
 
       } catch (err) {
         eventBox.innerText = "ERROR: " + err.message;
       }
 
       state.innerText = "present";
-
-    persistWitness(result);
     });
   </script>
 
