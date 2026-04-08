@@ -22,9 +22,11 @@ result = {
     "consensus": (h18 == h20 == h24),
 }
 
-os.makedirs("artifacts", exist_ok=True)
+OUT_PATH = os.path.join(BASE_DIR, "..", "artifacts", "runtime_divergence.json")
 
-with open("artifacts/runtime_divergence.json", "w") as f:
+os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
+
+with open(OUT_PATH, "w") as f:
     json.dump(result, f, indent=2)
 
 print("Runtime divergence observed:")
