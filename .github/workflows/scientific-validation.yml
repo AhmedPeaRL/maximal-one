@@ -92,6 +92,21 @@ jobs:
 
           console.log("Payload validated.");
           NODE
+
+      - name: Attach witness hash
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const crypto = require('crypto');
+
+          const raw = fs.readFileSync('payload.json','utf8');
+
+          const hash = crypto.createHash('sha256').update(raw).digest('hex');
+
+          fs.writeFileSync('payload.hash', hash);
+
+          console.log("Witness hash:", hash);
+          NODE
           
       - name: Commit witness (safe push)
         run: |
