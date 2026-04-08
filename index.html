@@ -109,20 +109,20 @@
     } catch {}
   }
 
+  import { loadRealitySnapshot } from './core/reality_bridge.js';
+
   async function refreshWitnessPanel() {
     const panel = document.getElementById("witness-panel");
 
+    if (!panel) return;
+
     try {
-      const res = await fetch('./artifacts/external_validation.json', { cache: "no-store" });
-      const ext = await res.json();
-
-      const d = await loadLiveWitness();
-
-      if (!panel) return;
+      const d = await loadRealitySnapshot();
 
       panel.innerText =
-        `α: ${d.alpha} | σ: ${d.std}\n` +
-        `EXT: ${ext.status} | hash: ${ext.proof?.hash?.slice(0,12) || "none"}`;
+        `α: ${d.alpha ?? "—"} | σ: ${d.std ?? "—"}\n` +
+        `EXT: ${d.external_status}\n` +
+        `hash: ${d.hash ? d.hash.slice(0,12) : "none"}`;
 
     } catch {
       panel.innerText = "No signal";
