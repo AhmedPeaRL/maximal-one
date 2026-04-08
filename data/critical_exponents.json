@@ -1,50 +1,50 @@
 {
-  "sunspots_global_prepared.csv": {
-    "alpha": 1.8045819261580505,
-    "hurst": 0.9255303422511946
+  "co2.csv": {
+    "alpha": 1.7948037145530285,
+    "hurst": 0.8751579580219832
   },
   "cosmic_rays_clean.csv": {
     "alpha": 1.3180353480910891,
     "hurst": 0.7663229412899278
   },
-  "sunspots_global_prepared_clean.csv": {
-    "alpha": 1.8045819261580505,
-    "hurst": 0.9255303422511946
-  },
-  "geomagnetic_kp_clean.csv": {
-    "alpha": 1.7378978703986216,
-    "hurst": 0.7525300773571731
-  },
-  "co2.csv": {
-    "alpha": 1.7948037145530285,
-    "hurst": 0.8751579580219832
-  },
-  "sample.csv": {
-    "alpha": 2.2533307140379,
-    "hurst": 0.7772264934553241
-  },
   "solar_wind_speed_clean.csv": {
-    "alpha": 0.8468523541346007,
-    "hurst": 0.9010640673223288
-  },
-  "earthquake_magnitude_clean.csv": {
-    "alpha": 1.8029875750917201,
-    "hurst": 0.910206041413823
+    "alpha": 0.8529745926844869,
+    "hurst": 0.9009382235170279
   },
   "sample_clean.csv": {
     "alpha": 2.2533307140379,
     "hurst": 0.7772264934553241
   },
-  "co2_atmospheric_clean.csv": {
-    "alpha": 1.7960521311447977,
-    "hurst": 0.8735241611395028
+  "sunspots_global_prepared_clean.csv": {
+    "alpha": 1.8045819261580505,
+    "hurst": 0.9255303422511946
+  },
+  "sunspots_global_prepared.csv": {
+    "alpha": 1.8045819261580505,
+    "hurst": 0.9255303422511946
+  },
+  "earthquake_magnitude_clean.csv": {
+    "alpha": 1.8029715233639596,
+    "hurst": 0.9102153226884777
+  },
+  "sample.csv": {
+    "alpha": 2.2533307140379,
+    "hurst": 0.7772264934553241
   },
   "earthquake_magnitude.csv": {
-    "alpha": 1.8029875750917201,
-    "hurst": 0.910206041413823
+    "alpha": 1.8029715233639596,
+    "hurst": 0.9102153226884777
   },
   "sunspots_global_clean.csv": {
     "alpha": 1.8045819261580496,
     "hurst": 0.9255303422511952
+  },
+  "geomagnetic_kp_clean.csv": {
+    "alpha": 1.727950285654329,
+    "hurst": 0.7716299484690424
+  },
+  "co2_atmospheric_clean.csv": {
+    "alpha": 1.7960521311447977,
+    "hurst": 0.8735241611395028
   }
 }
