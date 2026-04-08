@@ -89,6 +89,7 @@
   import { unifiedField } from './core/unified_field.js';
   import { persistWitness } from './core/witness_persistence.js';
   import { buildWitnessEnvelope } from './core/witness_integrity.js';
+  import { loadLiveWitness } from './core/live_witness_panel.js';
 
   const input = document.getElementById("witness-input");
   const submit = document.getElementById("witness-submit");
@@ -108,10 +109,23 @@
     } catch {}
   }
 
-  // refresh every 3 seconds
-  setInterval(refreshState, 3000);
+  async function refreshWitnessPanel() {
+    const panel = document.getElementById("witness-panel");
 
-  refreshState();
+    const d = await loadLiveWitness();
+
+    if (!panel) return;
+
+    panel.innerText = d.valid
+      ? `α: ${d.alpha} | σ: ${d.std}`
+      : "No scientific signal";
+  }
+
+  // refresh every 3 seconds
+  setInterval(() => {
+    refreshState();
+    refreshWitnessPanel(); 
+  }, 3000);
 
   submit.addEventListener("click", async () => {
     const value = input.value.trim();
