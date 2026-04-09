@@ -1,7 +1,34 @@
 {
   "title": "Minimal Irreducible Claim",
   "version": "1.0",
-  "statement": "A universal spectral exponent emerges consistently across independent chaotic systems, indicating a shared invariant structure beyond system-specific dynamics.",
+  "statement": "The system produces a statistically non-random spectral signature from real-world chaotic datasets that is reproducible across runtimes and robust against null models.",
+  "null_hypothesis": "All observed spectral structures are due to randomness or data artifacts.",
+  
+  "test_protocol": {
+    "datasets": [
+      "sunspots",
+      "global_chaos_series",
+      "synthetic_control"
+    ],
+    "methods": [
+      "windowed_spectral_analysis",
+      "surrogate_test",
+      "null_structure_test",
+      "cross_system_correlation"
+    ],
+    "criteria": {
+      "p_value_threshold": 0.01,
+      "effect_size_min": 0.2,
+      "cross_runtime_consistency": true
+    }
+  },
+  "falsification": {
+    "conditions": [
+      "If surrogate or null models reproduce similar spectral signatures",
+      "If cross-runtime outputs diverge beyond tolerance",
+      "If statistical significance is not consistently achieved"
+    ]
+  }
   "properties": {
     "falsifiable": true,
     "domain": "nonlinear dynamical systems",
@@ -13,8 +40,7 @@
       "lorenz96",
       "eeg"
     ],
-    "metric": "spectral exponent alpha",
-    "method": "windowed spectral analysis + bootstrap estimation",
+    "metric": "spectral exponent alpha", 
     "acceptance_criteria": {
       "max_deviation": 0.05,
       "confidence": 0.95
