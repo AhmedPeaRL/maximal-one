@@ -1,24 +1,33 @@
 {
-  "0": [
-    "co2",
-    "solar_wind_speed_clean",
-    "co2_atmospheric",
-    "sunspots_global_prepared_clean",
-    "sunspots",
-    "sunspots_global",
+  "1": [
     "sunspots_global_prepared",
+    "co2_atmospheric",
+    "co2_atmospheric_clean_clean",
+    "sunspots_global_prepared_clean",
+    "co2",
+    "earthquake_magnitude_clean_clean",
+    "co2_clean",
+    "solar_wind_speed_clean",
+    "sunspots",
     "earthquake_magnitude_clean",
+    "sunspots_global_clean_clean",
+    "solar_wind_speed_clean_clean",
+    "sunspots_global_prepared_clean_clean",
     "solar_wind_speed",
+    "sunspots_global",
+    "sunspots_clean",
+    "co2_atmospheric_clean",
     "earthquake_magnitude",
-    "sunspots_global_clean",
-    "co2_atmospheric_clean"
+    "sunspots_global_clean"
   ],
   "2": [
     "cosmic_rays_clean",
+    "cosmic_rays_clean_clean",
     "cosmic_rays"
   ],
-  "1": [
-    "sample_clean",
-    "sample"
+  "0": [
+    "sample_clean_clean",
+    "sample",
+    "sample_clean"
   ]
 }
