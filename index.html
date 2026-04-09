@@ -85,6 +85,7 @@
   <div id="event"></div>
 
   <script type="module">
+  import { bindIrreducibleReality } from './core/irreducible_anchor.js';
   import { resolveState } from './core/state_resolver.js';
   import { unifiedField } from './core/unified_field.js';
   import { persistWitness } from './core/witness_persistence.js';
@@ -157,8 +158,16 @@
     eventBox.innerText = "";
 
     try {
-      const result = await unifiedField(value);
-      const envelope = buildWitnessEnvelope(result);
+      const reality = await bindIrreducibleReality();
+      const result = await unifiedField({
+        input: value,
+        reality_anchor: reality
+      });
+     
+      const envelope = buildWitnessEnvelope({
+        ...result,
+        reality_anchor: reality
+      });
 
       eventBox.innerText = JSON.stringify(envelope, null, 2);
 
