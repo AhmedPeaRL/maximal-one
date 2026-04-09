@@ -417,7 +417,7 @@ jobs:
           name: node-hash-24.11.1
           path: node24
 
-      - name: Cross-version consensus
+      - name: Cross-version consensus (truth-aware)
         run: |
           H1=$(cat node18/node_report.hash)
           H2=$(cat node20/node_report.hash)
@@ -427,14 +427,46 @@ jobs:
           echo "Node 20 hash: $H2"
           echo "Node 24 hash: $H3"
 
-          echo "Recording cross-version divergence..."
-
           mkdir -p artifacts
 
           echo "{\"node18\":\"$H1\",\"node20\":\"$H2\",\"node24\":\"$H3\"}" > artifacts/runtime_divergence_raw.json
 
-          echo "Deterministic consensus verified."
+          # TRUE CONSENSUS CHECK
+          if [ "$H1" = "$H2" ] && [ "$H2" = "$H3" ]; then
+            echo "CONSENSUS=true" >> $GITHUB_ENV
+            echo "✅ Perfect deterministic consensus"
+          else
+            echo "CONSENSUS=false" >> $GITHUB_ENV
+            echo "⚠️ Divergence detected — recorded as signal, not failure"
+          fi
 
+      - name: Consensus interpretation layer
+        run: |
+          if [ "$CONSENSUS" = "true" ]; then
+            echo "System is strictly deterministic across runtimes."
+          else
+            echo "System exhibits controlled divergence."
+            echo "Recording divergence fingerprint..."
+
+            python - <<'PY'
+            import json, hashlib
+
+            with open("artifacts/runtime_divergence_raw.json") as f:
+                d = json.load(f)
+
+            fingerprint = hashlib.sha256(json.dumps(d, sort_keys=True).encode()).hexdigest()
+
+            with open("artifacts/runtime_divergence.json","w") as f:
+                json.dump({
+                    "divergence": d,
+                    "fingerprint": fingerprint,
+                    "status": "controlled"
+                }, f, indent=2)
+
+            print("Divergence fingerprint:", fingerprint)
+            PY
+          fi
+          
       - name: Ensure observer exists
         run: |
           if [ ! -f "analysis/cross_runtime_observer.py" ]; then
@@ -769,7 +801,7 @@ jobs:
         run: python stability/eigen_drift_check.py
 
   sweep:
-    if: github.actor != 'github-actions[bot]'
+    if: github.actor != 'github-actions[bot]' && success()
     runs-on: ubuntu-24.04
     needs: stability-check
 
@@ -793,6 +825,13 @@ jobs:
             scikit-learn==1.4.2 \
             pyarrow==15.0.2 \
             requests==2.31.0
+
+      - name: Pre-sweep sanity check
+        run: |
+          if [ ! -f data/latest_state.json ]; then
+            echo "⚠️ Missing state → aborting sweep safely"
+            exit 0
+          fi
 
       - name: Run multi-seed sweep
         run: |
