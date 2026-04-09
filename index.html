@@ -106,6 +106,13 @@
       document.getElementById("field-state").innerText = d.field || "unknown";
       state.innerText = d.layer || "unknown";
 
+      const res2 = await fetch('./artifacts/decision.json', { cache: "no-store" });
+      if (res2.ok) {
+
+      const d2 = await res2.json();
+
+      document.getElementById("field-state").innerText = d2.decision;
+      }
     } catch {}
   }
 
