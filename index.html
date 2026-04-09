@@ -155,8 +155,11 @@
 
       eventBox.innerText = JSON.stringify(envelope, null, 2);
 
-      // NEW: Fetch latest market artifact
-      const res = await fetch('./market/', { cache: "no-store" });
+      const res = await fetch('./artifacts/decision.json', { cache: "no-store" });
+      if (res.ok) {
+        const d = await res.json();
+      console.log("Decision:", d);
+      }
 
       state.innerText = "artifact-ready";
 
