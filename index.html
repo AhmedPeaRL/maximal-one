@@ -90,6 +90,7 @@
   import { persistWitness } from './core/witness_persistence.js';
   import { buildWitnessEnvelope } from './core/witness_integrity.js';
   import { loadLiveWitness } from './core/live_witness_panel.js';
+  import { bindPresence } from './core/presence_binding.js';
 
   const input = document.getElementById("witness-input");
   const submit = document.getElementById("witness-submit");
@@ -124,17 +125,23 @@
     if (!panel) return;
 
     try {
-      const d = await loadRealitySnapshot();
+      const d = await bindPresence();
+
+      if (d.error) {
+        panel.innerText = "Signal failure";
+        return;
+      }
 
       panel.innerText =
-        `α: ${d.alpha ?? "—"} | σ: ${d.std ?? "—"}\n` +
-        `EXT: ${d.external_status}\n` +
-        `hash: ${d.hash ? d.hash.slice(0,12) : "none"}`;
+        `α: ${d.alpha ?? "—"} | σ: ${d.sigma ?? "—"}\n` +
+        `DECISION: ${d.decision}\n` +
+        `LAYER: ${d.layer} | FIELD: ${d.field}\n` +
+        `t: ${new Date(d.timestamp).toLocaleTimeString()}`;
 
-    } catch {
-      panel.innerText = "No signal";
+      } catch {
+        panel.innerText = "No signal";
+      }
     }
-  }
 
   // refresh every 3 seconds
   setInterval(() => {
