@@ -92,6 +92,7 @@
   import { buildWitnessEnvelope } from './core/witness_integrity.js';
   import { loadLiveWitness } from './core/live_witness_panel.js';
   import { bindPresence } from './core/presence_binding.js';
+  import { sendWitnessToSystem } from './core/live_causal_bridge.js';
 
   const input = document.getElementById("witness-input");
   const submit = document.getElementById("witness-submit");
@@ -154,16 +155,16 @@
     const value = input.value.trim();
     if (!value) return;
 
-    state.innerText = "processing";
-    eventBox.innerText = "";
+    state.innerText = "bridging";
 
     try {
+      // 1. local computation
       const reality = await bindIrreducibleReality();
       const result = await unifiedField({
         input: value,
         reality_anchor: reality
       });
-     
+
       const envelope = buildWitnessEnvelope({
         ...result,
         reality_anchor: reality
@@ -171,19 +172,31 @@
 
       eventBox.innerText = JSON.stringify(envelope, null, 2);
 
-      const res = await fetch('./artifacts/decision.json', { cache: "no-store" });
-      if (res.ok) {
-        const d = await res.json();
-      console.log("Decision:", d);
+      // 2. send to real system
+      const bridge = await fetch("/api/dispatch", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ input: value })
+      });
+
+      const bridgeResult = await bridge.json();
+
+      if (bridgeResult.ok) {
+        state.innerText = "propagated";
+      } else {
+        state.innerText = "partial";
       }
 
-      state.innerText = "artifact-ready";
-
     } catch (e) {
-      eventBox.innerText = "error";
+      state.innerText = "error";
+      eventBox.innerText = e.message;
     }
 
-    state.innerText = "present";
+    setTimeout(() => {
+      state.innerText = "present";
+    }, 2000);
   });
 </script>
   
