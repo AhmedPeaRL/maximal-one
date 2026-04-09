@@ -118,7 +118,7 @@
       state.innerText =
         d.state.layer || "unknown";
 
-      } catch {}
+    } catch {}
   }
 
   import { loadRealitySnapshot } from './core/reality_bridge.js';
@@ -191,7 +191,9 @@
         reality_anchor: reality
       });
 
-      eventBox.innerText = JSON.stringify(envelope, null, 2);
+      eventBox.innerText =
+        "LIVE STATE:\n" +
+        JSON.stringify(d.state, null, 2);
 
       // 2. send to real system
       const bridge = await fetch("/api/dispatch", {
