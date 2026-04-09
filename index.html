@@ -104,20 +104,21 @@
 
   async function refreshState() {
     try {
-      const res = await fetch('/api/live-state');
-
+      const res = await fetch('./data/latest_state.json', { cache: "no-store" });
       if (!res.ok) return;
 
       const d = await res.json();
 
-      if (!d.ok) return;
-      
-      document.getElementById("field-state").innerText =
-        d.state.field || "unknown";
+      document.getElementById("field-state").innerText = d.field || "unknown";
+      state.innerText = d.layer || "unknown";
 
-      state.innerText =
-        d.state.layer || "unknown";
+      const res2 = await fetch('./artifacts/decision.json', { cache: "no-store" });
+      if (res2.ok) {
 
+      const d2 = await res2.json();
+
+      document.getElementById("field-state").innerText = d2.decision;
+      }
     } catch {}
   }
 
@@ -191,9 +192,7 @@
         reality_anchor: reality
       });
 
-      eventBox.innerText =
-        "LIVE STATE:\n" +
-        JSON.stringify(d.state, null, 2);
+      eventBox.innerText = JSON.stringify(envelope, null, 2);
 
       // 2. send to real system
       const bridge = await fetch("/api/dispatch", {
