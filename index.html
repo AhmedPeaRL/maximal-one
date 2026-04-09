@@ -83,6 +83,9 @@
   <button id="witness-submit">Invoke</button>
 
   <div id="event"></div>
+  <div id="scientific-claim" style="margin-top:30px; opacity:0.75;">
+  Loading claim...
+  </div>
 
   <script type="module">
   import { bindIrreducibleReality } from './core/irreducible_anchor.js';
@@ -145,10 +148,29 @@
     }
   }
 
+  async function loadScientificClaim() {
+    try {
+      const res = await fetch('./core-scientific/minimal_claim.json');
+      const claim = await res.json();
+
+      const el = document.getElementById("scientific-claim");
+
+      el.innerText =
+        "CLAIM:\n" + claim.statement + "\n\n" +
+        "NULL:\n" + claim.null_hypothesis + "\n\n" +
+        "CRITERIA:\n" +
+        "p < " + claim.test_protocol.criteria.p_value_threshold +
+        " | effect > " + claim.test_protocol.criteria.effect_size_min;
+
+    } catch {
+      document.getElementById("scientific-claim").innerText = "No claim loaded.";
+    }
+  }
   // refresh every 3 seconds
   setInterval(() => {
     refreshState();
-    refreshWitnessPanel(); 
+    refreshWitnessPanel();
+    loadScientificClaim();
   }, 3000);
 
   submit.addEventListener("click", async () => {
