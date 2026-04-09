@@ -465,7 +465,7 @@ jobs:
 
             print("Divergence fingerprint:", fingerprint)
             PY
-          fi
+            fi
           
       - name: Ensure observer exists
         run: |
