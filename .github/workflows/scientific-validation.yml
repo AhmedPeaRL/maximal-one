@@ -690,6 +690,9 @@ jobs:
         python -m analysis.global_scientific_verdict
         python -m analysis.global_signal_builder
 
+    - name: Self drift analysis
+      run: python analysis/self_drift.py
+
     - name: Self Revocation Guard
       run: python analysis/self_revocation_guard.py
 
@@ -726,6 +729,12 @@ jobs:
 
     - name: Export market artifact
       run: python scripts/export_market_artifact.py
+
+    - name: Decision lineage tracking
+      run: python analysis/decision_lineage.py
+
+    - name: Continuity guard
+      run: python analysis/continuity_guard.py
 
 
     # =========================
