@@ -449,23 +449,23 @@ jobs:
             echo "Recording divergence fingerprint..."
 
             python - <<'PY'
-            import json, hashlib
+          import json, hashlib
 
-            with open("artifacts/runtime_divergence_raw.json") as f:
-                d = json.load(f)
+          with open("artifacts/runtime_divergence_raw.json") as f:
+              d = json.load(f)
 
-            fingerprint = hashlib.sha256(json.dumps(d, sort_keys=True).encode()).hexdigest()
+          fingerprint = hashlib.sha256(json.dumps(d, sort_keys=True).encode()).hexdigest()
 
-            with open("artifacts/runtime_divergence.json","w") as f:
-                json.dump({
-                    "divergence": d,
-                    "fingerprint": fingerprint,
-                    "status": "controlled"
-                }, f, indent=2)
+          with open("artifacts/runtime_divergence.json","w") as f:
+              json.dump({
+                  "divergence": d,
+                  "fingerprint": fingerprint,
+                  "status": "controlled"
+              }, f, indent=2)
 
-            print("Divergence fingerprint:", fingerprint)
-            PY
-                fi
+          print("Divergence fingerprint:", fingerprint)
+          PY
+          fi
           
       - name: Ensure observer exists
         run: |
