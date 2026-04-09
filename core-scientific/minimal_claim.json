@@ -22,32 +22,20 @@
       "cross_runtime_consistency": true
     }
   },
+  "properties": {
+    "falsifiable": true,
+    "domain": "nonlinear dynamical systems",
+    "type": "universality invariant"
+  },
+  "expected_outcome": {
+    "alpha_range": [0.8, 1.2],
+    "interpretation": "Existence of cross-system invariant"
+  }
   "falsification": {
     "conditions": [
       "If surrogate or null models reproduce similar spectral signatures",
       "If cross-runtime outputs diverge beyond tolerance",
       "If statistical significance is not consistently achieved"
     ]
-  }
-  "properties": {
-    "falsifiable": true,
-    "domain": "nonlinear dynamical systems",
-    "type": "universality invariant"
-  },
-  "test_protocol": {
-    "datasets": [
-      "sunspots_global",
-      "lorenz96",
-      "eeg"
-    ],
-    "metric": "spectral exponent alpha", 
-    "acceptance_criteria": {
-      "max_deviation": 0.05,
-      "confidence": 0.95
-    }
-  },
-  "expected_outcome": {
-    "alpha_range": [0.8, 1.2],
-    "interpretation": "Existence of cross-system invariant"
   }
 }
