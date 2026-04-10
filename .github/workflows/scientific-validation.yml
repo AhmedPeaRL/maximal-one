@@ -670,6 +670,10 @@ jobs:
     # 5) SCIENTIFIC VALIDATION
     # =========================
 
+    - name: External Prediction Bridge
+      run: |
+        python analysis/external_prediction_engine.py
+
     - name: Reality Pressure Interface
       run: python analysis/reality_pressure_interface.py
 
