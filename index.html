@@ -181,6 +181,7 @@
     try {
       // 1. local computation
       const reality = await bindIrreducibleReality();
+
       const result = await unifiedField({
         input: value,
         reality_anchor: reality
@@ -191,9 +192,10 @@
         reality_anchor: reality
       });
 
+      // FIX: عرض النتيجة الفعلية مش متغير مش موجود
       eventBox.innerText =
-        "LIVE STATE:\n" +
-        JSON.stringify(d.state, null, 2);
+        "LOCAL RESULT:\n" +
+        JSON.stringify(envelope, null, 2);
 
       // 2. send to real system
       const bridge = await fetch("/api/dispatch", {
