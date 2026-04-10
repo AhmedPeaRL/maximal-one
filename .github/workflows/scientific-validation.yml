@@ -688,6 +688,9 @@ jobs:
     # 6) FINAL GATES
     # =========================
 
+    - name: External Irreversibility Anchor
+      run: python analysis/external_irreversibility_anchor.py
+  
     - name: Falsifiability Gate (Hard Science)
       run: python core-scientific/falsifiability_gate.py
 
