@@ -1,0 +1,15 @@
+{
+  "null_hypothesis": "No intrinsic structure beyond computational artifacts",
+  "falsification_condition": {
+    "alpha_threshold": 0.55,
+    "sigma_max": 0.05,
+    "reproducibility_required": true,
+    "cross_environment_match": true
+  },
+  "revocation_rule": {
+    "if_failed": "system must declare null validity",
+    "if_uncertain": "system must downgrade claim",
+    "if_passed": "investigation continues without claim escalation"
+  },
+  "philosophy": "System cannot self-confirm. Only survive attack."
+}
