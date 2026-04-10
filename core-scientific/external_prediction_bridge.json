@@ -1,0 +1,38 @@
+{
+  "version": "1.0",
+  "intent": "Bind system output to externally observable reality",
+
+  "prediction_targets": [
+    {
+      "id": "solar_activity_proxy",
+      "source": "real-data/sunspots_global.csv",
+      "type": "time_series",
+      "metric": "next_step_direction",
+      "horizon": 1
+    },
+    {
+      "id": "market_proxy",
+      "source": "real-data/market_proxy.csv",
+      "type": "time_series",
+      "metric": "volatility_shift",
+      "horizon": 3
+    }
+  ],
+
+  "binding_rule": {
+    "alpha_to_signal": "alpha > 0.5 => upward_bias",
+    "sigma_to_confidence": "lower_sigma => higher_confidence"
+  },
+
+  "evaluation": {
+    "method": "rolling_window_validation",
+    "window": 50,
+    "metric": "accuracy",
+    "threshold": 0.62
+  },
+
+  "falsification_condition": {
+    "if_accuracy_below": 0.55,
+    "action": "invalidate_claim"
+  }
+}
