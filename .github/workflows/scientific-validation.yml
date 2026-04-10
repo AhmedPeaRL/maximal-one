@@ -670,6 +670,10 @@ jobs:
     # 5) SCIENTIFIC VALIDATION
     # =========================
 
+    - name: Ensure external datasets
+      run: |
+        python analysis/ensure_external_data.py
+
     - name: External Prediction Bridge
       run: |
         python analysis/external_prediction_engine.py
