@@ -651,6 +651,9 @@ jobs:
     # 5) SCIENTIFIC VALIDATION
     # =========================
 
+    - name: Reality Pressure Interface
+      run: python analysis/reality_pressure_interface.py
+
     - name: External Reality Anchor
       run: |
         python analysis/external_validation_bridge.py
