@@ -688,6 +688,9 @@ jobs:
     # 6) FINAL GATES
     # =========================
 
+    - name: Falsifiability Gate (Hard Science)
+      run: python core-scientific/falsifiability_gate.py
+
     - name: Global verdict
       run: |
         python -m analysis.global_scientific_verdict
