@@ -1,0 +1,31 @@
+{
+  "single_source_of_truth": {
+    "metric": "spectral_alpha",
+    "null_hypothesis": "alpha <= 0.5",
+    "alternative_hypothesis": "alpha > 0.5"
+  },
+
+  "decision_rule": {
+    "z_score_threshold": 2.0,
+    "minimum_effect_size": 0.05,
+    "bootstrap_confidence": 0.95
+  },
+
+  "hard_fail_conditions": [
+    "missing_spectral_profile",
+    "runtime_divergence_uncontrolled",
+    "hash_mismatch",
+    "inconclusive_result"
+  ],
+
+  "soft_signals_recorded": [
+    "attractor_deviation",
+    "minor_runtime_variance"
+  ],
+
+  "philosophy": {
+    "no_multiple_truths": true,
+    "no_moving_goalpost": true,
+    "binary_outcome_only": true
+  }
+}
