@@ -47,6 +47,13 @@ jobs:
 
           echo "✅ No hardcoded secrets detected"
 
+      - name: Block known token patterns
+        run: |
+          if grep -r "ghp_" .; then
+            echo "❌ GitHub token detected"
+            exit 1
+          fi
+
       - name: Store external witness
         run: |
           mkdir -p data/external
