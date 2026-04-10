@@ -1,8 +1,14 @@
-import json
+import json, os, shutil
 import hashlib
 import time
 from datetime import datetime
 
+src = "artifacts/canonical_report.json"
+dst = "public/latest.json"
+
+if os.path.exists(src):
+    shutil.copy(src, dst)
+    
 INPUT = "artifacts/global_verdict.json"
 OUTPUT = "public/artifact.json"
 
