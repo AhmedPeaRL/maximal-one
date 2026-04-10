@@ -1,8 +1,11 @@
+import os
 import json
 import pandas as pd
 import numpy as np
 
 def load_data(path):
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Missing dataset: {path}")
     return pd.read_csv(path)
 
 def compute_signal(alpha):
