@@ -104,19 +104,14 @@
     
   async function refreshState() {
     try {
-      const res = await fetch('/api/live-state');
-
-      if (!res.ok) return;
-
+      const res = await fetch('./data/live_field_state.json');
       const d = await res.json();
 
-      if (!d.ok) return;
-
   document.getElementById("field-state").innerText =
-        d.state.field || "unknown";
+        d.global_state;
 
       state.innerText =
-        d.state.layer || "unknown";
+        d.node_consensus ? "coherent" : "drifting";
 
     } catch {}
   }
