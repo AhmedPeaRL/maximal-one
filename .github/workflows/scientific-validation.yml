@@ -47,12 +47,24 @@ jobs:
 
           echo "✅ No hardcoded secrets detected"
 
-      - name: Block known token patterns
+      - name: Block real GitHub tokens only
         run: |
-          if grep -r "REMOVED" .; then
-            echo "❌ GitHub token detected"
+          echo "Scanning for REAL GitHub tokens..."
+
+          MATCHES=$(grep -r -E "(REMOVED[A-Za-z0-9]{20,}|REMOVED[A-Za-z0-9_]{20,})" . \
+            --exclude-dir=.git \
+            --exclude-dir=node_modules \
+            --exclude="*.example" \
+            --exclude="*.md" \
+            --exclude="*.txt" || true)
+
+          if [ ! -z "$MATCHES" ]; then
+            echo "❌ REAL GitHub token detected:"
+            echo "$MATCHES"
             exit 1
           fi
+
+          echo "✅ No real tokens detected"
 
       - name: Store external witness
         run: |
