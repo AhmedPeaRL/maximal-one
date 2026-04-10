@@ -165,11 +165,28 @@
       document.getElementById("scientific-claim").innerText = "No claim loaded.";
     }
   }
+
+  async function syncReality() {
+    try {
+      const res = await fetch("/api/reality-sync");
+      const d = await res.json();
+
+      if (!d.ok) return;
+
+      const eventBox = document.getElementById("event");
+
+      eventBox.innerText =
+        "REALITY SYNC:\n" +
+        JSON.stringify(d.state, null, 2);
+
+    } catch {}
+  }
   // refresh every 3 seconds
   setInterval(() => {
     refreshState();
     refreshWitnessPanel();
     loadScientificClaim();
+    syncReality();
   }, 3000);
 
   submit.addEventListener("click", async () => {
