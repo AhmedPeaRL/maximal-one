@@ -178,13 +178,18 @@
 
     } catch {}
   }
-  // refresh every 3 seconds
-  setInterval(() => {
+    
+  import { liveStream } from './core/live_stream.js';
+
+  liveStream((d) => {
     refreshState();
     refreshWitnessPanel();
     loadScientificClaim();
     syncReality();
-  }, 3000);
+    
+  document.getElementById("field-state").innerText = d.global_state;
+    state.innerText = d.node_consensus ? "coherent" : "drifting";
+  });
 
   submit.addEventListener("click", async () => {
     const value = input.value.trim();
