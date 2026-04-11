@@ -849,9 +849,7 @@ jobs:
                 "last_verdict": "not rejected"
             },
             "integrity": {
-                import os
-                
-                report_hash = None
+                report_hash == None
                 if os.path.exists("artifacts/report.hash"):
                     with open("artifacts/report.hash") as f:
                         report_hash = f.read().strip()
@@ -864,7 +862,7 @@ jobs:
                 "reason": "no falsification survived"
             }
         }
-
+        import os
         os.makedirs("public", exist_ok=True)
 
         with open("public/live_truth.json","w") as f:
