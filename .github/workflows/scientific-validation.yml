@@ -670,6 +670,9 @@ jobs:
     # 5) SCIENTIFIC VALIDATION
     # =========================
 
+    - name: External Irreducible Anchor V2
+      run: python analysis/external_irreducible_anchor_v2.py
+
     - name: Ensure external datasets
       run: |
         python analysis/ensure_external_data.py
