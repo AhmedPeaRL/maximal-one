@@ -140,4 +140,22 @@ result = {
 ART.mkdir(exist_ok=True)
 (ART / "global_verdict.json").write_text(json.dumps(result, indent=2))
 
+
+# -----------------------------
+# Causal Memory Injection
+# -----------------------------
+
+from analysis.causal_memory_engine import record_event
+
+record_event(
+    decision=result["passed"],
+    score=result["final_score"],
+    layer=result["layer"],
+    context={
+        "predictive_pass": result["predictive_pass"],
+        "universality": result["universality_passed"],
+        "external": result["external_validation"]
+    }
+)
+
 print(json.dumps(result, indent=2))
