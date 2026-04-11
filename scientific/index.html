@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Maximal-One Scientific Interface</title>
+
+  <style>
+    body {
+      background: #ffffff;
+      color: #111;
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    h1 {
+      font-size: 28px;
+    }
+
+    .box {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ccc;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      margin-top: 10px;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+
+    pre {
+      background: #f5f5f5;
+      padding: 10px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Maximal-One: Scientific Interface</h1>
+
+<p>
+This interface provides direct interaction with the experimental system.
+No metaphysical assumptions are made.
+</p>
+
+<div class="box">
+  <b>System State</b>
+  <div id="state">loading...</div>
+</div>
+
+<div class="box">
+  <b>Submit Input</b>
+  <textarea id="input"></textarea>
+  <button onclick="send()">Submit</button>
+</div>
+
+<div class="box">
+  <b>Response</b>
+  <pre id="output"></pre>
+</div>
+
+<div class="box">
+  <b>Live Metrics</b>
+  <pre id="metrics"></pre>
+</div>
+
+<script>
+async function loadState() {
+  try {
+    const res = await fetch('../data/live_field_state.json');
+    const d = await res.json();
+
+    document.getElementById("state").innerText =
+      d.global_state + " | coherence: " + d.field_coherence;
+
+  } catch {
+    document.getElementById("state").innerText = "unavailable";
+  }
+}
+
+async function loadMetrics() {
+  try {
+    const res = await fetch('../public/live_truth.json');
+    const d = await res.json();
+
+    document.getElementById("metrics").innerText =
+      JSON.stringify(d, null, 2);
+
+  } catch {}
+}
+
+async function send() {
+  const value = document.getElementById("input").value;
+
+  const res = await fetch('/api/dispatch', {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ input: value })
+  });
+
+  const data = await res.json();
+
+  document.getElementById("output").innerText =
+    JSON.stringify(data, null, 2);
+}
+
+setInterval(() => {
+  loadState();
+  loadMetrics();
+}, 3000);
+
+loadState();
+loadMetrics();
+</script>
+
+</body>
+</html>
