@@ -137,9 +137,6 @@ result = {
     "layer": layer
 }
 
-ART.mkdir(exist_ok=True)
-(ART / "global_verdict.json").write_text(json.dumps(result, indent=2))
-
 
 # -----------------------------
 # Causal Memory Injection
@@ -156,6 +153,9 @@ record_event(
         "universality": result["universality_passed"],
         "external": result["external_validation"]
     }
-)
+ )
+
+ART.mkdir(exist_ok=True)
+(ART / "global_verdict.json").write_text(json.dumps(result, indent=2))
 
 print(json.dumps(result, indent=2))
