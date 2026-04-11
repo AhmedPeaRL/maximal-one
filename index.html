@@ -178,6 +178,22 @@
 
     } catch {}
   }
+
+  async function loadTruth() {
+    try {
+      const res = await fetch('./public/live_truth.json');
+      const t = await res.json();
+
+      const el = document.getElementById("event");
+
+      el.innerText =
+        "TRUTH SURFACE:\n\n" +
+        JSON.stringify(t, null, 2);
+
+    } catch {
+      console.log("No truth surface");
+    }
+  }
     
   import { liveStream } from './core/live_stream.js';
 
@@ -186,6 +202,7 @@
     refreshWitnessPanel();
     loadScientificClaim();
     syncReality();
+    loadTruth();
     
   document.getElementById("field-state").innerText = d.global_state;
     state.innerText = d.node_consensus ? "coherent" : "drifting";
