@@ -639,6 +639,11 @@ jobs:
     # 3) CORE ANALYSIS
     # =========================
 
+    - name: Lock predictions BEFORE experiment
+      run: |
+        python -m analysis.prediction_lock
+        python -m analysis.independent_replication
+
     - name: Pre-registration (predict before observing)
       run: python analysis/pre_registration_engine.py
 
