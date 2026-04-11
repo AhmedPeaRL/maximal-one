@@ -122,6 +122,24 @@ if external_pass:
 
 
 # -----------------------------
+# External Collision Enforcement
+# -----------------------------
+
+collision = load("external_collision.json")
+
+collision_pass = False
+
+if collision:
+    collision_pass = bool(
+        collision.get("statistically_significant", False)
+        and collision.get("cross_dataset_generalization", False)
+    )
+
+if not collision_pass:
+    score *= 0.5  # HARD PENALTY
+
+
+# -----------------------------
 # FINAL DECISION
 # -----------------------------
 
