@@ -196,12 +196,21 @@
   }
     
   import { liveStream } from './core/live_stream.js';
+  import { applyCausalFeedback } from './core/causal_feedback.js';
 
-  liveStream((d) => {
+  liveStream(async (d) => {
     refreshState();
     refreshWitnessPanel();
     loadScientificClaim();
     syncReality();
+
+    try {
+      const res = await fetch('./public/live_truth.json');
+      const truth = await res.json();
+
+      applyCausalFeedback(truth);
+    } catch {}
+
     loadTruth();
     
   document.getElementById("field-state").innerText = d.global_state;
