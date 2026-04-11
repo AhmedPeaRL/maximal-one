@@ -639,6 +639,15 @@ jobs:
     # 3) CORE ANALYSIS
     # =========================
 
+    - name: Pre-registration (predict before observing)
+      run: python analysis/pre_registration_engine.py
+
+    - name: Prediction scoring
+      run: python analysis/prediction_scoring.py
+
+    - name: Blind external test
+      run: python analysis/blind_external_test.py
+
     - name: Build time series
       run: |
         python -m analysis.real_dataset_engine
