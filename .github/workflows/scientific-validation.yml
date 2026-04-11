@@ -849,6 +849,8 @@ jobs:
                 "last_verdict": "not rejected"
             },
             "integrity": {
+                import os
+                
                 report_hash = None
                 if os.path.exists("artifacts/report.hash"):
                     with open("artifacts/report.hash") as f:
