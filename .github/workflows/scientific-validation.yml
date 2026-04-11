@@ -864,14 +864,14 @@ jobs:
             }
         }
 
-        import os
-        os.makedirs("public", exist_ok=True)
+            import os
+            os.makedirs("public", exist_ok=True)
 
-        with open("public/live_truth.json","w") as f:
-            json.dump(truth, f, indent=2)
+            with open("public/live_truth.json","w") as f:
+                json.dump(truth, f, indent=2)
 
-        print("Truth surface updated")
-        PY
+            print("Truth surface updated")
+            PY
 
     - name: Persist results (conflict-safe)
       if: always() && github.actor != 'github-actions[bot]'
