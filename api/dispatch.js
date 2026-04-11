@@ -53,9 +53,12 @@ export default async function handler(req, res) {
       return res.status(429).json({ ok: false, error: "rate limit exceeded" });
     }
 
+    const pulse = Math.floor(Date.now() / 5000); // 5 sec rhythm
+
     const payload = {
       input,
       ip,
+      pulse,
       timestamp: Date.now()
     };
 
