@@ -886,6 +886,9 @@ jobs:
     - name: External Irreversible Witness
       run: python analysis/external_irreversible_witness.py
 
+    - name: Adaptive weighting
+      run: python analysis/adaptive_weights.py
+
     - name: Persist results (conflict-safe)
       if: always() && github.actor != 'github-actions[bot]'
       run: |
