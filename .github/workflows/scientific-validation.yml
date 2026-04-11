@@ -128,6 +128,9 @@ jobs:
           console.log("Payload validated.");
           NODE
 
+      - name: Verify witness signature
+        run: node analysis/verify_witness_signature.js
+
       - name: Attach witness hash
         run: |
           node - <<'NODE'
