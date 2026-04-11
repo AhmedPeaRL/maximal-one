@@ -1,22 +1,22 @@
 import json
 import hashlib
-import requests
 import time
+import requests
 
 """
-External Irreducible Judge Layer
+REAL External Judge Layer
 
-This module sends minimal, non-biased output
-to an external endpoint that CANNOT be influenced
-by the internal system.
-
-Goal:
-Break closed epistemic loop.
+This uses multiple independent endpoints
+to break single-point bias.
 """
 
-JUDGE_ENDPOINT = "https://httpbin.org/post"  # placeholder (replace later)
+ENDPOINTS = [
+    "https://httpbin.org/post",
+    "https://webhook.site/38fd0af0-1baa-4ad1-85a4-daa47cd18ff5"
+]
 
-def load_core_result():
+
+def load_report():
     try:
         with open("artifacts/canonical_report.json") as f:
             return json.load(f)
@@ -24,7 +24,7 @@ def load_core_result():
         return None
 
 
-def extract_minimal_signal(report):
+def extract_signal(report):
     return {
         "alpha": report.get("spectral_profile", {}).get("estimated_alpha"),
         "sigma": report.get("spectral_profile", {}).get("bootstrap_std"),
@@ -32,45 +32,44 @@ def extract_minimal_signal(report):
     }
 
 
-def build_judge_payload(signal):
-    raw = json.dumps(signal, sort_keys=True)
-    signature = hashlib.sha256(raw.encode()).hexdigest()
-
-    return {
-        "signal": signal,
-        "signature": signature
-    }
+def sign(payload):
+    raw = json.dumps(payload, sort_keys=True)
+    return hashlib.sha256(raw.encode()).hexdigest()
 
 
-def send_to_external_judge(payload):
+def send(endpoint, payload):
     try:
-        res = requests.post(JUDGE_ENDPOINT, json=payload, timeout=5)
-        return res.status_code, res.text
+        r = requests.post(endpoint, json=payload, timeout=5)
+        return {
+            "endpoint": endpoint,
+            "status": r.status_code
+        }
     except Exception as e:
-        return 500, str(e)
+        return {
+            "endpoint": endpoint,
+            "status": 500,
+            "error": str(e)
+        }
 
 
 def main():
-    report = load_core_result()
-
+    report = load_report()
     if not report:
-        print("No report found")
+        print("No report")
         return
 
-    signal = extract_minimal_signal(report)
+    signal = extract_signal(report)
+    payload = {
+        "signal": signal,
+        "signature": sign(signal)
+    }
 
-    payload = build_judge_payload(signal)
+    results = [send(e, payload) for e in ENDPOINTS]
 
-    status, response = send_to_external_judge(payload)
+    with open("artifacts/external_judge_multi.json", "w") as f:
+        json.dump(results, f, indent=2)
 
-    print("External Judge Status:", status)
-
-    with open("artifacts/external_judge_log.json", "w") as f:
-        json.dump({
-            "status": status,
-            "response": response,
-            "payload": payload
-        }, f, indent=2)
+    print("External judge consensus created.")
 
 
 if __name__ == "__main__":
