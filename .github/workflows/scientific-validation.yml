@@ -506,6 +506,10 @@ jobs:
     container:
       image: python@sha256:90f8795536170fd08236d2ceb74fe7065dbf74f738d8b84bfbf263656654dc9b
     needs: consensus
+    
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}
 
     steps:
 
@@ -548,6 +552,11 @@ jobs:
       with:
         name: autonomous-witness
         path: data/autonomous/
+
+    - uses: actions/download-artifact@v5
+      with:
+        name: report-hash
+        path: artifacts
 
     - uses: actions/download-artifact@v5
       with:
@@ -839,7 +848,14 @@ jobs:
                 "last_verdict": "not rejected"
             },
             "integrity": {
-                "report_hash": open("artifacts/report.hash").read().strip() if True else None,
+                import os
+
+                report_hash = None
+                if os.path.exists("artifacts/report.hash"):
+                    with open("artifacts/report.hash") as f:
+                        report_hash = f.read().strip()
+
+                "report_hash": report_hash,
                 "environment_hash": "bound"
             },
             "decision": {
