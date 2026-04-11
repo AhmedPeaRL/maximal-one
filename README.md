@@ -102,4 +102,4 @@ Latest statistical test output is stored under:
 pip install -r requirements.txt
 python master_experiment.py
 
-All outputs are deterministic given identical seeds and environment constraints.
+All outputs are deterministic under controlled seeds and constrained environments, subject to reproducibility limits of underlying infrastructure.
