@@ -187,8 +187,13 @@
       const el = document.getElementById("event");
 
       el.innerText =
-        "TRUTH SURFACE:\n\n" +
-        JSON.stringify(t, null, 2);
+        "EXTERNAL TRUTH SURFACE:
+          const collisionRes = await fetch('./artifacts/external_collision.json');
+          const collision = await collisionRes.json();
+
+        el.innerText +=
+          "\n\nCOLLISION RESULT:\n" +
+          JSON.stringify(collision, null, 2);
 
     } catch {
       console.log("No truth surface");
