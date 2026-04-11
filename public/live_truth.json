@@ -1,0 +1,25 @@
+{
+  "timestamp": null,
+  "system_state": "unknown",
+  "determinism": {
+    "consensus": false,
+    "divergence": "unknown"
+  },
+  "scientific_signal": {
+    "alpha": null,
+    "sigma": null,
+    "confidence": null
+  },
+  "falsifiability": {
+    "status": "untested",
+    "last_verdict": null
+  },
+  "integrity": {
+    "report_hash": null,
+    "environment_hash": null
+  },
+  "decision": {
+    "global": "pending",
+    "reason": null
+  }
+}
