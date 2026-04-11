@@ -880,6 +880,9 @@ jobs:
         print("Truth surface updated")
         PY
 
+    - name: External Irreducible Judge
+      run: python analysis/external_judge_bridge.py
+
     - name: Persist results (conflict-safe)
       if: always() && github.actor != 'github-actions[bot]'
       run: |
