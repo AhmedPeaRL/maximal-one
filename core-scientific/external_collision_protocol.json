@@ -1,0 +1,55 @@
+{
+  "protocol": "external_scientific_collision",
+  "version": "1.0",
+
+  "objective": "force maximal-one outputs into direct confrontation with external scientific baselines",
+
+  "collision_targets": [
+    {
+      "name": "white_noise_baseline",
+      "type": "statistical_null",
+      "description": "pure stochastic reference"
+    },
+    {
+      "name": "fractional_brownian_motion",
+      "type": "stochastic_process",
+      "description": "long-range dependent system"
+    },
+    {
+      "name": "chaotic_systems",
+      "type": "deterministic_chaos",
+      "examples": ["lorenz", "rossler", "logistic_map"]
+    },
+    {
+      "name": "real_world_data",
+      "type": "empirical",
+      "examples": ["sunspots", "market_data", "climate_series"]
+    }
+  ],
+
+  "collision_rules": {
+    "no_internal_metric_priority": true,
+    "external_metric_dominance": true,
+    "blind_evaluation": true,
+    "pre_registered_predictions_required": true
+  },
+
+  "success_criteria": {
+    "consistent_outperformance": false,
+    "statistically_significant_deviation": true,
+    "cross_dataset_generalization": true,
+    "replication_independence": true
+  },
+
+  "failure_modes": [
+    "overfitting_to_internal_structure",
+    "false_signal_detection",
+    "lack_of_external_reproducibility",
+    "artifact_dependency"
+  ],
+
+  "verdict_policy": {
+    "if_failed": "auto_revoke_claim_strength",
+    "if_passed": "escalate_to_publication_layer"
+  }
+}
