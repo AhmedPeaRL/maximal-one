@@ -829,8 +829,13 @@ jobs:
     - name: Update Truth Surface
       run: |
         python - <<'PY'
-        import json, time
-        import os
+        import json, time, os
+
+        report_hash = None
+
+        if os.path.exists("artifacts/report.hash"):
+           with open("artifacts/report.hash") as f:
+               report_hash = f.read().strip()
 
         truth = {
             "timestamp": time.time(),
@@ -849,11 +854,6 @@ jobs:
                 "last_verdict": "not rejected"
             },
             "integrity": {
-                report_hash == None
-                if os.path.exists("artifacts/report.hash"):
-                    with open("artifacts/report.hash") as f:
-                        report_hash = f.read().strip()
-
                 "report_hash": report_hash,
                 "environment_hash": "bound"
             },
@@ -862,7 +862,7 @@ jobs:
                 "reason": "no falsification survived"
             }
         }
-        import os
+
         os.makedirs("public", exist_ok=True)
 
         with open("public/live_truth.json","w") as f:
