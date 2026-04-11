@@ -77,7 +77,7 @@
     <span id="field-state">present</span>
   </div>
 
-  <div class="state">System operational under reproducible conditions.</div>
+  <div class="state">The field is active.</div>
 
   <textarea id="witness-input" placeholder="…" autocomplete="off"></textarea>
   <button id="witness-submit">Invoke</button>
@@ -86,8 +86,6 @@
   <div id="scientific-claim" style="margin-top:30px; opacity:0.75;">
   Loading claim...
   </div>
-
-  <div id="scientific-report" style="margin-top:30px; opacity:0.75;"></div>
 
   <script type="module">
   import { bindIrreducibleReality } from './core/irreducible_anchor.js';
@@ -201,17 +199,6 @@
       console.log("No truth surface");
     }
   }
-
-  async function loadScientificReport() {
-    try {
-      const res = await fetch('./public/scientific_report.md');
-     const text = await res.text();
-
-  document.getElementById("scientific-report").innerText = text;
-    } catch {
-  document.getElementById("scientific-report").innerText = "No report loaded.";
-    }
-  }
     
   import { liveStream } from './core/live_stream.js';
   import { applyCausalFeedback } from './core/causal_feedback.js';
@@ -221,7 +208,6 @@
     refreshWitnessPanel();
     loadScientificClaim();
     syncReality();
-    loadScientificReport();
 
     try {
       const res = await fetch('./public/live_truth.json');
