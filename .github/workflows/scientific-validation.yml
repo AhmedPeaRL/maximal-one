@@ -883,6 +883,9 @@ jobs:
     - name: External Irreducible Judge
       run: python analysis/external_judge_bridge.py
 
+    - name: External Irreversible Witness
+      run: python analysis/external_irreversible_witness.py
+
     - name: Persist results (conflict-safe)
       if: always() && github.actor != 'github-actions[bot]'
       run: |
