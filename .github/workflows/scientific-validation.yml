@@ -237,9 +237,6 @@ jobs:
       - name: Upgrade pip first
         run: python -m pip install --upgrade pip
 
-      - name: Pre-install build fix
-        run: pip install numpy scipy pandas statsmodels matplotlib sympy scs cvxpy scikit-learn pyarrow requests python-dateutil pytz
-
       - name: Install locked dependencies
         run: pip install --require-hashes -r requirements-lock.txt
            
