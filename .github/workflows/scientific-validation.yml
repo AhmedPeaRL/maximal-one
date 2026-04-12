@@ -10,8 +10,6 @@ on:
   push:
   pull_request:
   workflow_dispatch:
-  schedule:
-    - cron: "0 3 * * 0"
   
 permissions:
   contents: write
@@ -972,7 +970,7 @@ jobs:
         run: python stability/eigen_drift_check.py
   
   sweep-plus:
-    if: github.actor != 'github-actions[bot]' && success()
+    if: github.event_name == 'repository_dispatch' 
     runs-on: ubuntu-24.04
     needs: stability-check
 
