@@ -87,14 +87,15 @@ All experiments are under:
 
     /experiments/
 
----
-
 ## Power Test Result
 
 Latest statistical test output is stored under:
 
     data/power_result.txt
-    
+
+## Research Position
+
+See: core-scientific/research_position.md
 
 ## Execution
 
