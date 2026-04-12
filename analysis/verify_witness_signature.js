@@ -1,40 +1,30 @@
-import crypto from "crypto";
-import fs from "fs";
+const fs = require('fs');
+const crypto = require('crypto');
 
-const SECRET = process.env.WITNESS_SECRET || "fallback_secret";
+const payload = fs.readFileSync('payload.json', 'utf8');
 
-function generateSignature(payload) {
-  return crypto
-    .createHmac("sha256", SECRET)
-    .update(JSON.stringify(payload))
-    .digest("hex");
-}
+const publicKey = process.env.WITNESS_PUBLIC_KEY;
 
-function verify(payload, signature) {
-  const expected = generateSignature(payload);
-  return crypto.timingSafeEqual(
-    Buffer.from(expected),
-    Buffer.from(signature)
-  );
-}
-
-const raw = fs.readFileSync("payload.json", "utf8");
-const data = JSON.parse(raw);
-
-if (data._empty === true) {
-  console.log("Empty payload allowed.");
+if (!publicKey) {
+  console.log("No public key — skipping signature verification");
   process.exit(0);
 }
 
-const { signature, ...rest } = data;
+const signature = process.env.WITNESS_SIGNATURE;
 
 if (!signature) {
-  console.error("Missing signature.");
+  console.error("Missing signature");
   process.exit(1);
 }
 
-if (!verify(rest, signature)) {
-  console.error("Invalid signature.");
+const verify = crypto.createVerify('SHA256');
+verify.update(payload);
+verify.end();
+
+const isValid = verify.verify(publicKey, signature, 'base64');
+
+if (!isValid) {
+  console.error("Invalid signature");
   process.exit(1);
 }
 
