@@ -235,7 +235,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Upgrade pip first
-        run: python -m pip install --upgrade pip==24.0
+        run: python -m pip install --upgrade pip==26.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 'Python 3.11.8'
 
       - name: Install locked dependencies
         run: pip install --require-hashes -r requirements-lock.txt
@@ -565,6 +570,11 @@ jobs:
     - name: Mark repo safe
       run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: 'Python 3.11.8'
+          
     - name: Install locked dependencies
       run: pip install --require-hashes -r requirements-lock.txt
 
@@ -923,6 +933,11 @@ jobs:
     
     steps:
       - uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 'Python 3.11.8'
       
       - name: Install locked dependencies
         run: pip install --require-hashes -r requirements-lock.txt
@@ -953,6 +968,11 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 'Python 3.11.8'
 
       - name: Install locked dependencies
         run: pip install --require-hashes -r requirements-lock.txt
