@@ -1,7 +1,8 @@
 const fs = require('fs');
 const crypto = require('crypto');
 
-const payload = fs.readFileSync('payload.json', 'utf8');
+const raw = fs.readFileSync('payload.json', 'utf8');
+const data = JSON.parse(raw);
 
 const secret = process.env.WITNESS_SECRET;
 
@@ -10,19 +11,19 @@ if (!secret) {
   process.exit(0);
 }
 
-const expected = crypto
-  .createHmac('sha256', secret)
-  .update(payload)
-  .digest('hex');
+const { signature, ...payloadWithoutSig } = data;
 
-const incoming = JSON.parse(payload).signature;
-
-if (!incoming) {
+if (!signature) {
   console.error("Missing signature");
   process.exit(1);
 }
 
-if (incoming !== expected) {
+const expected = crypto
+  .createHmac('sha256', secret)
+  .update(JSON.stringify(payloadWithoutSig))
+  .digest('hex');
+
+if (signature !== expected) {
   console.error("Invalid signature (HMAC mismatch)");
   process.exit(1);
 }
