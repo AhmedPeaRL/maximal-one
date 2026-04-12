@@ -261,7 +261,9 @@
         JSON.stringify(envelope, null, 2);
 
       // 2. send to real system
-      const bridge = await fetch("/api/dispatch", {
+      const bridge = 
+        await fetch("https://github.com/AhmedPeaRL/maximal-one/blob/main/worker.js",
+        await fetch("/api/dispatch", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
