@@ -980,6 +980,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install system build tools
+        run: |
+          apt-get update
+          apt-get install -y build-essential g++
+
       - name: Install locked dependencies (strict + fallback awareness)
         run: |
           pip install --require-hashes -r requirements-lock.txt || {
