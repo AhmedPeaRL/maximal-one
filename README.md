@@ -87,6 +87,16 @@ All experiments are under:
 
     /experiments/
 
+## Baseline Comparison
+
+All spectral results are compared against:
+
+- White noise (α ≈ 0.5)
+- Fractional Brownian Motion (H = 0.5–0.9)
+- AR(1) processes
+
+This ensures deviations are not misinterpreted as structure.
+
 ## Power Test Result
 
 Latest statistical test output is stored under:
