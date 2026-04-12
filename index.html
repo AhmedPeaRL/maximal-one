@@ -151,7 +151,7 @@
       const el = document.getElementById("scientific-claim");
 
       el.innerText =
-        "CLAIM:\n" + claim.statement + "\n\n" +
+        "SCIENTIFIC CLAIM (TESTED, NOT ASSUMED):\n" + claim.statement + "\n\n" +
         "\n\nOUTPUT:\n" +
         "alpha (α), sigma (σ), decision" +
         "NULL:\n" + claim.null_hypothesis + "\n\n" +
@@ -188,7 +188,7 @@
       const el = document.getElementById("event");
 
       el.innerText =
-        "EXTERNAL TRUTH SURFACE:
+        "EXTERNAL TRUTH SURFACE:\n";
           const collisionRes = await fetch('./artifacts/external_collision.json');
           const collision = await collisionRes.json();
 
