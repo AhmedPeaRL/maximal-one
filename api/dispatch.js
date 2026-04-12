@@ -24,7 +24,7 @@ function rateLimit(ip) {
 
 function generateSignature(payload) {
   return crypto
-    .createHash("sha256")
+    .createHmac("sha256", process.env.WITNESS_SECRET)
     .update(JSON.stringify(payload))
     .digest("hex");
 }
