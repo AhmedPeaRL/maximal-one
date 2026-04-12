@@ -129,7 +129,7 @@ jobs:
           NODE
 
       - name: Verify witness signature
-        run: node analysis/verify_witness_signature.js
+        run: node analysis/verify_witness_signature.cjs
 
       - name: Attach witness hash
         run: |
@@ -971,8 +971,8 @@ jobs:
 
       - name: Install system build tools
         run: |
-          apt-get update
-          apt-get install -y build-essential g++
+          sudo apt-get update
+          sudo apt-get install -y build-essential g++
 
       - name: Install locked dependencies
         run: pip install --require-hashes -r requirements-lock.txt
