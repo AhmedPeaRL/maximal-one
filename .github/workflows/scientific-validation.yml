@@ -235,7 +235,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Upgrade pip first
-        run: python -m pip install --upgrade pip==26.0.1
+        run: python -m pip install --upgrade pip==24.0
 
       - name: Set up Python
         uses: actions/setup-python@v5
