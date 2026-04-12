@@ -971,7 +971,7 @@ jobs:
       - name: Eigenvalue drift
         run: python stability/eigen_drift_check.py
   
-  post-stability-check-verified-sweep:
+  sweep-plus:
     if: github.actor != 'github-actions[bot]' && success()
     runs-on: ubuntu-24.04
     needs: stability-check
