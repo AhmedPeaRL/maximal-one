@@ -3,7 +3,7 @@ const crypto = require('crypto');
 
 const payload = fs.readFileSync('payload.json', 'utf8');
 
-const expectedSignature = process.env.WITNESS_SIGNATURE;
+const expectedSignature = process.env.GH_TOKEN;
 
 if (!expectedSignature) {
   console.log("No signature — skipping verification");
