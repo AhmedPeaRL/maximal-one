@@ -6,19 +6,22 @@ import os
 import traceback
 import time
 
+
 def nonlinear_measure(x):
     return x**2 + 3*x + 7
+
 
 def compute_stability(seed):
     random.seed(seed)
     values = [random.random() for _ in range(1000)]
     transformed = [nonlinear_measure(v) for v in values]
-    
+
     mean = sum(transformed) / len(transformed)
     variance = sum((v - mean) ** 2 for v in transformed) / len(transformed)
     std = math.sqrt(variance)
-    
+
     return mean, std
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -35,8 +38,8 @@ def main():
 
         report = {
             "spectral_profile": {
-            "estimated_alpha": float(alpha),
-            "bootstrap_std": float(std)
+                "estimated_alpha": float(alpha),
+                "bootstrap_std": float(std)
             },
             "metadata": {
                 "seed": args.seed
@@ -44,22 +47,23 @@ def main():
         }
 
         with open("artifacts/canonical_report.json", "w") as f:
-            json.dump(report, f, sort_keys=True, separators=(',',':'))
-            
+            json.dump(report, f, sort_keys=True, separators=(',', ':'))
+
         print("✅ Report generated")
 
-     except Exception as e:
-         fallback = {
-             "status": "partial",
-             "error": str(e),
-             "trace": traceback.format_exc(),
-             "timestamp": time.time()
-          }
+    except Exception as e:
+        fallback = {
+            "status": "partial",
+            "error": str(e),
+            "trace": traceback.format_exc(),
+            "timestamp": time.time()
+        }
 
-          with open("artifacts/canonical_report.json", "w") as f:
-              json.dump(fallback, f)
+        with open("artifacts/canonical_report.json", "w") as f:
+            json.dump(fallback, f)
 
-          print("⚠️ Fallback report generated")
+        print("⚠️ Fallback report generated")
 
-    if name == "main":
-        main()
+
+if __name__ == "__main__":
+    main()
