@@ -997,12 +997,19 @@ jobs:
             pip install -r requirements-lock.txt
           }
         
-      - name: Pre-sweep sanity check
+      - name: Pre-sweep sanity check (self-healing)
         run: |
           if [ ! -f data/latest_state.json ]; then
-            echo "⚠️ Missing state → aborting sweep safely"
-            exit 0
-          fi
+            echo "⚠️ Missing state → generating fallback"
+
+            mkdir -p data
+
+            echo '{
+              "timestamp": 0,
+              "status": "fallback",
+              "coherence": 0
+             }' > data/latest_state.json
+           fi
 
       - name: Run multi-seed sweep
         run: |
