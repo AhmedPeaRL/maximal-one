@@ -519,6 +519,21 @@ jobs:
 
     steps:
 
+    # =========================
+    # 0) CHECKOUT FIRST (CRITICAL FIX)
+    # =========================
+
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
+    - name: Debug repo structure (early)
+      run: |
+        echo "==== CURRENT PATH ===="
+        pwd
+        echo "==== FILE TREE ===="
+        ls -R
+
     - name: System health check
       run: python analysis/system_health_check.py
 
@@ -535,20 +550,8 @@ jobs:
         apt-get update
         apt-get install -y git
 
-    - name: Checkout repository
-      uses: actions/checkout@v5
-      with:
-        fetch-depth: 0
-
     - name: Pre-run Witness (anticipation layer)
       run: python analysis/pre_run_witness.py
-
-    - name: Debug repo structure (CRITICAL)
-      run: |
-        echo "==== CURRENT PATH ===="
-        pwd
-        echo "==== FILE TREE ===="
-        ls -R
 
     - name: Autonomous Witness Injection
       run: |
