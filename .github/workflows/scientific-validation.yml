@@ -744,6 +744,9 @@ jobs:
     - name: Falsifiability Gate (Hard Science)
       run: python core-scientific/falsifiability_gate.py
 
+    - name: External Hostile Validation
+      run: python analysis/external_hostile_validation.py
+
     - name: Global verdict
       run: |
         python -m analysis.global_scientific_verdict
