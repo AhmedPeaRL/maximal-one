@@ -272,7 +272,7 @@
       const bridgeResult = await bridge.json();
 
       if (bridgeResult.ok) {
-        state.innerText = "propagated";
+        state.innerText = "propagated → field updated";
       } else {
         state.innerText = "partial";
       }
