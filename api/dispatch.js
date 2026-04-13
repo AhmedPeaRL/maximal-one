@@ -1,6 +1,7 @@
 import crypto from "crypto";
 
 const ALLOWED_ORIGIN = "https://ahmedpearl.github.io";
+const ALLOWED_PATH_PREFIX = "/maximal-one";
 
 const RATE_LIMIT = 10;
 const WINDOW_MS = 60000;
@@ -41,7 +42,7 @@ function isValidInput(input) {
 export default async function handler(req, res) {
   const origin = req.headers.origin || "";
 
-  if (origin !== ALLOWED_ORIGIN) {
+  if (!origin.startsWith(ALLOWED_ORIGIN)) {
     return res.status(403).json({ ok: false, error: "forbidden origin" });
   }
 
