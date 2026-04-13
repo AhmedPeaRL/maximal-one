@@ -20,6 +20,7 @@ env:
   NODE_ENV: "production"
   OPENBLAS_NUM_THREADS: "1"
   OMP_NUM_THREADS: "1"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   
@@ -937,32 +938,25 @@ jobs:
       run: |
         set -e
 
-        echo "=== ENSURE GIT CONTEXT ==="
+        echo "=== VERIFY GIT STATE ==="
         pwd
         ls -la
-        export GIT_WORK_TREE=$PWD
-        export GIT_DIR=$PWD/.git
-
+        
         git config --global user.name "github-actions"
         git config --global user.email "actions@github.com"
 
-        echo "=== FORCE CLEAN GIT STATE ==="
+        echo "=== SAFE SYNC WITH REMOTE ==="
 
-        # 💣 Reset everything to avoid ghost files
-        rm -rf .git
-
-        git init
-        git remote add origin https://github.com/${{ github.repository }}.git
-
+        # 🧠 الحل الحقيقي: sync بدل destroy
         git fetch origin main
 
-        # 💡 FORCE overwrite local state completely
-        git checkout -B main origin/main
+        # 🧼 reset tracked files فقط
+        git reset --hard origin/main
 
-        # 💡 Clean ANY untracked files
+        # 🧹 تنظيف untracked files بالكامل
         git clean -fdx
 
-        echo "✅ Clean git state enforced"
+        echo "✅ Clean synced state ready"
 
         echo "=== PREP DATA ==="
         mkdir -p data
