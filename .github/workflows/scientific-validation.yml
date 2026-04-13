@@ -558,7 +558,8 @@ jobs:
     # 1) BOOTSTRAP LAYER
     # =========================
 
-    - name: Fail on silent errors
+    - name: Fail on silent errors (strict bash)
+      shell: bash
       run: |
         set -euo pipefail
 
