@@ -509,7 +509,7 @@ jobs:
   verify:
     runs-on: ubuntu-24.04
     container:
-      image: python@sha256:90f8795536170fd08236d2ceb74fe7065dbf74f738d8b84bfbf263656654dc9b
+      image: python:3.11.8-slim
     needs: consensus
     timeout-minutes: 20
     
@@ -527,16 +527,16 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11.15'
+    - name: Verify Python runtime (container-native)
+      run: |
+        python --version
+        which python
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements-lock.txt
-
+        pip install --require-hashes -r requirements-lock.txt
+        
     - name: Debug repo structure (early)
       run: |
         echo "==== CURRENT PATH ===="
