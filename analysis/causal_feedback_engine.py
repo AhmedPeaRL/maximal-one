@@ -15,11 +15,22 @@ def load_json(path):
         return json.load(f)
 
 
+# 🔒 enforce numeric safety
+def to_float(x, default=0.0):
+    try:
+        if x is None:
+            return default
+        return float(x)
+    except (ValueError, TypeError):
+        return default
+
+
 def compute_feedback(state, truth):
     signal = truth.get("scientific_signal", {})
-    confidence = signal.get("confidence", 0)
 
-    coherence = state.get("field_coherence", 0)
+    # 🔥 SAFE extraction
+    confidence = to_float(signal.get("confidence", 0))
+    coherence = to_float(state.get("field_coherence", 0))
 
     drift = 1.0 - coherence
 
@@ -34,7 +45,7 @@ def compute_feedback(state, truth):
         "action": None
     }
 
-    # 🔥 core logic
+    # 🔥 core logic (safe now)
     if confidence > 0.9 and drift < 0.2:
         feedback["action"] = "reinforce"
     elif drift > 0.4:
