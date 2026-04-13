@@ -932,7 +932,7 @@ jobs:
         fi
 
     - name: Persist results (atomic-safe)
-      if: always() && github.actor != 'github-actions[bot]'
+      if: always()
       working-directory: ${{ github.workspace }}
       run: |
         set -e
@@ -940,18 +940,29 @@ jobs:
         echo "=== ENSURE GIT CONTEXT ==="
         pwd
         ls -la
+        export GIT_WORK_TREE=$PWD
+        export GIT_DIR=$PWD/.git
 
         git config --global user.name "github-actions"
         git config --global user.email "actions@github.com"
 
-        # 💡 IMPORTANT: تأكد إننا جوه repo
-        if [ ! -d ".git" ]; then
-          echo "❌ .git missing → forcing fresh checkout"
-          git init
-          git remote add origin https://github.com/${{ github.repository }}.git
-          git fetch origin
-          git checkout -b main origin/main
-        fi
+        echo "=== FORCE CLEAN GIT STATE ==="
+
+        # 💣 Reset everything to avoid ghost files
+        rm -rf .git
+
+        git init
+        git remote add origin https://github.com/${{ github.repository }}.git
+
+        git fetch origin main
+
+        # 💡 FORCE overwrite local state completely
+        git checkout -B main origin/main
+
+        # 💡 Clean ANY untracked files
+        git clean -fdx
+
+        echo "✅ Clean git state enforced"
 
         echo "=== PREP DATA ==="
         mkdir -p data
