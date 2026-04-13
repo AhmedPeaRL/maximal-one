@@ -41,7 +41,7 @@ function isValidInput(input) {
 export default async function handler(req, res) {
   const origin = req.headers.origin || "";
 
-  if (!origin.startsWith(ALLOWED_ORIGIN)) {
+  if (origin !== ALLOWED_ORIGIN) {
     return res.status(403).json({ ok: false, error: "forbidden origin" });
   }
 
