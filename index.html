@@ -211,6 +211,22 @@
       document.getElementById("scientific-report").innerText = "No report loaded.";
     }
   }
+
+  async function loadCausalFeedback() {
+    try {
+      const res = await fetch('./data/causal_feedback.json');
+      const f = await res.json();
+  
+      const panel = document.getElementById("witness-panel");
+
+      panel.innerText +=
+        "\n\nFEEDBACK:\n" +
+        `action: ${f.action}\n` +
+        `confidence: ${f.confidence}\n` +
+        `drift: ${f.drift}`;
+
+    } catch {}
+  }
     
   import { liveStream } from './core/live_stream.js';
   import { applyCausalFeedback } from './core/causal_feedback.js';
@@ -221,6 +237,7 @@
     loadScientificClaim();
     syncReality();
     loadScientificReport();
+    loadCausalFeedback();
 
     try {
       const res = await fetch('./public/live_truth.json');
