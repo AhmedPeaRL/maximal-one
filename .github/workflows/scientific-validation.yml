@@ -569,6 +569,13 @@ jobs:
         apt-get update
         apt-get install -y git
 
+    - name: Assert Git integrity
+      run: |
+        if [ ! -d ".git" ]; then
+          echo "❌ Git context lost"
+          exit 1
+        fi
+
     - name: Pre-run Witness (anticipation layer)
       run: python analysis/pre_run_witness.py
 
@@ -932,68 +939,69 @@ jobs:
           apt-get update && apt-get install -y git
         fi
 
-    - name: Persist results (atomic-safe)
-      if: always()
-      working-directory: ${{ github.workspace }}
-      run: |
-        set -e
+     - name: Persist results (atomic-safe FIXED)
+       if: always()
+       working-directory: ${{ github.workspace }}
+       run: |
+         set -e
 
-        echo "=== VERIFY GIT STATE ==="
-        pwd
-        ls -la
-        
-        git config --global user.name "github-actions"
-        git config --global user.email "actions@github.com"
+         echo "=== VERIFY GIT STATE ==="
+         pwd
+         ls -la
 
-        echo "=== SAFE SYNC WITH REMOTE ==="
+         git config --global user.name "github-actions"
+         git config --global user.email "actions@github.com"
 
-        # 🧠 الحل الحقيقي: sync بدل destroy
-        git fetch origin main
+         echo "=== ENSURE GIT REPO ==="
 
-        # 🧼 reset tracked files فقط
-        git reset --hard origin/main
+         if [ ! -d ".git" ]; then
+           echo "⚠️ .git missing — reinitializing safely"
 
-        # 🧹 تنظيف untracked files بالكامل
-        git clean -fdx
+           git init
+           git remote add origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
+           git fetch origin main
+           git checkout -b main origin/main
+         fi
 
-        echo "✅ Clean synced state ready"
+         echo "=== SAFE SYNC (NON-DESTRUCTIVE) ==="
 
-        echo "=== PREP DATA ==="
-        mkdir -p data
+         git pull --rebase origin main || true
 
-        if ls artifacts/*.json 1> /dev/null 2>&1; then
-          cp artifacts/*.json data/$(date +%s)_artifact.json
-        else
-          echo "⚠️ No artifacts found — skipping copy"
-        fi
+         echo "=== PREP DATA ==="
 
-        git add data/
+         mkdir -p data
 
-        if git diff --cached --quiet; then
-          echo "No changes"
-          exit 0
-        fi
+         if ls artifacts/*.json 1> /dev/null 2>&1; then
+           cp artifacts/*.json data/$(date +%s)_artifact.json
+         else
+           echo "⚠️ No artifacts found — skipping copy"
+         fi
 
-        git commit -m "Automated results" || true
+         git add data/
 
-        echo "=== SAFE PUSH LOOP ==="
+         if git diff --cached --quiet; then
+           echo "No changes"
+           exit 0
+         fi
 
-        for i in 1 2 3 4 5
-        do
-          echo "Attempt $i..."
+         git commit -m "Automated results" || true
 
-          git pull --rebase origin main || true
+         echo "=== SAFE PUSH LOOP ==="
 
-          if git push origin HEAD:main; then
-            echo "Push succeeded"
-            exit 0
-          fi
+         for i in 1 2 3 4 5
+         do
+           echo "Attempt $i..."
 
-          sleep 2
-        done
+           if git push origin HEAD:main; then
+             echo "Push succeeded"
+             exit 0
+           fi
 
-        echo "Push failed"
-        exit 1
+           sleep 2
+         done
+
+         echo "Push failed"
+         exit 1
     
   stability-check:
     runs-on: ubuntu-24.04
