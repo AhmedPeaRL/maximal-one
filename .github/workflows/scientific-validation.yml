@@ -45,6 +45,11 @@ jobs:
 
           echo "✅ No hardcoded secrets detected"
 
+      - name: Mask secrets
+        run: |
+          echo "::add-mask::${{ secrets.GH_TOKEN }}"
+          echo "::add-mask::${{ secrets.WITNESS_SECRET }}"
+
       - name: Block real GitHub tokens only
         run: |
           echo "Scanning for REAL GitHub tokens..."
