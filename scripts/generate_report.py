@@ -38,6 +38,23 @@ def main():
         }
     }
 
+    try:
+        generate_report()
+    except Exception as e:
+        import json, traceback, time
+
+        fallback = {
+            "status": "partial",
+            "error": str(e),
+            "trace": traceback.format_exc(),
+            "timestamp": time.time()
+        }
+
+        with open("artifacts/canonical_report.json", "w") as f:
+            json.dump(fallback, f)
+
+        print("⚠️ Fallback report generated")
+
     # ensure artifacts directory exists
     import os
     os.makedirs("artifacts", exist_ok=True)
