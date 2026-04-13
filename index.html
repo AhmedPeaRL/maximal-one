@@ -166,7 +166,7 @@
 
   async function syncReality() {
     try {
-      const res = await fetch("/api/reality-sync");
+      const res = await fetch("/maximal-one/api/reality-sync");
       const d = await res.json();
 
       if (!d.ok) return;
@@ -278,7 +278,7 @@
         JSON.stringify(envelope, null, 2);
 
       // 2. send to real system
-      const bridge = await fetch("/api/dispatch", {
+      const bridge = await fetch("/maximal-one/api/dispatch", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
