@@ -23,7 +23,15 @@ const expected = crypto
   .update(JSON.stringify(payloadWithoutSig))
   .digest('hex');
 
-if (signature !== expected) {
+function safeCompare(a, b) {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
+
+if (!safeCompare(signature, expected)) {
   console.error("Invalid signature (HMAC mismatch)");
   process.exit(1);
 }
@@ -38,6 +46,14 @@ try {
 
 if (!data.timestamp || !data.nonce) {
   console.error("Missing anti-replay fields");
+  process.exit(1);
+}
+
+const now = Date.now();
+const age = Math.abs(now - data.timestamp);
+
+if (age > 60000) {
+  console.error("Replay attack detected (timestamp too old)");
   process.exit(1);
 }
 
