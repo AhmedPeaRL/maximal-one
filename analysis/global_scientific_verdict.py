@@ -82,14 +82,6 @@ if structural and structural.get("structure_preserved", False):
 
 emergence_tolerance = 0.15  # allow controlled deviation
 
-if score < threshold:
-    if abs(score - threshold) < emergence_tolerance:
-        print("⚠️ Near-threshold — emerging signal allowed")
-        verdict = "provisionally_valid_emergent"
-    else:
-        verdict = "rejected"
-else:
-    verdict = "valid"
 
 # -----------------------------
 # FINAL SCORE
