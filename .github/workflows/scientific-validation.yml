@@ -524,9 +524,19 @@ jobs:
     # 0) CHECKOUT FIRST (CRITICAL FIX)
     # =========================
 
+    - name: Ensure workspace permissions
+      run: |
+        chown -R root:root $GITHUB_WORKSPACE || true
+
     - uses: actions/checkout@v5
       with:
         fetch-depth: 0
+        persist-credentials: true
+
+    - name: Fix Git ownership (CRITICAL)
+      run: |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+        git config --global --add safe.directory /__w/maximal-one/maximal-one
 
     - name: Verify Python runtime (container-native)
       run: |
@@ -568,13 +578,6 @@ jobs:
       run: |
         apt-get update
         apt-get install -y git
-
-    - name: Assert Git integrity
-      run: |
-        if [ ! -d ".git" ]; then
-          echo "❌ Git context lost"
-          exit 1
-        fi
 
     - name: Pre-run Witness (anticipation layer)
       run: python analysis/pre_run_witness.py
@@ -949,18 +952,23 @@ jobs:
         pwd
         ls -la
 
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
         git config --global user.name "github-actions"
         git config --global user.email "actions@github.com"
 
         echo "=== ENSURE GIT REPO ==="
 
         if [ ! -d ".git" ]; then
-          echo "⚠️ .git missing — reinitializing safely"
+          echo "⚠️ Missing .git — recovering repository"
 
           git init
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
           git remote add origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
+
           git fetch origin main
-          git checkout -b main origin/main
+
+          git checkout -B main origin/main
         fi
 
         echo "=== SAFE SYNC (NON-DESTRUCTIVE) ==="
