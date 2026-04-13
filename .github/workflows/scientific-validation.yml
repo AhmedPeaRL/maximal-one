@@ -533,6 +533,11 @@ jobs:
         fetch-depth: 0
         persist-credentials: true
 
+    - name: Install git
+      run: |
+        apt-get update
+        apt-get install -y git
+
     - name: Fix Git ownership (CRITICAL)
       run: |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -573,11 +578,6 @@ jobs:
       shell: bash
       run: |
         set -euo pipefail
-
-    - name: Install git
-      run: |
-        apt-get update
-        apt-get install -y git
 
     - name: Pre-run Witness (anticipation layer)
       run: python analysis/pre_run_witness.py
