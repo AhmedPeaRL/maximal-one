@@ -1,5 +1,7 @@
 import crypto from "crypto";
 
+const ALLOWED_ORIGIN = "https://ahmedpearl.github.io";
+
 const RATE_LIMIT = 10;
 const WINDOW_MS = 60000;
 
@@ -37,6 +39,11 @@ function isValidInput(input) {
 }
 
 export default async function handler(req, res) {
+  const origin = req.headers.origin || "";
+
+  if (!origin.startsWith(ALLOWED_ORIGIN)) {
+    return res.status(403).json({ ok: false, error: "forbidden origin" });
+  }
 
   if (req.method !== "POST") {
     return res.status(405).json({ ok: false });
@@ -51,15 +58,23 @@ export default async function handler(req, res) {
 
     const ip = req.headers["x-forwarded-for"] || "unknown";
 
-    if (!rateLimit(ip)) {
-      return res.status(429).json({ ok: false, error: "rate limit exceeded" });
-    }
+function safeCompare(a, b) {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+
+  if (bufA.length !== bufB.length) return false;
+
+  return crypto.timingSafeEqual(bufA, bufB);
+}
 
     const pulse = Math.floor(Date.now() / 5000);
 
+    const nonce = crypto.randomBytes(16).toString("hex");
+    
     const payload = {
       input,
       pulse,
+      nonce,
       timestamp: Date.now()
     };
 
