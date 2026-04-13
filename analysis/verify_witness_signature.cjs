@@ -28,4 +28,17 @@ if (signature !== expected) {
   process.exit(1);
 }
 
+const { execSync } = require('child_process');
+
+try {
+  execSync(`python analysis/replay_guard.py`, { stdio: 'inherit' });
+} catch {
+  process.exit(1);
+}
+
+if (!data.timestamp || !data.nonce) {
+  console.error("Missing anti-replay fields");
+  process.exit(1);
+}
+
 console.log("Signature verified (HMAC match).");
