@@ -48,13 +48,13 @@ def main():
             
             print("✅ Report generated")
 
-        except Exception as e:
-            fallback = {
-                "status": "partial",
-                "error": str(e),
-                "trace": traceback.format_exc(),
-                "timestamp": time.time()
-            }
+     except Exception as e:
+         fallback = {
+             "status": "partial",
+             "error": str(e),
+             "trace": traceback.format_exc(),
+             "timestamp": time.time()
+          }
 
      with open("artifacts/canonical_report.json", "w") as f:
         json.dump(fallback, f)
