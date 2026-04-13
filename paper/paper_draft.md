@@ -214,7 +214,19 @@ Interpretation remains constrained to statistics
 
 ---
 
-7. Future Work
+7. External Reproducibility Status
+
+At the time of writing, full independent external reproduction
+has not yet been confirmed.
+
+This remains a required condition before any strong scientific claim
+can be considered validated.
+
+The framework explicitly invites adversarial external replication.
+
+---
+
+8. Future Work
 
 Cross-cloud validation (AWS, GCP, Azure)
 
@@ -226,7 +238,7 @@ Formal mathematical modeling of observed spectra
 
 ---
 
-8. Conclusion
+9. Conclusion
 
 This paper presents a reproducible, falsification-driven framework for testing structural emergence in deterministic computational systems.
 
