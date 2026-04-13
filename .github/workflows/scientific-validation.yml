@@ -924,14 +924,43 @@ jobs:
     - name: Adaptive weighting
       run: python analysis/adaptive_weights.py
 
-    - name: Persist results (conflict-safe)
-      if: always() && github.actor != 'github-actions[bot]'
+    - name: Ensure git exists
       run: |
+        if ! command -v git &> /dev/null; then
+          echo "Installing git..."
+          apt-get update && apt-get install -y git
+        fi
+
+    - name: Persist results (atomic-safe)
+      if: always() && github.actor != 'github-actions[bot]'
+      working-directory: ${{ github.workspace }}
+      run: |
+        set -e
+
+        echo "=== ENSURE GIT CONTEXT ==="
+        pwd
+        ls -la
+
         git config --global user.name "github-actions"
         git config --global user.email "actions@github.com"
 
+        # 💡 IMPORTANT: تأكد إننا جوه repo
+        if [ ! -d ".git" ]; then
+          echo "❌ .git missing → forcing fresh checkout"
+          git init
+          git remote add origin https://github.com/${{ github.repository }}.git
+          git fetch origin
+          git checkout -b main origin/main
+        fi
+
+        echo "=== PREP DATA ==="
         mkdir -p data
-        cp artifacts/*.json data/$(date +%s)_artifact.json || true
+
+        if ls artifacts/*.json 1> /dev/null 2>&1; then
+          cp artifacts/*.json data/$(date +%s)_artifact.json
+        else
+          echo "⚠️ No artifacts found — skipping copy"
+        fi
 
         git add data/
 
@@ -940,31 +969,25 @@ jobs:
           exit 0
         fi
 
-        git commit -m "Automated results" || echo "Nothing to commit"
+        git commit -m "Automated results" || true
 
-        # 🔁 Retry loop with hard reset strategy
+        echo "=== SAFE PUSH LOOP ==="
+
         for i in 1 2 3 4 5
         do
           echo "Attempt $i..."
 
-          git fetch origin
-
-          # 🧠 الحل الحقيقي: نرمي local state ونركب على remote
-          git reset --hard origin/main
-
-          git add data/
-          git commit -m "Automated results" || true
+          git pull --rebase origin main || true
 
           if git push origin HEAD:main; then
             echo "Push succeeded"
             exit 0
           fi
 
-          echo "Retrying..."
           sleep 2
         done
 
-        echo "Push failed after retries"
+        echo "Push failed"
         exit 1
     
   stability-check:
