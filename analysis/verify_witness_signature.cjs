@@ -18,9 +18,11 @@ if (!signature) {
   process.exit(1);
 }
 
+const canonical = JSON.stringify(payloadWithoutSig, Object.keys(payloadWithoutSig).sort());
+
 const expected = crypto
   .createHmac('sha256', secret)
-  .update(JSON.stringify(payloadWithoutSig))
+  .update(canonical)
   .digest('hex');
 
 function safeCompare(a, b) {
