@@ -532,10 +532,17 @@ jobs:
         python --version
         which python
 
-    - name: Install dependencies
+    - name: Install system build tools
       run: |
-        python -m pip install --upgrade pip
-        pip install --require-hashes -r requirements-lock.txt
+        apt-get update
+        apt-get install -y build-essential g++
+
+    - name: Install locked dependencies (strict + fallback awareness)
+      run: |
+        pip install --require-hashes -r requirements-lock.txt || {
+          echo "⚠️ Hash mismatch detected — recording divergence"
+          pip install -r requirements-lock.txt
+        }
         
     - name: Debug repo structure (early)
       run: |
@@ -599,18 +606,6 @@ jobs:
 
     - name: Mark repo safe
       run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
-    - name: Install system build tools
-      run: |
-        apt-get update
-        apt-get install -y build-essential g++
-
-    - name: Install locked dependencies (strict + fallback awareness)
-      run: |
-        pip install --require-hashes -r requirements-lock.txt || {
-          echo "⚠️ Hash mismatch detected — recording divergence"
-          pip install -r requirements-lock.txt
-        }
  
     - name: Init runtime guard
       run: python -m repro_core.runtime_guard
