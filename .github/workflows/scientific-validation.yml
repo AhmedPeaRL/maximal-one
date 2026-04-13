@@ -959,20 +959,28 @@ jobs:
         echo "=== ENSURE GIT REPO ==="
 
         if [ ! -d ".git" ]; then
-          echo "⚠️ Missing .git — recovering repository"
+          echo "⚠️ Missing .git — reconstructing safely"
 
           git init
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
           git remote add origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
 
+          # بدل ما نعمل checkout (اللي بيكسر الدنيا)
           git fetch origin main
 
-          git checkout -B main origin/main
+          # نربط الحالة الحالية بالريموت بدون تدمير
+          git add -A
+          git commit -m "Reconstruct local state before sync" || true
+
+          git branch -M main
+
+          git config pull.rebase true
+          git pull --rebase origin main || true
         fi
 
-        echo "=== SAFE SYNC (NON-DESTRUCTIVE) ==="
-
+          echo "=== SAFE SYNC (NON-DESTRUCTIVE) ==="
+       
         git pull --rebase origin main || true
 
         echo "=== PREP DATA ==="
