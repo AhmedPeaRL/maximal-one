@@ -1,21 +1,17 @@
 import crypto from "crypto";
 
-const RATE_LIMIT = 10; // max requests
-const WINDOW_MS = 60000; // 1 min
+const RATE_LIMIT = 10;
+const WINDOW_MS = 60000;
 
 const memory = new Map();
 
 function rateLimit(ip) {
   const now = Date.now();
-  if (!memory.has(ip)) {
-    memory.set(ip, []);
-  }
+  if (!memory.has(ip)) memory.set(ip, []);
 
   const timestamps = memory.get(ip).filter(t => now - t < WINDOW_MS);
 
-  if (timestamps.length >= RATE_LIMIT) {
-    return false;
-  }
+  if (timestamps.length >= RATE_LIMIT) return false;
 
   timestamps.push(now);
   memory.set(ip, timestamps);
@@ -29,6 +25,17 @@ function generateSignature(payload) {
     .digest("hex");
 }
 
+function isValidInput(input) {
+  if (typeof input !== "string") return false;
+  if (input.length === 0 || input.length > 300) return false;
+
+  // منع payloads المشبوهة
+  if (input.includes("{") || input.includes("}")) return false;
+  if (input.includes("<") || input.includes(">")) return false;
+
+  return true;
+}
+
 export default async function handler(req, res) {
 
   if (req.method !== "POST") {
@@ -38,31 +45,24 @@ export default async function handler(req, res) {
   try {
     const { input } = req.body;
 
-    if (!input || typeof input !== "string") {
-      return res.status(400).json({ ok: false });
-    }
-
-    if (input.length > 500) {
-      return res.status(400).json({ ok: false });
+    if (!isValidInput(input)) {
+      return res.status(400).json({ ok: false, error: "invalid input" });
     }
 
     const ip = req.headers["x-forwarded-for"] || "unknown";
 
-    // 🔴 rate limiting
     if (!rateLimit(ip)) {
       return res.status(429).json({ ok: false, error: "rate limit exceeded" });
     }
 
-    const pulse = Math.floor(Date.now() / 5000); // 5 sec rhythm
+    const pulse = Math.floor(Date.now() / 5000);
 
     const payload = {
       input,
-      ip,
       pulse,
       timestamp: Date.now()
     };
 
-    // 🔴 anti-replay hash
     const signature = generateSignature(payload);
 
     const response = await fetch(
@@ -85,13 +85,12 @@ export default async function handler(req, res) {
     );
 
     if (!response.ok) {
-      const text = await response.text();
-      return res.status(500).json({ ok: false, error: text });
+      return res.status(500).json({ ok: false });
     }
 
     return res.json({ ok: true });
 
-  } catch (e) {
-    return res.status(500).json({ ok: false, error: e.message });
+  } catch {
+    return res.status(500).json({ ok: false });
   }
 }
