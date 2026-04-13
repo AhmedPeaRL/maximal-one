@@ -56,7 +56,12 @@ export default async function handler(req, res) {
       return res.status(400).json({ ok: false, error: "invalid input" });
     }
 
-    const ip = req.headers["x-forwarded-for"] || "unknown";
+    const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown";
+
+    // 🔥 ACTIVATE RATE LIMIT
+    if (!rateLimit(ip)) {
+      return res.status(429).json({ ok: false, error: "rate limit exceeded" });
+    }
 
 function safeCompare(a, b) {
   const bufA = Buffer.from(a);
