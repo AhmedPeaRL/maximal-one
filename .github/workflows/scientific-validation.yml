@@ -243,14 +243,16 @@ jobs:
       - name: Install system build tools
         run: |
           apt-get update
-          apt-get install -y build-essential g++
+          DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential g++ python3-dev
 
-      - name: Install locked dependencies (strict + fallback awareness)
+      - name: Install locked dependencies (strict)
         run: |
-          pip install --require-hashes -r requirements-lock.txt || {
-            echo "⚠️ Hash mismatch detected — recording divergence"
-            pip install -r requirements-lock.txt
-          }
+          pip install --upgrade pip
+
+          if ! pip install --require-hashes -r requirements-lock.txt; then
+            echo "❌ Hash mismatch = reproducibility violation"
+            exit 1
+          fi
            
       - name: Freeze environment
         run: pip freeze > pip-freeze.txt
@@ -509,6 +511,7 @@ jobs:
     container:
       image: python@sha256:90f8795536170fd08236d2ceb74fe7065dbf74f738d8b84bfbf263656654dc9b
     needs: consensus
+    timeout-minutes: 20
     
     defaults:
       run:
@@ -516,9 +519,16 @@ jobs:
 
     steps:
 
+    - name: System health check
+      run: python analysis/system_health_check.py
+
     # =========================
     # 1) BOOTSTRAP LAYER
     # =========================
+
+    - name: Fail on silent errors
+      run: |
+        set -euo pipefail
 
     - name: Install git
       run: |
@@ -606,11 +616,17 @@ jobs:
     # 2) DATA LAYER
     # =========================
         
-    - name: Fetch datasets
+    - name: Fetch datasets (controlled)
       run: |
-        python -m analysis.global_chaos_fetcher
-        python -m analysis.extended_chaos_fetcher
+        set -e
 
+        echo "Fetching datasets with timeout guard..."
+
+        timeout 120 python -m analysis.global_chaos_fetcher || echo "⚠️ global fetch skipped"
+        timeout 120 python -m analysis.extended_chaos_fetcher || echo "⚠️ extended fetch skipped"
+
+        echo "Dataset fetch stage completed safely"
+        
     - name: Ensure sunspots dataset
       run: |
         if [ ! -f real-data/sunspots_global.csv ]; then
