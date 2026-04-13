@@ -17,6 +17,8 @@ The system performs:
 
 ## Scientific Position
 
+This system is considered incomplete until independently reproduced outside its original execution environment.
+
 This repository does NOT assume emergent structure.
 
 It attempts to falsify the null hypothesis using reproducible computation.
