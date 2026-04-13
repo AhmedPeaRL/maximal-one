@@ -794,6 +794,9 @@ jobs:
     - name: Decision Engine
       run: python analysis/decision_engine.py
 
+    - name: Causal Feedback Engine
+      run: python analysis/causal_feedback_engine.py
+
     - name: Export market artifact
       run: python scripts/export_market_artifact.py
 
