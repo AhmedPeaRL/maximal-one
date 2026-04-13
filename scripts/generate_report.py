@@ -46,7 +46,7 @@ def main():
         with open("artifacts/canonical_report.json", "w") as f:
             json.dump(report, f, sort_keys=True, separators=(',',':'))
             
-            print("✅ Report generated")
+        print("✅ Report generated")
 
      except Exception as e:
          fallback = {
@@ -56,10 +56,10 @@ def main():
              "timestamp": time.time()
           }
 
-     with open("artifacts/canonical_report.json", "w") as f:
-        json.dump(fallback, f)
+          with open("artifacts/canonical_report.json", "w") as f:
+              json.dump(fallback, f)
 
-     print("⚠️ Fallback report generated")
+          print("⚠️ Fallback report generated")
 
-if name == "main":
-    main()
+    if name == "main":
+        main()
