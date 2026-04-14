@@ -3,42 +3,21 @@ import path from "path";
 
 export default async function handler(req, res) {
   try {
-    const artifactPath = path.join(process.cwd(), "data");
-
-    if (!fs.existsSync(artifactPath)) {
-      return res.json({
-        ok: false,
-        reason: "no-artifacts"
-      });
-    }
-
-    const files = fs.readdirSync(artifactPath)
-      .filter(f => f.endsWith(".json"))
-      .sort((a, b) => b.localeCompare(a));
-
-    if (files.length === 0) {
-      return res.json({
-        ok: false,
-        reason: "empty"
-      });
-    }
-
-    const latest = files[0];
-
-    const content = JSON.parse(
-      fs.readFileSync(path.join(artifactPath, latest), "utf8")
+    const response = await fetch(
+      "https://raw.githubusercontent.com/ahmedpearl/maximal-one/main/public/live_truth.json"
     );
 
-    res.json({
+    const data = await response.json();
+
+    return res.json({
       ok: true,
-      timestamp: latest,
-      state: content
+      state: data
     });
 
   } catch (e) {
-    res.json({
+    return res.status(500).json({
       ok: false,
-      error: e.message
+      error: "sync_failed"
     });
   }
 }
