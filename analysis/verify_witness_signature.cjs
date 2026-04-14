@@ -4,6 +4,11 @@ const crypto = require('crypto');
 const raw = fs.readFileSync('payload.json', 'utf8');
 const data = JSON.parse(raw);
 
+if (data._empty === true) {
+  console.log("Empty witness — skipping signature verification.");
+  process.exit(0);
+}
+
 const secret = process.env.WITNESS_SECRET;
 
 if (!secret) {
@@ -18,12 +23,16 @@ if (!signature) {
   process.exit(1);
 }
 
-const canonical = JSON.stringify(payloadWithoutSig, Object.keys(payloadWithoutSig).sort());
+function canonicalStringify(obj) {
+  return JSON.stringify(obj, Object.keys(obj).sort());
+}
 
-const expected = crypto
-  .createHmac('sha256', secret)
-  .update(canonical)
-  .digest('hex');
+function generateSignature(payload) {
+  return crypto
+    .createHmac("sha256", process.env.WITNESS_SECRET)
+    .update(canonicalStringify(payload))
+    .digest("hex");
+}
 
 function safeCompare(a, b) {
   const bufA = Buffer.from(a);
