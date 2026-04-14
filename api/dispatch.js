@@ -34,11 +34,22 @@ function generateSignature(payload) {
 
 function isValidInput(input) {
   if (typeof input !== "string") return false;
-  if (input.length === 0 || input.length > 300) return false;
 
-  // منع payloads المشبوهة
-  if (input.includes("{") || input.includes("}")) return false;
-  if (input.includes("<") || input.includes(">")) return false;
+  // طول منطقي
+  if (input.length === 0 || input.length > 500) return false;
+
+  // منع payloads الخطيرة بس
+  const forbiddenPatterns = [
+    /<script/i,
+    /<\/script>/i,
+    /javascript:/i,
+    /onerror=/i,
+    /onload=/i
+  ];
+
+  for (const pattern of forbiddenPatterns) {
+    if (pattern.test(input)) return false;
+  }
 
   return true;
 }
