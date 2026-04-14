@@ -133,6 +133,8 @@ jobs:
           NODE
 
       - name: Verify witness signature
+        env:
+          WITNESS_SECRET: ${{ secrets.WITNESS_SECRET }}
         run: node analysis/verify_witness_signature.cjs
 
       - name: Attach witness hash
