@@ -307,11 +307,8 @@ jobs:
       - name: Final cryptographic hash
         run: sha256sum artifacts/canonical_report.json | cut -d " " -f1 > report.hash
 
-      - name: Install Arweave SDK
-        run: pip install arweave-python-client
-
-      - name: Publish to Arweave
-        run: python analysis/arweave_anchor.py
+      - name: GitHub public anchor
+        run: python analysis/github_anchor.py
 
       - name: External Public Anchor
         run: python analysis/external_public_anchor.py
@@ -844,9 +841,6 @@ jobs:
 
     - name: Irreversible Notary (multi-anchor)
       run: python analysis/irreversible_notary.py
-
-    - name: GitHub public anchor
-      run: python analysis/github_anchor.py
   
     - name: Soft Scientific Evaluation Layer
       run: |
