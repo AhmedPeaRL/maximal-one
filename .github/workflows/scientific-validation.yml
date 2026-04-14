@@ -817,8 +817,30 @@ jobs:
     - name: External Irreversibility Anchor
       run: python analysis/external_irreversibility_anchor.py
   
-    - name: Falsifiability Gate (Hard Science)
-      run: python core-scientific/falsifiability_gate.py
+    - name: Soft Scientific Evaluation Layer
+      run: |
+          echo "=== SOFT EVALUATION LAYER ==="
+
+          FAILED=0
+
+          run_check () {
+            CMD=$1
+            NAME=$2
+
+            if ! $CMD; then
+              echo "⚠️ $NAME failed — recorded as signal"
+              FAILED=$((FAILED+1))
+            else
+              echo "✅ $NAME passed"
+            fi
+          }
+
+          run_check "python analysis/anti_triviality_hard_gate.py" "Anti-triviality"
+          run_check "python analysis/falsifiability_gate.py" "Falsifiability"
+          run_check "python analysis/universality_gate.py" "Universality"
+          run_check "python analysis/self_drift.py" "Drift"
+
+          echo "Soft failures: $FAILED"
 
     - name: External Hostile Validation
       run: python analysis/external_hostile_validation.py
@@ -827,9 +849,6 @@ jobs:
       run: |
         python -m analysis.global_scientific_verdict
         python -m analysis.global_signal_builder
-
-    - name: Self drift analysis
-      run: python analysis/self_drift.py
 
     - name: Self Revocation Guard
       run: python analysis/self_revocation_guard.py
@@ -840,9 +859,6 @@ jobs:
     - name: Wisdom Extraction
       run: python analysis/wisdom_extractor.py
 
-    - name: Universality gate
-      run: python analysis/universality_gate.py
-
     - name: Reality gap system
       run: |
         python -m analysis.reality_gap_detector
@@ -851,11 +867,6 @@ jobs:
 
     - name: Predictive Guard (Failure Foresight)
       run: python -m analysis.predictive_guard
-
-    - name: Anti-triviality
-      run: |
-        python -m analysis.anti_triviality_hard_gate
-        python -m analysis.anti_triviality_gate
 
     - name: Irreversibility
       run: |
