@@ -1006,7 +1006,8 @@ jobs:
         fi
 
         echo "=== CONFIGURE GIT ==="
-
+        
+        git config --global credential.helper store
         git config user.name "github-actions"
         git config user.email "actions@github.com"
         git config pull.rebase true
@@ -1048,10 +1049,15 @@ jobs:
 
         git commit -m "Atomic state update"
 
-        echo "=== SAFE PUSH ==="
+        echo "=== SAFE PUSH (TOKEN-INJECTED) ==="
+
+        # Inject token explicitly (CRITICAL FIX)
+        git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
 
         for i in 1 2 3 4 5
         do
+          git pull --rebase origin main || true
+
           if git push origin HEAD:main; then
             echo "Push succeeded"
             exit 0
