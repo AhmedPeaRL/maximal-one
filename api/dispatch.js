@@ -57,8 +57,13 @@ function isValidInput(input) {
 export default async function handler(req, res) {
   const origin = req.headers.origin || "";
 
-  if (!origin.startsWith(ALLOWED_ORIGIN)) {
-    return res.status(403).json({ ok: false, error: "forbidden origin" });
+  try {
+    const url = new URL(origin);
+    if (url.origin !== ALLOWED_ORIGIN) {
+      return res.status(403).json({ ok: false, error: "forbidden origin" });
+    }
+  } catch {
+    return res.status(403).json({ ok: false });
   }
 
   const referer = req.headers.referer || "";
