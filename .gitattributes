@@ -1,0 +1,14 @@
+# FORCE canonical ownership for critical state files
+
+core-scientific/public_signal.json merge=ours
+data/live_field_state.json merge=ours
+public/live_truth.json merge=ours
+
+# prevent accidental binary diff corruption
+*.json text eol=lf
+
+# lock critical state files from merge conflicts
+state.json merge=ours
+state/*.json merge=ours
+data/*.json merge=ours
+public/*.json merge=ours
