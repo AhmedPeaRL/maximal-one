@@ -988,10 +988,6 @@ jobs:
           git commit -m "Reconstruct local state before sync" || true
         fi
 
-          echo "=== SAFE SYNC (NON-DESTRUCTIVE) ==="
-       
-        git pull --rebase origin main || true
-
         echo "=== PREP DATA ==="
 
         mkdir -p data
