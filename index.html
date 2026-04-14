@@ -227,6 +227,22 @@
 
     } catch {}
   }
+
+  async function verifyTruth() {
+    try {
+      const res = await fetch("/maximal-one/api/verify-truth");
+      const v = await res.json();
+
+      const panel = document.getElementById("witness-panel");
+
+      panel.innerText +=
+        "\n\nVERIFICATION:\n" +
+        `integrity: ${v.integrity}\n` +
+        `decision: ${v.decision}\n` +
+        `confidence: ${v.confidence}`;
+
+    } catch {}
+  }
     
   import { liveStream } from './core/live_stream.js';
   import { applyCausalFeedback } from './core/causal_feedback.js';
@@ -238,6 +254,7 @@
     syncReality();
     loadScientificReport();
     loadCausalFeedback();
+    verifyTruth();
 
     try {
       const res = await fetch('./public/live_truth.json');
