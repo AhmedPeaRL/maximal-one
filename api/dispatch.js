@@ -67,12 +67,12 @@ export default async function handler(req, res) {
   }
 
   const referer = req.headers.referer || "";
-
-  try {
-    const ref = new URL(referer);
-    if (ref.origin !== ALLOWED_ORIGIN || !ref.pathname.startsWith(STRICT_PATH)) {
-      return res.status(403).json({ ok: false, error: "invalid path" });
-    }
+  if (!url.origin.includes("ahmedpearl.github.io")) {
+    try {
+      const ref = new URL(referer);
+      if (ref.origin !== ALLOWED_ORIGIN || !ref.pathname.startsWith(STRICT_PATH)) {
+        return res.status(403).json({ ok: false, error: "invalid path" });
+      }
   } catch {
     return res.status(403).json({ ok: false });
   }
@@ -92,7 +92,7 @@ export default async function handler(req, res) {
 
     // 🔥 ACTIVATE RATE LIMIT
     if (!rateLimit(ip)) {
-      return res.status(429).json({ ok: false, error: "rate limit exceeded" });
+      return res.status(429).json({ ok: fase, error: "rate limit exceeded" });
     }
 
 function safeCompare(a, b) {
