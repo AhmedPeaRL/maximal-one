@@ -7,8 +7,8 @@ const data = JSON.parse(raw);
 const secret = process.env.WITNESS_SECRET;
 
 if (!secret) {
-  console.log("No secret — skipping verification");
-  process.exit(0);
+  console.error("Missing WITNESS_SECRET");
+  process.exit(1);
 }
 
 const { signature, ...payloadWithoutSig } = data;
