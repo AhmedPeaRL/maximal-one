@@ -185,10 +185,6 @@ jobs:
             echo "Push failed after retries"
             exit 1
 
-              echo "Push succeeded"
-              exit 0
-            fi
-
             echo "Retry $i..."
             sleep 2
           done
