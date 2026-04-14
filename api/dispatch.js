@@ -68,8 +68,13 @@ export default async function handler(req, res) {
 
   const referer = req.headers.referer || "";
 
-  if (!referer.includes(STRICT_PATH)) {
-    return res.status(403).json({ ok: false, error: "invalid path" });
+  try {
+    const ref = new URL(referer);
+    if (ref.origin !== ALLOWED_ORIGIN || !ref.pathname.startsWith(STRICT_PATH)) {
+      return res.status(403).json({ ok: false, error: "invalid path" });
+    }
+  } catch {
+    return res.status(403).json({ ok: false });
   }
   
   if (req.method !== "POST") {
