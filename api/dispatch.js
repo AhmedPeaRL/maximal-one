@@ -1,7 +1,7 @@
 import crypto from "crypto";
 
 const ALLOWED_ORIGIN = "https://ahmedpearl.github.io";
-const ALLOWED_PATH_PREFIX = "/maximal-one";
+const STRICT_PATH = "/maximal-one";
 
 const RATE_LIMIT = 10;
 const WINDOW_MS = 60000;
@@ -21,10 +21,14 @@ function rateLimit(ip) {
   return true;
 }
 
+function canonicalStringify(obj) {
+  return JSON.stringify(obj, Object.keys(obj).sort());
+}
+
 function generateSignature(payload) {
   return crypto
     .createHmac("sha256", process.env.WITNESS_SECRET)
-    .update(JSON.stringify(payload))
+    .update(canonicalStringify(payload))
     .digest("hex");
 }
 
@@ -46,6 +50,12 @@ export default async function handler(req, res) {
     return res.status(403).json({ ok: false, error: "forbidden origin" });
   }
 
+  const referer = req.headers.referer || "";
+
+  if (!referer.includes(STRICT_PATH)) {
+    return res.status(403).json({ ok: false, error: "invalid path" });
+  }
+  
   if (req.method !== "POST") {
     return res.status(405).json({ ok: false });
   }
