@@ -663,6 +663,9 @@ jobs:
           echo "No divergence file found"
         fi
 
+    - name: Interpret field state
+      run: python analysis/field_state_interpreter.py
+
 
     # =========================
     # 2) DATA LAYER
