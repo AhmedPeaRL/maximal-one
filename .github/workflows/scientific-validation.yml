@@ -560,14 +560,24 @@ jobs:
     - name: System health check
       run: python analysis/system_health_check.py
 
+
     # =========================
-    # 1) BOOTSTRAP LAYER
+    # 1) BOOTSTRAP LAYER + GIT LAYER (FIXED ORDER)
     # =========================
 
     - name: Fail on silent errors (strict bash)
       shell: bash
       run: |
         set -euo pipefail
+
+    - name: Install git (before any git usage)
+      run: |
+        apt-get update
+        apt-get install -y git
+
+    - name: Verify git installation
+      run: |
+        git --version
 
     - name: Ensure git context (self-healing)
       shell: bash
@@ -583,11 +593,6 @@ jobs:
         fi
 
         echo "✅ Git context ready"
-
-    - name: Install git
-      run: |
-        apt-get update
-        apt-get install -y git
         
     - name: Fix Git ownership (CRITICAL)
       run: |
