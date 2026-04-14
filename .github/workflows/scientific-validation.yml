@@ -132,10 +132,16 @@ jobs:
           console.log("Payload validated.");
           NODE
 
-      - name: Verify witness signature
+      - name: Verify witness signature (conditional)
         env:
           WITNESS_SECRET: ${{ secrets.WITNESS_SECRET }}
-        run: node analysis/verify_witness_signature.cjs
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "External witness detected → verifying signature..."
+            node analysis/verify_witness_signature.cjs
+          else
+            echo "Internal trigger → skipping signature verification"
+          fi
 
       - name: Attach witness hash
         run: |
