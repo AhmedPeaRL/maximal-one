@@ -955,6 +955,8 @@ jobs:
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
         git config --global user.name "github-actions"
         git config --global user.email "actions@github.com"
+        git config --global merge.ours.driver true
+        git config pull.rebase true
 
         echo "=== ENSURE GIT REPO ==="
 
@@ -975,8 +977,15 @@ jobs:
 
           git branch -M main
 
-          git config pull.rebase true
-          git pull --rebase origin main || true
+          echo "=== HARD SYNC SAFE MODE ==="
+
+          git fetch origin main
+
+          git reset --soft origin/main
+
+          git add -A
+
+          git commit -m "Reconstruct local state before sync" || true
         fi
 
           echo "=== SAFE SYNC (NON-DESTRUCTIVE) ==="
@@ -992,6 +1001,10 @@ jobs:
         else
           echo "⚠️ No artifacts found — skipping copy"
         fi
+
+        git add .
+        git commit -m "Fix: enforce single state authority + conflict immunity"
+        git push origin main
 
         git add data/
 
