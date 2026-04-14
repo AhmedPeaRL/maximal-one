@@ -901,6 +901,9 @@ jobs:
         print("Live field state updated")
         PY
 
+    - name: Self Consistency Guard
+      run: python analysis/self_consistency_guard.py
+
     - name: Update Truth Surface
       run: |
         python - <<'PY'
