@@ -701,6 +701,9 @@ jobs:
         python -m analysis.dataset_guard
         python -m analysis.global_dataset_registry
 
+    - name: Build verification signal
+      run: python analysis/verification_signal.py
+
 
     # =========================
     # 3) CORE ANALYSIS
