@@ -1001,10 +1001,27 @@ jobs:
 
         mkdir -p data
 
-        if ls artifacts/*.json 1> /dev/null 2>&1; then
-          cp artifacts/*.json data/$(date +%s)_artifact.json
+        echo "=== PREP DATA (FIXED) ==="
+
+        mkdir -p data
+
+        # تأكد إن فيه artifacts
+        FILES=$(ls artifacts/*.json 2>/dev/null || true)
+
+        if [ -z "$FILES" ]; then
+          echo "⚠️ No artifacts found — generating fallback"
+
+          echo '{
+            "timestamp": '$(date +%s)',
+            "status": "no_artifact",
+            "coherence": 0
+          }' > data/fallback_$(date +%s).json
+
         else
-          echo "⚠️ No artifacts found"
+          for f in $FILES; do
+            BASENAME=$(basename "$f")
+            cp "$f" "data/$(date +%s)_$BASENAME"
+          done
         fi
 
         git add .
