@@ -1,0 +1,52 @@
+{
+  "system_identity": "maximal-one",
+  "commitment_version": "1.0.0",
+
+  "core_claim": {
+    "statement": "The system produces reproducible, falsifiable, and cross-runtime consistent signals indicating structured non-random behavior in observed datasets.",
+    "status": "provisionally_valid",
+    "last_validation": "auto-generated"
+  },
+
+  "epistemic_position": {
+    "mode": "non-absolute",
+    "falsifiable": true,
+    "self_revoking": true,
+    "external_dependency": true
+  },
+
+  "decision_policy": {
+    "accept_if": [
+      "reproducibility_passed",
+      "falsifiability_not_rejected",
+      "external_anchor_consistent"
+    ],
+    "reject_if": [
+      "hash_mismatch",
+      "external_rejection",
+      "self_revocation_triggered"
+    ]
+  },
+
+  "truth_anchor": {
+    "type": "cryptographic",
+    "binding": "report_hash",
+    "external_visibility": true
+  },
+
+  "observer_contract": {
+    "guarantee": "Any observer can reproduce or falsify the system using provided artifacts.",
+    "limitation": "No guarantee of permanence under new contradictory evidence."
+  },
+
+  "emergence_clause": {
+    "enabled": true,
+    "note": "System may exhibit controlled divergence interpreted as signal, not failure."
+  },
+
+  "finality": {
+    "state": "non-final",
+    "update_mode": "continuous",
+    "authority": "evidence-bound"
+  }
+}
