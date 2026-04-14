@@ -29,7 +29,7 @@ function canonicalStringify(obj) {
 
 function generateSignature(payload) {
   return crypto
-    .createHmac("sha256", process.env.WITNESS_SECRET)
+    .createHmac("sha256", secret)
     .update(canonicalStringify(payload))
     .digest("hex");
 }
@@ -42,19 +42,15 @@ function safeCompare(a, b) {
   return crypto.timingSafeEqual(bufA, bufB);
 }
 
+// ✅ FIX الحقيقي هنا
+const expected = generateSignature(payloadWithoutSig);
+
 if (!safeCompare(signature, expected)) {
   console.error("Invalid signature (HMAC mismatch)");
   process.exit(1);
 }
 
-const { execSync } = require('child_process');
-
-try {
-  execSync(`python analysis/replay_guard.py`, { stdio: 'inherit' });
-} catch {
-  process.exit(1);
-}
-
+// Anti-replay
 if (!data.timestamp || !data.nonce) {
   console.error("Missing anti-replay fields");
   process.exit(1);
@@ -65,6 +61,14 @@ const age = Math.abs(now - data.timestamp);
 
 if (age > 60000) {
   console.error("Replay attack detected (timestamp too old)");
+  process.exit(1);
+}
+
+// Optional replay guard
+try {
+  const { execSync } = require('child_process');
+  execSync(`python analysis/replay_guard.py`, { stdio: 'inherit' });
+} catch {
   process.exit(1);
 }
 
