@@ -381,6 +381,11 @@ jobs:
           echo "=== SCIENTIFIC CONTRACT ==="
           cat core-scientific/scientific_contract.json
 
+      - name: Load Truth Commitment
+        run: |
+          echo "=== TRUTH COMMITMENT ==="
+          cat core-scientific/truth_commitment.json
+
       - name: Load External Anchor
         run: |
           echo "=== EXTERNAL ANCHOR ==="
