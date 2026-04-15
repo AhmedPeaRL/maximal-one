@@ -88,6 +88,9 @@
   <button id="challenge-submit">Challenge</button>
 
   <div id="event"></div>
+  <div id="external-challenges" style="margin-top:30px; opacity:0.75;">
+    Loading external challenges...
+  </div>
   <div id="scientific-claim" style="margin-top:30px; opacity:0.75;">
     Loading claim...
   </div>
@@ -281,6 +284,21 @@
       document.getElementById("time-anchor").innerText = "No anchor.";
     }
   }
+
+  async function loadChallenges() {
+    try {
+      const res = await fetch('./data/external_challenges.json');
+      const c = await res.json();
+      
+      document.getElementById("external-challenges").innerText =
+        "EXTERNAL CHALLENGES:\n" +
+        JSON.stringify(c, null, 2);
+
+    } catch {
+      document.getElementById("external-challenges").innerText =
+        "No challenges yet.";
+    }
+  }
     
   import { liveStream } from './core/live_stream.js';
   import { applyCausalFeedback } from './core/causal_feedback.js';
@@ -295,6 +313,7 @@
     verifyTruth();
     loadExtractedSignal();
     loadTimeAnchor();
+    loadChallenges();
 
     try {
       const res = await fetch('./public/live_truth.json');
