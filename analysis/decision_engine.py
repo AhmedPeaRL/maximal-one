@@ -18,6 +18,8 @@ def save_json(path, data):
     with open(path, "w") as f:
         json.dump(data, f, indent=2)
 
+
+def pressure_oracle(data):
     try:
       with open("artifacts/external_pressure.json") as f:
           pressure = json.load(f)
