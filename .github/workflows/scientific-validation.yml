@@ -864,6 +864,9 @@ jobs:
     - name: Self Attack Protocol
       run: python analysis/self_attack_protocol.py
 
+    - name: External Challenge Resolution
+      run: python analysis/external_challenge_protocol.py
+
 
     # =========================
     # 6) FINAL GATES
