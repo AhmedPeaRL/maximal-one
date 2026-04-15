@@ -5,6 +5,7 @@ import math
 REPORT_PATH = "artifacts/canonical_report.json"
 HISTORY_PATH = "data/decision_history.json"
 OUTPUT_PATH = "artifacts/decision.json"
+PRESSURE_PATH = "artifacts/external_pressure.json"
 
 
 def load_json(path):
@@ -19,16 +20,36 @@ def save_json(path, data):
         json.dump(data, f, indent=2)
 
 
-def pressure_oracle(data):
-    try:
-      with open("artifacts/external_pressure.json") as f:
-          pressure = json.load(f)
+# ✅ FIX: pressure becomes explicit signal (not hidden side-effect)
+def load_pressure():
+    pressure = load_json(PRESSURE_PATH)
 
-      if pressure["evaluation"]["status"] == "critical":
-          decision["global"] = "unstable_under_pressure"
-    except:
-        pass
-    
+    if not pressure:
+        return {
+            "status": "absent",
+            "score": 0
+        }
+
+    try:
+        status = pressure.get("evaluation", {}).get("status", "unknown")
+
+        score_map = {
+            "stable": 0,
+            "warning": 1,
+            "critical": 2
+        }
+
+        return {
+            "status": status,
+            "score": score_map.get(status, 0)
+        }
+
+    except Exception:
+        return {
+            "status": "corrupted",
+            "score": 1
+        }
+
 
 def compute_signal(report):
     sp = report.get("spectral_profile", {})
@@ -46,7 +67,6 @@ def compute_signal(report):
 
 
 def bayesian_confidence(z):
-    # تحويل z-score لتقدير احتمالي
     return 1 - math.exp(-z)
 
 
@@ -73,12 +93,17 @@ def detect_persistence(z, history):
     return all(v > 2 for v in recent)
 
 
-def build_decision(signal):
+# ✅ FIX: decision depends on BOTH signal + pressure
+def build_decision(signal, pressure):
     z = signal["z_score"]
     confidence = bayesian_confidence(z)
 
     history = load_history()
     persistent = detect_persistence(z, history)
+
+    # 🔴 pressure override
+    if pressure["score"] >= 2:
+        return "UNSTABLE_UNDER_PRESSURE", "HALT_AND_DIAGNOSE", confidence
 
     if z > 5 and persistent:
         return "STRONG_PERSISTENT", "EXPORT_MARKET_SIGNAL", confidence
@@ -102,7 +127,10 @@ def main():
 
     signal = compute_signal(report)
 
-    label, action, conf = build_decision(signal)
+    # ✅ FIX: explicit pressure load
+    pressure = load_pressure()
+
+    label, action, conf = build_decision(signal, pressure)
 
     decision = {
         "pressure": pressure,
