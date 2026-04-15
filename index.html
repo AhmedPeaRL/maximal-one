@@ -89,9 +89,13 @@
 
   <div id="event"></div>
   <div id="scientific-claim" style="margin-top:30px; opacity:0.75;">
-  Loading claim...
+    Loading claim...
   </div>
   <div id="scientific-report" style="margin-top:30px; opacity:0.75;"></div>
+
+  <div id="market-signal" style="margin-top:30px; opacity:0.8;">
+    Loading extracted signal...
+  </div>
 
   <script type="module">
   import { bindIrreducibleReality } from './core/irreducible_anchor.js';
@@ -112,8 +116,8 @@
     try {
       const res = await fetch('./data/live_field_state.json');
       const d = await res.json();
-
-  document.getElementById("field-state").innerText =
+      
+      document.getElementById("field-state").innerText =
         d.global_state;
 
       state.innerText =
@@ -210,8 +214,8 @@
     try {
       const res = await fetch('./public/scientific_report.md');
       const text = await res.text();
-
-  document.getElementById("scientific-report").innerText = text;
+      
+      document.getElementById("scientific-report").innerText = text;
     } catch {
       document.getElementById("scientific-report").innerText = "No report loaded.";
     }
@@ -248,6 +252,20 @@
 
     } catch {}
   }
+
+  async function loadExtractedSignal() {
+    try {
+      const res = await fetch('./public/extracted_signal.json');
+      const s = await res.json();
+      
+      document.getElementById("market-signal").innerText =
+        "EXTRACTED SIGNAL:\n" +
+        JSON.stringify(s, null, 2);
+
+    } catch {
+      document.getElementById("market-signal").innerText = "No signal extracted.";
+    }
+  }
     
   import { liveStream } from './core/live_stream.js';
   import { applyCausalFeedback } from './core/causal_feedback.js';
@@ -260,6 +278,7 @@
     loadScientificReport();
     loadCausalFeedback();
     verifyTruth();
+    loadExtractedSignal();
 
     try {
       const res = await fetch('./public/live_truth.json');
