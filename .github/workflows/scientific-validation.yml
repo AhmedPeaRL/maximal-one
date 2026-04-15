@@ -1016,6 +1016,9 @@ jobs:
           apt-get update && apt-get install -y git
         fi
 
+    - name: Reality Closure Loop
+      run: python analysis/reality_closure_loop.py
+
     - name: Persist results (authoritative git layer)
       if: always()
       working-directory: ${{ github.workspace }}
