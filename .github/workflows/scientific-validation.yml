@@ -905,6 +905,9 @@ jobs:
         python analysis/external_pressure_oracle.py || \
         python analysis/failure_collector.py "external_pressure" "fail" "medium"
 
+    - name: Global Failure Orchestrator (pre-verdict)
+      run: python analysis/global_failure_orchestrator.py
+
     - name: Global verdict
       run: |
         python -m analysis.global_scientific_verdict
@@ -956,6 +959,9 @@ jobs:
 
     - name: Aggregate Failures
       run: python analysis/failure_aggregator.py
+
+    - name: Global Failure Orchestrator (final seal)
+      run: python analysis/global_failure_orchestrator.py
 
     - name: Failure Containment Verdict
       run: python analysis/failure_containment.py
