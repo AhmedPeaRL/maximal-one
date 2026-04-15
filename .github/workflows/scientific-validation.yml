@@ -930,6 +930,13 @@ jobs:
         python -m analysis.irreversibility_enforcer
         python -m analysis.irreversibility_gate
 
+    - name: Pre-decision sanity check
+      run: |
+        if [ ! -f artifacts/canonical_report.json ]; then
+          echo "❌ Missing report — cannot decide"
+          exit 1
+        fi
+
     - name: Decision Engine
       run: python analysis/decision_engine.py
 
