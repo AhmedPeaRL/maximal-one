@@ -105,6 +105,7 @@ def main():
     label, action, conf = build_decision(signal)
 
     decision = {
+        "pressure": pressure,
         "decision": label,
         "action": action,
         "confidence": round(conf, 4),
