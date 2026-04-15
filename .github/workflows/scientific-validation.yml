@@ -908,6 +908,12 @@ jobs:
     - name: Global Failure Orchestrator (pre-verdict)
       run: python analysis/global_failure_orchestrator.py
 
+    - name: Reality Commitment Pulse
+      run: python analysis/reality_commitment.py
+
+    - name: Evaluate Reality Commitments
+      run: python analysis/reality_commitment_evaluator.py
+
     - name: Global verdict
       run: |
         python -m analysis.global_scientific_verdict
