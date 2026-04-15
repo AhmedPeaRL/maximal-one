@@ -914,6 +914,9 @@ jobs:
     - name: Evaluate Reality Commitments
       run: python analysis/reality_commitment_evaluator.py
 
+    - name: Reality Breach Interface
+      run: python analysis/reality_breach_interface.py
+
     - name: Global verdict
       run: |
         python -m analysis.global_scientific_verdict
