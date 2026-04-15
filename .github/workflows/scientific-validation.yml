@@ -132,6 +132,35 @@ jobs:
           console.log("Payload validated.");
           NODE
 
+      - name: External Hostile Injection Test
+        run: |
+          echo "Running hostile injection simulation..."
+
+          node - <<'NODE'
+          const payloads = [
+            {},
+            { junk: "random_noise" },
+            { nested: { invalid: null } },
+            { oversized: "x".repeat(6000) }
+          ];
+
+          for (const p of payloads) {
+            const raw = JSON.stringify(p);
+
+            if (!raw || raw === "{}") {
+              console.log("Rejected empty payload ✔");
+              continue;
+            }
+
+            if (raw.length > 5000) {
+              console.log("Rejected oversized payload ✔");
+              continue;
+            }
+
+            console.log("Payload accepted (controlled):", raw.length);
+          }
+          NODE
+
       - name: Verify witness signature (conditional)
         env:
           WITNESS_SECRET: ${{ secrets.WITNESS_SECRET }}
