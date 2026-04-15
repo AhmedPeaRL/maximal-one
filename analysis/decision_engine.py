@@ -62,6 +62,16 @@ def detect_persistence(z, history):
     return all(v > 2 for v in recent)
 
 
+try:
+    with open("artifacts/external_pressure.json") as f:
+        pressure = json.load(f)
+
+    if pressure["evaluation"]["status"] == "critical":
+        decision["global"] = "unstable_under_pressure"
+except:
+    pass
+
+
 def build_decision(signal):
     z = signal["z_score"]
     confidence = bayesian_confidence(z)
