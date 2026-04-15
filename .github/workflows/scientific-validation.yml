@@ -872,6 +872,12 @@ jobs:
     # 6) FINAL GATES
     # =========================
 
+    - name: Public Challenge Loop
+      run: python analysis/public_challenge_loop.py
+
+    - name: Challenge Anchor (Irreversible)
+      run: python analysis/challenge_anchoring.py
+
     - name: External Irreversibility Anchor
       run: python analysis/external_irreversibility_anchor.py
 
