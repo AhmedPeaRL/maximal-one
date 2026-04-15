@@ -1,23 +1,31 @@
 import json
 import time
 import hashlib
-import requests
 import os
+import random
 
 PREDICTION_FILE = "artifacts/reality_prediction.json"
 RESULT_FILE = "artifacts/reality_result.json"
 
-EXTERNAL_API = "https://api.coindesk.com/v1/bpi/currentprice.json"
+SEED = 42  # deterministic anchor
+
+
+def deterministic_price(t):
+    random.seed(SEED + int(t))
+    base = 30000
+    noise = random.uniform(-500, 500)
+    trend = (t % 10) * 50
+    return base + trend + noise
 
 
 def generate_prediction():
-    # مثال بسيط: اتجاه سعر BTC
-    r = requests.get(EXTERNAL_API, timeout=10).json()
-    price = float(r["bpi"]["USD"]["rate"].replace(",", ""))
+    t = int(time.time())
+
+    price = deterministic_price(t)
 
     prediction = {
-        "timestamp": time.time(),
-        "prediction": "up" if price % 2 > 1 else "down",  # toy logic
+        "timestamp": t,
+        "prediction": "up" if price % 2 > 1 else "down",
         "reference_price": price
     }
 
@@ -40,10 +48,10 @@ def evaluate_prediction():
     with open(PREDICTION_FILE) as f:
         pred = json.load(f)
 
-    time.sleep(5)  # simulate delay (replace with real scheduling later)
+    time.sleep(2)
 
-    r = requests.get(EXTERNAL_API, timeout=10).json()
-    new_price = float(r["bpi"]["USD"]["rate"].replace(",", ""))
+    t_new = int(time.time())
+    new_price = deterministic_price(t_new)
 
     actual = "up" if new_price > pred["reference_price"] else "down"
 
@@ -53,7 +61,7 @@ def evaluate_prediction():
         "correct": pred["prediction"] == actual,
         "initial_price": pred["reference_price"],
         "final_price": new_price,
-        "timestamp": time.time()
+        "timestamp": t_new
     }
 
     with open(RESULT_FILE, "w") as f:
