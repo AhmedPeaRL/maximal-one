@@ -899,6 +899,9 @@ jobs:
     - name: External Hostile Validation
       run: python analysis/external_hostile_validation.py
 
+    - name: External Pressure Oracle
+      run: python analysis/external_pressure_oracle.py
+
     - name: Global verdict
       run: |
         python -m analysis.global_scientific_verdict
