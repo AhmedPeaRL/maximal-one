@@ -318,33 +318,33 @@
       eventBox.innerText = e.message;
     }
 
-    const reproduceBtn = document.getElementById("reproduce");
-
-    reproduceBtn.addEventListener("click", async () => {
-      try {
-        const res = await fetch("/maximal-one/api/reproduce", {
-          method: "POST"
-        });
-
-        const r = await res.json();
-
-        if (r.ok) {
-          document.getElementById("event").innerText =
-            "External reproduction triggered.";
-        } else {
-          document.getElementById("event").innerText =
-            "Reproduction failed.";
-        }
-      } catch {
-        
-        document.getElementById("event").innerText =
-          "Error triggering reproduction.";
-      }
-    });
-
     setTimeout(() => {
       state.innerText = "present";
     }, 2000);
+  });
+
+  const reproduceBtn = document.getElementById("reproduce");
+  
+  reproduceBtn.addEventListener("click", async () => {
+    try {
+      const res = await fetch("/maximal-one/api/reproduce", {
+        method: "POST"
+      });
+
+      const r = await res.json();
+
+      if (r.ok) {
+        document.getElementById("event").innerText =
+          "External reproduction triggered.";
+      } else {
+        document.getElementById("event").innerText =
+          "Reproduction failed.";
+      }
+    } catch {
+      
+      document.getElementById("event").innerText =
+        "Error triggering reproduction.";
+    }
   });
 </script>
   
