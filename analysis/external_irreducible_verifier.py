@@ -3,7 +3,7 @@ import json
 import time
 import requests
 
-🔒 Independent public endpoint (cannot be controlled by repo)
+# Independent public endpoint (cannot be controlled by repo)
 
 PUBLIC_ENDPOINT = "https://httpbin.org/post"
 
