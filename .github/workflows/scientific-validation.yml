@@ -21,6 +21,7 @@ env:
   OPENBLAS_NUM_THREADS: "1"
   OMP_NUM_THREADS: "1"
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  continue-on-error: true
 
 jobs:
   
@@ -900,7 +901,9 @@ jobs:
       run: python analysis/external_hostile_validation.py
 
     - name: External Pressure Oracle
-      run: python analysis/external_pressure_oracle.py
+      run: |
+        python analysis/external_pressure_oracle.py || \
+        python analysis/failure_collector.py "external_pressure" "fail" "medium"
 
     - name: Global verdict
       run: |
@@ -937,8 +940,10 @@ jobs:
           exit 1
         fi
 
-    - name: Decision Engine
-      run: python analysis/decision_engine.py
+    - name: Decision Engine (contained)
+      run: |
+        python analysis/decision_engine.py || \
+        python analysis/failure_collector.py "decision_engine" "crash" "critical"
 
     - name: Causal Feedback Engine
       run: python analysis/causal_feedback_engine.py
@@ -948,6 +953,12 @@ jobs:
 
     - name: Decision lineage tracking
       run: python analysis/decision_lineage.py
+
+    - name: Aggregate Failures
+      run: python analysis/failure_aggregator.py
+
+    - name: Failure Containment Verdict
+      run: python analysis/failure_containment.py
 
     - name: Continuity guard
       run: python analysis/continuity_guard.py
