@@ -90,7 +90,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ ok: false, error: "invalid input" });
     }
 
-    const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown";
+    const ip = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() 
+      || req.socket.remoteAddress 
+      || "unknown";
 
     // 🔥 ACTIVATE RATE LIMIT
     if (!rateLimit(ip)) {
