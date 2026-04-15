@@ -19,8 +19,14 @@ def evaluate():
         if time.time() < c["timestamp"] + c["evaluation_after_seconds"]:
             continue
 
-        # Placeholder — اربطه بالقيمة الحقيقية من النظام
-        actual_value = 0.5  
+        BREACH_LOG = "data/reality_breach_log.json"
+
+        if os.path.exists(BREACH_LOG):
+            with open(BREACH_LOG, "r") as f:
+                logs = json.load(f)
+                actual_value = logs[-1]["evaluation"]["breach_score"]
+        else:
+            actual_value = 0
 
         success = abs(actual_value - c["predicted_value"]) <= c["tolerance"]
 
