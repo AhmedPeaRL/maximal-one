@@ -116,3 +116,16 @@ pip install -r requirements.txt
 python master_experiment.py
 
 All outputs are deterministic under controlled seeds and constrained environments, subject to reproducibility limits of underlying infrastructure.
+
+```md
+## External Reproducibility (Critical Requirement)
+
+This system is NOT considered scientifically valid until:
+
+- Reproduced independently
+- Verified outside original environment
+- Confirmed by external observers
+
+See:
+
+/external/REPRODUCE.md
