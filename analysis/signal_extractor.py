@@ -1,81 +1,62 @@
 import json
-import glob
-import numpy as np
-import math
-from collections import defaultdict
+import os
+import time
 
-THRESHOLD_CV = 0.3  # key threshold
+OUTPUT_PATH = "public/extracted_signal.json"
 
-features = defaultdict(list)
-
-TARGET_KEYS = [
-    "entropy_rate",
-    "spectral_alpha",
-    "hurst_exponent",
-    "attractor_dimension",
-    "lyapunov_exp",
-    "alpha",
-    "estimated_alpha"
-]
-
-def extract(obj):
-
-    if isinstance(obj, dict):
-        for k,v in obj.items():
-
-            if k in TARGET_KEYS and isinstance(v,(int,float)):
-                if not math.isnan(v) and not math.isinf(v):
-                    features[k].append(float(v))
-
-            extract(v)
-
-    elif isinstance(obj,list):
-        for v in obj:
-            extract(v)
-
-
-for f in glob.glob("artifacts/*.json"):
+def load_truth():
     try:
-        with open(f) as fh:
-            data=json.load(fh)
-        extract(data)
+        with open("public/live_truth.json") as f:
+            return json.load(f)
     except:
-        pass
+        return None
 
+def load_report():
+    try:
+        with open("artifacts/canonical_report.json") as f:
+            return json.load(f)
+    except:
+        return None
 
-results = []
+def extract_signal(truth, report):
+    if not truth or not report:
+        return {
+            "status": "no_data",
+            "timestamp": time.time()
+        }
 
-for k,vals in features.items():
+    signal = {
+        "timestamp": time.time(),
+        "decision": truth.get("decision", {}).get("global"),
+        "confidence": truth.get("scientific_signal", {}).get("confidence"),
+        "alpha": truth.get("scientific_signal", {}).get("alpha"),
+        "sigma": truth.get("scientific_signal", {}).get("sigma"),
+        "verdict": "actionable" if truth.get("scientific_signal", {}).get("confidence", 0) > 0.9 else "weak",
+        "market_hint": build_market_hint(truth)
+    }
 
-    if len(vals) < 5:
-        continue
+    return signal
 
-    vals = np.array(vals)
+def build_market_hint(truth):
+    confidence = truth.get("scientific_signal", {}).get("confidence", 0)
 
-    mean = float(np.mean(vals))
-    std = float(np.std(vals))
+    if confidence > 0.95:
+        return "high-confidence anomaly detection"
+    elif confidence > 0.9:
+        return "predictive signal candidate"
+    else:
+        return "exploratory pattern"
 
-    cv = std / (abs(mean) + 1e-9)
+def persist(signal):
+    os.makedirs("public", exist_ok=True)
+    with open(OUTPUT_PATH, "w") as f:
+        json.dump(signal, f, indent=2)
 
-    results.append({
-        "feature": k,
-        "samples": len(vals),
-        "mean": mean,
-        "std": std,
-        "cv": cv,
-        "stable": cv < THRESHOLD_CV
-    })
+if __name__ == "__main__":
+    truth = load_truth()
+    report = load_report()
 
+    signal = extract_signal(truth, report)
+    persist(signal)
 
-# sort by stability
-results.sort(key=lambda x: x["cv"])
-
-passed = any(r["stable"] for r in results)
-
-output = {
-    "features": results,
-    "stable_features": [r for r in results if r["stable"]],
-    "passed": passed
-}
-
-print(json.dumps(output, indent=2))
+    print("Signal extracted:", signal)
