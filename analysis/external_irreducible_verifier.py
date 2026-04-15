@@ -48,5 +48,5 @@ def main():
   else:
     print("⚠️ External verification failed")
 
-if name == "main":
-  main()
+if __name__ == "__main__":
+    main()
