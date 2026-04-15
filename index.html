@@ -97,6 +97,8 @@
     Loading extracted signal...
   </div>
 
+  <div id="time-anchor" style="margin-top:30px; opacity:0.7;"></div>
+
   <script type="module">
   import { bindIrreducibleReality } from './core/irreducible_anchor.js';
   import { resolveState } from './core/state_resolver.js';
@@ -266,6 +268,19 @@
       document.getElementById("market-signal").innerText = "No signal extracted.";
     }
   }
+
+  async function loadTimeAnchor() {
+    try {
+      const res = await fetch('./public/external_time_anchor.json');
+      const t = await res.json();
+
+      document.getElementById("time-anchor").innerText =
+        "EXTERNAL TIME ANCHOR:\n" +
+        JSON.stringify(t, null, 2);
+    } catch {
+      document.getElementById("time-anchor").innerText = "No anchor.";
+    }
+  }
     
   import { liveStream } from './core/live_stream.js';
   import { applyCausalFeedback } from './core/causal_feedback.js';
@@ -279,6 +294,7 @@
     loadCausalFeedback();
     verifyTruth();
     loadExtractedSignal();
+    loadTimeAnchor();
 
     try {
       const res = await fetch('./public/live_truth.json');
