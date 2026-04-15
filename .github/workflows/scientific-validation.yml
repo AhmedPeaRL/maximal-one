@@ -974,6 +974,9 @@ jobs:
     # 7) PERSISTENCE
     # =========================
 
+    - name: External Time Anchor
+      run: python analysis/external_time_anchor.py
+
     - name: Export artifact
       run: |
         mkdir -p public
