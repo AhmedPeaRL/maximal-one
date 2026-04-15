@@ -1077,6 +1077,9 @@ jobs:
     - name: External Irreversible Witness
       run: python analysis/external_irreversible_witness.py
 
+    - name: External Irreducible Verifier (OUTSIDE SYSTEM)
+      run: python analysis/external_irreducible_verifier.py
+
     - name: Adaptive weighting
       run: python analysis/adaptive_weights.py
 
