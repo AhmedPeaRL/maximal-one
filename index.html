@@ -84,6 +84,9 @@
 
   <button id="reproduce">Force External Reproduction</button>
 
+  <textarea id="challenge-input" placeholder="challenge the system..."></textarea>
+<button id="challenge-submit">Challenge</button>
+
   <div id="event"></div>
   <div id="scientific-claim" style="margin-top:30px; opacity:0.75;">
   Loading claim...
@@ -344,6 +347,39 @@
       
       document.getElementById("event").innerText =
         "Error triggering reproduction.";
+    }
+  });
+
+
+  const challengeInput = document.getElementById("challenge-input");
+  const challengeBtn = document.getElementById("challenge-submit");
+
+  challengeBtn.addEventListener("click", async () => {
+    const value = challengeInput.value.trim();
+    if (!value) return;
+
+    try {
+      const res = await fetch("/maximal-one/api/challenge", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ challenge: value })
+      });
+
+      const r = await res.json();
+
+      if (r.ok) {
+        document.getElementById("event").innerText =
+          "Challenge submitted:\n" + r.challenge_id;
+      } else {
+        document.getElementById("event").innerText =
+          "Challenge rejected.";
+     }
+
+   } catch {
+      document.getElementById("event").innerText =
+        "Challenge error.";
     }
   });
 </script>
