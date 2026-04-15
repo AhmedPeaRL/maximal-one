@@ -7,14 +7,13 @@ import random
 OUTPUT_PATH = "data/reality_commitments.json"
 
 def generate_prediction():
-    # مثال بسيط – تقدر تربطه بأي signal حقيقي عندك
     prediction = {
         "id": hashlib.sha256(str(time.time()).encode()).hexdigest(),
         "timestamp": int(time.time()),
-        "target_metric": "alpha",
-        "predicted_value": round(random.uniform(0.45, 0.6), 3),
-        "tolerance": 0.05,
-        "evaluation_after_seconds": 3600  # ساعة
+        "target_metric": "breach_score",
+        "predicted_value": random.randint(1, 3),
+        "tolerance": 1,
+        "evaluation_after_seconds": 600
     }
     return prediction
 
