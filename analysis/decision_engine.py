@@ -18,6 +18,15 @@ def save_json(path, data):
     with open(path, "w") as f:
         json.dump(data, f, indent=2)
 
+    try:
+      with open("artifacts/external_pressure.json") as f:
+          pressure = json.load(f)
+
+      if pressure["evaluation"]["status"] == "critical":
+          decision["global"] = "unstable_under_pressure"
+    except:
+        pass
+    
 
 def compute_signal(report):
     sp = report.get("spectral_profile", {})
@@ -60,16 +69,6 @@ def detect_persistence(z, history):
 
     recent = [h["z"] for h in history[-5:]]
     return all(v > 2 for v in recent)
-
-
-try:
-    with open("artifacts/external_pressure.json") as f:
-        pressure = json.load(f)
-
-    if pressure["evaluation"]["status"] == "critical":
-        decision["global"] = "unstable_under_pressure"
-except:
-    pass
 
 
 def build_decision(signal):
