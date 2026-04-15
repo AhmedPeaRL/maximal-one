@@ -829,6 +829,9 @@ jobs:
       run: |
         python analysis/external_prediction_engine.py
 
+    - name: Reality forcing layer
+      run: python analysis/reality_forcing_engine.py
+
     - name: Reality Pressure Interface
       run: python analysis/reality_pressure_interface.py
 
