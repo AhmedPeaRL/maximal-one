@@ -81,9 +81,9 @@
 
   <textarea id="witness-input" placeholder="…" autocomplete="off"></textarea>
   <button id="witness-submit">Invoke</button>
-
+  
   <button id="reproduce">Force External Reproduction</button>
-
+  <button id="public-reproduce">Public Reproduce</button>
   <textarea id="challenge-input" placeholder="challenge the system..."></textarea>
   <button id="challenge-submit">Challenge</button>
 
@@ -487,10 +487,30 @@
         "Challenge error.";
     }
   });
+
+  const pubBtn = document.getElementById("public-reproduce");
+
+  pubBtn.addEventListener("click", async () => {
+    const input = document.getElementById("witness-input").value;
+
+    const res = await fetch("/maximal-one/api/public-reproduce", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ input })
+    });
+
+    const r = await res.json();
+
+    document.getElementById("event").innerText =
+      "PUBLIC REPRODUCTION:\n" +
+      JSON.stringify(r, null, 2);
+  });
 </script>
   
   <div id="witness-panel" style="margin-top:20px; opacity:0.7;">
-  Loading scientific signal...
+    Loading scientific signal...
   </div>
 
 </body>
