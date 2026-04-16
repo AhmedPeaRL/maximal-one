@@ -468,6 +468,32 @@ jobs:
           echo "=== SCIENTIFIC CONTRACT ==="
           cat core-scientific/scientific_contract.json
 
+      - name: Enforce Strict Claim
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+
+          const claim = JSON.parse(
+            fs.readFileSync('core-scientific/strict_claim.json','utf8')
+          );
+
+          const report = JSON.parse(
+            fs.readFileSync('artifacts/canonical_report.json','utf8')
+          );
+
+          const alpha = report.spectral_profile.estimated_alpha;
+          const sigma = report.spectral_profile.bootstrap_std;
+
+          const [minA, maxA] = claim.expected_result.alpha_range;
+
+          if (alpha < minA || alpha > maxA || sigma > claim.expected_result.max_sigma) {
+            console.error("❌ STRICT CLAIM FAILED");
+            process.exit(1);
+          }
+
+          console.log("✅ STRICT CLAIM PASSED");
+          NODE
+
       - name: Load Truth Commitment
         run: |
           echo "=== TRUTH COMMITMENT ==="
@@ -1161,6 +1187,9 @@ jobs:
 
     - name: Reality Pressure Export (RPEL)
       run: python analysis/reality_pressure_export.py
+
+    - name: External Reproduction
+      run: python analysis/external_reproduction.py
 
     - name: Persist results (authoritative git layer)
       if: always()
