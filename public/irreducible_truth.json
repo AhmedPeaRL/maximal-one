@@ -1,0 +1,25 @@
+{
+  "system": "maximal-one",
+  "timestamp": null,
+  "core_claim": {
+    "statement": "A persistent spectral structure (alpha) emerges across independent real-world chaotic datasets under deterministic processing.",
+    "measured_alpha": null,
+    "uncertainty_sigma": null
+  },
+  "prediction": {
+    "next_alpha_expected": null,
+    "confidence": null,
+    "window": "next_run"
+  },
+  "falsification": {
+    "condition": "If alpha collapses to noise or becomes unstable across independent runs, the model is falsified.",
+    "status": "active"
+  },
+  "reproducibility": {
+    "deterministic": true,
+    "cross_runtime_consensus": null
+  },
+  "integrity": {
+    "report_hash": null
+  }
+}
