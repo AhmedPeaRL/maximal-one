@@ -1,0 +1,66 @@
+{
+  "contract_version": "1.0.0",
+  "decision_principle": "No claim survives without irreversible binding to external reality anchors, reproducibility, and falsifiability under adversarial conditions.",
+  
+  "binding_rules": {
+    
+    "reproducibility_required": true,
+    
+    "external_anchor_required": true,
+    
+    "falsifiability_required": true,
+    
+    "anti_triviality_required": true,
+    
+    "consensus_weight": {
+      "deterministic": 1.0,
+      "controlled_divergence": 0.7,
+      "uncontrolled": 0.0
+    }
+  },
+
+  "decision_states": {
+    
+    "provisionally_valid": {
+      "description": "No falsification survived under current tests",
+      "requires": [
+        "reproducibility",
+        "falsifiability",
+        "external_anchor"
+      ]
+    },
+
+    "rejected": {
+      "description": "Failed falsifiability or reproducibility",
+      "action": "invalidate_and_record"
+    },
+
+    "unstable": {
+      "description": "Divergence detected without containment",
+      "action": "record_and_retest"
+    },
+
+    "irreversible": {
+      "description": "Validated and anchored externally with no surviving falsification",
+      "action": "lock_state"
+    }
+  },
+
+  "enforcement": {
+    
+    "override_forbidden": true,
+    
+    "external_truth_priority": true,
+    
+    "self_revocation_enabled": true
+  },
+
+  "audit": {
+    
+    "log_decision_lineage": true,
+    
+    "attach_hash": true,
+    
+    "external_verification_required": true
+  }
+}
