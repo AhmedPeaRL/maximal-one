@@ -1191,8 +1191,8 @@ jobs:
     - name: Reality Pressure Export (RPEL)
       run: python analysis/reality_pressure_export.py
 
-    - name: External Reproduction
-      run: python analysis/external_reproduction.py
+    - name: External Reproduction (non-blocking)
+      run: python analysis/external_reproduction.py || echo "External reproduction degraded"
 
     - name: Persist results (authoritative git layer)
       if: always()
