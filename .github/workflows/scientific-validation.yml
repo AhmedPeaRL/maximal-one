@@ -769,6 +769,9 @@ jobs:
     - name: Pre-registration (predict before observing)
       run: python analysis/pre_registration_engine.py
 
+    - name: Irreversible Prediction Anchor
+      run: python analysis/irreversible_prediction_anchor.py
+
     - name: Prediction scoring
       run: python analysis/prediction_scoring.py
 
