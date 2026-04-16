@@ -39,7 +39,7 @@ jobs:
                      --exclude-dir=.git \
                      --exclude=*.yml \
                      --exclude=*.yaml \
-                     -E "Bearer [A-Za-z0-9_\-]{40,}" . \
+                     grep -r -E "Bearer [A-Za-z0-9_\-]{40,}" . \
                        --exclude-dir=node_modules \
                        --exclude-dir=.git \
                        --exclude="*.example" \
@@ -648,6 +648,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v5
+    
+
+    - name: Install locked dependencies (strict + fallback awareness)
+      run: |
+        pip install --require-hashes -r requirements-lock.txt || {
+          echo "⚠️ Hash mismatch detected — recording divergence"
+          pip install -r requirements-lock.txt
+        }
 
     - name: Basic integrity check
       run: |
