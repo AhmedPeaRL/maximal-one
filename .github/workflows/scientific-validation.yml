@@ -1105,6 +1105,9 @@ jobs:
     - name: Reality Closure Loop
       run: python analysis/reality_closure_loop.py
 
+    - name: Reality Pressure Export (RPEL)
+      run: python analysis/reality_pressure_export.py
+
     - name: Persist results (authoritative git layer)
       if: always()
       working-directory: ${{ github.workspace }}
