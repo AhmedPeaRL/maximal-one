@@ -353,6 +353,11 @@ jobs:
 
           os.makedirs("public", exist_ok=True)
 
+          with open("artifacts/report.hash") as h:
+              report_hash = h.read().strip()
+
+          truth["integrity"]["report_hash"] = report_hash
+
           with open("public/irreducible_truth.json", "w") as f:
               json.dump(truth, f, indent=2)
 
