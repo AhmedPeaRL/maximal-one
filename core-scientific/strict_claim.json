@@ -1,0 +1,30 @@
+{
+  "title": "Deterministic Spectral Emergence Test",
+
+  "statement": "For the sunspots dataset (SIDC), applying windowed spectral analysis with fixed seed produces a stable alpha exponent in range [0.45, 0.60].",
+
+  "dataset": {
+    "name": "sunspots_global",
+    "source": "SIDC / SILSO",
+    "file": "real-data/sunspots_global.csv"
+  },
+
+  "method": {
+    "pipeline": [
+      "dataset_preprocessor",
+      "windowed_spectral_analysis",
+      "bootstrap_estimation"
+    ],
+    "seed": 42
+  },
+
+  "expected_result": {
+    "alpha_range": [0.45, 0.60],
+    "max_sigma": 0.05
+  },
+
+  "falsification": {
+    "condition": "If alpha falls outside range OR sigma > 0.05",
+    "action": "Mark system as falsified"
+  }
+}
