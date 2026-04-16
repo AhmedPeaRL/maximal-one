@@ -104,6 +104,8 @@
     Loading pressure export...
   </div>
 
+  <div id="prediction-anchor" style="margin-top:30px; opacity:0.8;"></div>
+
   <div id="time-anchor" style="margin-top:30px; opacity:0.7;"></div>
 
   <script type="module">
@@ -314,6 +316,23 @@
         "No pressure signal.";
     }
   }
+
+  async function loadPredictionAnchor() {
+    try {
+      const res = await fetch('./public/prediction_anchor.json');
+      const p = await res.json();
+
+      const el = document.getElementById("prediction-anchor");
+
+      el.innerText =
+        "IRREVERSIBLE PREDICTION:\n" +
+        JSON.stringify(p, null, 2);
+
+    } catch {
+      document.getElementById("prediction-anchor").innerText =
+      "No prediction anchored.";
+    }
+  }
     
   import { liveStream } from './core/live_stream.js';
   import { applyCausalFeedback } from './core/causal_feedback.js';
@@ -330,6 +349,7 @@
     loadTimeAnchor();
     loadChallenges();
     loadPressure();
+    loadPredictionAnchor();
 
     try {
       const res = await fetch('./public/live_truth.json');
