@@ -468,6 +468,9 @@ jobs:
           echo "=== SCIENTIFIC CONTRACT ==="
           cat core-scientific/scientific_contract.json
 
+      - name: Build Adaptive Claim
+        run: python analysis/adaptive_claim_builder.py
+
       - name: Enforce Strict Claim
         run: |
           node - <<'NODE'
