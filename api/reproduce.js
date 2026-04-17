@@ -1,3 +1,32 @@
+export async function onRequestPost(context) {
+  try {
+    const payload = {
+      event_type: "external_reproduction",
+      client_payload: {
+        trigger: "manual",
+        timestamp: Date.now()
+      }
+    };
+
+    const res = await fetch(
+      `https://api.github.com/repos/${context.env.GH_REPO}/dispatches`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${context.env.GH_TOKEN}`,
+          "Accept": "application/vnd.github+json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    return new Response(JSON.stringify({ ok: res.ok }), { status: 200 });
+
+  } catch (e) {
+    return new Response(JSON.stringify({ ok: false }), { status: 500 });
+  }
+}
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ ok: false });
