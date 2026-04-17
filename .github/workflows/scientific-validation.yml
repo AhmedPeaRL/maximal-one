@@ -45,7 +45,7 @@ jobs:
                      --exclude="*.txt" || true        
             echo "⚠️ Potential REAL secret leak detected"
             exit 1
-          fi
+            fi
 
           echo "✅ No hardcoded secrets detected"
 
