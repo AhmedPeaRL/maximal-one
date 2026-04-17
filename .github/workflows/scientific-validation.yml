@@ -229,6 +229,22 @@ jobs:
         run: |
           python analysis/witness_chain.py "$(cat payload.json)"
 
+  external-collision:
+    runs-on: ubuntu-24.04
+    needs: ingest-witness
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install deps
+        run: pip install requests
+
+      - name: Trigger external collision
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_REPO: ${{ secrets.GH_REPO }}
+        run: python analysis/external_collision_trigger.py
+
   compute:
     runs-on: ubuntu-24.04
     container:
