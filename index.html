@@ -200,7 +200,7 @@
 
   async function syncReality() {
     try {
-      const res = await fetch("/maximal-one/api/reality-sync");
+      const res = await fetch("/api/reality-sync");
       const d = await res.json();
 
       if (!d.ok) return;
@@ -264,7 +264,7 @@
 
   async function verifyTruth() {
     try {
-      const res = await fetch("/maximal-one/api/verify-truth");
+      const res = await fetch("/api/verify-truth");
       const v = await res.json();
 
       const panel = document.getElementById("witness-panel");
@@ -429,7 +429,7 @@
         JSON.stringify(externalAnchor, null, 2);
       
       // 2. send to real system
-      const bridge = await fetch("/maximal-one/api/dispatch", {
+      const bridge = await fetch("/api/dispatch", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -459,7 +459,7 @@
   
   reproduceBtn.addEventListener("click", async () => {
     try {
-      const res = await fetch("/maximal-one/api/reproduce", {
+      const res = await fetch("/api/reproduce", {
         method: "POST"
       });
 
@@ -487,7 +487,7 @@
     if (!value) return;
 
     try {
-      const res = await fetch("/maximal-one/api/challenge", {
+      const res = await fetch("/api/challenge", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -516,7 +516,7 @@
   pubBtn.addEventListener("click", async () => {
     const input = document.getElementById("witness-input").value;
 
-    const res = await fetch("/maximal-one/api/public-reproduce", {
+    const res = await fetch("/api/public-reproduce", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -532,7 +532,7 @@
   });
 
   document.getElementById("verify-public").addEventListener("click", async () => {
-    const res = await fetch("/maximal-one/api/public_verify");
+    const res = await fetch("/api/public_verify");
     const v = await res.json();
 
     document.getElementById("event").innerText =
