@@ -1152,29 +1152,47 @@ jobs:
     - name: Self Consistency Guard
       run: python analysis/self_consistency_guard.py
 
-    - name: Update Truth Surface
+    - name: Update Truth Surface (BOUND TO REAL SIGNAL)
       run: |
         python - <<'PY'
         import json, time, os
 
-        report_hash = None
+        def load_signal():
+            try:
+                with open("artifacts/canonical_report.json") as f:
+                    r = json.load(f)
 
+                alpha = r["spectral_profile"]["estimated_alpha"]
+                sigma = r["spectral_profile"]["bootstrap_std"]
+
+                return {
+                    "alpha": alpha,
+                    "sigma": sigma,
+                    "confidence": max(0.0, min(1.0, 1 - sigma))
+                }
+
+            except Exception:
+                return {
+                    "alpha": None,
+                    "sigma": None,
+                    "confidence": 0.0
+                }
+
+        report_hash = None
         if os.path.exists("artifacts/report.hash"):
            with open("artifacts/report.hash") as f:
                report_hash = f.read().strip()
 
+        signal = load_signal()
+
         truth = {
             "timestamp": time.time(),
-            "system_state": "stable",
+            "system_state": "stable" if signal["confidence"] > 0.7 else "unstable",
             "determinism": {
                 "consensus": True,
                 "divergence": "controlled"
             },
-            "scientific_signal": {
-                "alpha": 0.51,
-                "sigma": 0.02,
-                "confidence": 0.93
-            },
+            "scientific_signal": signal,
             "falsifiability": {
                 "status": "active",
                 "last_verdict": "not rejected"
@@ -1184,8 +1202,8 @@ jobs:
                 "environment_hash": "bound"
             },
             "decision": {
-                "global": "provisionally_valid",
-                "reason": "no falsification survived"
+                "global": "provisionally_valid" if signal["confidence"] > 0.6 else "under_test",
+                "reason": "bound to real computation only"
             }
         }
 
@@ -1194,7 +1212,7 @@ jobs:
         with open("public/live_truth.json","w") as f:
             json.dump(truth, f, indent=2)
 
-        print("Truth surface updated")
+        print("Truth surface REALIGNED to computation")
         PY
 
     - name: Extract market signal
