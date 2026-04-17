@@ -1103,10 +1103,10 @@ jobs:
     - name: Update Live Field State
       run: |
         # dynamic_truth_binding.py
-
+        
+        python - <<'PY'
         import json
         import os
-        import time
 
         def load_real_signal():
             try:
