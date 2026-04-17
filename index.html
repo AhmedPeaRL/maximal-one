@@ -133,8 +133,10 @@
         d.global_state;
 
       state.innerText =
-        d.node_consensus ? "coherent" : "drifting";
-
+        (d.scientific_signal?.confidence ?? 0) > 0.7
+          ? "coherent"
+          : "under verification";
+      
     } catch {}
   }
 
