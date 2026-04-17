@@ -966,6 +966,9 @@ jobs:
     - name: External Challenge Resolution
       run: python analysis/external_challenge_protocol.py
 
+    - name: External Independent Reproduction
+      run: python analysis/external_independent_runner.py
+
 
     # =========================
     # 6) FINAL GATES
