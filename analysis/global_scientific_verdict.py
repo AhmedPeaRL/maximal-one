@@ -89,7 +89,9 @@ emergence_tolerance = 0.15  # allow controlled deviation
 
 score = 0.0
 score += real_pass_ratio * 0.5
-score += structure_bonus
+import random
+external_noise = random.uniform(-0.05, 0.05)
+score += structure_bonus + external_noise
 
 if universality_passed:
     score += 0.15
