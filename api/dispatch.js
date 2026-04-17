@@ -54,6 +54,42 @@ function isValidInput(input) {
   return true;
 }
 
+export async function onRequestPost(context) {
+  try {
+    const body = await context.request.json();
+
+    const payload = {
+      event_type: "external_witness",
+      client_payload: {
+        input: body.input || "",
+        timestamp: Date.now()
+      }
+    };
+
+    const res = await fetch(
+      `https://api.github.com/repos/${context.env.GH_REPO}/dispatches`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${context.env.GH_TOKEN}`,
+          "Accept": "application/vnd.github+json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    if (!res.ok) {
+      return new Response(JSON.stringify({ ok: false }), { status: 500 });
+    }
+
+    return new Response(JSON.stringify({ ok: true }), { status: 200 });
+
+  } catch (e) {
+    return new Response(JSON.stringify({ ok: false, error: e.message }), { status: 500 });
+  }
+}
+
 export default async function handler(req, res) {
   const origin = req.headers.origin || "";
 
