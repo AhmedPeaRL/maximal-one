@@ -191,7 +191,9 @@ jobs:
           console.log("Witness hash:", hash);
           NODE
           
-      - name: Commit witness (safe push)
+      - name: Safe authenticated push
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
@@ -205,8 +207,8 @@ jobs:
 
           git commit -m "External witness ingestion" || exit 0
 
-          git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
-
+          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+          
           for i in 1 2 3 4 5
           do
             git pull --rebase origin main || true
@@ -389,6 +391,9 @@ jobs:
 
       - name: External Public Anchor
         run: python analysis/external_public_anchor.py
+
+      - name: Independent verification layer
+        run: python analysis/independent_verifier.py
 
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
