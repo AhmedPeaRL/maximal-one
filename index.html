@@ -87,6 +87,7 @@
   <button id="public-reproduce">Public Reproduce</button>
   <textarea id="challenge-input" placeholder="challenge the system..."></textarea>
   <button id="challenge-submit">Challenge</button>
+  <button id="verify-public">Verify Publicly</button>
 
   <div id="event"></div>
   <div id="external-challenges" style="margin-top:30px; opacity:0.75;">
@@ -118,6 +119,7 @@
   import { loadLiveWitness } from './core/live_witness_panel.js';
   import { bindPresence } from './core/presence_binding.js';
   import { sendWitnessToSystem } from './core/live_causal_bridge.js';
+  import { externalWitnessAnchor } from './core/external_witness_anchor.js';
 
   const input = document.getElementById("witness-input");
   const submit = document.getElementById("witness-submit");
@@ -411,6 +413,12 @@
         "LOCAL RESULT:\n" +
         JSON.stringify(envelope, null, 2);
 
+      const externalAnchor = await externalWitnessAnchor(envelope);
+
+      eventBox.innerText +=
+        "\n\nEXTERNAL ANCHOR:\n" +
+        JSON.stringify(externalAnchor, null, 2);
+      
       // 2. send to real system
       const bridge = await fetch("/maximal-one/api/dispatch", {
         method: "POST",
@@ -512,6 +520,15 @@
     document.getElementById("event").innerText =
       "PUBLIC REPRODUCTION:\n" +
       JSON.stringify(r, null, 2);
+  });
+
+  document.getElementById("verify-public").addEventListener("click", async () => {
+    const res = await fetch("/maximal-one/api/public_verify");
+    const v = await res.json();
+
+    document.getElementById("event").innerText =
+      "PUBLIC VERIFICATION:\n" +
+      JSON.stringify(v, null, 2);
   });
 </script>
   
