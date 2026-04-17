@@ -133,6 +133,9 @@ jobs:
           console.log("Payload validated.");
           NODE
 
+      - name: Semantic validation layer
+        run: node analysis/witness_semantic_guard.cjs
+
       - name: External Hostile Injection Test
         run: |
           echo "Running hostile injection simulation..."
@@ -302,6 +305,9 @@ jobs:
         run: |
           python scripts/generate_report.py --seed 42 --canonical
           python analysis/experiment_history.py
+
+      - name: Alpha continuity guard
+        run: python analysis/alpha_continuity_guard.py
 
       - name: Build irreducible truth
         run: |
@@ -786,6 +792,11 @@ jobs:
         else
           echo "No divergence file found"
         fi
+
+    - name: Load External Challenge Contract
+      run: |
+        echo "=== EXTERNAL CHALLENGE CONTRACT ==="
+        cat core-scientific/external_challenge_contract.json
 
     - name: Interpret field state
       run: python analysis/field_state_interpreter.py
