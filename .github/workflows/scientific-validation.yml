@@ -39,7 +39,7 @@ jobs:
                      --exclude-dir=.git \
                      --exclude=*.yml \
                      --exclude=*.yaml \
-                     grep -r -E "Bearer [A-Za-z0-9_\-]{40,}" . \
+                     -r -E "Bearer [A-Za-z0-9_\-]{40,}" . \
                        --exclude-dir=node_modules \
                        --exclude-dir=.git \
                        --exclude="*.example" \
@@ -644,34 +644,9 @@ jobs:
 
   verify-core:
     runs-on: ubuntu-24.04
-    needs: consensus
-
-    steps:
-    - uses: actions/checkout@v5
-    
-
-    - name: Install locked dependencies (strict + fallback awareness)
-      run: |
-        pip install --require-hashes -r requirements-lock.txt || {
-          echo "⚠️ Hash mismatch detected — recording divergence"
-          pip install -r requirements-lock.txt
-        }
-
-    - name: Basic integrity check
-      run: |
-        test -f artifacts/canonical_report.json || exit 1
-
-    - name: Minimal verification
-      run: |
-        python analysis/system_health_check.py
-        python analysis/global_scientific_verdict.py
-        python -m analysis.global_signal_builder
-        
-  verify-extended:
-    runs-on: ubuntu-24.04
     container:
       image: python:3.11.8-slim
-    needs: verify-core
+    needs: consensus
     timeout-minutes: 20
     continue-on-error: true
     
@@ -818,6 +793,16 @@ jobs:
 
     - name: Interpret field state
       run: python analysis/field_state_interpreter.py
+
+    - name: Basic integrity check
+      run: |
+        test -f artifacts/canonical_report.json || exit 1
+
+    - name: Minimal verification
+      run: |
+        python analysis/system_health_check.py
+        python analysis/global_scientific_verdict.py
+        python -m analysis.global_signal_builder
 
 
     # =========================
@@ -1306,7 +1291,7 @@ jobs:
     runs-on: ubuntu-24.04
     container:
       image: python@sha256:90f8795536170fd08236d2ceb74fe7065dbf74f738d8b84bfbf263656654dc9b
-    needs: verify-extended
+    needs: verify-core
     
     steps:
       - uses: actions/checkout@v5
