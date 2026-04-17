@@ -998,6 +998,9 @@ jobs:
     - name: External Independent Reproduction
       run: python analysis/external_independent_runner.py
 
+    - name: External Ground Truth Validation
+      run: python analysis/external_ground_truth_validator.py
+
 
     # =========================
     # 6) FINAL GATES
