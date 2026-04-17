@@ -1040,6 +1040,9 @@ jobs:
     - name: Log Intelligence Extraction
       run: python analysis/log_intelligence.py
 
+    - name: Real-Time Adaptive Core
+      run: python analysis/realtime_adaptive_core.py
+
     - name: Wisdom Extraction
       run: python analysis/wisdom_extractor.py
 
