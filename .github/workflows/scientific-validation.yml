@@ -40,11 +40,11 @@ jobs:
                      --exclude=*.yml \
                      --exclude=*.yaml \
                      -r -E "Bearer [A-Za-z0-9_\-]{40,}" . \
-                       --exclude-dir=node_modules \
-                       --exclude-dir=.git \
-                       --exclude="*.example" \
-                       --exclude="*.md" \
-                       --exclude="*.txt" || true
+                                  --exclude-dir=node_modules \
+                                  --exclude-dir=.git \
+                                  --exclude="*.example" \
+                                  --exclude="*.md" \
+                                  --exclude="*.txt" || true
             echo "⚠️ Potential REAL secret leak detected"
             exit 1
           fi
