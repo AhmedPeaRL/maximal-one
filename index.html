@@ -89,6 +89,7 @@
   </div>
   
   <button id="reproduce">Force External Reproduction</button>
+  <button id="collision">Force Collision</button>
   <button id="public-reproduce">Public Reproduce</button>
   <textarea id="challenge-input" placeholder="challenge the system..."></textarea>
   <button id="challenge-submit">Challenge</button>
@@ -539,6 +540,26 @@
     document.getElementById("event").innerText =
       "PUBLIC VERIFICATION:\n" +
       JSON.stringify(v, null, 2);
+  });
+
+  const collisionBtn = document.getElementById("collision");
+
+  collisionBtn.addEventListener("click", async () => {
+    try {
+      const res = await fetch("/api/collision", {
+        method: "POST"
+      });
+
+      const r = await res.json();
+
+      document.getElementById("event").innerText =
+        "COLLISION RESULT:\n" +
+        JSON.stringify(r, null, 2);
+
+    } catch {
+      document.getElementById("event").innerText =
+        "Collision failed.";
+    }
   });
 </script>
   
