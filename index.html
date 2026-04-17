@@ -377,7 +377,10 @@
     loadTruth();
     
     document.getElementById("field-state").innerText = d.global_state;
-    state.innerText = d.node_consensus ? "coherent" : "drifting";
+    state.innerText =
+      (d.scientific_signal?.confidence ?? 0) > 0.7
+        ? "coherent"
+        : "under verification";
   });
 
   submit.addEventListener("click", async () => {
