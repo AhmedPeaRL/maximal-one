@@ -410,6 +410,14 @@ jobs:
           name: pip-freeze
           path: pip-freeze.txt
 
+      - name: Export reproducibility bundle
+        run: |
+          mkdir -p public/repro_bundle
+
+          cp artifacts/canonical_report.json public/repro_bundle/
+          cp artifacts/report.hash public/repro_bundle/
+          cp requirements-lock.txt public/repro_bundle/
+
   gate:
     runs-on: ubuntu-24.04
     needs: build-report
