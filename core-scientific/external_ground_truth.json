@@ -1,0 +1,35 @@
+{
+  "external_benchmarks": [
+    {
+      "name": "sunspots_cycle",
+      "source": "NASA / SILSO",
+      "expected_pattern": "quasi-periodic ~11 year cycle",
+      "validation_rule": {
+        "spectral_peak_range": [0.08, 0.12],
+        "stability_required": true
+      }
+    },
+    {
+      "name": "financial_market_volatility",
+      "source": "S&P500 historical",
+      "expected_pattern": "heavy-tailed + clustered volatility",
+      "validation_rule": {
+        "hurst_range": [0.5, 0.7],
+        "non_gaussian": true
+      }
+    },
+    {
+      "name": "climate_temperature_anomaly",
+      "source": "NOAA global temp",
+      "expected_pattern": "trend + noise",
+      "validation_rule": {
+        "trend_detectable": true,
+        "residual_structure": true
+      }
+    }
+  ],
+  "integration_policy": {
+    "must_match_at_least_one": true,
+    "failure_if_none_match": true
+  }
+}
