@@ -1,5 +1,30 @@
 import crypto from "crypto";
 
+export async function onRequestGet() {
+  try {
+    const res = await fetch(
+      "https://raw.githubusercontent.com/ahmedpearl/maximal-one/main/public/live_truth.json"
+    );
+
+    const truth = await res.json();
+
+    return new Response(JSON.stringify({
+      integrity: truth.integrity?.report_hash ? "bound" : "unverified",
+      decision: truth.decision?.global,
+      confidence: truth.scientific_signal?.confidence
+    }), {
+      headers: { "Content-Type": "application/json" }
+    });
+
+  } catch (e) {
+    return new Response(JSON.stringify({
+      integrity: "error",
+      decision: "unknown",
+      confidence: 0
+    }));
+  }
+}
+
 export default async function handler(req, res) {
   try {
     const truthRes = await fetch(
