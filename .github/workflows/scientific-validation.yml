@@ -977,6 +977,9 @@ jobs:
     - name: Challenge Anchor (Irreversible)
       run: python analysis/challenge_anchoring.py
 
+    - name: Process deferred challenges
+      run: python analysis/deferred_challenge_engine.py
+
     - name: External Irreversibility Anchor
       run: python analysis/external_irreversibility_anchor.py
 
@@ -1099,32 +1102,52 @@ jobs:
 
     - name: Update Live Field State
       run: |
-        python - <<'PY'
-        import json, time, os
+        # dynamic_truth_binding.py
 
-        state = {
-            "timestamp": time.time(),
-            "global_state": "stable",
-            "field_coherence": 0.91,
-            "node_consensus": os.getenv("CONSENSUS", "false") == "true",
-            "active_witnesses": len(os.listdir("data/external")) if os.path.exists("data/external") else 0,
-            "last_decision": "computed",
-            "attractor_status": "active",
-            "runtime_divergence": "controlled",
-            "scientific_signal": {
-                "alpha": 0.51,
-                "sigma": 0.02,
-                "confidence": 0.93
+        import json
+        import os
+        import time
+
+        def load_real_signal():
+            try:
+                with open("artifacts/canonical_report.json") as f:
+                    r = json.load(f)
+
+                return {
+                    "alpha": r["spectral_profile"]["estimated_alpha"],
+                    "sigma": r["spectral_profile"]["bootstrap_std"],
+                    "confidence": max(0.0, min(1.0, 1 - r["spectral_profile"]["bootstrap_std"]))
                 }
-        }
 
-        os.makedirs("data", exist_ok=True)
+            except Exception:
+                return {
+                    "alpha": None,
+                    "sigma": None,
+                    "confidence": 0.0
+                }
 
-        with open("data/live_field_state.json","w") as f:
-            json.dump(state, f, indent=2)
+        def build_live_state():
+            signal = load_real_signal()
 
-        print("Live field state updated")
-        PY
+            state = {
+                "global_state": "stable" if signal["confidence"] > 0.7 else "unstable",
+                "scientific_signal": signal,
+                "determinism": {
+                    "consensus": os.getenv("CONSENSUS", "false") == "true"
+                }
+            }
+
+            return state
+
+        if __name__ == "__main__":
+            os.makedirs("data", exist_ok=True)
+
+            state = build_live_state()
+
+            with open("data/live_field_state.json","w") as f:
+                json.dump(state, f, indent=2)
+
+            print("Live state bound to real signal")
 
     - name: Self Consistency Guard
       run: python analysis/self_consistency_guard.py
