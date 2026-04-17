@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MAXIMAL-ONE VERIFIER</title>
+
+  <style>
+    body {
+      background: #0b0b0b;
+      color: #e0e0e0;
+      font-family: monospace;
+      padding: 40px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: transparent;
+      border: 1px solid #444;
+      color: #e0e0e0;
+      cursor: pointer;
+    }
+
+    pre {
+      margin-top: 20px;
+      background: #111;
+      padding: 15px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>MAXIMAL-ONE • INDEPENDENT VERIFIER</h1>
+
+<div>
+This page verifies the system WITHOUT trusting it.
+</div>
+
+<button id="verify">Run Verification</button>
+
+<pre id="output">Waiting...</pre>
+
+<script>
+async function verify() {
+  const out = document.getElementById("output");
+  out.innerText = "Running...\n";
+
+  try {
+    const report = await fetch('../artifacts/canonical_report.json');
+    const reportData = await report.json();
+
+    const hashFile = await fetch('../artifacts/report.hash');
+    const expectedHash = (await hashFile.text()).trim();
+
+    const encoder = new TextEncoder();
+    const data = encoder.encode(JSON.stringify(reportData));
+
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    const actualHash = Array.from(new Uint8Array(digest))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+
+    const valid = actualHash === expectedHash;
+
+    out.innerText =
+      "HASH MATCH: " + valid + "\n\n" +
+      "EXPECTED: " + expectedHash + "\n" +
+      "ACTUAL:   " + actualHash + "\n\n" +
+      "ALPHA: " + reportData.spectral_profile.estimated_alpha + "\n" +
+      "SIGMA: " + reportData.spectral_profile.bootstrap_std + "\n";
+
+  } catch (e) {
+    out.innerText = "ERROR:\n" + e.message;
+  }
+}
+
+document.getElementById("verify").onclick = verify;
+</script>
+
+</body>
+</html>
