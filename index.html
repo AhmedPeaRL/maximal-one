@@ -130,6 +130,11 @@
     try {
       const res = await fetch('./data/live_field_state.json');
       const d = await res.json();
+      const adaptive = await fetch('./data/adaptive_state.json');
+      const a = await adaptive.json();
+
+      document.getElementById("state").innerText += 
+        " | adaptive:" + JSON.stringify(a.weights);
       
       document.getElementById("field-state").innerText =
         d.global_state;
