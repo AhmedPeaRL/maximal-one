@@ -1,0 +1,26 @@
+{
+  "title": "External Challenge Protocol",
+
+  "principle": "Any external entity can challenge the system using independent data and must reproduce alpha stability within defined bounds.",
+
+  "input_requirements": {
+    "data_format": "time_series",
+    "min_length": 500
+  },
+
+  "evaluation": {
+    "method": "windowed_spectral_analysis",
+    "expected_alpha_range": [0.45, 0.65],
+    "max_sigma": 0.08
+  },
+
+  "verdict": {
+    "pass": "external reproduction matches bounds",
+    "fail": "alpha outside bounds OR instability"
+  },
+
+  "consequence": {
+    "pass": "system reinforced",
+    "fail": "global falsification triggered"
+  }
+}
