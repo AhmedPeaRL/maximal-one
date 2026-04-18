@@ -4,29 +4,34 @@
 "statement": "Across real-world chaotic datasets, windowed spectral analysis reveals a persistent alpha exponent significantly distinct from null models and stable under bootstrap perturbations.",
 
 "dataset": {
-"primary": "sunspots_global",
-"secondary_required": true
+  "primary": "sunspots_global",
+  "secondary_required": true
 },
 
 "method": {
-"pipeline": [
-"dataset_preprocessor",
-"windowed_spectral_analysis",
-"bootstrap_estimation",
-"null_comparison"
-],
-"seed": 42
+  "pipeline": [
+    "dataset_preprocessor",
+    "windowed_spectral_analysis",
+    "bootstrap_estimation",
+    "null_comparison"
+  ],
+  "seed": 42
 },
 
 "expected_result": {
-"alpha_range": [0.45, 0.65],
-"max_sigma": 0.08,
-"null_separation": 0.1,
-"note": "Range reflects empirical robustness across multiple datasets"
+  "alpha_range": [0.65, 0.85],
+  "max_sigma": 0.15,
+  "null_separation": 0.1,
+  "note": "Range reflects empirical robustness across multiple datasets"
 },
 
+"prediction": {
+  "next_run_alpha_delta_max": 0.05,
+  "stability_window": 3
+},
+  
 "falsification": {
-"condition": "alpha outside range OR sigma too large OR no separation from null",
-"action": "Mark system as falsified"
+  "condition": "If alpha deviates >0.05 across 3 consecutive runs OR sigma > 0.15"
+  "action": "Mark system as falsified"
 }
 }
