@@ -1,0 +1,29 @@
+{
+  "role": "independent_verifier",
+  "principle": "verification must occur outside the originating system",
+  "input_sources": [
+    "public/repro_bundle/canonical_report.json",
+    "public/repro_bundle/report.hash",
+    "public/live_truth.json"
+  ],
+  "verification_steps": [
+    "recompute_hash",
+    "rebuild_spectral_analysis",
+    "independent_statistical_test",
+    "compare_alpha_and_sigma"
+  ],
+  "constraints": {
+    "no_shared_runtime": true,
+    "no_shared_dependencies": true,
+    "no_trust_in_internal_logs": true
+  },
+  "failure_conditions": [
+    "hash_mismatch",
+    "alpha_deviation_outside_confidence",
+    "statistical_result_not_reproducible"
+  ],
+  "verdict_logic": {
+    "pass": "all checks consistent",
+    "fail": "any mismatch or instability"
+  }
+}
