@@ -108,6 +108,8 @@
     Loading extracted signal...
   </div>
 
+  <div id="market-interface" style="margin-top:30px; opacity:0.9;"></div>
+
   <div id="pressure-log" style="margin-top:30px; opacity:0.8;">
     Loading pressure export...
   </div>
@@ -364,6 +366,21 @@
         "No irreducible truth yet.";
     }
   }
+
+  async function loadMarketInterface() {
+    try {
+      const res = await fetch('./public/market_interface.json');
+      const m = await res.json();
+
+      document.getElementById("market-interface").innerText =
+        "MARKET INTERFACE:\n" +
+        JSON.stringify(m, null, 2);
+
+    } catch {
+      document.getElementById("market-interface").innerText =
+        "No market interface.";
+    }
+  }
     
   import { liveStream } from './core/live_stream.js';
   import { applyCausalFeedback } from './core/causal_feedback.js';
@@ -382,6 +399,7 @@
     loadPressure();
     loadPredictionAnchor();
     loadIrreducibleTruth();
+    loadMarketInterface();
 
     try {
       const res = await fetch('./public/live_truth.json');
