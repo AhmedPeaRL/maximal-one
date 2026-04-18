@@ -33,5 +33,5 @@ def main():
     with open("artifacts/null_comparison.json","w") as f:
       json.dump(results,f,indent=2)
 
-if name == "main":
-  main()
+if __name__ == "__main__":
+    main()
