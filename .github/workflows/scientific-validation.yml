@@ -282,6 +282,7 @@ jobs:
       - name: HCM Alignment Guard + Node Suite
         run: |
           node analysis/alignment_guard.js
+          node core/market_exporter.js
           npm run verify
           npm run stability
           npm run attractor
@@ -1265,9 +1266,6 @@ jobs:
 
     - name: Extract market signal
       run: python analysis/signal_extractor.py
-
-    - name: Export Market Signal
-      run: node core/market_exporter.js
 
     - name: Market Harness Decision
       run: python analysis/market_harness.py
