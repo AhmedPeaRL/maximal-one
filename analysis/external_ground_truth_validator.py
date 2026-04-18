@@ -45,6 +45,9 @@ if matched:
     print("✅ External grounding achieved (strict)")
     sys.exit(0)
 
+if alpha > 5:
+    print("⚠️ High alpha detected — potential scaling anomaly or new regime")
+
 if soft_matched and gt["integration_policy"].get("allow_soft_match", False):
     print("⚠️ External grounding achieved (soft)")
     sys.exit(0)
