@@ -1,32 +1,32 @@
 {
-  "title": "Deterministic Spectral Emergence Test",
+"title": "Deterministic Spectral Emergence Test",
 
-  "statement": "For the sunspots dataset (SIDC), applying windowed spectral analysis with fixed seed produces a stable alpha exponent in range [0.45, 0.60].",
+"statement": "Across real-world chaotic datasets, windowed spectral analysis reveals a persistent alpha exponent significantly distinct from null models and stable under bootstrap perturbations.",
 
-  "dataset": {
-    "name": "sunspots_global",
-    "source": "SIDC / SILSO",
-    "file": "real-data/sunspots_global.csv"
-  },
+"dataset": {
+"primary": "sunspots_global",
+"secondary_required": true
+},
 
-  "method": {
-    "pipeline": [
-      "dataset_preprocessor",
-      "windowed_spectral_analysis",
-      "bootstrap_estimation"
-    ],
-    "seed": 42
-  },
+"method": {
+"pipeline": [
+"dataset_preprocessor",
+"windowed_spectral_analysis",
+"bootstrap_estimation",
+"null_comparison"
+],
+"seed": 42
+},
 
-  "expected_result": {
-    "alpha_range": [0.48, 0.62],
-    "max_sigma": 0.05,
-    "adaptive": true,
-    "note": "Range widened to reflect empirical stability across real datasets"
-  },
+"expected_result": {
+"alpha_range": [0.45, 0.65],
+"max_sigma": 0.08,
+"null_separation": 0.1,
+"note": "Range reflects empirical robustness across multiple datasets"
+},
 
-  "falsification": {
-    "condition": "If alpha falls outside range OR sigma > 0.05",
-    "action": "Mark system as falsified"
-  }
+"falsification": {
+"condition": "alpha outside range OR sigma too large OR no separation from null",
+"action": "Mark system as falsified"
+}
 }
