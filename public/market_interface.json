@@ -1,0 +1,31 @@
+{
+  "product": "Irreducible Signal Access",
+  "description": "Access to verified non-random structural signal (alpha) extracted from real-world chaotic systems.",
+  "use_cases": [
+    "quantitative research",
+    "signal validation",
+    "AI alignment benchmarking",
+    "non-randomness detection"
+  ],
+  "access": {
+    "type": "paid",
+    "tiers": [
+      {
+        "name": "observer",
+        "price_usd": 5,
+        "features": ["view live signal"]
+      },
+      {
+        "name": "research",
+        "price_usd": 25,
+        "features": ["download reports", "access reproducibility bundle"]
+      },
+      {
+        "name": "lab",
+        "price_usd": 100,
+        "features": ["API access", "external reproduction triggers"]
+      }
+    ]
+  },
+  "endpoint": "/api/access-signal"
+}
