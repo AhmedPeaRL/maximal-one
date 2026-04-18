@@ -435,6 +435,19 @@ jobs:
           cp artifacts/report.hash public/repro_bundle/
           cp requirements-lock.txt public/repro_bundle/
 
+      - name: Publish verifier interface
+        run: |
+          mkdir -p public/verifier_interface
+
+          cp public/repro_bundle/canonical_report.json public/verifier_interface/
+          cp public/repro_bundle/report.hash public/verifier_interface/
+
+          echo '{
+            "entry": "canonical_report.json",
+            "hash": "report.hash",
+            "protocol": "external_verifier_protocol.json"
+          }' > public/verifier_interface/index.json
+
   gate:
     runs-on: ubuntu-24.04
     needs: build-report
