@@ -913,6 +913,7 @@ jobs:
       run: |
         python -m analysis.windowed_spectral_analysis
         python -m analysis.cross_system_correlation
+        python -m analysis.null_model_test
 
     - name: Runtime checkpoint
       run: python -c "import repro_core.runtime_guard as rg; rg.checkpoint()"
