@@ -1273,6 +1273,9 @@ jobs:
     - name: Market Harness Decision
       run: python analysis/market_harness.py
 
+    - name: Execute Market Action
+      run: python scripts/market_executor.py
+
     - name: External Irreducible Judge
       run: python analysis/external_judge_bridge.py
 
