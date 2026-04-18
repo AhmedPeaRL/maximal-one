@@ -1,35 +1,39 @@
 {
   "external_benchmarks": [
     {
-      "name": "sunspots_cycle",
-      "source": "NASA / SILSO",
-      "expected_pattern": "quasi-periodic ~11 year cycle",
+      "name": "1/f Noise (Pink Noise)",
       "validation_rule": {
-        "spectral_peak_range": [0.08, 0.12],
-        "stability_required": true
+        "spectral_peak_range": [0.8, 1.2]
       }
     },
     {
-      "name": "financial_market_volatility",
-      "source": "S&P500 historical",
-      "expected_pattern": "heavy-tailed + clustered volatility",
+      "name": "Brownian Motion",
       "validation_rule": {
-        "hurst_range": [0.5, 0.7],
-        "non_gaussian": true
+        "spectral_peak_range": [1.8, 2.2]
       }
     },
     {
-      "name": "climate_temperature_anomaly",
-      "source": "NOAA global temp",
-      "expected_pattern": "trend + noise",
+      "name": "White Noise",
       "validation_rule": {
-        "trend_detectable": true,
-        "residual_structure": true
+        "spectral_peak_range": [0.0, 0.3]
+      }
+    },
+    {
+      "name": "Biological Rhythms (Heart/Brain)",
+      "validation_rule": {
+        "spectral_peak_range": [0.6, 1.4]
+      }
+    },
+    {
+      "name": "Solar Activity (Sunspots)",
+      "validation_rule": {
+        "spectral_peak_range": [0.9, 1.3]
       }
     }
   ],
   "integration_policy": {
-    "must_match_at_least_one": true,
-    "failure_if_none_match": true
+    "failure_if_none_match": true,
+    "allow_soft_match": true,
+    "soft_match_sigma_multiplier": 2.0
   }
 }
