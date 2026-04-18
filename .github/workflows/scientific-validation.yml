@@ -1132,6 +1132,9 @@ jobs:
     - name: Continuity guard
       run: python analysis/continuity_guard.py
 
+    - name: Market Decision Engine
+      run: python analysis/market_decision_engine.py
+
 
     # =========================
     # 7) PERSISTENCE
