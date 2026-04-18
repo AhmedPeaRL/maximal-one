@@ -400,6 +400,18 @@
       console.log("No market decision yet");
     }
   }
+
+  async function loadMarketReady() {
+    try {
+      const res = await fetch('./public/market_ready_signal.json');
+      const m = await res.json();
+
+      document.getElementById("market-interface").innerText +=
+        "\n\nMARKET READY:\n" +
+        JSON.stringify(m, null, 2);
+
+    } catch {}
+  }
     
   import { liveStream } from './core/live_stream.js';
   import { applyCausalFeedback } from './core/causal_feedback.js';
@@ -420,6 +432,7 @@
     loadIrreducibleTruth();
     loadMarketInterface();
     loadMarketDecision();
+    loadMarketReady();
 
     try {
       const res = await fetch('./public/live_truth.json');
