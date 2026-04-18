@@ -1136,6 +1136,9 @@ jobs:
     - name: Market Decision Engine
       run: python analysis/market_decision_engine.py
 
+    - name: Forced Market Collision
+      run: python analysis/forced_market_collision.py
+
 
     # =========================
     # 7) PERSISTENCE
