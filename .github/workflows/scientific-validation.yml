@@ -1005,6 +1005,9 @@ jobs:
     - name: External Ground Truth Validation
       run: python analysis/external_ground_truth_validator.py
 
+    - name: True External Reproduction Guard
+      run: python analysis/true_external_reproduction_guard.py
+
 
     # =========================
     # 6) FINAL GATES
