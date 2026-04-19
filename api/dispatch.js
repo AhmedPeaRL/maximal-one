@@ -157,6 +157,12 @@ function safeCompare(a, b) {
 
     const signature = generateSignature(payload);
 
+    const expectedSignature = generateSignature(payload);
+
+    if (!safeCompare(signature, expectedSignature)) {
+      return res.status(403).json({ ok: false, error: "invalid signature" });
+    }
+
     const response = await fetch(
       "https://api.github.com/repos/ahmedpearl/maximal-one/dispatches",
       {
