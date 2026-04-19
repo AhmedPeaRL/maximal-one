@@ -134,6 +134,7 @@
   import { sendWitnessToSystem } from './core/live_causal_bridge.js';
   import { externalWitnessAnchor } from './core/external_witness_anchor.js';
   import { decisionEngine } from './core/decision_engine.js';
+  import { autonomousOrchestrator } from './core/autonomous_orchestrator.js';
 
   const input = document.getElementById("witness-input");
   const submit = document.getElementById("witness-submit");
@@ -434,6 +435,14 @@
     loadMarketInterface();
     loadMarketDecision();
     loadMarketReady();
+
+    autonomousOrchestrator().then(d => {
+      const el = document.getElementById("market-interface");
+
+    el.innerText +=
+      "\n\nAUTONOMOUS DECISION:\n" +
+      JSON.stringify(d, null, 2);
+    });
 
     try {
       const res = await fetch('./public/live_truth.json');
