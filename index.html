@@ -484,10 +484,6 @@
         "\n\nLOCAL RESULT:\n" +
         JSON.stringify(envelope, null, 2);
 
-      eventBox.innerText =
-        "LOCAL RESULT:\n" +
-        JSON.stringify(envelope, null, 2);
-
       const externalAnchor = await externalWitnessAnchor(envelope);
 
       eventBox.innerText +=
