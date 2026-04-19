@@ -414,6 +414,20 @@
 
     } catch {}
   }
+
+  async function loadVerificationBundle() {
+    try {
+      const res = await fetch('./public/verification_bundle.json');
+      const data = await res.json();
+
+      document.getElementById("scientific-claim").innerText +=
+        "\n\nVERIFICATION BUNDLE:\n" +
+        JSON.stringify(data, null, 2);
+
+    } catch {
+      console.log("No verification bundle");
+    }
+  }
     
   import { liveStream } from './core/live_stream.js';
   import { applyCausalFeedback } from './core/causal_feedback.js';
@@ -435,6 +449,7 @@
     loadMarketInterface();
     loadMarketDecision();
     loadMarketReady();
+    loadVerificationBundle();
 
     autonomousOrchestrator().then(d => {
       const el = document.getElementById("market-interface");
@@ -500,12 +515,18 @@
         JSON.stringify(externalAnchor, null, 2);
       
       // 2. send to real system
-      const bridge = await fetch("/api/dispatch", {
+      const bridge = await fetch("https://api.github.com/repos/ahmedpearl/maximal-one/dispatches", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Authorization": "token YOUR_GH_TOKEN",
+          "Accept": "application/vnd.github+json"
         },
-        body: JSON.stringify({ input: value })
+        body: JSON.stringify({
+          event_type: "external_dispatch",
+          client_payload: {
+            input: value
+          }
+        })
       });
 
       const bridgeResult = await bridge.json();
