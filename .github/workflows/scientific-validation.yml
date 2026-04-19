@@ -1139,6 +1139,12 @@ jobs:
           exit 1
         fi
 
+    - name: Stability Lock Layer
+      run: python analysis/stability_lock.py
+
+    - name: Semantic Pressure Map
+      run: python analysis/semantic_pressure_map.py
+
     - name: Decision Engine (contained)
       run: |
         python analysis/decision_engine.py || \
@@ -1411,8 +1417,7 @@ jobs:
           exit 0
         fi
 
-        git commit -m "Atomic state update"
-        git commit -m "external dispatch log"
+        git commit -m "Atomic state update" || echo "No changes"
 
         echo "=== SAFE PUSH (TOKEN-INJECTED) ==="
 
