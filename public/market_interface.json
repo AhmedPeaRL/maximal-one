@@ -1,27 +1,31 @@
 {
-  "system": "HCM-MARKET-BRIDGE",
-  "status": "active",
-  "execution_mode": "manual-assisted",
-  "supported_platform": "Thndr",
-
-  "signal": {
-    "asset": "EGX30",
-    "action": "HOLD",
-    "confidence": 0.0,
-    "timestamp": null
+  "product": "Irreducible Signal Access",
+  "description": "Access to verified non-random structural signal (alpha) extracted from real-world chaotic systems.",
+  "use_cases": [
+    "quantitative research",
+    "signal validation",
+    "AI alignment benchmarking",
+    "non-randomness detection"
+  ],
+  "access": {
+    "type": "paid",
+    "tiers": [
+      {
+        "name": "observer",
+        "price_usd": 5,
+        "features": ["view live signal"]
+      },
+      {
+        "name": "research",
+        "price_usd": 25,
+        "features": ["download reports", "access reproducibility bundle"]
+      },
+      {
+        "name": "lab",
+        "price_usd": 100,
+        "features": ["API access", "external reproduction triggers"]
+      }
+    ]
   },
-
-  "execution_rules": {
-    "min_confidence": 0.72,
-    "max_risk_per_trade": 0.05,
-    "position_size_strategy": "confidence_weighted"
-  },
-
-  "translation": {
-    "BUY": "شراء من خلال Thndr",
-    "SELL": "بيع من خلال Thndr",
-    "HOLD": "لا إجراء"
-  },
-
-  "note": "This interface converts HCM decisions into human-executable financial actions via Thndr."
+  "endpoint": "/api/access-signal"
 }
