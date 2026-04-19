@@ -1160,6 +1160,10 @@ jobs:
     - name: External Time Anchor
       run: python analysis/external_time_anchor.py
 
+    - name: Generate external input
+      run: |
+        echo '{"values":[5,15,25,35,45,55,65,75,85,95]}' > external_input.json
+
     - name: External Model Attack
       run: python analysis/external_model_attack.py
 
