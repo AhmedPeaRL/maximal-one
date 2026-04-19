@@ -439,9 +439,9 @@
     autonomousOrchestrator().then(d => {
       const el = document.getElementById("market-interface");
 
-    el.innerText +=
-      "\n\nAUTONOMOUS DECISION:\n" +
-      JSON.stringify(d, null, 2);
+      el.innerText +=
+        "\n\nAUTONOMOUS DECISION:\n" +
+        JSON.stringify(d, null, 2);
     });
 
     try {
