@@ -133,6 +133,7 @@
   import { bindPresence } from './core/presence_binding.js';
   import { sendWitnessToSystem } from './core/live_causal_bridge.js';
   import { externalWitnessAnchor } from './core/external_witness_anchor.js';
+  import { decisionEngine } from './core/decision_engine.js';
 
   const input = document.getElementById("witness-input");
   const submit = document.getElementById("witness-submit");
@@ -470,7 +471,19 @@
         reality_anchor: reality
       });
 
-      // FIX: عرض النتيجة الفعلية مش متغير مش موجود
+      const decision = decisionEngine({
+        alpha: envelope.alpha,
+        sigma: envelope.sigma,
+        confidence: envelope.confidence,
+        drift: envelope.drift
+      });
+
+      eventBox.innerText =
+        "DECISION:\n" +
+        JSON.stringify(decision, null, 2) +
+        "\n\nLOCAL RESULT:\n" +
+        JSON.stringify(envelope, null, 2);
+
       eventBox.innerText =
         "LOCAL RESULT:\n" +
         JSON.stringify(envelope, null, 2);
