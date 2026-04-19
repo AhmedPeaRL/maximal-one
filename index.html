@@ -114,6 +114,7 @@
   </div>
 
   <div id="market-interface" style="margin-top:30px; opacity:0.9;"></div>
+  <button id="execute-trade">Execute on Thndr</button>
 
   <div id="pressure-log" style="margin-top:30px; opacity:0.8;">
     Loading pressure export...
@@ -677,6 +678,23 @@
     } catch {
       document.getElementById("event").innerText =
         "Attack failed.";
+    }
+  });
+
+  document.getElementById("execute-trade").addEventListener("click", async () => {
+    try {
+      const res = await fetch('./public/market_decision.json');
+      const decision = await res.json();
+
+      const msg =
+        "ACTION: " + decision.action + "\n" +
+        "ASSET: " + decision.asset + "\n" +
+        "CONFIDENCE: " + decision.confidence;
+
+      alert("نفّذ الصفقة دي على Thndr:\n\n" + msg);
+
+    } catch {
+      alert("No decision available");
     }
   });
 </script>
