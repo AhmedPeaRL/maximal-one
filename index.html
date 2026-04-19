@@ -515,18 +515,12 @@
         JSON.stringify(externalAnchor, null, 2);
       
       // 2. send to real system
-      const bridge = await fetch("https://api.github.com/repos/ahmedpearl/maximal-one/dispatches", {
+      const bridge = await fetch("/api/dispatch", {
         method: "POST",
         headers: {
-          "Authorization": "token YOUR_GH_TOKEN",
-          "Accept": "application/vnd.github+json"
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          event_type: "external_dispatch",
-          client_payload: {
-            input: value
-          }
-        })
+        body: JSON.stringify({ input: value })
       });
 
       const bridgeResult = await bridge.json();
