@@ -135,6 +135,7 @@
   import { externalWitnessAnchor } from './core/external_witness_anchor.js';
   import { decisionEngine } from './core/decision_engine.js';
   import { autonomousOrchestrator } from './core/autonomous_orchestrator.js';
+  import { selfCorrectionLoop } from './core/self_correction_loop.js';
 
   const input = document.getElementById("witness-input");
   const submit = document.getElementById("witness-submit");
@@ -473,6 +474,13 @@
       (d.scientific_signal?.confidence ?? 0) > 0.7
         ? "coherent"
         : "under verification";
+
+    const correction = await selfCorrectionLoop(d.scientific_signal);
+
+    document.getElementById("event").innerText +=
+      "\n\nSELF CORRECTION:\n" +
+      JSON.stringify(correction, null, 2);
+    
   });
 
   submit.addEventListener("click", async () => {
