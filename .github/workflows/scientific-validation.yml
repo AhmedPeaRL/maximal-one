@@ -6,7 +6,7 @@ concurrency:
 
 on:
   repository_dispatch:
-    types: [external_witness, external_reproduction]
+    types: [external_witness, external_dispatch, external_reproduction]
   push:
   pull_request:
   workflow_dispatch:
@@ -245,6 +245,30 @@ jobs:
           GH_REPO: ${{ secrets.GH_REPO }}
         run: python analysis/external_collision_trigger.py
 
+  external-dispatch:
+    runs-on: ubuntu-latest
+    needs: external-collision
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Log Input
+        run: |
+          echo "INPUT: ${{ github.event.client_payload.input }}" >> data/external_log.txt
+
+      - name: Generate Hash
+        run: |
+          echo "${{ github.event.client_payload.input }}" | sha256sum >> data/hash_log.txt
+
+      - name: Commit Results
+        run: |
+          git config user.name "bot"
+          git config user.email "bot@github.com"
+          git add data/
+          git commit -m "external dispatch log"
+          git push
+          
   compute:
     runs-on: ubuntu-24.04
     container:
