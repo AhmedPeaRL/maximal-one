@@ -1160,6 +1160,9 @@ jobs:
     - name: External Time Anchor
       run: python analysis/external_time_anchor.py
 
+    - name: External Model Attack
+      run: python analysis/external_model_attack.py
+
     - name: Export artifact
       run: |
         mkdir -p public
