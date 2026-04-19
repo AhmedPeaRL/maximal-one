@@ -1174,6 +1174,9 @@ jobs:
     - name: Market Decision Engine
       run: python analysis/market_decision_engine.py
 
+    - name: Reality → Market Bridge
+      run: python analysis/reality_to_market_bridge.py
+
     - name: Forced Market Collision
       run: python analysis/forced_market_collision.py
 
