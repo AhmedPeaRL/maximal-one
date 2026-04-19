@@ -8,12 +8,10 @@ OUTPUT_FILE = "artifacts/external_attack_result.json"
 
 
 def load_input():
-    # لو الملف مش موجود → نولّد input افتراضي
     if not os.path.exists(INPUT_FILE):
-        print("No external input found. Generating fallback signal...")
-
         return {
-            "values": [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+            "status": "no_input",
+            "values": []
         }
 
     with open(INPUT_FILE) as f:
@@ -26,7 +24,8 @@ def evaluate(data):
     if not signal or len(signal) < 10:
         return {
             "status": "invalid",
-            "reason": "insufficient data"
+            "reason": "insufficient data",
+            "input_detected": False
         }
 
     mean = sum(signal) / len(signal)
@@ -35,7 +34,8 @@ def evaluate(data):
     return {
         "status": "evaluated",
         "variance": variance,
-        "stability": "unstable" if variance > 100 else "stable"
+        "stability": "unstable" if variance > 100 else "stable",
+        "input_detected": True
     }
 
 
@@ -50,16 +50,16 @@ def build_result(eval_result):
 
 
 def main():
-    os.makedirs("artifacts", exist_ok=True)
-
     data = load_input()
     result = evaluate(data)
     final = build_result(result)
 
+    os.makedirs("artifacts", exist_ok=True)
+
     with open(OUTPUT_FILE, "w") as f:
         json.dump(final, f, indent=2)
 
-    print("External model evaluated successfully.")
+    print("External model evaluated safely.")
 
 
 if __name__ == "__main__":
