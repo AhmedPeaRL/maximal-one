@@ -1,0 +1,25 @@
+{
+  "system": "maximal-one",
+  "version": "v1.0.0",
+  "timestamp": "AUTO_GENERATED",
+  "claim": {
+    "statement": "Invariant α persists across independent chaotic datasets under deterministic constraints.",
+    "testable": true,
+    "falsifiable": true
+  },
+  "artifacts": {
+    "alpha": null,
+    "sigma": null,
+    "confidence": null
+  },
+  "constraints": {
+    "deterministic": true,
+    "reproducible": true,
+    "external_verification_required": true
+  },
+  "verification": {
+    "status": "pending",
+    "external_sources": [],
+    "hash": null
+  }
+}
