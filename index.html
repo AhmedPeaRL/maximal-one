@@ -612,6 +612,32 @@
         "Collision failed.";
     }
   });
+
+  const attackBtn = document.getElementById("attack");
+
+  attackBtn.addEventListener("click", async () => {
+    try {
+      const input = document.getElementById("witness-input").value;
+
+      const res = await fetch("/api/external-attack", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ input })
+      });
+
+      const r = await res.json();
+
+      document.getElementById("event").innerText =
+        "ATTACK RESULT:\n" +
+        JSON.stringify(r, null, 2);
+
+    } catch {
+      document.getElementById("event").innerText =
+        "Attack failed.";
+    }
+  });
 </script>
   
   <div id="witness-panel" style="margin-top:20px; opacity:0.7;">
