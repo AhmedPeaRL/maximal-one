@@ -681,20 +681,23 @@
     }
   });
 
+  import { executeThndrBridge } from './core/thndr_bridge.js';
+
   document.getElementById("execute-trade").addEventListener("click", async () => {
     try {
       const res = await fetch('./public/market_decision.json');
       const decision = await res.json();
 
-      const msg =
-        "ACTION: " + decision.action + "\n" +
-        "ASSET: " + decision.asset + "\n" +
-        "CONFIDENCE: " + decision.confidence;
+      const result = await executeThndrBridge(decision);
 
-      alert("نفّذ الصفقة دي على Thndr:\n\n" + msg);
+      if (result.ok) {
+        alert("Order dispatched successfully");
+      } else {
+        alert("Dispatch failed: " + result.error);
+      }
 
-    } catch {
-      alert("No decision available");
+    } catch (e) {
+      alert("Execution error: " + e.message);
     }
   });
 </script>
