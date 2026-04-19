@@ -245,30 +245,6 @@ jobs:
           GH_REPO: ${{ secrets.GH_REPO }}
         run: python analysis/external_collision_trigger.py
 
-  external-dispatch:
-    runs-on: ubuntu-latest
-    needs: external-collision
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Log Input
-        run: |
-          echo "INPUT: ${{ github.event.client_payload.input }}" >> data/external_log.txt
-
-      - name: Generate Hash
-        run: |
-          echo "${{ github.event.client_payload.input }}" | sha256sum >> data/hash_log.txt
-
-      - name: Commit Results
-        run: |
-          git config user.name "bot"
-          git config user.email "bot@github.com"
-          git add data/
-          git commit -m "external dispatch log"
-          git push
-          
   compute:
     runs-on: ubuntu-24.04
     container:
@@ -737,6 +713,14 @@ jobs:
       with:
         fetch-depth: 0
         persist-credentials: true
+
+    - name: Log Input
+      run: |
+        echo "INPUT: ${{ github.event.client_payload.input }}" >> data/external_log.txt
+
+    - name: Generate Hash
+      run: |
+        echo "${{ github.event.client_payload.input }}" | sha256sum >> data/hash_log.txt
 
     - name: Verify Python runtime (container-native)
       run: |
@@ -1383,6 +1367,8 @@ jobs:
         git config user.email "actions@github.com"
         git config pull.rebase true
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
+        git config user.name "bot"
+        git config user.email "bot@github.com"
 
         echo "=== PREP DATA (FIXED) ==="
 
@@ -1415,6 +1401,7 @@ jobs:
         fi
 
         git commit -m "Atomic state update"
+        git commit -m "external dispatch log"
 
         echo "=== SAFE PUSH (TOKEN-INJECTED) ==="
 
