@@ -456,8 +456,12 @@ jobs:
           echo '{
             "entry": "canonical_report.json",
             "hash": "report.hash",
-            "protocol": "external_verifier_protocol.json"
+            "protocol": "core-scientific/external_verifier_protocol.json"
           }' > public/verifier_interface/index.json
+
+      - name: Export external verifier script
+        run: |
+          cp analysis/external_minimal_verifier.py public/verifier_interface/
 
   gate:
     runs-on: ubuntu-24.04
