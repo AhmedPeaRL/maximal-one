@@ -39,7 +39,7 @@ def external_verdict():
 
     # === verdict logic ===
     if sigma > max_sigma:
-        return "rejected_sigma"
+        return "rejected_sigma_hard"
 
     if not (minA <= alpha <= maxA):
         return "near_miss_alpha"
