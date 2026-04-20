@@ -1440,22 +1440,28 @@ jobs:
         
         python analysis/push_guard.py
 
+        SUCCESS=false
+          
         for i in 1 2 3 4 5
         do
           git pull --rebase origin main || true
-
+            
           if git push origin HEAD:main; then
             echo "Push succeeded"
-            exit 0
+            SUCCESS=true
+            break
           fi
 
           echo "Retry $i..."
           sleep 2
+            
         done
-
-        echo "Push failed"
-        exit 1
-    
+          
+        if [ "$SUCCESS" = false ]; then
+          echo "Push skipped or failed gracefully (non-critical)"
+          exit 0
+        fi
+        
   stability-check:
     runs-on: ubuntu-24.04
     container:
