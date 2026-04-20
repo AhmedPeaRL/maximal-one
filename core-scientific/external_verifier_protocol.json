@@ -1,29 +1,28 @@
 {
-  "role": "independent_verifier",
-  "principle": "verification must occur outside the originating system",
-  "input_sources": [
-    "public/repro_bundle/canonical_report.json",
-    "public/repro_bundle/report.hash",
-    "public/live_truth.json"
-  ],
-  "verification_steps": [
-    "recompute_hash",
-    "rebuild_spectral_analysis",
-    "independent_statistical_test",
-    "compare_alpha_and_sigma"
-  ],
-  "constraints": {
-    "no_shared_runtime": true,
-    "no_shared_dependencies": true,
-    "no_trust_in_internal_logs": true
+  "protocol_name": "Independent External Verification Protocol",
+  "version": "1.0",
+  "principle": "The system must be reproducible by an external entity with zero trust assumptions.",
+  "requirements": {
+    "input": [
+      "canonical_report.json",
+      "report.hash",
+      "requirements-lock.txt"
+    ],
+    "environment": "Python 3.11+",
+    "steps": [
+      "Install dependencies using requirements-lock.txt",
+      "Run generate_report.py with fixed seed",
+      "Recompute SHA256 of output",
+      "Compare with report.hash"
+    ]
   },
-  "failure_conditions": [
-    "hash_mismatch",
-    "alpha_deviation_outside_confidence",
-    "statistical_result_not_reproducible"
-  ],
-  "verdict_logic": {
-    "pass": "all checks consistent",
-    "fail": "any mismatch or instability"
-  }
+  "success_condition": {
+    "hash_match": true,
+    "alpha_within_tolerance": true
+  },
+  "failure_condition": {
+    "hash_mismatch": true,
+    "alpha_drift": true
+  },
+  "philosophical_binding": "Truth is not what the system claims, but what survives independent reconstruction."
 }
