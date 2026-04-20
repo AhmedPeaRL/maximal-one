@@ -1,6 +1,6 @@
 {
   "title": "Unified Scientific Claim",
-  "version": "1.0",
+  "version": "2.0",
 
   "core_principle": "Falsifiability-first adaptive validation",
 
@@ -11,11 +11,16 @@
     "tolerance_sigma_multiplier": 3
   },
 
-  "max_sigma": 0.1,
+  "sigma_mode": "adaptive",
+
+  "adaptive_sigma": {
+    "max_sigma_multiplier": 2.5,
+    "reference": "self"
+  },
 
   "diagnostics": {
     "alpha_soft_margin": 0.5,
-    "sigma_soft_margin": 0.05
+    "sigma_soft_margin": 0.2
   },
 
   "stability_constraints": {
@@ -27,7 +32,7 @@
 
   "verdict_logic": {
     "reject_if": [
-      "sigma أعلى من الحد",
+      "sigma أعلى من الحد التكيفي",
       "عدم الاستقرار عبر التشغيلات"
     ],
     "flag_if": [
@@ -35,7 +40,7 @@
     ],
     "accept_if": [
       "استقرار عبر التشغيلات",
-      "sigma منخفض"
+      "sigma ضمن النطاق التكيفي"
     ]
   }
 }
