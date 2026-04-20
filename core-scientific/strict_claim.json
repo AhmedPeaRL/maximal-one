@@ -31,7 +31,7 @@
 },
   
 "falsification": {
-  "condition": "If alpha deviates >0.05 across 3 consecutive runs OR sigma > 0.15"
+  "condition": "If alpha deviates >0.05 across 3 consecutive runs OR sigma > 0.15",
   "action": "Mark system as falsified"
 }
 }
