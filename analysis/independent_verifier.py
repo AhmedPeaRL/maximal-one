@@ -53,12 +53,20 @@ def external_verdict():
 
     return "provisionally_valid"
 
+def load_collapse():
+    try:
+        with open("artifacts/collapse_test.json") as f:
+            return json.load(f)["collapse_test"]
+    except:
+        return "unknown"
+
 def build_external_record():
     return {
         "timestamp": time.time(),
         "integrity": verify_hash(),
         "verdict": external_verdict(),
         "source": "independent_layer",
+        "collapse_status": load_collapse(),
         "mode": "adaptive_claim_bound"
     }
 
