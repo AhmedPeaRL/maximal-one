@@ -14,15 +14,23 @@ def main():
     alpha = r["spectral_profile"]["estimated_alpha"]
     sigma = r["spectral_profile"]["bootstrap_std"]
 
-    # Physical plausibility bounds (critical fix)
-    if not (0.0 < alpha < 3.0):
-        fail(f"Alpha out of physical bounds: {alpha}")
+    # =========================
+    # HARD PHYSICAL REALITY
+    # =========================
 
-    # Stability constraint
-    if sigma > 0.5:
-        fail(f"Sigma too high (unstable signal): {sigma}")
+    # realistic fractal / spectral bounds
+    if not (0.2 < alpha < 2.2):
+        fail(f"Alpha physically impossible: {alpha}")
 
-    print("✅ Alpha physically plausible")
+    # sigma must be tight
+    if sigma > 0.3:
+        fail(f"Sigma indicates noise domination: {sigma}")
+
+    # derived sanity check (very important)
+    if alpha * sigma > 0.5:
+        fail(f"Unstable alpha-sigma coupling: {alpha * sigma}")
+
+    print("✅ Physical layer PASSED")
 
 if __name__ == "__main__":
     main()
