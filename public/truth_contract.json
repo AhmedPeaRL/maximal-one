@@ -1,0 +1,11 @@
+{
+  "system_identity": "maximal-one",
+  "truth_mode": "computation-bound",
+  "external_verification_required": true,
+
+  "guarantees": [
+    "no claim without hash",
+    "no result without reproducibility",
+    "no stability without multi-run validation"
+  ]
+}
