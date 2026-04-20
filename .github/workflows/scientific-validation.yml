@@ -1210,6 +1210,12 @@ jobs:
     - name: Hard Collapse Test (Truth Breaker)
       run: python analysis/hard_collapse_test.py
 
+    - name: Self Healing Loop
+      run: python analysis/self_healing_loop.py
+
+    - name: Temporal Intelligence
+      run: python analysis/temporal_intelligence.py
+
     - name: Decision Engine (contained)
       run: |
         python analysis/decision_engine.py || \
