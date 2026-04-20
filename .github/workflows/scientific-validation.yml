@@ -488,6 +488,11 @@ jobs:
           name: report-hash
           path: artifacts
 
+      - name: Load single claim
+        run: |
+          echo "=== SINGLE CLAIM ==="
+          cat core-scientific/one_claim_to_break.json
+
       - name: Verify hash integrity
         run: |
           CALC=$(sha256sum artifacts/canonical_report.json | cut -d " " -f1)
