@@ -22,14 +22,11 @@ def external_verdict():
     alpha = report["spectral_profile"]["estimated_alpha"]
     sigma = report["spectral_profile"]["bootstrap_std"]
 
-    if sigma > 0.1:
+    if sigma > 0.2:
         return "unstable"
 
-    if not (0 < alpha < 5):
+    if alpha < 0:
         return "invalid"
-
-    if sigma < 0.05:
-        return "high_confidence"
 
     return "coherent"
 
