@@ -533,6 +533,30 @@ jobs:
           echo "=== SCIENTIFIC CONTRACT ==="
           cat core-scientific/scientific_contract.json
 
+      - name: Enforce Unified Claim
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+
+          const unified = JSON.parse(fs.readFileSync('core-scientific/unified_claim.json','utf8'));
+          const report = JSON.parse(fs.readFileSync('artifacts/canonical_report.json','utf8'));
+
+          const alpha = report.spectral_profile.estimated_alpha;
+          const sigma = report.spectral_profile.bootstrap_std;
+
+          if (alpha < unified.alpha_range[0] || alpha > unified.alpha_range[1]) {
+            console.error("❌ Unified claim failed: alpha out of range");
+            process.exit(1);
+          }
+
+          if (sigma > unified.max_sigma) {
+            console.error("❌ Unified claim failed: sigma too high");
+            process.exit(1);
+          }
+
+          console.log("✅ Unified claim enforced");
+          NODE
+
       - name: Build Adaptive Claim
         run: python analysis/adaptive_claim_builder.py
 
