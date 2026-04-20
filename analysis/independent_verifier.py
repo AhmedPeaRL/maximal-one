@@ -3,8 +3,8 @@ import hashlib
 import os
 import time
 
-def load_report():
-    with open("artifacts/canonical_report.json") as f:
+def load_json(path):
+    with open(path) as f:
         return json.load(f)
 
 def verify_hash():
@@ -17,28 +17,33 @@ def verify_hash():
     return stored == calc
 
 def external_verdict():
-    report = load_report()
+    report = load_json("artifacts/canonical_report.json")
+    claim = load_json("core-scientific/one_claim_to_break.json")
 
     alpha = report["spectral_profile"]["estimated_alpha"]
     sigma = report["spectral_profile"]["bootstrap_std"]
 
-    if sigma > 0.1:
-        return "unstable"
+    minA, maxA = claim["claim"]["testable_prediction"]["alpha_range"]
+    max_sigma = claim["claim"]["testable_prediction"]["max_sigma"]
 
-    if not (0 < alpha < 5):
-        return "invalid"
+    if sigma > max_sigma:
+        return "rejected_sigma"
 
-    if sigma < 0.05:
+    if not (minA <= alpha <= maxA):
+        return "rejected_alpha"
+
+    if sigma < max_sigma * 0.5:
         return "high_confidence"
 
-    return "coherent"
+    return "provisionally_valid"
 
 def build_external_record():
     return {
         "timestamp": time.time(),
         "integrity": verify_hash(),
         "verdict": external_verdict(),
-        "source": "independent_layer"
+        "source": "independent_layer",
+        "mode": "claim_bound"
     }
 
 if __name__ == "__main__":
@@ -49,4 +54,4 @@ if __name__ == "__main__":
     with open("public/independent_verification.json","w") as f:
         json.dump(record, f, indent=2)
 
-    print("Independent verification written.")
+    print("Independent verification (claim-bound) written.")
