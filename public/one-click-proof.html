@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>maximal-one — Live Proof</title>
+<style>
+body {
+  background: #0a0a0a;
+  color: #e6e6e6;
+  font-family: monospace;
+  padding: 40px;
+}
+.box {
+  border: 1px solid #333;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.good { color: #00ff9c; }
+.warn { color: #ffcc00; }
+.bad { color: #ff4d4d; }
+</style>
+</head>
+<body>
+
+<h1>maximal-one — Live Irreducible Proof</h1>
+
+<div class="box">
+  <h2>Truth State</h2>
+  <pre id="truth">loading...</pre>
+</div>
+
+<div class="box">
+  <h2>Reproducibility Signal</h2>
+  <pre id="report">loading...</pre>
+</div>
+
+<script>
+async function load() {
+  try {
+    const truth = await fetch("live_truth.json").then(r => r.json());
+    document.getElementById("truth").textContent = JSON.stringify(truth, null, 2);
+
+    const report = await fetch("repro_bundle/canonical_report.json").then(r => r.json());
+    document.getElementById("report").textContent = JSON.stringify(report.spectral_profile, null, 2);
+
+  } catch (e) {
+    document.body.innerHTML += "<p class='bad'>Failed to load live data</p>";
+  }
+}
+
+load();
+</script>
+
+</body>
+</html>
