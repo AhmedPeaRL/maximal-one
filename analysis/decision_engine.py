@@ -60,7 +60,9 @@ def compute_signal(report):
     alpha = sp.get("estimated_alpha", 0.5)
     std = sp.get("bootstrap_std", 1e-6)
 
-    z = abs(alpha - 0.5) / std
+    expected = 1.0  # neutral scaling baseline
+
+    z = abs(alpha - expected) / (std + 1e-9)
 
     return {
         "alpha": alpha,
