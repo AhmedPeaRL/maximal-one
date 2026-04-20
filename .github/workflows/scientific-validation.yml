@@ -546,6 +546,15 @@ jobs:
 
           if (alpha < unified.alpha_range[0] || alpha > unified.alpha_range[1]) {
             console.error("❌ Unified claim failed: alpha out of range");
+
+            console.error("=== DIAGNOSTIC ===");
+            console.error("alpha:", alpha);
+            console.error("expected range:", unified.alpha_range);
+            console.error("distance_to_range:", Math.min(
+              Math.abs(alpha - unified.alpha_range[0]),
+              Math.abs(alpha - unified.alpha_range[1])
+            ));
+
             process.exit(1);
           }
 
