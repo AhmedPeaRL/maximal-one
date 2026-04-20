@@ -1354,6 +1354,8 @@ jobs:
 
     - name: Persist results (authoritative git layer)
       if: always()
+      env:
+         GH_TOKEN: ${{ secrets.GH_TOKEN }}
       working-directory: ${{ github.workspace }}
       shell: bash
       run: |
