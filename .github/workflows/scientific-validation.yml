@@ -1207,6 +1207,9 @@ jobs:
     - name: Semantic Pressure Map
       run: python analysis/semantic_pressure_map.py
 
+    - name: Hard Collapse Test (Truth Breaker)
+      run: python analysis/hard_collapse_test.py
+
     - name: Decision Engine (contained)
       run: |
         python analysis/decision_engine.py || \
