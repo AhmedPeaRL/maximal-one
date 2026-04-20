@@ -1,0 +1,17 @@
+{
+  "system": "maximal-one",
+  "challenge_protocol": {
+    "type": "open_falsification",
+    "instructions": [
+      "Submit any dataset or adversarial input",
+      "Attempt to break alpha stability",
+      "Verify reproducibility independently"
+    ],
+    "submission": {
+      "method": "repository_dispatch",
+      "payload_limit": 5000
+    },
+    "reward": "scientific acknowledgment if system fails"
+  },
+  "status": "active"
+}
