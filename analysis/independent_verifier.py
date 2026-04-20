@@ -18,14 +18,14 @@ def verify_hash():
 
 def external_verdict():
     report = load_json("artifacts/canonical_report.json")
-    claim = load_json("core-scientific/one_claim_to_break.json")
+    claim = load_json("core-scientific/unified_claim.json")
 
     alpha = report["spectral_profile"]["estimated_alpha"]
     sigma = report["spectral_profile"]["bootstrap_std"]
 
-    minA, maxA = claim["claim"]["testable_prediction"]["alpha_range"]
-    max_sigma = claim["claim"]["testable_prediction"]["max_sigma"]
-
+    minA, maxA = claim["alpha_range"]
+    max_sigma = claim["max_sigma"]
+  
     if sigma > max_sigma:
         return "rejected_sigma"
 
