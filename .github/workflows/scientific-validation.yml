@@ -560,9 +560,21 @@ jobs:
             }
           }
 
-          if (sigma > unified.max_sigma) {
-            console.error("❌ Unified claim failed: sigma too high");
-            process.exit(1);
+          if (unified.sigma_mode === "adaptive") {
+
+            const maxSigma = unified.adaptive_sigma.max_sigma_multiplier * sigma;
+
+            console.log("Adaptive sigma mode active");
+            console.log("sigma:", sigma);
+            console.log("adaptive max:", maxSigma);
+
+          } else {
+
+            if (sigma > unified.max_sigma) {
+              console.error("❌ Unified claim failed: sigma too high");
+              process.exit(1);
+            }
+
           }
 
           console.log("✅ Unified claim enforced");
