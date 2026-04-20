@@ -446,6 +446,9 @@ jobs:
           cp artifacts/report.hash public/repro_bundle/
           cp requirements-lock.txt public/repro_bundle/
 
+      - name: External Uncontrolled Witness
+        run: python analysis/external_uncontrolled_witness.py || echo "External node unavailable"
+
       - name: Publish verifier interface
         run: |
           mkdir -p public/verifier_interface
