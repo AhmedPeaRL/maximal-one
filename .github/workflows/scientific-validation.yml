@@ -211,6 +211,8 @@ jobs:
              echo "Nothing to commit"
              exit 0
           }
+
+          python - <<'PY'
           
           import os
           import sys
@@ -1437,6 +1439,8 @@ jobs:
 
         echo "=== SAFE PUSH (TOKEN-INJECTED) ==="
 
+        python - <<'PY'
+        
         import os
         import sys
 
