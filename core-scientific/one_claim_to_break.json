@@ -1,0 +1,36 @@
+{
+  "title": "Single Falsifiable Claim",
+  "version": "1.0",
+
+  "claim": {
+    "statement": "A stable non-random spectral alpha emerges from independent real-world datasets under deterministic processing.",
+    
+    "testable_prediction": {
+      "alpha_range": [0.8, 2.5],
+      "max_sigma": 0.08
+    },
+
+    "datasets_required": [
+      "sunspots",
+      "financial_timeseries",
+      "synthetic_control"
+    ],
+
+    "protocol": [
+      "Run deterministic pipeline",
+      "Compute spectral alpha",
+      "Estimate bootstrap sigma",
+      "Compare against prediction bounds"
+    ],
+
+    "falsification": {
+      "condition": "If alpha falls outside range OR sigma exceeds threshold in independent runs",
+      "result": "claim is false"
+    }
+  },
+
+  "philosophy": {
+    "note": "This claim is intentionally minimal. If it fails, the system must collapse its assertion.",
+    "no_escape": true
+  }
+}
