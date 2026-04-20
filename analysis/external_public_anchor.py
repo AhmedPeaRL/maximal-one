@@ -15,16 +15,18 @@ def compute_hash():
         return hashlib.sha256(f.read()).hexdigest()
 
 def publish_anchor(hash_value):
-    # مثال: نشر على public API زي paste service أو logging endpoint
-    # تقدر تغيّر endpoint لاحقاً لأي مصدر immutable
     
     try:
         response = requests.post(
-            "https://httpbin.org/post",
+            "https://api.github.com/gists",
+            headers={"Authorization": f"token {os.getenv('GH_TOKEN', '')}"},
             json={
-                "hash": hash_value,
-                "timestamp": time.time(),
-                "source": "maximal-one"
+                "public": True,
+                "files": {
+                    "anchor.txt": {
+                        "content": f"{hash_value} @ {time.time()}"
+                    }
+                }
             },
             timeout=10
         )
