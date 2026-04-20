@@ -16,6 +16,13 @@ def verify_hash():
 
     return stored == calc
 
+def compute_adaptive_sigma_limit(claim, sigma):
+    if claim.get("sigma_mode") == "adaptive":
+        multiplier = claim["adaptive_sigma"]["max_sigma_multiplier"]
+        return multiplier * sigma
+    else:
+        return claim["max_sigma"]
+
 def external_verdict():
     report = load_json("artifacts/canonical_report.json")
     claim = load_json("core-scientific/unified_claim.json")
@@ -23,26 +30,23 @@ def external_verdict():
     alpha = report["spectral_profile"]["estimated_alpha"]
     sigma = report["spectral_profile"]["bootstrap_std"]
 
-    max_sigma = claim["max_sigma"]
+    # === sigma limit (adaptive-aware) ===
+    max_sigma = compute_adaptive_sigma_limit(claim, sigma)
 
-    # === Adaptive Mode ===
+    # === alpha bounds ===
     if claim.get("alpha_mode") == "adaptive":
         tolerance = claim["adaptive_alpha"]["tolerance_sigma_multiplier"] * sigma
-        
-        # dynamic band around alpha itself (self-consistent)
         minA = alpha - tolerance
         maxA = alpha + tolerance
-
     else:
-        # fallback legacy
         minA, maxA = claim["alpha_range"]
 
     # === verdict logic ===
     if sigma > max_sigma:
-        return "rejected_sigma_hard"
+        return "rejected_sigma_adaptive"
 
     if not (minA <= alpha <= maxA):
-        return "near_miss_alpha"
+        return "alpha_outside_dynamic_band"
 
     if sigma < max_sigma * 0.5:
         return "high_confidence"
@@ -55,7 +59,7 @@ def build_external_record():
         "integrity": verify_hash(),
         "verdict": external_verdict(),
         "source": "independent_layer",
-        "mode": "claim_bound"
+        "mode": "adaptive_claim_bound"
     }
 
 if __name__ == "__main__":
