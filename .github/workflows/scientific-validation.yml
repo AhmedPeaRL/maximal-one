@@ -1424,6 +1424,20 @@ jobs:
 
         echo "=== SAFE PUSH (TOKEN-INJECTED) ==="
 
+        git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+
+        git add data/external/
+
+        if git diff --cached --quiet; then
+          echo "No new witness → skipping push"
+          exit 0
+        fi
+
+        git commit -m "External witness ingestion" || {
+           echo "Nothing to commit"
+           exit 0
+        }
+        
         python analysis/push_guard.py
 
         for i in 1 2 3 4 5
