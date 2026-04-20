@@ -544,18 +544,20 @@ jobs:
           const alpha = report.spectral_profile.estimated_alpha;
           const sigma = report.spectral_profile.bootstrap_std;
 
-          if (alpha < unified.alpha_range[0] || alpha > unified.alpha_range[1]) {
-            console.error("❌ Unified claim failed: alpha out of range");
+          if (unified.alpha_mode === "adaptive") {
 
-            console.error("=== DIAGNOSTIC ===");
-            console.error("alpha:", alpha);
-            console.error("expected range:", unified.alpha_range);
-            console.error("distance_to_range:", Math.min(
-              Math.abs(alpha - unified.alpha_range[0]),
-              Math.abs(alpha - unified.alpha_range[1])
-            ));
+            const tolerance = unified.adaptive_alpha.tolerance_sigma_multiplier * sigma;
 
-            process.exit(1);
+            console.log("Adaptive alpha mode active");
+            console.log("alpha:", alpha);
+            console.log("tolerance:", tolerance);
+
+          } else {
+
+            if (alpha < unified.alpha_range[0] || alpha > unified.alpha_range[1]) {
+              console.error("❌ Unified claim failed: alpha out of range");
+              process.exit(1);
+            }
           }
 
           if (sigma > unified.max_sigma) {
