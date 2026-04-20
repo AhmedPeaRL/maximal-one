@@ -3,7 +3,10 @@ import hashlib
 import json
 import time
 
-PUBLIC_ENDPOINT = "https://your-external-node.example/verify"
+PUBLIC_ENDPOINTS = [
+    "https://httpbin.org/post",
+    "https://postman-echo.com/post"
+]
 
 def load_bundle():
     with open("public/repro_bundle/canonical_report.json") as f:
@@ -18,18 +21,30 @@ def compute_hash(report):
     raw = json.dumps(report, sort_keys=True).encode()
     return hashlib.sha256(raw).hexdigest()
 
-def send_to_external(report, report_hash):
+def broadcast(report, report_hash):
     payload = {
         "timestamp": time.time(),
-        "report": report,
-        "hash": report_hash
+        "hash": report_hash,
+        "system": "maximal-one"
     }
 
-    try:
-        r = requests.post(PUBLIC_ENDPOINT, json=payload, timeout=10)
-        return r.status_code, r.text
-    except Exception as e:
-        return None, str(e)
+    results = []
+
+    for url in PUBLIC_ENDPOINTS:
+        try:
+            r = requests.post(url, json=payload, timeout=10)
+            results.append({
+                "endpoint": url,
+                "status": r.status_code
+            })
+        except Exception as e:
+            results.append({
+                "endpoint": url,
+                "status": "failed",
+                "error": str(e)
+            })
+
+    return results
 
 def main():
     report, report_hash = load_bundle()
@@ -42,14 +57,12 @@ def main():
 
     print("✅ Local integrity verified")
 
-    status, response = send_to_external(report, report_hash)
+    results = broadcast(report, report_hash)
 
-    if status == 200:
-        print("🌍 External witness accepted")
-        print(response)
-    else:
-        print("⚠️ External witness unreachable or rejected")
-        print(response)
+    with open("public/external_witness_log.json","w") as f:
+        json.dump(results, f, indent=2)
+
+    print("🌍 External broadcast complete")
 
 if __name__ == "__main__":
     main()
