@@ -342,6 +342,9 @@ jobs:
       - name: Physical Alpha Guard
         run: python analysis/alpha_physical_guard.py
 
+      - name: Alpha diagnostics
+        run: python analysis/alpha_diagnostics.py
+
       - name: Build irreducible truth
         run: |
           python - <<'PY'
