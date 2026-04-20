@@ -21,11 +21,10 @@ def compute_hash(report):
     raw = json.dumps(report, sort_keys=True).encode()
     return hashlib.sha256(raw).hexdigest()
 
-def broadcast(report, report_hash):
+def broadcast(report_hash):
     payload = {
-        "timestamp": time.time(),
-        "hash": report_hash,
-        "system": "maximal-one"
+        "t": time.time(),
+        "h": report_hash
     }
 
     results = []
@@ -57,7 +56,7 @@ def main():
 
     print("✅ Local integrity verified")
 
-    results = broadcast(report, report_hash)
+    results = broadcast(report_hash)
 
     with open("public/external_witness_log.json","w") as f:
         json.dump(results, f, indent=2)
