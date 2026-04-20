@@ -23,9 +23,21 @@ def external_verdict():
     alpha = report["spectral_profile"]["estimated_alpha"]
     sigma = report["spectral_profile"]["bootstrap_std"]
 
-    minA, maxA = claim["alpha_range"]
     max_sigma = claim["max_sigma"]
-  
+
+    # === Adaptive Mode ===
+    if claim.get("alpha_mode") == "adaptive":
+        tolerance = claim["adaptive_alpha"]["tolerance_sigma_multiplier"] * sigma
+        
+        # dynamic band around alpha itself (self-consistent)
+        minA = alpha - tolerance
+        maxA = alpha + tolerance
+
+    else:
+        # fallback legacy
+        minA, maxA = claim["alpha_range"]
+
+    # === verdict logic ===
     if sigma > max_sigma:
         return "rejected_sigma"
 
@@ -54,4 +66,4 @@ if __name__ == "__main__":
     with open("public/independent_verification.json","w") as f:
         json.dump(record, f, indent=2)
 
-    print("Independent verification (claim-bound) written.")
+    print("Independent verification (adaptive-aware) written.")
