@@ -339,6 +339,9 @@ jobs:
       - name: Alpha continuity guard
         run: python analysis/alpha_continuity_guard.py
 
+      - name: Physical Alpha Guard
+        run: python analysis/alpha_physical_guard.py
+
       - name: Build irreducible truth
         run: |
           python - <<'PY'
@@ -1212,6 +1215,9 @@ jobs:
 
     - name: Self Healing Loop
       run: python analysis/self_healing_loop.py
+
+    - name: Execute Self Healing
+      run: python analysis/self_healing_executor.py
 
     - name: Temporal Intelligence
       run: python analysis/temporal_intelligence.py
