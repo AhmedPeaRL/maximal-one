@@ -212,7 +212,20 @@ jobs:
              exit 0
           }
           
-          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+          import os
+          import sys
+
+          if "GITHUB_ACTIONS" not in os.environ:
+            print("❌ Push not allowed outside GitHub Actions")
+            sys.exit(1)
+            
+          token = os.getenv("GH_TOKEN")
+
+          if not token or len(token) < 20:
+            print("❌ Invalid token")
+            sys.exit(1)
+
+          print("✅ Push context verified")
           
           SUCCESS=false
           
@@ -1424,8 +1437,20 @@ jobs:
 
         echo "=== SAFE PUSH (TOKEN-INJECTED) ==="
 
-        # Inject token explicitly (CRITICAL FIX)
-        git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
+        import os
+        import sys
+
+        if "GITHUB_ACTIONS" not in os.environ:
+          print("❌ Push not allowed outside GitHub Actions")
+          sys.exit(1)
+            
+        token = os.getenv("GH_TOKEN")
+
+        if not token or len(token) < 20:
+          print("❌ Invalid token")
+          sys.exit(1)
+
+        print("✅ Push context verified")
 
         for i in 1 2 3 4 5
         do
