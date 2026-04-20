@@ -1,0 +1,29 @@
+{
+  "title": "Unified Scientific Claim",
+  "version": "1.0",
+
+  "core_principle": "Single source of falsifiability across all system layers",
+
+  "alpha_range": [0.7, 0.9],
+  "max_sigma": 0.1,
+
+  "stability_constraints": {
+    "max_delta_between_runs": 0.05,
+    "consecutive_runs_required": 3
+  },
+
+  "null_separation_min": 0.1,
+
+  "verdict_logic": {
+    "reject_if": [
+      "alpha خارج النطاق",
+      "sigma أعلى من الحد",
+      "عدم الاستقرار عبر 3 تشغيلات"
+    ],
+    "accept_if": [
+      "alpha داخل النطاق",
+      "sigma منخفض",
+      "ثبات عبر التشغيلات"
+    ]
+  }
+}
