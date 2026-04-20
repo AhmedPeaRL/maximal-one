@@ -30,7 +30,7 @@ def external_verdict():
         return "rejected_sigma"
 
     if not (minA <= alpha <= maxA):
-        return "rejected_alpha"
+        return "near_miss_alpha"
 
     if sigma < max_sigma * 0.5:
         return "high_confidence"
