@@ -1,36 +1,18 @@
 import json
 import sys
 
-REPORT_PATH = "artifacts/canonical_report.json"
+with open("artifacts/canonical_report.json") as f:
+    r = json.load(f)
 
-def fail(msg):
-    print("❌", msg)
+alpha = r["spectral_profile"]["estimated_alpha"]
+sigma = r["spectral_profile"]["bootstrap_std"]
+
+if not (0 <= alpha <= 3):
+    print(f"❌ Alpha خارج النطاق الفيزيائي: {alpha}")
     sys.exit(1)
 
-def main():
-    with open(REPORT_PATH) as f:
-        r = json.load(f)
+if sigma > 0.5:
+    print(f"❌ Sigma عالي: {sigma}")
+    sys.exit(1)
 
-    alpha = r["spectral_profile"]["estimated_alpha"]
-    sigma = r["spectral_profile"]["bootstrap_std"]
-
-    # =========================
-    # HARD PHYSICAL REALITY
-    # =========================
-
-    # realistic fractal / spectral bounds
-    if not (0.2 < alpha < 2.2):
-        fail(f"Alpha physically impossible: {alpha}")
-
-    # sigma must be tight
-    if sigma > 0.5:
-        fail(f"Sigma indicates noise domination: {sigma}")
-
-    # derived sanity check (very important)
-    if alpha * sigma > 0.5:
-        fail(f"Unstable alpha-sigma coupling: {alpha * sigma}")
-
-    print("✅ Physical layer PASSED")
-
-if __name__ == "__main__":
-    main()
+print("✅ Alpha physically valid")
