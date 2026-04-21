@@ -1,5 +1,6 @@
 import numpy as np
 import json
+from .numerical_spectral_verification import estimate_alpha
 
 def generate_null(series_length=512):
     return np.random.normal(0, 1, series_length)
@@ -39,11 +40,7 @@ def main():
                 continue
 
             null_series = generate_null()
-            null_alpha = np.polyfit(
-              np.log(np.arange(1, len(null_series)+1)),
-              np.log(np.abs(null_series) + 1e-8),
-              1
-            )[0]
+            null_alpha = estimate_alpha(null_series)
 
             diffs.append(compare_alpha(real_alpha, null_alpha))
 
