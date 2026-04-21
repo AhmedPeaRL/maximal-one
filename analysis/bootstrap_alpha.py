@@ -22,10 +22,19 @@ baseline_alpha = estimate_alpha(series)
 
 # Bootstrap
 boot = []
-for _ in range(200):
-    idx = np.random.choice(len(series), len(series), replace=True)
-    sample = series[idx]
-    boot.append(estimate_alpha(sample))
+
+# block bootstrap (preserves structure)
+block_size = 32
+sample = []
+
+for _ in range(len(series) // block_size):
+    start = np.random.randint(0, len(series) - block_size)
+    
+sample.extend(series[start:start+block_size])
+
+sample = np.array(sample[:len(series)])
+    
+boot.append(estimate_alpha(sample))
 
 boot = np.array(boot)
 
