@@ -572,6 +572,16 @@ jobs:
           const alpha = report.spectral_profile.estimated_alpha;
           const sigma = report.spectral_profile.bootstrap_std;
 
+          if (!unified.adaptive_alpha || !Array.isArray(unified.adaptive_alpha.alpha_range)) {
+            console.error("❌ adaptive_alpha.alpha_range missing or invalid");
+            process.exit(1);
+          }
+
+          if (!unified.adaptive_sigma) {
+            console.error("❌ adaptive_sigma missing");
+            process.exit(1);
+          }
+
           if (unified.alpha_mode === "adaptive") {
 
             const tolerance = unified.adaptive_alpha.tolerance_sigma_multiplier * sigma;
@@ -582,7 +592,14 @@ jobs:
 
           } else {
 
-            if (alpha < unified.alpha_range[0] || alpha > unified.alpha_range[1]) {
+            const alphaRange = unified.adaptive_alpha?.alpha_range;
+
+            if (!alphaRange || alphaRange.length !== 2) {
+              console.error("❌ Invalid alpha_range definition");
+              process.exit(1);
+            }
+
+            if (alpha < alphaRange[0] || alpha > alphaRange[1]) {
               console.error("❌ Unified claim failed: alpha out of range");
               process.exit(1);
             }
