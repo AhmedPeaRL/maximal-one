@@ -7,7 +7,7 @@ GITHUB_RAW = "https://raw.githubusercontent.com/ahmedpearl/maximal-one/main/arti
 
 
 # =========================
-# NORMALIZATION CORE (HARDENED)
+# NORMALIZATION CORE
 # =========================
 
 VOLATILE_KEYS = {
@@ -56,22 +56,15 @@ def normalize_json(raw_text):
 
 
 # =========================
-# NETWORK LAYER (STRONGER)
+# NETWORK
 # =========================
 
 def fetch_external():
-    for i in range(6):
+    for i in range(5):
         try:
             url = GITHUB_RAW + f"?t={int(time.time())}"
 
-            r = requests.get(
-                url,
-                timeout=15,
-                headers={
-                    "Cache-Control": "no-cache",
-                    "Pragma": "no-cache"
-                }
-            )
+            r = requests.get(url, timeout=10)
 
             if r.status_code == 200:
                 return r.text
@@ -79,7 +72,7 @@ def fetch_external():
         except:
             pass
 
-        time.sleep(3 * (i + 1))
+        time.sleep(2)
 
     return None
 
@@ -89,19 +82,23 @@ def sha256(data):
 
 
 # =========================
-# CORE LOGIC
+# CORE
 # =========================
 
 def compute_local():
-    with open("artifacts/report.hash") as f:
-        raw = f.read()
+    try:
+        with open("artifacts/canonical_report.json") as f:
+            raw = f.read()
 
-    norm = normalize_json(raw)
+        norm = normalize_json(raw)
 
-    if not norm:
+        if not norm:
+            return None
+
+        return norm, sha256(norm)
+
+    except:
         return None
-
-    return norm, sha256(norm)
 
 
 def compute_external():
@@ -117,37 +114,35 @@ def compute_external():
 
     return norm, sha256(norm)
 
-    print("=== DEBUG NORMALIZED LOCAL ===")
-    print(norm_local[:500])
-
-    print("=== DEBUG NORMALIZED EXTERNAL ===")
-    print(norm_external[:500])
 
 def run():
-    local_norm, local_hash = compute_local()
-    external_norm, external_hash = compute_external()
+    local = compute_local()
 
-    if not local_hash:
-        print("❌ Local normalization failed")
+    if not local:
+        print("❌ Local computation failed")
         return False
 
-    for attempt in range(3):
-        external_hash = compute_external()
+    local_norm, local_hash = local
 
-        if not external_hash:
-            print("⚠️ External fetch failed, retrying...")
-            time.sleep(5)
+    for attempt in range(3):
+        external = compute_external()
+
+        if not external:
+            print("⚠️ External fetch failed")
+            time.sleep(3)
             continue
+
+        external_norm, external_hash = external
 
         if external_hash == local_hash:
             print("✅ True external reproduction confirmed")
             return True
 
-        print(f"⚠️ Mismatch attempt {attempt+1}")
+        print(f"⚠️ Mismatch {attempt+1}")
         print("External:", external_hash)
         print("Local   :", local_hash)
 
-        time.sleep(8)
+        time.sleep(5)
 
     print("❌ Persistent mismatch")
     return False
