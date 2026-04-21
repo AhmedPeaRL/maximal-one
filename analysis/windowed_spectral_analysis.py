@@ -7,20 +7,39 @@ import json
 WINDOW = 512
 STEP = 256
 
+# =========================
+# SAFE FREQUENCY BAND
+# =========================
+FREQ_MIN = 0.01
+FREQ_MAX = 0.2
+
+
 def spectral_alpha(x):
 
     f, Pxx = welch(x, nperseg=256)
 
-    mask = f > 0
+    # remove zero freq
+    mask = (f > FREQ_MIN) & (f < FREQ_MAX)
+
     f = f[mask]
     Pxx = Pxx[mask]
 
+    # guard: not enough points
+    if len(f) < 10:
+        return None
+
     logf = np.log(f)
-    logp = np.log(Pxx)
+    logp = np.log(Pxx + 1e-12)
 
     slope, _ = np.polyfit(logf, logp, 1)
 
-    return -slope
+    alpha = -slope
+
+    # HARD CLIP (physical sanity)
+    if alpha < 0 or alpha > 3:
+        return None
+
+    return float(alpha)
 
 
 def analyze_series(series):
@@ -33,7 +52,8 @@ def analyze_series(series):
 
         alpha = spectral_alpha(window)
 
-        results.append(alpha)
+        if alpha is not None:
+            results.append(alpha)
 
     return results
 
@@ -55,12 +75,22 @@ def main():
         if len(series) < WINDOW:
             continue
 
-        out[f.name] = analyze_series(series)
+        res = analyze_series(series)
+
+        if len(res) == 0:
+            continue
+
+        out[f.name] = {
+            "alphas": res,
+            "mean_alpha": float(np.mean(res)),
+            "std_alpha": float(np.std(res)),
+            "count": len(res)
+        }
 
     Path("artifacts").mkdir(exist_ok=True)
 
     with open("artifacts/windowed_spectral.json","w") as fp:
-        json.dump(out,fp)
+        json.dump(out, fp, indent=2)
 
 
 if __name__ == "__main__":
