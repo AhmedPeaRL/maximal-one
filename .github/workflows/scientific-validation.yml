@@ -1164,9 +1164,9 @@ jobs:
     - name: External Ground Truth Validation
       run: python analysis/external_ground_truth_validator.py
 
-    - name: True External Reproduction Guard (HARD)
+    - name: True External Independence Guard (HARD)
       run: |
-        python analysis/true_external_reproduction_guard.py || exit 1
+        python analysis/true_external_independence_guard.py || exit 1
 
 
     # =========================
