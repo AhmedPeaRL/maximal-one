@@ -31,7 +31,9 @@ def main():
 
         diffs = []
 
-        for w in windows:
+        alphas = windows.get("alphas", [])
+
+        for w in alphas:
 
             real_alpha = extract_alpha(w)
 
