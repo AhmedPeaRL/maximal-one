@@ -17,11 +17,26 @@ def verify_hash():
     return stored == calc
 
 def compute_adaptive_sigma_limit(claim, sigma):
-    if claim.get("sigma_mode") == "adaptive":
-        multiplier = claim["adaptive_sigma"]["max_sigma_multiplier"]
+    sigma_mode = claim.get("sigma_mode", "bounded")
+
+    # === ADAPTIVE MODE ===
+    if sigma_mode == "adaptive":
+        adaptive = claim.get("adaptive_sigma", {})
+        multiplier = adaptive.get("max_sigma_multiplier", 2.5)
         return multiplier * sigma
+
+    # === BOUNDED MODE (CURRENT DEFAULT) ===
+    elif sigma_mode == "bounded":
+        adaptive = claim.get("adaptive_sigma", {})
+        if "max_sigma" in adaptive:
+            return adaptive["max_sigma"]
+
+        # fallback (strict safety)
+        raise ValueError("max_sigma missing in adaptive_sigma for bounded mode")
+
+    # === HARD FAIL ===
     else:
-        return claim["max_sigma"]
+        raise ValueError(f"Unknown sigma_mode: {sigma_mode}")
 
 def external_verdict():
     report = load_json("artifacts/canonical_report.json")
