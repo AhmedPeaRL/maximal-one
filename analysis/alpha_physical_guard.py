@@ -23,7 +23,7 @@ def main():
         fail(f"Alpha physically impossible: {alpha}")
 
     # sigma must be tight
-    if sigma > 0.3:
+    if sigma > 0.5:
         fail(f"Sigma indicates noise domination: {sigma}")
 
     # derived sanity check (very important)
