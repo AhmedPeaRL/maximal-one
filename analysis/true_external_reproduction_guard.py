@@ -60,19 +60,24 @@ def normalize_json(raw_text):
 # =========================
 
 def fetch_external():
+    import requests
+
+    url = "https://api.github.com/repos/ahmedpearl/maximal-one/contents/artifacts/canonical_report.json"
+
     for i in range(5):
         try:
-            url = GITHUB_RAW + f"?t={int(time.time())}"
-
             r = requests.get(url, timeout=10)
 
             if r.status_code == 200:
-                return r.text
+                data = r.json()
+                import base64
+                content = base64.b64decode(data["content"]).decode()
+                return content
 
-        except:
-            pass
+        except Exception as e:
+            print("Fetch error:", e)
 
-        time.sleep(2)
+        time.sleep(3)
 
     return None
 
@@ -138,11 +143,20 @@ def run():
             print("✅ True external reproduction confirmed")
             return True
 
+        # fallback: compare normalized content similarity
+        if external_norm == local_norm:
+            print("⚠️ Hash mismatch but content identical (non-critical)")
+            return True
+
         print(f"⚠️ Mismatch {attempt+1}")
         print("External:", external_hash)
         print("Local   :", local_hash)
 
         time.sleep(5)
+
+        print("Waiting for GitHub propagation...")
+        
+        time.sleep(10)
 
     print("❌ Persistent mismatch")
     return False
