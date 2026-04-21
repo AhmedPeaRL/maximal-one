@@ -148,15 +148,15 @@ def run():
             print("⚠️ Hash mismatch but content identical (non-critical)")
             return True
 
+        print("Waiting for GitHub propagation...")
+        
+        time.sleep(10)
+
         print(f"⚠️ Mismatch {attempt+1}")
         print("External:", external_hash)
         print("Local   :", local_hash)
 
         time.sleep(5)
-
-        print("Waiting for GitHub propagation...")
-        
-        time.sleep(10)
 
     print("❌ Persistent mismatch")
     return False
