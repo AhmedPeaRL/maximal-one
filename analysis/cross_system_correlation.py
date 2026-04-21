@@ -2,12 +2,18 @@ import json
 import numpy as np
 from pathlib import Path
 
-def corr(a,b):
+def corr(a, b):
+
+    if a is None or b is None:
+        return None
 
     a = np.array(a)
     b = np.array(b)
 
-    n = min(len(a),len(b))
+    if a.ndim == 0 or b.ndim == 0:
+        return None
+
+    n = min(len(a), len(b))
 
     if n < 10:
         return None
@@ -15,8 +21,10 @@ def corr(a,b):
     a = a[:n]
     b = b[:n]
 
-    return float(np.corrcoef(a,b)[0,1])
+    if np.std(a) == 0 or np.std(b) == 0:
+        return None
 
+    return float(np.corrcoef(a, b)[0,1])
 
 def main():
 
@@ -34,7 +42,10 @@ def main():
     for i in range(len(keys)):
         for j in range(i+1,len(keys)):
 
-            c = corr(data[keys[i]],data[keys[j]])
+            a = data[keys[i]].get("alphas", [])
+            b = data[keys[j]].get("alphas", [])
+
+            c = corr(a, b)
 
             if c is None:
                 continue
