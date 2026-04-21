@@ -33,6 +33,7 @@ def normalize_json(raw_text):
 
 def fetch_external(retries=3):
     for i in range(retries):
+        time.sleep(3 * (i+1))
         try:
             r = requests.get(GITHUB_RAW, timeout=10)
 
@@ -78,7 +79,23 @@ def run():
     local_hash = sha256(local_norm)
 
     if external_hash != local_hash:
-        print("❌ External mismatch (normalized)")
+        print("⚠️ External mismatch detected")
+
+        # allow slight delay-based mismatch
+        print("Retrying after delay...")
+
+        time.sleep(5)
+        external_raw_retry = fetch_external()
+
+        if external_raw_retry:
+            external_norm_retry = normalize_json(external_raw_retry)
+            external_hash_retry = sha256(external_norm_retry)
+
+            if external_hash_retry == local_hash:
+                print("✅ Match after propagation delay")
+                return True
+
+        print("❌ Persistent mismatch")
         print("External:", external_hash)
         print("Local   :", local_hash)
         return False
