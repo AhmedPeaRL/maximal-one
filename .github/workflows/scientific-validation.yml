@@ -331,10 +331,32 @@ jobs:
       - name: Freeze environment
         run: pip freeze > pip-freeze.txt
 
+      - name: Set Python path
+        run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+
       - name: Generate deterministic report
         run: |
           python scripts/generate_report.py --seed 42 --canonical
           python analysis/experiment_history.py
+
+          python - <<'PY'
+          import pandas as pd
+          import numpy as np
+          from analysis.numerical_spectral_verification import estimate_alpha
+
+          def run_real_test(path):
+              df = pd.read_csv(path)
+
+              if "value" not in df.columns:
+                 raise ValueError("Dataset must contain 'value' column")
+
+              series = df["value"].values
+              alpha = estimate_alpha(series)
+
+              print("Real data alpha:", alpha)
+
+          if __name__ == "__main__":
+              run_real_test("real-data/sunspots_global.csv")
 
       - name: Alpha continuity guard
         run: python analysis/alpha_continuity_guard.py
