@@ -20,8 +20,8 @@ series = generate_powerlaw_series(beta=1.0)
 baseline_alpha = estimate_alpha(series)
 
 boot = []
-block_size = 32
-num_boot = 50
+block_size = 64
+num_boot = 100
 
 for _ in range(num_boot):
 
