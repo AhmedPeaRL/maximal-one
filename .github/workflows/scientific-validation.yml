@@ -439,6 +439,25 @@ jobs:
               json.dump(report,f,sort_keys=True,separators=(',',':'))
           PY
 
+      - name: Freeze canonical report (FINAL)
+        run: |
+          python - <<'PY'
+          import json
+
+          path = "artifacts/canonical_report.json"
+
+          with open(path) as f:
+              data = json.load(f)
+
+          # 🔒 منع أي تعديل بعد اللحظة دي
+          data["_sealed"] = True
+
+          with open(path, "w") as f:
+              json.dump(data, f, sort_keys=True, separators=(',',':'))
+
+          print("Report sealed.")
+          PY
+
       - name: Final cryptographic hash
         run: sha256sum artifacts/canonical_report.json | cut -d " " -f1 > report.hash
 
