@@ -54,7 +54,12 @@ def external_verdict():
         minA = alpha - tolerance
         maxA = alpha + tolerance
     else:
-        minA, maxA = claim["alpha_range"]
+        adaptive = claim.get("adaptive_alpha", {})
+    
+        if "alpha_range" in adaptive:
+           minA, maxA = adaptive["alpha_range"]
+        else:
+            raise ValueError("alpha_range missing in both root and adaptive_alpha")
 
     # === verdict logic ===
     if sigma > max_sigma:
