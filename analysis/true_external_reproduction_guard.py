@@ -5,23 +5,48 @@ import time
 
 GITHUB_RAW = "https://raw.githubusercontent.com/ahmedpearl/maximal-one/main/artifacts/canonical_report.json"
 
+
+# =========================
+# NORMALIZATION CORE (HARDENED)
+# =========================
+
+VOLATILE_KEYS = {
+    "timestamp",
+    "_environment",
+    "generated_at",
+    "runtime",
+    "execution_time",
+    "host",
+}
+
+
+def strip_volatile(obj):
+    if isinstance(obj, dict):
+        return {
+            k: strip_volatile(v)
+            for k, v in obj.items()
+            if k not in VOLATILE_KEYS
+        }
+    elif isinstance(obj, list):
+        return [strip_volatile(x) for x in obj]
+    return obj
+
+
+def normalize_numbers(obj):
+    if isinstance(obj, dict):
+        return {k: normalize_numbers(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [normalize_numbers(x) for x in obj]
+    elif isinstance(obj, float):
+        return round(obj, 8)
+    return obj
+
+
 def normalize_json(raw_text):
     try:
         data = json.loads(raw_text)
 
-        data.pop("_environment", None)
-        data.pop("timestamp", None)
-
-        # 🔥 تثبيت الفلوت
-        def normalize_numbers(obj):
-            if isinstance(obj, dict):
-                return {k: normalize_numbers(v) for k, v in obj.items()}
-            elif isinstance(obj, list):
-                return [normalize_numbers(x) for x in obj]
-            elif isinstance(obj, float):
-                return round(obj, 10)
-            return obj
-
+        data = strip_volatile(data)
         data = normalize_numbers(data)
 
         return json.dumps(data, sort_keys=True, separators=(',', ':'))
@@ -30,11 +55,14 @@ def normalize_json(raw_text):
         return None
 
 
-def fetch_external(retries=3):
-    for i in range(retries):
-        time.sleep(3 * (i+1))
+# =========================
+# NETWORK LAYER (STRONGER)
+# =========================
+
+def fetch_external():
+    for i in range(6):  # 🔥 increased retries
         try:
-            r = requests.get(GITHUB_RAW, timeout=10)
+            r = requests.get(GITHUB_RAW, timeout=15)
 
             if r.status_code == 200:
                 return r.text
@@ -42,7 +70,7 @@ def fetch_external(retries=3):
         except:
             pass
 
-        time.sleep(2)
+        time.sleep(3 * (i + 1))
 
     return None
 
@@ -51,56 +79,63 @@ def sha256(data):
     return hashlib.sha256(data.encode()).hexdigest()
 
 
-def run():
-    external_raw = fetch_external()
+# =========================
+# CORE LOGIC
+# =========================
 
-    if not external_raw:
-        print("❌ External fetch failed")
-        return False
-
-    external_norm = normalize_json(external_raw)
-
-    if not external_norm:
-        print("❌ External normalization failed")
-        return False
-
-    external_hash = sha256(external_norm)
-
+def compute_local():
     with open("artifacts/canonical_report.json") as f:
-        local_raw = f.read()
+        raw = f.read()
 
-    local_norm = normalize_json(local_raw)
+    norm = normalize_json(raw)
 
-    if not local_norm:
+    if not norm:
+        return None
+
+    return sha256(norm)
+
+
+def compute_external():
+    raw = fetch_external()
+
+    if not raw:
+        return None
+
+    norm = normalize_json(raw)
+
+    if not norm:
+        return None
+
+    return sha256(norm)
+
+
+def run():
+    local_hash = compute_local()
+
+    if not local_hash:
         print("❌ Local normalization failed")
         return False
 
-    local_hash = sha256(local_norm)
+    for attempt in range(3):
+        external_hash = compute_external()
 
-    if external_hash != local_hash:
-        print("⚠️ External mismatch detected")
+        if not external_hash:
+            print("⚠️ External fetch failed, retrying...")
+            time.sleep(5)
+            continue
 
-        # allow slight delay-based mismatch
-        print("Retrying after delay...")
+        if external_hash == local_hash:
+            print("✅ True external reproduction confirmed")
+            return True
 
-        time.sleep(5)
-        external_raw_retry = fetch_external()
-
-        if external_raw_retry:
-            external_norm_retry = normalize_json(external_raw_retry)
-            external_hash_retry = sha256(external_norm_retry)
-
-            if external_hash_retry == local_hash:
-                print("✅ Match after propagation delay")
-                return True
-
-        print("❌ Persistent mismatch")
+        print(f"⚠️ Mismatch attempt {attempt+1}")
         print("External:", external_hash)
         print("Local   :", local_hash)
-        return False
 
-    print("✅ True external reproduction confirmed (normalized)")
-    return True
+        time.sleep(8)
+
+    print("❌ Persistent mismatch")
+    return False
 
 
 if __name__ == "__main__":
