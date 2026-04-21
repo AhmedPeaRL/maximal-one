@@ -60,9 +60,18 @@ def normalize_json(raw_text):
 # =========================
 
 def fetch_external():
-    for i in range(6):  # 🔥 increased retries
+    for i in range(6):
         try:
-            r = requests.get(GITHUB_RAW, timeout=15)
+            url = GITHUB_RAW + f"?t={int(time.time())}"
+
+            r = requests.get(
+                url,
+                timeout=15,
+                headers={
+                    "Cache-Control": "no-cache",
+                    "Pragma": "no-cache"
+                }
+            )
 
             if r.status_code == 200:
                 return r.text
@@ -84,7 +93,7 @@ def sha256(data):
 # =========================
 
 def compute_local():
-    with open("artifacts/canonical_report.json") as f:
+    with open("artifacts/report.hash") as f:
         raw = f.read()
 
     norm = normalize_json(raw)
@@ -92,7 +101,7 @@ def compute_local():
     if not norm:
         return None
 
-    return sha256(norm)
+    return norm, sha256(norm)
 
 
 def compute_external():
@@ -106,11 +115,17 @@ def compute_external():
     if not norm:
         return None
 
-    return sha256(norm)
+    return norm, sha256(norm)
 
+    print("=== DEBUG NORMALIZED LOCAL ===")
+    print(norm_local[:500])
+
+    print("=== DEBUG NORMALIZED EXTERNAL ===")
+    print(norm_external[:500])
 
 def run():
-    local_hash = compute_local()
+    local_norm, local_hash = compute_local()
+    external_norm, external_hash = compute_external()
 
     if not local_hash:
         print("❌ Local normalization failed")
