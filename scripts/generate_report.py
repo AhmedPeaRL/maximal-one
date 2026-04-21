@@ -33,6 +33,10 @@ def bootstrap_alpha(series, num_boot=30):
     return float(np.mean(alphas)), float(np.std(alphas))
 
 
+def stable_float(x, digits=10):
+    return float(round(x, digits))
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", type=int, required=True)
@@ -46,9 +50,6 @@ def main():
 
         alpha = estimate_alpha(series)
         mean_alpha, std_alpha = bootstrap_alpha(series)
-
-def stable_float(x, digits=10):
-    return float(round(x, digits))
     
         report = {
             "spectral_profile": {
