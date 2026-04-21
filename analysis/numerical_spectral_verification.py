@@ -41,11 +41,10 @@ def estimate_alpha(series):
     binned_freqs = np.array(binned_freqs)
     binned_psd = np.array(binned_psd)
 
-    # Remove extreme edges
-    trim = int(0.1 * len(binned_freqs))
-    if trim > 0:
-        binned_freqs = binned_freqs[trim:-trim]
-        binned_psd = binned_psd[trim:-trim]
+    # Remove noisy tails aggressively
+    mask = (binned_psd > np.percentile(binned_psd, 10))
+    binned_freqs = binned_freqs[mask]
+    binned_psd = binned_psd[mask]
 
     # Log-log fit
     log_f = np.log(binned_freqs)
