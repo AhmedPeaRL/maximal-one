@@ -1,10 +1,9 @@
 import requests
 import hashlib
-import os
 import json
 import time
 
-GITHUB_RAW = f"https://raw.githubusercontent.com/ahmedpearl/maximal-one/{os.getenv('GITHUB_SHA')}/artifacts/canonical_report.json"
+GITHUB_RAW = "https://raw.githubusercontent.com/ahmedpearl/maximal-one/main/artifacts/canonical_report.json"
 
 def normalize_json(raw_text):
     try:
