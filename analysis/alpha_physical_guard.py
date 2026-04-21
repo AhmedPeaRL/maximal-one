@@ -7,8 +7,13 @@ with open("artifacts/canonical_report.json") as f:
 alpha = r["spectral_profile"]["estimated_alpha"]
 sigma = r["spectral_profile"]["bootstrap_std"]
 
-if not (0 <= alpha <= 2):
-    print(f"❌ Alpha خارج النطاق الفيزيائي: {alpha}")
+with open("core-scientific/unified_claim.json") as f:
+    claim = json.load(f)
+
+alpha_min, alpha_max = claim["adaptive_alpha"]["alpha_range"]
+
+if not (alpha_min <= alpha <= alpha_max):
+    print(f"❌ Alpha خارج النطاق التكيفي: {alpha}")
     sys.exit(1)
 
 if sigma > 0.5:
