@@ -47,11 +47,14 @@ def main():
         alpha = estimate_alpha(series)
         mean_alpha, std_alpha = bootstrap_alpha(series)
 
+def stable_float(x, digits=10):
+    return float(round(x, digits))
+    
         report = {
             "spectral_profile": {
-                "estimated_alpha": float(alpha),
-                "bootstrap_mean": float(mean_alpha),
-                "bootstrap_std": float(std_alpha)
+                "estimated_alpha": stable_float(alpha),
+                "bootstrap_mean": stable_float(mean_alpha),
+                "bootstrap_std": stable_float(std_alpha)
             },
             "metadata": {
                 "seed": args.seed,
