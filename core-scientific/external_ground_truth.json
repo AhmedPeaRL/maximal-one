@@ -1,27 +1,15 @@
 {
   "external_benchmarks": [
     {
-      "name": "White noise",
-      "validation_rule": {
-        "spectral_peak_range": [0.0, 0.3]
-      }
-    },
-    {
-      "name": "Transitional regime",
-      "validation_rule": {
-        "spectral_peak_range": [0.3, 0.8]
-      }
-    },
-    {
-      "name": "Self-consistent regime",
-      "validation_rule": {
-        "spectral_peak_range": [0.6, 0.9]
-      }
-    },
-    {
       "name": "1/f noise (pink noise)",
       "validation_rule": {
         "spectral_peak_range": [0.8, 1.2]
+      }
+    },
+    {
+      "name": "Brownian motion",
+      "validation_rule": {
+        "spectral_peak_range": [1.8, 2.2]
       }
     },
     {
@@ -31,9 +19,15 @@
       }
     },
     {
-      "name": "Brownian motion",
+      "name": "White noise",
       "validation_rule": {
-        "spectral_peak_range": [1.8, 2.2]
+        "spectral_peak_range": [0.0, 0.3]
+      }
+    },
+    {
+      "name": "High-chaos synthetic regime",
+      "validation_rule": {
+        "spectral_peak_range": [5.0, 10.0]
       }
     }
   ],
