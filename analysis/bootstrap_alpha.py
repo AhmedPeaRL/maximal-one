@@ -2,7 +2,6 @@ import json
 import numpy as np
 from .numerical_spectral_verification import estimate_alpha
 
-# Recompute spectral amplitudes deterministically
 np.random.seed(42)
 
 def generate_powerlaw_series(n=1024, beta=1.0):
@@ -15,26 +14,26 @@ def generate_powerlaw_series(n=1024, beta=1.0):
     signal = np.fft.irfft(spectrum * phases, n=n)
     return signal
 
+
 series = generate_powerlaw_series(beta=1.0)
 
-# Compute baseline alpha
 baseline_alpha = estimate_alpha(series)
 
-# Bootstrap
 boot = []
-
-# block bootstrap (preserves structure)
 block_size = 32
-sample = []
+num_boot = 50
 
-for _ in range(len(series) // block_size):
-    start = np.random.randint(0, len(series) - block_size)
-    
-sample.extend(series[start:start+block_size])
+for _ in range(num_boot):
 
-sample = np.array(sample[:len(series)])
-    
-boot.append(estimate_alpha(sample))
+    sample = []
+
+    for _ in range(len(series) // block_size):
+        start = np.random.randint(0, len(series) - block_size)
+        sample.extend(series[start:start+block_size])
+
+    sample = np.array(sample[:len(series)])
+
+    boot.append(estimate_alpha(sample))
 
 boot = np.array(boot)
 
