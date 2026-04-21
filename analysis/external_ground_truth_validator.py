@@ -41,6 +41,9 @@ for bench in gt["external_benchmarks"]:
                 print(f"⚠️ SOFT match: {bench['name']} (within uncertainty margin)")
                 soft_matched = True
 
+    # diagnostic output
+    print(f"alpha={alpha}, sigma={sigma}")
+
 if matched:
     print("✅ External grounding achieved (strict)")
     sys.exit(0)
@@ -54,6 +57,7 @@ if soft_matched and gt["integration_policy"].get("allow_soft_match", False):
 
 if gt["integration_policy"]["failure_if_none_match"]:
     print("❌ No external benchmark matched — model ungrounded")
+    print("🔬 Possible new regime or estimation bias")
     sys.exit(1)
 
 print("⚠️ No match but failure disabled")
