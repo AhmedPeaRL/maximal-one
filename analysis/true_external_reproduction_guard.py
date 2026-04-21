@@ -3,15 +3,26 @@ import hashlib
 import json
 import time
 
-GITHUB_RAW = "https://raw.githubusercontent.com/ahmedpearl/maximal-one/main/artifacts/canonical_report.json"
+GITHUB_RAW = f"https://raw.githubusercontent.com/ahmedpearl/maximal-one/{os.getenv('GITHUB_SHA')}/artifacts/canonical_report.json"
 
 def normalize_json(raw_text):
     try:
         data = json.loads(raw_text)
 
-        # remove non-deterministic fields
         data.pop("_environment", None)
         data.pop("timestamp", None)
+
+        # 🔥 تثبيت الفلوت
+        def normalize_numbers(obj):
+            if isinstance(obj, dict):
+                return {k: normalize_numbers(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [normalize_numbers(x) for x in obj]
+            elif isinstance(obj, float):
+                return round(obj, 10)
+            return obj
+
+        data = normalize_numbers(data)
 
         return json.dumps(data, sort_keys=True, separators=(',', ':'))
 
