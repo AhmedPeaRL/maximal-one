@@ -7,7 +7,7 @@ with open("artifacts/canonical_report.json") as f:
 alpha = r["spectral_profile"]["estimated_alpha"]
 sigma = r["spectral_profile"]["bootstrap_std"]
 
-if not (0 <= alpha <= 3):
+if not (0 <= alpha <= 2):
     print(f"❌ Alpha خارج النطاق الفيزيائي: {alpha}")
     sys.exit(1)
 
