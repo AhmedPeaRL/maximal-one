@@ -1,21 +1,30 @@
-import json
-import os
 import numpy as np
 
-from analysis.spectral_utils import estimate_alpha, generate_white_noise
+def estimate_alpha(series):
+    """
+    Proper spectral alpha estimation using PSD
+    """
 
-os.makedirs("artifacts", exist_ok=True)
+    # Remove mean
+    series = series - np.mean(series)
 
-series = generate_white_noise(5000)
-alpha = estimate_alpha(series)
+    # FFT
+    fft_vals = np.fft.rfft(series)
+    psd = np.abs(fft_vals) ** 2
 
-profile = {
-    "estimated_alpha": float(alpha),
-    "reference_half": 0.5
-}
+    freqs = np.fft.rfftfreq(len(series))
 
-print("==== SPECTRAL PROFILE ====")
-print(profile)
+    # Remove zero freq
+    mask = freqs > 0
+    freqs = freqs[mask]
+    psd = psd[mask]
 
-with open("artifacts/spectral_profile.json", "w") as f:
-    json.dump(profile, f, indent=2)
+    # Log-log fit
+    log_f = np.log(freqs)
+    log_psd = np.log(psd + 1e-12)
+
+    slope, _ = np.polyfit(log_f, log_psd, 1)
+
+    alpha = -slope
+
+    return float(alpha)
