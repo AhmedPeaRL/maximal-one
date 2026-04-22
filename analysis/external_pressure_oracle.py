@@ -25,12 +25,24 @@ OUTPUT_PATH = "artifacts/external_pressure.json"
 
 
 def generate_pressure():
-    return {
-        "timestamp": time.time(),
-        "entropy": random.random(),
-        "noise_vector": [random.uniform(-1, 1) for _ in range(10)],
-        "shock": random.choice(["none", "mild", "extreme"]),
-    }
+    try:
+        with open("artifacts/external_witness.json") as f:
+            external = json.load(f)
+
+        return {
+            "timestamp": time.time(),
+            "external_hash": external.get("external_hash"),
+            "entropy": external.get("entropy", {}),
+            "shock": "external_real"
+        }
+
+    except Exception:
+        return {
+            "timestamp": time.time(),
+            "entropy": random.random(),
+            "noise_vector": [random.uniform(-1, 1) for _ in range(10)],
+            "shock": "fallback_internal"
+        }
 
 
 def compute_fingerprint(data):
