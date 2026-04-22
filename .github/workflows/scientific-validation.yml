@@ -658,15 +658,15 @@ jobs:
         run: |
           if [ "$MODE" = "scientific_proof" ]; then
             echo "Running STRICT scientific validation"
-            node core-scientific/enforce_strict.js
+            node core-scientific/enforce_strict.cjs
 
           elif [ "$MODE" = "exploration" ]; then
             echo "Running adaptive validation"
-            node core-scientific/enforce_adaptive.js
+            node core-scientific/enforce_adaptive.cjs
 
           else
             echo "Running minimal validation"
-            node core-scientific/enforce_minimal.js
+            node core-scientific/enforce_minimal.cjs
           fi
 
       - name: Load Truth Commitment
