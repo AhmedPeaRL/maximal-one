@@ -27,23 +27,20 @@ TARGET_URL = "https://ahmedpearl.github.io/maximal-one/public/repro_bundle/canon
 def fetch_external():
     urls = [
         TARGET_URL,
-        TARGET_URL.replace("canonical_report.json", "report.hash"),
+        "https://raw.githubusercontent.com/ahmedpearl/maximal-one/main/public/repro_bundle/canonical_report.json",
+        "https://cdn.jsdelivr.net/gh/ahmedpearl/maximal-one@main/public/repro_bundle/canonical_report.json"
     ]
-
-    last_error = None
 
     for url in urls:
         try:
             r = requests.get(url, timeout=10)
-
             if r.status_code == 200 and len(r.text.strip()) > 0:
+                print(f"Fetched from: {url}")
                 return r.text
+        except Exception:
+            continue
 
-        except Exception as e:
-            last_error = e
-
-    raise Exception(f"Failed to fetch external artifact from all mirrors: {last_error}")
-
+    raise Exception("All external mirrors unreachable")
 
 def normalize(raw):
     data = json.loads(raw)
