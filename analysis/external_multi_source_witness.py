@@ -3,8 +3,17 @@ import hashlib
 import json
 
 SOURCES = [
+    # GitHub Pages
     "https://ahmedpearl.github.io/maximal-one/public/repro_bundle/canonical_report.json",
-    "https://raw.githubusercontent.com/ahmedpearl/maximal-one/main/public/repro_bundle/canonical_report.json"
+
+    # Raw GitHub
+    "https://raw.githubusercontent.com/ahmedpearl/maximal-one/main/public/repro_bundle/canonical_report.json",
+
+    # jsDelivr CDN
+    "https://cdn.jsdelivr.net/gh/ahmedpearl/maximal-one@main/public/repro_bundle/canonical_report.json",
+
+    # GitHack mirror
+    "https://raw.githack.com/ahmedpearl/maximal-one/main/public/repro_bundle/canonical_report.json"
 ]
 
 def fetch_any():
