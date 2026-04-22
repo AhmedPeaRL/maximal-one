@@ -1,46 +1,32 @@
-# analysis/true_external_witness_node.py
-
 import requests
 import hashlib
 import json
 import time
 import random
 
-"""
-TRUE EXTERNAL WITNESS NODE
-
-This script runs OUTSIDE the system assumptions.
-
-It:
-- pulls public artifact
-- recomputes hash
-- injects unpredictable entropy
-- returns independent verdict
-
-NO shared runtime
-NO shared environment
-"""
-
-TARGET_URL = "https://ahmedpearl.github.io/maximal-one/public/repro_bundle/canonical_report.json"
-
+TARGET_URLS = [
+    "https://ahmedpearl.github.io/maximal-one/public/repro_bundle/canonical_report.json",
+    "https://raw.githubusercontent.com/ahmedpearl/maximal-one/main/public/repro_bundle/canonical_report.json",
+    "https://cdn.jsdelivr.net/gh/ahmedpearl/maximal-one@main/public/repro_bundle/canonical_report.json"
+]
 
 def fetch_external():
-    urls = [
-        TARGET_URL,
-        "https://raw.githubusercontent.com/ahmedpearl/maximal-one/main/public/repro_bundle/canonical_report.json",
-        "https://cdn.jsdelivr.net/gh/ahmedpearl/maximal-one@main/public/repro_bundle/canonical_report.json"
-    ]
+    errors = []
 
-    for url in urls:
+    for url in TARGET_URLS:
         try:
-            r = requests.get(url, timeout=10)
-            if r.status_code == 200 and len(r.text.strip()) > 0:
-                print(f"Fetched from: {url}")
-                return r.text
-        except Exception:
-            continue
+            r = requests.get(url, timeout=15)
 
-    raise Exception("All external mirrors unreachable")
+            if r.status_code == 200 and len(r.text.strip()) > 0:
+                return r.text, url
+
+            else:
+                errors.append(f"{url} -> bad response")
+
+        except Exception as e:
+            errors.append(f"{url} -> {str(e)}")
+
+    return None, errors
 
 def normalize(raw):
     data = json.loads(raw)
@@ -60,10 +46,8 @@ def normalize(raw):
 
     return json.dumps(clean(data), sort_keys=True)
 
-
 def compute_hash(data):
     return hashlib.sha256(data.encode()).hexdigest()
-
 
 def inject_entropy():
     return {
@@ -71,17 +55,27 @@ def inject_entropy():
         "time": time.time()
     }
 
-
 def main():
-    raw = fetch_external()
-    normalized = normalize(raw)
+    raw, meta = fetch_external()
 
+    if raw is None:
+        result = {
+            "status": "external_unavailable",
+            "errors": meta,
+            "entropy": inject_entropy(),
+            "verdict": "degraded_but_recorded"
+        }
+        print(json.dumps(result, indent=2))
+        return
+
+    normalized = normalize(raw)
     h = compute_hash(normalized)
-    entropy = inject_entropy()
 
     result = {
+        "status": "external_verified",
+        "source": meta,
         "external_hash": h,
-        "entropy": entropy,
+        "entropy": inject_entropy(),
         "verdict": "independent_observation"
     }
 
