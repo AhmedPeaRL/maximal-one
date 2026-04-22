@@ -1190,6 +1190,11 @@ jobs:
         python analysis/true_external_witness_node.py > artifacts/external_witness.json || \
         echo "External witness unavailable"
 
+    - name: External Multi-Source Witness (HARD)
+      run: |
+        python analysis/external_multi_source_witness.py > artifacts/external_multi_witness.json || \
+        echo "Multi-source witness degraded"
+
 
     # =========================
     # 6) FINAL GATES
