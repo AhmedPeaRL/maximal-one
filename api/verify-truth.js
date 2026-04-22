@@ -9,7 +9,7 @@ export async function onRequestGet() {
     const truth = await res.json();
 
     return new Response(JSON.stringify({
-      integrity: truth.integrity?.report_hash ? "bound" : "unverified",
+      integrity: calculatedHash === storedHash,
       decision: truth.decision?.global,
       confidence: truth.scientific_signal?.confidence
     }), {
