@@ -467,6 +467,9 @@ jobs:
       - name: External Public Anchor
         run: python analysis/external_public_anchor.py
 
+      - name: Multi-channel anchor
+        run: python analysis/multi_anchor_publisher.py
+
       - name: Independent verification layer
         run: python analysis/independent_verifier.py
 
