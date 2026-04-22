@@ -1176,6 +1176,9 @@ jobs:
           echo "⚠️ No external result found"
         fi
 
+    - name: TRUE External Independent HTTP Verification
+      run: python analysis/true_external_independent_runner.py
+
     - name: Alpha Sanity Guard
       run: python analysis/alpha_sanity_guard.py
 
