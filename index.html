@@ -137,6 +137,7 @@
   import { decisionEngine } from './core/decision_engine.js';
   import { autonomousOrchestrator } from './core/autonomous_orchestrator.js';
   import { selfCorrectionLoop } from './core/self_correction_loop.js';
+  import { irreversibleDecisionEngine } from './core/irreversible_decision.js';
 
   const input = document.getElementById("witness-input");
   const submit = document.getElementById("witness-submit");
@@ -430,6 +431,17 @@
       console.log("No verification bundle");
     }
   }
+
+  async function loadFalsificationEntry() {
+    try {
+      const res = await fetch('./public/falsification_entry.json');
+      const f = await res.json();
+
+      document.getElementById("scientific-claim").innerText =
+        "ENTRY POINT:\n" +
+        JSON.stringify(f, null, 2);
+    } catch {}
+  }
     
   import { liveStream } from './core/live_stream.js';
   import { applyCausalFeedback } from './core/causal_feedback.js';
@@ -452,6 +464,7 @@
     loadMarketDecision();
     loadMarketReady();
     loadVerificationBundle();
+    loadFalsificationEntry();
 
     autonomousOrchestrator().then(d => {
       const el = document.getElementById("market-interface");
@@ -481,6 +494,12 @@
     document.getElementById("event").innerText +=
       "\n\nSELF CORRECTION:\n" +
       JSON.stringify(correction, null, 2);
+
+    const irreversible = irreversibleDecisionEngine(d.scientific_signal);
+
+    document.getElementById("event").innerText +=
+      "\n\nIRREVERSIBLE DECISION:\n" +
+      JSON.stringify(irreversible, null, 2);
     
   });
 
