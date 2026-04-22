@@ -3,12 +3,30 @@ import json
 import time
 import hashlib
 
-GITHUB_RAW = "https://raw.githubusercontent.com/ahmedpearl/maximal-one/main/public/repro_bundle/canonical_report.json"
+GITHUB_RAW = "https://raw.githubusercontent.com/ahmedpearl/maximal-one/main/artifacts/canonical_report.json"
 
 def fetch_external():
-    r = requests.get(GITHUB_RAW, timeout=10)
-    r.raise_for_status()
-    return r.json()
+    import time
+    import requests
+
+    base = "https://raw.githubusercontent.com/ahmedpearl/maximal-one/main/artifacts/canonical_report.json"
+
+    for i in range(6):
+        try:
+            url = f"{base}?t={int(time.time())}"
+            r = requests.get(url, timeout=10)
+
+            if r.status_code == 200:
+                return r.json()
+
+            print("Status:", r.status_code)
+
+        except Exception as e:
+            print("Fetch error:", e)
+
+        time.sleep(5)
+
+    raise Exception("Failed to fetch external canonical report")
 
 def independent_hash(data):
     raw = json.dumps(data, sort_keys=True).encode()
