@@ -3,37 +3,43 @@ import hashlib
 import json
 
 SOURCES = [
-    # GitHub Pages
     "https://ahmedpearl.github.io/maximal-one/public/repro_bundle/canonical_report.json",
-
-    # Raw GitHub
     "https://raw.githubusercontent.com/ahmedpearl/maximal-one/main/public/repro_bundle/canonical_report.json",
-
-    # jsDelivr CDN
     "https://cdn.jsdelivr.net/gh/ahmedpearl/maximal-one@main/public/repro_bundle/canonical_report.json",
-
-    # GitHack mirror
     "https://raw.githack.com/ahmedpearl/maximal-one/main/public/repro_bundle/canonical_report.json"
 ]
 
 def fetch_any():
+    errors = []
+
     for url in SOURCES:
         try:
-            r = requests.get(url, timeout=10)
-            if r.status_code == 200:
+            r = requests.get(url, timeout=15)
+            if r.status_code == 200 and len(r.text.strip()) > 0:
                 return r.text, url
-        except:
-            continue
-    raise Exception("All external sources failed")
+            else:
+                errors.append(f"{url} -> bad response")
+        except Exception as e:
+            errors.append(f"{url} -> {str(e)}")
+
+    return None, errors
 
 def main():
-    raw, source = fetch_any()
+    raw, meta = fetch_any()
+
+    if raw is None:
+        result = {
+            "status": "degraded",
+            "errors": meta
+        }
+        print(json.dumps(result, indent=2))
+        return
 
     h = hashlib.sha256(raw.encode()).hexdigest()
 
     result = {
         "hash": h,
-        "source": source,
+        "source": meta,
         "status": "external_multi_verified"
     }
 
