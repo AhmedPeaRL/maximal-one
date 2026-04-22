@@ -294,7 +294,6 @@ jobs:
         run: |
           node analysis/alignment_guard.js
           node core/market_exporter.js
-          node analysis/true_external_node.py
           npm run verify
           npm run stability
           npm run attractor
@@ -1161,6 +1160,11 @@ jobs:
         curl -X POST analysis/true_external_node.py-NODE/run \
         -H "Authorization: Bearer ${{ secrets.WITNESS_SECRET }}" \
         -d '{}'
+
+    - name: Fetch external result
+      run: |
+        curl analysis/true_external_node.py/result > external_result.json
+        cat external_result.json
 
     - name: Alpha Sanity Guard
       run: python analysis/alpha_sanity_guard.py
