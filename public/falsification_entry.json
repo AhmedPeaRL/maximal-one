@@ -1,0 +1,11 @@
+{
+  "entry": "FALSIFY THIS SYSTEM",
+  "instructions": [
+    "1. Submit any input",
+    "2. Observe alpha (α), sigma (σ), decision",
+    "3. Try to break stability across runs",
+    "4. If instability persists → system fails"
+  ],
+  "success_condition": "Stable alpha across independent inputs",
+  "failure_condition": "High sigma or inconsistent decisions"
+}
