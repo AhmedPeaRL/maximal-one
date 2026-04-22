@@ -1,0 +1,21 @@
+{
+  "mode": "scientific_proof",
+
+  "modes": {
+    "scientific_proof": {
+      "allow_external": false,
+      "allow_adaptive": false,
+      "strict_claim": true
+    },
+    "exploration": {
+      "allow_external": true,
+      "allow_adaptive": true,
+      "strict_claim": false
+    },
+    "public_release": {
+      "allow_external": false,
+      "allow_adaptive": true,
+      "strict_claim": false
+    }
+  }
+}
