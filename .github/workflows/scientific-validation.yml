@@ -496,7 +496,7 @@ jobs:
       - name: Force public availability delay
         run: |
           echo "Waiting for GitHub Pages / CDN propagation..."
-          sleep 20
+          sleep 60
 
       - name: Generate external proof
         run: python analysis/external_proof_publisher.py
