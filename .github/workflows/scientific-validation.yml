@@ -493,6 +493,11 @@ jobs:
           cp artifacts/report.hash public/repro_bundle/
           cp requirements-lock.txt public/repro_bundle/
 
+      - name: Force public availability delay
+        run: |
+          echo "Waiting for GitHub Pages / CDN propagation..."
+          sleep 20
+
       - name: Generate external proof
         run: python analysis/external_proof_publisher.py
 
