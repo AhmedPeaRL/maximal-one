@@ -1,36 +1,15 @@
 {
-  "title": "Single Falsifiable Claim",
-  "version": "1.0",
-
-  "claim": {
-    "statement": "A stable non-random spectral alpha emerges from independent real-world datasets under deterministic processing.",
-    
-    "testable_prediction": {
-      "alpha_range": [0.8, 2.5],
-      "max_sigma": 0.08
-    },
-
-    "datasets_required": [
-      "sunspots",
-      "financial_timeseries",
-      "synthetic_control"
-    ],
-
-    "protocol": [
-      "Run deterministic pipeline",
-      "Compute spectral alpha",
-      "Estimate bootstrap sigma",
-      "Compare against prediction bounds"
-    ],
-
-    "falsification": {
-      "condition": "If alpha falls outside range OR sigma exceeds threshold in independent runs",
-      "result": "claim is false"
-    }
-  },
-
-  "philosophy": {
-    "note": "This claim is intentionally minimal. If it fails, the system must collapse its assertion.",
-    "no_escape": true
+  "statement": "A stable spectral exponent (alpha) emerges consistently across independent real-world chaotic datasets under deterministic processing, exceeding null-model expectations.",
+  "why_it_matters": "If true, this suggests the presence of a universal structural signature in real-world chaos.",
+  "how_to_break": [
+    "Run the pipeline on independent datasets and observe alpha collapse to noise",
+    "Demonstrate alpha instability across seeds or runtime environments",
+    "Show that null models produce equivalent or stronger alpha signals"
+  ],
+  "minimal_test": {
+    "input": "Any real-world chaotic time series dataset",
+    "process": "Run spectral estimation using the provided pipeline",
+    "expected": "alpha remains stable within defined tolerance",
+    "falsification": "alpha varies randomly or aligns with null distributions"
   }
 }
