@@ -294,6 +294,7 @@ jobs:
         run: |
           node analysis/alignment_guard.js
           node core/market_exporter.js
+          node analysis/true_external_node.py
           npm run verify
           npm run stability
           npm run attractor
@@ -1155,8 +1156,11 @@ jobs:
     - name: External Challenge Resolution
       run: python analysis/external_challenge_protocol.py
 
-    - name: External Independent Reproduction
-      run: python analysis/external_independent_runner.py
+    - name: True External Execution (REMOTE)
+      run: |
+        curl -X POST analysis/true_external_node.py-NODE/run \
+        -H "Authorization: Bearer ${{ secrets.WITNESS_SECRET }}" \
+        -d '{}'
 
     - name: Alpha Sanity Guard
       run: python analysis/alpha_sanity_guard.py
