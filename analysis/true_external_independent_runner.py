@@ -3,14 +3,9 @@ import json
 import time
 import hashlib
 
-GITHUB_RAW = "https://raw.githubusercontent.com/ahmedpearl/maximal-one/main/artifacts/canonical_report.json"
+base = "https://raw.githubusercontent.com/ahmedpearl/maximal-one/main/artifacts/canonical_report.json"
 
 def fetch_external():
-    import time
-    import requests
-
-    base = "https://raw.githubusercontent.com/ahmedpearl/maximal-one/main/artifacts/canonical_report.json"
-
     for i in range(6):
         try:
             url = f"{base}?t={int(time.time())}"
