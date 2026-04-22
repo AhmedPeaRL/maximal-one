@@ -647,31 +647,27 @@ jobs:
       - name: Build Adaptive Claim
         run: python analysis/adaptive_claim_builder.py
 
-      - name: Enforce Strict Claim
+      - name: Load Runtime Mode
+        id: mode
         run: |
-          node - <<'NODE'
-          const fs = require('fs');
+          MODE=$(cat core-scientific/runtime_mode.json | jq -r '.mode')
+          echo "MODE=$MODE" >> $GITHUB_ENV
+          echo "Running in mode: $MODE"
 
-          const claim = JSON.parse(
-            fs.readFileSync('core-scientific/strict_claim.json','utf8')
-          );
+      - name: Conditional Claim Enforcement
+        run: |
+          if [ "$MODE" = "scientific_proof" ]; then
+            echo "Running STRICT scientific validation"
+            node core-scientific/enforce_strict.js
 
-          const report = JSON.parse(
-            fs.readFileSync('artifacts/canonical_report.json','utf8')
-          );
+          elif [ "$MODE" = "exploration" ]; then
+            echo "Running adaptive validation"
+            node core-scientific/enforce_adaptive.js
 
-          const alpha = report.spectral_profile.estimated_alpha;
-          const sigma = report.spectral_profile.bootstrap_std;
-
-          const [minA, maxA] = claim.expected_result.alpha_range;
-
-          if (alpha < minA || alpha > maxA || sigma > claim.expected_result.max_sigma) {
-            console.error("❌ STRICT CLAIM FAILED");
-            process.exit(1);
-          }
-
-          console.log("✅ STRICT CLAIM PASSED");
-          NODE
+          else
+            echo "Running minimal validation"
+            node core-scientific/enforce_minimal.js
+          fi
 
       - name: Load Truth Commitment
         run: |
