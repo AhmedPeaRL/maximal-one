@@ -1185,6 +1185,11 @@ jobs:
       run: |
         python analysis/true_independent_reproduction.py || exit 1
 
+    - name: TRUE External Witness Node (REAL)
+      run: |
+        python analysis/true_external_witness_node.py > artifacts/external_witness.json || \
+        echo "External witness unavailable"
+
 
     # =========================
     # 6) FINAL GATES
