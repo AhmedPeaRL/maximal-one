@@ -25,10 +25,24 @@ TARGET_URL = "https://ahmedpearl.github.io/maximal-one/public/repro_bundle/canon
 
 
 def fetch_external():
-    r = requests.get(TARGET_URL, timeout=10)
-    if r.status_code != 200:
-        raise Exception("Failed to fetch external artifact")
-    return r.text
+    urls = [
+        TARGET_URL,
+        TARGET_URL.replace("canonical_report.json", "report.hash"),
+    ]
+
+    last_error = None
+
+    for url in urls:
+        try:
+            r = requests.get(url, timeout=10)
+
+            if r.status_code == 200 and len(r.text.strip()) > 0:
+                return r.text
+
+        except Exception as e:
+            last_error = e
+
+    raise Exception(f"Failed to fetch external artifact from all mirrors: {last_error}")
 
 
 def normalize(raw):
