@@ -6,9 +6,17 @@ from analysis.numerical_spectral_verification import estimate_alpha
 URL = "https://raw.githubusercontent.com/datasets/finance-vix/master/data/vix-daily.csv"
 
 def fetch_external():
-    df = pd.read_csv(URL)
-    return df["VIX Close"].dropna().values
+    df = pd.read_csv("real-data/vix.csv")
 
+    # Normalize column names (critical fix)
+    df.columns = [c.strip().lower() for c in df.columns]
+
+    for col in df.columns:
+        if "close" in col:
+            return df[col].dropna().values
+
+    raise ValueError("No 'close' column found in dataset")
+    
 def run_test():
     data = fetch_external()
 
