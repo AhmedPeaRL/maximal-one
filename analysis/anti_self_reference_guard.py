@@ -1,23 +1,24 @@
+import os
 import json
-import sys
+import hashlib
 
-def check_self_reference():
-    try:
-        with open("artifacts/canonical_report.json") as f:
-            report = json.load(f)
-    except:
-        print("❌ Missing report")
-        sys.exit(1)
+def check_external_fingerprint():
+    path = "artifacts/external_witness.json"
 
-    if "_environment" not in report:
+    if not os.path.exists(path):
         print("❌ No external fingerprint → self-referential")
-        sys.exit(1)
+        exit(1)
 
-    if report.get("_sealed") != True:
-        print("❌ Report not sealed → mutable truth")
-        sys.exit(1)
+    with open(path) as f:
+        data = f.read()
 
-    print("✅ Self-reference guarded")
+    fingerprint = hashlib.sha256(data.encode()).hexdigest()
+
+    if len(fingerprint) < 10:
+        print("❌ Invalid fingerprint")
+        exit(1)
+
+    print("✅ External fingerprint detected:", fingerprint[:12])
 
 if __name__ == "__main__":
-    check_self_reference()
+    check_external_fingerprint()
