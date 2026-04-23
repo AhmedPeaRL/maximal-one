@@ -42,7 +42,7 @@ def run_test():
     data = fetch_external()
 
     np.random.seed(42)
-    np.random.shuffle(data)
+    # preserve temporal structure
 
     split = int(len(data) * 0.7)
     train = data[:split]
