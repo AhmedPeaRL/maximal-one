@@ -8,9 +8,27 @@ from analysis.numerical_spectral_verification import estimate_alpha
 URL = "https://raw.githubusercontent.com/datasets/finance-vix/master/data/vix-daily.csv"
 
 def fetch_external():
-    df = pd.read_csv("real-data/vix.csv")
+    local_path = "real-data/vix.csv"
 
-    # Normalize column names (critical fix)
+    # 🔁 1. حاول تقرأ local لو موجود
+    if os.path.exists(local_path):
+        df = pd.read_csv(local_path)
+    else:
+        print("🌐 Fetching REAL external data...")
+        try:
+            response = requests.get(URL, timeout=10)
+            response.raise_for_status()
+
+            os.makedirs("real-data", exist_ok=True)
+            with open(local_path, "wb") as f:
+                f.write(response.content)
+
+            df = pd.read_csv(local_path)
+
+        except Exception as e:
+            raise RuntimeError(f"External fetch failed: {e}")
+
+    # Normalize column names
     df.columns = [c.strip().lower() for c in df.columns]
 
     for col in df.columns:
@@ -18,11 +36,11 @@ def fetch_external():
             return df[col].dropna().values
 
     raise ValueError("No 'close' column found in dataset")
-    
+
+
 def run_test():
     data = fetch_external()
 
-    # Blind segmentation
     np.random.seed(42)
     np.random.shuffle(data)
 
@@ -44,6 +62,7 @@ def run_test():
 
     print("✅ External blind stability confirmed")
 
+
 def bind_external_result(values):
     os.makedirs("artifacts", exist_ok=True)
 
@@ -54,8 +73,8 @@ def bind_external_result(values):
             "hash": str(hash(tuple(values)))
         }, f, indent=2)
 
+
 if __name__ == "__main__":
     run_test()
     data = fetch_external()
     bind_external_result(data)
-
