@@ -42,7 +42,7 @@ def estimate_alpha(series):
     binned_psd = np.array(binned_psd)
 
     # Remove noisy tails aggressively
-    mask = (binned_psd > np.percentile(binned_psd, 10))
+    mask = (binned_psd > np.median(binned_psd) * 0.1)
     binned_freqs = binned_freqs[mask]
     binned_psd = binned_psd[mask]
 
