@@ -56,9 +56,21 @@ def run_test():
 
     drift = abs(alpha_train - alpha_test)
 
-    if drift > 0.2:
-        print("❌ Drift too high → FAIL")
+    from analysis.adaptive_alpha_validator import adaptive_alpha_pass
+
+    sigma_est = np.std(train) / (np.mean(train) + 1e-8)
+
+    result = adaptive_alpha_pass(alpha_train, alpha_test, sigma_est)
+
+    print("Drift:", result["drift"])
+    print("Tolerance:", result["tolerance"])
+    print("Relative drift:", result["relative"])
+
+    if not result["pass"]:
+        print("❌ Adaptive drift validation failed")
         exit(1)
+
+    print("✅ Adaptive stability confirmed")
 
     print("✅ External blind stability confirmed")
 
