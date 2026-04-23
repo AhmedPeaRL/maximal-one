@@ -1,0 +1,13 @@
+name: External Verification
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install requests
+      - run: python maximal-one-external-verifier/verify.py
