@@ -1,6 +1,8 @@
 import requests
 import pandas as pd
 import numpy as np
+import json
+import os
 from analysis.numerical_spectral_verification import estimate_alpha
 
 URL = "https://raw.githubusercontent.com/datasets/finance-vix/master/data/vix-daily.csv"
@@ -42,5 +44,18 @@ def run_test():
 
     print("✅ External blind stability confirmed")
 
+def bind_external_result(values):
+    os.makedirs("artifacts", exist_ok=True)
+
+    with open("artifacts/external_witness.json", "w") as f:
+        json.dump({
+            "source": "external_blind_test",
+            "length": len(values),
+            "hash": str(hash(tuple(values)))
+        }, f, indent=2)
+
 if __name__ == "__main__":
     run_test()
+    data = fetch_external()
+    bind_external_result(data)
+
