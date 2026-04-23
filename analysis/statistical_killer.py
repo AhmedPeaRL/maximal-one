@@ -1,6 +1,11 @@
 import numpy as np
 from scipy import stats
 import json
+import pandas as pd
+from analysis.real_null_model import build_null_distribution
+
+df = pd.read_csv("real-data/sunspots_global.csv")
+series = df["value"].values
 
 def to_native(x):
     """Convert numpy types to native Python types"""
@@ -42,7 +47,7 @@ def evaluate_significance(real_alpha, null_alphas):
 
 if __name__ == "__main__":
     real_alpha = 1.23
-    null_alphas = np.random.normal(1.0, 0.05, 1000)
+    null_alphas = build_null_distribution(series, n=300)
 
     result = evaluate_significance(real_alpha, null_alphas)
 
