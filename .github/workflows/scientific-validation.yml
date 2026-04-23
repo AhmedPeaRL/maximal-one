@@ -20,6 +20,9 @@ env:
   NODE_ENV: "production"
   OPENBLAS_NUM_THREADS: "1"
   OMP_NUM_THREADS: "1"
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  WITNESS_SECRET: ${{ secrets.WITNESS_SECRET }}
+  GH_REPO: ${{ secrets.GH_REPO }}
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
@@ -465,11 +468,11 @@ jobs:
         run: python analysis/github_anchor.py
 
       - name: External Public Anchor
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: python analysis/external_public_anchor.py
 
       - name: Multi-channel anchor
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: python analysis/multi_anchor_publisher.py
 
       - name: Independent verification layer
