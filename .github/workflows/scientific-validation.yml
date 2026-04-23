@@ -370,6 +370,9 @@ jobs:
       - name: Alpha diagnostics
         run: python analysis/alpha_diagnostics.py
 
+      - name: Cross dataset validation
+        run: python analysis/cross_dataset_validator.py
+
       - name: Statistical significance test (CRITICAL)
         run: python analysis/statistical_killer.py
 
