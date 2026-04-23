@@ -1,21 +1,8 @@
 import numpy as np
-from scipy import stats
 import json
 import pandas as pd
 from analysis.real_null_model import build_null_distribution
-
-df = pd.read_csv("real-data/sunspots_global.csv")
-series = df["value"].values
-
-def to_native(x):
-    """Convert numpy types to native Python types"""
-    if isinstance(x, (np.bool_,)):
-        return bool(x)
-    if isinstance(x, (np.integer,)):
-        return int(x)
-    if isinstance(x, (np.floating,)):
-        return float(x)
-    return x
+from analysis.numerical_spectral_verification import estimate_alpha
 
 def compute_effect_size(real_alpha, null_alphas):
     mean_null = np.mean(null_alphas)
@@ -26,33 +13,46 @@ def compute_effect_size(real_alpha, null_alphas):
 
     return float((real_alpha - mean_null) / std_null)
 
-
 def compute_p_value(real_alpha, null_alphas):
     greater = np.sum(null_alphas >= real_alpha)
     return float(greater / len(null_alphas))
-
 
 def evaluate_significance(real_alpha, null_alphas):
     effect = compute_effect_size(real_alpha, null_alphas)
     p_value = compute_p_value(real_alpha, null_alphas)
 
-    verdict = {
-        "effect_size": to_native(effect),
-        "p_value": to_native(p_value),
+    return {
+        "effect_size": float(effect),
+        "p_value": float(p_value),
         "significant": bool((p_value < 0.05) and (effect > 2))
     }
 
-    return verdict
-
-
 if __name__ == "__main__":
-    real_alpha = 1.23
-    null_alphas = build_null_distribution(series, n=300)
+    df = pd.read_csv("real-data/sunspots_global.csv")
+
+    if "value" not in df.columns:
+        raise ValueError("Dataset must contain 'value' column")
+
+    series = df["value"].values
+
+    # ✅ الحقيقي بقى
+    real_alpha = estimate_alpha(series)
+
+    # ✅ null distribution حقيقي
+    null_alphas = build_null_distribution(series, n=500)
 
     result = evaluate_significance(real_alpha, null_alphas)
 
-    print("Statistical Verdict:")
+    print("=== TRUE STATISTICAL TEST ===")
+    print("real_alpha:", real_alpha)
+    print("null_mean:", float(np.mean(null_alphas)))
+    print("null_std:", float(np.std(null_alphas)))
     print(result)
 
     with open("artifacts/statistical_verdict.json", "w") as f:
-        json.dump(result, f, indent=2)
+        json.dump({
+            "real_alpha": float(real_alpha),
+            "null_mean": float(np.mean(null_alphas)),
+            "null_std": float(np.std(null_alphas)),
+            **result
+        }, f, indent=2)
