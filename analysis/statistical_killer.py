@@ -3,6 +3,7 @@ import json
 import pandas as pd
 from analysis.real_null_model import build_null_distribution
 from analysis.numerical_spectral_verification import estimate_alpha
+from analysis.statistical_guard import robust_p_value, sanity_check
 
 def compute_effect_size(real_alpha, null_alphas):
     mean_null = np.mean(null_alphas)
@@ -14,8 +15,8 @@ def compute_effect_size(real_alpha, null_alphas):
     return float((real_alpha - mean_null) / std_null)
 
 def compute_p_value(real_alpha, null_alphas):
-    greater = np.sum(null_alphas >= real_alpha)
-    return float(greater / len(null_alphas))
+    sanity_check(null_alphas)
+    return robust_p_value(real_alpha, null_alphas)
 
 def evaluate_significance(real_alpha, null_alphas):
     effect = compute_effect_size(real_alpha, null_alphas)
