@@ -2,9 +2,6 @@ import numpy as np
 from scipy import stats
 import json
 
-with open("artifacts/statistical_verdict.json", "w") as f:
-    json.dump(result, f, indent=2)
-
 def compute_effect_size(real_alpha, null_alphas):
     mean_null = np.mean(null_alphas)
     std_null = np.std(null_alphas)
@@ -42,3 +39,6 @@ if __name__ == "__main__":
 
     print("Statistical Verdict:")
     print(result)
+
+with open("artifacts/statistical_verdict.json", "w") as f:
+    json.dump(result, f, indent=2)
