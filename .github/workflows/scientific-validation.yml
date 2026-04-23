@@ -379,6 +379,9 @@ jobs:
       - name: REAL External Blind Test (MANDATORY)
         run: python analysis/real_external_blind_test.py
 
+      - name: Cross-Domain Collapse Test (MANDATORY)
+        run: python analysis/cross_domain_collapse.py
+
       - name: Anti Self Reference Guard
         run: python analysis/anti_self_reference_guard.py
 
