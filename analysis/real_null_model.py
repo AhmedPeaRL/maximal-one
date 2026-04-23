@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from analysis.numerical_spectral_verification import estimate_alpha
+from analysis.block_shuffle_null import block_shuffle
 
 def generate_real_null(series):
     """
@@ -22,7 +23,12 @@ def build_null_distribution(series, n=200):
     null_alphas = []
 
     for _ in range(n):
-        surr = generate_real_null(series)
+
+        if np.random.rand() < 0.5:
+            surr = generate_real_null(series)
+        else:
+            surr = block_shuffle(series)
+
         alpha = estimate_alpha(surr)
         null_alphas.append(alpha)
 
