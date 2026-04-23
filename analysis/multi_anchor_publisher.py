@@ -13,6 +13,8 @@ def compute_hash():
 def github_gist_anchor(h):
     token = os.getenv("GH_TOKEN", "").strip()
 
+    print("TOKEN EXISTS:", bool(token))
+    
     if not token:
         return False
 
@@ -35,9 +37,11 @@ def github_gist_anchor(h):
         )
 
         if r.status_code == 201:
+            print("Gist created:", r.json().get("html_url"))
             return True
         else:
-            print("Gist error:", r.status_code, r.text)
+            print("Gist error:", r.status_code)
+            print("Response:", r.text)
             return False
 
     except Exception as e:
