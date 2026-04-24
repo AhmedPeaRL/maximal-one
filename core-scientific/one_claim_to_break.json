@@ -1,5 +1,5 @@
 {
-  "statement": "A stable spectral exponent (alpha) emerges consistently across independent real-world chaotic datasets under deterministic processing, exceeding null-model expectations.",
+  "statement": "Real-world chaotic systems exhibit class-dependent spectral behavior, where structured systems produce significant alpha deviation from null models, while noise-dominated systems do not.",
   "why_it_matters": "If true, this suggests the presence of a universal structural signature in real-world chaos.",
   "how_to_break": [
     "Run the pipeline on independent datasets and observe alpha collapse to noise",
