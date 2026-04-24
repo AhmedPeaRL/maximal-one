@@ -16,6 +16,10 @@ export async function systemSpine(input, modules) {
     input,
     reality_anchor: reality
   });
+  import { anchorTruth } from './truth_anchor.js';
+
+  const truth = anchorTruth(result, result.signature);
+  result.truth = truth;
 
   // 3. Envelope integrity
   const envelope = buildEnvelope({
