@@ -155,11 +155,22 @@ function safeCompare(a, b) {
       timestamp: Date.now()
     };
 
-    const signature = generateSignature(payload);
+    const { input, signature: clientSignature } = req.body;
+
+    if (!isValidInput(input)) {
+      return res.status(400).json({ ok: false, error: "invalid input" });
+    }
+
+    const payload = {
+      input,
+      pulse,
+      nonce,
+      timestamp
+    };
 
     const expectedSignature = generateSignature(payload);
 
-    if (!safeCompare(signature, expectedSignature)) {
+    if (!safeCompare(clientSignature, expectedSignature)) {
       return res.status(403).json({ ok: false, error: "invalid signature" });
     }
 
