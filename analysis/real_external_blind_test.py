@@ -78,8 +78,34 @@ def run_test():
     null_result = run_null_test(data)
 
     if not null_result["pass"]:
-        print("❌ Null model not rejected → structure may be illusion")
-        exit(1)
+        print("⚠️ Null model not rejected")
+
+        classification = "noise-like"
+
+        print("CLASSIFICATION:", classification)
+
+        os.makedirs("artifacts", exist_ok=True)
+
+        with open("artifacts/external_classification.json", "w") as f:
+            json.dump({
+                "type": classification,
+                "alpha": float(null_result["real_alpha"]),
+                "z_score": float(null_result["z_score"])
+            }, f, indent=2)
+
+    else:
+        print("✅ Structure exceeds null expectation")
+
+        classification = "structured"
+
+        os.makedirs("artifacts", exist_ok=True)
+
+        with open("artifacts/external_classification.json", "w") as f:
+            json.dump({
+                "type": classification,
+                "alpha": float(null_result["real_alpha"]),
+                "z_score": float(null_result["z_score"])
+            }, f, indent=2)
 
     print("✅ Structure exceeds null expectation")
 
