@@ -379,6 +379,9 @@ jobs:
       - name: REAL External Blind Test (MANDATORY)
         run: python analysis/real_external_blind_test.py
 
+      - name: Irreducibility Killer Test (CRITICAL)
+        run: python analysis/irreducibility_killer.py
+
       - name: NULL Reality Test (CRITICAL)
         run: python analysis/real_null_comparison.py
 
