@@ -72,6 +72,17 @@ def run_test():
 
     print("✅ Adaptive stability confirmed")
 
+    from analysis.real_null_comparison import run_null_test
+
+    print("=== NULL MODEL TEST ===")
+    null_result = run_null_test(data)
+
+    if not null_result["pass"]:
+        print("❌ Null model not rejected → structure may be illusion")
+        exit(1)
+
+    print("✅ Structure exceeds null expectation")
+
     print("✅ External blind stability confirmed")
 
 
