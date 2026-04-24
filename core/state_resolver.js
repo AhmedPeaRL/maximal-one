@@ -1,6 +1,6 @@
 export async function resolveState() {
   try {
-    const verdict = await fetch('./data/global_verdict.json').then(r => r.json());
+    const verdict = await fetch('/api/state').then(r => r.json());
     const artifact = await fetch('./public/artifact.json').then(r => r.json());
 
     return {
