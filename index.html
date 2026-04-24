@@ -503,61 +503,40 @@
     
   });
 
+  import { systemSpine } from './core/system_spine.js';
+
   submit.addEventListener("click", async () => {
     const value = input.value.trim();
     if (!value) return;
-
-    state.innerText = "bridging";
+    
+    state.innerText = "processing";
 
     try {
-      // 1. local computation
-      const reality = await bindIrreducibleReality();
-
-      const result = await unifiedField({
-        input: value,
-        reality_anchor: reality
-      });
-
-      const envelope = buildWitnessEnvelope({
-        ...result,
-        reality_anchor: reality
-      });
-
-      const decision = decisionEngine({
-        alpha: envelope.alpha,
-        sigma: envelope.sigma,
-        confidence: envelope.confidence,
-        drift: envelope.drift
+      const result = await systemSpine(value, {
+        bindReality: bindIrreducibleReality,
+        unifiedField,
+        buildEnvelope: buildWitnessEnvelope,
+        decisionEngine,
+        externalAnchor: externalWitnessAnchor,
+        selfCorrect: selfCorrectionLoop
       });
 
       eventBox.innerText =
-        "DECISION:\n" +
-        JSON.stringify(decision, null, 2) +
-        "\n\nLOCAL RESULT:\n" +
-        JSON.stringify(envelope, null, 2);
+        "SYSTEM SPINE OUTPUT:\n" +
+        JSON.stringify(result, null, 2);
 
-      const externalAnchor = await externalWitnessAnchor(envelope);
-
-      eventBox.innerText +=
-        "\n\nEXTERNAL ANCHOR:\n" +
-        JSON.stringify(externalAnchor, null, 2);
-      
-      // 2. send to real system
+      // dispatch to backend
       const bridge = await fetch("/api/dispatch", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ input: value })
+        body: JSON.stringify(result)
       });
 
-      const bridgeResult = await bridge.json();
+      const r = await bridge.json();
 
-      if (bridgeResult.ok) {
-        state.innerText = "propagated → field updated";
-      } else {
-        state.innerText = "partial";
-      }
+      state.innerText = r.ok ? "propagated" : "partial";
 
     } catch (e) {
       state.innerText = "error";
