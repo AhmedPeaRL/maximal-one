@@ -364,9 +364,6 @@ jobs:
       - name: Alpha continuity guard
         run: python analysis/alpha_continuity_guard.py
 
-      - name: Physical Alpha Guard
-        run: python analysis/alpha_physical_guard.py
-
       - name: Alpha diagnostics
         run: python analysis/alpha_diagnostics.py
 
@@ -378,6 +375,9 @@ jobs:
 
       - name: REAL External Blind Test (MANDATORY)
         run: python analysis/real_external_blind_test.py
+
+      - name: Physical Alpha Guard
+        run: python analysis/alpha_physical_guard.py
 
       - name: Irreducibility Killer Test (CRITICAL)
         run: python analysis/irreducibility_killer.py
