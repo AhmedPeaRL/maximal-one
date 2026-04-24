@@ -19,3 +19,21 @@ def adaptive_alpha_pass(alpha_train, alpha_test, sigma):
         "relative": relative,
         "pass": drift < tolerance or relative < 0.25
     }
+
+def validate_single_path(result):
+    required_keys = [
+        "reality",
+        "field",
+        "envelope",
+        "decision",
+        "external",
+        "correction",
+        "timestamp"
+    ]
+
+    missing = [k for k in required_keys if k not in result]
+
+    return {
+        "valid": len(missing) == 0,
+        "missing": missing
+    }
