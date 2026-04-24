@@ -5,52 +5,30 @@ def estimate_alpha(series):
     Robust spectral alpha estimation
     """
 
-    # Remove mean
     series = series - np.mean(series)
-
     n = len(series)
 
-    # Apply window (reduces leakage)
     window = np.hanning(n)
     series = series * window
 
-    # FFT
     fft_vals = np.fft.rfft(series)
     psd = (np.abs(fft_vals) ** 2) / n
-
     freqs = np.fft.rfftfreq(n)
 
-    # Remove zero freq
     mask = freqs > 0
     freqs = freqs[mask]
     psd = psd[mask]
 
-    # Log binning (critical fix)
-    num_bins = 20
-    log_bins = np.logspace(np.log10(freqs.min()), np.log10(freqs.max()), num_bins)
+    # 🔥 بدون حذف bias
+    log_f = np.log(freqs + 1e-12)
+    log_psd = np.log(psd + 1e-12)
 
-    binned_freqs = []
-    binned_psd = []
+    # 🔥 robust fit بدل polyfit
+    median_f = np.median(log_f)
+    median_psd = np.median(log_psd)
 
-    for i in range(len(log_bins)-1):
-        idx = (freqs >= log_bins[i]) & (freqs < log_bins[i+1])
-        if np.sum(idx) > 0:
-            binned_freqs.append(np.mean(freqs[idx]))
-            binned_psd.append(np.mean(psd[idx]))
-
-    binned_freqs = np.array(binned_freqs)
-    binned_psd = np.array(binned_psd)
-
-    # Remove noisy tails aggressively
-    mask = (binned_psd > np.median(binned_psd) * 0.1)
-    binned_freqs = binned_freqs[mask]
-    binned_psd = binned_psd[mask]
-
-    # Log-log fit
-    log_f = np.log(binned_freqs)
-    log_psd = np.log(binned_psd + 1e-12)
-
-    slope, _ = np.polyfit(log_f, log_psd, 1)
+    slope = np.sum((log_f - median_f)*(log_psd - median_psd)) / \
+            np.sum((log_f - median_f)**2 + 1e-12)
 
     alpha = -slope
 
