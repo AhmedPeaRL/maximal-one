@@ -1,4 +1,8 @@
 export async function executeThndrBridge(decision) {
+  if (decision.confidence < 0.8) {
+    return { ok: false, error: "low confidence" };
+  }
+  
   if (!decision || !decision.action) {
     return { ok: false, error: "No decision" };
   }
