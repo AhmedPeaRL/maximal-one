@@ -1,3 +1,5 @@
+import { anchorTruth } from './truth_anchor.js';
+
 export async function systemSpine(input, modules) {
   const {
     bindReality,
@@ -16,10 +18,6 @@ export async function systemSpine(input, modules) {
     input,
     reality_anchor: reality
   });
-  import { anchorTruth } from './truth_anchor.js';
-
-  const truth = anchorTruth(result, result.signature);
-  result.truth = truth;
 
   // 3. Envelope integrity
   const envelope = buildEnvelope({
@@ -41,7 +39,8 @@ export async function systemSpine(input, modules) {
   // 6. Self correction
   const correction = await selfCorrect(envelope);
 
-  return {
+  // 7. Truth anchoring
+  const result = {
     reality,
     field,
     envelope,
@@ -50,4 +49,9 @@ export async function systemSpine(input, modules) {
     correction,
     timestamp: Date.now()
   };
+
+  const truth = anchorTruth(result, JSON.stringify(result));
+  result.truth = truth;
+
+  return result;
 }
