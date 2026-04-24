@@ -379,6 +379,9 @@ jobs:
       - name: REAL External Blind Test (MANDATORY)
         run: python analysis/real_external_blind_test.py
 
+      - name: NULL Reality Test (CRITICAL)
+        run: python analysis/real_null_comparison.py
+
       - name: Universal Structure Test (MANDATORY)
         run: python analysis/universal_structure_test.py
         
