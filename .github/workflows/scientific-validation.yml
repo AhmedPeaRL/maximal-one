@@ -382,6 +382,9 @@ jobs:
       - name: Irreducibility Killer Test (CRITICAL)
         run: python analysis/irreducibility_killer.py
 
+      - name: Advanced Null Killer (CRITICAL)
+        run: python analysis/advanced_null_killer.py
+
       - name: NULL Reality Test (CRITICAL)
         run: python analysis/real_null_comparison.py
 
