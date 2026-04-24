@@ -9,7 +9,7 @@ def generate_arima_like(series, n=1000):
     return arma.generate_sample(nsample=len(series))
 
 def generate_fbm_like(series):
-    # crude approximation using cumulative sum of noise
+    np.random.seed(42)
     noise = np.random.normal(0,1,len(series))
     return np.cumsum(noise)
 
@@ -40,17 +40,26 @@ def advanced_null_test(series, n=50):
 
     return real_alpha, results
 
-if name == "main":
-  import pandas as pd
+if __name__ == "__main__":
+    import pandas as pd
 
-  df = pd.read_csv("real-data/sunspots_global.csv")
-  series = df["value"].values
+    df = pd.read_csv("real-data/sunspots_global.csv")
 
-  real_alpha, res = advanced_null_test(series)
+    if "value" not in df.columns:
+        raise ValueError("Dataset must contain 'value' column")
 
-  print("=== ADVANCED NULL TEST ===")
-  print("Real alpha:", real_alpha)
+    series = df["value"].values
 
-  for k,v in res.items():
-      print(f"\nModel: {k}")
-      print(v)
+    real_alpha, res = advanced_null_test(series)
+
+    print("=== ADVANCED NULL TEST ===")
+    print("Real alpha:", real_alpha)
+
+    for model, stats in res.items():
+        print(f"\n[{model}]")
+        print("mean:", stats["mean"])
+        print("std:", stats["std"])
+        print("z_score:", stats["z_score"])
+        print("irreducible:", stats["irreducible"])
+
+    print("=== END ===")
