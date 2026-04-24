@@ -15,7 +15,19 @@ export async function unifiedField(input) {
   };
 
   // deterministic signature
-  const signature = await generateSignature(input, field);
+  const deterministicField = {
+    input,
+    layer: state.layer || "unknown",
+    field: state.field || "unstable"
+  };
+
+  const signature = await generateSignature(input, deterministicField);
+
+  const field = {
+    ...deterministicField,
+    timestamp: Date.now(),
+    signature
+  };
   field.signature = signature;
 
   // bind system layers
