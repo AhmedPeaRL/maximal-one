@@ -140,6 +140,7 @@
   import { autonomousOrchestrator } from './core/autonomous_orchestrator.js';
   import { selfCorrectionLoop } from './core/self_correction_loop.js';
   import { irreversibleDecisionEngine } from './core/irreversible_decision.js';
+  import { appendProof } from './core/proof_chain_writer.js';
 
   const input = document.getElementById("witness-input");
   const submit = document.getElementById("witness-submit");
@@ -449,6 +450,11 @@
   import { applyCausalFeedback } from './core/causal_feedback.js';
 
   liveStream(async (d) => {
+    await appendProof({
+    timestamp: Date.now(),
+    decision: d.scientific_signal,
+    state: d.global_state
+    });
     refreshState();
     refreshWitnessPanel();
     loadScientificClaim();
@@ -503,14 +509,6 @@
       "\n\nIRREVERSIBLE DECISION:\n" +
       JSON.stringify(irreversible, null, 2);
     
-  });
-
-  import { appendProof } from './core/proof_chain_writer.js';
-
-  await appendProof({
-    timestamp: Date.now(),
-    decision: d.scientific_signal,
-    state: d.global_state
   });
 
   import { systemSpine } from './core/system_spine.js';
