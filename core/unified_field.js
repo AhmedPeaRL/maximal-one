@@ -7,33 +7,22 @@ import { bindSystemLayers } from './system_binding.js';
 export async function unifiedField(input) {
   const state = await resolveState();
 
-  const field = {
-    timestamp: Date.now(),
-    input: input,
-    layer: state.layer || "unknown",
-    field: state.field || "unstable"
-  };
-
-  // deterministic signature
-  const deterministicField = {
+  const base = {
     input,
     layer: state.layer || "unknown",
     field: state.field || "unstable"
   };
 
-  const signature = await generateSignature(input, deterministicField);
+  const signature = await generateSignature(input, base);
 
   const field = {
-    ...deterministicField,
+    ...base,
     timestamp: Date.now(),
     signature
   };
-  field.signature = signature;
 
-  // bind system layers
   const bound = bindSystemLayers(input, field.layer, input.length);
 
-  // synthesize event
   field.event = synthesizeEvent(field, bound);
 
   return field;
