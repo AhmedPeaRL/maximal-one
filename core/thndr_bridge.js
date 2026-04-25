@@ -1,18 +1,18 @@
-export async function executeThndrBridge(decision) {
-  if (decision.confidence < 0.8) {
-    return { ok: false, error: "low confidence" };
-  }
-  
+export function simulateTrade(decision) {
+  const price = Math.random() * 100; // placeholder
+  const pnl = (Math.random() - 0.5) * 2;
+
   if (!decision || !decision.action) {
     return { ok: false, error: "No decision" };
   }
 
-  const payload = {
+  return {
     action: decision.action,
-    asset: decision.asset,
-    confidence: decision.confidence,
-    timestamp: new Date().toISOString()
+    price,
+    pnl,
+    timestamp: Date.now()
   };
+}
 
   try {
     const res = await fetch("/api/thndr-dispatch", {
