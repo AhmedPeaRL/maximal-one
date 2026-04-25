@@ -505,6 +505,14 @@
     
   });
 
+  import { appendProof } from './core/proof_chain_writer.js';
+
+  await appendProof({
+    timestamp: Date.now(),
+    decision: d.scientific_signal,
+    state: d.global_state
+  });
+
   import { systemSpine } from './core/system_spine.js';
 
   submit.addEventListener("click", async () => {
