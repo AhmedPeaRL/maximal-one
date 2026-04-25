@@ -1,4 +1,5 @@
 import { anchorTruth } from './truth_anchor.js';
+import { externalTruthAnchor } from './external_truth_anchor.js';
 
 export async function systemSpine(input, modules) {
   const {
@@ -52,6 +53,9 @@ export async function systemSpine(input, modules) {
 
   const truth = anchorTruth(result, JSON.stringify(result));
   result.truth = truth;
+
+  const externalTruth = await externalTruthAnchor(result);
+  result.external_truth = externalTruth;
 
   return result;
 }
