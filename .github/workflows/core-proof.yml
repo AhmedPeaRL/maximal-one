@@ -32,6 +32,10 @@ jobs:
         run: |
           python scripts/generate_report.py --seed 42 --canonical
 
+      - name: Run multi-dataset proof
+        run: |
+          python scripts/run_multi_dataset.py
+
       - name: Extract alpha
         run: |
           python - <<'PY'
