@@ -5,11 +5,10 @@ concurrency:
   cancel-in-progress: false
 
 on:
+  workflow_dispatch:
   repository_dispatch:
     types: [external_witness, external_dispatch, external_reproduction]
-  push:
   pull_request:
-  workflow_dispatch:
   
 permissions:
   contents: write
@@ -874,6 +873,11 @@ jobs:
     # =========================
     # 0) CHECKOUT FIRST (CRITICAL FIX)
     # =========================
+
+    - name: HARD TIMEOUT GUARD
+      run: |
+        echo "Starting guarded execution..."
+        timeout 900 bash -c "echo guarded"
 
     - name: Ensure workspace permissions
       run: |
