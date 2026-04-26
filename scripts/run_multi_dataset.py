@@ -9,11 +9,16 @@ from analysis.numerical_spectral_verification import estimate_alpha
 def load_sunspots():
     df = pd.read_csv("real-data/sunspots_global.csv")
 
-    if "Sunspots" not in df.columns:
-        raise ValueError("Column 'Sunspots' not found in dataset")
+    col = None
 
-    return df["Sunspots"].values.astype(float)
+    if "Sunspots" in df.columns:
+        col = "Sunspots"
+    elif "value" in df.columns:
+        col = "value"
+    else:
+        raise ValueError(f"No valid column found. Columns: {df.columns}")
 
+    return df[col].values.astype(float)
 
 def load_synthetic(seed=42, n=1024):
     np.random.seed(seed)
