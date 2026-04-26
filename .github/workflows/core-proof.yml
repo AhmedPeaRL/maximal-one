@@ -48,7 +48,10 @@ jobs:
           if sigma > 0.2:
               raise SystemExit("❌ sigma too high")
 
-          print("✅ CORE CLAIM HOLDS")
+          if abs(alpha - r["spectral_profile"]["noise_alpha"]) < 0.2:
+              raise SystemExit("❌ not distinguishable from noise")
+
+          print("✅ CORE CLAIM HOLDS (non-trivial)"))
           PY
 
       - name: Hash report
