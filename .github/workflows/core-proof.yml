@@ -22,11 +22,25 @@ jobs:
       - name: Install deps (STRICT)
         run: |
           pip install --upgrade pip
+          pip install git-filter-repo
+          git filter-repo --strip-blobs-bigger-than 1M
           pip install --require-hashes -r requirements-lock.txt
 
-      - name: Verify dataset
+      - name: Validate dataset content
         run: |
-          test -f real-data/sunspots_global.csv || exit 1
+          python - <<'PY'
+          import pandas as pd
+
+          df = pd.read_csv("real-data/sunspots_global.csv")
+
+          if len(df) < 10:
+              raise SystemExit("Dataset too small")
+
+          if not any(c in df.columns for c in ["Sunspots", "value"]):
+              raise SystemExit("No valid data column")
+         
+          print("✅ dataset valid")
+          PY
 
       - name: Run canonical experiment ONLY
         run: |
