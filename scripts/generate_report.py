@@ -21,13 +21,22 @@ def generate_series(seed, n=1024):
     return x
 
 
-def bootstrap_alpha(series, num_boot=30):
-    alphas = []
+def bootstrap_alpha(series, num_boot=30, block_size=64):
+    """
+    Block bootstrap preserving temporal structure
+    """
     n = len(series)
+    alphas = []
 
     for _ in range(num_boot):
-        idx = np.random.randint(0, n, n)
-        sample = series[idx]
+        blocks = []
+        i = 0
+        while i < n:
+            start = np.random.randint(0, n - block_size)
+            blocks.append(series[start:start+block_size])
+            i += block_size
+
+        sample = np.concatenate(blocks)[:n]
         alphas.append(estimate_alpha(sample))
 
     return float(np.mean(alphas)), float(np.std(alphas))
@@ -46,8 +55,16 @@ def main():
     os.makedirs("artifacts", exist_ok=True)
 
     try:
-        series = generate_series(args.seed)
+        if args.canonical:
+            series = generate_series(args.seed)
+        else:
+            # 🔥 استخدام بيانات حقيقية
+            import pandas as pd
+            df = pd.read_csv("real-data/sunspots_global.csv")
+            series = df["Sunspots"].values.astype(float)
 
+        white_noise = np.random.randn(len(series))
+        alpha_noise = estimate_alpha(white_noise)
         alpha = estimate_alpha(series)
         mean_alpha, std_alpha = bootstrap_alpha(series)
     
@@ -55,11 +72,12 @@ def main():
             "spectral_profile": {
                 "estimated_alpha": stable_float(alpha),
                 "bootstrap_mean": stable_float(mean_alpha),
-                "bootstrap_std": stable_float(std_alpha)
+                "bootstrap_std": stable_float(std_alpha),
+                "noise_alpha": stable_float(alpha_noise)
             },
             "metadata": {
                 "seed": args.seed,
-                "generator": "structured_chaotic_process"
+                "generator": "structured_chaotic_process" if args.canonical else "real_sunspots"
             }
         }
 
