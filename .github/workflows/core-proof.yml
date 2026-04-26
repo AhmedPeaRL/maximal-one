@@ -72,5 +72,9 @@ jobs:
           print("✅ CORE CLAIM HOLDS (non-trivial)")
           PY
 
+      - name: Physical interpretation
+        run: |
+          python analysis/physical_interpretation.py
+
       - name: Hash report
         run: sha256sum artifacts/canonical_report.json
