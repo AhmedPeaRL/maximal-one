@@ -16,6 +16,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Set Python path
+        run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+
       - name: Install deps (STRICT)
         run: |
           pip install --upgrade pip
