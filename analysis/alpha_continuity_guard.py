@@ -10,6 +10,10 @@ if not os.path.exists(CURRENT_PATH):
 with open(CURRENT_PATH) as f:
     current = json.load(f)
 
+if "spectral_profile" not in current:
+    print("❌ Missing spectral_profile in report")
+    sys.exit(1)
+
 alpha = current["spectral_profile"]["estimated_alpha"]
 
 history = []
