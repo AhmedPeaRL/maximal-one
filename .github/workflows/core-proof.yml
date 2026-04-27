@@ -24,6 +24,7 @@ jobs:
           pip install --upgrade pip
           pip install git-filter-repo
           git filter-repo --strip-blobs-bigger-than 1M
+          git filter-repo --invert-paths --path index.html
           pip install --require-hashes -r requirements-lock.txt
 
       - name: Validate dataset content
