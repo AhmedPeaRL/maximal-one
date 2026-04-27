@@ -37,11 +37,20 @@ def irreducibility_test(series, n=50):
     }
 
 
+def extract_series(df):
+    if "value" in df.columns:
+        return df["value"].values
+    elif "Sunspots" in df.columns:
+        return df["Sunspots"].values
+    else:
+        raise ValueError("Dataset must contain 'value' or 'Sunspots'")
+
+
 if __name__ == "__main__":
     import pandas as pd
 
     df = pd.read_csv("real-data/sunspots_global.csv")
-    series = df["value"].values
+    series = extract_series(df)
 
     r = irreducibility_test(series)
 
