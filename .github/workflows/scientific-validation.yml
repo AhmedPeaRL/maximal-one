@@ -1774,9 +1774,6 @@ jobs:
             echo "⚠️ Hash mismatch detected — recording divergence"
             pip install -r requirements-lock.txt
           }
-          pip install git-filter-repo
-          git filter-repo --strip-blobs-bigger-than 1M
-          git filter-repo --invert-paths --path index.html
         
       - name: Pre-sweep sanity check (self-healing)
         run: |
