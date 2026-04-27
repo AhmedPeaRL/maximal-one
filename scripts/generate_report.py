@@ -21,19 +21,34 @@ def generate_series(seed, n=1024):
     return x
 
 
-def bootstrap_alpha(series, num_boot=100, block_size=128):
+def bootstrap_alpha(series, num_boot=100, block_size=None):
     """
-    Block bootstrap preserving temporal structure
+    Adaptive block bootstrap preserving temporal structure
     """
+
     n = len(series)
+
+    # 🔥 حل جذري: block_size يتظبط حسب حجم الداتا
+    if block_size is None:
+        block_size = max(8, min(128, n // 2))
+
+    if block_size >= n:
+        block_size = max(4, n // 2)
+
     alphas = []
 
     for _ in range(num_boot):
         blocks = []
         i = 0
+
         while i < n:
-            start = np.random.randint(0, n - block_size)
-            blocks.append(series[start:start+block_size])
+            max_start = n - block_size
+            if max_start <= 0:
+                start = 0
+            else:
+                start = np.random.randint(0, max_start)
+
+            blocks.append(series[start:start + block_size])
             i += block_size
 
         sample = np.concatenate(blocks)[:n]
