@@ -977,9 +977,6 @@ jobs:
         
     - name: Fix Git ownership (CRITICAL)
       run: |
-        pip install git-filter-repo
-        git filter-repo --strip-blobs-bigger-than 1M
-        git filter-repo --invert-paths --path index.html
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
         git config --global --add safe.directory /__w/maximal-one/maximal-one
 
