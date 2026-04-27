@@ -60,8 +60,16 @@ def main():
         else:
             # 🔥 استخدام بيانات حقيقية
             import pandas as pd
+
             df = pd.read_csv("real-data/sunspots_global.csv")
-            series = df["Sunspots"].values.astype(float)
+
+            # unified column handling
+            if "value" in df.columns:
+                series = df["value"].values.astype(float)
+            elif "Sunspots" in df.columns:
+                series = df["Sunspots"].values.astype(float)
+            else:
+                raise ValueError("Dataset must contain 'value' or 'Sunspots' column"))
 
         white_noise = np.random.randn(len(series))
         alpha_noise = estimate_alpha(white_noise)
