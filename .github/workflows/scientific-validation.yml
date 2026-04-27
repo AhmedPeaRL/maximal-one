@@ -31,13 +31,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
       - name: Install deps (STRICT)
         run: |
           pip install --upgrade pip
           pip install git-filter-repo
-          git filter-repo --strip-blobs-bigger-than 1M
-          git filter-repo --invert-paths --path index.html
           pip install --require-hashes -r requirements-lock.txt
 
       - name: Secret scan (refined)
@@ -200,6 +201,18 @@ jobs:
 
           console.log("Witness hash:", hash);
           NODE
+
+      - name: Ensure remote origin (HARD FIX)
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git remote remove origin || true
+          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+          
+          git fetch origin main || true
+          git branch --set-upstream-to=origin/main main || true
+          
+          echo "✅ origin restored"
           
       - name: Safe authenticated push (FIXED)
         env:
@@ -256,6 +269,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
       - name: Install deps
         run: pip install requests
@@ -281,6 +297,9 @@ jobs:
         run: echo "Triggered by ${{ github.event_name }}"
         
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
       - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
@@ -321,6 +340,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+          
       - name: Upgrade pip first
         run: python -m pip install --upgrade pip
 
@@ -574,6 +597,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
       - uses: actions/download-artifact@v5
         with:
@@ -785,6 +811,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
       - name: Debug repo structure
         run: |
@@ -1696,6 +1725,9 @@ jobs:
     
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
       - name: Install system build tools
         run: |
@@ -1735,6 +1767,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          persist-credentials: true
 
       - name: Install locked dependencies (strict + fallback awareness)
         run: |
@@ -1860,6 +1893,18 @@ jobs:
       - name: Strict Lyapunov Scan
         run: |
           python analysis/lyapunov_strict_scan.py
+
+      - name: Ensure remote origin (HARD FIX)
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git remote remove origin || true
+          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+          
+          git fetch origin main || true
+          git branch --set-upstream-to=origin/main main || true
+          
+          echo "✅ origin restored"
 
       - name: Commit dataset if changed
         run: |
