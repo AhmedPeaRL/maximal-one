@@ -323,6 +323,8 @@ jobs:
 
       - name: Install locked dependencies (strict)
         run: |
+          pip install git-filter-repo
+          git filter-repo --strip-blobs-bigger-than 1M
           pip install --upgrade pip
 
           if ! pip install --require-hashes -r requirements-lock.txt; then
