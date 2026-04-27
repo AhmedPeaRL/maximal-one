@@ -59,7 +59,7 @@ jobs:
           r = json.load(open("artifacts/canonical_report.json"))
 
           if "spectral_profile" not in r:
-          raise SystemExit("❌ invalid report structure")
+              raise SystemExit("❌ invalid report structure")
 
           alpha = r["spectral_profile"]["estimated_alpha"]
           sigma = r["spectral_profile"]["bootstrap_std"]
