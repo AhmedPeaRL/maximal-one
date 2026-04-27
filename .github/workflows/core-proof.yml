@@ -10,6 +10,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -22,9 +25,6 @@ jobs:
       - name: Install deps (STRICT)
         run: |
           pip install --upgrade pip
-          pip install git-filter-repo
-          git filter-repo --strip-blobs-bigger-than 1M
-          git filter-repo --invert-paths --path index.html
           pip install --require-hashes -r requirements-lock.txt
 
       - name: Validate dataset content
