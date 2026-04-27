@@ -34,8 +34,12 @@ if __name__ == "__main__":
     if "value" not in df.columns:
         raise ValueError("Dataset must contain 'value' column")
 
-    series = df["value"].values
-
+    if "value" in df.columns:
+        series = df["value"].values
+    elif "Sunspots" in df.columns:
+        series = df["Sunspots"].values
+    else:
+        raise ValueError("No valid column found (value / Sunspots)")
     # ✅ الحقيقي بقى
     real_alpha = estimate_alpha(series)
 
