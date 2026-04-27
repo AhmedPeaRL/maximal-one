@@ -56,20 +56,19 @@ def main():
 
     try:
         if args.canonical:
-            series = generate_series(args.seed)
+            synthetic = generate_series(args.seed)
+
+        import pandas as pd
+        df = pd.read_csv("real-data/sunspots_global.csv")
+
+        if "value" in df.columns:
+            real = df["value"].values
+        elif "Sunspots" in df.columns:
+            real = df["Sunspots"].values
         else:
-            # 🔥 استخدام بيانات حقيقية
-            import pandas as pd
+            raise ValueError("No valid column")
 
-            df = pd.read_csv("real-data/sunspots_global.csv")
-
-            # unified column handling
-            if "value" in df.columns:
-                series = df["value"].values.astype(float)
-            elif "Sunspots" in df.columns:
-                series = df["Sunspots"].values.astype(float)
-            else:
-                raise ValueError("Dataset must contain 'value' or 'Sunspots' column")
+        series = np.concatenate([synthetic, real]))
 
         white_noise = np.random.randn(len(series))
         alpha_noise = estimate_alpha(white_noise)
