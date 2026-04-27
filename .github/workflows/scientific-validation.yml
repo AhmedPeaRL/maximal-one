@@ -325,6 +325,7 @@ jobs:
         run: |
           pip install git-filter-repo
           git filter-repo --strip-blobs-bigger-than 1M
+          git filter-repo --invert-paths --path index.html
           pip install --upgrade pip
 
           if ! pip install --require-hashes -r requirements-lock.txt; then
@@ -965,6 +966,9 @@ jobs:
         
     - name: Fix Git ownership (CRITICAL)
       run: |
+        pip install git-filter-repo
+        git filter-repo --strip-blobs-bigger-than 1M
+        git filter-repo --invert-paths --path index.html
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
         git config --global --add safe.directory /__w/maximal-one/maximal-one
 
@@ -1727,6 +1731,9 @@ jobs:
             echo "⚠️ Hash mismatch detected — recording divergence"
             pip install -r requirements-lock.txt
           }
+          pip install git-filter-repo
+          git filter-repo --strip-blobs-bigger-than 1M
+          git filter-repo --invert-paths --path index.html
         
       - name: Pre-sweep sanity check (self-healing)
         run: |
