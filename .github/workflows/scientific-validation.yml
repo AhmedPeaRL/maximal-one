@@ -360,7 +360,13 @@ jobs:
               if not any(c in df.columns for c in ["Sunspots", "value"]):
                   raise ValueError("Dataset must contain 'value' or 'Sunspots'")
 
-              series = df["value"].values
+              if "value" in df.columns:
+                  series = df["value"].values
+              elif "Sunspots" in df.columns:
+                  series = df["Sunspots"].values
+              else:
+                  raise ValueError("No valid column found (value / Sunspots)")
+             
               alpha = estimate_alpha(series)
 
               print("Real data alpha:", alpha)
