@@ -67,8 +67,8 @@ jobs:
           print("alpha:", alpha)
           print("sigma:", sigma)
 
-          if sigma > 0.2:
-              raise SystemExit("❌ sigma too high")
+          if alpha / (sigma + 1e-12) < 2.0:
+              raise SystemExit("❌ weak signal (low alpha/sigma ratio)")
 
           if abs(alpha - r["spectral_profile"]["noise_alpha"]) < 0.2:
               raise SystemExit("❌ not distinguishable from noise")
