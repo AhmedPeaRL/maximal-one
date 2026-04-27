@@ -21,7 +21,7 @@ def generate_series(seed, n=1024):
     return x
 
 
-def bootstrap_alpha(series, num_boot=30, block_size=64):
+def bootstrap_alpha(series, num_boot=100, block_size=128):
     """
     Block bootstrap preserving temporal structure
     """
