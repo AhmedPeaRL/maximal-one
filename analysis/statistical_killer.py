@@ -31,15 +31,12 @@ def evaluate_significance(real_alpha, null_alphas):
 if __name__ == "__main__":
     df = pd.read_csv("real-data/sunspots_global.csv")
 
-    if "value" not in df.columns:
-        raise ValueError("Dataset must contain 'value' column")
-
     if "value" in df.columns:
         series = df["value"].values
     elif "Sunspots" in df.columns:
         series = df["Sunspots"].values
     else:
-        raise ValueError("No valid column found (value / Sunspots)")
+        raise ValueError("Dataset must contain 'value' or 'Sunspots' column")
     # ✅ الحقيقي بقى
     real_alpha = estimate_alpha(series)
 
