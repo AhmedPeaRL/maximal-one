@@ -23,13 +23,12 @@ def estimate_alpha(series):
     log_f = np.log(freqs + 1e-12)
     log_psd = np.log(psd + 1e-12)
 
-    # 🔥 robust fit بدل polyfit
-    median_f = np.median(log_f)
-    median_psd = np.median(log_psd)
+    # robust but sensitive fit
+    weights = 1 / (1 + np.abs(log_psd - np.median(log_psd)))
 
-    slope = np.sum((log_f - median_f)*(log_psd - median_psd)) / \
-            np.sum((log_f - median_f)**2 + 1e-12)
-
+    slope = np.sum(weights * (log_f - np.mean(log_f)) * (log_psd - np.mean(log_psd))) / \
+           (np.sum(weights * (log_f - np.mean(log_f))**2) + 1e-12)
+   
     alpha = -slope
 
     return float(alpha)
