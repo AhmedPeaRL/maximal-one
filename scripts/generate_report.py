@@ -70,6 +70,10 @@ def main():
 
         series = 0.7 * real + 0.3 * synthetic[:len(real)]
 
+        print("Real length:", len(real))
+        print("Synthetic length:", len(synthetic))
+        print("Series sample:", series[:5])
+
         white_noise = np.random.randn(len(series))
         alpha_noise = estimate_alpha(white_noise)
         alpha = estimate_alpha(series)
@@ -94,17 +98,10 @@ def main():
         print("✅ Spectral report generated (physically grounded)")
 
     except Exception as e:
-        fallback = {
-            "status": "partial",
-            "error": str(e),
-            "trace": traceback.format_exc(),
-            "timestamp": time.time()
-        }
-
-        with open("artifacts/canonical_report.json", "w") as f:
-            json.dump(fallback, f)
-
-        print("⚠️ Fallback report generated")
+        print("❌ CRITICAL FAILURE in generate_report")
+        print(str(e))
+        print(traceback.format_exc())
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
