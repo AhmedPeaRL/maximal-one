@@ -68,7 +68,7 @@ def main():
         else:
             raise ValueError("No valid column")
 
-        series = np.concatenate([synthetic, real]))
+        series = np.concatenate([synthetic, real])
 
         white_noise = np.random.randn(len(series))
         alpha_noise = estimate_alpha(white_noise)
