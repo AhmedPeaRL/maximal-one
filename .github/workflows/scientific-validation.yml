@@ -349,8 +349,8 @@ jobs:
           def run_real_test(path):
               df = pd.read_csv(path)
 
-              if "value" not in df.columns:
-                 raise ValueError("Dataset must contain 'value' column")
+              if not any(c in df.columns for c in ["Sunspots", "value"]):
+                  raise ValueError("Dataset must contain 'value' or 'Sunspots'")
 
               series = df["value"].values
               alpha = estimate_alpha(series)
