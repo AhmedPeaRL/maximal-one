@@ -1157,6 +1157,9 @@ jobs:
     # 5) SCIENTIFIC VALIDATION
     # =========================
 
+    - name: TRUE External Runner (REAL ISOLATION)
+      run: python analysis/TRUE_external_runner.py
+
     - name: External Irreducible Anchor V2
       run: python analysis/external_irreducible_anchor_v2.py
 
