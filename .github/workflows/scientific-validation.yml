@@ -930,16 +930,6 @@ jobs:
         fetch-depth: 0
         persist-credentials: true
 
-    - name: Git bootstrap (GLOBAL FIX)
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
-      run: |
-        git config --global user.name "github-actions"
-        git config --global user.email "actions@github.com"
-
-        git remote remove origin || true
-        git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
-
     - name: Log Input
       run: |
         echo "INPUT: ${{ github.event.client_payload.input }}" >> data/external_log.txt
