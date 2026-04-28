@@ -201,17 +201,25 @@ jobs:
           console.log("Witness hash:", hash);
           NODE
 
-      - name: Ensure remote origin (HARD FIX)
+      - name: Ensure remote origin (FIXED PROPERLY)
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
+          set -e
+
+          echo "Resetting origin safely..."
+
           git remote remove origin || true
-          git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
-          
+
+          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+
           git fetch origin main || true
+
+          git checkout main || git checkout -b main
+
           git branch --set-upstream-to=origin/main main || true
-          
-          echo "✅ origin restored"
+
+          echo "✅ origin fully restored and linked"
           
       - name: Safe authenticated push (FIXED)
         env:
