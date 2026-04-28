@@ -1,0 +1,55 @@
+name: Cross Run Memory Verification
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 0'
+
+jobs:
+  cross_run_verify:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Recompute deterministic artifact
+        run: npm run validate
+
+      - name: Compute hash
+        id: compute_hash
+        run: |
+          HASH=$(sha256sum core-scientific/publication-gate/report.json | awk '{print $1}')
+          echo "current_hash=$HASH" >> $GITHUB_OUTPUT
+          echo $HASH > current_hash.txt
+
+      - name: Load historical hashes
+        run: |
+          mkdir -p .coherence-memory
+          if [ ! -f .coherence-memory/history.log ]; then
+            touch .coherence-memory/history.log
+          fi
+
+      - name: Compare with historical memory
+        run: |
+          CURRENT=${{ steps.compute_hash.outputs.current_hash }}
+          echo "Current: $CURRENT"
+
+          if grep -q "$CURRENT" .coherence-memory/history.log; then
+            echo "Hash already observed in historical memory."
+          else
+            echo "New hash detected. Appending to memory."
+            echo "$CURRENT" >> .coherence-memory/history.log
+          fi
+
+      - name: Commit memory if changed
+        run: |
+          git config user.name "coherence-bot"
+          git config user.email "coherence@system.local"
+          git add .coherence-memory/history.log
+          git diff --cached --quiet || git commit -m "Cross-run memory update"
+          git push || echo "No changes to push"

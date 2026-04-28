@@ -21,6 +21,7 @@
     "verify-local": "node LOCAL_VERIFICATION.js",
     "state:transition": "node ./core-scientific/state-engine/event-processor.cjs",
     "evolve": "node ./core-scientific/evolution/autonomous-generator.cjs",
-    "attractor": "node ./core-scientific/metrics/attractor-score.js"
+    "attractor": "node ./core-scientific/metrics/attractor-score.js",
+    "attractor": "node core-scientific/stability/attractor-field.js"
   }
 }
