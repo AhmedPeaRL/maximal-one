@@ -339,7 +339,7 @@
 
   async function loadPressure() {
     try {
-      const res = await fetch('./data');
+      const res = await fetch('./data/live_field_state.json');
       document.getElementById("pressure-log").innerText =
         "Pressure export active (check repo data folder)";
     } catch {
