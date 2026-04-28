@@ -40,16 +40,6 @@ jobs:
           pip install --upgrade pip
           pip install --require-hashes -r requirements-lock.txt
 
-      - name: Git bootstrap (GLOBAL FIX)
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-
-          git remote remove origin || true
-          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
-
       - name: Secret scan (refined)
         run: |
           echo "Running refined secret scan..."
@@ -282,16 +272,6 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
       
-      - name: Git bootstrap (GLOBAL FIX)
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-
-          git remote remove origin || true
-          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
-          
       - name: Install deps
         run: pip install requests
 
@@ -319,16 +299,6 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: true
-
-      - name: Git bootstrap (GLOBAL FIX)
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-
-          git remote remove origin || true
-          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
 
       - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
@@ -373,16 +343,6 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Git bootstrap (GLOBAL FIX)
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-
-          git remote remove origin || true
-          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
-          
       - name: Upgrade pip first
         run: python -m pip install --upgrade pip
 
@@ -640,16 +600,6 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Git bootstrap (GLOBAL FIX)
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-
-          git remote remove origin || true
-          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
-
       - uses: actions/download-artifact@v5
         with:
           name: canonical-report
@@ -863,16 +813,6 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: true
-
-      - name: Git bootstrap (GLOBAL FIX)
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-
-          git remote remove origin || true
-          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
 
       - name: Debug repo structure
         run: |
@@ -1810,16 +1750,6 @@ jobs:
             pip install -r requirements-lock.txt
           }
 
-      - name: Git bootstrap (GLOBAL FIX)
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-
-          git remote remove origin || true
-          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
-        
       - name: Freeze environment
         run: pip freeze
 
