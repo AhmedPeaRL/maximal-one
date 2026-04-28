@@ -21,6 +21,10 @@ jobs:
         with:
           python-version: "3.11"
 
+      # ✅ أهم خطوة ناقصة
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+
       - name: Install deps (STRICT)
         run: |
           pip install --upgrade pip
@@ -58,7 +62,6 @@ jobs:
           print("sigma:", sigma)
           print("noise:", noise)
 
-          # 🔴 الشرط الحقيقي الوحيد
           if alpha / (sigma + 1e-12) < 2.5:
               sys.exit("FAIL: weak signal")
 
