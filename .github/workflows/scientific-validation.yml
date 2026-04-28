@@ -40,6 +40,16 @@ jobs:
           pip install --upgrade pip
           pip install --require-hashes -r requirements-lock.txt
 
+      - name: Git bootstrap (GLOBAL FIX)
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+
+          git remote remove origin || true
+          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+
       - name: Secret scan (refined)
         run: |
           echo "Running refined secret scan..."
@@ -271,7 +281,17 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: true
+      
+      - name: Git bootstrap (GLOBAL FIX)
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
 
+          git remote remove origin || true
+          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+          
       - name: Install deps
         run: pip install requests
 
@@ -299,6 +319,16 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: true
+
+      - name: Git bootstrap (GLOBAL FIX)
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+
+          git remote remove origin || true
+          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
 
       - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
@@ -342,6 +372,16 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: true
+
+      - name: Git bootstrap (GLOBAL FIX)
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+
+          git remote remove origin || true
+          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
           
       - name: Upgrade pip first
         run: python -m pip install --upgrade pip
@@ -600,6 +640,16 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
+      - name: Git bootstrap (GLOBAL FIX)
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+
+          git remote remove origin || true
+          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+
       - uses: actions/download-artifact@v5
         with:
           name: canonical-report
@@ -814,6 +864,16 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
+      - name: Git bootstrap (GLOBAL FIX)
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+
+          git remote remove origin || true
+          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+
       - name: Debug repo structure
         run: |
           echo "==== CURRENT PATH ===="
@@ -929,6 +989,16 @@ jobs:
       with:
         fetch-depth: 0
         persist-credentials: true
+
+    - name: Git bootstrap (GLOBAL FIX)
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      run: |
+        git config --global user.name "github-actions"
+        git config --global user.email "actions@github.com"
+
+        git remote remove origin || true
+        git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
 
     - name: Log Input
       run: |
@@ -1739,6 +1809,16 @@ jobs:
             echo "⚠️ Hash mismatch detected — recording divergence"
             pip install -r requirements-lock.txt
           }
+
+      - name: Git bootstrap (GLOBAL FIX)
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+
+          git remote remove origin || true
+          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
         
       - name: Freeze environment
         run: pip freeze
@@ -1774,6 +1854,16 @@ jobs:
             echo "⚠️ Hash mismatch detected — recording divergence"
             pip install -r requirements-lock.txt
           }
+
+      - name: Git bootstrap (GLOBAL FIX)
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+
+          git remote remove origin || true
+          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
         
       - name: Pre-sweep sanity check (self-healing)
         run: |
@@ -1890,25 +1980,33 @@ jobs:
         run: |
           python analysis/lyapunov_strict_scan.py
 
-      - name: Ensure remote origin (HARD FIX)
+      - name: Ensure remote origin (FIXED PROPERLY)
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
+          set -e
+
+          echo "Resetting origin safely..."
+
           git remote remove origin || true
-          git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
-          
+
+          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+
           git fetch origin main || true
+
+          git checkout main || git checkout -b main
+
           git branch --set-upstream-to=origin/main main || true
-          
-          echo "✅ origin restored"
+
+          echo "✅ origin fully restored and linked"
 
       - name: Commit dataset if changed
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
-          git fetch origin
-          git reset --soft origin/main
+          git fetch origin main || true
+          git reset --soft origin/main || true
 
           git add -A data
 
