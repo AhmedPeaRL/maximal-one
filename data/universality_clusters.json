@@ -1,24 +1,33 @@
 {
   "0": [
-    "co2",
-    "solar_wind_speed_clean",
-    "co2_atmospheric",
-    "sunspots_global_prepared_clean",
-    "sunspots",
     "sunspots_global",
-    "sunspots_global_prepared",
+    "cosmic_rays",
+    "solar_wind_speed_clean",
     "earthquake_magnitude_clean",
-    "solar_wind_speed",
-    "earthquake_magnitude",
+    "ecology_clean",
     "sunspots_global_clean",
-    "co2_atmospheric_clean"
+    "logistic_map",
+    "earthquake_magnitude",
+    "sunspots",
+    "sunspots_clean",
+    "sunspots_global_prepared_clean",
+    "co2_clean",
+    "ecology",
+    "sunspots_global_prepared",
+    "co2",
+    "cosmic_rays_clean",
+    "co2_atmospheric",
+    "temperature",
+    "co2_atmospheric_clean",
+    "temperature_clean",
+    "solar_wind_speed",
+    "henon_map"
   ],
   "2": [
-    "cosmic_rays_clean",
-    "cosmic_rays"
-  ],
-  "1": [
     "sample_clean",
     "sample"
+  ],
+  "1": [
+    "rossler"
   ]
 }
