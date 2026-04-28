@@ -38,6 +38,7 @@ jobs:
           npm run validate
           npm run verify
           npm run stability
+          npm run attractor
 
       - name: Byzantine simulation (optional corruption)
         if: matrix.byzantine == 'true'
