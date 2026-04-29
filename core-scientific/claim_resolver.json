@@ -1,0 +1,8 @@
+{
+  "active_claim": "strict",
+  "fallback": "unified",
+  "rules": {
+    "strict_priority": true,
+    "allow_fallback_only_if": "explicit_flag"
+  }
+}
