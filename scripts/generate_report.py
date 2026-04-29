@@ -3,7 +3,6 @@ import argparse
 import numpy as np
 import os
 import traceback
-import time
 
 from analysis.numerical_spectral_verification import estimate_alpha
 
@@ -11,10 +10,8 @@ from analysis.numerical_spectral_verification import estimate_alpha
 def generate_series(seed, n=1024):
     np.random.seed(seed)
 
-    # chaotic-like signal (not trivial random)
     x = np.random.randn(n)
 
-    # introduce temporal structure
     for i in range(1, n):
         x[i] += 0.8 * x[i-1]
 
@@ -49,35 +46,42 @@ def main():
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--canonical", action="store_true")
     args = parser.parse_args()
+
     np.random.seed(args.seed)
 
     os.makedirs("artifacts", exist_ok=True)
 
-    import pandas as pd
-    df = pd.read_csv("real-data/sunspots_global.csv")
-
-    if "value" in df.columns:
-        real = df["value"].values
-    elif "Sunspots" in df.columns:
-        real = df["Sunspots"].values
-    else:
-        raise ValueError("No valid column")
-
     try:
-        if args.canonical:
-            series = real.copy()
+        import pandas as pd
+        df = pd.read_csv("real-data/sunspots_global.csv")
+
+        if "value" in df.columns:
+            real = df["value"].values
+        elif "Sunspots" in df.columns:
+            real = df["Sunspots"].values
         else:
-            series = synthetic[:len(real)]
+            raise ValueError("No valid column")
+
+        # 🔥 ALWAYS generate synthetic (حل جذري)
+        synthetic = generate_series(args.seed, n=len(real))
+
+        if args.canonical:
+            series = 0.7 * real + 0.3 * synthetic
+            generator_type = "hybrid_real_synthetic"
+        else:
+            series = synthetic
+            generator_type = "structured_chaotic_process"
 
         print("Real length:", len(real))
         print("Synthetic length:", len(synthetic))
         print("Series sample:", series[:5])
 
         white_noise = np.random.RandomState(args.seed + 999).randn(len(series))
+
         alpha_noise = estimate_alpha(white_noise)
         alpha = estimate_alpha(series)
         boot = bootstrap_alpha(series)
-    
+
         report = {
             "spectral_profile": {
                 "estimated_alpha": stable_float(alpha),
@@ -89,14 +93,14 @@ def main():
             },
             "metadata": {
                 "seed": args.seed,
-                "generator": "structured_chaotic_process" if args.canonical else "real_sunspots"
+                "generator": generator_type
             }
         }
 
         with open("artifacts/canonical_report.json", "w") as f:
             json.dump(report, f, sort_keys=True, separators=(',', ':'))
 
-        print("✅ Spectral report generated (physically grounded)")
+        print("✅ Spectral report generated (stable & reproducible)")
 
     except Exception as e:
         print("❌ CRITICAL FAILURE in generate_report")
