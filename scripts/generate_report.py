@@ -53,22 +53,20 @@ def main():
 
     os.makedirs("artifacts", exist_ok=True)
 
-        import pandas as pd
-        df = pd.read_csv("real-data/sunspots_global.csv")
+    import pandas as pd
+    df = pd.read_csv("real-data/sunspots_global.csv")
 
-        if "value" in df.columns:
-            real = df["value"].values
-        elif "Sunspots" in df.columns:
-            real = df["Sunspots"].values
-        else:
-            raise ValueError("No valid column")
+    if "value" in df.columns:
+        real = df["value"].values
+    elif "Sunspots" in df.columns:
+        real = df["Sunspots"].values
+    else:
+        raise ValueError("No valid column")
 
-        if args.canonical:
-            series = real.copy()
-        else:
-            series = synthetic[:len(real)]
-
+    if args.canonical:
         series = real.copy()
+    else:
+        series = synthetic[:len(real)]
 
         print("Real length:", len(real))
         print("Synthetic length:", len(synthetic))
