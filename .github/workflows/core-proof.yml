@@ -67,7 +67,7 @@ jobs:
           print("alpha:", alpha)
           print("sigma:", sigma)
 
-          if not (bool["ci_low"] > r["spectral_profile"]["noise_alpha"]):
+          if not (boot["ci_low"] > r["spectral_profile"]["noise_alpha"]):
               raise SystemExit("❌ not statistically significant vs noise")
 
           if abs(alpha - r["spectral_profile"]["noise_alpha"]) < 0.2:
