@@ -63,10 +63,11 @@ def main():
     else:
         raise ValueError("No valid column")
 
-    if args.canonical:
-        series = real.copy()
-    else:
-        series = synthetic[:len(real)]
+    try:
+        if args.canonical:
+            series = real.copy()
+        else:
+            series = synthetic[:len(real)]
 
         print("Real length:", len(real))
         print("Synthetic length:", len(synthetic))
