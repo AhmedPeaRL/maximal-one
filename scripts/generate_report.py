@@ -86,6 +86,10 @@ def main():
         
         if alpha > 5:
             raise ValueError(f"Unphysical alpha detected: {alpha}")
+
+        from analysis.falsification_tests import run_falsification
+
+        falsification = run_falsification(series)
      
         from analysis.numerical_spectral_verification import block_bootstrap
 
@@ -96,6 +100,7 @@ def main():
                 "estimated_alpha": stable_float(alpha),
                 "bootstrap_mean": stable_float(boot["mean"]),
                 "bootstrap_std": stable_float(boot["std"]),
+                "falsification_tests": falsification,
                 "ci_low": stable_float(boot["ci_low"]),
                 "ci_high": stable_float(boot["ci_high"]),
                 "noise_alpha": stable_float(alpha_noise)
@@ -105,6 +110,12 @@ def main():
                 "generator": generator_type
             }
         }
+
+        if abs(falsification["original_alpha"] - falsification["shuffled_alpha"]) < 0.2:
+            raise SystemExit("❌ Structure not real (shuffle invariant)")
+
+        if abs(falsification["original_alpha"] - falsification["white_noise_alpha"]) < 0.2:
+            raise SystemExit("❌ Indistinguishable from noise")
 
         with open("artifacts/canonical_report.json", "w") as f:
             json.dump(report, f, sort_keys=True, separators=(',', ':'))
