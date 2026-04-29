@@ -83,6 +83,9 @@ def main():
 
         alpha_noise = float(np.mean(noise_samples))
         alpha = estimate_alpha(series)
+        
+        if estimated_alpha > 5:
+            raise ValueError("Unphysical alpha detected")
      
         from analysis.numerical_spectral_verification import block_bootstrap
 
