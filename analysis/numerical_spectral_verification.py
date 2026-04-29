@@ -1,10 +1,7 @@
 import numpy as np
 
 def estimate_alpha(series):
-    """
-    Robust spectral alpha estimation
-    """
-
+    series = np.asarray(series)
     series = series - np.mean(series)
     n = len(series)
 
@@ -15,20 +12,16 @@ def estimate_alpha(series):
     psd = (np.abs(fft_vals) ** 2) / n
     freqs = np.fft.rfftfreq(n)
 
-    mask = freqs > 0
+    mask = (freqs > 0) & (freqs < 0.5)
     freqs = freqs[mask]
     psd = psd[mask]
 
-    # 🔥 بدون حذف bias
-    log_f = np.log(freqs + 1e-12)
-    log_psd = np.log(psd + 1e-12)
+    log_f = np.log(freqs)
+    log_psd = np.log(psd)
 
-    # robust but sensitive fit
-    weights = 1 / (1 + np.abs(log_psd - np.median(log_psd)))
+    # linear regression حقيقية
+    A = np.vstack([log_f, np.ones(len(log_f))]).T
+    slope, intercept = np.linalg.lstsq(A, log_psd, rcond=None)[0]
 
-    slope = np.sum(weights * (log_f - np.mean(log_f)) * (log_psd - np.mean(log_psd))) / \
-           (np.sum(weights * (log_f - np.mean(log_f))**2) + 1e-12)
-   
     alpha = -slope
-
     return float(alpha)
