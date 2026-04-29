@@ -53,12 +53,6 @@ def main():
 
     os.makedirs("artifacts", exist_ok=True)
 
-    try:
-        if args.canonical:
-            series = real.copy()
-        else:
-            series = synthetic[:len(real)]
-
         import pandas as pd
         df = pd.read_csv("real-data/sunspots_global.csv")
 
@@ -68,6 +62,11 @@ def main():
             real = df["Sunspots"].values
         else:
             raise ValueError("No valid column")
+
+        if args.canonical:
+            series = real.copy()
+        else:
+            series = synthetic[:len(real)]
 
         series = real.copy()
 
