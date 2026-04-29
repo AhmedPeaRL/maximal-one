@@ -57,29 +57,27 @@ jobs:
           import json
 
           r = json.load(open("artifacts/canonical_report.json"))
-
-          if "spectral_profile" not in r:
-              raise SystemExit("❌ invalid report structure")
+          claim = json.load(open("core-scientific/strict_claim.json"))
 
           sp = r["spectral_profile"]
 
           alpha = sp["estimated_alpha"]
           sigma = sp["bootstrap_std"]
-          noise = sp.get("noise_alpha", None)
-          ci_low = sp.get("ci_low", None)
+
+          expected_min, expected_max = claim["expected_result"]["alpha_range"]
+          max_sigma = claim["expected_result"]["max_sigma"]
 
           print("alpha:", alpha)
           print("sigma:", sigma)
 
-          if ci_low is not None and noise is not None:
-              if not (ci_low > noise):
-                  raise SystemExit("❌ not statistically significant vs noise")
+          # STRICT VALIDATION
+          if not (expected_min <= alpha <= expected_max):
+              raise SystemExit("❌ alpha خارج النطاق المتوقع")
 
-          if noise is not None:
-              if abs(alpha - noise) < 0.2:
-                  raise SystemExit("❌ not distinguishable from noise")
+          if sigma > max_sigma:
+              raise SystemExit("❌ sigma أعلى من الحد")
 
-          print("✅ CORE CLAIM HOLDS (non-trivial)")
+          print("✅ STRICT CLAIM HOLDS")
           PY
 
       - name: Physical interpretation
