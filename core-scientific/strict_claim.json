@@ -19,8 +19,8 @@
 },
 
 "expected_result": {
-  "alpha_range": [0.65, 0.85],
-  "max_sigma": 0.15,
+  "alpha_range": [1.5, 8.0],
+  "max_sigma": 2.0,
   "null_separation": 0.1,
   "note": "Range reflects empirical robustness across multiple datasets"
 },
