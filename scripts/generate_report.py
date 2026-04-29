@@ -45,12 +45,12 @@ def stable_float(x, digits=10):
 
 
 def main():
-    np.random.seed(args.seed)
-    white_noise = np.random.RandomState(args.seed + 999).randn(len(series))
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--canonical", action="store_true")
     args = parser.parse_args()
+    np.random.seed(args.seed)
+    white_noise = np.random.RandomState(args.seed + 999).randn(len(series))
 
     os.makedirs("artifacts", exist_ok=True)
 
