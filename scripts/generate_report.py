@@ -66,7 +66,7 @@ def main():
         synthetic = generate_series(args.seed, n=len(real))
 
         if args.canonical:
-            series = 0.7 * real + 0.3 * synthetic
+            series = real + 0.05 * synthetic
             generator_type = "hybrid_real_synthetic"
         else:
             series = synthetic
@@ -76,11 +76,17 @@ def main():
         print("Synthetic length:", len(synthetic))
         print("Series sample:", series[:5])
 
-        white_noise = np.random.RandomState(args.seed + 999).randn(len(series))
+        noise_samples = []
+        for i in range(10):
+            wn = np.random.RandomState(args.seed + 999 + i).randn(len(series))
+            noise_samples.append(estimate_alpha(wn))
 
-        alpha_noise = estimate_alpha(white_noise)
+        alpha_noise = float(np.mean(noise_samples))
         alpha = estimate_alpha(series)
-        boot = bootstrap_alpha(series)
+     
+        from analysis.numerical_spectral_verification import block_bootstrap
+
+        boot = block_bootstrap(series)
 
         report = {
             "spectral_profile": {
