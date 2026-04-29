@@ -4,11 +4,13 @@
 
   "core_principle": "Falsifiability-first adaptive validation",
 
-  "alpha_mode": "adaptive",
-  
-  "alpha_range": {
+  "alpha_modes": {
     "physical": [0.3, 1.5],
-    "emergent": [1.5, 8.0],
+    "emergent": [1.5, 8.0]
+  },
+  
+  "adaptive_alpha": {
+    "alpha_range": [0.3, 8.0],
     "center_from_data": true,
     "tolerance_sigma_multiplier": 3
   },
