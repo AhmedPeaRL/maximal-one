@@ -21,40 +21,23 @@ def generate_series(seed, n=1024):
     return x
 
 
-def bootstrap_alpha(series, num_boot=100, block_size=None):
-    """
-    Adaptive block bootstrap preserving temporal structure
-    """
-
+def bootstrap_alpha(series, num_boot=100):
     n = len(series)
-
-    # 🔥 حل جذري: block_size يتظبط حسب حجم الداتا
-    if block_size is None:
-        block_size = max(8, min(128, n // 2))
-
-    if block_size >= n:
-        block_size = max(4, n // 2)
-
     alphas = []
 
     for _ in range(num_boot):
-        blocks = []
-        i = 0
-
-        while i < n:
-            max_start = n - block_size
-            if max_start <= 0:
-                start = 0
-            else:
-                start = np.random.randint(0, max_start)
-
-            blocks.append(series[start:start + block_size])
-            i += block_size
-
-        sample = np.concatenate(blocks)[:n]
+        idx = np.random.randint(0, n, n)
+        sample = series[idx]
         alphas.append(estimate_alpha(sample))
 
-    return float(np.mean(alphas)), float(np.std(alphas))
+    alphas = np.array(alphas)
+
+    return {
+        "mean": float(np.mean(alphas)),
+        "std": float(np.std(alphas)),
+        "ci_low": float(np.percentile(alphas, 2.5)),
+        "ci_high": float(np.percentile(alphas, 97.5))
+    }
 
 
 def stable_float(x, digits=10):
@@ -62,6 +45,8 @@ def stable_float(x, digits=10):
 
 
 def main():
+    np.random.seed(args.seed)
+    white_noise = np.random.RandomState(args.seed + 999).randn(len(series))
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--canonical", action="store_true")
@@ -71,7 +56,9 @@ def main():
 
     try:
         if args.canonical:
-            synthetic = generate_series(args.seed)
+            series = real.copy()
+        else:
+            series = synthetic[:len(real)]
 
         import pandas as pd
         df = pd.read_csv("real-data/sunspots_global.csv")
@@ -83,7 +70,7 @@ def main():
         else:
             raise ValueError("No valid column")
 
-        series = 0.7 * real + 0.3 * synthetic[:len(real)]
+        series = real.copy()
 
         print("Real length:", len(real))
         print("Synthetic length:", len(synthetic))
@@ -92,13 +79,15 @@ def main():
         white_noise = np.random.randn(len(series))
         alpha_noise = estimate_alpha(white_noise)
         alpha = estimate_alpha(series)
-        mean_alpha, std_alpha = bootstrap_alpha(series)
+        boot = bootstrap_alpha(series)
     
         report = {
             "spectral_profile": {
                 "estimated_alpha": stable_float(alpha),
-                "bootstrap_mean": stable_float(mean_alpha),
-                "bootstrap_std": stable_float(std_alpha),
+                "bootstrap_mean": stable_float(boot["mean"]),
+                "bootstrap_std": stable_float(boot["std"]),
+                "ci_low": stable_float(boot["ci_low"]),
+                "ci_high": stable_float(boot["ci_high"]),
                 "noise_alpha": stable_float(alpha_noise)
             },
             "metadata": {
