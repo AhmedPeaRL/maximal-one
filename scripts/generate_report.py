@@ -50,7 +50,6 @@ def main():
     parser.add_argument("--canonical", action="store_true")
     args = parser.parse_args()
     np.random.seed(args.seed)
-    white_noise = np.random.RandomState(args.seed + 999).randn(len(series))
 
     os.makedirs("artifacts", exist_ok=True)
 
@@ -76,7 +75,7 @@ def main():
         print("Synthetic length:", len(synthetic))
         print("Series sample:", series[:5])
 
-        white_noise = np.random.randn(len(series))
+        white_noise = np.random.RandomState(args.seed + 999).randn(len(series))
         alpha_noise = estimate_alpha(white_noise)
         alpha = estimate_alpha(series)
         boot = bootstrap_alpha(series)
