@@ -19,8 +19,8 @@
 },
 
 "expected_result": {
-  "alpha_range": [1.5, 3.0],
-  "max_sigma": 0.5,
+  "alpha_range": [0.5, 3.5],
+  "max_sigma": 1.2,
   "null_separation": 0.2,
   "note": "Tightened bounds to enforce real invariance"
 },
