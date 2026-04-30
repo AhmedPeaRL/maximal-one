@@ -91,7 +91,7 @@ def main():
     if "sunspots" in results["real"] and "ar1" in results["synthetic"]:
         invariant = (
             abs(results["real"]["sunspots"] - results["synthetic"]["ar1"]) < 0.4
-            if "sunspots" in results["real"] and "ar1" in results["synthetic"]:
+            if "sunspots" in results["real"] and "ar1" in results["synthetic"]
             else None
         )
 
