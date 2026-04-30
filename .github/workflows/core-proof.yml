@@ -50,10 +50,6 @@ jobs:
         run: |
           python scripts/generate_report.py --seed 42 --canonical
 
-      - name: Cross-domain validation
-        run: |
-          python analysis/cross_domain_validator.py
-
       - name: Extract alpha (fixed)
         run: |
           python - <<'PY'
@@ -82,6 +78,11 @@ jobs:
 
           print("✅ STRICT CLAIM HOLDS")
           PY
+
+      - name: Cross-domain validation
+        run: |
+          python analysis/cross_domain_validator.py
+          
 
       - name: Physical interpretation
         run: |
