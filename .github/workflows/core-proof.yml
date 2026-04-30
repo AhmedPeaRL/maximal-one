@@ -54,13 +54,13 @@ jobs:
         run: |
           python scripts/run_multi_dataset.py
 
-      - name: Cross-domain validation
-        run: |
-          python analysis/cross_domain_validator.py
-
       - name: Invariant Stability Guard
         run: |
           python analysis/invariant_stability_guard.py
+
+      - name: Cross-domain validation
+        run: |
+          python analysis/cross_domain_validator.py
 
       - name: Extract alpha (fixed)
         run: |
