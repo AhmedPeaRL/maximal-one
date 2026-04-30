@@ -26,16 +26,29 @@ def check_stability(alphas):
     print("✅ RELATIVE INVARIANT STABLE")
 
 
+def extract_alphas(alphas_dict):
+    values = []
+
+    for domain in alphas_dict.values():
+        if isinstance(domain, dict):
+            for v in domain.values():
+                if isinstance(v, (int, float)):
+                    values.append(v)
+
+    return values
+
+
 if __name__ == "__main__":
     data = json.load(open("artifacts/multi_report.json"))
 
-    # ✅ FIX: read from "alphas" instead of "results"
     if "alphas" not in data:
         raise SystemExit("❌ Invalid report format: missing 'alphas'")
 
     alphas_dict = data["alphas"]
 
-    # convert dict → list
-    alphas = [v for v in alphas_dict.values() if isinstance(v, (int, float))]
+    # ✅ FIX الحقيقي
+    alphas = extract_alphas(alphas_dict)
+
+    print(f"extracted_alphas: {alphas}")
 
     check_stability(alphas)
