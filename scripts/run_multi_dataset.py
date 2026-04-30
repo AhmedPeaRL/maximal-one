@@ -54,7 +54,7 @@ def main():
 
     # synthetic structured
     try:
-        results["synthetic"]["ar1"] = evaluate(load_synthetic(...))
+        results["synthetic"]["ar1"] = evaluate(load_synthetic(seed=42, n=1024))
     except Exception as e:
         errors["synthetic"] = str(e)
 
@@ -64,15 +64,18 @@ def main():
     except Exception as e:
         errors["noise"] = str(e)
 
-    if "noise" in results and "synthetic" in results:
+    # ✅ SAFE validation (no blind assumptions)
+    if "white" in results["noise"] and "ar1" in results["synthetic"]:
         if abs(results["noise"]["white"] - results["synthetic"]["ar1"]) < 0.2:
             raise SystemExit("❌ synthetic indistinguishable from noise")
-
+    else:
+        raise SystemExit("❌ Missing required keys for validation (synthetic/noise)")
+        
     # 🔥 validation logic
     invariant = None
     distinguishable = None
 
-    if "sunspots" in results and "synthetic" in results:
+    if "sunspots" in results["real"] and "ar1" in results["synthetic"]:
         invariant = (
             abs(results["real"]["sunspots"] - results["synthetic"]["ar1"]) < 0.4
             if "sunspots" in results and "synthetic" in results
