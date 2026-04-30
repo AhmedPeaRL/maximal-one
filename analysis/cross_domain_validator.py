@@ -28,6 +28,9 @@ def main():
     if len(results) < 2:
         raise SystemExit("❌ Not enough datasets")
 
+    if failed_count > total_count * 0.2:
+        raise SystemExit("❌ Too many dataset failures — invariant not stable")
+
     print("✅ CROSS DOMAIN VALIDATION DONE")
 
 if __name__ == "__main__":
