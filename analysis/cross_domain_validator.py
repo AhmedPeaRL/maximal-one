@@ -51,6 +51,16 @@ def main():
     if failure_ratio > 0.2:
         raise SystemExit("❌ Too many dataset failures — invariant not stable")
 
+    alphas = [a for _, a in results]
+
+    import numpy as np
+    std = np.std(alphas)
+
+    print(f"Alpha STD: {std}")
+
+    if std > 1.0:
+        raise SystemExit("❌ Cross-domain instability too high")
+    
     print("✅ CROSS DOMAIN VALIDATION DONE")
 
 if __name__ == "__main__":
