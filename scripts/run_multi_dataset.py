@@ -61,13 +61,17 @@ def main():
     except Exception as e:
         errors["noise"] = str(e)
 
+    if "noise" in results and "synthetic" in results:
+        if abs(results["noise"] - results["synthetic"]) < 0.2:
+            raise SystemExit("❌ synthetic indistinguishable from noise")
+
     # 🔥 validation logic
     invariant = None
     distinguishable = None
 
     if "sunspots" in results and "synthetic" in results:
         invariant = (
-            abs(results["sunspots"] - results["synthetic"]) < 0.6
+            abs(results["sunspots"] - results["synthetic"]) < 0.4
             if "sunspots" in results and "synthetic" in results
             else None
         )
