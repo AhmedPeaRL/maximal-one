@@ -70,6 +70,15 @@ def main():
             raise SystemExit("❌ synthetic indistinguishable from noise")
     else:
         raise SystemExit("❌ Missing required keys for validation (synthetic/noise)")
+
+    def domain_std(d):
+        import numpy as np
+        vals = list(d.values())
+        return np.std(vals) if len(vals) > 1 else 0
+
+    domain_stats = {
+        k: domain_std(v) for k, v in results.items()
+    }
         
     # 🔥 validation logic
     invariant = None
@@ -85,23 +94,14 @@ def main():
     if "sunspots" in results and "noise" in results:
         distinguishable = abs(results["real"]["sunspots"] - results["noise"]["white"]) > 0.3
 
-    def domain_std(d):
-        import numpy as np
-        vals = list(d.values())
-        return np.std(vals) if len(vals) > 1 else 0
-
-    domain_stats = {
-        k: domain_std(v) for k, v in results.items()
-    }
-
     report = {
         "alphas": results,
         "errors": errors,
+        "domain_stats": domain_stats,
         "checks": {
             "invariant_structure": invariant,
             "not_noise": distinguishable
-        },
-        "domain_stats": domain_stats,
+        }
     }
 
     with open("artifacts/multi_report.json", "w") as f:
