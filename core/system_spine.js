@@ -59,3 +59,15 @@ export async function systemSpine(input, modules) {
 
   return result;
 }
+
+export function validateMarketSignal(signal) {
+  if (!signal || signal.confidence < 0.75) {
+    return { ok: false, reason: "low confidence" };
+  }
+
+  if (Math.abs(signal.drift) > 0.5) {
+    return { ok: false, reason: "high drift" };
+  }
+
+  return { ok: true };
+}
