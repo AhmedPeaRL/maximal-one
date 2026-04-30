@@ -39,25 +39,29 @@ def evaluate(series):
 def main():
     os.makedirs("artifacts", exist_ok=True)
 
-    results = {}
+    results = {
+        "real": {},
+        "synthetic": {},
+        "noise": {}
+    }
     errors = {}
 
     # real data
     try:
         sunspots = load_sunspots()
-        results["sunspots"] = evaluate(sunspots)
+        results["real"]["sunspots"] = evaluate(sunspots)
     except Exception as e:
         errors["sunspots"] = str(e)
 
     # synthetic structured
     try:
-        results["synthetic"] = evaluate(load_synthetic(n=len(sunspots)))
+        results["synthetic"]["ar1"] = evaluate(load_synthetic(...))
     except Exception as e:
         errors["synthetic"] = str(e)
 
     # noise baseline
     try:
-        results["noise"] = evaluate(load_noise())
+        results["noise"]["white"] = evaluate(load_noise())
     except Exception as e:
         errors["noise"] = str(e)
 
@@ -79,9 +83,19 @@ def main():
     if "sunspots" in results and "noise" in results:
         distinguishable = abs(results["sunspots"] - results["noise"]) > 0.3
 
+    def domain_std(d):
+        import numpy as np
+        vals = list(d.values())
+        return np.std(vals) if len(vals) > 1 else 0
+
+    domain_stats = {
+        k: domain_std(v) for k, v in results.items()
+    }
+    
     report = {
         "alphas": results,
         "errors": errors,
+        "domain_stats": domain_stats,
         "checks": {
             "invariant_structure": invariant,
             "not_noise": distinguishable
