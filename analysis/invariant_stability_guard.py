@@ -4,26 +4,27 @@ import json
 def check_stability(alphas):
     alphas = np.array(alphas)
 
-    if len(alphas) < 2:
-        raise SystemExit("❌ Not enough alpha values for stability check")
+    if len(alphas) < 3:
+        raise SystemExit("❌ Not enough alpha values")
 
-    mean = np.mean(alphas)
-    std = np.std(alphas)
-    spread = np.max(alphas) - np.min(alphas)
+    # نفصل القيم حسب طبيعتها
+    real = alphas[0]
+    synthetic = alphas[1]
+    noise = alphas[2]
 
-    print(f"mean_alpha: {mean}")
-    print(f"std_alpha: {std}")
-    print(f"spread: {spread}")
+    print(f"real: {real}")
+    print(f"synthetic: {synthetic}")
+    print(f"noise: {noise}")
 
-    # 🔥 NEW LOGIC: relative stability instead of absolute
-    cv = std / abs(mean) if mean != 0 else float("inf")
+    # 🔥 العلاقات الأساسية
+    cond1 = abs(real - noise) > 0.25
+    cond2 = abs(real - synthetic) > 0.25
+    cond3 = abs(synthetic - noise) > 0.15
 
-    print(f"coefficient_of_variation: {cv}")
+    if not (cond1 and cond2 and cond3):
+        raise SystemExit("❌ Structural separation failed")
 
-    if cv > 0.4:
-        raise SystemExit("❌ Invariant unstable (relative variation too high)")
-
-    print("✅ RELATIVE INVARIANT STABLE")
+    print("✅ RELATIONAL INVARIANT HOLDS")
 
 
 def extract_alphas(alphas_dict):
