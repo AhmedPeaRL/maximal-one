@@ -28,7 +28,7 @@ def load_synthetic(seed=42, n=1024):
     np.random.seed(seed)
     x = np.random.randn(n)
     for i in range(1, n):
-        x[i] += 0.8 * x[i-1]
+        x[i] += 0.6 * x[i-1] + 0.2 * np.random.randn()
     return x
 
 
@@ -119,12 +119,29 @@ def main():
     
     distinguishable = None
 
-    if "sunspots" in results["real"] and "ensemble_mean" in results["synthetic"]:
-        invariant = (
-            abs(results["real"]["sunspots"] - results["synthetic"]["ensemble_mean"]) < 0.4
-            if "sunspots" in results["real"] and "ensemble_mean" in results["synthetic"]
-            else None
-        )
+    # ✅ CORRECT invariant logic: real must be distinct from synthetic but stable
+
+    invariant = None
+
+    if (
+        "sunspots" in results["real"] and
+        "ensemble_mean" in results["synthetic"] and
+        "white" in results["noise"]
+    ):
+        real_alpha = results["real"]["sunspots"]
+        synthetic_alpha = results["synthetic"]["ensemble_mean"]
+        noise_alpha = results["noise"]["white"]
+
+        # 🔥 شرط 1: real ≠ noise
+        not_noise = abs(real_alpha - noise_alpha) > 0.25
+
+        # 🔥 شرط 2: real ≠ synthetic (مش شبهه)
+        not_synthetic = abs(real_alpha - synthetic_alpha) > 0.25
+
+        # 🔥 شرط 3: synthetic ≠ noise (عشان synthetic فعلاً structured)
+        synthetic_valid = abs(synthetic_alpha - noise_alpha) > 0.15
+
+        invariant = not_noise and not_synthetic and synthetic_valid
 
     if "sunspots" in results["real"] and "white" in results["noise"]:
         distinguishable = abs(results["real"]["sunspots"] - results["noise"]["white"]) > 0.3
