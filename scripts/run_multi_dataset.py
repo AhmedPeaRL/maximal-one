@@ -114,7 +114,7 @@ def main():
     print("Multi-dataset report generated")
 
     if invariant is False:
-        print("⚠️ invariant weak (acceptable)")
+        raise SystemExit("❌ invariant structure weak — unacceptable for proof")
 
     if distinguishable is False:
         raise SystemExit("❌ not distinguishable from noise")
