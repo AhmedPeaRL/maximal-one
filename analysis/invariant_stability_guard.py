@@ -21,6 +21,6 @@ def check_stability(alphas):
     print("✅ INVARIANT STABLE")
 
 if __name__ == "__main__":
-    data = json.load(open("artifacts/multi_dataset_report.json"))
+    data = json.load(open("artifacts/multi_report.json"))
     alphas = [x["alpha"] for x in data["results"] if "alpha" in x]
     check_stability(alphas)
