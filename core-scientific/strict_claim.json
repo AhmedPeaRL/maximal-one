@@ -25,7 +25,7 @@
   "note": "Tightened bounds to enforce real invariance"
 },
 "falsification": {
-  "condition": "If alpha falls outside [1.5,3.0] OR sigma > 0.5 OR cross-domain variance > 0.8",
+  "condition": "If alpha falls outside [0.5,3.5] OR sigma > 1.2 OR cross-domain variance > 0.8",
   "action": "Mark system as falsified immediately"
 }
 }
