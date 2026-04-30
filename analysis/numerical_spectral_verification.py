@@ -1,7 +1,6 @@
 import numpy as np
 # 🔥 smoothing
 from scipy.ndimage import uniform_filter1d
-psd = uniform_filter1d(psd, size=5)
 
 def estimate_alpha(series):
     series = np.asarray(series)
@@ -18,6 +17,7 @@ def estimate_alpha(series):
     mask = (freqs > 0.01) & (freqs < 0.3)
     freqs = freqs[mask]
     psd = psd[mask]
+    psd = uniform_filter1d(psd, size=5)
 
     log_f = np.log(freqs)
     log_psd = np.log(psd)
