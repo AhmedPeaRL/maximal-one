@@ -75,8 +75,8 @@ def main():
         errors["noise"] = str(e)
 
     # ✅ SAFE validation (no blind assumptions)
-    if "white" in results["noise"] and "ar1" in results["synthetic"]:
-        if abs(results["noise"]["white"] - results["synthetic"]["ar1"]) < 0.2:
+    if "white" in results["noise"] and "nsemble_mean" in results["synthetic"]:
+        if abs(results["noise"]["white"] - results["synthetic"]["ensemble_mean"]) < 0.2:
             raise SystemExit("❌ synthetic indistinguishable from noise")
     else:
         raise SystemExit("❌ Missing required keys for validation (synthetic/noise)")
@@ -99,11 +99,11 @@ def main():
 
     if (
         "sunspots" in results["real"] and
-        "ar1" in results["synthetic"] and
+        "ensemble_mean" in results["synthetic"] and
         "white" in results["noise"]
     ):
         ref_values = [
-            results["synthetic"]["ar1"],
+            results["synthetic"]["ensemble_mean"],
             results["noise"]["white"]
         ]
 
@@ -119,10 +119,10 @@ def main():
     
     distinguishable = None
 
-    if "sunspots" in results["real"] and "ar1" in results["synthetic"]:
+    if "sunspots" in results["real"] and "ensemble_mean" in results["synthetic"]:
         invariant = (
-            abs(results["real"]["sunspots"] - results["synthetic"]["ar1"]) < 0.4
-            if "sunspots" in results["real"] and "ar1" in results["synthetic"]
+            abs(results["real"]["sunspots"] - results["synthetic"]["ensemble_mean"]) < 0.4
+            if "sunspots" in results["real"] and "ensemble_mean" in results["synthetic"]
             else None
         )
 
