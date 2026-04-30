@@ -35,6 +35,15 @@ def load_noise(n=1024):
 def evaluate(series):
     return float(estimate_alpha(series))
 
+def domain_std(d):
+    import numpy as np
+    vals = list(d.values())
+    return np.std(vals) if len(vals) > 1 else 0
+
+domain_stats = {
+    k: domain_std(v) for k, v in results.items()
+}
+
 
 def main():
     os.makedirs("artifacts", exist_ok=True)
@@ -82,15 +91,6 @@ def main():
 
     if "sunspots" in results and "noise" in results:
         distinguishable = abs(results["real"]["sunspots"] - results["noise"] ["white"]) > 0.3
-
-    def domain_std(d):
-        import numpy as np
-        vals = list(d.values())
-        return np.std(vals) if len(vals) > 1 else 0
-
-    domain_stats = {
-        k: domain_std(v) for k, v in results.items()
-    }
     
     report = {
         "alphas": results,
