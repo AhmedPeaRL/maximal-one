@@ -50,14 +50,6 @@ jobs:
         run: |
           python scripts/generate_report.py --seed 42 --canonical
 
-      - name: Run multi-dataset proof
-        run: |
-          python scripts/run_multi_dataset.py
-
-      - name: Invariant Stability Guard
-        run: |
-          python analysis/invariant_stability_guard.py
-
       - name: Cross-domain validation
         run: |
           python analysis/cross_domain_validator.py
@@ -94,6 +86,14 @@ jobs:
       - name: Physical interpretation
         run: |
           python analysis/physical_interpretation.py
+
+      - name: Run multi-dataset proof
+        run: |
+          python scripts/run_multi_dataset.py
+
+      - name: Invariant Stability Guard
+        run: |
+          python analysis/invariant_stability_guard.py
 
       - name: Hash report
         run: sha256sum artifacts/canonical_report.json
