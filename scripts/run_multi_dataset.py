@@ -66,7 +66,7 @@ def main():
         errors["noise"] = str(e)
 
     if "noise" in results and "synthetic" in results:
-        if abs(results["noise"] - results["synthetic"]) < 0.2:
+        if abs(results["noise"] ["white"] - results["synthetic"]["ar1"]) < 0.2:
             raise SystemExit("❌ synthetic indistinguishable from noise")
 
     # 🔥 validation logic
@@ -75,13 +75,13 @@ def main():
 
     if "sunspots" in results and "synthetic" in results:
         invariant = (
-            abs(results["sunspots"] - results["synthetic"]) < 0.4
+            abs(results["real"]["sunspots"] - results["synthetic"]["ar1"]) < 0.4
             if "sunspots" in results and "synthetic" in results
             else None
         )
 
     if "sunspots" in results and "noise" in results:
-        distinguishable = abs(results["sunspots"] - results["noise"]) > 0.3
+        distinguishable = abs(results["real"]["sunspots"] - results["noise"] ["white"]) > 0.3
 
     def domain_std(d):
         import numpy as np
