@@ -66,8 +66,8 @@ def main():
         synthetic = generate_series(args.seed, n=len(real))
 
         if args.canonical:
-            series = real + 0.05 * synthetic
-            generator_type = "hybrid_real_synthetic"
+            series = real
+            generator_type = "pure_real"
         else:
             series = synthetic
             generator_type = "structured_chaotic_process"
