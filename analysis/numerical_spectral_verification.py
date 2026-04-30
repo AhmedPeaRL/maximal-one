@@ -7,6 +7,9 @@ def estimate_alpha(series):
     series = series - np.mean(series)
     n = len(series)
 
+    if n < 32:
+        return np.nan
+
     window = np.hanning(n)
     series = series * window
 
@@ -14,20 +17,31 @@ def estimate_alpha(series):
     psd = (np.abs(fft_vals) ** 2) / n
     freqs = np.fft.rfftfreq(n)
 
-    mask = (freqs > 0.01) & (freqs < 0.3)
+    mask = (freqs > 0.02) & (freqs < 0.25)
+
     freqs = freqs[mask]
     psd = psd[mask]
-    psd = uniform_filter1d(psd, size=5)
+
+    if len(freqs) < 10:
+        return np.nan
+
+    psd = uniform_filter1d(psd, size=7)
 
     log_f = np.log(freqs)
-    log_psd = np.log(psd)
+    log_psd = np.log(psd + 1e-10)
 
-    # linear regression حقيقية
-    A = np.vstack([log_f, np.ones(len(log_f))]).T
-    slope, intercept = np.linalg.lstsq(A, log_psd, rcond=None)[0]
+    # 🔥 robust fit (median slope)
+    slopes = []
+    for i in range(len(log_f) - 5):
+        x = log_f[i:i+5]
+        y = log_psd[i:i+5]
+        A = np.vstack([x, np.ones(len(x))]).T
+        slope, _ = np.linalg.lstsq(A, y, rcond=None)[0]
+        slopes.append(slope)
 
-    alpha = -slope
-    return float(alpha)
+    slope = np.median(slopes)
+
+    return float(-slope)
 
 def block_bootstrap(series, block_size=16, num_boot=100):
     n = len(series)
