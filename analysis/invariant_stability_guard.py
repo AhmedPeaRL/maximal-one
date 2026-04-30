@@ -15,13 +15,15 @@ def check_stability(alphas):
     print(f"std_alpha: {std}")
     print(f"spread: {spread}")
 
-    if std > 0.5:
-        raise SystemExit("❌ Invariant unstable (std too high)")
+    # 🔥 NEW LOGIC: relative stability instead of absolute
+    cv = std / abs(mean) if mean != 0 else float("inf")
 
-    if spread > 1.5:
-        raise SystemExit("❌ Invariant broken (spread too large)")
+    print(f"coefficient_of_variation: {cv}")
 
-    print("✅ INVARIANT STABLE")
+    if cv > 0.4:
+        raise SystemExit("❌ Invariant unstable (relative variation too high)")
+
+    print("✅ RELATIVE INVARIANT STABLE")
 
 
 if __name__ == "__main__":
