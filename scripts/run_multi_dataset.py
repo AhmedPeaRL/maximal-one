@@ -60,8 +60,7 @@ def main():
     try:
         synthetic_vals = []
         for s in [1, 7, 42, 99, 123]:
-            
-        synthetic_vals.append(evaluate(load_synthetic(seed=s, n=1024)))
+            synthetic_vals.append(evaluate(load_synthetic(seed=s, n=1024)))
 
         results["synthetic"]["ensemble_mean"] = float(np.mean(synthetic_vals))
         results["synthetic"]["ensemble_std"] = float(np.std(synthetic_vals))
