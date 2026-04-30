@@ -75,7 +75,7 @@ def main():
         errors["noise"] = str(e)
 
     # ✅ SAFE validation (no blind assumptions)
-    if "white" in results["noise"] and "nsemble_mean" in results["synthetic"]:
+    if "white" in results["noise"] and "ensemble_mean" in results["synthetic"]:
         if abs(results["noise"]["white"] - results["synthetic"]["ensemble_mean"]) < 0.2:
             raise SystemExit("❌ synthetic indistinguishable from noise")
     else:
