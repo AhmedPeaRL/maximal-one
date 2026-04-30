@@ -7,9 +7,13 @@ from analysis.numerical_spectral_verification import estimate_alpha
 
 
 def load_sunspots():
-    df = pd.read_csv("real-data/sunspots_global.csv")
+    base_dir = os.path.dirname(os.path.dirname(__file__))
+    path = os.path.join(base_dir, "real-data", "sunspots_global.csv")
 
-    col = None
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Dataset not found at: {path}")
+
+    df = pd.read_csv(path)
 
     if "Sunspots" in df.columns:
         col = "Sunspots"
@@ -87,11 +91,11 @@ def main():
     if "sunspots" in results["real"] and "ar1" in results["synthetic"]:
         invariant = (
             abs(results["real"]["sunspots"] - results["synthetic"]["ar1"]) < 0.4
-            if "sunspots" in results and "synthetic" in results
+            if "sunspots" in results["real"] and "ar1" in results["synthetic"]:
             else None
         )
 
-    if "sunspots" in results and "noise" in results:
+    if "sunspots" in results["real"] and "white" in results["noise"]:
         distinguishable = abs(results["real"]["sunspots"] - results["noise"]["white"]) > 0.3
 
     report = {
