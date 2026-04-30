@@ -119,8 +119,8 @@ def main():
     if distinguishable is False:
         raise SystemExit("❌ not distinguishable from noise")
 
-    if "sunspots" not in results:
-        raise SystemExit("❌ sunspots dataset failed to load")
+    if "sunspots" in errors:
+        raise SystemExit(f"❌ sunspots failed: {errors['sunspots']}")
 
     print("✅ MULTI-DATASET CLAIM HOLDS")
 
