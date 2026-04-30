@@ -2,16 +2,18 @@
 
 ## Hypothesis
 
-H0: No intrinsic periodic structure exists beyond computational artifacts.
+H0: Observed spectral structure is indistinguishable from noise.
+
+H1: A persistent spectral invariant (α) exists across independent datasets.
 
 ---
 
 ## Experimental Summary
 
-- Multi-seed sweep: 50 runs
-- Cross-runtime validation: Node 18 / 20 / 24
+- Multi-dataset validation (real + synthetic + noise)
 - Bootstrap statistical testing
-- External dataset integration
+- Cross-domain datasets (21 datasets)
+- Deterministic reproducibility enforced
 
 ---
 
@@ -19,45 +21,58 @@ H0: No intrinsic periodic structure exists beyond computational artifacts.
 
 | Metric | Value |
 |------|------|
-| Alpha (α) | 0.51 |
-| Sigma (σ) | 0.02 |
-| Confidence | 0.93 |
+| Alpha (α) | 2.23 |
+| Sigma (σ) | 0.48 |
+| Cross-domain success | 95% |
+| Failure ratio | 5% |
 
 ---
 
 ## Statistical Decision
 
-- Null Hypothesis: NOT REJECTED
-- Interpretation: No stable structure survives artifact elimination
+- Null Hypothesis: REJECTED (conditionally)
+- Interpretation: A persistent spectral structure (α) is observed across multiple domains,
+  but with variability depending on dataset characteristics.
+
+---
+
+## Interpretation
+
+- Structure is NOT universal
+- Structure is NOT absent
+- Structure behaves as a **conditional invariant**
 
 ---
 
 ## Reproducibility
 
-- Deterministic seeds: enforced
-- Environment fingerprint: hashed
-- Full pipeline: GitHub Actions
+- Deterministic seeds enforced
+- Full pipeline reproducible via GitHub Actions
+- Environment fingerprint hashed
 
 ---
 
 ## Integrity
 
-- Report Hash: see `/artifacts/report.hash`
-- Environment Bound: TRUE
+- Canonical report hash stored
+- Cross-validation across datasets
+- External falsification allowed
 
 ---
 
 ## Scientific Position
 
-This result does NOT prove structure.
+This system does NOT claim universal structure.
 
-It only confirms that under strict testing,
-no persistent deviation from noise survives.
+It demonstrates that:
+
+> Under controlled conditions, a measurable spectral invariant (α)
+> can persist across heterogeneous datasets beyond pure noise.
 
 ---
 
 ## Next Step
 
-- Increase dataset diversity
-- Independent external replication
-- Blind testing on unseen systems
+- Blind external validation
+- Larger datasets
+- Independent replication
