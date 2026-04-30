@@ -35,16 +35,6 @@ def load_noise(n=1024):
 def evaluate(series):
     return float(estimate_alpha(series))
 
-def domain_std(d):
-    import numpy as np
-    vals = list(d.values())
-    return np.std(vals) if len(vals) > 1 else 0
-
-domain_stats = {
-    k: domain_std(v) for k, v in results.items()
-}
-
-
 def main():
     os.makedirs("artifacts", exist_ok=True)
 
@@ -75,7 +65,7 @@ def main():
         errors["noise"] = str(e)
 
     if "noise" in results and "synthetic" in results:
-        if abs(results["noise"] ["white"] - results["synthetic"]["ar1"]) < 0.2:
+        if abs(results["noise"]["white"] - results["synthetic"]["ar1"]) < 0.2:
             raise SystemExit("❌ synthetic indistinguishable from noise")
 
     # 🔥 validation logic
@@ -90,16 +80,25 @@ def main():
         )
 
     if "sunspots" in results and "noise" in results:
-        distinguishable = abs(results["real"]["sunspots"] - results["noise"] ["white"]) > 0.3
-    
+        distinguishable = abs(results["real"]["sunspots"] - results["noise"]["white"]) > 0.3
+
+    def domain_std(d):
+        import numpy as np
+        vals = list(d.values())
+        return np.std(vals) if len(vals) > 1 else 0
+
+    domain_stats = {
+        k: domain_std(v) for k, v in results.items()
+    }
+
     report = {
         "alphas": results,
         "errors": errors,
-        "domain_stats": domain_stats,
         "checks": {
             "invariant_structure": invariant,
             "not_noise": distinguishable
-        }
+        },
+        "domain_stats": domain_stats,
     }
 
     with open("artifacts/multi_report.json", "w") as f:
