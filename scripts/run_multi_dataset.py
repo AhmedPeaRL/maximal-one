@@ -58,7 +58,14 @@ def main():
 
     # synthetic structured
     try:
-        results["synthetic"]["ar1"] = evaluate(load_synthetic(seed=42, n=1024))
+        synthetic_vals = []
+        for s in [1, 7, 42, 99, 123]:
+            
+        synthetic_vals.append(evaluate(load_synthetic(seed=s, n=1024)))
+
+        results["synthetic"]["ensemble_mean"] = float(np.mean(synthetic_vals))
+        results["synthetic"]["ensemble_std"] = float(np.std(synthetic_vals))
+        
     except Exception as e:
         errors["synthetic"] = str(e)
 
@@ -84,8 +91,33 @@ def main():
         k: domain_std(v) for k, v in results.items()
     }
         
-    # 🔥 validation logic
+    # 🔥 NEW INVARIANT LOGIC (distribution-based)
+
+    def is_within_family(a, ref_mean, ref_std, k=2.0):
+        return abs(a - ref_mean) < k * ref_std
+
     invariant = None
+
+    if (
+        "sunspots" in results["real"] and
+        "ar1" in results["synthetic"] and
+        "white" in results["noise"]
+    ):
+        ref_values = [
+            results["synthetic"]["ar1"],
+            results["noise"]["white"]
+        ]
+
+        ref_mean = np.mean(ref_values)
+        ref_std = np.std(ref_values) + 1e-8
+
+        invariant = is_within_family(
+            results["real"]["sunspots"],
+            ref_mean,
+            ref_std,
+            k=3.0
+        )
+    
     distinguishable = None
 
     if "sunspots" in results["real"] and "ar1" in results["synthetic"]:
