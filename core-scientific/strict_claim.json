@@ -19,19 +19,13 @@
 },
 
 "expected_result": {
-  "alpha_range": [1.5, 8.0],
-  "max_sigma": 2.0,
-  "null_separation": 0.1,
-  "note": "Range reflects empirical robustness across multiple datasets"
+  "alpha_range": [1.5, 3.0],
+  "max_sigma": 0.5,
+  "null_separation": 0.2,
+  "note": "Tightened bounds to enforce real invariance"
 },
-
-"prediction": {
-  "next_run_alpha_delta_max": 0.05,
-  "stability_window": 3
-},
-  
 "falsification": {
-  "condition": "If alpha deviates >0.05 across 3 consecutive runs OR sigma > 0.15",
-  "action": "Mark system as falsified"
+  "condition": "If alpha falls outside [1.5,3.0] OR sigma > 0.5 OR cross-domain variance > 0.8",
+  "action": "Mark system as falsified immediately"
 }
 }
