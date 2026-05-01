@@ -89,8 +89,16 @@ emergence_tolerance = 0.15  # allow controlled deviation
 
 score = 0.0
 score += real_pass_ratio * 0.5
-import random
-external_noise = random.uniform(-0.05, 0.05)
+
+# 🔒 deterministic noise (reproducible)
+import hashlib
+
+def deterministic_noise(seed_str="global_verdict"):
+    h = hashlib.sha256(seed_str.encode()).hexdigest()
+    val = int(h[:8], 16) / 0xffffffff
+    return (val - 0.5) * 0.1  # range [-0.05, 0.05]
+
+external_noise = deterministic_noise()
 score += structure_bonus + external_noise
 
 if universality_passed:
