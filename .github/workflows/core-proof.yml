@@ -95,5 +95,9 @@ jobs:
         run: |
           python analysis/invariant_stability_guard.py
 
+      - name: Band robustness test
+        run: |
+          python analysis/band_robustness_test.py
+
       - name: Hash report
         run: sha256sum artifacts/canonical_report.json
