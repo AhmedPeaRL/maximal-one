@@ -5,7 +5,6 @@ concurrency:
   cancel-in-progress: false
 
 on:
-  push:
   workflow_dispatch:
   repository_dispatch:
     types: [external_witness, external_dispatch, external_reproduction]
