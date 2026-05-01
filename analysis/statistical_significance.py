@@ -13,7 +13,7 @@ def monte_carlo_p_value(series, observed_alpha, trials=200):
 
     null_alphas = np.array(null_alphas)
 
-    p_value = np.mean(null_alphas >= observed_alpha)
+    p_value = np.mean(np.abs(null_alphas - np.mean(null_alphas)) >= abs(observed_alpha - np.mean(null_alphas)))
 
     return {
         "observed_alpha": float(observed_alpha),
