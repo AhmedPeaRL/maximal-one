@@ -68,6 +68,10 @@ jobs:
       - name: Cross-domain validation
         run: |
           python analysis/cross_domain_validator.py
+          
+      - name: Null Gap Test
+        run: |
+          python analysis/null_gap_test.py
 
       - name: Extract alpha (fixed)
         run: |
