@@ -50,6 +50,13 @@ jobs:
         run: |
           python scripts/generate_report.py --seed 42 --canonical
 
+      - name: Reproducibility stamp
+        run: |
+          python - <<'PY'
+          from analysis.reproducibility_stamp import attach_stamp
+          print("STAMP:", attach_stamp("artifacts/canonical_report.json"))
+          PY
+
       - name: Independent validation
         run: |
           python - <<'PY'
