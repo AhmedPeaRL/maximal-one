@@ -50,6 +50,18 @@ jobs:
         run: |
           python scripts/generate_report.py --seed 42 --canonical
 
+      - name: Independent validation
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          from analysis.independent_validation import compare_methods
+
+          df = pd.read_csv("real-data/sunspots_global.csv")
+          col = "Sunspots" if "Sunspots" in df.columns else "value"
+
+          compare_methods(df[col].values)
+          PY
+
       - name: Cross-domain validation
         run: |
           python analysis/cross_domain_validator.py
