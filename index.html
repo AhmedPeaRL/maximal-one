@@ -695,7 +695,7 @@
 
   document.getElementById("execute-trade").addEventListener("click", async () => {
     try {
-      const res = await fetch('./public/market_decision.json');
+      const res = await fetch('./public/paper_trade_simulation.json');
       const decision = await res.json();
 
       const result = await executeThndrBridge(decision);
