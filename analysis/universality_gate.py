@@ -1,3 +1,4 @@
+import numpy as np
 import json
 import os
 
@@ -25,7 +26,10 @@ if len(components) == 0:
 
 score = sum(components)
 
-threshold = 0.55
+# 🔥 non-linear enforcement
+score = 1 / (1 + np.exp(-5 * (score - 0.5)))
+
+threshold = 0.6
 
 result = {
     "score": score,
