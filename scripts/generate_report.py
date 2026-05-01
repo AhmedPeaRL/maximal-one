@@ -95,6 +95,13 @@ def main():
 
         boot = block_bootstrap(series)
 
+        from analysis.statistical_significance import monte_carlo_p_value
+
+        stats = monte_carlo_p_value(series, alpha)
+
+        if stats["p_value"] > 0.05:
+            raise SystemExit("❌ Not statistically significant")
+
         report = {
             "spectral_profile": {
                 "estimated_alpha": stable_float(alpha),
@@ -108,7 +115,8 @@ def main():
             "metadata": {
                 "seed": args.seed,
                 "generator": generator_type
-            }
+            },
+            "statistical_test": stats
         }
 
         if abs(falsification["original_alpha"] - falsification["shuffled_alpha"]) < 0.2:
