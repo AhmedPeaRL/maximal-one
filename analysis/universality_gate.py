@@ -1,5 +1,4 @@
 import json
-import numpy as np
 import os
 
 OUTPUT = "artifacts/universality_gate.json"
@@ -10,33 +9,33 @@ def safe_load(path):
     with open(path) as f:
         return json.load(f)
 
-# تحميل نتائج أساسية
 inv = safe_load("artifacts/universal_invariant_test.json")
 signal = safe_load("artifacts/global_signal.json")
 
-score = 0.0
+components = []
 
-# invariant contribution
 if inv and "score" in inv:
-    score += float(inv["score"]) * 0.6
+    components.append(0.6 * float(inv["score"]))
 
-# signal contribution
 if signal and "strength" in signal:
-    score += float(signal["strength"]) * 0.4
+    components.append(0.4 * float(signal["strength"]))
 
-# fallback heuristic
-if score == 0:
-    score = np.random.uniform(0.1, 0.3)
+if len(components) == 0:
+    raise SystemExit("❌ No valid inputs for universality gate")
+
+score = sum(components)
 
 threshold = 0.55
 
 result = {
     "score": score,
     "threshold": threshold,
-    "passed": score > threshold
+    "passed": score > threshold,
+    "components": components
 }
 
 os.makedirs("artifacts", exist_ok=True)
+
 with open(OUTPUT, "w") as f:
     json.dump(result, f, indent=2)
 
