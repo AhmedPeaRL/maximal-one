@@ -69,6 +69,23 @@ jobs:
           compare_methods(df[col].values)
           PY
 
+      - name: Predictive validation
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          from analysis.predictive_validation import evaluate_prediction
+
+          df = pd.read_csv("real-data/sunspots_global.csv")
+          col = "Sunspots" if "Sunspots" in df.columns else "value"
+
+          res = evaluate_prediction(df[col].values)
+
+          if not res["valid"]:
+              raise SystemExit("❌ Prediction failed")
+
+          print("✅ Prediction:", res)
+          PY
+
       - name: Adversarial stress test
         run: python analysis/adversarial_external_test.py
 
