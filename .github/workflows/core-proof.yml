@@ -62,6 +62,9 @@ jobs:
           compare_methods(df[col].values)
           PY
 
+      - name: Adversarial stress test
+        run: python analysis/adversarial_external_test.py
+
       - name: Cross-domain validation
         run: |
           python analysis/cross_domain_validator.py
