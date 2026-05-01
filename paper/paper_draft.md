@@ -12,7 +12,7 @@ This paper introduces a reproducible computational framework designed to test th
 
 Unlike conventional approaches that assume or search for emergent intelligence, the proposed system adopts a strict falsification paradigm. It systematically applies spectral analysis, statistical testing, adversarial validation, and cross-environment reproducibility checks to determine whether any observed structure survives artifact elimination.
 
-Results from multi-seed experiments and large-scale statistical testing indicate persistent spectral deviations under controlled conditions. However, the framework maintains a non-ontological stance, interpreting findings strictly as measurable statistical phenomena rather than evidence of intrinsic intelligence or metaphysical structure.
+Results from multi-seed experiments and large-scale statistical testing indicate band-dependent spectral behavior under constrained estimation procedures. However, the framework maintains a non-ontological stance, interpreting findings strictly as measurable statistical phenomena rather than evidence of intrinsic intelligence or metaphysical structure.
 
 The work establishes a new methodological direction: treating computational environments as testable substrates for structural emergence under rigorous scientific constraints.
 
