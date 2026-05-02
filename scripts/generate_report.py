@@ -104,6 +104,8 @@ def main():
         if stats["p_value"] > 0.05:
             raise SystemExit("❌ Not statistically significant")
 
+        alpha_noise = float(np.mean(noise_samples))
+
         report = {
             "spectral_profile": {
                 "estimated_alpha": stable_float(alpha),
