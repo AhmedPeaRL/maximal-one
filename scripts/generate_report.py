@@ -18,25 +18,6 @@ def generate_series(seed, n=1024):
     return x
 
 
-def bootstrap_alpha(series, num_boot=100):
-    n = len(series)
-    alphas = []
-
-    for _ in range(num_boot):
-        idx = np.random.randint(0, n, n)
-        sample = series[idx]
-        alphas.append(estimate_alpha(sample))
-
-    alphas = np.array(alphas)
-
-    return {
-        "mean": float(np.mean(alphas)),
-        "std": float(np.std(alphas)),
-        "ci_low": float(np.percentile(alphas, 2.5)),
-        "ci_high": float(np.percentile(alphas, 97.5))
-    }
-
-
 def stable_float(x, digits=10):
     return float(round(x, digits))
 
