@@ -39,15 +39,24 @@ def estimate_alpha(series):
         slope, _ = np.linalg.lstsq(A, y, rcond=None)[0]
         slopes.append(slope)
 
+    slopes = np.array(slopes)
+    slopes = slopes[np.isfinite(slopes)]
+
     if len(slopes) < 5:
         return np.nan
 
     slope = np.median(slopes)
 
-    if slope > 0:
-        return np.nan  # prevent non-physical positive slope
+    if not np.isfinite(slope) or slope > 0:
+        return np.nan
 
-    return float(-slope)
+    alpha = float(-slope)
+
+    # 🔥 clamp physically plausible range
+    if alpha < 0 or alpha > 5:
+        return np.nan
+
+    return alpha
 
 def block_bootstrap(series, block_size=16, num_boot=100):
     n = len(series)
@@ -64,10 +73,12 @@ def block_bootstrap(series, block_size=16, num_boot=100):
         alphas.append(estimate_alpha(sample))
 
     alphas = np.array(alphas)
+    alphas = alphas[np.isfinite(alphas)]
 
-    return {
-        "mean": float(np.mean(alphas)),
-        "std": float(np.std(alphas)),
-        "ci_low": float(np.percentile(alphas, 2.5)),
-        "ci_high": float(np.percentile(alphas, 97.5))
-    }
+    if len(alphas) < 10:
+        return {
+            "mean": np.nan,
+            "std": np.nan,
+            "ci_low": np.nan,
+            "ci_high": np.nan
+        }
