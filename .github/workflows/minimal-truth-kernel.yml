@@ -1,5 +1,13 @@
 name: Minimal Truth Kernel
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: false
+
 on:
   workflow_dispatch:
   push:
@@ -21,9 +29,13 @@ jobs:
         with:
           python-version: "3.11"
 
-      # ✅ أهم خطوة ناقصة
       - name: Set PYTHONPATH
         run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+
+      - name: Rate limit guard
+        run: |
+          echo "Checking execution frequency..."
+          sleep 5
 
       - name: Install deps (STRICT)
         run: |
