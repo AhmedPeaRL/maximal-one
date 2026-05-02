@@ -52,9 +52,14 @@ def estimate_alpha(series):
 
     alpha = float(-slope)
 
-    # 🔥 clamp physically plausible range
-    if alpha < 0 or alpha > 5:
+    if not np.isfinite(alpha):
         return np.nan
+
+    # بدل kill كامل → soft reject
+    if alpha < 0:
+        return 0.0
+    if alpha > 5:
+        return 5.0
 
     return alpha
 
@@ -77,8 +82,8 @@ def block_bootstrap(series, block_size=16, num_boot=100):
 
     if len(alphas) < 10:
         return {
-            "mean": np.nan,
-            "std": np.nan,
+            "mean": float(np.nanmean(alphas)) if len(alphas) > 0 else np.nan,
+            "std": float(np.nanstd(alphas)) if len(alphas) > 0 else np.nan,
             "ci_low": np.nan,
             "ci_high": np.nan
         }
