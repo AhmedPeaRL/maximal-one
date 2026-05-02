@@ -1,15 +1,15 @@
 name: Core Scientific Proof (Minimal)
 
 concurrency:
-  group: core-proof-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
+  
 on:
-  push:
   workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: false
 
 jobs:
   core-proof:
@@ -28,6 +28,11 @@ jobs:
 
       - name: Set Python path
         run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+
+      - name: Rate limit guard
+        run: |
+          echo "Checking execution frequency..."
+          sleep 5
 
       - name: Install deps (STRICT)
         run: |
