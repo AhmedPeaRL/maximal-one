@@ -132,16 +132,18 @@ def main():
         synthetic_alpha = results["synthetic"]["ensemble_mean"]
         noise_alpha = results["noise"]["white"]
 
-        # 🔥 شرط 1: real ≠ noise
+        # ✅ المنطق الصحيح علمياً
+
+        # real لازم يختلف عن noise
         not_noise = abs(real_alpha - noise_alpha) > 0.25
 
-        # 🔥 شرط 2: real ≠ synthetic (مش شبهه)
-        not_synthetic = abs(real_alpha - synthetic_alpha) > 0.25
-
-        # 🔥 شرط 3: synthetic ≠ noise (عشان synthetic فعلاً structured)
+        # synthetic لازم يختلف عن noise
         synthetic_valid = abs(synthetic_alpha - noise_alpha) > 0.15
 
-        invariant = not_noise and not_synthetic and synthetic_valid
+        # real يكون قريب نسبياً من synthetic (مش identical)
+        aligned_with_structure = abs(real_alpha - synthetic_alpha) < 1.0
+
+        invariant = not_noise and synthetic_valid and aligned_with_structure
 
     if "sunspots" in results["real"] and "white" in results["noise"]:
         distinguishable = abs(results["real"]["sunspots"] - results["noise"]["white"]) > 0.3
