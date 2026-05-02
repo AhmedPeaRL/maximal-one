@@ -18,16 +18,15 @@ def load_sunspots():
 
 def load_synthetic(seed=42, n=1024):
     np.random.seed(seed)
-    
-    # 🔥 upgraded structured signal
+
     x = np.zeros(n)
     noise = np.random.randn(n)
 
-    for i in range(1, n):
-        x[i] = 0.7 * x[i-1] + 0.2 * noise[i]
+    for i in range(2, n):
+        x[i] = 0.6 * x[i-1] - 0.3 * x[i-2] + 0.4 * noise[i]
 
-    # add weak periodicity (realistic)
-    x += 0.1 * np.sin(np.linspace(0, 20, n))
+    # multiplicative chaos
+    x *= (1 + 0.05 * np.random.randn(n))
 
     return x
 
@@ -100,7 +99,7 @@ def main():
         raise SystemExit("❌ real unstable")
 
     # synthetic فقط sanity
-    if results["synthetic"]["std"] > 0.8:
+    if results["synthetic"]["std"] > (0.5 + 0.3 * results["synthetic"]["mean"]):
         raise SystemExit("❌ synthetic chaotic — invalid stress field")
 
     report = {
