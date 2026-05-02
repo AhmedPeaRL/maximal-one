@@ -81,12 +81,14 @@ def main():
             wn = np.random.RandomState(args.seed + 999 + i).randn(len(series))
             noise_samples.append(estimate_alpha(wn))
 
-        alpha_noise = float(np.mean(noise_samples))
         alpha = estimate_alpha(series)
-        
-        if alpha > 5:
-            raise ValueError(f"Unphysical alpha detected: {alpha}")
 
+        if not np.isfinite(alpha):
+            raise SystemExit("❌ alpha invalid (NaN or Inf)")
+
+        if alpha > 5:
+            raise SystemExit(f"❌ Unphysical alpha detected: {alpha}")
+    
         from analysis.falsification_tests import run_falsification
 
         falsification = run_falsification(series)
