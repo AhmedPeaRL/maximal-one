@@ -1,17 +1,10 @@
 name: SOS Robustness Gate
 
 concurrency:
-  group: repo-write-lock
-  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
   
 on:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - 'artifacts/**'
-      - 'reports/**'
-      - 'logs/**'
   workflow_dispatch:
   repository_dispatch:
     types: [external_witness, external_dispatch, external_reproduction]
@@ -30,6 +23,7 @@ env:
   WITNESS_SECRET: ${{ secrets.WITNESS_SECRET }}
   GH_REPO: ${{ secrets.GH_REPO }}
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: false
 
 jobs:
   
