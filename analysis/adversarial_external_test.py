@@ -13,10 +13,14 @@ def generate_adversarial_signal(n=1000):
     return x + noise + fake
 
 
-def is_structured(alpha1, alpha2, tolerance=0.2):
+def is_structured(alpha1, alpha2):
     if not np.isfinite(alpha1) or not np.isfinite(alpha2):
         return False
-    return abs(alpha1 - alpha2) < tolerance
+
+    # 🔥 بدل absolute agreement → relative consistency
+    ratio = abs(alpha1 - alpha2) / (abs(alpha1) + 1e-8)
+
+    return ratio < 0.35
 
 
 def evaluate(series):
