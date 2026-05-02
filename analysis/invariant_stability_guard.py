@@ -5,9 +5,8 @@ def check_stability(alphas):
     alphas = np.array(alphas)
 
     if len(alphas) < 3:
-        raise SystemExit("❌ Not enough alpha values")
+        raise SystemExit(f"❌ Not enough VALID alpha values: {alphas}")
 
-    # نفصل القيم حسب طبيعتها
     real = alphas[0]
     synthetic = alphas[1]
     noise = alphas[2]
@@ -16,7 +15,10 @@ def check_stability(alphas):
     print(f"synthetic: {synthetic}")
     print(f"noise: {noise}")
 
-    # 🔥 العلاقات الأساسية
+    # guard ضد NaN
+    if not (np.isfinite(real) and np.isfinite(synthetic) and np.isfinite(noise)):
+        raise SystemExit("❌ Non-finite values detected after filtering")
+
     cond1 = abs(real - noise) > 0.25
     cond2 = abs(real - synthetic) > 0.25
     cond3 = abs(synthetic - noise) > 0.15
@@ -30,11 +32,13 @@ def check_stability(alphas):
 def extract_alphas(alphas_dict):
     values = []
 
-    for domain in alphas_dict.values():
+    for domain_name, domain in alphas_dict.items():
         if isinstance(domain, dict):
-            for v in domain.values():
-                if isinstance(v, (int, float)):
+            for k, v in domain.items():
+                if isinstance(v, (int, float)) and np.isfinite(v):
                     values.append(v)
+                else:
+                    print(f"⚠️ skipped invalid alpha in {domain_name}:{k} -> {v}")
 
     return values
 
