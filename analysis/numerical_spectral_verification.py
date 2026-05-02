@@ -25,7 +25,7 @@ def estimate_alpha(series):
     if len(freqs) < 10:
         return np.nan
 
-    psd = uniform_filter1d(psd, size=7)
+    psd = uniform_filter1d(psd, size=3)
 
     log_f = np.log(freqs)
     log_psd = np.log(psd + 1e-10)
