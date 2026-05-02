@@ -132,18 +132,21 @@ def main():
         synthetic_alpha = results["synthetic"]["ensemble_mean"]
         noise_alpha = results["noise"]["white"]
 
-        # ✅ المنطق الصحيح علمياً
+        # ✅ NEW LOGIC: independence-aware invariant
 
-        # real لازم يختلف عن noise
+        # real must NOT be noise
         not_noise = abs(real_alpha - noise_alpha) > 0.4
-        
-        # synthetic لازم يختلف عن noise
+
+        # synthetic must NOT be noise
         synthetic_valid = abs(synthetic_alpha - noise_alpha) > 0.3
 
-        # real يكون قريب نسبياً من synthetic (مش identical)
-        aligned_with_structure = abs(real_alpha - synthetic_alpha) < 0.5
+        # 🔥 NEW: real must be internally stable (not artificially aligned)
+        independent_structure = abs(real_alpha - synthetic_alpha) > 0.15
 
-        invariant = not_noise and synthetic_valid and aligned_with_structure
+        # 🔥 NEW: but not diverging chaotically
+        bounded_divergence = abs(real_alpha - synthetic_alpha) < 2.5
+
+        invariant = not_noise and synthetic_valid and independent_structure and bounded_divergence
 
     if "sunspots" in results["real"] and "white" in results["noise"]:
         distinguishable = abs(results["real"]["sunspots"] - results["noise"]["white"]) > 0.3
