@@ -93,9 +93,6 @@ def main():
     def is_within_family(a, ref_mean, ref_std, k=2.0):
         return abs(a - ref_mean) < k * ref_std
 
-    def validate_alpha(a):
-        return isinstance(a, float) and np.isfinite(a) and (0.5 <= a <= 5.0)
-
     ref_values = [
         results["synthetic"]["ensemble_mean"],
         results["noise"]["white"]
@@ -110,6 +107,9 @@ def main():
         ref_std,
         k=3.0
     )
+
+    def validate_alpha(a):
+        return isinstance(a, float) and np.isfinite(a) and (0.5 <= a <= 5.0)
         
     # 🔥 CORRECT INVARIANT LOGIC (HCM-aligned)
 
