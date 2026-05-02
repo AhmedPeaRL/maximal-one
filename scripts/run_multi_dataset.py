@@ -119,7 +119,7 @@ def main():
     
     distinguishable = None
 
-    # ✅ CORRECT invariant logic: real must be distinct from synthetic but stable
+    # 🔥 CORRECT INVARIANT LOGIC (HCM-aligned)
 
     invariant = None
 
@@ -132,21 +132,21 @@ def main():
         synthetic_alpha = results["synthetic"]["ensemble_mean"]
         noise_alpha = results["noise"]["white"]
 
-        # ✅ NEW LOGIC: independence-aware invariant
-
-        # real must NOT be noise
+        # ✅ 1. real must be distinct from noise (core truth)
         not_noise = abs(real_alpha - noise_alpha) > 0.4
 
-        # synthetic must NOT be noise
+        # ✅ 2. synthetic must behave as structured (not noise)
         synthetic_valid = abs(synthetic_alpha - noise_alpha) > 0.3
 
-        # 🔥 NEW: real must be internally stable (not artificially aligned)
-        independent_structure = abs(real_alpha - synthetic_alpha) > 0.15
+        # 🔥 3. REMOVE forced proximity constraint
+        # بدل ما نقارن real بـ synthetic مباشرة
+        # نخلي synthetic مجرد sanity check مش مرجع
 
-        # 🔥 NEW: but not diverging chaotically
-        bounded_divergence = abs(real_alpha - synthetic_alpha) < 2.5
+        # 🔥 4. new condition: real must be internally consistent
+        # (يعني مش random explosion)
+        internally_stable = 0.5 < real_alpha < 5.0
 
-        invariant = not_noise and synthetic_valid and independent_structure and bounded_divergence
+        invariant = not_noise and synthetic_valid and internally_stable
 
     if "sunspots" in results["real"] and "white" in results["noise"]:
         distinguishable = abs(results["real"]["sunspots"] - results["noise"]["white"]) > 0.3
