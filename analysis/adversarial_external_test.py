@@ -9,6 +9,15 @@ def generate_adversarial_signal(n=1000):
     fake = np.sin(np.linspace(0, 20, n)) * 0.2
     return x + noise + fake
 
+def is_structured(alpha1, alpha2, tolerance=0.15):
+    return abs(alpha1 - alpha2) < tolerance
+
+real_ok = is_structured(real_fft, real_welch)
+adv_ok = is_structured(adv_fft, adv_welch)
+
+if adv_ok:
+    raise SystemExit("❌ adversarial mimics structure — rejected")
+
 def run_test():
     real = pd.read_csv("real-data/sunspots_global.csv")
     col = "Sunspots" if "Sunspots" in real.columns else "value"
