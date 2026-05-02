@@ -135,13 +135,13 @@ def main():
         # ✅ المنطق الصحيح علمياً
 
         # real لازم يختلف عن noise
-        not_noise = abs(real_alpha - noise_alpha) > 0.25
-
+        not_noise = abs(real_alpha - noise_alpha) > 0.4
+        
         # synthetic لازم يختلف عن noise
-        synthetic_valid = abs(synthetic_alpha - noise_alpha) > 0.15
+        synthetic_valid = abs(synthetic_alpha - noise_alpha) > 0.3
 
         # real يكون قريب نسبياً من synthetic (مش identical)
-        aligned_with_structure = abs(real_alpha - synthetic_alpha) < 1.0
+        aligned_with_structure = abs(real_alpha - synthetic_alpha) < 0.5
 
         invariant = not_noise and synthetic_valid and aligned_with_structure
 
@@ -162,6 +162,9 @@ def main():
         json.dump(report, f, indent=2)
 
     print("Multi-dataset report generated")
+
+    if results["synthetic"]["ensemble_std"] > 0.5:
+        raise SystemExit("❌ synthetic unstable — invalid reference")
 
     if invariant is False:
         raise SystemExit("❌ invariant structure weak — unacceptable for proof")
