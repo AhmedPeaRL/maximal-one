@@ -60,7 +60,9 @@ def main():
     try:
         synthetic_vals = []
         for s in [1, 7, 42, 99, 123]:
-            synthetic_vals.append(evaluate(load_synthetic(seed=s, n=1024)))
+            val = evaluate(load_synthetic(seed=s, n=1024))
+            if np.isfinite(val):
+                synthetic_vals.append(val)
 
         results["synthetic"]["ensemble_mean"] = float(np.mean(synthetic_vals))
         results["synthetic"]["ensemble_std"] = float(np.std(synthetic_vals))
@@ -166,6 +168,9 @@ def main():
 
     if results["synthetic"]["ensemble_std"] > 0.5:
         raise SystemExit("❌ synthetic unstable — invalid reference")
+
+    if len(synthetic_vals) < 3:
+        raise SystemExit("❌ synthetic unstable — too many NaNs")
 
     if invariant is False:
         raise SystemExit("❌ invariant structure weak — unacceptable for proof")
