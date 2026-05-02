@@ -82,3 +82,10 @@ def block_bootstrap(series, block_size=16, num_boot=100):
             "ci_low": np.nan,
             "ci_high": np.nan
         }
+
+    return {
+        "mean": float(np.mean(alphas)),
+        "std": float(np.std(alphas)),
+        "ci_low": float(np.percentile(alphas, 2.5)),
+        "ci_high": float(np.percentile(alphas, 97.5))
+        }
