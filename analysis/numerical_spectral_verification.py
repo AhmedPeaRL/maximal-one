@@ -57,9 +57,9 @@ def estimate_alpha(series):
 
     # بدل kill كامل → soft reject
     if alpha < 0:
-        return 0.0
+        return np.nan
     if alpha > 5:
-        return 5.0
+        return np.nan
 
     return alpha
 
