@@ -95,6 +95,8 @@ def main():
     def is_within_family(a, ref_mean, ref_std, k=2.0):
         return abs(a - ref_mean) < k * ref_std
 
+    # 🔥 CORRECT INVARIANT LOGIC (HCM-aligned)
+
     invariant = None
 
     if (
@@ -102,6 +104,9 @@ def main():
         "ensemble_mean" in results["synthetic"] and
         "white" in results["noise"]
     ):
+        real_alpha = results["real"]["sunspots"]
+        synthetic_alpha = results["synthetic"]["ensemble_mean"]
+        noise_alpha = results["noise"]["white"]
         ref_values = [
             results["synthetic"]["ensemble_mean"],
             results["noise"]["white"]
@@ -118,19 +123,6 @@ def main():
         )
     
     distinguishable = None
-
-    # 🔥 CORRECT INVARIANT LOGIC (HCM-aligned)
-
-    invariant = None
-
-    if (
-        "sunspots" in results["real"] and
-        "ensemble_mean" in results["synthetic"] and
-        "white" in results["noise"]
-    ):
-        real_alpha = results["real"]["sunspots"]
-        synthetic_alpha = results["synthetic"]["ensemble_mean"]
-        noise_alpha = results["noise"]["white"]
 
         # ✅ 1. real must be distinct from noise (core truth)
         not_noise = abs(real_alpha - noise_alpha) > 0.4
