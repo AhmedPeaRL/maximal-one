@@ -121,9 +121,7 @@ def main():
             ref_std,
             k=3.0
         )
-    
-    distinguishable = None
-
+        
         # ✅ 1. real must be distinct from noise (core truth)
         not_noise = abs(real_alpha - noise_alpha) > 0.4
 
@@ -139,6 +137,8 @@ def main():
         internally_stable = 0.5 < real_alpha < 5.0
 
         invariant = not_noise and synthetic_valid and internally_stable
+  
+    distinguishable = None
 
     if "sunspots" in results["real"] and "white" in results["noise"]:
         distinguishable = abs(results["real"]["sunspots"] - results["noise"]["white"]) > 0.3
