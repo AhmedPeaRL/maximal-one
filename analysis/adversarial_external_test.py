@@ -18,7 +18,17 @@ def run_test():
 
     print("\n=== ADVERSARIAL DATA ===")
     adv = generate_adversarial_signal()
-    compare_methods(adv)
+    
+    try:
+        if abs(a1 - a2) > 0.5:
+            return "unstable/adversarial"
+        else:
+            return "valid structure"
+            
+        compare_methods(adv)
+        print("⚠️ WARNING: adversarial passed (unexpected)")
+    except SystemExit:
+        print("✅ adversarial correctly rejected (robust)")
 
 if __name__ == "__main__":
     run_test()
