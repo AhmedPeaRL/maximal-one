@@ -89,6 +89,24 @@ def main():
     domain_stats = {
         k: domain_std(v) for k, v in results.items()
     }
+
+    def is_within_family(a, ref_mean, ref_std, k=2.0):
+        return abs(a - ref_mean) < k * ref_std
+
+    ref_values = [
+        results["synthetic"]["ensemble_mean"],
+        results["noise"]["white"]
+    ]
+
+    ref_mean = np.mean(ref_values)
+    ref_std = np.std(ref_values) + 1e-8
+
+    invariant = is_within_family(
+        results["real"]["sunspots"],
+        ref_mean,
+        ref_std,
+        k=3.0
+    )
         
     # 🔥 CORRECT INVARIANT LOGIC (HCM-aligned)
 
