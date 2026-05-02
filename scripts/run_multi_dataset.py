@@ -107,20 +107,6 @@ def main():
         real_alpha = results["real"]["sunspots"]
         synthetic_alpha = results["synthetic"]["ensemble_mean"]
         noise_alpha = results["noise"]["white"]
-        ref_values = [
-            results["synthetic"]["ensemble_mean"],
-            results["noise"]["white"]
-        ]
-
-        ref_mean = np.mean(ref_values)
-        ref_std = np.std(ref_values) + 1e-8
-
-        invariant = is_within_family(
-            results["real"]["sunspots"],
-            ref_mean,
-            ref_std,
-            k=3.0
-        )
         
         # ✅ 1. real must be distinct from noise (core truth)
         not_noise = abs(real_alpha - noise_alpha) > 0.4
