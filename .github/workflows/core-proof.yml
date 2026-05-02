@@ -1,5 +1,9 @@
 name: Core Scientific Proof (Minimal)
 
+concurrency:
+  group: core-proof-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
   workflow_dispatch:
