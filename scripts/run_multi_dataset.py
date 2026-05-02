@@ -90,11 +90,6 @@ def main():
         k: domain_std(v) for k, v in results.items()
     }
         
-    # 🔥 NEW INVARIANT LOGIC (distribution-based)
-
-    def is_within_family(a, ref_mean, ref_std, k=2.0):
-        return abs(a - ref_mean) < k * ref_std
-
     # 🔥 CORRECT INVARIANT LOGIC (HCM-aligned)
 
     invariant = None
