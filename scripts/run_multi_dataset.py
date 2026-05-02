@@ -33,7 +33,11 @@ def load_synthetic(seed=42, n=1024):
 
 
 def load_noise(n=1024):
-    return np.random.randn(n)
+    # 🔥 harder null model (structured noise)
+    x = np.random.randn(n)
+    x = np.cumsum(x)  # random walk
+    x += 0.3 * np.sin(np.linspace(0, 10, n))
+    return x
 
 
 def evaluate(series):
@@ -85,7 +89,7 @@ def main():
 
     # === CORE VALIDATION ===
 
-    not_noise = abs(real_alpha - noise_alpha) > 0.4
+    not_noise = abs(real_alpha - noise_alpha) > 0.8
 
     internally_stable = (0.5 < real_alpha < 5.0)
 
