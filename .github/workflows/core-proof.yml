@@ -127,6 +127,9 @@ jobs:
           print("sigma:", sigma)
 
           # STRICT VALIDATION
+          if not np.isfinite(sigma):
+              raise SystemExit("❌ sigma is NaN")
+              
           if not (expected_min <= alpha <= expected_max):
               raise SystemExit("❌ alpha خارج النطاق المتوقع")
 
