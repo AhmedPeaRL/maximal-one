@@ -39,7 +39,13 @@ def estimate_alpha(series):
         slope, _ = np.linalg.lstsq(A, y, rcond=None)[0]
         slopes.append(slope)
 
+    if len(slopes) < 5:
+        return np.nan
+
     slope = np.median(slopes)
+
+    if slope > 0:
+        return np.nan  # prevent non-physical positive slope
 
     return float(-slope)
 
