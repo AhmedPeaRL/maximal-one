@@ -3,8 +3,15 @@ name: SOS Robustness Gate
 concurrency:
   group: repo-write-lock
   cancel-in-progress: false
-
+  
 on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'artifacts/**'
+      - 'reports/**'
+      - 'logs/**'
   workflow_dispatch:
   repository_dispatch:
     types: [external_witness, external_dispatch, external_reproduction]
