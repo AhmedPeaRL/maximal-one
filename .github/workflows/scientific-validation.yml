@@ -1,8 +1,8 @@
 name: SOS Robustness Gate
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: repo-write-lock
+  cancel-in-progress: false
   
 on:
   workflow_dispatch:
