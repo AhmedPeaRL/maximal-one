@@ -29,16 +29,19 @@ def check_stability(alphas):
     print("✅ RELATIONAL INVARIANT HOLDS")
 
 
-def extract_alphas(alphas_dict):
-    values = []
+def extract_structured_alphas(alphas_dict):
+    try:
+        real = alphas_dict["real"]["sunspots"]
+        synthetic = alphas_dict["synthetic"]["ensemble_mean"]
+        noise = alphas_dict["noise"]["white"]
+    except KeyError as e:
+        raise SystemExit(f"❌ Missing required alpha key: {e}")
 
-    for domain_name, domain in alphas_dict.items():
-        if isinstance(domain, dict):
-            for k, v in domain.items():
-                if isinstance(v, (int, float)) and np.isfinite(v):
-                    values.append(v)
-                else:
-                    print(f"⚠️ skipped invalid alpha in {domain_name}:{k} -> {v}")
+    values = [real, synthetic, noise]
+
+    for name, v in zip(["real", "synthetic", "noise"], values):
+        if not isinstance(v, (int, float)) or not np.isfinite(v):
+            raise SystemExit(f"❌ Invalid {name} alpha: {v}")
 
     return values
 
@@ -52,7 +55,7 @@ if __name__ == "__main__":
     alphas_dict = data["alphas"]
 
     # ✅ FIX الحقيقي
-    alphas = extract_alphas(alphas_dict)
+    alphas = extract_structured_alphas(alphas_dict)
 
     print(f"extracted_alphas: {alphas}")
 
