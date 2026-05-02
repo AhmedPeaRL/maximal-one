@@ -157,6 +157,10 @@ def main():
 
     print("Multi-dataset report generated")
 
+    if not np.isfinite(alpha):
+        print(f"⚠️ Dropping invalid alpha for {dataset_name}")
+        continue
+
     if results["synthetic"]["ensemble_std"] > 0.5:
         raise SystemExit("❌ synthetic unstable — invalid reference")
 
