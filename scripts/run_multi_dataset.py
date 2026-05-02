@@ -93,6 +93,9 @@ def main():
     def is_within_family(a, ref_mean, ref_std, k=2.0):
         return abs(a - ref_mean) < k * ref_std
 
+    def validate_alpha(a):
+        return isinstance(a, float) and np.isfinite(a) and (0.5 <= a <= 5.0)
+
     ref_values = [
         results["synthetic"]["ensemble_mean"],
         results["noise"]["white"]
@@ -118,6 +121,10 @@ def main():
         "white" in results["noise"]
     ):
         real_alpha = results["real"]["sunspots"]
+        
+        if not validate_alpha(real_alpha):
+            raise SystemExit(f"❌ invalid real alpha: {real_alpha}")
+    
         synthetic_alpha = results["synthetic"]["ensemble_mean"]
         noise_alpha = results["noise"]["white"]
         
