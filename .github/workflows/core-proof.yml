@@ -79,6 +79,9 @@ jobs:
           compare_methods(df[col].values)
           PY
 
+      - name: Adversarial stress test
+        run: python analysis/adversarial_external_test.py
+
       - name: Predictive validation
         run: |
           python - <<'PY'
@@ -95,9 +98,6 @@ jobs:
 
           print("✅ Prediction:", res)
           PY
-
-      - name: Adversarial stress test
-        run: python analysis/adversarial_external_test.py
 
       - name: Cross-domain validation
         run: |
