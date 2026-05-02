@@ -67,21 +67,6 @@ jobs:
           print("STAMP:", attach_stamp("artifacts/canonical_report.json"))
           PY
 
-      - name: Independent validation
-        run: |
-          python - <<'PY'
-          import pandas as pd
-          from analysis.independent_validation import compare_methods
-
-          df = pd.read_csv("real-data/sunspots_global.csv")
-          col = "Sunspots" if "Sunspots" in df.columns else "value"
-
-          compare_methods(df[col].values)
-          PY
-
-      - name: Adversarial stress test
-        run: python analysis/adversarial_external_test.py
-
       - name: Predictive validation
         run: |
           python - <<'PY'
@@ -155,6 +140,21 @@ jobs:
       - name: Band robustness test
         run: |
           python analysis/band_robustness_test.py
+
+      - name: Independent validation
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          from analysis.independent_validation import compare_methods
+
+          df = pd.read_csv("real-data/sunspots_global.csv")
+          col = "Sunspots" if "Sunspots" in df.columns else "value"
+
+          compare_methods(df[col].values)
+          PY
+
+      - name: Adversarial stress test
+        run: python analysis/adversarial_external_test.py
 
       - name: Hash report
         run: sha256sum artifacts/canonical_report.json
