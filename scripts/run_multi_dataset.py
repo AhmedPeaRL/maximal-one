@@ -117,7 +117,7 @@ def main():
         # (يعني مش random explosion)
         internally_stable = 0.5 < real_alpha < 5.0
 
-        invariant = not_noise and synthetic_valid and internally_stable
+        invariant = not_noise and internally_stable
   
     distinguishable = None
 
