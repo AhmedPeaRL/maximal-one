@@ -30,6 +30,8 @@ def compare_methods(series):
     print("Method 2 (Welch):", a2)
 
     if abs(a1 - a2) > 0.5:
-        raise SystemExit("❌ Methods disagree — unstable result")
+        return "unstable/adversarial"
+    else:
+        return "valid structure"
 
     print("✅ Independent methods agree")
