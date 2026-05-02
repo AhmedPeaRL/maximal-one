@@ -5,7 +5,8 @@
 
 "dataset": {
   "primary": "sunspots_global",
-  "secondary_required": true
+  "secondary_required": true,
+  "adversarial_rejection_required": true
 },
 
 "method": {
