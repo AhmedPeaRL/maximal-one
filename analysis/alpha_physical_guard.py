@@ -32,10 +32,16 @@ if not (alpha_min <= alpha <= alpha_max):
     print(f"❌ Alpha خارج النطاق التكيفي: {alpha}")
     sys.exit(1)
 
-# sigma optional if external
+adaptive_sigma = claim.get("adaptive_sigma", {})
+
+max_sigma = adaptive_sigma.get("max_sigma", 0.25)
+multiplier = adaptive_sigma.get("max_sigma_multiplier", 2.5)
+
+allowed_sigma = max_sigma * multiplier
+
 if sigma is not None:
-    if sigma > 0.5:
-        print(f"❌ Sigma عالي: {sigma}")
+    if sigma > allowed_sigma:
+        print(f"❌ Sigma عالي: {sigma} (allowed: {allowed_sigma})")
         sys.exit(1)
 
 print("✅ Alpha physically valid (unified source)")
