@@ -23,7 +23,10 @@ def estimate_alpha(series):
     psd = psd[mask]
 
     if len(freqs) < 10:
-        return np.nan
+        return {
+            "valid": False,
+            "reason": "insufficient_frequency_band"
+        }
 
     psd = uniform_filter1d(psd, size=2)
 
@@ -61,7 +64,10 @@ def estimate_alpha(series):
     if alpha > 5:
         return np.nan
 
-    return alpha
+    return {
+        "valid": True,
+        "alpha": alpha
+    }
 
 def block_bootstrap(series, block_size=16, num_boot=100):
     n = len(series)
