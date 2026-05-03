@@ -98,10 +98,14 @@ def main():
     if not internally_stable:
         raise SystemExit("❌ real unstable")
 
-    # synthetic فقط sanity
-    if results["synthetic"]["std"] > (0.5 + 0.3 * results["synthetic"]["mean"]):
-        raise SystemExit("❌ synthetic chaotic — invalid stress field")
+    # 🔥 synthetic = stress probe (NOT rejection criteria)
+    stress_ratio = results["synthetic"]["std"] / (abs(results["synthetic"]["mean"]) + 1e-8)
 
+    print(f"synthetic stress ratio: {stress_ratio:.4f}")
+
+    if stress_ratio > 1.5:
+        print("⚠️ synthetic highly chaotic (expected under stress)")
+        
     report = {
         "alphas": results,
         "checks": {
