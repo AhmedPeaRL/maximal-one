@@ -3,7 +3,11 @@ import numpy as np
 from scipy.ndimage import uniform_filter1d
 
 def estimate_alpha(series):
-    series = np.asarray(series)
+    series = np.asarray(series, dtype=np.float64)
+
+    if not np.all(np.isfinite(series)):
+        return np.nan
+
     series = series - np.mean(series)
     n = len(series)
 
@@ -23,17 +27,13 @@ def estimate_alpha(series):
     psd = psd[mask]
 
     if len(freqs) < 10:
-        return {
-            "valid": False,
-            "reason": "insufficient_frequency_band"
-        }
+        return np.nan
 
     psd = uniform_filter1d(psd, size=2)
 
     log_f = np.log(freqs)
     log_psd = np.log(psd + 1e-10)
 
-    # 🔥 robust fit (median slope)
     slopes = []
     for i in range(len(log_f) - 5):
         x = log_f[i:i+5]
@@ -58,16 +58,10 @@ def estimate_alpha(series):
     if not np.isfinite(alpha):
         return np.nan
 
-    # بدل kill كامل → soft reject
-    if alpha < 0:
-        return np.nan
-    if alpha > 5:
+    if alpha < 0 or alpha > 5:
         return np.nan
 
-    return {
-        "valid": True,
-        "alpha": alpha
-    }
+    return alpha
 
 def block_bootstrap(series, block_size=16, num_boot=100):
     n = len(series)
