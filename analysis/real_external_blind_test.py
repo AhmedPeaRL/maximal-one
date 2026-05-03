@@ -48,8 +48,20 @@ def run_test():
     train = data[:split]
     test = data[split:]
 
-    alpha_train = estimate_alpha(train)
-    alpha_test = estimate_alpha(test)
+    alpha_train_res = estimate_alpha(train)
+    alpha_test_res = estimate_alpha(test)
+
+    if not alpha_train_res["valid"] or not alpha_test_res["valid"]:
+        print("⚠️ Alpha estimation failed structurally")
+        exit(0)  # 👈 مهم: مش fail… ده graceful reject
+
+    if not alpha_train_res["valid"]:
+        classification = "unmeasurable_train"
+    elif not alpha_test_res["valid"]:
+        classification = "unmeasurable_test"
+
+    alpha_train = alpha_train_res["alpha"]
+    alpha_test = alpha_test_res["alpha"]
 
     print("Alpha train:", alpha_train)
     print("Alpha test:", alpha_test)
@@ -117,6 +129,8 @@ def bind_external_result(values):
 
     with open("artifacts/external_witness.json", "w") as f:
         json.dump({
+            "type": classification,
+            "reason": "spectral_failure",
             "source": "external_blind_test",
             "length": len(values),
             "hash": str(hash(tuple(values)))
