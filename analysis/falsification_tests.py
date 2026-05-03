@@ -27,9 +27,8 @@ def white_noise_control(n):
 def run_falsification(series):
     results = {}
 
-    results["original_alpha"] = estimate_alpha(series)
-    results["shuffled_alpha"] = shuffle_test(series)
-    results["phase_randomized_alpha"] = phase_randomization(series)
-    results["white_noise_alpha"] = white_noise_control(len(series))
-
+    results["original_alpha"] = float(estimate_alpha(series))
+    results["shuffled_alpha"] = float(shuffle_test(series))
+    results["phase_randomized_alpha"] = float(phase_randomization(series))
+    results["white_noise_alpha"] = float(white_noise_control(len(series)))
     return results
