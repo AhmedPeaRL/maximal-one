@@ -13,12 +13,14 @@ def adaptive_alpha_pass(alpha_train, alpha_test, sigma):
     # relative tolerance (scale-aware)
     relative = drift / (abs(alpha_train) + 1e-8)
 
-    return {
-        "drift": drift,
-        "tolerance": tolerance,
-        "relative": relative,
-        "pass": drift < tolerance or relative < 0.25
-    }
+    if not np.isfinite(alpha_train) or not np.isfinite(alpha_test):
+        return {
+            "drift": np.nan,
+            "tolerance": np.nan,
+            "relative": np.nan,
+            "pass": False,
+            "reason": "non_finite_alpha"
+        }
 
 def validate_single_path(result):
     required_keys = [
