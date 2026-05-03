@@ -48,12 +48,12 @@ def run_test():
     train = data[:split]
     test = data[split:]
 
-    alpha_train_res = estimate_alpha(train)
-    alpha_test_res = estimate_alpha(test)
+    alpha_train = estimate_alpha(train)
+    alpha_test = estimate_alpha(test)
 
-    if not alpha_train_res["valid"] or not alpha_test_res["valid"]:
+    if not np.isfinite(alpha_train) or not np.isfinite(alpha_test):
         print("⚠️ Alpha estimation failed structurally")
-        exit(0)  # 👈 مهم: مش fail… ده graceful reject
+        exit(0)
 
     if not alpha_train_res["valid"]:
         classification = "unmeasurable_train"
