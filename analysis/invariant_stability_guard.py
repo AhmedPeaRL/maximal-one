@@ -32,7 +32,7 @@ def check_stability(alphas):
 def extract_structured_alphas(alphas_dict):
     try:
         real = alphas_dict["real"]["sunspots"]
-        synthetic = alphas_dict["synthetic"]["ensemble_mean"]
+        synthetic = alphas_dict["synthetic"]["mean"]
         noise = alphas_dict["noise"]["white"]
     except KeyError as e:
         raise SystemExit(f"❌ Missing required alpha key: {e}")
