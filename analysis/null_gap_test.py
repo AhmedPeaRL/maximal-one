@@ -33,4 +33,4 @@ if __name__ == "__main__":
     df = pd.read_csv("real-data/sunspots_global.csv")
     col = "Sunspots" if "Sunspots" in df.columns else "value"
 
-    check_null_gap(df[col].values,rng)
+    check_null_gap(df[col].values, rng)
