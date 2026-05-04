@@ -2,6 +2,8 @@ import numpy as np
 # 🔥 smoothing
 from scipy.ndimage import uniform_filter1d
 
+np.set_printoptions(precision=15)
+
 def estimate_alpha(series):
     series = np.asarray(series, dtype=np.float64)
 
@@ -17,7 +19,7 @@ def estimate_alpha(series):
     window = np.hanning(n)
     series = series * window
 
-    fft_vals = np.fft.rfft(series)
+    fft_vals = np.fft.rfft(series.astype(np.float64))
     psd = (np.abs(fft_vals) ** 2) / n
     freqs = np.fft.rfftfreq(n)
 
