@@ -19,7 +19,7 @@ def run_fresh_clone():
 
     subprocess.run([
         "git", "clone",
-        "--depth", "1",
+        "--filter=blob:none",
         REPO_URL,
         tmp
     ], check=True)
@@ -87,10 +87,18 @@ def compare():
         cwd=external_repo,
         check=True
     )
+    
     external_raw = run_pipeline(external_repo)
 
     external_norm = normalize(external_raw)
     external_hash = sha256(external_norm)
+
+    commit = os.environ.get("GITHUB_SHA")
+
+    if not commit:
+        raise Exception("Missing GITHUB_SHA for reproducibility")
+
+    ...
 
     print("LOCAL:", local_hash)
     print("EXTERNAL:", external_hash)
