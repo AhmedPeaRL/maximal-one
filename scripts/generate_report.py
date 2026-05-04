@@ -1,6 +1,7 @@
 import json
 import argparse
 import numpy as np
+import random
 import os
 import traceback
 
@@ -18,6 +19,19 @@ def generate_series(rng, n=1024):
 
 def stable_float(x, digits=10):
     return float(round(x, digits))
+
+
+def enforce_determinism(seed=42):
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+
+    # منع threading randomness
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+
+enforce_determinism(42)
 
 
 def main():
@@ -109,8 +123,19 @@ def main():
             raise SystemExit("❌ Indistinguishable from noise")
 
         with open("artifacts/canonical_report.json", "w") as f:
-            json.dump(report, f, sort_keys=True, separators=(',', ':'))
+            def round_floats(obj):
+                if isinstance(obj, float):
+                    return round(obj, 8)
+                if isinstance(obj, dict):
+                    return {k: round_floats(v) for k, v in obj.items()}
+                if isinstance(obj, list):
+                    return [round_floats(x) for x in obj]
+                return obj
 
+            report = round_floats(report)
+
+            json.dump(report, f, sort_keys=True, separators=(",", ":"))
+            
         print("✅ Spectral report generated (stable & reproducible)")
 
     except Exception as e:
