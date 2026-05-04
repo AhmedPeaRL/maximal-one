@@ -74,7 +74,6 @@ def block_bootstrap(series, rng, block_size=16, num_boot=100):
             block = series[start:start+block_size]
             sample.extend(block)
 
-        boot = block_bootstrap(series, rng)
         sample = np.array(sample[:n])
         alphas.append(estimate_alpha(sample))
 
@@ -94,4 +93,4 @@ def block_bootstrap(series, rng, block_size=16, num_boot=100):
         "std": float(np.std(alphas)),
         "ci_low": float(np.percentile(alphas, 2.5)),
         "ci_high": float(np.percentile(alphas, 97.5))
-        }
+    }
