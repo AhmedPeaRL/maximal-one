@@ -59,6 +59,7 @@ def main():
             local_rng = np.random.RandomState(args.seed + 999 + i)
             wn = local_rng.randn(len(series))
             noise_samples.append(estimate_alpha(wn))
+       
         alpha = estimate_alpha(series)
 
         if not np.isfinite(alpha):
@@ -69,16 +70,16 @@ def main():
     
         from analysis.falsification_tests import run_falsification
 
-        falsification = run_falsification(series)
+        falsification = run_falsification(series, rng)
      
         from analysis.numerical_spectral_verification import block_bootstrap
 
-        boot = block_bootstrap(series)
+        boot = block_bootstrap(series, rng)
 
         from analysis.statistical_significance import monte_carlo_p_value
 
-        stats = monte_carlo_p_value(series, alpha)
-
+        stats = monte_carlo_p_value(series, alpha, rng)
+        
         if stats["p_value"] > 0.05:
             raise SystemExit("❌ Not statistically significant")
 
