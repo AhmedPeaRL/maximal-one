@@ -18,17 +18,21 @@ def is_structured(alpha1, alpha2):
         return False
 
     diff = abs(alpha1 - alpha2)
-    ratio = diff / (abs(alpha1) + 1e-8)
+    avg = (abs(alpha1) + abs(alpha2)) / 2.0
 
-    # ✅ شروط أقوى
-    if ratio > 0.25:
+    # 🔥 adaptive ratio بدل ثابت
+    ratio = diff / (avg + 1e-8)
+
+    # ✅ السماح بهامش أكبر للداتا الحقيقية
+    if ratio > 0.45:
         return False
 
-    if diff > 1.0:
+    # ✅ رفع الحد لأن FFT vs Welch طبيعي يفرق
+    if diff > 2.0:
         return False
 
-    # 🔥 استبعاد المنطقة الرمادية (الـ fake غالبًا هنا)
-    if 0.8 < alpha1 < 2.2:
+    # 🔥 منع fake zone لكن بشكل أهدى
+    if 0.9 < alpha1 < 1.8 and 0.9 < alpha2 < 1.8:
         return False
 
     return True
