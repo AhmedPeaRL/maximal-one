@@ -38,27 +38,38 @@ if __name__ == "__main__":
     else:
         raise ValueError("Dataset must contain 'value' or 'Sunspots' column")
         
-    # ✅ الحقيقي بقى
+    # ✅ الحقيقي
     real_alpha = estimate_alpha(series)
 
-    # ✅ null distribution حقيقي
+    # ✅ null distribution
     null_alphas = build_null_distribution(series, n=500)
+
+    # ✅ تنظيف الـ NaNs (مهم جداً)
+    null_alphas = null_alphas[np.isfinite(null_alphas)]
+
+    if len(null_alphas) < 30:
+        raise ValueError("Null model collapsed → too few valid samples")
+
+    # ✅ احسبهم مرة واحدة
+    null_mean = float(np.mean(null_alphas))
+    null_std = float(np.std(null_alphas))
 
     result = evaluate_significance(real_alpha, null_alphas)
 
     print("=== TRUE STATISTICAL TEST ===")
     print("real_alpha:", real_alpha)
-    print("null_mean:", float(np.mean(null_alphas)))
-    print("null_std:", float(np.std(null_alphas)))
+    print("null_mean:", null_mean)
+    print("null_std:", null_std)
     print(result)
 
+    # ✅ guard حقيقي
     if np.isnan(null_mean) or np.isnan(null_std):
         raise ValueError("Null model failed → invalid statistical baseline")
 
     with open("artifacts/statistical_verdict.json", "w") as f:
         json.dump({
             "real_alpha": float(real_alpha),
-            "null_mean": float(np.mean(null_alphas)),
-            "null_std": float(np.std(null_alphas)),
+            "null_mean": null_mean,
+            "null_std": null_std,
             **result
         }, f, indent=2)
