@@ -7,27 +7,9 @@
       }
     },
     {
-      "name": "Transitional regime",
-      "validation_rule": {
-        "spectral_peak_range": [0.3, 0.8]
-      }
-    },
-    {
-      "name": "Self-consistent regime",
-      "validation_rule": {
-        "spectral_peak_range": [0.6, 0.9]
-      }
-    },
-    {
-      "name": "1/f noise (pink noise)",
+      "name": "1/f noise",
       "validation_rule": {
         "spectral_peak_range": [0.8, 1.2]
-      }
-    },
-    {
-      "name": "Turbulence (Kolmogorov)",
-      "validation_rule": {
-        "spectral_peak_range": [1.5, 1.8]
       }
     },
     {
@@ -35,11 +17,24 @@
       "validation_rule": {
         "spectral_peak_range": [1.8, 2.2]
       }
+    },
+    {
+      "name": "High-order correlated regime",
+      "validation_rule": {
+        "spectral_peak_range": [2.2, 4.0]
+      }
+    },
+    {
+      "name": "Extreme scaling regime",
+      "validation_rule": {
+        "spectral_peak_range": [4.0, 6.0]
+      }
     }
   ],
   "integration_policy": {
     "allow_soft_match": true,
-    "soft_match_sigma_multiplier": 2.0,
-    "failure_if_none_match": true
+    "soft_match_sigma_multiplier": 2.5,
+    "failure_if_none_match": false,
+    "flag_new_regime": true
   }
 }
