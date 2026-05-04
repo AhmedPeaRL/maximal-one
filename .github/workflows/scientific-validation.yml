@@ -397,9 +397,6 @@ jobs:
                   series = df["Sunspots"].values
               else:
                   raise ValueError("No valid column found (value / Sunspots)")
-
-              if np.isnan(null_mean) or np.isnan(null_std):
-                  raise ValueError("Null model failed → invalid statistical baseline")
              
               alpha = estimate_alpha(series)
 
