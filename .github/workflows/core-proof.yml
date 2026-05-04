@@ -30,6 +30,12 @@ jobs:
       - name: Set Python path
         run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
+      - name: Enforce deterministic env
+        run: |
+          echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
+          echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
+          echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
+
       - name: Rate limit guard
         run: |
           echo "Checking execution frequency..."
