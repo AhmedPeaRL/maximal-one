@@ -3,7 +3,7 @@ from analysis.falsification_tests import run_falsification
 
 def check_null_gap(series):
 
-    res = run_falsification(series)
+    res = run_falsification(series, rng)
 
     real = res["original_alpha"]
     shuffled = res["shuffled_alpha"]
