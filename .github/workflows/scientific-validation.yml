@@ -397,6 +397,9 @@ jobs:
                   series = df["Sunspots"].values
               else:
                   raise ValueError("No valid column found (value / Sunspots)")
+
+              if np.isnan(null_mean) or np.isnan(null_std):
+                  raise ValueError("Null model failed → invalid statistical baseline")
              
               alpha = estimate_alpha(series)
 
@@ -509,8 +512,24 @@ jobs:
               "pip_freeze_sha256": hashlib.sha256(freeze.encode()).hexdigest()
           }
 
-          with open(path,"w") as f:
-              json.dump(report,f,sort_keys=True,separators=(',',':'))
+          import math
+
+          def sanitize(obj):
+              if isinstance(obj, float):
+                  if math.isnan(obj) or math.isinf(obj):
+                      return None
+                  return obj
+              elif isinstance(obj, dict):
+                  return {k: sanitize(v) for k, v in obj.items()}
+              elif isinstance(obj, list):
+                  return [sanitize(v) for v in obj]
+              else:
+                  return obj
+
+          clean_report = sanitize(report)
+
+          with open(path, "w") as f:
+              json.dump(clean_report, f, sort_keys=True, separators=(',',':'))
           PY
 
       - name: Freeze canonical report (FINAL)
@@ -525,6 +544,22 @@ jobs:
 
           # 🔒 منع أي تعديل بعد اللحظة دي
           data["_sealed"] = True
+
+          import math
+
+          def sanitize(obj):
+              if isinstance(obj, float):
+                  if math.isnan(obj) or math.isinf(obj):
+                      return None
+                  return obj
+              elif isinstance(obj, dict):
+                  return {k: sanitize(v) for k, v in obj.items()}
+              elif isinstance(obj, list):
+                  return [sanitize(v) for v in obj]
+              else:
+                  return obj
+
+          data = sanitize(data)
 
           with open(path, "w") as f:
               json.dump(data, f, sort_keys=True, separators=(',',':'))
