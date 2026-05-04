@@ -17,10 +17,21 @@ def is_structured(alpha1, alpha2):
     if not np.isfinite(alpha1) or not np.isfinite(alpha2):
         return False
 
-    # 🔥 بدل absolute agreement → relative consistency
-    ratio = abs(alpha1 - alpha2) / (abs(alpha1) + 1e-8)
+    diff = abs(alpha1 - alpha2)
+    ratio = diff / (abs(alpha1) + 1e-8)
 
-    return ratio < 0.35
+    # ✅ شروط أقوى
+    if ratio > 0.25:
+        return False
+
+    if diff > 1.0:
+        return False
+
+    # 🔥 استبعاد المنطقة الرمادية (الـ fake غالبًا هنا)
+    if 0.8 < alpha1 < 2.2:
+        return False
+
+    return True
 
 
 def evaluate(series):
@@ -62,6 +73,17 @@ def run_test():
     if adv_ok:
         raise SystemExit("❌ adversarial mimics structure — REJECTED")
 
+    # 🔥 spectral entropy check
+    psd = np.abs(np.fft.rfft(adv))**2
+    psd = psd / np.sum(psd)
+
+    entropy = -np.sum(psd * np.log(psd + 1e-10))
+
+    print("Entropy:", entropy)
+
+    if entropy > 5.0:
+        raise SystemExit("❌ adversarial high entropy — REJECTED")
+    
     print("✅ adversarial correctly rejected")
 
 
