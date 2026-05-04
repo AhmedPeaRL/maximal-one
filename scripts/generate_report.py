@@ -7,10 +7,8 @@ import traceback
 from analysis.numerical_spectral_verification import estimate_alpha
 
 
-def generate_series(seed, n=1024):
-    np.random.seed(seed)
-
-    x = np.random.randn(n)
+def generate_series(rng, n=1024):
+    x = rng.randn(n)
 
     for i in range(1, n):
         x[i] += 0.8 * x[i-1]
@@ -28,7 +26,7 @@ def main():
     parser.add_argument("--canonical", action="store_true")
     args = parser.parse_args()
 
-    np.random.seed(args.seed)
+    rng = np.random.RandomState(args.seed)  # 🔥 مهم جداً
 
     os.makedirs("artifacts", exist_ok=True)
 
@@ -44,8 +42,8 @@ def main():
             raise ValueError("No valid column")
 
         # 🔥 ALWAYS generate synthetic (حل جذري)
-        synthetic = generate_series(args.seed, n=len(real))
-
+        synthetic = generate_series(rng, n=len(real))
+        
         if args.canonical:
             series = real
             generator_type = "pure_real"
@@ -59,7 +57,8 @@ def main():
 
         noise_samples = []
         for i in range(10):
-            wn = np.random.RandomState(args.seed + 999 + i).randn(len(series))
+            local_rng = np.random.RandomState(args.seed + 999 + i)
+            wn = local_rng.randn(len(series))
             noise_samples.append(estimate_alpha(wn))
 
         alpha = estimate_alpha(series)
