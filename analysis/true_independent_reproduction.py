@@ -80,6 +80,13 @@ def compare():
     local_hash = sha256(local_norm)
 
     external_repo = run_fresh_clone()
+
+    # enforce same commit
+    subprocess.run(
+        ["git", "checkout", os.environ.get("GITHUB_SHA", "HEAD")],
+        cwd=external_repo,
+        check=True
+    )
     external_raw = run_pipeline(external_repo)
 
     external_norm = normalize(external_raw)
