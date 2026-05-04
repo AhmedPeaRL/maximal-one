@@ -17,17 +17,12 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v5
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
       with:
-        languages: | 
-                'javascript'
-                'python'
-                'tex'
-                'html'
-                'other'
+        languages: javascript, python, tex, html, other
                    
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
