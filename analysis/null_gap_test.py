@@ -1,7 +1,8 @@
 import numpy as np
 from analysis.falsification_tests import run_falsification
 
-def check_null_gap(series):
+
+def check_null_gap(series,rng):
 
     res = run_falsification(series, rng)
 
