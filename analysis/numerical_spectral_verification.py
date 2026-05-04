@@ -63,17 +63,18 @@ def estimate_alpha(series):
 
     return alpha
 
-def block_bootstrap(series, block_size=16, num_boot=100):
+def block_bootstrap(series, rng, block_size=16, num_boot=100):
     n = len(series)
     alphas = []
 
     for _ in range(num_boot):
         sample = []
         while len(sample) < n:
-            start = np.random.randint(0, n - block_size)
+            start = rng.randint(0, n - block_size)
             block = series[start:start+block_size]
             sample.extend(block)
 
+        boot = block_bootstrap(series, rng)
         sample = np.array(sample[:n])
         alphas.append(estimate_alpha(sample))
 
