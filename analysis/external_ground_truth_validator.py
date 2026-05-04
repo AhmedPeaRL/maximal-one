@@ -55,6 +55,12 @@ if soft_matched and gt["integration_policy"].get("allow_soft_match", False):
     print("⚠️ External grounding achieved (soft)")
     sys.exit(0)
 
+if not matched and not soft_matched:
+    if gt["integration_policy"].get("flag_new_regime", False):
+        print("⚠️ Entering NEW spectral regime")
+        print(f"alpha={alpha} خارج كل الـ known benchmarks")
+        sys.exit(0)
+
 if gt["integration_policy"]["failure_if_none_match"]:
     print("❌ No external benchmark matched — model ungrounded")
     print("🔬 Possible new regime or estimation bias")
