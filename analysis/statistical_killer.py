@@ -37,6 +37,7 @@ if __name__ == "__main__":
         series = df["Sunspots"].values
     else:
         raise ValueError("Dataset must contain 'value' or 'Sunspots' column")
+        
     # ✅ الحقيقي بقى
     real_alpha = estimate_alpha(series)
 
@@ -50,6 +51,9 @@ if __name__ == "__main__":
     print("null_mean:", float(np.mean(null_alphas)))
     print("null_std:", float(np.std(null_alphas)))
     print(result)
+
+    if np.isnan(null_mean) or np.isnan(null_std):
+        raise ValueError("Null model failed → invalid statistical baseline")
 
     with open("artifacts/statistical_verdict.json", "w") as f:
         json.dump({
