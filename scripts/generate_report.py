@@ -1,6 +1,7 @@
 import json
 import argparse
 import numpy as np
+import random
 import os
 import traceback
 
@@ -18,6 +19,19 @@ def generate_series(rng, n=1024):
 
 def stable_float(x, digits=10):
     return float(round(x, digits))
+
+
+def enforce_determinism(seed=42):
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+
+    # منع threading randomness
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+
+enforce_determinism(42)
 
 
 def main():
