@@ -385,26 +385,6 @@ jobs:
           import pandas as pd
           import numpy as np
 
-          np.random.seed(42)
-
-          n = 200
-
-          # White noise
-          wn = np.random.randn(n)
-          pd.DataFrame({"value": wn}).to_csv("real-data/white_noise.csv", index=False)
-
-          # Random walk
-          rw = np.cumsum(np.random.randn(n))
-          pd.DataFrame({"value": rw}).to_csv("real-data/random_walk.csv", index=False)
-
-          # Shuffled sunspots
-          sun = pd.read_csv("real-data/sunspots_global.csv").iloc[:,0].values
-          shuffled = np.random.permutation(sun)
-          pd.DataFrame({"value": shuffled}).to_csv("real-data/shuffled_sunspots.csv", index=False)
-
-          print("✅ control datasets generated")
-          PY
-
           from analysis.numerical_spectral_verification import estimate_alpha
 
           def run_real_test(path):
@@ -426,6 +406,30 @@ jobs:
 
           if __name__ == "__main__":
               run_real_test("real-data/sunspots_global.csv")
+
+          python - <<'PY'
+          import pandas as pd
+          import numpy as np
+
+          np.random.seed(42)
+
+          n = 200
+
+          # White noise
+          wn = np.random.randn(n)
+          pd.DataFrame({"value": wn}).to_csv("real-data/white_noise.csv", index=False)
+
+          # Random walk
+          rw = np.cumsum(np.random.randn(n))
+          pd.DataFrame({"value": rw}).to_csv("real-data/random_walk.csv", index=False)
+
+          # Shuffled sunspots
+          sun = pd.read_csv("real-data/sunspots_global.csv").iloc[:,0].values
+          shuffled = np.random.permutation(sun)
+          pd.DataFrame({"value": shuffled}).to_csv("real-data/shuffled_sunspots.csv", index=False)
+
+          print("✅ control datasets generated")
+          PY
 
       - name: Alpha continuity guard
         run: python analysis/alpha_continuity_guard.py
@@ -1166,6 +1170,30 @@ jobs:
         timeout 120 python -m analysis.extended_chaos_fetcher || echo "⚠️ extended fetch skipped"
 
         echo "Dataset fetch stage completed safely"
+
+        python - <<'PY'
+          import pandas as pd
+          import numpy as np
+
+          np.random.seed(42)
+
+          n = 200
+
+          # White noise
+          wn = np.random.randn(n)
+          pd.DataFrame({"value": wn}).to_csv("real-data/white_noise.csv", index=False)
+
+          # Random walk
+          rw = np.cumsum(np.random.randn(n))
+          pd.DataFrame({"value": rw}).to_csv("real-data/random_walk.csv", index=False)
+
+          # Shuffled sunspots
+          sun = pd.read_csv("real-data/sunspots_global.csv").iloc[:,0].values
+          shuffled = np.random.permutation(sun)
+          pd.DataFrame({"value": shuffled}).to_csv("real-data/shuffled_sunspots.csv", index=False)
+
+          print("✅ control datasets generated")
+          PY
         
     - name: Ensure sunspots dataset
       run: |
