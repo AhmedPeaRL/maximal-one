@@ -97,6 +97,10 @@ def main():
         if stats["p_value"] > 0.05:
             raise SystemExit("❌ Not statistically significant")
 
+        from analysis.numerical_spectral_verification import estimate_alpha_welch
+
+        alpha_welch = estimate_alpha_welch(series)
+
         alpha_noise = float(np.mean(noise_samples))
 
         report = {
@@ -113,7 +117,12 @@ def main():
                 "seed": args.seed,
                 "generator": generator_type
             },
-            "statistical_test": stats
+            "statistical_test": stats,
+            "cross_method_validation": {
+                "fft_alpha": stable_float(alpha),
+                "welch_alpha": stable_float(alpha_welch),
+                "agreement": stable_float(abs(alpha - alpha_welch))
+            }
         }
 
         if abs(falsification["original_alpha"] - falsification["shuffled_alpha"]) < 0.2:
@@ -121,6 +130,9 @@ def main():
 
         if abs(falsification["original_alpha"] - falsification["white_noise_alpha"]) < 0.2:
             raise SystemExit("❌ Indistinguishable from noise")
+
+        if abs(alpha - alpha_welch) > 1.0:
+            raise SystemExit("❌ Method inconsistency too high")
 
         with open("artifacts/canonical_report.json", "w") as f:
             def round_floats(obj):
