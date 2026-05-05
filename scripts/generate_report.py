@@ -111,6 +111,16 @@ def main():
 
         alpha_noise = float(np.mean(noise_samples))
 
+        from analysis.sovereign_inference_engine import SovereignInferenceEngine
+
+        engine = SovereignInferenceEngine()
+        decision = engine.ingest(alpha, alpha_noise)
+
+        report["sovereign_layer"] = {
+            "decision": decision,
+            "engine_summary": engine.summary()
+        }
+
         report = {
             "spectral_profile": {
                 "estimated_alpha": stable_float(alpha),
