@@ -48,7 +48,13 @@ def main():
 
     try:
         import pandas as pd
-        df = pd.read_csv("real-data/sunspots_global.csv")
+        df = pd.read_csv(
+            "real-data/sunspots_global.csv",
+            dtype=np.float64,
+            engine="c"
+        )
+
+        real = df.iloc[:, 0].astype(np.float64).values
 
         if "value" in df.columns:
             real = df["value"].values
