@@ -43,7 +43,8 @@ def estimate_alpha(series):
         x = log_f[i:i+5]
         y = log_psd[i:i+5]
         A = np.vstack([x, np.ones(len(x))]).T
-        slope, _ = np.linalg.lstsq(A, y, rcond=None)[0]
+        coeffs = np.polyfit(x, y, 1)
+        slope = coeffs[0]
         slopes.append(slope)
 
     slopes = np.array(slopes)
