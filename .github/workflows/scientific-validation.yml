@@ -1311,6 +1311,9 @@ jobs:
     - name: External Ground Truth Validation
       run: python analysis/external_ground_truth_validator.py
 
+    - name: Export commit
+      run: echo "GITHUB_SHA=${{ github.sha }}" >> $GITHUB_ENV  
+
     - name: TRUE Independent Reproduction (HARD)
       run: |
         python analysis/true_independent_reproduction.py || exit 1
