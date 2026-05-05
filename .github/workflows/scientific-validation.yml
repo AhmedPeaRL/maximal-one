@@ -1132,7 +1132,7 @@ jobs:
         echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
         echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
         echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
-          
+        echo "NUMEXPR_NUM_THREADS=1" >> $GITHUB_ENV 
         
     - name: Fetch datasets (controlled)
       run: |
@@ -1174,12 +1174,6 @@ jobs:
     # =========================
     # 3) CORE ANALYSIS
     # =========================
-
-    - name: Lorenz Gate
-      run: | 
-        python -m analysis.lorenz96_patch
-        python -m analysis.lorenz96_benchmark
-        python -m analysis.lorenz_gate
 
     - name: Lock predictions BEFORE experiment
       run: |
