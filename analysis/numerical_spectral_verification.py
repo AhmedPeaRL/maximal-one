@@ -90,6 +90,7 @@ def estimate_alpha_welch(series):
 
     # 🔥 نفس الـ smoothing
     psd = uniform_filter1d(psd, size=2)
+    psd = np.round(psd, 10)
 
     log_f = np.log(freqs)
     log_psd = np.log(psd + 1e-10)
@@ -99,7 +100,8 @@ def estimate_alpha_welch(series):
         x = log_f[i:i+5]
         y = log_psd[i:i+5]
         A = np.vstack([x, np.ones(len(x))]).T
-        slope, _ = np.linalg.lstsq(A, y, rcond=None)[0]
+        coeffs = np.polyfit(x, y, 1)
+        slope = coeffs[0]
         slopes.append(slope)
 
     slopes = np.array(slopes)
