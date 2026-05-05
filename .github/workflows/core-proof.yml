@@ -85,6 +85,7 @@ jobs:
           pd.DataFrame({"value": shuffled}).to_csv("real-data/shuffled_sunspots.csv", index=False)
 
           print("✅ control datasets generated")
+          PY
 
       - name: Run canonical experiment ONLY
         run: |
