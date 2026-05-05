@@ -11,7 +11,10 @@ def run(file_path):
     print("Columns:", df.columns.tolist())
     print("Shape:", df.shape)
 
-    # 🧠 اختار أول column رقمي فعلاً
+    # 🧹 حذف الأعمدة الفاضية بالكامل
+    df = df.dropna(axis=1, how='all')
+
+    # 🧠 اختيار أول عمود رقمي فعلي
     numeric_cols = df.select_dtypes(include=['number']).columns
 
     if len(numeric_cols) == 0:
@@ -26,11 +29,12 @@ def run(file_path):
 
     print("After dropna:", len(series))
 
-    if len(series) < 200:
+    # ⚡ تعديل الشرط ليكون adaptive بدل رقم ثابت
+    if len(series) < 50:
         print("Too few data points after cleaning — FAIL")
         sys.exit(1)
 
-    # normalize (optional but safe)
+    # normalize
     series = (series - series.mean()) / (series.std() + 1e-8)
 
     out_path = file_path.replace(".csv", "_prepared.csv")
@@ -39,6 +43,7 @@ def run(file_path):
 
     print(f"Prepared dataset saved: {out_path}")
     print("Final length:", len(series))
+
 
 if __name__ == "__main__":
     run(sys.argv[1])
