@@ -63,6 +63,7 @@ jobs:
           print("✅ dataset valid")
           PY
 
+          python - <<'PY'
           import numpy as np
 
           np.random.seed(42)
