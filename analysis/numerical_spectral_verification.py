@@ -68,10 +68,19 @@ def estimate_alpha(series):
 
 def estimate_alpha_welch(series):
     series = np.asarray(series, dtype=np.float64)
+
+    if not np.all(np.isfinite(series)):
+        return np.nan
+
     series = series - np.mean(series)
 
-    freqs, psd = welch(series, nperseg=min(256, len(series)))
+    n = len(series)
+    if n < 32:
+        return np.nan
 
+    freqs, psd = welch(series, nperseg=min(256, n))
+
+    # نفس الـ mask بالظبط
     mask = (freqs > 0.02) & (freqs < 0.25)
     freqs = freqs[mask]
     psd = psd[mask]
@@ -79,16 +88,37 @@ def estimate_alpha_welch(series):
     if len(freqs) < 10:
         return np.nan
 
+    # 🔥 نفس الـ smoothing
+    psd = uniform_filter1d(psd, size=2)
+
     log_f = np.log(freqs)
     log_psd = np.log(psd + 1e-10)
 
-    slope, _ = np.polyfit(log_f, log_psd, 1)
-    alpha = -slope
+    slopes = []
+    for i in range(len(log_f) - 5):
+        x = log_f[i:i+5]
+        y = log_psd[i:i+5]
+        A = np.vstack([x, np.ones(len(x))]).T
+        slope, _ = np.linalg.lstsq(A, y, rcond=None)[0]
+        slopes.append(slope)
+
+    slopes = np.array(slopes)
+    slopes = slopes[np.isfinite(slopes)]
+
+    if len(slopes) < 5:
+        return np.nan
+
+    slope = np.median(slopes)
+
+    if not np.isfinite(slope) or slope > 0:
+        return np.nan
+
+    alpha = float(-slope)
 
     if not np.isfinite(alpha):
         return np.nan
 
-    return float(alpha)
+    return alpha
 
 def block_bootstrap(series, rng, block_size=16, num_boot=100):
     n = len(series)
