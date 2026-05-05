@@ -1175,6 +1175,12 @@ jobs:
     # 3) CORE ANALYSIS
     # =========================
 
+    - name: Lorenz Gate
+      run: | 
+        python -m analysis.lorenz96_patch
+        python -m analysis.lorenz96_benchmark
+        python -m analysis.lorenz_gate
+
     - name: Lock predictions BEFORE experiment
       run: |
         python -m analysis.prediction_lock
