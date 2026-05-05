@@ -1126,6 +1126,13 @@ jobs:
     # =========================
     # 2) DATA LAYER
     # =========================
+
+    - name: Enforce deterministic env
+      run: |
+        echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
+        echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
+        echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
+          
         
     - name: Fetch datasets (controlled)
       run: |
