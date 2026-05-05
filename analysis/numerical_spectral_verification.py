@@ -33,6 +33,7 @@ def estimate_alpha(series):
         return np.nan
 
     psd = uniform_filter1d(psd, size=2)
+    psd = np.round(psd, 10)
 
     log_f = np.log(freqs)
     log_psd = np.log(psd + 1e-10)
