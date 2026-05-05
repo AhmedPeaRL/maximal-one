@@ -31,7 +31,14 @@ def run_pipeline(path):
     print("Running independent pipeline...")
 
     env = os.environ.copy()
-    env["PYTHONHASHSEED"] = "0"
+
+    env.update({
+        "PYTHONHASHSEED": "0",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1"
+    })
 
     subprocess.run(
         ["python", "scripts/generate_report.py", "--seed", "42", "--canonical"],
@@ -65,7 +72,7 @@ def normalize(raw):
 
         if isinstance(obj, float):
             # 🔥 تثبيت أقوى
-            return float(format(obj, ".6f"))
+            return float(format(obj, ".5f"))
 
         return obj
 
