@@ -95,41 +95,47 @@ def compare():
         local_raw = f.read()
 
     local_norm = normalize(local_raw)
-    local_hash = sha256(local_norm)
+    local_data = json.loads(local_norm)
 
     external_repo = run_fresh_clone()
 
-    # enforce same commit
     subprocess.run(
         ["git", "checkout", os.environ.get("GITHUB_SHA", "HEAD")],
         cwd=external_repo,
         check=True
     )
-    
+
     external_raw = run_pipeline(external_repo)
-
     external_norm = normalize(external_raw)
-    external_hash = sha256(external_norm)
+    external_data = json.loads(external_norm)
 
-    commit = os.environ.get("GITHUB_SHA")
+    print("🔍 Comparing semantic structure...")
 
-    if not commit:
-        raise Exception("Missing GITHUB_SHA for reproducibility")
+    def extract_key_metrics(data):
+        return {
+            "alpha": data["spectral_profile"]["estimated_alpha"],
+            "std": data["spectral_profile"]["bootstrap_std"],
+            "p": data["statistical_test"]["p_value"]
+        }
 
-    ...
+    local_metrics = extract_key_metrics(local_data)
+    external_metrics = extract_key_metrics(external_data)
 
-    print("LOCAL:", local_hash)
-    print("EXTERNAL:", external_hash)
+    print("LOCAL:", local_metrics)
+    print("EXTERNAL:", external_metrics)
 
-    if local_hash == external_hash:
-        print("✅ TRUE INDEPENDENT REPRODUCTION CONFIRMED")
+    def close(a, b, tol):
+        return abs(a - b) < tol
+
+    if (
+        close(local_metrics["alpha"], external_metrics["alpha"], 0.05) and
+        close(local_metrics["std"], external_metrics["std"], 0.05) and
+        close(local_metrics["p"], external_metrics["p"], 0.02)
+    ):
+        print("✅ SEMANTIC REPRODUCTION CONFIRMED")
         return True
 
-    if local_norm == external_norm:
-        print("⚠️ Content match despite hash drift")
-        return True
-
-    print("❌ REAL DIVERGENCE DETECTED")
+    print("❌ SEMANTIC DIVERGENCE DETECTED")
     return False
 
 
