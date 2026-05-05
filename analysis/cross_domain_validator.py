@@ -17,8 +17,11 @@ def load_series(path):
                 raise ValueError("Series too small")
 
             # 🔥 normalization (CRITICAL)
-            series = (series - np.mean(series)) / (np.std(series) + 1e-8)
-
+            std = np.std(series)
+            if std < 1e-3:
+                raise ValueError("Near-constant series")
+           
+            series = (series - np.mean(series)) / std
             return series
 
     raise ValueError(f"No valid numeric column in {path}")
@@ -38,8 +41,8 @@ def main():
 
                 alpha = estimate_alpha(series)
 
-                if not np.isfinite(alpha):
-                    raise ValueError("Invalid alpha")
+                if not np.isfinite(alpha) or alpha < 0.3:
+                    raise ValueError("Weak or invalid alpha")
 
                 # 🔥 clip extreme values
                 alpha = np.clip(alpha, -5, 5)
@@ -64,7 +67,7 @@ def main():
     print(f"STD alpha: {std:.4f}")
 
     # 🔥 بدل threshold ثابت
-    if std > (1.5 + 0.75 * abs(median)):
+    if std > 1.8:
         raise SystemExit("❌ Cross-domain instability too high")
 
     if np.std(series) < 1e-3:
