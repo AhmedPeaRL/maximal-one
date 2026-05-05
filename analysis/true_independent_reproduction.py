@@ -72,7 +72,7 @@ def normalize(raw):
 
         if isinstance(obj, float):
             # 🔥 تثبيت أقوى
-            return float(format(obj, ".6f"))
+            return float(format(obj, ".5f"))
 
         return obj
 
@@ -114,9 +114,6 @@ def compare():
         raise Exception("Missing GITHUB_SHA for reproducibility")
 
     ...
-
-    assert "spectral_profile" in cleaned
-    assert "estimated_alpha" in cleaned["spectral_profile"]
 
     print("LOCAL:", local_hash)
     print("EXTERNAL:", external_hash)

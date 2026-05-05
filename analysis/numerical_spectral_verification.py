@@ -32,21 +32,18 @@ def estimate_alpha(series):
     if len(freqs) < 10:
         return np.nan
 
-    from analysis.deterministic_ops import stable_smoothing, stable_fft_power, stable_log, stable_polyfit
-
-    psd = stable_fft_power(series)
-    psd = stable_smoothing(psd)
+    psd = uniform_filter1d(psd.astype(np.float64), size=2, mode="nearest")
     psd = np.round(psd, 8)
 
-    log_f = stable_log(freqs)
-    log_psd = stable_log(psd)
+    log_f = np.log(freqs)
+    log_psd = np.log(psd + 1e-10)
 
     slopes = []
     for i in range(len(log_f) - 5):
         x = log_f[i:i+5]
         y = log_psd[i:i+5]
         A = np.vstack([x, np.ones(len(x))]).T
-        slope = stable_polyfit(x, y)
+        slope = np.linalg.lstsq(A, y, rcond=None)[0][0]
         slopes.append(slope)
 
     slopes = np.array(slopes)
