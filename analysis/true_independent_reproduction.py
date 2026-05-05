@@ -72,7 +72,7 @@ def normalize(raw):
 
         if isinstance(obj, float):
             # 🔥 تثبيت أقوى
-            return float(format(obj, ".5f"))
+            return float(format(obj, ".6f"))
 
         return obj
 
@@ -84,12 +84,15 @@ def normalize(raw):
         separators=(',', ':')
     )
     
-
+   
 def compare():
     local_path = "artifacts/canonical_report.json"
 
     with open(local_path) as f:
         local_raw = f.read()
+
+    assert "spectral_profile" in cleaned
+    assert "estimated_alpha" in cleaned["spectral_profile"]
 
     local_norm = normalize(local_raw)
     local_hash = sha256(local_norm)
