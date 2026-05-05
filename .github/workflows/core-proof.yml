@@ -67,6 +67,9 @@ jobs:
         run: |
           python scripts/generate_report.py --seed 42 --canonical
 
+      - name: Run causal hint
+        run: python analysis/causal_hint.py
+
       - name: Reproducibility stamp
         run: |
           python - <<'PY'
