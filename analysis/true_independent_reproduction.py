@@ -83,6 +83,9 @@ def normalize(raw):
         sort_keys=True,
         separators=(',', ':')
     )
+
+    assert "spectral_profile" in cleaned
+    assert "estimated_alpha" in cleaned["spectral_profile"]
     
    
 def compare():
@@ -90,9 +93,6 @@ def compare():
 
     with open(local_path) as f:
         local_raw = f.read()
-
-    assert "spectral_profile" in cleaned
-    assert "estimated_alpha" in cleaned["spectral_profile"]
 
     local_norm = normalize(local_raw)
     local_hash = sha256(local_norm)
