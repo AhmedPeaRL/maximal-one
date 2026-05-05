@@ -1,6 +1,7 @@
 import numpy as np
 # 🔥 smoothing
 from scipy.ndimage import uniform_filter1d
+from scipy.signal import welch
 
 np.set_printoptions(precision=15)
 
@@ -64,6 +65,30 @@ def estimate_alpha(series):
         return np.nan
 
     return alpha
+
+def estimate_alpha_welch(series):
+    series = np.asarray(series, dtype=np.float64)
+    series = series - np.mean(series)
+
+    freqs, psd = welch(series, nperseg=min(256, len(series)))
+
+    mask = (freqs > 0.02) & (freqs < 0.25)
+    freqs = freqs[mask]
+    psd = psd[mask]
+
+    if len(freqs) < 10:
+        return np.nan
+
+    log_f = np.log(freqs)
+    log_psd = np.log(psd + 1e-10)
+
+    slope, _ = np.polyfit(log_f, log_psd, 1)
+    alpha = -slope
+
+    if not np.isfinite(alpha):
+        return np.nan
+
+    return float(alpha)
 
 def block_bootstrap(series, rng, block_size=16, num_boot=100):
     n = len(series)
