@@ -59,16 +59,24 @@ def normalize(raw):
                 for k, v in obj.items()
                 if k not in ["timestamp", "_environment", "_sealed"]
             }
+
         if isinstance(obj, list):
             return [clean(x) for x in obj]
+
         if isinstance(obj, float):
-            return round(obj, 8)
+            # 🔥 تثبيت أقوى
+            return float(format(obj, ".6f"))
+
         return obj
 
     cleaned = clean(data)
 
-    return json.dumps(cleaned, sort_keys=True, separators=(',', ':'))
-
+    return json.dumps(
+        cleaned,
+        sort_keys=True,
+        separators=(',', ':')
+    )
+    
 
 def compare():
     local_path = "artifacts/canonical_report.json"
