@@ -162,5 +162,8 @@ jobs:
       - name: Adversarial stress test
         run: python analysis/adversarial_external_test.py
 
+      - name: Export commit
+        run: echo "GITHUB_SHA=${{ github.sha }}" >> $GITHUB_ENV
+
       - name: Hash report
         run: sha256sum artifacts/canonical_report.json
