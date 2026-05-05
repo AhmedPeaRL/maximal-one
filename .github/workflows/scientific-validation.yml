@@ -379,6 +379,7 @@ jobs:
         run: |
           python scripts/generate_report.py --seed 42 --canonical
           python analysis/experiment_history.py
+          python analysis/causal_hint.py
 
           python - <<'PY'
           import pandas as pd
@@ -1201,6 +1202,7 @@ jobs:
     - name: Spectral core
       run: |
         python -m analysis.windowed_spectral_analysis
+        python -m analysis.causal_hint
         python -m analysis.cross_system_correlation
         python -m analysis.null_model_test
 
