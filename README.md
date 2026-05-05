@@ -45,6 +45,24 @@ This repository does not claim:
 
 It only tests measurable statistical deviation from white noise.
 
+## Observational Insight Layer (Non-Claiming)
+
+While no ontological claim is made,
+the persistence of spectral structure under:
+
+- falsification
+- bootstrap
+- cross-method agreement
+
+raises a non-trivial question:
+
+> Are deterministic computational environments
+capable of generating statistically persistent structure
+beyond known artifacts?
+
+This repository does not answer this question.
+It only makes it unavoidable.
+
 ## Core Principle
 
 Reproducibility > Interpretation
