@@ -10,8 +10,23 @@ def spectral_alpha(series):
 
     from scipy.signal import welch
 
-    x = np.array(series)
+    # 🔥 تنظيف صارم
+    x = np.asarray(series, dtype=np.float64)
+
+    # remove NaN / inf
+    x = x[np.isfinite(x)]
+
+    if len(x) < 32:
+        return np.nan
+
+    # normalization
     x = x - np.mean(x)
+    std = np.std(x)
+
+    if std < 1e-10:
+        return np.nan
+
+    x = x / std
 
     freqs, psd = welch(
         x,
@@ -23,10 +38,16 @@ def spectral_alpha(series):
     freqs = freqs[mask]
     psd = psd[mask]
 
-    logf = np.log(freqs)
-    logp = np.log(psd)
+    if len(freqs) < 10:
+        return np.nan
 
-    a,b = np.polyfit(logf,logp,1)
+    logf = np.log(freqs)
+    logp = np.log(psd + 1e-12)
+
+    a, b = np.polyfit(logf, logp, 1)
+
+    if not np.isfinite(a):
+        return np.nan
 
     return float(-a)
 
@@ -42,8 +63,12 @@ def load_series():
         path = os.path.join(DATA_DIR,f)
         try:
             df = pd.read_csv(path)
-            col = df.columns[-1]
-            s = df[col].dropna().values
+            num = df.select_dtypes(include=[np.number])
+
+            if num.shape[1] == 0:
+                continue
+
+            s = num.iloc[:, 0].dropna().values
             if len(s) > 256:
                 series.append(s)
         except:
@@ -66,6 +91,9 @@ def run_test():
         original.append(spectral_alpha(s))
         shuffled.append(spectral_alpha(shuffle_series(s)))
 
+    if len(original) == 0:
+        raise SystemExit("❌ No valid numeric series found")
+    
     orig_score = collapse_score(original)
     shuf_score = collapse_score(shuffled)
 
