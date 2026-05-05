@@ -63,6 +63,27 @@ jobs:
           print("✅ dataset valid")
           PY
 
+          import pandas as pd
+
+          np.random.seed(42)
+
+          n = 200
+
+          # White noise
+          wn = np.random.randn(n)
+          pd.DataFrame({"value": wn}).to_csv("real-data/white_noise.csv", index=False)
+
+          # Random walk
+          rw = np.cumsum(np.random.randn(n))
+          pd.DataFrame({"value": rw}).to_csv("real-data/random_walk.csv", index=False)
+
+          # Shuffled sunspots
+          sun = pd.read_csv("real-data/sunspots_global.csv").iloc[:,0].values
+          shuffled = np.random.permutation(sun)
+          pd.DataFrame({"value": shuffled}).to_csv("real-data/shuffled_sunspots.csv", index=False)
+
+          print("✅ control datasets generated")
+
       - name: Run canonical experiment ONLY
         run: |
           python scripts/generate_report.py --seed 42 --canonical
