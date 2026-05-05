@@ -131,7 +131,7 @@ def main():
         if abs(falsification["original_alpha"] - falsification["white_noise_alpha"]) < 0.2:
             raise SystemExit("❌ Indistinguishable from noise")
 
-        if abs(alpha - alpha_welch) > 1.0:
+        if abs(alpha - alpha_welch) > 0.5:
             raise SystemExit("❌ Method inconsistency too high")
 
         with open("artifacts/canonical_report.json", "w") as f:
