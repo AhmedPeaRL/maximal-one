@@ -26,10 +26,11 @@ def enforce_determinism(seed=42):
     random.seed(seed)
     np.random.seed(seed)
 
-    # منع threading randomness
+    # 🔒 Lock environment بالكامل
     os.environ["OMP_NUM_THREADS"] = "1"
     os.environ["MKL_NUM_THREADS"] = "1"
     os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["NUMEXPR_NUM_THREADS"] = "1"
 
 enforce_determinism(42)
 
@@ -40,7 +41,8 @@ def main():
     parser.add_argument("--canonical", action="store_true")
     args = parser.parse_args()
 
-    rng = np.random.RandomState(args.seed)  # 🔥 مهم جداً
+    rng = np.random.RandomState(args.seed)
+    np.random.seed(args.seed)  # 🔥 مهم جداً
 
     os.makedirs("artifacts", exist_ok=True)
 
