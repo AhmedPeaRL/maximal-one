@@ -11,6 +11,7 @@ on:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: false
+  NODE_OPTIONS: "--no-deprecation"
 
 jobs:
   core-proof:
@@ -195,3 +196,6 @@ jobs:
 
       - name: Hash report
         run: sha256sum artifacts/canonical_report.json
+
+      - name: External Reproduction Guard
+        run: python analysis/external_reproduction_guard.py
