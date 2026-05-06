@@ -17,6 +17,7 @@ permissions:
 env:
   PYTHONHASHSEED: "0"
   NODE_ENV: "production"
+  NODE_OPTIONS: "--no-deprecation"
   OPENBLAS_NUM_THREADS: "1"
   OMP_NUM_THREADS: "1"
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
