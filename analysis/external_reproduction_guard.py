@@ -4,7 +4,7 @@ import numpy as np
 import hashlib
 import requests
 
-EXTERNAL_SOURCE_URL = os.getenv("EXTERNAL_SOURCE_URL", "").strip()
+EXTERNAL_SOURCE_URL = os.getenv("GH_REPO", "").strip()
 
 def load_report(path="artifacts/canonical_report.json"):
     with open(path, "r") as f:
