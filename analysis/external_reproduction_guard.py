@@ -4,6 +4,8 @@ import numpy as np
 import hashlib
 import requests
 
+EXTERNAL_SOURCE_URL = os.getenv("EXTERNAL_SOURCE_URL", "").strip()
+
 def load_report(path="artifacts/canonical_report.json"):
     with open(path, "r") as f:
         return json.load(f)
@@ -43,8 +45,6 @@ if __name__ == "__main__":
     report = load_report()
 
     local_fp = compute_fingerprint(report)
-
-    EXTERNAL_SOURCE_URL = os.getenv("EXTERNAL_SOURCE_URL", "").strip()
 
     external_fp = fetch_external_fingerprint(EXTERNAL_SOURCE_URL)
 
