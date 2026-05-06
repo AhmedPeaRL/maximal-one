@@ -188,6 +188,9 @@ jobs:
           compare_methods(df[col].values)
           PY
 
+      - name: External Reproduction Guard
+        run: python analysis/external_reproduction_guard.py
+
       - name: Adversarial stress test
         run: python analysis/adversarial_external_test.py
 
@@ -196,6 +199,3 @@ jobs:
 
       - name: Hash report
         run: sha256sum artifacts/canonical_report.json
-
-      - name: External Reproduction Guard
-        run: python analysis/external_reproduction_guard.py
