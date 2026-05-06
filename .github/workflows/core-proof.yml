@@ -201,6 +201,32 @@ jobs:
       - name: Hash report
         run: sha256sum artifacts/canonical_report.json
 
+      - name: Export fingerprint
+        run: |
+          python - <<'PY'
+          import json, hashlib, numpy as np
+
+          r = json.load(open("artifacts/canonical_report.json"))
+          sp = r["spectral_profile"]
+
+          alpha = round(float(sp["estimated_alpha"]), 6)
+          sigma = round(float(sp["bootstrap_std"]), 6)
+
+          vector = np.array([alpha, sigma], dtype=np.float64)
+          fp = hashlib.sha256(vector.tobytes()).hexdigest()
+
+          open("artifacts/fingerprint.txt", "w").write(fp)
+          print("FP:", fp)
+          PY
+
+      - name: Commit fingerprint
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add artifacts/fingerprint.txt
+          git commit -m "update fingerprint" || echo "no changes"
+          git push
+
       - name: External Reproduction Guard
         run: python analysis/external_reproduction_guard.py
         
