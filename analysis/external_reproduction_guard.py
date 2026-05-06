@@ -12,7 +12,12 @@ def compute_fingerprint(report):
     alpha = float(np.round(sp["estimated_alpha"], 6))
     sigma = float(np.round(sp["bootstrap_std"], 6))
     
-    vector = np.array([alpha, sigma])
+    vector = np.array([
+        alpha,
+        sigma,
+        report["cross_domain"]["median_alpha"],
+        report["invariants"]["ratio"]
+    ])
     vector_bytes = vector.tobytes()
     
     return hashlib.sha256(vector_bytes).hexdigest()
