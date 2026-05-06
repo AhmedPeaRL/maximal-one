@@ -12,6 +12,9 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: false
   NODE_OPTIONS: "--no-deprecation"
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  WITNESS_SECRET: ${{ secrets.WITNESS_SECRET }}
+  GH_REPO: ${{ secrets.GH_REPO }}
   EXTERNAL_SOURCE_URL: ${{ secrets.EXTERNAL_SOURCE_URL }}
 
 jobs:
