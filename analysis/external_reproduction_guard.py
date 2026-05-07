@@ -13,20 +13,23 @@ def load_report(path="artifacts/canonical_report.json"):
 def compute_fingerprint(report):
     sp = report["spectral_profile"]
 
-    alpha = round(float(sp["estimated_alpha"]), 6)
-    sigma = round(float(sp["bootstrap_std"]), 6)
-
     payload = {
-        "alpha": alpha,
-        "sigma": sigma,
+        "alpha": round(float(sp["estimated_alpha"]), 6),
+        "sigma": round(float(sp["bootstrap_std"]), 6),
         "ci_low": round(float(sp["ci_low"]), 6),
         "ci_high": round(float(sp["ci_high"]), 6),
         "noise_alpha": round(float(sp["noise_alpha"]), 6)
     }
 
-    blob = json.dumps(payload, sort_keys=True).encode()
+    blob = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":")
+    ).encode()
 
     fp = hashlib.sha256(blob).hexdigest()
+
+    return fp
 
 def fetch_external_fingerprint(url):
     if not url:
