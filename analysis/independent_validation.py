@@ -69,9 +69,6 @@ def estimate_alpha_welch(series):
 
     alpha = -slope
 
-    if len(segment) < 64:
-        continue
-
     return sanitize_alpha(alpha)
 
 
@@ -88,6 +85,9 @@ def compare_methods(series):
     welch_alpha = sanitize_alpha(
         estimate_alpha_welch(series)
     )
+
+    if len(segment) < 64:
+        continue
 
     print(f"Method 1 (FFT): {fft_alpha}")
     print(f"Method 2 (Welch): {welch_alpha}")
