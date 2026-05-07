@@ -176,6 +176,9 @@ jobs:
         run: |
           python analysis/invariant_stability_guard.py
 
+      - name: Pipeline sovereignty guard
+        run: python analysis/pipeline_sovereignty_guard.py
+        
       - name: Band robustness test
         run: |
           python analysis/band_robustness_test.py
