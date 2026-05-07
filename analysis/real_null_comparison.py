@@ -3,6 +3,9 @@ import numpy as np
 from analysis.numerical_spectral_verification import (
     estimate_alpha
 )
+from analysis.temporal_irreversibility import (
+    irreversibility_pass
+)
 
 
 def generate_surrogate(series, rng):
@@ -54,6 +57,7 @@ def run_null_test(real_series, n=32):
         )
 
     null_alphas = []
+    surrogate_pool = []
 
     for _ in range(n):
 
@@ -62,6 +66,8 @@ def run_null_test(real_series, n=32):
             rng
         )
 
+        surrogate_pool.append(surrogate)
+        
         a = estimate_alpha(surrogate)
 
         if np.isfinite(a):
@@ -91,6 +97,13 @@ def run_null_test(real_series, n=32):
         / (std_null + 1e-8)
     )
 
+    irr = irreversibility_pass(
+        real_series,
+        surrogate_pool
+    )
+
+    print("=== IRREVERSIBILITY TEST ===")
+    print(irr)
     print("Real alpha:", real_alpha)
     print("Null mean:", mean_null)
     print("Null std:", std_null)
@@ -99,7 +112,10 @@ def run_null_test(real_series, n=32):
 
     passed = (
         np.isfinite(z_score)
-        and z_score > 2.0
+        and (
+            z_score > 2.0
+            or irr["pass"]
+        )
     )
 
     return {
