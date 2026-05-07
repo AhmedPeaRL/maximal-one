@@ -204,18 +204,15 @@ jobs:
       - name: Export fingerprint
         run: |
           python - <<'PY'
-          import json, hashlib, numpy as np
+          import json
+          from analysis.external_reproduction_guard import compute_fingerprint
 
-          r = json.load(open("artifacts/canonical_report.json"))
-          sp = r["spectral_profile"]
+          report = json.load(open("artifacts/canonical_report.json"))
 
-          alpha = round(float(sp["estimated_alpha"]), 6)
-          sigma = round(float(sp["bootstrap_std"]), 6)
-
-          vector = np.array([alpha, sigma], dtype=np.float64)
-          fp = hashlib.sha256(vector.tobytes()).hexdigest()
+          fp = compute_fingerprint(report)
 
           open("artifacts/fingerprint.txt", "w").write(fp)
+
           print("FP:", fp)
           PY
 
