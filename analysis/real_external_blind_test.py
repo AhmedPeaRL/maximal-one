@@ -19,43 +19,93 @@ def fetch_external():
     local_path = "real-data/daily-min-temperatures.csv"
 
     if os.path.exists(local_path):
+
         df = pd.read_csv(local_path)
 
     else:
+
         print("🌐 Fetching REAL external data...")
 
-        response = requests.get(URL, timeout=10)
+        response = requests.get(
+            URL,
+            timeout=10
+        )
+
         response.raise_for_status()
 
-        os.makedirs("real-data", exist_ok=True)
+        os.makedirs(
+            "real-data",
+            exist_ok=True
+        )
 
         with open(local_path, "wb") as f:
             f.write(response.content)
 
         df = pd.read_csv(local_path)
 
-    df.columns = [c.strip().lower() for c in df.columns]
+    # normalize column names
+    df.columns = [
+        str(c).strip().lower()
+        for c in df.columns
+    ]
 
-    for col in df.columns:
+    print("Detected columns:", df.columns.tolist())
 
-        if "close" in col:
+    candidate_columns = [
+        "close",
+        "value",
+        "temp",
+        "temperature",
+        "sunspots",
+        "signal"
+    ]
 
-            values = (
-                df[col]
-                .dropna()
-                .values
-                .astype(np.float64)
-            )
+    selected = None
 
-            if len(values) < 128:
-                raise ValueError(
-                    "External dataset too small"
-                )
+    for c in candidate_columns:
 
-            return values
+        if c in df.columns:
+            selected = c
+            break
 
-    raise ValueError("No close column found")
+    # fallback:
+    # first numeric column
+    if selected is None:
 
+        numeric_cols = (
+            df.select_dtypes(
+                include=[np.number]
+            ).columns.tolist()
+        )
+
+        if len(numeric_cols) > 0:
+            selected = numeric_cols[0]
+
+    if selected is None:
+
+        raise ValueError(
+            f"No usable numeric column found. "
+            f"Columns={df.columns.tolist()}"
+        )
+
+    print(
+        f"Using column: {selected}"
+    )
+
+    values = (
+        df[selected]
+        .dropna()
+        .values
+        .astype(np.float64)
+    )
+
+    if len(values) < 128:
+
+        raise ValueError(
+            "External dataset too small"
+        )
+
+    return values
 
 def stable_normalize(x):
 
