@@ -34,9 +34,11 @@ def estimate_alpha(series):
 
     from analysis.deterministic_ops import stable_smoothing, stable_fft_power, stable_log, stable_polyfit
 
-    psd = stable_fft_power(series)
-    psd = stable_smoothing(psd)
-    psd = np.round(psd, 8)
+    psd_full = stable_fft_power(series)
+    psd_full = stable_smoothing(psd_full)
+    psd_full = np.round(psd_full, 8)
+
+    psd = psd_full[mask]
 
     log_f = stable_log(freqs)
     log_psd = stable_log(psd)
