@@ -25,5 +25,9 @@ def phase_randomized_surrogate(series, rng):
     new_fft = magnitudes * np.exp(1j * random_phases)
 
     surrogate = np.fft.irfft(new_fft, n=n)
+    surrogate = np.asarray(surrogate, dtype=np.float64)
 
+    if not np.all(np.isfinite(surrogate)):
+        raise ValueError("Invalid surrogate generated")
+    
     return surrogate
