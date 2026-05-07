@@ -1,41 +1,45 @@
 {
   "cross_method_validation": {
-    "agreement": 0.25366436,
-    "fft_alpha": 3.96713788,
-    "welch_alpha": 4.22080224
+    "agreement": 0.40860979,
+    "fft_alpha": 3.6680614,
+    "welch_alpha": 3.25945161
   },
   "metadata": {
     "generator": "pure_real",
     "seed": 42
   },
   "sovereign_layer": {
-    "decision": null,
+    "decision": {
+      "action": "persist_structure",
+      "confidence": 3.17519307,
+      "status": "STRUCTURE_DETECTED"
+    },
     "engine_summary": {
-      "max_delta": NaN,
-      "mean_delta": NaN,
-      "state": "NOISE_DOMINANT"
+      "max_delta": 3.17519307,
+      "mean_delta": 3.17519307,
+      "state": "STRUCTURE_DETECTED"
     }
   },
   "spectral_profile": {
-    "bootstrap_mean": 2.41053119,
-    "bootstrap_std": 0.59375076,
-    "ci_high": 3.45508175,
-    "ci_low": 1.13050463,
-    "estimated_alpha": 3.96713788,
+    "bootstrap_mean": 2.01307398,
+    "bootstrap_std": 0.61461106,
+    "ci_high": 2.94202738,
+    "ci_low": 0.6666974,
+    "estimated_alpha": 3.6680614,
     "falsification_tests": {
-      "original_alpha": 3.96713788,
-      "phase_randomized_alpha": 3.2825825,
-      "shuffled_alpha": -1.0,
-      "white_noise_alpha": 0.68051776
+      "original_alpha": 3.6680614,
+      "phase_randomized_alpha": 2.35541161,
+      "shuffled_alpha": 1.40165881,
+      "white_noise_alpha": 2.18970542
     },
-    "noise_alpha": NaN
+    "noise_alpha": 0.49286833
   },
   "statistical_test": {
-    "null_mean": 0.3806779,
-    "null_samples": 222,
-    "null_std": 0.26506838,
-    "observed_alpha": 3.96713788,
-    "p_value": 0.0
+    "null_mean": 0.45486449,
+    "null_samples": 500,
+    "null_std": 0.35416682,
+    "observed_alpha": 3.6680614,
+    "p_value": 1e-06
   },
-  "reproducibility_stamp": "58f1c6be6ccbe43ad8e39bc0ac247b93eeb77fb0efa8a2970f22b26214e37790"
+  "reproducibility_stamp": "eecd99df1fa217291c28a97163a4dd51e3fa8aeee9444773896a69a3bbf7caa4"
 }
