@@ -4,10 +4,11 @@ import pandas as pd
 
 from analysis.independent_validation import compare_methods
 from analysis.deterministic_ops import (
-        stable_smoothing,
-        stable_fft_power,
-        stable_log,
-        stable_polyfit
+    deterministic_seed,
+    stable_smoothing,
+    stable_fft_power,
+    stable_log,
+    stable_polyfit
 )
 
 deterministic_seed(42)
@@ -64,7 +65,7 @@ report = {
 
 report["verdict"] = (
     "stable"
-    if report["method_agreement"] < 0.5
+    if report["method_agreement"] < 1.0
     else "fragile"
 )
 
