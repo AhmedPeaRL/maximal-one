@@ -34,6 +34,9 @@ for start_ratio, end_ratio in WINDOWS:
 
     segment = x[start:end]
 
+    if len(segment) < 64:
+        continue
+
     fft_alpha, welch_alpha = compare_methods(segment)
 
     results.append({
