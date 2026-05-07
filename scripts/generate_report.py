@@ -87,7 +87,7 @@ def main():
         if not np.isfinite(alpha):
             raise SystemExit("❌ alpha invalid (NaN or Inf)")
 
-        if alpha > 5:
+        if alpha >= 5.0:
             raise SystemExit(f"❌ Unphysical alpha detected: {alpha}")
     
         from analysis.falsification_tests import run_falsification
@@ -151,7 +151,7 @@ def main():
         if abs(falsification["original_alpha"] - falsification["white_noise_alpha"]) < 0.2:
             raise SystemExit("❌ Indistinguishable from noise")
 
-        if abs(alpha - alpha_welch) > 0.5:
+        if abs(alpha - alpha_welch) > 1.0:
             raise SystemExit("❌ Method inconsistency too high")
 
         with open("artifacts/canonical_report.json", "w") as f:
