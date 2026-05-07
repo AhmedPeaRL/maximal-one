@@ -9,7 +9,7 @@ def bootstrap_alpha_distribution(
     series,
     rng,
     n_boot=64,
-    block_size=16
+    block_size=32
 ):
 
     series = np.asarray(
