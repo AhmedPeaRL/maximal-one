@@ -13,9 +13,7 @@ def phase_randomization(series, rng):
     phases = np.angle(fft)
     magnitudes = np.abs(fft)
 
-    random_phases = rng.uniform(0, 2*np.pi, len(phases))
-
-    new_fft = magnitudes * np.exp(1j * random_phases)
+    from analysis.spectral_surrogate import phase_randomized_surrogate
 
     new_series = np.fft.irfft(new_fft)
     return estimate_alpha(new_series)
