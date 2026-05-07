@@ -24,7 +24,7 @@ def estimate_alpha(series):
 
     freqs = np.fft.rfftfreq(n)
 
-    mask = (freqs > 0.02) & (freqs < 0.25)
+    mask = (freqs > 0.04) & (freqs < 0.18)
 
     if np.sum(mask) < 10:
         return np.nan
@@ -87,7 +87,7 @@ def estimate_alpha(series):
     if not np.isfinite(alpha):
         return np.nan
 
-    if alpha < 0.05 or alpha > 6:
+    if alpha < 0.15 or alpha > 4.5:
         return np.nan
 
     return alpha
