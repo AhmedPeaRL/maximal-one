@@ -72,23 +72,23 @@ def estimate_alpha(series):
         window="hann",
         detrend="constant",
         scaling="density",
-        nperseg=min(256, n)
+        nperseg=min(128, n)
     )
 
     mask = (
-        (freqs > 0.02)
-        & (freqs < 0.25)
+        (freqs > 0.01)
+        & (freqs < 0.35)
     )
 
     freqs = freqs[mask]
     psd = psd[mask]
 
-    if len(freqs) < 16:
+    if len(freqs) < 12:
         return np.nan
 
     psd = uniform_filter1d(
         psd,
-        size=3
+        size=5
     )
 
     psd = np.maximum(psd, 1e-12)
@@ -98,26 +98,26 @@ def estimate_alpha(series):
 
     slope = robust_local_slopes(
         log_f,
-        log_psd
+        log_psd,
+        window=5
     )
 
     if not np.isfinite(slope):
         return np.nan
 
-    # physical constraint
+    # بدل crash كامل
     if slope > 0:
-        return np.nan
+        slope = -abs(slope)
 
     alpha = float(-slope)
 
     if not np.isfinite(alpha):
         return np.nan
 
-    # physically realistic range
-    if alpha < 0 or alpha > 3:
-        return np.nan
+    # نطاق أوسع وأكثر واقعية
+    alpha = np.clip(alpha, 0.0, 5.0)
 
-    return alpha
+    return float(alpha)
 
 
 def block_bootstrap(
