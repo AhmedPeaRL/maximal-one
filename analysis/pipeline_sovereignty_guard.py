@@ -90,7 +90,7 @@ if len(welch_vals) < 2:
 
 report["verdict"] = (
     "stable"
-    if report["method_agreement"] < 1.0
+    if report["method_agreement"] < 0.35
     else "fragile"
 )
 
