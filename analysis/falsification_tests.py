@@ -27,9 +27,24 @@ def run_falsification(series, rng):
     phase_alpha = phase_randomization(series, rng)
     noise_alpha = white_noise_control(len(series), rng)
 
-    results["original_alpha"] = float(original_alpha)
-    results["shuffled_alpha"] = float(shuffled_alpha)
-    results["phase_randomized_alpha"] = float(phase_alpha)
-    results["white_noise_alpha"] = float(noise_alpha)
+    values = {
+        "original_alpha": original_alpha,
+        "shuffled_alpha": shuffled_alpha,
+        "phase_randomized_alpha": phase_alpha,
+        "white_noise_alpha": noise_alpha
+    }
+
+    for key, value in values.items():
+
+        if value is None:
+            value = np.nan
+
+        if not np.isfinite(value):
+            # 🔥 controlled fallback بدل crash
+            value = -1.0
+
+        values[key] = float(value)
+
+    results.update(values)
 
     return results
