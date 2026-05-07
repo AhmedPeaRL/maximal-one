@@ -97,18 +97,19 @@ def run_null_test(real_series, n=32):
         / (std_null + 1e-8)
     )
 
-    irr = irreversibility_pass(
-        real_series,
-        surrogate_pool
-    )
-
-    print("=== IRREVERSIBILITY TEST ===")
-    print(irr)
     print("Real alpha:", real_alpha)
     print("Null mean:", mean_null)
     print("Null std:", std_null)
     print("Z-score:", z_score)
     print("Valid null samples:", len(null_alphas))
+
+    irr = irreversibility_pass(
+        real_series,
+        surrogate_pool
+    )
+    
+    print("=== IRREVERSIBILITY TEST ===")
+    print(irr)
 
     passed = (
         np.isfinite(z_score)
