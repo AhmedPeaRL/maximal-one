@@ -3,7 +3,12 @@ import numpy as np
 import pandas as pd
 
 from analysis.independent_validation import compare_methods
-from analysis.deterministic_ops import deterministic_seed
+from analysis.deterministic_ops import (
+        stable_smoothing,
+        stable_fft_power,
+        stable_log,
+        stable_polyfit
+)
 
 deterministic_seed(42)
 
