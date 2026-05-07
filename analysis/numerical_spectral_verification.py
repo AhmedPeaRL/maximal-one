@@ -57,23 +57,11 @@ def estimate_alpha(series):
     log_f = stable_log(freqs)
     log_psd = stable_log(psd)
 
-    slopes = []
-
-    for i in range(len(log_f) - 5):
-        x = log_f[i:i+5]
-        y = log_psd[i:i+5]
-
-        slope = stable_polyfit(x, y)
-
-        if np.isfinite(slope):
-            slopes.append(slope)
-
-    slopes = np.asarray(slopes, dtype=np.float64)
-
-    if len(slopes) < 5:
-        return np.nan
-
-    slope = np.median(slopes)
+    # global spectral fit
+    slope = stable_polyfit(
+        log_f,
+        log_psd
+    )
 
     if not np.isfinite(slope):
         return np.nan
