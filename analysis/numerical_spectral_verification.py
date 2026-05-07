@@ -110,8 +110,8 @@ def estimate_alpha(series):
     )
 
     mask = (
-        (freqs > 0.01)
-        & (freqs < 0.35)
+        (freqs > 0.02)
+        & (freqs < 0.25)
     )
 
     freqs = freqs[mask]
