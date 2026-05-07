@@ -67,12 +67,12 @@ def estimate_alpha_welch(series):
     if slope > 0:
         slope = -abs(slope)
 
+    if len(segment) < 64:
+        continue
+
     alpha = -slope
 
     return sanitize_alpha(alpha)
-
-    if len(segment) < 64:
-        continue
 
 
 def compare_methods(series):
