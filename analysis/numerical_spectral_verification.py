@@ -5,11 +5,20 @@ from scipy.ndimage import uniform_filter1d
 np.set_printoptions(precision=15)
 
 
-def robust_local_slopes(log_f, log_psd, window=6):
+def robust_local_slopes(
+    log_f,
+    log_psd,
+    window=7
+):
 
     slopes = []
 
-    for i in range(len(log_f) - window):
+    n = len(log_f)
+
+    if n < (window + 3):
+        return np.nan
+
+    for i in range(n - window):
 
         x = log_f[i:i + window]
         y = log_psd[i:i + window]
@@ -20,34 +29,59 @@ def robust_local_slopes(log_f, log_psd, window=6):
         ):
             continue
 
-        coeffs = np.polyfit(x, y, 1)
+        # reject flat regions
+        if np.std(y) < 1e-6:
+            continue
 
-        slope = coeffs[0]
+        try:
+
+            coeffs = np.polyfit(x, y, 1)
+
+            slope = coeffs[0]
+
+        except Exception:
+            continue
 
         if np.isfinite(slope):
-            slopes.append(slope)
+            slopes.append(float(slope))
 
-    slopes = np.asarray(slopes, dtype=np.float64)
+    slopes = np.asarray(
+        slopes,
+        dtype=np.float64
+    )
 
-    if len(slopes) < 5:
+    if len(slopes) < 8:
         return np.nan
 
-    # robust aggregation
     median = np.median(slopes)
 
-    mad = np.median(
-        np.abs(slopes - median)
-    ) + 1e-12
+    mad = (
+        np.median(
+            np.abs(slopes - median)
+        ) + 1e-12
+    )
 
     filtered = slopes[
         np.abs(slopes - median)
-        < 3 * mad
+        < 2.5 * mad
     ]
 
-    if len(filtered) < 5:
+    if len(filtered) < 6:
         return np.nan
 
-    return float(np.median(filtered))
+    # weighted center
+    q1 = np.percentile(filtered, 25)
+    q3 = np.percentile(filtered, 75)
+
+    core = filtered[
+        (filtered >= q1)
+        & (filtered <= q3)
+    ]
+
+    if len(core) < 4:
+        core = filtered
+
+    return float(np.mean(core))
 
 
 def estimate_alpha(series):
