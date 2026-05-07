@@ -32,11 +32,10 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Set Python path
-        run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-
       - name: Enforce deterministic env
         run: |
+          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+          echo "PYTHONHASHSEED=42" >> $GITHUB_ENV
           echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
           echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
           echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
