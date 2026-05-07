@@ -3,141 +3,152 @@ import pandas as pd
 import numpy as np
 import json
 import os
+
 from analysis.numerical_spectral_verification import estimate_alpha
+from analysis.adaptive_alpha_validator import adaptive_alpha_pass
+from analysis.real_null_comparison import run_null_test
 
 URL = "https://raw.githubusercontent.com/datasets/finance-vix/master/data/vix-daily.csv"
+
 
 def fetch_external():
     local_path = "real-data/vix.csv"
 
-    # 🔁 1. حاول تقرأ local لو موجود
     if os.path.exists(local_path):
         df = pd.read_csv(local_path)
+
     else:
         print("🌐 Fetching REAL external data...")
-        try:
-            response = requests.get(URL, timeout=10)
-            response.raise_for_status()
 
-            os.makedirs("real-data", exist_ok=True)
-            with open(local_path, "wb") as f:
-                f.write(response.content)
+        response = requests.get(URL, timeout=10)
+        response.raise_for_status()
 
-            df = pd.read_csv(local_path)
+        os.makedirs("real-data", exist_ok=True)
 
-        except Exception as e:
-            raise RuntimeError(f"External fetch failed: {e}")
+        with open(local_path, "wb") as f:
+            f.write(response.content)
 
-    # Normalize column names
+        df = pd.read_csv(local_path)
+
     df.columns = [c.strip().lower() for c in df.columns]
 
     for col in df.columns:
         if "close" in col:
-            return df[col].dropna().values
+            values = df[col].dropna().values.astype(np.float64)
 
-    raise ValueError("No 'close' column found in dataset")
+            if len(values) < 128:
+                raise ValueError("External dataset too small")
+
+            return values
+
+    raise ValueError("No close column found")
+
+
+def bind_external_result(classification, values):
+    os.makedirs("artifacts", exist_ok=True)
+
+    payload = {
+        "type": classification,
+        "source": "external_blind_test",
+        "length": int(len(values)),
+        "mean": float(np.mean(values)),
+        "std": float(np.std(values))
+    }
+
+    with open("artifacts/external_witness.json", "w") as f:
+        json.dump(payload, f, indent=2)
 
 
 def run_test():
+    np.random.seed(42)
+
     data = fetch_external()
 
-    np.random.seed(42)
-    # preserve temporal structure
-
     split = int(len(data) * 0.7)
+
     train = data[:split]
     test = data[split:]
 
     alpha_train = estimate_alpha(train)
     alpha_test = estimate_alpha(test)
 
-    if not np.isfinite(alpha_train) or not np.isfinite(alpha_test):
-        print("⚠️ Alpha estimation failed structurally")
-        exit(0)
+    print("Alpha train:", alpha_train)
+    print("Alpha test :", alpha_test)
 
-    if not alpha_train_res["valid"]:
+    if not np.isfinite(alpha_train):
         classification = "unmeasurable_train"
-    elif not alpha_test_res["valid"]:
+
+        bind_external_result(classification, data)
+
+        raise SystemExit("❌ Invalid train alpha")
+
+    if not np.isfinite(alpha_test):
         classification = "unmeasurable_test"
 
-    alpha_train = alpha_train_res["alpha"]
-    alpha_test = alpha_test_res["alpha"]
+        bind_external_result(classification, data)
 
-    print("Alpha train:", alpha_train)
-    print("Alpha test:", alpha_test)
+        raise SystemExit("❌ Invalid test alpha")
 
-    drift = abs(alpha_train - alpha_test)
+    sigma_est = np.std(train) / (abs(np.mean(train)) + 1e-8)
 
-    from analysis.adaptive_alpha_validator import adaptive_alpha_pass
-
-    sigma_est = np.std(train) / (np.mean(train) + 1e-8)
-
-    result = adaptive_alpha_pass(alpha_train, alpha_test, sigma_est)
+    result = adaptive_alpha_pass(
+        alpha_train,
+        alpha_test,
+        sigma_est
+    )
 
     print("Drift:", result["drift"])
     print("Tolerance:", result["tolerance"])
-    print("Relative drift:", result["relative"])
+    print("Relative:", result["relative"])
 
     if not result["pass"]:
-        print("❌ Adaptive drift validation failed")
-        exit(1)
+        classification = "adaptive_drift_failure"
+
+        bind_external_result(classification, data)
+
+        raise SystemExit("❌ Adaptive drift validation failed")
 
     print("✅ Adaptive stability confirmed")
 
-    from analysis.real_null_comparison import run_null_test
-
     print("=== NULL MODEL TEST ===")
+
     null_result = run_null_test(data)
 
     if not null_result["pass"]:
-        print("⚠️ Null model not rejected")
 
-        classification = "noise-like"
+        classification = "noise_like"
 
-        print("CLASSIFICATION:", classification)
+        bind_external_result(classification, data)
 
-        os.makedirs("artifacts", exist_ok=True)
-
-        with open("artifacts/external_classification.json", "w") as f:
+        with open(
+            "artifacts/external_classification.json",
+            "w"
+        ) as f:
             json.dump({
                 "type": classification,
                 "alpha": float(null_result["real_alpha"]),
                 "z_score": float(null_result["z_score"])
             }, f, indent=2)
 
-    else:
-        print("✅ Structure exceeds null expectation")
+        raise SystemExit("❌ Null model not rejected")
 
-        classification = "structured"
+    classification = "structured"
 
-        os.makedirs("artifacts", exist_ok=True)
+    bind_external_result(classification, data)
 
-        with open("artifacts/external_classification.json", "w") as f:
-            json.dump({
-                "type": classification,
-                "alpha": float(null_result["real_alpha"]),
-                "z_score": float(null_result["z_score"])
-            }, f, indent=2)
-
-    print("✅ Structure exceeds null expectation")
-
-    print("✅ External blind stability confirmed")
-
-
-def bind_external_result(values):
-    os.makedirs("artifacts", exist_ok=True)
-
-    with open("artifacts/external_witness.json", "w") as f:
+    with open(
+        "artifacts/external_classification.json",
+        "w"
+    ) as f:
         json.dump({
             "type": classification,
-            "reason": "spectral_failure",
-            "source": "external_blind_test",
-            "length": len(values),
-            "hash": str(hash(tuple(values)))
+            "alpha": float(null_result["real_alpha"]),
+            "z_score": float(null_result["z_score"])
         }, f, indent=2)
+
+    print("✅ Structure exceeds null expectation")
+    print("✅ External blind stability confirmed")
 
 
 if __name__ == "__main__":
     run_test()
-    data = fetch_external()
-    bind_external_result(data)
