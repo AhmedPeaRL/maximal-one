@@ -113,6 +113,7 @@ def run_test():
     print("=== NULL MODEL TEST ===")
 
     null_result = run_null_test(data)
+    print("Null test result:", null_result)
 
     if not null_result["pass"]:
 
