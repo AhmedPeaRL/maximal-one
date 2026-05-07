@@ -71,6 +71,9 @@ def estimate_alpha_welch(series):
 
     return sanitize_alpha(alpha)
 
+    if len(segment) < 64:
+        continue
+
 
 def compare_methods(series):
 
