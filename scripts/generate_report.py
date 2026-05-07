@@ -93,6 +93,9 @@ def main():
         from analysis.falsification_tests import run_falsification
 
         falsification = run_falsification(series, rng)
+        for key, value in falsification.items():
+            if not np.isfinite(value):
+                raise SystemExit(f"❌ Invalid falsification metric: {key}")
      
         from analysis.numerical_spectral_verification import block_bootstrap
 
