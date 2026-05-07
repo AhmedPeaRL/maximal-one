@@ -1,0 +1,18 @@
+{
+  "alphas": {
+    "real": {
+      "sunspots": 4.203280423700001
+    },
+    "synthetic": {
+      "mean": 1.161782030742308,
+      "std": 0.9206015820900108
+    },
+    "noise": {
+      "white": 0.08755953970000001
+    }
+  },
+  "checks": {
+    "not_noise": true,
+    "internal_stability": true
+  }
+}
