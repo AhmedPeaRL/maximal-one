@@ -12,54 +12,74 @@ def estimate_alpha(series):
         return np.nan
 
     series = series - np.mean(series)
+
     n = len(series)
 
     if n < 32:
         return np.nan
 
+    # windowing
     window = np.hanning(n)
     series = series * window
 
-    fft_vals = np.fft.rfft(series.astype(np.float64))
-    psd = (np.abs(fft_vals) ** 2) / n
     freqs = np.fft.rfftfreq(n)
 
     mask = (freqs > 0.02) & (freqs < 0.25)
 
-    freqs = freqs[mask]
-    psd = psd[mask]
-
-    if len(freqs) < 10:
+    if np.sum(mask) < 10:
         return np.nan
 
-    from analysis.deterministic_ops import stable_smoothing, stable_fft_power, stable_log, stable_polyfit
+    from analysis.deterministic_ops import (
+        stable_smoothing,
+        stable_fft_power,
+        stable_log,
+        stable_polyfit
+    )
 
     psd_full = stable_fft_power(series)
+
     psd_full = stable_smoothing(psd_full)
-    psd_full = np.round(psd_full, 8)
+
+    # 🔥 spectral floor stabilization
+    psd_full = np.maximum(psd_full, 1e-12)
+
+    psd_full = np.round(psd_full, 10)
 
     psd = psd_full[mask]
+    freqs = freqs[mask]
+
+    if len(psd) < 10:
+        return np.nan
+
+    if np.any(psd <= 0):
+        return np.nan
 
     log_f = stable_log(freqs)
     log_psd = stable_log(psd)
 
     slopes = []
+
     for i in range(len(log_f) - 5):
         x = log_f[i:i+5]
         y = log_psd[i:i+5]
-        A = np.vstack([x, np.ones(len(x))]).T
-        slope = stable_polyfit(x, y)
-        slopes.append(slope)
 
-    slopes = np.array(slopes)
-    slopes = slopes[np.isfinite(slopes)]
+        slope = stable_polyfit(x, y)
+
+        if np.isfinite(slope):
+            slopes.append(slope)
+
+    slopes = np.asarray(slopes, dtype=np.float64)
 
     if len(slopes) < 5:
         return np.nan
 
     slope = np.median(slopes)
 
-    if not np.isfinite(slope) or slope > 0:
+    if not np.isfinite(slope):
+        return np.nan
+
+    # 🔥 relaxed physical guard
+    if slope > 0.25:
         return np.nan
 
     alpha = float(-slope)
@@ -67,7 +87,7 @@ def estimate_alpha(series):
     if not np.isfinite(alpha):
         return np.nan
 
-    if alpha < 0 or alpha > 5:
+    if alpha < 0 or alpha > 8:
         return np.nan
 
     return alpha
