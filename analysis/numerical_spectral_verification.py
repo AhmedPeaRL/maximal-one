@@ -87,7 +87,7 @@ def estimate_alpha(series):
     if not np.isfinite(alpha):
         return np.nan
 
-    if alpha < 0 or alpha > 8:
+    if alpha < 0.05 or alpha > 6:
         return np.nan
 
     return alpha
