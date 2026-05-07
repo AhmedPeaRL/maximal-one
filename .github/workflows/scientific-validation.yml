@@ -15,7 +15,7 @@ permissions:
   
 
 env:
-  PYTHONHASHSEED: "0"
+  PYTHONHASHSEED: "42"
   NODE_ENV: "production"
   NODE_OPTIONS: "--no-deprecation"
   OPENBLAS_NUM_THREADS: "1"
