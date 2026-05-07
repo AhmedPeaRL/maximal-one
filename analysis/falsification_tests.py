@@ -1,5 +1,7 @@
 import numpy as np
+
 from analysis.numerical_spectral_verification import estimate_alpha
+from analysis.spectral_surrogate import phase_randomized_surrogate
 
 
 def shuffle_test(series, rng):
@@ -8,17 +10,8 @@ def shuffle_test(series, rng):
 
 
 def phase_randomization(series, rng):
-    fft = np.fft.rfft(series)
-
-    phases = np.angle(fft)
-    magnitudes = np.abs(fft)
-
-    from analysis.spectral_surrogate import phase_randomized_surrogate
-
-    new_fft = magnitudes * np.exp(1j * random_phases)
-    
-    new_series = np.fft.irfft(new_fft)
-    return estimate_alpha(new_series)
+    surrogate = phase_randomized_surrogate(series, rng)
+    return estimate_alpha(surrogate)
 
 
 def white_noise_control(n, rng):
@@ -29,9 +22,14 @@ def white_noise_control(n, rng):
 def run_falsification(series, rng):
     results = {}
 
-    results["original_alpha"] = float(estimate_alpha(series))
-    results["shuffled_alpha"] = float(shuffle_test(series, rng))
-    results["phase_randomized_alpha"] = float(phase_randomization(series, rng))
-    results["white_noise_alpha"] = float(white_noise_control(len(series), rng))
+    original_alpha = estimate_alpha(series)
+    shuffled_alpha = shuffle_test(series, rng)
+    phase_alpha = phase_randomization(series, rng)
+    noise_alpha = white_noise_control(len(series), rng)
+
+    results["original_alpha"] = float(original_alpha)
+    results["shuffled_alpha"] = float(shuffled_alpha)
+    results["phase_randomized_alpha"] = float(phase_alpha)
+    results["white_noise_alpha"] = float(noise_alpha)
 
     return results
