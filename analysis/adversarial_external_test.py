@@ -2,7 +2,9 @@ import numpy as np
 import pandas as pd
 
 from analysis.numerical_spectral_verification import (
-    estimate_alpha,
+    estimate_alpha
+)
+from analysis.independent_validation import (
     estimate_alpha_welch
 )
 
