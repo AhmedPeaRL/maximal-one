@@ -43,8 +43,23 @@ for start_ratio, end_ratio in WINDOWS:
         "delta": float(abs(fft_alpha - welch_alpha))
     })
 
-fft_vals = [r["fft"] for r in results]
-welch_vals = [r["welch"] for r in results]
+fft_vals = [
+    r["fft"]
+    for r in results
+    if np.isfinite(r["fft"])
+]
+
+welch_vals = [
+    r["welch"]
+    for r in results
+    if np.isfinite(r["welch"])
+]
+
+deltas = [
+    r["delta"]
+    for r in results
+    if np.isfinite(r["delta"])
+]
 
 report = {
     "pipeline_sovereignty_score":
@@ -57,11 +72,21 @@ report = {
         float(np.std(welch_vals)),
 
     "method_agreement":
-        float(np.mean([r["delta"] for r in results])),
+        float(np.mean(deltas)),
 
     "results":
         results
 }
+
+if len(fft_vals) < 2:
+    raise SystemExit(
+        "Insufficient finite FFT estimates"
+    )
+
+if len(welch_vals) < 2:
+    raise SystemExit(
+        "Insufficient finite Welch estimates"
+)
 
 report["verdict"] = (
     "stable"
