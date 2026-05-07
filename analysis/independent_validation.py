@@ -2,49 +2,75 @@ import numpy as np
 from scipy.signal import welch
 from scipy.stats import linregress
 
+
+def sanitize_alpha(alpha):
+
+    if not np.isfinite(alpha):
+        return np.nan
+
+    alpha = float(alpha)
+
+    alpha = np.clip(alpha, 0.0, 5.0)
+
+    return float(alpha)
+
+
 def estimate_alpha_welch(series):
 
-    series = np.asarray(series, dtype=np.float64)
+    series = np.asarray(
+        series,
+        dtype=np.float64
+    )
 
     if not np.all(np.isfinite(series)):
         return np.nan
 
-    series = series - np.mean(series)
-
     n = len(series)
 
-    if n < 32:
+    if n < 64:
         return np.nan
 
-    nperseg = min(64, n)
+    series = series - np.mean(series)
 
     freqs, psd = welch(
         series,
-        nperseg=nperseg,
+        nperseg=min(128, n),
         scaling="density",
         window="hann",
         detrend="constant"
     )
 
-    mask = (freqs > 0.02) & (freqs < 0.25)
+    mask = (
+        (freqs > 0.01)
+        & (freqs < 0.35)
+    )
 
     freqs = freqs[mask]
     psd = psd[mask]
 
-    if len(freqs) < 10:
+    if len(freqs) < 12:
         return np.nan
+
+    psd = np.maximum(psd, 1e-12)
 
     log_f = np.log(freqs)
-    log_psd = np.log(psd + 1e-10)
+    log_psd = np.log(psd)
 
-    slope, _, _, _, _ = linregress(log_f, log_psd)
+    slope, _, _, _, _ = linregress(
+        log_f,
+        log_psd
+    )
 
-    alpha = float(-slope)
-
-    if not np.isfinite(alpha):
+    if not np.isfinite(slope):
         return np.nan
 
-    return alpha
+    if slope > 0:
+        slope = -abs(slope)
+
+    alpha = -slope
+
+    return sanitize_alpha(alpha)
+
 
 def compare_methods(series):
 
@@ -52,11 +78,15 @@ def compare_methods(series):
         estimate_alpha
     )
 
-    fft_alpha = estimate_alpha(series)
+    fft_alpha = sanitize_alpha(
+        estimate_alpha(series)
+    )
 
-    welch_alpha = estimate_alpha_welch(series)
+    welch_alpha = sanitize_alpha(
+        estimate_alpha_welch(series)
+    )
 
     print(f"Method 1 (FFT): {fft_alpha}")
     print(f"Method 2 (Welch): {welch_alpha}")
 
-    return fft_alpha, welch_alpha    
+    return fft_alpha, welch_alpha
