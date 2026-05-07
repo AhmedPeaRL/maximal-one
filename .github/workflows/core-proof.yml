@@ -218,11 +218,16 @@ jobs:
           print("FP:", fp)
           PY
 
+      - name: Artifact closure guard
+        run: |
+          python analysis/artifact_closure_guard.py
+
       - name: Commit fingerprint
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git add artifacts/fingerprint.txt
+          git add artifacts/*.txt
+          git add artifacts/*.json
           git commit -m "update fingerprint" || echo "no changes"
           git push
 
