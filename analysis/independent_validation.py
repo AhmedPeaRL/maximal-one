@@ -87,7 +87,7 @@ def compare_methods(series):
     )
 
     if len(segment) < 64:
-        continue
+    continue
 
     print(f"Method 1 (FFT): {fft_alpha}")
     print(f"Method 2 (Welch): {welch_alpha}")
