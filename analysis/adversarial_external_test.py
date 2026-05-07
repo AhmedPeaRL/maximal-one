@@ -1,7 +1,10 @@
 import numpy as np
 import pandas as pd
-from analysis.independent_validation import estimate_alpha_welch
-from analysis.numerical_spectral_verification import estimate_alpha
+
+from analysis.numerical_spectral_verification import (
+    estimate_alpha,
+    estimate_alpha_welch
+)
 
 def generate_adversarial_signal(n=1000):
     # خلية عشوائية تماماً مع تشويش عالي لكسر أي تشابه بالصدفة
