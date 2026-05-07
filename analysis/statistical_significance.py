@@ -24,7 +24,10 @@ def monte_carlo_p_value(series, observed_alpha, rng, trials=500):
             "p_value": 1.0
         }
 
-    p_value = np.mean(null_alphas >= observed_alpha)
+    p_value = max(
+        1e-6,
+        float(np.mean(null_alphas >= observed_alpha))
+    )
 
     return {
         "observed_alpha": float(observed_alpha),
