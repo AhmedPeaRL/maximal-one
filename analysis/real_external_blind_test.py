@@ -7,13 +7,16 @@ import os
 from analysis.numerical_spectral_verification import estimate_alpha
 from analysis.adaptive_alpha_validator import adaptive_alpha_pass
 from analysis.real_null_comparison import run_null_test
+from analysis.bootstrap_alpha_stability import (
+    bootstrap_alpha_distribution
+)
 
-URL = "https://raw.githubusercontent.com/datasets/finance-vix/master/data/vix-daily.csv"
+URL = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/daily-min-temperatures.csv"
 
 
 def fetch_external():
 
-    local_path = "real-data/vix.csv"
+    local_path = "real-data/daily-min-temperatures.csv"
 
     if os.path.exists(local_path):
         df = pd.read_csv(local_path)
@@ -128,12 +131,24 @@ def run_test():
             "❌ Invalid test alpha"
         )
 
-    sigma_est = np.std(train)
+    bootstrap = (
+        bootstrap_alpha_distribution(
+            train,
+            np.random.RandomState(42)
+        )
+    )
+
+    alpha_sigma = bootstrap["std"]
+
+    print(
+        "Bootstrap alpha sigma:",
+        alpha_sigma
+    )
 
     result = adaptive_alpha_pass(
         alpha_train,
         alpha_test,
-        sigma_est
+        alpha_sigma
     )
 
     print("Drift:", result["drift"])
