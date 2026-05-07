@@ -16,8 +16,17 @@ def compute_fingerprint(report):
     alpha = round(float(sp["estimated_alpha"]), 6)
     sigma = round(float(sp["bootstrap_std"]), 6)
 
-    vector = np.array([alpha, sigma], dtype=np.float64)
-    return hashlib.sha256(vector.tobytes()).hexdigest()
+    payload = {
+        "alpha": alpha,
+        "sigma": sigma,
+        "ci_low": round(float(sp["ci_low"]), 6),
+        "ci_high": round(float(sp["ci_high"]), 6),
+        "noise_alpha": round(float(sp["noise_alpha"]), 6)
+    }
+
+    blob = json.dumps(payload, sort_keys=True).encode()
+
+    fp = hashlib.sha256(blob).hexdigest()
 
 def fetch_external_fingerprint(url):
     if not url:
