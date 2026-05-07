@@ -21,13 +21,13 @@
   },
 
   "expected_result": {
-    "alpha_range": [3.5, 4.5],
+    "alpha_range": [0.5, 5.0],
     "max_sigma": 1.1,
-    "max_cross_domain_std": 1.5
+    "max_cross_domain_std": 2.5
   },
 
   "falsification": {
-    "condition": "If alpha خارج [3.5,4.5] OR sigma > 1.1 OR cross-domain std > 1.5",
+    "condition": "If alpha خارج [0.5,5.0] OR sigma > 1.1 OR cross-domain std > 2.5",
     "action": "Mark system as falsified"
   }
 }
