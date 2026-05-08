@@ -44,10 +44,12 @@ def main():
                 if not np.isfinite(alpha) or alpha < 0.3:
                     raise ValueError("Weak or invalid alpha")
 
-                if alpha >= 5:
+                # reject saturation artifacts explicitly
+                if alpha >= 4.95:
                     raise ValueError("Saturated alpha")
 
-                results.append(alpha)
+                results.append(float(alpha))
+
                 print(f"{file}: alpha={alpha:.4f}")
 
             except Exception as e:
