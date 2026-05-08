@@ -175,6 +175,34 @@ jobs:
         run: |
           python analysis/invariant_stability_guard.py
 
+      - name: Numerical consistency check
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          from analysis.independent_validation import compare_methods
+
+          df = pd.read_csv("real-data/sunspots_global.csv")
+
+          col = "Sunspots" if "Sunspots" in df.columns else "value"
+
+          fft_alpha, welch_alpha = compare_methods(
+              df[col].values
+          )
+
+          delta = abs(
+              fft_alpha - welch_alpha
+          )
+
+          print("FINAL DELTA:", delta)
+
+          if delta > 0.60:
+              raise SystemExit(
+                  "❌ Numerical inconsistency"
+              )
+
+          print("✅ Numerical consistency holds")
+          PY
+
       - name: Pipeline sovereignty guard
         run: python analysis/pipeline_sovereignty_guard.py
         
