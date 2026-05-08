@@ -15,7 +15,7 @@ def phase_randomization(series, rng):
 
 
 def white_noise_control(n, rng):
-    wn = rng.randn(n)
+    wn = rng.standard_normal(n)
     return estimate_alpha(wn)
 
 
