@@ -122,7 +122,7 @@ def estimate_alpha(series):
 
     psd = uniform_filter1d(
         psd,
-        size=5
+        size=3
     )
 
     psd = np.maximum(psd, 1e-12)
