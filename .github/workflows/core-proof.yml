@@ -266,9 +266,17 @@ jobs:
         run: |
           python analysis/provenance_chain_guard.py
 
+      - name: External replay verifier
+        run: |
+          python analysis/external_replay_verifier.py
+
       - name: Artifact closure guard
         run: |
           python analysis/artifact_closure_guard.py
+
+      - name: Archive immutable snapshot
+        run: |
+          python analysis/archive_snapshot.py
 
       - name: Commit fingerprint
         run: |
