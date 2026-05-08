@@ -91,19 +91,32 @@ def main():
             raise SystemExit(f"❌ Unphysical alpha detected: {alpha}")
     
         from analysis.falsification_tests import run_falsification
+        from analysis.numerical_spectral_verification import block_bootstrap
+        from analysis.statistical_significance import monte_carlo_p_value
 
-        falsification = run_falsification(series, rng)
+        falsification_rng = np.random.default_rng(args.seed + 101)
+        bootstrap_rng = np.random.default_rng(args.seed + 202)
+        stats_rng = np.random.default_rng(args.seed + 303)
+
+        falsification = run_falsification(
+            series,
+            falsification_rng
+        )
+
+        boot = block_bootstrap(
+            series,
+            bootstrap_rng
+        )
+
+        stats = monte_carlo_p_value(
+            series,
+            alpha,
+            stats_rng
+        )
+
         for key, value in falsification.items():
             if not np.isfinite(value):
                 raise SystemExit(f"❌ Invalid falsification metric: {key}")
-     
-        from analysis.numerical_spectral_verification import block_bootstrap
-
-        boot = block_bootstrap(series, rng)
-
-        from analysis.statistical_significance import monte_carlo_p_value
-
-        stats = monte_carlo_p_value(series, alpha, rng)
         
         if stats["p_value"] > 0.05:
             raise SystemExit("❌ Not statistically significant")
