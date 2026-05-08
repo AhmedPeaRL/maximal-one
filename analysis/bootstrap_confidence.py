@@ -5,7 +5,8 @@ from analysis.independent_validation import (
 )
 
 from analysis.numerical_spectral_verification import (
-    estimate_alpha
+    estimate_alpha,
+    block_bootstrap
 )
 
 BOOTSTRAP_ITERATIONS = 128
@@ -65,13 +66,21 @@ def bootstrap_alpha(
 
 def dual_bootstrap(series):
 
+    rng = np.random.default_rng(42)
+
+    fft_conf = block_bootstrap(
+        series,
+        rng,
+        block_size=16,
+        num_boot=128
+    )
+
+    welch_conf = bootstrap_alpha(
+        series,
+        estimate_alpha_welch
+    )
+
     return {
-        "fft": bootstrap_alpha(
-            series,
-            estimate_alpha
-        ),
-        "welch": bootstrap_alpha(
-            series,
-            estimate_alpha_welch
-        )
+        "fft": fft_conf,
+        "welch": welch_conf
     }
