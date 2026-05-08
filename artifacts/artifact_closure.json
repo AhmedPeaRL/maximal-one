@@ -1,19 +1,21 @@
 {
-  "artifact_count": 14,
+  "artifact_count": 16,
   "hashes": {
     "*.json": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-    "artifact_closure.json": "d6e76847372a4ba49006abdb82c9a98b772c55ec84014dfcc99914cbf7c83ddc",
-    "canonical_report.json": "78831e2069ffee4f33161cc721d944185000436fe45265fd8249f3fe09de8a2e",
+    "artifact_closure.json": "0d6b4960bf054206602a98732916152e140249169067027e45ed82fea17afbe9",
+    "canonical_report.json": "9caa1032e3aa5369a69187f736483361422b16552f3455168c86981b504b0b48",
     "environment_fingerprint.json": "21e6c2b4ef476cbf26833d46a443a635023f3861dd7dcb1ccb295724f29c2fd1",
     "estimator_calibration.json": "35c22c095780482f8ac288a3b2c835861edab5ff009d62753412b61b4e6f2775",
+    "external_replay_verification.json": "5185e67443be0a1141b822b1c0d2979449057854fa647e652bc29e183f13aa04",
     "falsification_status.json": "a502f5e833d747b54c73e218238a9e4cc704372146c1bedf5cea263e56146e6d",
-    "fingerprint.txt": "071f646c5674abb4aa9e83f8a13d83e515ef41834944d0967b8a0fac12a99189",
+    "fingerprint.txt": "d6433331d43e5f71cf976b57225c6682d80854e8d2a7c996a9d065e4e733cb5b",
     "multi_report.json": "cb9d7ce11f8d553880b29f7230480daae90c64a4fc640760a19084e55d753fcc",
     "physical_interpretation.json": "d9bd09a964e77557cbe8dccf74bd002c2624e694be3694aa532291953f773fee",
-    "pipeline_sovereignty.json": "2f9626246ff4a67a4529300c7ffeac4141242bab302896fd3d07a57387dbf825",
-    "provenance_chain.json": "3b96ca2d3996999d186dd0f23ee1c9f49f721a03bd1f756144def21793780dd7",
+    "pipeline_sovereignty.json": "866818e49ad237fa53b0fce25d9d01fcccda24d5c34121be1a0919d8dc00fe64",
+    "provenance_chain.json": "d353242433d1aa1c75a2bcee0a660e76f65799a7121d2549d4339492744b30fe",
     "public_verdict.json": "cb8d3d9c43541fbfee6747aac82595d90a54f3bc50afddf29cb82bdb6e868f8d",
     "report.hash": "de1ced2beb10ebd34c91061315b918b9410f73b42c63fcd525cb6e7d1139f8c9",
-    "runtime_guard.json": "523657027c7d4cf2e7eb46c9b124b7bd30883216a30625364f0e0619e5b25c2b"
+    "runtime_guard.json": "523657027c7d4cf2e7eb46c9b124b7bd30883216a30625364f0e0619e5b25c2b",
+    "witness_lock.json": "c102455a0b74b4f49deb1e50761d9ca89f1e404ad3fb13182ef4b0ce5937ddd4"
   }
 }
