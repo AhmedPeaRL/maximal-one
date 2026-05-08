@@ -278,6 +278,10 @@ jobs:
         run: |
           python analysis/artifact_closure_guard.py
 
+      - name: Release manifest guard
+        run: |
+          python analysis/release_manifest_guard.py
+
       - name: Archive immutable snapshot
         run: |
           python analysis/archive_snapshot.py
@@ -290,12 +294,12 @@ jobs:
           git remote set-url origin \
           https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}.git
 
-          git add artifacts/*.txt
-          git add artifacts/*.json
+          git add artifacts/*.txt || true
+          git add artifacts/*.json || true
 
           git commit -m "update fingerprint" || echo "no changes"
 
-          git push origin HEAD:main
-
+          git push origin HEAD:${{ github.ref_name }}
+          
       - name: External Reproduction Guard
         run: python analysis/external_reproduction_guard.py
