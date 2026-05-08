@@ -9,7 +9,7 @@ from analysis.numerical_spectral_verification import estimate_alpha
 
 
 def generate_series(rng, n=1024):
-    x = rng.randn(n)
+    x = rng.standard_normal(n)
 
     for i in range(1, n):
         x[i] += 0.8 * x[i-1]
@@ -41,7 +41,7 @@ def main():
     parser.add_argument("--canonical", action="store_true")
     args = parser.parse_args()
 
-    rng = np.random.RandomState(args.seed)
+    rng = np.random.default_rng(args.seed)
     np.random.seed(args.seed)  # 🔥 مهم جداً
 
     os.makedirs("artifacts", exist_ok=True)
@@ -78,7 +78,7 @@ def main():
 
         noise_samples = []
         for i in range(10):
-            local_rng = np.random.RandomState(args.seed + 999 + i)
+            local_rng = np.random.default_rng(args.seed + 999 + i)
             wn = local_rng.randn(len(series))
             noise_samples.append(estimate_alpha(wn))
        
