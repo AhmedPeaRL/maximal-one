@@ -3,6 +3,10 @@ from scipy.signal import welch
 from scipy.stats import linregress
 
 
+FREQ_MIN = 0.02
+FREQ_MAX = 0.25
+
+
 def sanitize_alpha(alpha):
 
     if not np.isfinite(alpha):
@@ -41,8 +45,8 @@ def estimate_alpha_welch(series):
     )
 
     mask = (
-        (freqs > 0.01)
-        & (freqs < 0.35)
+        (freqs > FREQ_MIN)
+        & (freqs < FREQ_MAX)
     )
 
     freqs = freqs[mask]
@@ -86,7 +90,12 @@ def compare_methods(series):
         estimate_alpha_welch(series)
     )
 
+    agreement_delta = abs(
+        fft_alpha - welch_alpha
+    )
+
     print(f"Method 1 (FFT): {fft_alpha}")
     print(f"Method 2 (Welch): {welch_alpha}")
+    print(f"Agreement delta: {agreement_delta}")
 
     return fft_alpha, welch_alpha
