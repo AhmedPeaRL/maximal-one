@@ -10,6 +10,9 @@ from analysis.deterministic_ops import (
     stable_log,
     stable_polyfit
 )
+from analysis.bootstrap_confidence import (
+    dual_bootstrap
+)
 
 deterministic_seed(42)
 
@@ -38,12 +41,24 @@ for start_ratio, end_ratio in WINDOWS:
         continue
 
     fft_alpha, welch_alpha = compare_methods(segment)
+    confidence = dual_bootstrap(segment)
 
     results.append({
-        "window": [start_ratio, end_ratio],
+        
+        "window": [
+            start_ratio,
+            end_ratio
+        ],
+
         "fft": float(fft_alpha),
+
         "welch": float(welch_alpha),
-        "delta": float(abs(fft_alpha - welch_alpha))
+
+        "delta": float(
+            abs(fft_alpha - welch_alpha)
+        ),
+
+        "confidence": confidence
     })
 
 fft_vals = [
