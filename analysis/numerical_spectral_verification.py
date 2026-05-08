@@ -176,7 +176,7 @@ def block_bootstrap(
 
         while len(sample) < n:
 
-            start = rng.randint(
+            start = rng.integers(
                 0,
                 n - block_size
             )
