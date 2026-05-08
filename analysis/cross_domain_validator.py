@@ -30,7 +30,7 @@ def main():
     results = []
     failed = []
 
-    for file in os.listdir(DATA_DIR):
+    for file in sorted(os.listdir(DATA_DIR)):
         if file.endswith(".csv"):
             path = os.path.join(DATA_DIR, file)
             try:
