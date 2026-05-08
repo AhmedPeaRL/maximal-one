@@ -148,8 +148,11 @@ def estimate_alpha(series):
     if not np.isfinite(alpha):
         return np.nan
 
-    # نطاق أوسع وأكثر واقعية
-    alpha = np.clip(alpha, 0.0, 5.0)
+    if alpha < 0:
+        return np.nan
+
+    if alpha > 8:
+        return np.nan
 
     return float(alpha)
 
