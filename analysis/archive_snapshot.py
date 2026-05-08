@@ -4,9 +4,7 @@ from datetime import datetime
 
 SOURCE = "artifacts/canonical_report.json"
 
-timestamp = datetime.utcnow().strftime(
-    "%Y%m%dT%H%M%SZ"
-)
+timestamp = "seed42"
 
 dest_dir = Path(
     "artifacts/archive"
