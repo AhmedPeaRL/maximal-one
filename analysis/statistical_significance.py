@@ -8,7 +8,7 @@ def monte_carlo_p_value(series, observed_alpha, rng, trials=500):
     n = len(series)
 
     for _ in range(trials):
-        wn = rng.randn(n)
+        wn = rng.standard_normal(n)
         alpha = estimate_alpha(wn)
 
         if np.isfinite(alpha):
