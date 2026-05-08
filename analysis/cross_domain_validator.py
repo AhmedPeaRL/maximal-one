@@ -44,8 +44,8 @@ def main():
                 if not np.isfinite(alpha) or alpha < 0.3:
                     raise ValueError("Weak or invalid alpha")
 
-                # 🔥 clip extreme values
-                alpha = np.clip(alpha, -5, 5)
+                if alpha >= 5:
+                    raise ValueError("Saturated alpha")
 
                 results.append(alpha)
                 print(f"{file}: alpha={alpha:.4f}")
