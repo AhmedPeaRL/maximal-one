@@ -1,14 +1,15 @@
 {
-  "artifact_count": 11,
+  "artifact_count": 12,
   "hashes": {
     "*.json": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
-    "artifact_closure.json": "955d9185dc2a6d97a031ae36e97487b0c91570ef92fbf44517e74019a6901f46",
-    "canonical_report.json": "627338e307a4fb32e4986d75fe06fd559d725d104aca898e430b78548c9bcb8c",
+    "artifact_closure.json": "62ab6fcd791ceb12d761aca89696d5f67a70b0d208c7a24a471d448da828601e",
+    "canonical_report.json": "d03d53fe318cc6bc2a630de366c24d6c46d8181478171e3ba16ab602bb648b3b",
+    "estimator_calibration.json": "8386b3f9c439a44450abc273b57135e897046e956b0dd795abc51b29bf1f60f2",
     "falsification_status.json": "a502f5e833d747b54c73e218238a9e4cc704372146c1bedf5cea263e56146e6d",
     "fingerprint.txt": "d0b1d547fc1012861e2d220a968276a5e75baa64df4321f2455ed442c4fac7c4",
     "multi_report.json": "55e132a9ba29dd8590c36398967c05319c8dfac44df005bf1f5fe81c3b4a71ed",
     "physical_interpretation.json": "7885f150c69426165faafc69cdb145acfad918913c3be22736794f009328348a",
-    "pipeline_sovereignty.json": "ab641e5c25c88d62c171605941d0eead90750bb4e42b016e458852c5a1222ab1",
+    "pipeline_sovereignty.json": "288e372ab918ae4da6491e6f3329dafcd6446f7c1bd193c087b87fb93a90316a",
     "public_verdict.json": "cb8d3d9c43541fbfee6747aac82595d90a54f3bc50afddf29cb82bdb6e868f8d",
     "report.hash": "de1ced2beb10ebd34c91061315b918b9410f73b42c63fcd525cb6e7d1139f8c9",
     "runtime_guard.json": "523657027c7d4cf2e7eb46c9b124b7bd30883216a30625364f0e0619e5b25c2b"

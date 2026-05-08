@@ -1,0 +1,23 @@
+{
+  "mean_abs_error": 0.19079357499800753,
+  "results": [
+    {
+      "type": "white",
+      "target": 0.0,
+      "estimated": 0.3361010459340753,
+      "abs_error": 0.3361010459340753
+    },
+    {
+      "type": "pink",
+      "target": 1.0,
+      "estimated": 1.012645895805356,
+      "abs_error": 0.012645895805355911
+    },
+    {
+      "type": "brown",
+      "target": 2.0,
+      "estimated": 2.2236337832545914,
+      "abs_error": 0.22363378325459138
+    }
+  ]
+}

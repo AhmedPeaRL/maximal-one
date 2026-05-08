@@ -1,8 +1,8 @@
 {
   "cross_method_validation": {
-    "agreement": 0.79176041,
+    "agreement": 0.00246694,
     "fft_alpha": 4.05121202,
-    "welch_alpha": 3.25945161
+    "welch_alpha": 4.05367896
   },
   "metadata": {
     "generator": "pure_real",
@@ -41,5 +41,5 @@
     "observed_alpha": 4.05121202,
     "p_value": 1e-06
   },
-  "reproducibility_stamp": "73c65fe49fa2928bd54c4725959929b950b468a6fbc0d5f3af0e1c89e4c60ae8"
+  "reproducibility_stamp": "299b14b8eb07f6dd8605004f4987e3a11e92339ce108c67ae50a687805e971d2"
 }
