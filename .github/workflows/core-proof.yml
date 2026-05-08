@@ -51,6 +51,10 @@ jobs:
           pip install --upgrade pip
           pip install --require-hashes -r requirements-lock.txt
 
+      - name: Environment fingerprint
+        run: |
+          python analysis/environment_fingerprint.py
+
       - name: Validate dataset content
         run: |
           python - <<'PY'
@@ -249,6 +253,10 @@ jobs:
 
           print("FP:", fp)
           PY
+
+      - name: Provenance chain guard
+        run: |
+          python analysis/provenance_chain_guard.py
 
       - name: Artifact closure guard
         run: |
