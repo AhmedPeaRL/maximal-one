@@ -79,7 +79,7 @@ def main():
         noise_samples = []
         for i in range(10):
             local_rng = np.random.default_rng(args.seed + 999 + i)
-            wn = local_rng.randn(len(series))
+            wn = local_rng.standard_normal(len(series))
             noise_samples.append(estimate_alpha(wn))
        
         alpha = estimate_alpha(series)
