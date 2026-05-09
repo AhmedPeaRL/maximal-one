@@ -106,7 +106,8 @@ def estimate_alpha(series):
         window="hann",
         detrend="constant",
         scaling="density",
-        nperseg=min(128, n)
+        nperseg=min(128, n),
+        average="median"
     )
 
     mask = (
