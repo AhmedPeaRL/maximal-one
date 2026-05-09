@@ -107,6 +107,10 @@ jobs:
           print("✅ control datasets generated")
           PY
 
+      - name: Dataset provenance guard
+        run: |
+          python analysis/dataset_provenance_guard.py
+
       - name: Run canonical experiment ONLY
         run: |
           python scripts/generate_report.py --seed 42 --canonical
@@ -345,12 +349,16 @@ jobs:
 
           for i in 1 2 3; do
 
-            git pull --rebase origin main || true
+            git fetch origin main
 
-            if git push origin HEAD:main; then
-              echo "✅ push succeeded"
-              exit 0
-            fi
+            git stash push --include-untracked || true
+
+            git rebase origin/main || {
+              git rebase --abort || true
+              git reset --hard origin/main
+            }
+
+            git stash pop || true
 
             echo "Retrying push..."
             sleep 3
