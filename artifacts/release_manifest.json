@@ -1,13 +1,13 @@
 {
-  "artifact_count": 16,
+  "artifact_count": 17,
   "manifest": {
     "*.json": {
       "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
       "size": 1
     },
     "artifact_closure.json": {
-      "sha256": "9bfc429631f994a16a727f894a6080c698b59c8a33a05bb4a14e17da7d1132e0",
-      "size": 1591
+      "sha256": "c111ff7ad0fc85573848903f068d583eb6d6df4b70d69e0e3b771c6a9af11018",
+      "size": 1688
     },
     "canonical_report.json": {
       "sha256": "9caa1032e3aa5369a69187f736483361422b16552f3455168c86981b504b0b48",
@@ -46,12 +46,16 @@
       "size": 1383
     },
     "provenance_chain.json": {
-      "sha256": "9be74f06a4e1797697d0a74a72327f4918b533759c27e1773be4de0051579aeb",
+      "sha256": "20b9329a89e578c05371f18f8a418c85987e57f727a271b4fc037f4cf36a90a0",
       "size": 375
     },
     "public_verdict.json": {
       "sha256": "cb8d3d9c43541fbfee6747aac82595d90a54f3bc50afddf29cb82bdb6e868f8d",
       "size": 148
+    },
+    "release_manifest.json": {
+      "sha256": "dd9edf7578fc978ea0ce76693ac9866f01bfef55ce150fdac891c35664fe5971",
+      "size": 2276
     },
     "report.hash": {
       "sha256": "de1ced2beb10ebd34c91061315b918b9410f73b42c63fcd525cb6e7d1139f8c9",
@@ -62,7 +66,7 @@
       "size": 59
     },
     "witness_lock.json": {
-      "sha256": "9914e53563a40e50b8be959ea5f64b96bc86264fe6fa36229080f88f1db23e0f",
+      "sha256": "e4b5e362db7ac23c1fb4d3e59b9e7180b83643978917506b087a895f109c6f5d",
       "size": 692
     }
   }
