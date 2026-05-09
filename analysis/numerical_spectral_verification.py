@@ -139,9 +139,8 @@ def estimate_alpha(series):
     if not np.isfinite(slope):
         return np.nan
 
-    # بدل crash كامل
     if slope > 0:
-        slope = -abs(slope)
+        return np.nan
 
     alpha = float(-slope)
 
