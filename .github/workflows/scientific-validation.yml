@@ -323,13 +323,13 @@ jobs:
           git reset --hard origin/main
 
           # restore generated artifacts from current workspace
-          python scripts/generate_report.py --seed 42 --canonical || true
-          python analysis/pipeline_sovereignty_guard.py || true
-          python analysis/external_replay_verifier.py || true
-          python analysis/witness_lock.py || true
-          python analysis/artifact_closure_guard.py || true
-          python analysis/release_manifest_guard.py || true
-          python analysis/archive_snapshot.py || true
+          python scripts/generate_report.py --seed 42 --canonical
+          python analysis/pipeline_sovereignty_guard.py
+          python analysis/external_replay_verifier.py
+          python analysis/witness_lock.py
+          python analysis/artifact_closure_guard.py
+          python analysis/release_manifest_guard.py
+          python analysis/archive_snapshot.py
 
           git add artifacts/*.txt || true
           git add artifacts/*.json || true
@@ -1322,6 +1322,15 @@ jobs:
     # 0) CHECKOUT FIRST (CRITICAL FIX)
     # =========================
 
+    - name: Enforce deterministic env
+      run: |
+        echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+        echo "PYTHONHASHSEED=42" >> $GITHUB_ENV
+        echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
+        echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
+        echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
+        echo "NUMEXPR_NUM_THREADS=1" >> $GITHUB_ENV
+
     - name: HARD TIMEOUT GUARD
       run: |
         echo "Starting guarded execution..."
@@ -1331,7 +1340,7 @@ jobs:
       run: |
         chown -R root:root $GITHUB_WORKSPACE || true
 
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 0
         persist-credentials: true
@@ -1446,7 +1455,7 @@ jobs:
     - name: Set Python path
       run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
-    - uses: actions/cache@v5
+    - uses: actions/cache@v6
       with:
         path: real-data
         key: chaos-datasets-${{ hashFiles('analysis/**/*.py') }}
@@ -1489,13 +1498,6 @@ jobs:
     # 2) DATA LAYER
     # =========================
 
-    - name: Enforce deterministic env
-      run: |
-        echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
-        echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
-        echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
-        echo "NUMEXPR_NUM_THREADS=1" >> $GITHUB_ENV 
-        
     - name: Fetch datasets (controlled)
       run: |
         set -e
