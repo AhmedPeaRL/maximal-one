@@ -1,7 +1,31 @@
+# Python
 __pycache__/
+*.py[cod]
+*$py.class
+
+# Runtime residue
 *.pyc
+*.pyo
+*.pyd
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Generated control datasets
+real-data/random_walk.csv
+real-data/shuffled_sunspots.csv
+real-data/white_noise.csv
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+*.tmp
+*.temp
+
+# Artifacts archives (optional retention)
+artifacts/archive/*.tmp
 
 artifacts/*.tmp
 artifacts/*.cache
-
-.DS_Store
