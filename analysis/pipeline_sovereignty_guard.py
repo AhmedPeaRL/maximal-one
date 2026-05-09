@@ -106,9 +106,18 @@ if len(welch_vals) < 2:
         "Insufficient finite Welch estimates"
 )
 
+MAX_DELTA = 0.35
+MAX_STD = 1.8
+
+stable = (
+    report["method_agreement"] < MAX_DELTA
+    and report["fft_std"] < MAX_STD
+    and report["welch_std"] < MAX_STD
+)
+
 report["verdict"] = (
     "stable"
-    if report["method_agreement"] < 0.60
+    if stable
     else "fragile"
 )
 
