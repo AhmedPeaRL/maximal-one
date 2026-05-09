@@ -1001,7 +1001,7 @@ jobs:
       passed: ${{ steps.final_gate.outputs.passed }}
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: true
@@ -1331,7 +1331,7 @@ jobs:
       run: |
         chown -R root:root $GITHUB_WORKSPACE || true
 
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0
         persist-credentials: true
