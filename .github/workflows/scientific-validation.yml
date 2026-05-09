@@ -1390,7 +1390,7 @@ jobs:
       run: |
         chown -R root:root $GITHUB_WORKSPACE || true
 
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0
         persist-credentials: false
@@ -1514,7 +1514,7 @@ jobs:
     - name: Set Python path
       run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
-    - uses: actions/cache@v6
+    - uses: actions/cache@v5
       with:
         path: real-data
         key: chaos-datasets-${{ hashFiles('analysis/**/*.py') }}
