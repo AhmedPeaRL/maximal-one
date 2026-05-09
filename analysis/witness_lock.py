@@ -7,6 +7,7 @@ ARTIFACTS = [
     "artifacts/pipeline_sovereignty.json",
     "artifacts/provenance_chain.json",
     "artifacts/environment_fingerprint.json",
+    "artifacts/release_manifest.json",
     "artifacts/external_replay_verification.json"
 ]
 
