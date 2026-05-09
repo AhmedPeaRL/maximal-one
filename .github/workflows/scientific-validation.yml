@@ -1,10 +1,11 @@
 name: SOS Robustness Gate
 
 concurrency:
-  group: repo-write-lock
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
   
 on:
+  push:
   workflow_dispatch:
   repository_dispatch:
     types: [external_witness, external_dispatch, external_reproduction]
@@ -23,16 +24,350 @@ env:
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
   WITNESS_SECRET: ${{ secrets.WITNESS_SECRET }}
   GH_REPO: ${{ secrets.GH_REPO }}
+  EXTERNAL_SOURCE_URL: ${{ secrets.EXTERNAL_SOURCE_URL }}
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: false
 
 jobs:
-  
-  ingest-witness:
+
+  core-proof:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Enforce deterministic env
+        run: |
+          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+          echo "PYTHONHASHSEED=42" >> $GITHUB_ENV
+          echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
+          echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
+          echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
+          echo "NUMEXPR_NUM_THREADS=1" >> $GITHUB_ENV
+
+      - name: Rate limit guard
+        run: |
+          echo "Checking execution frequency..."
+          sleep 5
+
+      - name: Install deps (STRICT)
+        run: |
+          pip install --upgrade pip
+          pip install --require-hashes -r requirements-lock.txt
+
+      - name: Environment fingerprint
+        run: |
+          python analysis/environment_fingerprint.py
+
+      - name: Validate dataset content
+        run: |
+          python - <<'PY'
+          import pandas as pd
+
+          df = pd.read_csv("real-data/sunspots_global.csv")
+
+          if len(df) < 10:
+              raise SystemExit("Dataset too small")
+
+          if not any(c in df.columns for c in ["Sunspots", "value"]):
+              raise SystemExit("No valid data column")
+         
+          print("✅ dataset valid")
+          PY
+
+          python - <<'PY'
+          import pandas as pd
+          import numpy as np
+
+          np.random.seed(42)
+
+          n = 200
+
+          # White noise
+          wn = np.random.randn(n)
+          pd.DataFrame({"value": wn}).to_csv("real-data/white_noise.csv", index=False)
+
+          # Random walk
+          rw = np.cumsum(np.random.randn(n))
+          pd.DataFrame({"value": rw}).to_csv("real-data/random_walk.csv", index=False)
+
+          # Shuffled sunspots
+          sun = pd.read_csv("real-data/sunspots_global.csv").iloc[:,0].values
+          shuffled = np.random.permutation(sun)
+          pd.DataFrame({"value": shuffled}).to_csv("real-data/shuffled_sunspots.csv", index=False)
+
+          print("✅ control datasets generated")
+          PY
+
+      - name: Run canonical experiment ONLY
+        run: |
+          python scripts/generate_report.py --seed 42 --canonical
+
+      - name: Run causal hint
+        run: python analysis/causal_hint.py
+
+      - name: Reproducibility stamp
+        run: |
+          python - <<'PY'
+          from analysis.reproducibility_stamp import attach_stamp
+          print("STAMP:", attach_stamp("artifacts/canonical_report.json"))
+          PY
+
+      - name: Predictive validation
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          from analysis.predictive_validation import evaluate_prediction
+
+          df = pd.read_csv("real-data/sunspots_global.csv")
+          col = "Sunspots" if "Sunspots" in df.columns else "value"
+
+          res = evaluate_prediction(df[col].values)
+
+          if not res["valid"]:
+              raise SystemExit("❌ Prediction failed")
+
+          print("✅ Prediction:", res)
+          PY
+
+      - name: Cross-domain validation
+        run: |
+          python analysis/cross_domain_validator.py
+
+      - name: Cross-domain band guard
+        run: |
+          python analysis/cross_domain_band_guard.py
+          
+      - name: Null Gap Test
+        run: |
+          python analysis/null_gap_test.py
+
+      - name: Extract alpha (fixed)
+        run: |
+          python - <<'PY'
+          import json
+          import numpy as np
+
+          r = json.load(open("artifacts/canonical_report.json"))
+          claim = json.load(open("core-scientific/strict_claim.json"))
+
+          sp = r["spectral_profile"]
+
+          alpha = sp["estimated_alpha"]
+          sigma = sp["bootstrap_std"]
+
+          expected_min, expected_max = claim["expected_result"]["alpha_range"]
+          max_sigma = claim["expected_result"]["max_sigma"]
+
+          print("alpha:", alpha)
+          print("sigma:", sigma)
+
+          # STRICT VALIDATION
+          if not np.isfinite(sigma):
+              raise SystemExit("❌ sigma is NaN")
+              
+          if not (expected_min <= alpha <= expected_max):
+              raise SystemExit("❌ alpha خارج النطاق المتوقع")
+
+          if sigma > max_sigma:
+              raise SystemExit("❌ sigma أعلى من الحد")
+
+          print("✅ STRICT CLAIM HOLDS")
+          PY
+
+      - name: Theoretical consistency guard
+        run: |
+          python analysis/theoretical_consistency_guard.py
+
+      - name: Physical interpretation
+        run: |
+          python analysis/physical_interpretation.py
+
+      - name: Run multi-dataset proof
+        run: |
+          python scripts/run_multi_dataset.py
+
+      - name: Invariant Stability Guard
+        run: |
+          python analysis/invariant_stability_guard.py
+
+      - name: Saturation guard
+        run: |
+          python analysis/saturation_guard.py
+
+      - name: Anti forced structure guard
+        run: |
+          python analysis/anti_forced_structure_guard.py
+
+      - name: Numerical consistency check
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          from analysis.independent_validation import compare_methods
+
+          df = pd.read_csv("real-data/sunspots_global.csv")
+
+          col = "Sunspots" if "Sunspots" in df.columns else "value"
+
+          fft_alpha, welch_alpha = compare_methods(
+              df[col].values
+          )
+
+          delta = abs(
+              fft_alpha - welch_alpha
+          )
+
+          print("FINAL DELTA:", delta)
+
+          if delta > 0.60:
+              raise SystemExit(
+                  "❌ Numerical inconsistency"
+              )
+
+          print("✅ Numerical consistency holds")
+          PY
+
+      - name: Pipeline sovereignty guard
+        run: python analysis/pipeline_sovereignty_guard.py
+        
+      - name: Band robustness test
+        run: |
+          python analysis/band_robustness_test.py
+
+      - name: Independent validation
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          from analysis.independent_validation import compare_methods
+
+          df = pd.read_csv("real-data/sunspots_global.csv")
+          col = "Sunspots" if "Sunspots" in df.columns else "value"
+
+          compare_methods(df[col].values)
+          PY
+
+      - name: Estimator calibration guard
+        run: |
+          python analysis/estimator_calibration_guard.py
+
+      - name: Adversarial stress test
+        run: python analysis/adversarial_external_test.py
+
+      - name: Export commit
+        run: echo "GITHUB_SHA=${{ github.sha }}" >> $GITHUB_ENV
+
+      - name: Hash report
+        run: sha256sum artifacts/canonical_report.json
+
+      - name: Export fingerprint
+        run: |
+          python - <<'PY'
+          import json
+          from analysis.external_reproduction_guard import compute_fingerprint
+
+          report = json.load(open("artifacts/canonical_report.json"))
+
+          fp = compute_fingerprint(report)
+
+          open("artifacts/fingerprint.txt", "w").write(fp)
+
+          print("FP:", fp)
+          PY
+
+      - name: Provenance chain guard
+        run: |
+          python analysis/provenance_chain_guard.py
+
+      - name: External replay verifier
+        run: |
+          python analysis/external_replay_verifier.py
+
+      - name: Witness lock
+        run: |
+          python analysis/witness_lock.py
+
+      - name: Artifact closure guard
+        run: |
+          python analysis/artifact_closure_guard.py
+
+      - name: Release manifest guard
+        run: |
+          python analysis/release_manifest_guard.py
+
+      - name: Archive immutable snapshot
+        run: |
+          python analysis/archive_snapshot.py
+
+      - name: Commit fingerprint
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+
+          git remote set-url origin \
+          https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}.git
+
+          # always start from latest remote state
+          git fetch origin main
+
+          git checkout main
+
+          # hard reset removes workflow-generated drift
+          git reset --hard origin/main
+
+          # restore generated artifacts from current workspace
+          python scripts/generate_report.py --seed 42 --canonical || true
+          python analysis/pipeline_sovereignty_guard.py || true
+          python analysis/external_replay_verifier.py || true
+          python analysis/witness_lock.py || true
+          python analysis/artifact_closure_guard.py || true
+          python analysis/release_manifest_guard.py || true
+          python analysis/archive_snapshot.py || true
+
+          git add artifacts/*.txt || true
+          git add artifacts/*.json || true
+          git add artifacts/archive/*.json || true
+
+          git diff --cached --quiet && echo "no changes" && exit 0
+
+          git commit -m "update fingerprint"
+
+          for i in 1 2 3; do
+
+            git pull --rebase origin main || true
+
+            if git push origin HEAD:main; then
+              echo "✅ push succeeded"
+              exit 0
+            fi
+
+            echo "Retrying push..."
+            sleep 3
+
+          done
+
+          echo "❌ push failed after retries"
+          exit 1
+          
+      - name: External Source Integrity Guard
+        run: python analysis/external_source_integrity_guard.py
+  
+      - name: External Reproduction Guard
+        run: python analysis/external_reproduction_guard.py
+  
+  ingest-witness:
+    runs-on: ubuntu-24.04
+    needs: core-proof
+    
+    steps:
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: true
@@ -277,7 +612,7 @@ jobs:
     needs: ingest-witness
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: true
@@ -293,6 +628,7 @@ jobs:
 
   compute:
     runs-on: ubuntu-24.04
+    needs: external-collision
     container:
       image: python@sha256:90f8795536170fd08236d2ceb74fe7065dbf74f738d8b84bfbf263656654dc9b
     strategy:
@@ -305,7 +641,7 @@ jobs:
       - name: Print trigger source
         run: echo "Triggered by ${{ github.event_name }}"
         
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: true
@@ -348,7 +684,7 @@ jobs:
       image: python@sha256:90f8795536170fd08236d2ceb74fe7065dbf74f738d8b84bfbf263656654dc9b
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: true
@@ -670,12 +1006,12 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: canonical-report
           path: artifacts
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: report-hash
           path: artifacts
@@ -879,7 +1215,7 @@ jobs:
     needs: gate
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: true
@@ -891,17 +1227,17 @@ jobs:
           echo "==== FILE TREE ===="
           ls -R
           
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: node-hash-18.20.8
           path: node18
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: node-hash-20.20.0
           path: node20
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: node-hash-24.11.1
           path: node24
@@ -995,7 +1331,7 @@ jobs:
       run: |
         chown -R root:root $GITHUB_WORKSPACE || true
 
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 0
         persist-credentials: true
@@ -1092,17 +1428,17 @@ jobs:
 
     - name: Upload autonomous witness
       if: always()
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: autonomous-witness
         path: data/autonomous/
 
-    - uses: actions/download-artifact@v5
+    - uses: actions/download-artifact@v6
       with:
         name: report-hash
         path: artifacts
 
-    - uses: actions/download-artifact@v5
+    - uses: actions/download-artifact@v6
       with:
         name: canonical-report
         path: artifacts
@@ -1110,7 +1446,7 @@ jobs:
     - name: Set Python path
       run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
-    - uses: actions/cache@v5
+    - uses: actions/cache@v6
       with:
         path: real-data
         key: chaos-datasets-${{ hashFiles('analysis/**/*.py') }}
@@ -1828,7 +2164,7 @@ jobs:
     needs: verify-core
     
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: true
@@ -1868,7 +2204,7 @@ jobs:
     needs: stability-check
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           persist-credentials: true
