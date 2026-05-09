@@ -2,7 +2,7 @@ name: Core Scientific Proof (Minimal)
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
   
 on:
   push:
@@ -305,14 +305,37 @@ jobs:
           git remote set-url origin \
           https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}.git
 
+          # sync latest remote state first
+          git fetch origin main
+
+          git checkout main
+
+          git pull --rebase origin main
+
           git add artifacts/*.txt || true
           git add artifacts/*.json || true
           git add artifacts/archive/*.json || true
 
-          git commit -m "update fingerprint" || echo "no changes"
+          git diff --cached --quiet && echo "no changes" && exit 0
 
-          git push origin HEAD:main
+          git commit -m "update fingerprint"
 
+          # retry-safe push
+          for i in 1 2 3; do
+            git pull --rebase origin main || true
+
+            if git push origin HEAD:main; then
+              echo "✅ push succeeded"
+              exit 0
+            fi
+
+            echo "Retrying push..."
+            sleep 3
+          done
+
+          echo "❌ push failed after retries"
+          exit 1
+          
       - name: External Source Integrity Guard
         run: python analysis/external_source_integrity_guard.py
   
