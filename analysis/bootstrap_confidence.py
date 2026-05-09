@@ -32,10 +32,11 @@ def bootstrap_alpha(
 
     for _ in range(iterations):
 
-        idx = rng.integers(
-            0,
+        idx = rng.choice(
             n,
-            n
+            size=n,
+            replace=True,
+            shuffle=False
         )
 
         sample = series[idx]
