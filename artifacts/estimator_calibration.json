@@ -1,23 +1,23 @@
 {
-  "mean_abs_error": 0.23136610473640898,
+  "mean_abs_error": 0.23136610473640853,
   "results": [
     {
       "type": "white",
       "target": 0.0,
-      "estimated": 0.38950634136109663,
-      "abs_error": 0.38950634136109663
+      "estimated": 0.3895063413610971,
+      "abs_error": 0.3895063413610971
     },
     {
       "type": "pink",
       "target": 1.0,
-      "estimated": 1.026012257760513,
-      "abs_error": 0.02601225776051308
+      "estimated": 1.0260122577605122,
+      "abs_error": 0.026012257760512192
     },
     {
       "type": "brown",
       "target": 2.0,
-      "estimated": 2.2785797150876173,
-      "abs_error": 0.27857971508761725
+      "estimated": 2.2785797150876164,
+      "abs_error": 0.27857971508761636
     }
   ]
 }
