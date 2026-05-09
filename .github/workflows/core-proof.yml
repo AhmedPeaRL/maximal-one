@@ -8,6 +8,9 @@ on:
   push:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: false
@@ -187,6 +190,10 @@ jobs:
         run: |
           python analysis/saturation_guard.py
 
+      - name: Anti forced structure guard
+        run: |
+          python analysis/anti_forced_structure_guard.py
+
       - name: Numerical consistency check
         run: |
           python - <<'PY'
@@ -296,10 +303,11 @@ jobs:
 
           git add artifacts/*.txt || true
           git add artifacts/*.json || true
+          git add artifacts/archive/*.json || true
 
           git commit -m "update fingerprint" || echo "no changes"
 
-          git push origin HEAD:${{ github.ref_name }}
+          git push origin HEAD:main
           
       - name: External Reproduction Guard
         run: python analysis/external_reproduction_guard.py
