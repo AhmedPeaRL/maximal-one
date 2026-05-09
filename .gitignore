@@ -23,9 +23,8 @@ Thumbs.db
 # Temp
 *.tmp
 *.temp
+artifacts/*.tmp
+artifacts/*.cache
 
 # Artifacts archives (optional retention)
 artifacts/archive/*.tmp
-
-artifacts/*.tmp
-artifacts/*.cache
