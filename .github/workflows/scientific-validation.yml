@@ -316,21 +316,19 @@ jobs:
 
       - name: Commit fingerprint
         run: |
+          set -e
+
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
           git remote set-url origin \
           https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}.git
 
-          # always start from latest remote state
           git fetch origin main
-
           git checkout main
-
-          # hard reset removes workflow-generated drift
           git reset --hard origin/main
 
-          # restore generated artifacts from current workspace
+          # regenerate deterministic artifacts
           python scripts/generate_report.py --seed 42 --canonical
           python analysis/pipeline_sovereignty_guard.py
           python analysis/external_replay_verifier.py
@@ -343,26 +341,45 @@ jobs:
           git add artifacts/*.json || true
           git add artifacts/archive/*.json || true
 
-          git diff --cached --quiet && echo "no changes" && exit 0
+          if git diff --cached --quiet; then
+            echo "No artifact changes detected"
+            exit 0
+          fi
 
           git commit -m "update fingerprint"
 
-          for i in 1 2 3; do
+          for i in 1 2 3
+          do
+            if git pull --rebase origin main; then
+              echo "Rebase success"
+            else
+              echo "Rebase conflict → regenerating clean state"
 
-            git fetch origin main
-
-            git stash push --include-untracked || true
-
-            git rebase origin/main || {
               git rebase --abort || true
               git reset --hard origin/main
-            }
 
-            git stash pop || true
+              python scripts/generate_report.py --seed 42 --canonical
+              python analysis/pipeline_sovereignty_guard.py
+              python analysis/external_replay_verifier.py
+              python analysis/witness_lock.py
+              python analysis/artifact_closure_guard.py
+              python analysis/release_manifest_guard.py
+              python analysis/archive_snapshot.py
+
+              git add artifacts/*.txt || true
+              git add artifacts/*.json || true
+              git add artifacts/archive/*.json || true
+
+              git commit -m "update fingerprint" || true
+            fi
+
+            if git push origin HEAD:main; then
+              echo "✅ push success"
+              exit 0
+            fi
 
             echo "Retrying push..."
             sleep 3
-
           done
 
           echo "❌ push failed after retries"
