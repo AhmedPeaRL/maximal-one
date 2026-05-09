@@ -305,12 +305,22 @@ jobs:
           git remote set-url origin \
           https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}.git
 
-          # sync latest remote state first
+          # always start from latest remote state
           git fetch origin main
 
           git checkout main
 
-          git pull --rebase origin main
+          # hard reset removes workflow-generated drift
+          git reset --hard origin/main
+
+          # restore generated artifacts from current workspace
+          python scripts/generate_report.py --seed 42 --canonical || true
+          python analysis/pipeline_sovereignty_guard.py || true
+          python analysis/external_replay_verifier.py || true
+          python analysis/witness_lock.py || true
+          python analysis/artifact_closure_guard.py || true
+          python analysis/release_manifest_guard.py || true
+          python analysis/archive_snapshot.py || true
 
           git add artifacts/*.txt || true
           git add artifacts/*.json || true
@@ -320,8 +330,8 @@ jobs:
 
           git commit -m "update fingerprint"
 
-          # retry-safe push
           for i in 1 2 3; do
+
             git pull --rebase origin main || true
 
             if git push origin HEAD:main; then
@@ -331,6 +341,7 @@ jobs:
 
             echo "Retrying push..."
             sleep 3
+
           done
 
           echo "❌ push failed after retries"
