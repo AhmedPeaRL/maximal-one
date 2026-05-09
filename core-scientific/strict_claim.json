@@ -1,12 +1,13 @@
 {
-  "title": "Constrained Spectral Invariant Hypothesis",
+  "title": "Constrained Spectral Persistence Hypothesis",
 
-  "statement": "Across heterogeneous real-world time series, the spectral exponent alpha converges to a constrained band under deterministic preprocessing, exhibiting cross-domain stability and adversarial rejection.",
+  "statement": "Across heterogeneous real-world temporal systems, a reproducible non-trivial spectral persistence exponent emerges under deterministic preprocessing and survives adversarial null rejection.",
 
   "dataset": {
     "primary": "sunspots_global",
     "secondary_required": true,
-    "adversarial_rejection_required": true
+    "adversarial_rejection_required": true,
+    "cross_domain_required": true
   },
 
   "method": {
@@ -15,19 +16,28 @@
       "windowed_spectral_analysis",
       "bootstrap_estimation",
       "cross_domain_validation",
-      "adversarial_filtering"
+      "adversarial_filtering",
+      "external_reproduction"
     ],
-    "seed": 42
+    "seed": 42,
+    "deterministic": true
   },
 
   "expected_result": {
-    "alpha_range": [0.5, 5.0],
-    "max_sigma": 1.1,
-    "max_cross_domain_std": 2.5
+    "alpha_range": [0.7, 4.5],
+    "preferred_band": [1.0, 3.5],
+    "max_sigma": 0.85,
+    "max_cross_domain_std": 1.8,
+    "max_method_delta": 0.35
   },
 
   "falsification": {
-    "condition": "If alpha خارج [0.5,5.0] OR sigma > 1.1 OR cross-domain std > 2.5",
+    "condition": "If alpha exits [0.7,4.5] OR sigma > 0.85 OR cross-domain std > 1.8 OR FFT/Welch disagreement > 0.35",
     "action": "Mark system as falsified"
+  },
+
+  "externality": {
+    "independent_replay_required": true,
+    "fingerprint_match_required": true
   }
 }
