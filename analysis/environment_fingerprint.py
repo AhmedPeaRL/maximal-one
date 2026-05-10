@@ -1,12 +1,13 @@
 import hashlib
 import json
-import pkg_resources
 import platform
 import sys
 
+from importlib.metadata import distributions
+
 packages = sorted([
-    f"{p.project_name}=={p.version}"
-    for p in pkg_resources.working_set
+    f"{d.metadata['Name']}=={d.version}"
+    for d in distributions()
 ])
 
 env = {
