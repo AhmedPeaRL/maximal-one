@@ -140,15 +140,9 @@ def estimate_alpha(series):
     if not np.isfinite(slope):
         return np.nan
 
-    if slope > 0:
-        return np.nan
-
-    alpha = float(-slope)
+    alpha = float(max(0.0, -slope))
 
     if not np.isfinite(alpha):
-        return np.nan
-
-    if alpha < 0:
         return np.nan
 
     if alpha > 5:
