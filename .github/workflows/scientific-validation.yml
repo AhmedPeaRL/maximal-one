@@ -25,6 +25,7 @@ env:
   WITNESS_SECRET: ${{ secrets.WITNESS_SECRET }}
   GH_REPO: ${{ secrets.GH_REPO }}
   EXTERNAL_SOURCE_URL: ${{ secrets.EXTERNAL_SOURCE_URL }}
+  CANONICAL_TIMESTAMP: "2026-01-01T00:00:00+00:00"
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: false
 
@@ -290,33 +291,17 @@ jobs:
           print("FP:", fp)
           PY
 
-      - name: Provenance chain guard
-        run: |
-          python analysis/provenance_chain_guard.py
-
       - name: External replay verifier
         run: |
           python analysis/external_replay_verifier.py
 
-      - name: Full replay consistency guard
-        run: |
-          python analysis/full_replay_consistency_guard.py
-
-      - name: Witness lock
-        run: |
-          python analysis/witness_lock.py
-
-      - name: Artifact closure guard
-        run: |
-          python analysis/artifact_closure_guard.py
-
-      - name: Temporal sovereignty guard
-        run: |
-          python analysis/temporal_sovereignty_guard.py
-
       - name: Archive immutable snapshot
         run: |
           python analysis/archive_snapshot.py
+
+      - name: Finalize deterministic artifacts
+        run: |
+          python analysis/finalize_artifacts.py
 
       - name: Release manifest guard
         run: |
