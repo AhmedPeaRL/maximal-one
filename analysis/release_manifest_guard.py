@@ -1,26 +1,39 @@
-import subprocess
+import json
+import hashlib
+from pathlib import Path
 
-result = subprocess.run(
-    ["git", "status", "--porcelain"],
-    capture_output=True,
-    text=True
+ARTIFACTS = Path("artifacts")
+
+manifest = json.loads(
+    Path(
+        "artifacts/release_manifest.json"
+    ).read_text()
 )
 
-changes = []
+expected = manifest["manifest"]
 
-for line in result.stdout.splitlines():
+mutations = []
 
-    path = line[3:]
+for name, meta in expected.items():
 
-    if (
-        path.startswith("artifacts/")
-        and path != "artifacts/release_manifest.json"
-    ):
-        changes.append(line)
+    path = ARTIFACTS / name
 
-if changes:
+    if not path.exists():
+        mutations.append(f"missing: {name}")
+        continue
 
-    print("\n".join(changes))
+    current = hashlib.sha256(
+        path.read_bytes()
+    ).hexdigest()
+
+    if current != meta["sha256"]:
+        mutations.append(
+            f"modified: {name}"
+        )
+
+if mutations:
+
+    print("\n".join(mutations))
 
     raise SystemExit(
         "❌ Post-seal mutation detected"
