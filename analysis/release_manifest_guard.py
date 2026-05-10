@@ -1,6 +1,7 @@
 import json
 import hashlib
 from pathlib import Path
+import subprocess
 
 ARTIFACTS_DIR = Path("artifacts")
 
@@ -42,3 +43,19 @@ with open(
     )
 
 print("✅ RELEASE MANIFEST SEALED")
+
+result = subprocess.run(
+    ["git", "status", "--porcelain"],
+    capture_output=True,
+    text=True
+)
+
+changes = result.stdout.strip()
+
+if changes:
+    print(changes)
+    raise SystemExit(
+        "❌ Post-seal mutation detected"
+    )
+
+print("✅ No post-seal mutation detected")
