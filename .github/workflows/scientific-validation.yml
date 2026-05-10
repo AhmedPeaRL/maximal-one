@@ -330,6 +330,7 @@ jobs:
           python analysis/witness_lock.py
           python analysis/artifact_closure_guard.py
           python analysis/archive_snapshot.py
+          python analysis/release_manifest_builder.py
           python analysis/release_manifest_guard.py
 
           git add artifacts/*.txt || true
@@ -359,6 +360,7 @@ jobs:
               python analysis/witness_lock.py
               python analysis/artifact_closure_guard.py
               python analysis/archive_snapshot.py
+              python analysis/release_manifest_builder.py
               python analysis/release_manifest_guard.py
 
               git add artifacts/*.txt || true
