@@ -7,7 +7,8 @@ ARTIFACTS_DIR = Path("artifacts")
 REQUIRED = [
     "canonical_report.json",
     "pipeline_sovereignty.json",
-    "fingerprint.txt"
+    "fingerprint.txt",
+    "full_replay_consistency.json"
 ]
 
 OPTIONAL = [
