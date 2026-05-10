@@ -330,8 +330,12 @@ jobs:
           # regenerate deterministic artifacts
           python scripts/generate_report.py --seed 42 --canonical
           python analysis/pipeline_sovereignty_guard.py
+          python analysis/estimator_calibration_guard.py
+          python analysis/provenance_chain_guard.py
+          python analysis/full_replay_consistency_guard.py
           python analysis/external_replay_verifier.py
           python analysis/witness_lock.py
+          python analysis/temporal_sovereignty_guard.py
           python analysis/artifact_closure_guard.py
           python analysis/archive_snapshot.py
           python analysis/release_manifest_builder.py
@@ -339,7 +343,7 @@ jobs:
 
           git add artifacts/*.txt || true
           git add artifacts/*.json || true
-          git add artifacts/archive/*.json || true
+          git add -f artifacts/archive/*.json || true
 
           if git diff --cached --quiet; then
             echo "No artifact changes detected"
@@ -360,8 +364,12 @@ jobs:
 
               python scripts/generate_report.py --seed 42 --canonical
               python analysis/pipeline_sovereignty_guard.py
+              python analysis/estimator_calibration_guard.py
+              python analysis/provenance_chain_guard.py
+              python analysis/full_replay_consistency_guard.py
               python analysis/external_replay_verifier.py
               python analysis/witness_lock.py
+              python analysis/temporal_sovereignty_guard.py
               python analysis/artifact_closure_guard.py
               python analysis/archive_snapshot.py
               python analysis/release_manifest_builder.py
@@ -369,8 +377,7 @@ jobs:
 
               git add artifacts/*.txt || true
               git add artifacts/*.json || true
-              git add artifacts/archive/*.json || true
-
+              git add -f artifacts/archive/*.json || true
               git commit -m "update fingerprint" || true
             fi
 
