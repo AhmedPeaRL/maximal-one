@@ -16,7 +16,7 @@ real-data/random_walk.csv
 real-data/shuffled_sunspots.csv
 real-data/white_noise.csv
 
-# OS
+# OS noise
 .DS_Store
 Thumbs.db
 
@@ -28,3 +28,6 @@ artifacts/*.cache
 
 # Artifacts archives (optional retention)
 artifacts/archive/*.tmp
+
+# Artifacts runtime noise
+artifacts/archive/
