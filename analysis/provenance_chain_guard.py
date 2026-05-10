@@ -26,9 +26,10 @@ artifact_sha = hashlib.sha256(
     artifact_bytes
 ).hexdigest()
 
-utc_now = datetime.now(
-    timezone.utc
-).isoformat()
+utc_now = os.getenv(
+    "CANONICAL_TIMESTAMP",
+    "2026-01-01T00:00:00+00:00"
+)
 
 record = {
     "artifact_sha256": artifact_sha,
