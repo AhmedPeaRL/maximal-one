@@ -57,6 +57,8 @@ if old_content != new_content:
         new_content
     )
 
+    print("Manifest updated deterministically")
+
 print("✅ RELEASE MANIFEST SEALED")
 
 result = subprocess.run(
