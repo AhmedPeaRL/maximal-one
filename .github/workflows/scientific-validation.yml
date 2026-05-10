@@ -14,7 +14,6 @@ on:
 permissions:
   contents: write
   
-
 env:
   PYTHONHASHSEED: "42"
   NODE_ENV: "production"
@@ -30,7 +29,6 @@ env:
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: false
 
 jobs:
-
   core-proof:
     runs-on: ubuntu-24.04
 
@@ -295,13 +293,13 @@ jobs:
         run: |
           python analysis/external_replay_verifier.py
 
-      - name: Archive immutable snapshot
-        run: |
-          python analysis/archive_snapshot.py
-
       - name: Finalize deterministic artifacts
         run: |
           python analysis/finalize_artifacts.py
+
+      - name: Archive immutable snapshot
+        run: |
+          python analysis/archive_snapshot.py
 
       - name: Release manifest guard
         run: |
