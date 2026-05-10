@@ -314,13 +314,13 @@ jobs:
         run: |
           python analysis/temporal_sovereignty_guard.py
 
-      - name: Release manifest guard
-        run: |
-          python analysis/release_manifest_guard.py
-
       - name: Archive immutable snapshot
         run: |
           python analysis/archive_snapshot.py
+
+      - name: Release manifest guard
+        run: |
+          python analysis/release_manifest_guard.py
 
       - name: Commit fingerprint
         run: |
@@ -342,8 +342,8 @@ jobs:
           python analysis/external_replay_verifier.py
           python analysis/witness_lock.py
           python analysis/artifact_closure_guard.py
-          python analysis/release_manifest_guard.py
           python analysis/archive_snapshot.py
+          python analysis/release_manifest_guard.py
 
           git add artifacts/*.txt || true
           git add artifacts/*.json || true
@@ -371,8 +371,8 @@ jobs:
               python analysis/external_replay_verifier.py
               python analysis/witness_lock.py
               python analysis/artifact_closure_guard.py
-              python analysis/release_manifest_guard.py
               python analysis/archive_snapshot.py
+              python analysis/release_manifest_guard.py
 
               git add artifacts/*.txt || true
               git add artifacts/*.json || true
