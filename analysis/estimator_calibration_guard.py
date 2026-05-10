@@ -21,7 +21,11 @@ def generate_colored_noise(alpha, n):
 
     freqs = np.fft.rfftfreq(n)
 
-    freqs[0] = freqs[1]
+    freqs = np.where(
+        freqs == 0,
+        freqs[1],
+        freqs
+    )
 
     phases = np.random.normal(
         size=len(freqs)
