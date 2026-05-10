@@ -1,27 +1,37 @@
 import shutil
+import hashlib
 from pathlib import Path
-from datetime import datetime
 
-SOURCE = "artifacts/canonical_report.json"
+SOURCE = Path("artifacts/canonical_report.json")
 
-timestamp = "seed42"
+content = SOURCE.read_bytes()
 
-dest_dir = Path(
-    "artifacts/archive"
-)
+digest = hashlib.sha256(
+    content
+).hexdigest()[:16]
+
+dest_dir = Path("artifacts/archive")
 
 dest_dir.mkdir(
     parents=True,
     exist_ok=True
 )
 
-dest = dest_dir / f"{timestamp}.json"
+dest = dest_dir / f"{digest}.json"
 
-shutil.copy2(
-    SOURCE,
-    dest
-)
+if not dest.exists():
 
-print(
-    f"✅ Snapshot archived: {dest}"
-)
+    shutil.copy2(
+        SOURCE,
+        dest
+    )
+
+    print(
+        f"✅ Snapshot archived: {dest}"
+    )
+
+else:
+
+    print(
+        f"ℹ️ Snapshot already exists: {dest}"
+    )
