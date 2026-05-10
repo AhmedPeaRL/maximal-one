@@ -300,6 +300,10 @@ jobs:
       - name: Archive immutable snapshot
         run: |
           python analysis/archive_snapshot.py
+          
+      - name: Stabilize artifacts
+        run: |
+          python analysis/stabilize_artifacts.py
 
       - name: Build release manifest
         run: |
