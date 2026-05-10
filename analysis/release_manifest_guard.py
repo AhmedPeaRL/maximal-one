@@ -14,9 +14,16 @@ def sha256(path):
 
 manifest = {}
 
+EXCLUDED = {
+    "release_manifest.json"
+}
+
 for file in sorted(ARTIFACTS_DIR.glob("*")):
 
-    if file.is_file():
+    if (
+        file.is_file()
+        and file.name not in EXCLUDED
+    ):
 
         manifest[file.name] = {
             "sha256": sha256(file),
@@ -28,18 +35,26 @@ output = {
     "manifest": manifest
 }
 
-Path("artifacts").mkdir(exist_ok=True)
+manifest_path = (
+    ARTIFACTS_DIR
+    / "release_manifest.json"
+)
 
-with open(
-    "artifacts/release_manifest.json",
-    "w"
-) as f:
+old_content = None
 
-    json.dump(
-        output,
-        f,
-        indent=2,
-        sort_keys=True
+if manifest_path.exists():
+    old_content = manifest_path.read_text()
+
+new_content = json.dumps(
+    output,
+    indent=2,
+    sort_keys=True
+)
+
+if old_content != new_content:
+
+    manifest_path.write_text(
+        new_content
     )
 
 print("✅ RELEASE MANIFEST SEALED")
@@ -50,10 +65,22 @@ result = subprocess.run(
     text=True
 )
 
-changes = result.stdout.strip()
+changes = []
+
+for line in result.stdout.splitlines():
+
+    path = line[3:]
+
+    if (
+        path.startswith("artifacts/")
+        and path != "artifacts/release_manifest.json"
+    ):
+        changes.append(line)
 
 if changes:
-    print(changes)
+
+    print("\n".join(changes))
+
     raise SystemExit(
         "❌ Post-seal mutation detected"
     )
