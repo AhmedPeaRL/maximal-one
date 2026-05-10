@@ -306,6 +306,10 @@ jobs:
         run: |
           python analysis/artifact_closure_guard.py
 
+      - name: Temporal sovereignty guard
+        run: |
+          python analysis/temporal_sovereignty_guard.py
+
       - name: Release manifest guard
         run: |
           python analysis/release_manifest_guard.py
