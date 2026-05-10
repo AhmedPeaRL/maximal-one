@@ -298,6 +298,10 @@ jobs:
         run: |
           python analysis/external_replay_verifier.py
 
+      - name: Full replay consistency guard
+        run: |
+          python analysis/full_replay_consistency_guard.py
+
       - name: Witness lock
         run: |
           python analysis/witness_lock.py
