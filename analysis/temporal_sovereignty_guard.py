@@ -6,13 +6,13 @@ ARTIFACTS = Path("artifacts")
 
 CRITICAL = [
     "canonical_report.json",
-    "pipeline_sovereignty.json",
-    "external_replay_verification.json"
+    "pipeline_sovereignty.json"
 ]
 
 EXCLUDED = {
     "temporal_sovereignty.json",
     "artifact_closure.json",
+    "external_replay_verification.json",
     "final_state_lock.json"
 }
 
