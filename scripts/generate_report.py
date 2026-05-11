@@ -156,7 +156,10 @@ def main():
             },
             "sovereign_layer": {
                 "decision": decision,
-                "engine_summary": engine.summary()
+                "engine_summary": engine.summary(
+                    alpha,
+                    alpha_noise
+                )
             }
         }
 
