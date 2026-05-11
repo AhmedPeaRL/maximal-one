@@ -5,30 +5,21 @@ class SovereignInferenceEngine:
 
     def __init__(self):
 
-        self.history = []
-
-        self.state = "INIT"
-
         self.minimum_threshold = 0.15
 
-    def adaptive_threshold(self):
+    def adaptive_threshold(
+        self,
+        delta
+    ):
 
-        if len(self.history) < 5:
+        if not np.isfinite(delta):
             return self.minimum_threshold
 
-        deltas = np.array([
-            h["delta"]
-            for h in self.history
-        ])
-
-        mean = np.mean(deltas)
-        std = np.std(deltas)
-
-        adaptive = mean + (0.5 * std)
-
-        return max(
-            self.minimum_threshold,
-            float(adaptive)
+        return float(
+            max(
+                self.minimum_threshold,
+                round(delta * 0.05, 8)
+            )
         )
 
     def ingest(
@@ -37,79 +28,72 @@ class SovereignInferenceEngine:
         noise_alpha
     ):
 
+        alpha = float(alpha)
+        noise_alpha = float(noise_alpha)
+
         delta = abs(
             alpha - noise_alpha
         )
 
-        signal = {
-            "alpha": float(alpha),
-            "noise_alpha": float(noise_alpha),
-            "delta": float(delta)
-        }
+        threshold = self.adaptive_threshold(
+            delta
+        )
 
-        self.history.append(signal)
+        if delta > threshold:
 
-        return self._decide(signal)
-
-    def _decide(
-        self,
-        signal
-    ):
-
-        threshold = self.adaptive_threshold()
-
-        if signal["delta"] > threshold:
-
-            self.state = (
-                "STRUCTURE_DETECTED"
-            )
-
-            return self._dispatch(
-                signal,
-                threshold
-            )
-
-        self.state = "NOISE_DOMINANT"
+            return {
+                "status": "STRUCTURE_DETECTED",
+                "confidence": float(
+                    round(delta, 8)
+                ),
+                "threshold": float(
+                    round(threshold, 8)
+                ),
+                "action": "persist_structure"
+            }
 
         return {
-            "status": self.state,
-            "threshold": threshold
+            "status": "NOISE_DOMINANT",
+            "threshold": float(
+                round(threshold, 8)
+            )
         }
 
-    def _dispatch(
+    def summary(
         self,
-        signal,
-        threshold
+        alpha=None,
+        noise_alpha=None
     ):
 
-        return {
-            "status": self.state,
-            "confidence": signal["delta"],
-            "threshold": threshold,
-            "action": "persist_structure"
-        }
-
-    def summary(self):
-
-        if len(self.history) == 0:
+        if (
+            alpha is None
+            or noise_alpha is None
+        ):
             return None
 
-        deltas = np.array([
-            h["delta"]
-            for h in self.history
-        ])
+        delta = abs(
+            float(alpha)
+            - float(noise_alpha)
+        )
+
+        threshold = self.adaptive_threshold(
+            delta
+        )
 
         return {
             "mean_delta": float(
-                np.mean(deltas)
+                round(delta, 8)
             ),
-            "std_delta": float(
-                np.std(deltas)
-            ),
+            "std_delta": 0.0,
             "max_delta": float(
-                np.max(deltas)
+                round(delta, 8)
             ),
-            "adaptive_threshold":
-                self.adaptive_threshold(),
-            "state": self.state
+            "adaptive_threshold": float(
+                round(threshold, 8)
+            ),
+            "state": (
+                "STRUCTURE_DETECTED"
+                if delta > threshold
+                else "NOISE_DOMINANT"
+            )
         }
