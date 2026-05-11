@@ -20,8 +20,15 @@ def robust_local_slopes(
 
     for i in range(n - window):
 
-        x = log_f[i:i + window]
-        y = log_psd[i:i + window]
+        x = np.asarray(
+            log_f[i:i + window],
+            dtype=np.float64
+        )
+
+        y = np.asarray(
+            log_psd[i:i + window],
+            dtype=np.float64
+        )
 
         if (
             not np.all(np.isfinite(x))
@@ -29,21 +36,37 @@ def robust_local_slopes(
         ):
             continue
 
-        # reject flat regions
         if np.std(y) < 1e-6:
             continue
 
         try:
 
-            coeffs = np.polyfit(x, y, 1)
+            coeffs = np.polyfit(
+                x,
+                y,
+                1
+            )
 
-            slope = coeffs[0]
+            slope = float(
+                np.round(
+                    coeffs[0],
+                    12
+                )
+            )
 
         except Exception:
             continue
 
         if np.isfinite(slope):
-            slopes.append(float(slope))
+
+            slopes.append(
+                float(
+                    np.round(
+                        slope,
+                        12
+                    )
+                )
+            )
 
     slopes = np.asarray(
         slopes,
@@ -53,12 +76,25 @@ def robust_local_slopes(
     if len(slopes) < 8:
         return np.nan
 
-    median = np.median(slopes)
+    slopes = np.round(
+        slopes,
+        12
+    )
 
-    mad = (
-        np.median(
-            np.abs(slopes - median)
-        ) + 1e-12
+    median = float(
+        np.round(
+            np.median(slopes),
+            12
+        )
+    )
+
+    mad = float(
+        np.round(
+            np.median(
+                np.abs(slopes - median)
+            ) + 1e-12,
+            12
+        )
     )
 
     filtered = slopes[
@@ -69,9 +105,24 @@ def robust_local_slopes(
     if len(filtered) < 6:
         return np.nan
 
-    # weighted center
-    q1 = np.percentile(filtered, 25)
-    q3 = np.percentile(filtered, 75)
+    filtered = np.round(
+        filtered,
+        12
+    )
+
+    q1 = float(
+        np.round(
+            np.percentile(filtered, 25),
+            12
+        )
+    )
+
+    q3 = float(
+        np.round(
+            np.percentile(filtered, 75),
+            12
+        )
+    )
 
     core = filtered[
         (filtered >= q1)
@@ -81,7 +132,12 @@ def robust_local_slopes(
     if len(core) < 4:
         core = filtered
 
-    return float(np.mean(core))
+    return float(
+        np.round(
+            np.mean(core),
+            10
+        )
+    )
 
 
 def estimate_alpha(series):
