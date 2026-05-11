@@ -313,11 +313,6 @@ jobs:
         run: |
           python analysis/finalize_artifacts.py
 
-      - name: Seal immutable final state
-        run: |
-          python analysis/final_state_lock.py
-          
-
       - name: Commit fingerprint
         run: |
           set -e
