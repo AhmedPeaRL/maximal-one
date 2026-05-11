@@ -13,7 +13,7 @@ EXCLUDED = {
 
 hashes = {}
 
-for path in sorted(ARTIFACTS.glob("*")):
+for path in sorted(ARTIFACTS.glob("*.json")):
 
     if not path.is_file():
         continue
