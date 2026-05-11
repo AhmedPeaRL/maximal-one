@@ -2,19 +2,19 @@ import hashlib
 import json
 from pathlib import Path
 
-ARTIFACTS = [
+ARTIFACTS = sorted([
     "artifact_closure.json",
     "release_manifest.json",
     "provenance_chain.json",
     "witness_lock.json",
     "temporal_sovereignty.json"
-]
+])
 
 base = Path("artifacts")
 
 combined = hashlib.sha256()
 
-for name in sorted(ARTIFACTS):
+for name in ARTIFACTS:
 
     path = base / name
 
@@ -30,7 +30,7 @@ lock = {
     "sealed": True
 }
 
-out = base / "final_state.lock"
+out = base / "final_state_lock.json"
 
 with open(out, "w") as f:
     json.dump(lock, f, indent=2)
