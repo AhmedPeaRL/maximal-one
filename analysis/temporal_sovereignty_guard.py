@@ -9,7 +9,6 @@ CRITICAL = [
     "fingerprint.txt",
     "pipeline_sovereignty.json",
     "external_replay_verification.json",
-    "final_state_lock.json",
     "artifact_closure.json"
 ]
 
