@@ -177,10 +177,14 @@ def main():
             "canonical_report.json"
         )
 
-        with open(output_path, "w") as f:
-            report = deep_freeze(report, digits=8)
+        from analysis.canonical_json import write_canonical
 
-            json.dump(report, f, sort_keys=True, separators=(",", ":"))
+        report = deep_freeze(report, digits=8)
+
+        write_canonical(
+            output_path,
+            report
+        )
             
         print("✅ Spectral report generated (stable & reproducible)")
 
