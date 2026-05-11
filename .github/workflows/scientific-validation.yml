@@ -192,6 +192,10 @@ jobs:
           print("✅ STRICT CLAIM HOLDS")
           PY
 
+      - name: Preferred Band Guard
+        run: |
+          python analysis/preferred_band_guard.py
+
       - name: Theoretical consistency guard
         run: |
           python analysis/theoretical_consistency_guard.py
