@@ -125,9 +125,41 @@ def main():
 
         from analysis.independent_validation import estimate_alpha_welch
 
-        alpha_welch = estimate_alpha_welch(series)
+        alpha_welch = stable_float(
+            estimate_alpha_welch(series),
+            digits=8
+        )
 
-        alpha_noise = float(np.mean(noise_samples))
+        alpha_noise = stable_float(
+            np.mean(noise_samples),
+            digits=8
+        )
+
+        alpha = stable_float(
+            alpha,
+            digits=8
+        )
+
+        boot = {
+            "mean": stable_float(boot["mean"], 8),
+            "std": stable_float(boot["std"], 8),
+            "ci_low": stable_float(boot["ci_low"], 8),
+            "ci_high": stable_float(boot["ci_high"], 8)
+        }
+
+        stats = {
+            k: (
+                stable_float(v, 8)
+                if isinstance(v, float)
+                else v
+            )
+            for k, v in stats.items()
+        }
+
+        falsification = {
+            k: stable_float(v, 8)
+            for k, v in falsification.items()
+        }
 
         from analysis.sovereign_inference_engine import SovereignInferenceEngine
 
@@ -136,13 +168,13 @@ def main():
 
         report = {
             "spectral_profile": {
-                "estimated_alpha": stable_float(alpha),
-                "bootstrap_mean": stable_float(boot["mean"]),
-                "bootstrap_std": stable_float(boot["std"]),
+                "estimated_alpha": alpha,
+                "bootstrap_mean": boot["mean"],
+                "bootstrap_std": boot["std"],
                 "falsification_tests": falsification,
-                "ci_low": stable_float(boot["ci_low"]),
-                "ci_high": stable_float(boot["ci_high"]),
-                "noise_alpha": stable_float(alpha_noise)
+                "ci_low": boot["ci_low"],
+                "ci_high": boot["ci_high"],
+                "noise_alpha": alpha_noise
             },
             "metadata": {
                 "seed": args.seed,
