@@ -9,10 +9,10 @@ ARTIFACT_STAGES = [
     "analysis/estimator_calibration_guard.py",
     "analysis/provenance_chain_guard.py",
     "analysis/full_replay_consistency_guard.py",
-    "analysis/temporal_sovereignty_guard.py",
-    "analysis/artifact_closure_guard.py",
     "analysis/witness_lock.py",
-    "analysis/final_state_lock.py"
+    "analysis/temporal_sovereignty_guard.py",
+    "analysis/final_state_lock.py",
+    "analysis/artifact_closure_guard.py"
 ]
 
 for script in ARTIFACT_STAGES:
