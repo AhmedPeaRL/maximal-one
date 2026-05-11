@@ -18,13 +18,16 @@ ARTIFACT_STAGES = [
 
     "analysis/witness_lock.py",
 
-    # MUST happen BEFORE temporal sealing
-    "analysis/artifact_closure_guard.py",
+    # normalize before sealing
+    "analysis/normalize_artifacts.py",
 
-    # temporal snapshot AFTER all mutable artifacts stabilize
+    # deterministic freeze
+    "analysis/freeze_artifacts.py",
+
+    # temporal snapshot AFTER freeze
     "analysis/temporal_sovereignty_guard.py",
 
-    # final deterministic sealing
+    # final immutable state
     "analysis/final_state_lock.py"
 ]
 
