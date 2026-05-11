@@ -180,6 +180,13 @@ def main():
         from analysis.canonical_json import write_canonical
 
         report = deep_freeze(report, digits=8)
+        report = json.loads(
+            json.dumps(
+                report,
+                sort_keys=True,
+                separators=(",", ":")
+            )
+        )
 
         write_canonical(
             output_path,
