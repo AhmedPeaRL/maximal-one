@@ -2,32 +2,27 @@ import json
 import hashlib
 from pathlib import Path
 import subprocess
-from analysis.deep_freeze import deep_freeze
+
+from analysis.canonical_json import canonicalize
 
 REPORT = Path("artifacts/canonical_report.json")
 
 
-def canonical_json(obj):
-    return json.dumps(
-        obj,
-        sort_keys=True,
-        separators=(",", ":")
-    ).encode()
-
-
 def sha(obj):
+
     return hashlib.sha256(
-        canonical_json(obj)
+        canonicalize(obj).encode()
     ).hexdigest()
 
 
 if not REPORT.exists():
+
     raise SystemExit(
         "❌ canonical report missing"
     )
 
-before = deep_freeze(
-    json.loads(REPORT.read_text())
+before = json.loads(
+    REPORT.read_text(encoding="utf-8")
 )
 
 before_hash = sha(before)
@@ -48,8 +43,8 @@ subprocess.run(
     check=True
 )
 
-after = deep_freeze(
-    json.loads(REPORT.read_text())
+after = json.loads(
+    REPORT.read_text(encoding="utf-8")
 )
 
 after_hash = sha(after)
@@ -65,13 +60,15 @@ result = {
     "match": bool(match)
 }
 
-with open(
-    "artifacts/full_replay_consistency.json",
-    "w"
-) as f:
-    json.dump(result, f, indent=2)
+Path(
+    "artifacts/full_replay_consistency.json"
+).write_text(
+    canonicalize(result),
+    encoding="utf-8"
+)
 
 if not match:
+
     raise SystemExit(
         "❌ Full replay inconsistency detected"
     )
