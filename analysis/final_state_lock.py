@@ -3,10 +3,10 @@ import json
 from pathlib import Path
 
 ARTIFACTS = [
-    "artifact_closure.json",
-    "release_manifest.json",
+    "canonical_report.json",
+    "pipeline_sovereignty.json",
     "provenance_chain.json",
-    "witness_lock.json",
+    "external_replay_verification.json",
     "temporal_sovereignty.json"
 ]
 
