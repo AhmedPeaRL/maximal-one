@@ -4,7 +4,6 @@ from scipy.ndimage import uniform_filter1d
 
 np.set_printoptions(precision=15)
 
-
 def robust_local_slopes(
     log_f,
     log_psd,
@@ -139,7 +138,6 @@ def robust_local_slopes(
         )
     )
 
-
 def estimate_alpha(series):
 
     series = np.asarray(
@@ -204,8 +202,12 @@ def estimate_alpha(series):
     if alpha > 5:
         return np.nan
 
-    return float(alpha)
-
+    return float(
+        np.round(
+            alpha,
+            8
+        )
+    )
 
 def block_bootstrap(
     series,
