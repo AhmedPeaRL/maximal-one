@@ -6,7 +6,6 @@ import os
 import traceback
 
 from analysis.numerical_spectral_verification import estimate_alpha
-from analysis.deep_freeze import deep_freeze
 
 def generate_series(rng, n=1024):
     x = rng.standard_normal(n)
@@ -210,8 +209,9 @@ def main():
         )
 
         from analysis.canonical_json import write_canonical
+        from analysis.fixed_precision import recursively_freeze
 
-        report = deep_freeze(report, digits=8)
+        report = recursively_freeze(report)
         report = json.loads(
             json.dumps(
                 report,
