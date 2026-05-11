@@ -39,12 +39,17 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--canonical", action="store_true")
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="artifacts"
+    )
     args = parser.parse_args()
 
     rng = np.random.default_rng(args.seed)
     np.random.seed(args.seed)  # 🔥 مهم جداً
 
-    os.makedirs("artifacts", exist_ok=True)
+    os.makedirs(args.output_dir, exist_ok=True)
 
     try:
         import pandas as pd
@@ -167,7 +172,12 @@ def main():
         if abs(alpha - alpha_welch) > 1.0:
             raise SystemExit("❌ Method inconsistency too high")
 
-        with open("artifacts/canonical_report.json", "w") as f:
+        output_path = os.path.join(
+            args.output_dir,
+            "canonical_report.json"
+        )
+
+        with open(output_path, "w") as f:
             def round_floats(obj):
                 if isinstance(obj, float):
                     return round(obj, 8)
