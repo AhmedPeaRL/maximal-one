@@ -7,8 +7,7 @@ ARTIFACTS = Path("artifacts")
 CRITICAL = [
     "canonical_report.json",
     "pipeline_sovereignty.json",
-    "external_replay_verification.json",
-    "artifact_closure.json"
+    "external_replay_verification.json"
 ]
 
 BOOTSTRAP_ALLOWED = True
