@@ -10,6 +10,7 @@ ARTIFACT_STAGES = [
 
     # normalize FIRST
     "analysis/normalize_artifacts.py",
+    "analysis/replay_lock.py",
 
     # THEN verify replay
     "analysis/full_replay_consistency_guard.py",
