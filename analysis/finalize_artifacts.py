@@ -15,11 +15,11 @@ ARTIFACT_STAGES = [
     # normalize EVERYTHING first
     "analysis/normalize_artifacts.py",
 
-    # temporal verification BEFORE closure sealing
-    "analysis/temporal_sovereignty_guard.py",
-
-    # freeze immutable closure AFTER temporal validation
+    # freeze immutable closure FIRST
     "analysis/freeze_artifacts.py",
+
+    # temporal verification AFTER FULL FREEZE
+    "analysis/temporal_sovereignty_guard.py",
 
     # final immutable state
     "analysis/final_state_lock.py"
