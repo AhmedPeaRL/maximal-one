@@ -1,23 +1,23 @@
 {
-  "mean_abs_error": NaN,
+  "mean_abs_error": 0.11312951061281029,
   "results": [
     {
       "type": "white",
       "target": 0.0,
-      "estimated": NaN,
-      "abs_error": NaN
+      "estimated": 0.0,
+      "abs_error": 0.0
     },
     {
       "type": "pink",
       "target": 1.0,
-      "estimated": 1.0260122577605122,
-      "abs_error": 0.026012257760512192
+      "estimated": 0.6855441662675312,
+      "abs_error": 0.31445583373246877
     },
     {
       "type": "brown",
       "target": 2.0,
-      "estimated": 2.2785797150876164,
-      "abs_error": 0.27857971508761636
+      "estimated": 1.975067301894038,
+      "abs_error": 0.024932698105962103
     }
   ]
 }
