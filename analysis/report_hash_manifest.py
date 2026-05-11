@@ -2,36 +2,27 @@ import json
 import hashlib
 from pathlib import Path
 
+from analysis.canonical_json import canonicalize
+
 REPORT = Path("artifacts/canonical_report.json")
 
-
-def canonical(obj):
-
-    return json.dumps(
-        obj,
-        sort_keys=True,
-        separators=(",", ":")
-    ).encode()
-
-
 report = json.loads(
-    REPORT.read_text()
+    REPORT.read_text(encoding="utf-8")
 )
 
 digest = hashlib.sha256(
-    canonical(report)
+    canonicalize(report).encode()
 ).hexdigest()
 
 manifest = {
     "canonical_sha256": digest
 }
 
-Path("artifacts/report_hash_manifest.json").write_text(
-    json.dumps(
-        manifest,
-        indent=2,
-        sort_keys=True
-    )
+Path(
+    "artifacts/report_hash_manifest.json"
+).write_text(
+    canonicalize(manifest),
+    encoding="utf-8"
 )
 
 print("✅ REPORT HASH MANIFEST SEALED")
