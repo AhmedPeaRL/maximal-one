@@ -79,8 +79,8 @@ Path(
 
 if not match:
 
-raise SystemExit(      
-    "❌ Full replay inconsistency detected"      
-)
+    raise SystemExit(
+        "❌ Full replay inconsistency detected"
+    )
 
 print("✅ FULL REPLAY CONSISTENCY VERIFIED")
