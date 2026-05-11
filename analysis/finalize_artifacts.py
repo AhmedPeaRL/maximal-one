@@ -2,27 +2,29 @@ import subprocess
 
 ARTIFACT_STAGES = [
 
-    # foundational sealing
     "analysis/environment_fingerprint.py",
     "analysis/dataset_provenance_guard.py",
     "analysis/pipeline_sovereignty_guard.py",
     "analysis/estimator_calibration_guard.py",
     "analysis/provenance_chain_guard.py",
+
+    # normalize FIRST
+    "analysis/normalize_artifacts.py",
+
+    # THEN verify replay
     "analysis/full_replay_consistency_guard.py",
+
     "analysis/report_hash_manifest.py",
     "analysis/external_replay_verifier.py",
     "analysis/witness_lock.py",
 
-    # normalize EVERYTHING first
-    "analysis/normalize_artifacts.py",
-
-    # freeze immutable closure FIRST
+    # immutable freeze
     "analysis/freeze_artifacts.py",
 
-    # temporal verification AFTER FULL FREEZE
+    # temporal check AFTER freeze
     "analysis/temporal_sovereignty_guard.py",
 
-    # final immutable state
+    # final lock
     "analysis/final_state_lock.py"
 ]
 
