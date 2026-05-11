@@ -297,6 +297,10 @@ jobs:
         run: |
           python analysis/finalize_artifacts.py
 
+      - name: Seal immutable final state
+        run: |
+          python analysis/final_state_lock.py
+
       - name: Archive immutable snapshot
         run: |
           python analysis/archive_snapshot.py
@@ -336,10 +340,6 @@ jobs:
           python analysis/external_replay_verifier.py
           python analysis/witness_lock.py
           python analysis/temporal_sovereignty_guard.py
-          python analysis/artifact_closure_guard.py
-          python analysis/archive_snapshot.py
-          python analysis/release_manifest_builder.py
-          python analysis/release_manifest_guard.py
 
           git add artifacts/*.txt || true
           git add artifacts/*.json || true
@@ -370,10 +370,6 @@ jobs:
               python analysis/external_replay_verifier.py
               python analysis/witness_lock.py
               python analysis/temporal_sovereignty_guard.py
-              python analysis/artifact_closure_guard.py
-              python analysis/archive_snapshot.py
-              python analysis/release_manifest_builder.py
-              python analysis/release_manifest_guard.py
 
               git add artifacts/*.txt || true
               git add artifacts/*.json || true
