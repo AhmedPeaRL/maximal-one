@@ -29,7 +29,16 @@ if missing:
 
 hashes = {}
 
+EXCLUDED = {
+    "artifact_closure.json",
+    "temporal_sovereignty.json",
+    "final_state_lock.json"
+}
+
 for path in sorted(ARTIFACTS_DIR.glob("*")):
+
+    if path.name in EXCLUDED:
+        continue
 
     if path.is_file():
 
