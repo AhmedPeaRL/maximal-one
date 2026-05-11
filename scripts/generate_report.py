@@ -6,7 +6,7 @@ import os
 import traceback
 
 from analysis.numerical_spectral_verification import estimate_alpha
-
+from analysis.deep_freeze import deep_freeze
 
 def generate_series(rng, n=1024):
     x = rng.standard_normal(n)
@@ -16,10 +16,8 @@ def generate_series(rng, n=1024):
 
     return x
 
-
 def stable_float(x, digits=10):
     return float(round(x, digits))
-
 
 def enforce_determinism(seed=42):
     os.environ["PYTHONHASHSEED"] = str(seed)
@@ -33,7 +31,6 @@ def enforce_determinism(seed=42):
     os.environ["NUMEXPR_NUM_THREADS"] = "1"
 
 enforce_determinism(42)
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -178,16 +175,7 @@ def main():
         )
 
         with open(output_path, "w") as f:
-            def round_floats(obj):
-                if isinstance(obj, float):
-                    return round(obj, 8)
-                if isinstance(obj, dict):
-                    return {k: round_floats(v) for k, v in obj.items()}
-                if isinstance(obj, list):
-                    return [round_floats(x) for x in obj]
-                return obj
-
-            report = round_floats(report)
+            report = deep_freeze(report, digits=8)
 
             json.dump(report, f, sort_keys=True, separators=(",", ":"))
             
