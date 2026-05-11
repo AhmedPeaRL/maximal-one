@@ -336,6 +336,8 @@ jobs:
           python analysis/external_replay_verifier.py
           python analysis/witness_lock.py
           python analysis/temporal_sovereignty_guard.py
+          python analysis/final_state_lock.py
+          python analysis/artifact_closure_guard.py
 
           git add artifacts/*.txt || true
           git add artifacts/*.json || true
@@ -366,6 +368,8 @@ jobs:
               python analysis/external_replay_verifier.py
               python analysis/witness_lock.py
               python analysis/temporal_sovereignty_guard.py
+              python analysis/final_state_lock.py
+              python analysis/artifact_closure_guard.py
 
               git add artifacts/*.txt || true
               git add artifacts/*.json || true
