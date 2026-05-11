@@ -10,7 +10,11 @@ CRITICAL = [
     "external_replay_verification.json"
 ]
 
-BOOTSTRAP_ALLOWED = True
+EXCLUDED = {
+    "temporal_sovereignty.json",
+    "artifact_closure.json",
+    "final_state_lock.json"
+}
 
 def sha(path):
     return hashlib.sha256(
@@ -38,7 +42,7 @@ if missing:
 
 temporal_file = ARTIFACTS / "temporal_sovereignty.json"
 
-# FIRST CREATION → bootstrap allowed
+# bootstrap mode
 if not temporal_file.exists():
 
     report = {
@@ -47,8 +51,13 @@ if not temporal_file.exists():
         "status": "BOOTSTRAP_TEMPORAL_SOVEREIGNTY"
     }
 
-    with open(temporal_file, "w") as f:
-        json.dump(report, f, indent=2)
+    temporal_file.write_text(
+        json.dumps(
+            report,
+            indent=2,
+            sort_keys=True
+        ) + "\n"
+    )
 
     print("✅ TEMPORAL SOVEREIGNTY BOOTSTRAPPED")
     raise SystemExit(0)
@@ -69,6 +78,7 @@ for k, v in snapshot.items():
     old = previous_hashes.get(k)
 
     if old and old != v:
+
         drift.append({
             "artifact": k,
             "before": old,
@@ -92,7 +102,12 @@ report = {
     "status": "TEMPORAL_SOVEREIGNTY_HOLDS"
 }
 
-with open(temporal_file, "w") as f:
-    json.dump(report, f, indent=2)
+temporal_file.write_text(
+    json.dumps(
+        report,
+        indent=2,
+        sort_keys=True
+    ) + "\n"
+)
 
 print("✅ TEMPORAL SOVEREIGNTY HOLDS")
