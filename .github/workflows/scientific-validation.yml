@@ -322,28 +322,16 @@ jobs:
       - name: Commit fingerprint
         run: |
           set -e
-
+          
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-
+          
           git remote set-url origin \
           https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}.git
 
           git fetch origin main
           git checkout main
           git reset --hard origin/main
-
-          # regenerate deterministic artifacts
-          python scripts/generate_report.py --seed 42 --canonical
-          python analysis/pipeline_sovereignty_guard.py
-          python analysis/estimator_calibration_guard.py
-          python analysis/provenance_chain_guard.py
-          python analysis/full_replay_consistency_guard.py
-          python analysis/external_replay_verifier.py
-          python analysis/witness_lock.py
-          python analysis/freeze_artifacts.py
-          python analysis/temporal_sovereignty_guard.py
-          python analysis/final_state_lock.py
 
           git add artifacts/*.txt || true
           git add artifacts/*.json || true
@@ -354,34 +342,11 @@ jobs:
             exit 0
           fi
 
-          git commit -m "update fingerprint"
+          git commit -m "update deterministic artifacts"
 
           for i in 1 2 3
           do
-            if git pull --rebase origin main; then
-              echo "Rebase success"
-            else
-              echo "Rebase conflict → regenerating clean state"
-
-              git rebase --abort || true
-              git reset --hard origin/main
-
-              python scripts/generate_report.py --seed 42 --canonical
-              python analysis/pipeline_sovereignty_guard.py
-              python analysis/estimator_calibration_guard.py
-              python analysis/provenance_chain_guard.py
-              python analysis/full_replay_consistency_guard.py
-              python analysis/external_replay_verifier.py
-              python analysis/witness_lock.py
-              python analysis/freeze_artifacts.py
-              python analysis/temporal_sovereignty_guard.py
-              python analysis/final_state_lock.py
-
-              git add artifacts/*.txt || true
-              git add artifacts/*.json || true
-              git add -f artifacts/archive/*.json || true
-              git commit -m "update fingerprint" || true
-            fi
+            git pull --rebase origin main || true
 
             if git push origin HEAD:main; then
               echo "✅ push success"
