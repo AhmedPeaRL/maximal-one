@@ -22,6 +22,12 @@ ARTIFACT_STAGES = [
     # immutable freeze
     "analysis/freeze_artifacts.py",
 
+    # build immutable manifest AFTER freeze
+    "analysis/release_manifest_builder.py",
+
+    # verify manifest
+    "analysis/release_manifest_guard.py",
+
     # temporal check AFTER freeze
     "analysis/temporal_sovereignty_guard.py",
 
