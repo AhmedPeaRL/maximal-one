@@ -13,7 +13,7 @@ for path in sorted(ARTIFACTS.glob("*.json")):
                 data,
                 indent=2,
                 sort_keys=True
-            )
+            ) + "\n"
         )
 
     except Exception:
