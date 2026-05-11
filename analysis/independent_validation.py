@@ -2,10 +2,8 @@ import numpy as np
 from scipy.signal import welch
 from scipy.stats import linregress
 
-
 FREQ_MIN = 0.02
 FREQ_MAX = 0.25
-
 
 def sanitize_alpha(alpha):
 
@@ -17,7 +15,6 @@ def sanitize_alpha(alpha):
     alpha = np.clip(alpha, 0.0, 5.0)
 
     return float(alpha)
-
 
 def estimate_alpha_welch(series):
 
@@ -73,8 +70,12 @@ def estimate_alpha_welch(series):
 
     alpha = -slope
 
-    return sanitize_alpha(alpha)
-
+    return float(
+        np.round(
+            sanitize_alpha(alpha),
+            8
+        )
+    )
 
 def compare_methods(series):
 
