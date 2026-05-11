@@ -16,7 +16,7 @@ def generate_series(rng, n=1024):
 
     return x
 
-def stable_float(x, digits=10):
+def stable_float(x, digits=6):
     return float(round(x, digits))
 
 def enforce_determinism(seed=42):
