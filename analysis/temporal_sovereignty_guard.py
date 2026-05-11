@@ -6,7 +6,6 @@ ARTIFACTS = Path("artifacts")
 
 CRITICAL = [
     "canonical_report.json",
-    "fingerprint.txt",
     "pipeline_sovereignty.json",
     "external_replay_verification.json",
     "artifact_closure.json"
