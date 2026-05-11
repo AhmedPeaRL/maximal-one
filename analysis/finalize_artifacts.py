@@ -9,6 +9,7 @@ ARTIFACT_STAGES = [
     "analysis/estimator_calibration_guard.py",
     "analysis/provenance_chain_guard.py",
     "analysis/full_replay_consistency_guard.py",
+    "analysis/report_hash_manifest.py",
     "analysis/external_replay_verifier.py",
     "analysis/witness_lock.py",
 
