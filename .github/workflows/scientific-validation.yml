@@ -13,6 +13,8 @@ on:
   
 permissions:
   contents: write
+  actions: read
+  pull-requests: read
   
 env:
   PYTHONHASHSEED: "42"
@@ -339,7 +341,7 @@ jobs:
           python analysis/full_replay_consistency_guard.py
           python analysis/external_replay_verifier.py
           python analysis/witness_lock.py
-          python analysis/artifact_closure_guard.py
+          python analysis/freeze_artifacts.py
           python analysis/temporal_sovereignty_guard.py
           python analysis/final_state_lock.py
 
@@ -371,7 +373,7 @@ jobs:
               python analysis/full_replay_consistency_guard.py
               python analysis/external_replay_verifier.py
               python analysis/witness_lock.py
-              python analysis/artifact_closure_guard.py
+              python analysis/freeze_artifacts.py
               python analysis/temporal_sovereignty_guard.py
               python analysis/final_state_lock.py
 
