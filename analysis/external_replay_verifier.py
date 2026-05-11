@@ -3,13 +3,14 @@ import subprocess
 import tempfile
 import shutil
 from pathlib import Path
+from analysis.deep_freeze import deep_freeze
 
 ARTIFACT = "artifacts/canonical_report.json"
 
 
 def load(path):
     with open(path) as f:
-        return json.load(f)
+        return deep_freeze(json.load(f))
 
 
 before = load(ARTIFACT)
