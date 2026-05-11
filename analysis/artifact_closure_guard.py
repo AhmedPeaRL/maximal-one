@@ -32,7 +32,8 @@ hashes = {}
 EXCLUDED = {
     "artifact_closure.json",
     "temporal_sovereignty.json",
-    "final_state_lock.json"
+    "final_state_lock.json",
+    "release_manifest.json"
 }
 
 for path in sorted(ARTIFACTS_DIR.glob("*")):
