@@ -14,7 +14,7 @@ base = Path("artifacts")
 
 combined = hashlib.sha256()
 
-for name in ARTIFACTS:
+for name in sorted(ARTIFACTS):
 
     path = base / name
 
