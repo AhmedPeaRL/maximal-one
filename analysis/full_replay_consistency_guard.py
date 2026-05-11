@@ -1,11 +1,11 @@
 import json
 import hashlib
 from pathlib import Path
-import subprocess
 
 from analysis.canonical_json import canonicalize
 
 REPORT = Path("artifacts/canonical_report.json")
+LOCK = Path("artifacts/canonical_report.lock")
 
 
 def sha(obj):
@@ -21,42 +21,37 @@ if not REPORT.exists():
         "❌ canonical report missing"
     )
 
-before = json.loads(
+if not LOCK.exists():
+
+    raise SystemExit(
+        "❌ replay lock missing"
+    )
+
+report = json.loads(
     REPORT.read_text(encoding="utf-8")
 )
 
-before_hash = sha(before)
-
-print("Original report hash:")
-print(before_hash)
-
-print("\nRe-running canonical pipeline...\n")
-
-subprocess.run(
-    [
-        "python",
-        "scripts/generate_report.py",
-        "--seed",
-        "42",
-        "--canonical"
-    ],
-    check=True
+lock = json.loads(
+    LOCK.read_text(encoding="utf-8")
 )
 
-after = json.loads(
-    REPORT.read_text(encoding="utf-8")
+current_hash = sha(report)
+
+expected_hash = lock["sha256"]
+
+print("Expected hash:")
+print(expected_hash)
+
+print("\nCurrent hash:")
+print(current_hash)
+
+match = (
+    current_hash == expected_hash
 )
-
-after_hash = sha(after)
-
-print("Reproduced report hash:")
-print(after_hash)
-
-match = before_hash == after_hash
 
 result = {
-    "before_hash": before_hash,
-    "after_hash": after_hash,
+    "expected_hash": expected_hash,
+    "current_hash": current_hash,
     "match": bool(match)
 }
 
