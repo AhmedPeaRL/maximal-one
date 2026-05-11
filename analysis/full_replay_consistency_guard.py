@@ -42,14 +42,18 @@ subprocess.run(
         "scripts/generate_report.py",
         "--seed",
         "42",
-        "--canonical"
+        "--canonical",
+        "--output-dir",
+        "artifacts/replay_check"
     ],
     check=True
 )
 
 after = canonicalize(
     json.loads(
-        REPORT.read_text(
+        Path(
+            "artifacts/replay_check/canonical_report.json"
+        ).read_text(
             encoding="utf-8"
         )
     )
