@@ -1,10 +1,13 @@
 import json
-from analysis.deep_freeze import deep_freeze
+
+from analysis.fixed_precision import (
+    recursively_freeze
+)
 
 
 def canonicalize(obj):
 
-    obj = deep_freeze(obj, digits=8)
+    obj = recursively_freeze(obj)
 
     return json.dumps(
         obj,
@@ -16,6 +19,12 @@ def canonicalize(obj):
 
 def write_canonical(path, obj):
 
-    with open(path, "w", encoding="utf-8") as f:
+    with open(
+        path,
+        "w",
+        encoding="utf-8"
+    ) as f:
 
-        f.write(canonicalize(obj))
+        f.write(
+            canonicalize(obj)
+    )
