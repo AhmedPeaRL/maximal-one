@@ -9,8 +9,8 @@ CRITICAL = [
     "fingerprint.txt",
     "pipeline_sovereignty.json",
     "external_replay_verification.json",
-    "artifact_closure.json",
-    "final_state_lock.json"
+    "final_state_lock.json",
+    "artifact_closure.json"
 ]
 
 def sha(path):
