@@ -2,13 +2,13 @@ import hashlib
 import json
 from pathlib import Path
 
-ARTIFACTS = sorted([
+ARTIFACTS = [
     "artifact_closure.json",
     "release_manifest.json",
     "provenance_chain.json",
     "witness_lock.json",
     "temporal_sovereignty.json"
-])
+]
 
 base = Path("artifacts")
 
