@@ -2,6 +2,7 @@ import json
 import hashlib
 from pathlib import Path
 import subprocess
+from analysis.deep_freeze import deep_freeze
 
 REPORT = Path("artifacts/canonical_report.json")
 
@@ -25,8 +26,8 @@ if not REPORT.exists():
         "❌ canonical report missing"
     )
 
-before = json.loads(
-    REPORT.read_text()
+before = deep_freeze(
+    json.loads(REPORT.read_text())
 )
 
 before_hash = sha(before)
@@ -47,8 +48,8 @@ subprocess.run(
     check=True
 )
 
-after = json.loads(
-    REPORT.read_text()
+after = deep_freeze(
+    json.loads(REPORT.read_text())
 )
 
 after_hash = sha(after)
