@@ -1,57 +1,72 @@
 import json
 import hashlib
 from pathlib import Path
+import subprocess
 
 from analysis.canonical_json import canonicalize
 
 REPORT = Path("artifacts/canonical_report.json")
-LOCK = Path("artifacts/canonical_report.lock")
-
 
 def sha(obj):
 
-    return hashlib.sha256(
-        canonicalize(obj).encode()
+    return hashlib.sha256(      
+        canonicalize(obj).encode()      
     ).hexdigest()
 
-
 if not REPORT.exists():
-
-    raise SystemExit(
-        "❌ canonical report missing"
+    
+    raise SystemExit(     
+        "❌ canonical report missing"     
     )
 
-if not LOCK.exists():
-
-    raise SystemExit(
-        "❌ replay lock missing"
+before = canonicalize(
+    json.loads(
+        REPORT.read_text(
+            encoding="utf-8"
+        )
     )
-
-report = json.loads(
-    REPORT.read_text(encoding="utf-8")
 )
 
-lock = json.loads(
-    LOCK.read_text(encoding="utf-8")
+before_hash = hashlib.sha256(
+    before.encode()
+).hexdigest()
+
+print("Original report hash:")
+print(before_hash)
+
+print("\nRe-running canonical pipeline...\n")
+
+subprocess.run(
+    [
+        "python",
+        "scripts/generate_report.py",
+        "--seed",
+        "42",
+        "--canonical"
+    ],
+    check=True
 )
 
-current_hash = sha(report)
-
-expected_hash = lock["sha256"]
-
-print("Expected hash:")
-print(expected_hash)
-
-print("\nCurrent hash:")
-print(current_hash)
-
-match = (
-    current_hash == expected_hash
+after = canonicalize(
+    json.loads(
+        REPORT.read_text(
+            encoding="utf-8"
+        )
+    )
 )
+
+after_hash = hashlib.sha256(
+    after.encode()
+).hexdigest()
+
+print("Reproduced report hash:")
+print(after_hash)
+
+match = before_hash == after_hash
 
 result = {
-    "expected_hash": expected_hash,
-    "current_hash": current_hash,
+    "before_hash": before_hash,
+    "after_hash": after_hash,
     "match": bool(match)
 }
 
@@ -64,8 +79,8 @@ Path(
 
 if not match:
 
-    raise SystemExit(
-        "❌ Full replay inconsistency detected"
-    )
+raise SystemExit(      
+    "❌ Full replay inconsistency detected"      
+)
 
 print("✅ FULL REPLAY CONSISTENCY VERIFIED")
