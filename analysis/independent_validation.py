@@ -38,7 +38,8 @@ def estimate_alpha_welch(series):
         nperseg=min(128, n),
         scaling="density",
         window="hann",
-        detrend="constant"
+        detrend="constant",
+        average="median"
     )
 
     mask = (
@@ -52,18 +53,79 @@ def estimate_alpha_welch(series):
     if len(freqs) < 12:
         return np.nan
 
-    psd = np.maximum(psd, 1e-12)
-
-    log_f = np.log(freqs)
-    log_psd = np.log(psd)
-
-    slope, _, _, _, _ = linregress(
-        log_f,
-        log_psd
+    psd = np.convolve(
+        psd,
+        np.ones(3) / 3,
+        mode="same"
     )
 
-    if not np.isfinite(slope):
+    psd = np.round(psd, 8)
+
+    psd = np.maximum(psd, 1e-12)
+
+    log_f = np.round(
+        np.log(freqs),
+        8
+    )
+
+    log_psd = np.round(
+        np.log(psd),
+        8
+    )
+
+    slopes = []
+
+    window = 5
+
+    for i in range(len(log_f) - window):
+
+        x = log_f[i:i + window]
+        y = log_psd[i:i + window]
+
+        if np.std(y) < 1e-8:
+            continue
+
+        try:
+
+            coeffs = np.polyfit(
+                x,
+                y,
+                1
+            )
+
+            slope = float(
+                np.round(coeffs[0], 8)
+            )
+
+            if np.isfinite(slope):
+                slopes.append(slope)
+
+        except Exception:
+            continue
+
+    if len(slopes) < 6:
         return np.nan
+
+    slopes = np.asarray(
+        slopes,
+        dtype=np.float64
+    )
+
+    median = np.median(slopes)
+
+    mad = np.median(
+        np.abs(slopes - median)
+    ) + 1e-12
+
+    filtered = slopes[
+        np.abs(slopes - median)
+        < 2.5 * mad
+    ]
+
+    if len(filtered) < 4:
+        filtered = slopes
+
+    slope = np.mean(filtered)
 
     if slope > 0:
         slope = -abs(slope)
