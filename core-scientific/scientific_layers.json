@@ -1,0 +1,22 @@
+{
+  "layers": {
+    "core": [
+      "dataset_validation",
+      "spectral_estimation",
+      "bootstrap_validation",
+      "null_rejection"
+    ],
+
+    "structural": [
+      "cross_domain_validation",
+      "predictive_regime_validation",
+      "method_consensus"
+    ],
+
+    "external": [
+      "fingerprint_reproduction",
+      "external_anchor",
+      "independent_replay"
+    ]
+  }
+}
