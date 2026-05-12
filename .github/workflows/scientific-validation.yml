@@ -118,14 +118,7 @@ jobs:
 
       - name: Run causal hint
         run: python analysis/causal_hint.py
-
-      - name: Reproducibility stamp
-        run: |
-          python - <<'PY'
-          from analysis.reproducibility_stamp import attach_stamp
-          print("STAMP:", attach_stamp("artifacts/canonical_report.json"))
-          PY
-
+        
       - name: Predictive validation
         run: |
           python - <<'PY'
@@ -322,6 +315,13 @@ jobs:
       - name: Finalize deterministic artifacts
         run: |
           python analysis/finalize_artifacts.py
+
+      - name: Reproducibility stamp
+        run: |
+          python - <<'PY'
+          from analysis.reproducibility_stamp import attach_stamp
+          print("STAMP:", attach_stamp("artifacts/canonical_report.json"))
+          PY
 
       - name: Commit fingerprint
         run: |
