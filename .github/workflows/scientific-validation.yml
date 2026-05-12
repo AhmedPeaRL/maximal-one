@@ -131,7 +131,9 @@ jobs:
           res = evaluate_prediction(df[col].values)
 
           if not res["valid"]:
-              raise SystemExit("❌ Prediction failed")
+              raise SystemExit(
+                  f"❌ Predictive regime validation failed: {res}"
+              )
 
           print("✅ Prediction:", res)
           PY
