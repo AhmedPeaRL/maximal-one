@@ -87,8 +87,8 @@ def robust_local_slopes(
         < 2.5 * mad
     ]
 
-    if len(filtered) < 6:
-        return np.nan
+    if len(filtered) < 4:
+        filtered = slopes
 
     filtered = np.round(
         filtered,
