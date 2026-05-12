@@ -4,6 +4,13 @@ from scipy.ndimage import uniform_filter1d
 
 np.set_printoptions(precision=15)
 
+FREEZE_DECIMALS = 8
+
+
+def f(x):
+    return float(np.round(float(x), FREEZE_DECIMALS))
+
+
 def robust_local_slopes(
     log_f,
     log_psd,
@@ -46,26 +53,13 @@ def robust_local_slopes(
                 1
             )
 
-            slope = float(
-                np.round(
-                    coeffs[0],
-                    12
-                )
-            )
+            slope = f(coeffs[0])
 
         except Exception:
             continue
 
         if np.isfinite(slope):
-
-            slopes.append(
-                float(
-                    np.round(
-                        slope,
-                        12
-                    )
-                )
-            )
+            slopes.append(slope)
 
     slopes = np.asarray(
         slopes,
@@ -77,23 +71,15 @@ def robust_local_slopes(
 
     slopes = np.round(
         slopes,
-        12
+        FREEZE_DECIMALS
     )
 
-    median = float(
-        np.round(
-            np.median(slopes),
-            12
-        )
-    )
+    median = f(np.median(slopes))
 
-    mad = float(
-        np.round(
-            np.median(
-                np.abs(slopes - median)
-            ) + 1e-12,
-            12
-        )
+    mad = f(
+        np.median(
+            np.abs(slopes - median)
+        ) + 1e-12
     )
 
     filtered = slopes[
@@ -106,21 +92,15 @@ def robust_local_slopes(
 
     filtered = np.round(
         filtered,
-        12
+        FREEZE_DECIMALS
     )
 
-    q1 = float(
-        np.round(
-            np.percentile(filtered, 25),
-            12
-        )
+    q1 = f(
+        np.percentile(filtered, 25)
     )
 
-    q3 = float(
-        np.round(
-            np.percentile(filtered, 75),
-            12
-        )
+    q3 = f(
+        np.percentile(filtered, 75)
     )
 
     core = filtered[
@@ -131,12 +111,8 @@ def robust_local_slopes(
     if len(core) < 4:
         core = filtered
 
-    return float(
-        np.round(
-            np.mean(core),
-            10
-        )
-    )
+    return f(np.mean(core))
+
 
 def estimate_alpha(series):
 
@@ -148,7 +124,7 @@ def estimate_alpha(series):
     if not np.all(np.isfinite(series)):
         return np.nan
 
-    series = series - np.mean(series)
+    series = series - f(np.mean(series))
 
     n = len(series)
 
@@ -163,6 +139,9 @@ def estimate_alpha(series):
         nperseg=min(128, n),
         average="median"
     )
+
+    freqs = np.round(freqs, FREEZE_DECIMALS)
+    psd = np.round(psd, FREEZE_DECIMALS)
 
     mask = (
         (freqs > 0.02)
@@ -180,10 +159,22 @@ def estimate_alpha(series):
         size=3
     )
 
+    psd = np.round(
+        psd,
+        FREEZE_DECIMALS
+    )
+
     psd = np.maximum(psd, 1e-12)
 
-    log_f = np.log(freqs)
-    log_psd = np.log(psd)
+    log_f = np.round(
+        np.log(freqs),
+        FREEZE_DECIMALS
+    )
+
+    log_psd = np.round(
+        np.log(psd),
+        FREEZE_DECIMALS
+    )
 
     slope = robust_local_slopes(
         log_f,
@@ -194,7 +185,7 @@ def estimate_alpha(series):
     if not np.isfinite(slope):
         return np.nan
 
-    alpha = float(max(0.0, -slope))
+    alpha = f(max(0.0, -slope))
 
     if not np.isfinite(alpha):
         return np.nan
@@ -202,12 +193,8 @@ def estimate_alpha(series):
     if alpha > 5:
         return np.nan
 
-    return float(
-        np.round(
-            alpha,
-            8
-        )
-    )
+    return f(alpha)
+
 
 def block_bootstrap(
     series,
@@ -250,7 +237,7 @@ def block_bootstrap(
         alpha = estimate_alpha(sample)
 
         if np.isfinite(alpha):
-            alphas.append(alpha)
+            alphas.append(f(alpha))
 
     alphas = np.asarray(
         alphas,
@@ -267,8 +254,8 @@ def block_bootstrap(
         }
 
     return {
-        "mean": float(np.mean(alphas)),
-        "std": float(np.std(alphas)),
-        "ci_low": float(np.percentile(alphas, 2.5)),
-        "ci_high": float(np.percentile(alphas, 97.5))
-    }
+        "mean": f(np.mean(alphas)),
+        "std": f(np.std(alphas)),
+        "ci_low": f(np.percentile(alphas, 2.5)),
+        "ci_high": f(np.percentile(alphas, 97.5))
+        }
