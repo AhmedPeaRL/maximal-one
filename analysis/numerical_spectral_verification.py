@@ -154,9 +154,10 @@ def estimate_alpha(series):
     if len(freqs) < 12:
         return np.nan
 
-    psd = uniform_filter1d(
+    psd = np.convolve(
         psd,
-        size=3
+        np.ones(3) / 3,
+        mode="same"
     )
 
     psd = np.round(
