@@ -308,6 +308,10 @@ jobs:
         run: |
           python analysis/archive_snapshot.py
 
+      - name: Reproducibility stamp guard
+        run: |
+          python analysis/reproducibility_stamp_guard.py
+
       - name: Normalize artifact ordering
         run: |
           python analysis/normalize_artifacts.py
@@ -315,13 +319,6 @@ jobs:
       - name: Finalize deterministic artifacts
         run: |
           python analysis/finalize_artifacts.py
-
-      - name: Reproducibility stamp
-        run: |
-          python - <<'PY'
-          from analysis.reproducibility_stamp import attach_stamp
-          print("STAMP:", attach_stamp("artifacts/canonical_report.json"))
-          PY
 
       - name: Commit fingerprint
         run: |
