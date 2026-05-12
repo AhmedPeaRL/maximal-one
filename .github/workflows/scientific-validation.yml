@@ -308,13 +308,13 @@ jobs:
         run: |
           python analysis/archive_snapshot.py
 
-      - name: Reproducibility stamp guard
-        run: |
-          python analysis/reproducibility_stamp_guard.py
-
       - name: Normalize artifact ordering
         run: |
           python analysis/normalize_artifacts.py
+
+      - name: Reproducibility stamp guard
+        run: |
+          python analysis/reproducibility_stamp_guard.py
 
       - name: Finalize deterministic artifacts
         run: |
