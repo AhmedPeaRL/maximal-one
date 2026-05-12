@@ -101,7 +101,7 @@ jobs:
           pd.DataFrame({"value": rw}).to_csv("real-data/random_walk.csv", index=False)
 
           # Shuffled sunspots
-          sun = pd.read_csv("real-data/sunspots_global.csv").iloc[:,0].values
+          sun = pd.read_csv("real-data/sunspots_global_extended.csv").iloc[:,0].values
           shuffled = np.random.permutation(sun)
           pd.DataFrame({"value": shuffled}).to_csv("real-data/shuffled_sunspots.csv", index=False)
 
@@ -794,7 +794,7 @@ jobs:
               print("Real data alpha:", alpha)
 
           if __name__ == "__main__":
-              run_real_test("real-data/sunspots_global.csv")
+              run_real_test("real-data/sunspots_global_extended.csv")
 
           import pandas as pd
           import numpy as np
@@ -812,7 +812,7 @@ jobs:
           pd.DataFrame({"value": rw}).to_csv("real-data/random_walk.csv", index=False)
 
           # Shuffled sunspots
-          sun = pd.read_csv("real-data/sunspots_global.csv").iloc[:,0].values
+          sun = pd.read_csv("real-data/sunspots_global_extended.csv").iloc[:,0].values
           shuffled = np.random.permutation(sun)
           pd.DataFrame({"value": shuffled}).to_csv("real-data/shuffled_sunspots.csv", index=False)
 
@@ -1597,7 +1597,7 @@ jobs:
         pd.DataFrame({"value": rw}).to_csv("real-data/random_walk.csv", index=False)
 
         # Shuffled sunspots
-        sun = pd.read_csv("real-data/sunspots_global.csv").iloc[:,0].values
+        sun = pd.read_csv("real-data/sunspots_global_extended.csv").iloc[:,0].values
         shuffled = np.random.permutation(sun)
         pd.DataFrame({"value": shuffled}).to_csv("real-data/shuffled_sunspots.csv", index=False)
 
@@ -1606,18 +1606,18 @@ jobs:
         
     - name: Ensure sunspots dataset
       run: |
-        if [ ! -f real-data/sunspots_global.csv ]; then
+        if [ ! -f real-data/sunspots_global_extended.csv ]; then
           echo "Creating fallback dataset..."
           python - <<'PY'
         import pandas as pd, numpy as np, os
         os.makedirs("real-data", exist_ok=True)
         t=np.arange(0,2000)
         v=50+40*np.sin(2*np.pi*t/11)+np.random.normal(0,5,len(t))
-        pd.DataFrame({"t":t,"value":v}).to_csv("real-data/sunspots_global.csv",index=False)
+        pd.DataFrame({"t":t,"value":v}).to_csv("real-data/sunspots_global_extended.csv",index=False)
         PY
             fi
 
-            python analysis/dataset_preprocessor.py real-data/sunspots_global.csv
+            python analysis/dataset_preprocessor.py real-data/sunspots_global_extended.csv
 
     - name: Dataset pipeline
       run: |
