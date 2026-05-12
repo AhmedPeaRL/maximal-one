@@ -1,31 +1,45 @@
-import json
 import hashlib
+import json
 from pathlib import Path
 
-REPORT = Path("artifacts/canonical_report.json")
-OUT = Path("artifacts/reproducibility_stamp.json")
+ARTIFACT = Path("artifacts/canonical_report.json")
+STAMP_OUT = Path("artifacts/reproducibility_stamp.json")
 
-if not REPORT.exists():
-    raise SystemExit("❌ canonical report missing")
 
-content = REPORT.read_bytes()
+def generate_stamp(path):
 
-stamp = hashlib.sha256(content).hexdigest()
+    content = path.read_bytes()
 
-payload = {
-    "artifact": REPORT.name,
-    "sha256": stamp,
-    "sealed": True
-}
+    return hashlib.sha256(content).hexdigest()
 
-OUT.write_text(
-    json.dumps(
-        payload,
-        indent=2,
-        sort_keys=True
-    ) + "\n",
-    encoding="utf-8"
-)
 
-print("✅ REPRODUCIBILITY STAMP SEALED")
-print(stamp)
+def attach_stamp():
+
+    if not ARTIFACT.exists():
+        raise SystemExit("❌ canonical_report.json missing")
+
+    stamp = generate_stamp(ARTIFACT)
+
+    payload = {
+        "artifact": ARTIFACT.name,
+        "sha256": stamp,
+        "sealed": True
+    }
+
+    STAMP_OUT.write_text(
+        json.dumps(
+            payload,
+            indent=2,
+            sort_keys=True
+        ) + "\n",
+        encoding="utf-8"
+    )
+
+    print(json.dumps(payload, indent=2))
+    print("✅ REPRODUCIBILITY STAMP SEALED")
+
+    return stamp
+
+
+if __name__ == "__main__":
+    attach_stamp()
