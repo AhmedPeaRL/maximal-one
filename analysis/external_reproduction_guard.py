@@ -1,6 +1,6 @@
 import os
 import json
-import numpy as np
+import time
 import hashlib
 import requests
 
@@ -22,31 +22,58 @@ def compute_fingerprint(report):
     }
 
     blob = json.dumps(
-        payload,
+        report,
         sort_keys=True,
         separators=(",", ":")
     ).encode()
 
-    fp = hashlib.sha256(blob).hexdigest()
+    return hashlib.sha256(blob).hexdigest()
 
-    return fp
-
-def fetch_external_fingerprint(url):
+def fetch_external_fingerprint(url, retries=10, delay=15):
     if not url:
-        print("⚠️ External URL not set → skipping external reproduction check")
+        print("⚠️ External URL not set")
         return None
 
-    r = requests.get(url, timeout=10)
-    r.raise_for_status()
-    return r.text.strip()
+    last = None
+
+    for i in range(retries):
+        try:
+            print(f"Attempt {i+1}/{retries}")
+
+            r = requests.get(
+                url,
+                timeout=20,
+                headers={
+                    "Cache-Control": "no-cache"
+                }
+            )
+
+            r.raise_for_status()
+
+            value = r.text.strip()
+
+            if value:
+                print("Fetched external fingerprint:", value)
+                return value
+
+            last = value
+
+        except Exception as e:
+            print("Fetch failed:", str(e))
+            last = str(e)
+
+        time.sleep(delay)
+
+    raise RuntimeError(
+        f"Unable to fetch stable external fingerprint: {last}"
+    )
 
 def validate(local_fp, external_fp):
-    if external_fp is None:
-        print("✅ External check skipped (no source provided)")
-        return
-
     print("Local FP:", local_fp)
     print("External FP:", external_fp)
+
+    if external_fp is None:
+        raise SystemExit("❌ Missing external fingerprint")
 
     if local_fp != external_fp:
         raise SystemExit("❌ External reproduction mismatch")
@@ -58,6 +85,8 @@ if __name__ == "__main__":
 
     local_fp = compute_fingerprint(report)
 
-    external_fp = fetch_external_fingerprint(EXTERNAL_SOURCE_URL)
+    external_fp = fetch_external_fingerprint(
+        EXTERNAL_SOURCE_URL
+    )
 
     validate(local_fp, external_fp)
