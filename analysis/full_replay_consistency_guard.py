@@ -2,39 +2,51 @@ import json
 import hashlib
 from pathlib import Path
 import subprocess
+import os
 
 from analysis.canonical_json import canonicalize
 
 REPORT = Path("artifacts/canonical_report.json")
 
+
 def sha(obj):
 
-    return hashlib.sha256(      
-        canonicalize(obj).encode()      
+    return hashlib.sha256(
+        canonicalize(obj).encode("utf-8")
     ).hexdigest()
 
+
 if not REPORT.exists():
-    
-    raise SystemExit(     
-        "❌ canonical report missing"     
+
+    raise SystemExit(
+        "❌ canonical report missing"
     )
 
-before = canonicalize(
-    json.loads(
-        REPORT.read_text(
-            encoding="utf-8"
-        )
+
+before_obj = json.loads(
+    REPORT.read_text(
+        encoding="utf-8"
     )
 )
 
+before = canonicalize(before_obj)
+
 before_hash = hashlib.sha256(
-    before.strip().encode("utf-8")
+    before.encode("utf-8")
 ).hexdigest()
 
 print("Original report hash:")
 print(before_hash)
 
 print("\nRe-running canonical pipeline...\n")
+
+env = os.environ.copy()
+
+env["PYTHONHASHSEED"] = "42"
+env["OMP_NUM_THREADS"] = "1"
+env["MKL_NUM_THREADS"] = "1"
+env["OPENBLAS_NUM_THREADS"] = "1"
+env["NUMEXPR_NUM_THREADS"] = "1"
 
 subprocess.run(
     [
@@ -46,21 +58,22 @@ subprocess.run(
         "--output-dir",
         "artifacts/replay_check"
     ],
-    check=True
+    check=True,
+    env=env
 )
 
-after = canonicalize(
-    json.loads(
-        Path(
-            "artifacts/replay_check/canonical_report.json"
-        ).read_text(
-            encoding="utf-8"
-        )
+after_obj = json.loads(
+    Path(
+        "artifacts/replay_check/canonical_report.json"
+    ).read_text(
+        encoding="utf-8"
     )
 )
 
+after = canonicalize(after_obj)
+
 after_hash = hashlib.sha256(
-    after.strip().encode("utf-8")
+    after.encode("utf-8")
 ).hexdigest()
 
 print("Reproduced report hash:")
@@ -68,7 +81,7 @@ print(after_hash)
 
 match = before_hash == after_hash
 
-result = {
+delta_report = {
     "before_hash": before_hash,
     "after_hash": after_hash,
     "match": bool(match)
@@ -77,11 +90,16 @@ result = {
 Path(
     "artifacts/full_replay_consistency.json"
 ).write_text(
-    canonicalize(result),
+    canonicalize(delta_report),
     encoding="utf-8"
 )
 
 if not match:
+
+    print(json.dumps({
+        "before": before_obj,
+        "after": after_obj
+    }, indent=2))
 
     raise SystemExit(
         "❌ Full replay inconsistency detected"
