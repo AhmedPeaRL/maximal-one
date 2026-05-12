@@ -7,6 +7,7 @@ ARTIFACTS = [
     "pipeline_sovereignty.json",
     "provenance_chain.json",
     "external_replay_verification.json",
+    "reproducibility_stamp.json",
     "temporal_sovereignty.json"
 ]
 
