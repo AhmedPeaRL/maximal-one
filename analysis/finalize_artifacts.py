@@ -10,11 +10,12 @@ ARTIFACT_STAGES = [
 
     # normalize FIRST
     "analysis/normalize_artifacts.py",
-    "analysis/replay_lock.py",
 
-    # THEN verify replay
+    # deterministic replay
+    "analysis/replay_lock.py",
     "analysis/full_replay_consistency_guard.py",
 
+    # manifest + provenance
     "analysis/report_hash_manifest.py",
     "analysis/external_replay_verifier.py",
     "analysis/witness_lock.py",
@@ -22,17 +23,15 @@ ARTIFACT_STAGES = [
     # immutable freeze
     "analysis/freeze_artifacts.py",
 
-    # build immutable manifest AFTER freeze
+    # release closure
     "analysis/release_manifest_builder.py",
-
-    # verify manifest
     "analysis/release_manifest_guard.py",
     "analysis/reproducibility_stamp_guard.py",
 
-    # temporal check AFTER freeze
+    # FINAL TEMPORAL SNAPSHOT
     "analysis/temporal_sovereignty_guard.py",
 
-    # final lock
+    # absolute final lock
     "analysis/final_state_lock.py"
 ]
 
