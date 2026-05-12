@@ -28,7 +28,7 @@ before = canonicalize(
 )
 
 before_hash = hashlib.sha256(
-    before.encode()
+    before.strip().encode("utf-8")
 ).hexdigest()
 
 print("Original report hash:")
@@ -60,7 +60,7 @@ after = canonicalize(
 )
 
 after_hash = hashlib.sha256(
-    after.encode()
+    after.strip().encode("utf-8")
 ).hexdigest()
 
 print("Reproduced report hash:")
