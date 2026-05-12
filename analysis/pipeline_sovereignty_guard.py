@@ -20,8 +20,7 @@ DATASET = "real-data/sunspots_global.csv"
 
 WINDOWS = [
     (0.0, 1.0),
-    (0.1, 0.9),
-    (0.2, 0.8),
+    (0.1, 0.9)
 ]
 
 results = []
