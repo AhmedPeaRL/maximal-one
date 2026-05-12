@@ -154,10 +154,10 @@ def estimate_alpha(series):
     if len(freqs) < 12:
         return np.nan
 
-    psd = np.convolve(
+    psd = uniform_filter1d(
         psd,
-        np.ones(3) / 3,
-        mode="same"
+        size=5,
+        mode="nearest"
     )
 
     psd = np.round(
@@ -180,7 +180,7 @@ def estimate_alpha(series):
     slope = robust_local_slopes(
         log_f,
         log_psd,
-        window=5
+        window=9
     )
 
     if not np.isfinite(slope):
