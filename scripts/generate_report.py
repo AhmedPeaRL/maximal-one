@@ -6,6 +6,10 @@ import os
 import traceback
 import analysis.hard_determinism_lock
 from analysis.numerical_spectral_verification import estimate_alpha
+from analysis.fixed_precision import (
+    recursively_freeze,
+    freeze_float
+)
 
 def generate_series(rng, n=1024):
     x = rng.standard_normal(n)
@@ -78,12 +82,33 @@ def main():
         print("Series sample:", series[:5])
 
         noise_samples = []
-        for i in range(10):
-            local_rng = np.random.default_rng(args.seed + 999 + i)
-            wn = local_rng.standard_normal(len(series))
-            noise_samples.append(estimate_alpha(wn))
-       
+
+       for i in range(10):
+           
+           local_rng = np.random.default_rng(
+               int(args.seed + 999 + i)
+           )
+
+           wn = np.asarray(
+               local_rng.standard_normal(len(series)),
+               dtype=np.float64
+           )
+
+           alpha_noise_sample = estimate_alpha(wn)
+
+           alpha_noise_sample = freeze_float(
+               alpha_noise_sample,
+               digits=8
+           )
+
+           noise_samples.append(alpha_noise_sample)
+
         alpha = estimate_alpha(series)
+
+        alpha = freeze_float(
+            alpha,
+            digits=8
+        )
 
         if not np.isfinite(alpha):
             raise SystemExit("❌ alpha invalid (NaN or Inf)")
@@ -99,20 +124,26 @@ def main():
         bootstrap_rng = np.random.default_rng(args.seed + 202)
         stats_rng = np.random.default_rng(args.seed + 303)
 
-        falsification = run_falsification(
-            series,
-            falsification_rng
+        falsification = recursively_freeze(
+            run_falsification(
+                series,
+                falsification_rng
+            )
         )
 
-        boot = block_bootstrap(
-            series,
-            bootstrap_rng
+        boot = recursively_freeze(
+            block_bootstrap(
+                series,
+                bootstrap_rng
+            )
         )
 
-        stats = monte_carlo_p_value(
-            series,
-            alpha,
-            stats_rng
+        stats = recursively_freeze(
+            monte_carlo_p_value(
+                series,
+                alpha,
+                stats_rng
+            )
         )
 
         for key, value in falsification.items():
@@ -209,8 +240,7 @@ def main():
         )
 
         from analysis.canonical_json import write_canonical
-        from analysis.fixed_precision import recursively_freeze
-
+        
         report = recursively_freeze(report)
         report = json.loads(
             json.dumps(
