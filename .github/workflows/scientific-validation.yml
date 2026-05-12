@@ -288,6 +288,10 @@ jobs:
           print("FP:", fp)
           PY
 
+      - name: Verify local fingerprint artifact
+        run: |
+          cat artifacts/fingerprint.txt
+
       - name: External replay verifier
         run: |
           python analysis/external_replay_verifier.py
@@ -360,6 +364,11 @@ jobs:
 
           echo "❌ push failed after retries"
           exit 1
+
+      - name: Allow GitHub propagation
+        run: |
+          echo "Waiting for global propagation..."
+          sleep 90
           
       - name: External Source Integrity Guard
         run: python analysis/external_source_integrity_guard.py
