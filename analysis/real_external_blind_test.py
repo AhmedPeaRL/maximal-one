@@ -150,10 +150,52 @@ def run_test():
     # 🔥 normalization before analysis
     data = stable_normalize(data)
 
-    split = int(len(data) * 0.7)
+    window = 512
+    stride = 128
 
-    train = data[:split]
-    test = data[split:]
+    segments = []
+
+    for start in range(
+        0,
+        len(data) - window,
+        stride
+    ):
+
+        seg = data[start:start + window]
+
+        if len(seg) == window:
+            segments.append(seg)
+
+    if len(segments) < 3:
+        
+        raise RuntimeError(
+            "Insufficient rolling windows"
+        )
+
+    alphas = []
+
+    for seg in segments:
+        
+        a = estimate_alpha(seg)
+
+        if np.isfinite(a):
+            alphas.append(a)
+
+    alphas = np.asarray(
+        alphas,
+        dtype=np.float64
+    )
+
+    if len(alphas) < 3:
+        
+        raise RuntimeError(
+            "Insufficient valid alpha windows"
+        )
+
+    alpha_train = float(np.median(alphas[:-1]))
+    alpha_test = float(alphas[-1])
+
+    train = segments[0]
 
     alpha_train = estimate_alpha(train)
     alpha_test = estimate_alpha(test)
