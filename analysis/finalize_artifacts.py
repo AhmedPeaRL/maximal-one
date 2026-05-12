@@ -27,6 +27,7 @@ ARTIFACT_STAGES = [
 
     # verify manifest
     "analysis/release_manifest_guard.py",
+    "analysis/reproducibility_stamp_guard.py",
 
     # temporal check AFTER freeze
     "analysis/temporal_sovereignty_guard.py",
