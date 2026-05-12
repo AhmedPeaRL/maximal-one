@@ -75,10 +75,9 @@ def evaluate_prediction(
     series = series[np.isfinite(series)]
 
     if len(series) < 256:
-
         return {
             "valid": False,
-            "reason": "insufficient_series"
+            "reason": f"insufficient_series ({len(series)})"
         }
 
     split = int(len(series) * split_ratio)
