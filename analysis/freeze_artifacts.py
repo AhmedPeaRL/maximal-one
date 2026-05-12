@@ -7,8 +7,7 @@ ARTIFACTS = Path("artifacts")
 EXCLUDED = {
     "artifact_closure.json",
     "temporal_sovereignty.json",
-    "final_state_lock.json",
-    "release_manifest.json"
+    "final_state_lock.json"
 }
 
 hashes = {}
