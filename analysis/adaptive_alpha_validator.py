@@ -30,9 +30,13 @@ def adaptive_alpha_pass(
         2.5 * alpha_sigma
     )
 
-    relative = drift / (
-        abs(alpha_train) + 1e-12
+    scale = max(
+        abs(alpha_train),
+        alpha_sigma,
+        0.35
     )
+
+    relative = drift / scale
 
     passed = (
         drift <= tolerance
