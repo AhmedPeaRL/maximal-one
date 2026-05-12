@@ -40,6 +40,28 @@ def predict_next_trend(series):
     }
 
 
+def continuity_score(a, b):
+
+    if not (
+        np.isfinite(a)
+        and np.isfinite(b)
+    ):
+        return 0.0
+
+    denom = max(
+        abs(a),
+        abs(b),
+        1e-9
+    )
+
+    return float(
+        1.0 - min(
+            1.0,
+            abs(a - b) / denom
+        )
+    )
+
+
 def evaluate_prediction(
     series,
     split_ratio=0.8
@@ -82,22 +104,29 @@ def evaluate_prediction(
             "reason": "invalid_test_alpha"
         }
 
-    drift = abs(
-        pred["alpha"] - test_alpha
+    train_class = pred["classification"]
+    test_class = classify_alpha(test_alpha)
+
+    continuity = continuity_score(
+        pred["alpha"],
+        test_alpha
     )
 
-    tolerance = max(
-        0.35,
-        0.35 * abs(pred["alpha"])
+    structural_match = (
+        train_class == test_class
     )
 
-    passed = drift <= tolerance
+    valid = bool(
+        structural_match
+        and continuity >= 0.45
+    )
 
     return {
-        "prediction": pred["classification"],
+        "prediction": train_class,
+        "test_classification": test_class,
         "train_alpha": float(pred["alpha"]),
         "test_alpha": float(test_alpha),
-        "drift": float(drift),
-        "tolerance": float(tolerance),
-        "valid": bool(passed)
-}
+        "continuity": float(continuity),
+        "structural_match": bool(structural_match),
+        "valid": valid
+    }
