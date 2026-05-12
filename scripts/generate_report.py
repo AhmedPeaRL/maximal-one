@@ -81,27 +81,29 @@ def main():
         print("Synthetic length:", len(synthetic))
         print("Series sample:", series[:5])
 
+        from analysis.fixed_precision import freeze_float
+
         noise_samples = []
 
-       for i in range(10):
-           
-           local_rng = np.random.default_rng(
-               int(args.seed + 999 + i)
-           )
+        for i in range(10):
 
-           wn = np.asarray(
-               local_rng.standard_normal(len(series)),
-               dtype=np.float64
-           )
+            local_rng = np.random.default_rng(
+                int(args.seed + 999 + i)
+            )
 
-           alpha_noise_sample = estimate_alpha(wn)
+            wn = np.asarray(
+            local_rng.standard_normal(len(series)),
+            dtype=np.float64
+            )
 
-           alpha_noise_sample = freeze_float(
-               alpha_noise_sample,
-               digits=8
-           )
+        alpha_noise_sample = estimate_alpha(wn)
 
-           noise_samples.append(alpha_noise_sample)
+        alpha_noise_sample = freeze_float(
+            alpha_noise_sample,
+            digits=8
+        )
+
+        noise_samples.append(alpha_noise_sample)
 
         alpha = estimate_alpha(series)
 
