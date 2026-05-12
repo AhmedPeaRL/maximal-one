@@ -86,24 +86,24 @@ def main():
         noise_samples = []
 
         for i in range(10):
-
+            
             local_rng = np.random.default_rng(
                 int(args.seed + 999 + i)
             )
 
             wn = np.asarray(
-            local_rng.standard_normal(len(series)),
-            dtype=np.float64
+                local_rng.standard_normal(len(series)),
+                dtype=np.float64
             )
 
-        alpha_noise_sample = estimate_alpha(wn)
+            alpha_noise_sample = estimate_alpha(wn)
 
-        alpha_noise_sample = freeze_float(
-            alpha_noise_sample,
-            digits=8
-        )
+            alpha_noise_sample = freeze_float(
+                alpha_noise_sample,
+                digits=8
+            )
 
-        noise_samples.append(alpha_noise_sample)
+            noise_samples.append(alpha_noise_sample)
 
         alpha = estimate_alpha(series)
 
