@@ -4,7 +4,7 @@ import numpy as np
 import random
 import os
 import traceback
-
+import analysis.hard_determinism_lock
 from analysis.numerical_spectral_verification import estimate_alpha
 
 def generate_series(rng, n=1024):
