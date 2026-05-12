@@ -195,7 +195,8 @@ def run_test():
     alpha_train = float(np.median(alphas[:-1]))
     alpha_test = float(alphas[-1])
 
-    train = segments[0]
+    train = segments[-2]
+    test = segments[-1]
 
     alpha_train = estimate_alpha(train)
     alpha_test = estimate_alpha(test)
