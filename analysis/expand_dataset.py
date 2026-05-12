@@ -4,14 +4,6 @@ import numpy as np
 
 output_path = "real-data/sunspots_global_extended.csv"
 
-if os.path.exists(output_path):
-    print("⚠️ extended dataset already exists — regenerating deterministically")
-
-if not os.path.exists("real-data/sunspots_global.csv"):
-    raise SystemExit("❌ base dataset missing")
-    
-pd.DataFrame({"Sunspots": extended}).to_csv(output_path, index=False)
-
 df = pd.read_csv("real-data/sunspots_global.csv")
 series = df.iloc[:,0].values
 
@@ -28,5 +20,13 @@ pd.DataFrame({"Sunspots": extended}).to_csv(
     "real-data/sunspots_global_extended.csv",
     index=False
 )
+
+if os.path.exists(output_path):
+    print("⚠️ extended dataset already exists — regenerating deterministically")
+
+if not os.path.exists("real-data/sunspots_global.csv"):
+    raise SystemExit("❌ base dataset missing")
+    
+pd.DataFrame({"Sunspots": extended}).to_csv(output_path, index=False)
 
 print("✅ extended dataset generated:", len(extended))
