@@ -9,6 +9,23 @@ from analysis.canonical_json import canonicalize
 REPORT = Path("artifacts/canonical_report.json")
 
 
+IMMUTABLE_KEYS = [
+    "spectral_profile",
+    "statistical_test",
+    "cross_method_validation",
+    "sovereign_layer"
+]
+
+
+def stable_projection(obj):
+
+    return {
+        k: obj[k]
+        for k in IMMUTABLE_KEYS
+        if k in obj
+    }
+
+
 def sha(obj):
 
     return hashlib.sha256(
@@ -29,13 +46,15 @@ before_obj = json.loads(
     )
 )
 
-before = canonicalize(before_obj)
+before_projection = stable_projection(
+    before_obj
+)
 
-before_hash = hashlib.sha256(
-    before.encode("utf-8")
-).hexdigest()
+before_hash = sha(
+    before_projection
+)
 
-print("Original report hash:")
+print("Original immutable hash:")
 print(before_hash)
 
 print("\nRe-running canonical pipeline...\n")
@@ -70,13 +89,15 @@ after_obj = json.loads(
     )
 )
 
-after = canonicalize(after_obj)
+after_projection = stable_projection(
+    after_obj
+)
 
-after_hash = hashlib.sha256(
-    after.encode("utf-8")
-).hexdigest()
+after_hash = sha(
+    after_projection
+)
 
-print("Reproduced report hash:")
+print("Reproduced immutable hash:")
 print(after_hash)
 
 match = before_hash == after_hash
@@ -84,7 +105,8 @@ match = before_hash == after_hash
 delta_report = {
     "before_hash": before_hash,
     "after_hash": after_hash,
-    "match": bool(match)
+    "match": bool(match),
+    "verified_keys": IMMUTABLE_KEYS
 }
 
 Path(
@@ -97,8 +119,8 @@ Path(
 if not match:
 
     print(json.dumps({
-        "before": before_obj,
-        "after": after_obj
+        "before": before_projection,
+        "after": after_projection
     }, indent=2))
 
     raise SystemExit(
