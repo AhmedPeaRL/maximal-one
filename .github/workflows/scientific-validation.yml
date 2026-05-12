@@ -73,7 +73,7 @@ jobs:
           python - <<'PY'
           import pandas as pd
 
-          df = pd.read_csv("real-data/sunspots_global.csv")
+          df = pd.read_csv("real-data/sunspots_global_extended.csv")
 
           if len(df) < 10:
               raise SystemExit("Dataset too small")
@@ -125,7 +125,7 @@ jobs:
           import pandas as pd
           from analysis.predictive_validation import evaluate_prediction
 
-          df = pd.read_csv("real-data/sunspots_global.csv")
+          df = pd.read_csv("real-data/sunspots_global_extended.csv")
           col = "Sunspots" if "Sunspots" in df.columns else "value"
 
           res = evaluate_prediction(df[col].values)
@@ -221,7 +221,7 @@ jobs:
           import pandas as pd
           from analysis.independent_validation import compare_methods
 
-          df = pd.read_csv("real-data/sunspots_global.csv")
+          df = pd.read_csv("real-data/sunspots_global_extended.csv")
 
           col = "Sunspots" if "Sunspots" in df.columns else "value"
 
@@ -256,7 +256,7 @@ jobs:
           import pandas as pd
           from analysis.independent_validation import compare_methods
 
-          df = pd.read_csv("real-data/sunspots_global.csv")
+          df = pd.read_csv("real-data/sunspots_global_extended.csv")
           col = "Sunspots" if "Sunspots" in df.columns else "value"
 
           compare_methods(df[col].values)
