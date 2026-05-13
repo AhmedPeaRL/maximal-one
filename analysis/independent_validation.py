@@ -2,8 +2,8 @@ import numpy as np
 from scipy.signal import welch
 from scipy.stats import linregress
 
-FREQ_MIN = 0.02
-FREQ_MAX = 0.25
+FREQ_MIN = 0.03
+FREQ_MAX = 0.20
 
 def sanitize_alpha(alpha):
 
