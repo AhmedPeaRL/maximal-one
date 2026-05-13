@@ -2,7 +2,7 @@ import numpy as np
 from analysis.numerical_spectral_verification import estimate_alpha
 
 
-def monte_carlo_p_value(series, observed_alpha, rng, trials=500):
+def monte_carlo_p_value(series, observed_alpha, rng, trials=2000):
     null_alphas = []
 
     n = len(series)
