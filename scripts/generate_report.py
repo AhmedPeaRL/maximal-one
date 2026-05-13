@@ -103,6 +103,9 @@ def main():
                 dtype=np.float64
             )
 
+            series = series - np.mean(series)
+            series = series / (np.std(series) + 1e-12)
+
             alpha_noise_sample = estimate_alpha(wn)
 
             alpha_noise_sample = freeze_float(
