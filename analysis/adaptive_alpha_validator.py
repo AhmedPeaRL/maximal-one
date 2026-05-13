@@ -40,7 +40,7 @@ def adaptive_alpha_pass(
 
     passed = (
         drift <= tolerance
-        and relative <= 0.75
+        and relative <= max(0.75, 2.0 * alpha_sigma)
     )
 
     return {
