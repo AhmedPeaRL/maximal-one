@@ -163,8 +163,8 @@ def run_test():
     data = fetch_external()
     # 🔥 normalization before analysis
     data = stable_normalize(data)
-    data = preflight_check(data)
-
+    fft_alpha, welch_alpha = preflight_check(data)
+    # keep original data, don't overwrite it
     window = 512
     stride = 128
     segments = [
@@ -240,9 +240,8 @@ def run_test():
             "❌ Invalid test alpha"
         )
 
-    bootstrap = (
-        bootstrap_alpha_distribution(
-            train,
+    bootstrap = bootstrap_alpha_distribution(
+        train_pool,
             np.random.RandomState(42)
         )
     )
