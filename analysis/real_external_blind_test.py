@@ -240,9 +240,9 @@ def run_test():
             "❌ Invalid test alpha"
         )
 
-    bootstrap = bootstrap_alpha_distribution(
-        train_pool,
-            np.random.RandomState(42)
+    bootstrap_alpha_distribution(
+        np.concatenate(train_pool),
+        np.random.RandomState(42)
     )
 
     alpha_sigma = bootstrap["std"]
