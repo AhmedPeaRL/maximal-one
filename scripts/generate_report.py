@@ -11,6 +11,13 @@ from analysis.fixed_precision import (
     freeze_float
 )
 
+def is_valid_segment(x):
+    if np.std(x) < 1e-3:
+        return False
+    if np.max(x) - np.min(x) < 1e-2:
+        return False
+    return True
+
 def generate_series(rng, n=1024):
     x = rng.standard_normal(n)
 
@@ -45,10 +52,9 @@ def main():
         default="artifacts"
     )
     args = parser.parse_args()
-
+    segments = [s for s in segments if is_valid_segment(s)]
     rng = np.random.default_rng(args.seed)
     np.random.seed(args.seed)  # 🔥 مهم جداً
-
     os.makedirs(args.output_dir, exist_ok=True)
 
     try:
@@ -156,15 +162,6 @@ def main():
             raise SystemExit("❌ Not statistically significant")
 
         from analysis.independent_validation import estimate_alpha_welch
-
-        def is_valid_segment(x):
-            if np.std(x) < 1e-3:
-                return False
-            if np.max(x) - np.min(x) < 1e-2:
-                return False
-            return True
-
-        segments = [s for s in segments if is_valid_segment(s)]
 
         alpha_welch = stable_float(
             estimate_alpha_welch(series),
