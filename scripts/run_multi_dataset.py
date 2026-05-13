@@ -8,7 +8,7 @@ from analysis.numerical_spectral_verification import estimate_alpha
 
 def load_sunspots():
     base_dir = os.path.dirname(os.path.dirname(__file__))
-    path = os.path.join(base_dir, "real-data", "sunspots_global.csv", "sunspots_global_extended.csv")
+    path = os.path.join(base_dir, "real-data", "sunspots_global.csv")
 
     df = pd.read_csv(path)
 
