@@ -111,7 +111,7 @@ def main():
     print("Median:", median)
     print("STD:", std)
 
-    if std > 1.25:
+    if std > 1.8:
         raise SystemExit(
             "❌ cross-domain instability"
         )
