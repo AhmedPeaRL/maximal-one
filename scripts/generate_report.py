@@ -115,7 +115,8 @@ def main():
                 digits=8
             )
 
-            noise_samples.append(alpha_noise_sample)
+            if alpha_noise_sample is not None and np.isfinite(alpha_noise_sample):
+                noise_samples.append(alpha_noise_sample)
 
         alpha = estimate_alpha(series)
 
@@ -174,8 +175,17 @@ def main():
             digits=8
         )
 
+        # 🔥 تنظيف صارم للـ noise samples
+        clean_noise = [
+            x for x in noise_samples
+            if (x is not None and np.isfinite(x))
+        ]
+
+        if len(clean_noise) < 3:
+            raise SystemExit("❌ insufficient valid noise samples")
+
         alpha_noise = stable_float(
-            np.mean(noise_samples),
+            float(np.mean(clean_noise)),
             digits=8
         )
 
