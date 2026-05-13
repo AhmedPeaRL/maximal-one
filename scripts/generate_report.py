@@ -104,7 +104,7 @@ def main():
             )
 
             wn = np.asarray(
-                local_rng.standard_normal(len(series)),
+                rng.normal(0, np.std(series), len(series)),
                 dtype=np.float64
             )
 
