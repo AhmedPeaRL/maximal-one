@@ -19,6 +19,13 @@ def bootstrap_alpha_distribution(
 
     n = len(series)
 
+    if n < block_size + 1:
+        return {
+            "mean": np.nan,
+            "std": np.nan,
+            "valid": 0
+        }
+
     alphas = []
 
     for _ in range(n_boot):
@@ -27,10 +34,8 @@ def bootstrap_alpha_distribution(
 
         while len(sample) < n:
 
-            start = rng.randint(
-                0,
-                n - block_size
-            )
+            max_start = max(1, n - block_size)
+            start = rng.randint(0, max_start)
 
             block = series[
                 start:start + block_size
