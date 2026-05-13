@@ -6,10 +6,8 @@ np.set_printoptions(precision=15)
 
 FREEZE_DECIMALS = 8
 
-
 def f(x):
     return float(np.round(float(x), FREEZE_DECIMALS))
-
 
 def robust_local_slopes(
     log_f,
@@ -113,7 +111,6 @@ def robust_local_slopes(
 
     return f(np.mean(core))
 
-
 def estimate_alpha(series):
 
     series = np.asarray(
@@ -186,7 +183,10 @@ def estimate_alpha(series):
     if not np.isfinite(slope):
         return np.nan
 
-    alpha = f(max(0.0, -slope))
+    if slope >= 0:
+        return np.nan
+
+    alpha = f(-slope)
 
     if not np.isfinite(alpha):
         return np.nan
@@ -195,7 +195,6 @@ def estimate_alpha(series):
         return np.nan
 
     return f(alpha)
-
 
 def block_bootstrap(
     series,
