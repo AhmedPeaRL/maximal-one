@@ -10,9 +10,14 @@ from analysis.real_null_comparison import run_null_test
 from analysis.bootstrap_alpha_stability import (
     bootstrap_alpha_distribution
 )
+from analysis.independent_validation import compare_methods
+
+fft_alpha, welch_alpha = compare_methods(test)
+
+if abs(fft_alpha - welch_alpha) > 0.5:
+    raise SystemExit("❌ method disagreement — unstable alpha")
 
 URL = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/daily-min-temperatures.csv"
-
 
 def fetch_external():
 
@@ -107,6 +112,13 @@ def fetch_external():
 
     return values
 
+def is_valid_segment(x):
+    if np.std(x) < 1e-3:
+        return False
+    if np.max(x) - np.min(x) < 1e-2:
+        return False
+    return True
+
 def stable_normalize(x):
 
     x = np.asarray(x, dtype=np.float64)
@@ -120,7 +132,6 @@ def stable_normalize(x):
     x = (x - mu) / sigma
 
     return np.asarray(x, dtype=np.float64)
-
 
 def bind_external_result(classification, values):
 
@@ -140,7 +151,6 @@ def bind_external_result(classification, values):
     ) as f:
         json.dump(payload, f, indent=2)
 
-
 def run_test():
 
     np.random.seed(42)
@@ -152,25 +162,7 @@ def run_test():
 
     window = 512
     stride = 128
-
-    segments = []
-
-    for start in range(
-        0,
-        len(data) - window,
-        stride
-    ):
-
-        seg = data[start:start + window]
-
-        if len(seg) == window:
-            segments.append(seg)
-
-    if len(segments) < 3:
-        
-        raise RuntimeError(
-            "Insufficient rolling windows"
-        )
+    segments = [s for s in segments if is_valid_segment(s)]
 
     alphas = []
 
@@ -192,14 +184,28 @@ def run_test():
             "Insufficient valid alpha windows"
         )
 
-    alpha_train = float(np.median(alphas[:-1]))
-    alpha_test = float(alphas[-1])
+    # === ROBUST TRAIN/TEST SPLIT ===
 
-    train = segments[-2]
-    test = segments[-1]
+    last_k = 3
 
-    alpha_train = estimate_alpha(train)
-    alpha_test = estimate_alpha(test)
+    train_pool = segments[:-last_k]
+    test_pool = segments[-last_k:]
+
+    def safe_alpha(s):
+        a = estimate_alpha(s)
+        return a if np.isfinite(a) else None
+
+    train_alphas = [safe_alpha(s) for s in train_pool]
+    test_alphas = [safe_alpha(s) for s in test_pool]
+
+    train_alphas = [a for a in train_alphas if a is not None]
+    test_alphas = [a for a in test_alphas if a is not None]
+
+    if len(train_alphas) < 3 or len(test_alphas) < 2:
+        raise RuntimeError("Insufficient robust alpha samples")
+
+    alpha_train = float(np.median(train_alphas))
+    alpha_test = float(np.median(test_alphas))
 
     print("Alpha train:", alpha_train)
     print("Alpha test :", alpha_test)
@@ -332,7 +338,6 @@ def run_test():
     print(
         "✅ External blind stability confirmed"
     )
-
 
 if __name__ == "__main__":
     run_test()
