@@ -141,8 +141,8 @@ def estimate_alpha(series):
     psd = np.round(psd, FREEZE_DECIMALS)
 
     mask = (
-        (freqs > 0.02)
-        & (freqs < 0.25)
+        (freqs > 0.03)
+        & (freqs < 0.20)
     )
 
     freqs = freqs[mask]
@@ -153,7 +153,7 @@ def estimate_alpha(series):
 
     psd = uniform_filter1d(
         psd,
-        size=5,
+        size=3,
         mode="nearest"
     )
 
