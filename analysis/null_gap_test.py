@@ -30,7 +30,7 @@ def check_null_gap(series,rng):
 if __name__ == "__main__":
     import pandas as pd
 
-    df = pd.read_csv("real-data/sunspots_global.csv")
+    df = pd.read_csv("real-data/sunspots_global_extended.csv")
     col = "Sunspots" if "Sunspots" in df.columns else "value"
     rng = np.random.RandomState(42)
     
