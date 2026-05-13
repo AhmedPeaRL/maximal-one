@@ -243,7 +243,6 @@ def run_test():
     bootstrap = bootstrap_alpha_distribution(
         train_pool,
             np.random.RandomState(42)
-        )
     )
 
     alpha_sigma = bootstrap["std"]
