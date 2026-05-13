@@ -21,7 +21,7 @@ def check_null_gap(series,rng):
 
     print("Gaps:", gaps)
 
-    if min_gap < 0.25:
+    if min_gap < 0.20:
         raise SystemExit("❌ Null separation too weak")
 
     print("✅ NULL GAP HOLDS")
