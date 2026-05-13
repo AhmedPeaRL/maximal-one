@@ -12,6 +12,12 @@ from analysis.fixed_precision import (
 )
 
 def is_valid_segment(x):
+
+    segments = [
+        data[i:i+window]
+        for i in range(0, len(data) - window + 1, stride)
+    ]
+    
     if np.std(x) < 1e-3:
         return False
     if np.max(x) - np.min(x) < 1e-2:
