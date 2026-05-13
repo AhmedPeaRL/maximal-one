@@ -29,7 +29,7 @@ def evaluate_significance(real_alpha, null_alphas):
     }
 
 if __name__ == "__main__":
-    df = pd.read_csv("real-data/sunspots_global.csv")
+    df = pd.read_csv("real-data/sunspots_global_extended.csv")
 
     if "value" in df.columns:
         series = df["value"].values
