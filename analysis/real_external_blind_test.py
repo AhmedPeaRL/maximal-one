@@ -12,13 +12,19 @@ from analysis.bootstrap_alpha_stability import (
 )
 from analysis.independent_validation import compare_methods
 
-fft_alpha, welch_alpha = compare_methods(test)
-
-if abs(fft_alpha - welch_alpha) > 0.5:
-    raise SystemExit("❌ method disagreement — unstable alpha")
-
 URL = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/daily-min-temperatures.csv"
 
+def preflight_check(series):
+    fft_alpha, welch_alpha = compare_methods(series)
+
+    if not np.isfinite(fft_alpha) or not np.isfinite(welch_alpha):
+        raise SystemExit("❌ invalid alpha from methods")
+
+    if abs(fft_alpha - welch_alpha) > 0.5:
+        raise SystemExit("❌ method disagreement — unstable alpha")
+
+    return fft_alpha, welch_alpha
+    
 def fetch_external():
 
     local_path = "real-data/daily-min-temperatures.csv"
@@ -113,12 +119,6 @@ def fetch_external():
     return values
 
 def is_valid_segment(x):
-
-    segments = [
-        data[i:i+window]
-        for i in range(0, len(data) - window + 1, stride)
-    ]
-    
     if np.std(x) < 1e-3:
         return False
     if np.max(x) - np.min(x) < 1e-2:
@@ -158,16 +158,19 @@ def bind_external_result(classification, values):
         json.dump(payload, f, indent=2)
 
 def run_test():
-
     np.random.seed(42)
 
     data = fetch_external()
-
     # 🔥 normalization before analysis
     data = stable_normalize(data)
+    data = preflight_check(data)
 
     window = 512
     stride = 128
+    segments = [
+        data[i:i+window]
+        for i in range(0, len(data) - window + 1, stride)
+    ]
     
     alphas = []
 
