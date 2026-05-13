@@ -19,9 +19,9 @@ def check_stability(alphas):
     if not (np.isfinite(real) and np.isfinite(synthetic) and np.isfinite(noise)):
         raise SystemExit("❌ Non-finite values detected after filtering")
 
-    cond1 = abs(real - noise) > 0.25
-    cond2 = abs(real - synthetic) > 0.20
-    cond3 = abs(synthetic - noise) > 0.15
+    cond1 = abs(real - noise) > 0.4
+    cond2 = abs(real - synthetic) > 0.3
+    cond3 = abs(synthetic - noise) > 0.2
 
     if not (cond1 and cond2 and cond3):
         raise SystemExit("❌ Structural separation failed")
