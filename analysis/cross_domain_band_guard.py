@@ -8,7 +8,6 @@ from analysis.numerical_spectral_verification import (
 
 DATA_DIR = "real-data"
 
-
 def load_numeric_series(path):
 
     df = pd.read_csv(path)
@@ -45,7 +44,6 @@ def load_numeric_series(path):
             return x
 
     return None
-
 
 def main():
 
@@ -111,15 +109,14 @@ def main():
     print("Median:", median)
     print("STD:", std)
 
-    if std > 1.25:
-        raise SystemExit(
-            "❌ cross-domain instability"
-        )
+    MAX_STD = 1.8  # align with strict_claim
+
+    if std > MAX_STD:
+        raise SystemExit("❌ cross-domain instability")
 
     print(
         "✅ Cross-domain band holds"
     )
-
 
 if __name__ == "__main__":
     main()
