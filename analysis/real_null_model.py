@@ -24,7 +24,7 @@ def build_null_distribution(series, n=200):
 
     for _ in range(n):
 
-        if np.random.rand() < 0.5:
+        if np.random.rand() < 0.8:
             surr = generate_real_null(series)
         else:
             surr = block_shuffle(series)
