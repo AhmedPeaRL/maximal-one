@@ -52,7 +52,7 @@ def main():
         default="artifacts"
     )
     args = parser.parse_args()
-    segments = [s for s in segments if is_valid_segment(s)]
+    
     rng = np.random.default_rng(args.seed)
     np.random.seed(args.seed)  # 🔥 مهم جداً
     os.makedirs(args.output_dir, exist_ok=True)
