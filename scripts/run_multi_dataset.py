@@ -30,7 +30,11 @@ def load_synthetic(seed=42, n=1024):
 
     # ✅ AR(1) stable process (guaranteed stationarity)
     for i in range(1, n):
-        x[i] = 0.85 * x[i-1] + 0.3 * noise[i]
+        x[i] = 0.92 * x[i-1] + 0.15 * noise[i]
+        
+        # إضافة long memory بسيط
+        if i > 10:
+            x[i] += 0.05 * x[i-10]
 
     # ✅ very light modulation (controlled)
     x += 0.02 * rng.standard_normal(n)
