@@ -240,12 +240,15 @@ def run_test():
             "❌ Invalid test alpha"
         )
 
-    bootstrap_alpha_distribution(
+    bootstrap = bootstrap_alpha_distribution(
         np.concatenate(train_pool),
         np.random.RandomState(42)
     )
 
-    alpha_sigma = bootstrap["std"]
+    alpha_sigma = bootstrap.get("std", np.nan)
+
+    if not np.isfinite(alpha_sigma):
+        raise SystemExit("❌ Invalid bootstrap sigma")
 
     print(
         "Bootstrap alpha sigma:",
