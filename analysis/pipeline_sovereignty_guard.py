@@ -16,7 +16,7 @@ from analysis.bootstrap_confidence import (
 
 deterministic_seed(42)
 
-DATASET = "real-data/sunspots_global.csv"
+DATASET = "real-data/sunspots_global_extended.csv"
 
 WINDOWS = [
     (0.0, 1.0),
