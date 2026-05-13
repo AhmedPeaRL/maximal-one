@@ -128,7 +128,7 @@ def estimate_alpha(series):
 
     n = len(series)
 
-    if n < 48:
+    if n < 64:
         return np.nan
 
     freqs, psd = welch(
