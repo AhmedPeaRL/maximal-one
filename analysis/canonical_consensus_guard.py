@@ -8,7 +8,7 @@ from analysis.numerical_spectral_verification import (
 
 DATASETS = [
     "real-data/sunspots_global.csv",
-    "real-data/sunspots_global_extended.csv"
+    "real-data/sunspots_global_extended.csv",
     "real-data/white_noise.csv",
     "real-data/random_walk.csv",
     "real-data/shuffled_sunspots.csv"
