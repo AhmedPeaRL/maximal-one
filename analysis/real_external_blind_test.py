@@ -162,7 +162,10 @@ def run_test():
 
     window = 512
     stride = 128
-    segments = [s for s in segments if is_valid_segment(s)]
+    segments = [
+        data[i:i+window]
+        for i in range(0, len(data) - window + 1, stride)
+    ]
 
     alphas = []
 
@@ -185,6 +188,8 @@ def run_test():
         )
 
     # === ROBUST TRAIN/TEST SPLIT ===
+
+    segments = [s for s in segments if is_valid_segment(s)]
 
     last_k = 3
 
