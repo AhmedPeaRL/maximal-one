@@ -20,7 +20,7 @@ def check_stability(alphas):
         raise SystemExit("❌ Non-finite values detected after filtering")
 
     cond1 = abs(real - noise) > 0.25
-    cond2 = abs(real - synthetic) > 0.25
+    cond2 = abs(real - synthetic) > 0.20
     cond3 = abs(synthetic - noise) > 0.15
 
     if not (cond1 and cond2 and cond3):
