@@ -775,6 +775,17 @@ jobs:
       - name: Set Python path
         run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
+      - name: Generate extended dataset (MANDATORY)
+        run: |
+          python analysis/expand_dataset.py
+
+          if [ ! -f real-data/sunspots_global_extended.csv ]; then
+            echo "❌ extended dataset not generated"
+            exit 1
+          fi
+
+          echo "✅ extended dataset exists"
+
       - name: Generate deterministic report
         run: |
           python scripts/generate_report.py --seed 42 --canonical
@@ -1579,6 +1590,17 @@ jobs:
     # =========================
     # 2) DATA LAYER
     # =========================
+
+    - name: Generate extended dataset (MANDATORY)
+      run: |
+        python analysis/expand_dataset.py
+
+        if [ ! -f real-data/sunspots_global_extended.csv ]; then
+          echo "❌ extended dataset not generated"
+          exit 1
+        fi
+
+        echo "✅ extended dataset exists"
 
     - name: Fetch datasets (controlled)
       run: |
