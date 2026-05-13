@@ -157,6 +157,15 @@ def main():
 
         from analysis.independent_validation import estimate_alpha_welch
 
+        def is_valid_segment(x):
+            if np.std(x) < 1e-3:
+                return False
+            if np.max(x) - np.min(x) < 1e-2:
+                return False
+            return True
+
+        segments = [s for s in segments if is_valid_segment(s)]
+
         alpha_welch = stable_float(
             estimate_alpha_welch(series),
             digits=8
