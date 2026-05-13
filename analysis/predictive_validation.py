@@ -79,7 +79,7 @@ def evaluate_prediction(
     n = len(series)
 
     # 🔥 enforce minimum segment length
-    min_len = 64
+    min_len = 300
 
     split = int(n * split_ratio)
 
