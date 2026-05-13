@@ -4,7 +4,6 @@ from analysis.numerical_spectral_verification import (
     estimate_alpha
 )
 
-
 def classify_alpha(alpha):
 
     if not np.isfinite(alpha):
@@ -17,7 +16,6 @@ def classify_alpha(alpha):
         return "moderate_memory"
 
     return "random_like"
-
 
 def predict_next_trend(series):
 
@@ -38,7 +36,6 @@ def predict_next_trend(series):
         "alpha": float(alpha),
         "classification": classify_alpha(alpha)
     }
-
 
 def continuity_score(a, b):
 
@@ -61,7 +58,6 @@ def continuity_score(a, b):
         )
     )
 
-
 def evaluate_prediction(
     series,
     split_ratio=0.8
@@ -80,7 +76,19 @@ def evaluate_prediction(
             "reason": f"insufficient_series ({len(series)})"
         }
 
-    split = int(len(series) * split_ratio)
+    n = len(series)
+
+    # 🔥 enforce minimum segment length
+    min_len = 64
+
+    split = int(n * split_ratio)
+
+    # 🔥 adjust split to guarantee both sides valid
+    if split < min_len:
+        split = min_len
+
+    if (n - split) < min_len:
+        split = n - min_len
 
     train = series[:split]
     test = series[split:]
@@ -88,7 +96,6 @@ def evaluate_prediction(
     pred = predict_next_trend(train)
 
     if pred is None:
-
         return {
             "valid": False,
             "reason": "prediction_failed"
@@ -97,10 +104,9 @@ def evaluate_prediction(
     test_alpha = estimate_alpha(test)
 
     if not np.isfinite(test_alpha):
-
         return {
             "valid": False,
-            "reason": "invalid_test_alpha"
+            "reason": f"invalid_test_alpha (len={len(test)})"
         }
 
     train_class = pred["classification"]
