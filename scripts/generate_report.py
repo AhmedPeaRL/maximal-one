@@ -91,8 +91,8 @@ def main():
         from analysis.fixed_precision import freeze_float
 
         noise_samples = []
-
         base_series = series.copy()
+        local_rng = np.random.default_rng(args.seed + 999)
 
         for i in range(10):
             local_series = base_series.copy()
