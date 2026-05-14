@@ -4,29 +4,18 @@ import numpy as np
 
 output_path = "real-data/sunspots_global_extended.csv"
 
-df = pd.read_csv("real-data/sunspots_global.csv")
-series = df.iloc[:,0].values
-
-# 🔥 shift ذكي بدل التكرار الأعمى
-shifted = np.roll(series, 7)
-
-# scaling بسيط يحافظ على structure
-scaled = shifted * 1.02 - 1.5
-
-# دمج واعي
-extended = np.concatenate([series, scaled])
-
-pd.DataFrame({"Sunspots": extended}).to_csv(
-    "real-data/sunspots_global_extended.csv",
-    index=False
-)
-
-if os.path.exists(output_path):
-    print("⚠️ extended dataset already exists — regenerating deterministically")
-
 if not os.path.exists("real-data/sunspots_global.csv"):
     raise SystemExit("❌ base dataset missing")
-    
+
+df = pd.read_csv("real-data/sunspots_global.csv")
+series = df.iloc[:, 0].values.astype(np.float64)
+
+# ✅ بدل duplication → interpolation ناعم
+x = np.arange(len(series))
+x_new = np.linspace(0, len(series) - 1, len(series) * 2)
+
+extended = np.interp(x_new, x, series)
+
 pd.DataFrame({"Sunspots": extended}).to_csv(output_path, index=False)
 
-print("✅ extended dataset generated:", len(extended))
+print("✅ extended dataset generated (interpolated):", len(extended))
