@@ -162,8 +162,13 @@ def run_test():
     if np.std(data) < 1e-6:
         raise SystemExit("❌ degenerate external data")
     
-    # 🔥 normalization before analysis
-    data = stable_normalize(data)
+    from analysis.unified_regime_normalizer import unified_normalize
+
+    data = unified_normalize(data)
+
+    if np.std(data) < 1e-4:
+        raise SystemExit("❌ low variance external data")
+
     fft_alpha, welch_alpha = preflight_check(data)
     # keep original data, don't overwrite it
     window = 512
