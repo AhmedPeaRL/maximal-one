@@ -26,7 +26,6 @@ def preflight_check(series):
     return fft_alpha, welch_alpha
     
 def fetch_external():
-
     local_path = "real-data/daily-min-temperatures.csv"
 
     if os.path.exists(local_path):
@@ -126,7 +125,6 @@ def is_valid_segment(x):
     return True
 
 def stable_normalize(x):
-
     x = np.asarray(x, dtype=np.float64)
 
     mu = np.mean(x)
@@ -140,7 +138,6 @@ def stable_normalize(x):
     return np.asarray(x, dtype=np.float64)
 
 def bind_external_result(classification, values):
-
     os.makedirs("artifacts", exist_ok=True)
 
     payload = {
@@ -193,8 +190,6 @@ def run_test():
         )
 
     # === ROBUST TRAIN/TEST SPLIT ===
-
-    segments = [s for s in segments if is_valid_segment(s)]
 
     last_k = 3
 
