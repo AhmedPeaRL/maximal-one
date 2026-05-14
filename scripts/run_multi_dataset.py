@@ -42,11 +42,16 @@ def load_synthetic(seed=42, n=1024):
     return x
 
 def load_noise(n=1024):
-    # 🔥 harder null model (structured noise)
-    x = np.random.randn(n)
-    x = np.cumsum(x)  # random walk
-    x += 0.3 * np.sin(np.linspace(0, 10, n))
-    return x
+    rng = np.random.default_rng(999)
+
+    # mixture of hard nulls
+    wn = rng.standard_normal(n)
+    rw = np.cumsum(rng.standard_normal(n))
+    pink = np.cumsum(wn) + 0.5 * wn
+
+    mix = 0.5 * rw + 0.3 * wn + 0.2 * pink
+
+    return mix
 
 def evaluate(series):
     return float(estimate_alpha(series))
@@ -98,8 +103,11 @@ def main():
 
     # === CORE VALIDATION ===
 
-    not_noise = abs(real_alpha - noise_alpha) > 0.8
-
+    not_noise = (
+        abs(real_alpha - noise_alpha) > 1.2
+        and real_alpha > noise_alpha
+    )
+    
     internally_stable = (0.5 < real_alpha < 5.0)
 
     if not not_noise:
