@@ -184,7 +184,7 @@ def estimate_alpha(series):
         return np.nan
 
     if slope >= 0:
-        slope = -abs(slope) * 0.5
+        return np.nan
 
     alpha = f(-slope)
 
