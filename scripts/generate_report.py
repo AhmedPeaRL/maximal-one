@@ -92,19 +92,18 @@ def main():
 
         noise_samples = []
 
+        base_series = series.copy()
+
         for i in range(10):
-            
-            local_rng = np.random.default_rng(
-                int(args.seed + 999 + i)
-            )
+            local_series = base_series.copy()
+
+            local_series = local_series - np.mean(local_series)
+            local_series = local_series / (np.std(local_series) + 1e-12)
 
             wn = np.asarray(
-                rng.normal(0, np.std(series), len(series)),
+                local_rng.normal(0, np.std(local_series), len(local_series)),
                 dtype=np.float64
             )
-
-            series = series - np.mean(series)
-            series = series / (np.std(series) + 1e-12)
 
             alpha_noise_sample = estimate_alpha(wn)
 
