@@ -307,6 +307,9 @@ jobs:
       - name: Adversarial stress test
         run: python analysis/adversarial_external_test.py
 
+      - name: REAL External Blind Test (MANDATORY)
+        run: python analysis/real_external_blind_test.py
+
       - name: Export commit
         run: echo "GITHUB_SHA=${{ github.sha }}" >> $GITHUB_ENV
 
@@ -879,10 +882,7 @@ jobs:
 
       - name: Statistical significance test (CRITICAL)
         run: python analysis/statistical_killer.py
-
-      - name: REAL External Blind Test (MANDATORY)
-        run: python analysis/real_external_blind_test.py
-
+        
       - name: Physical Alpha Guard
         run: python analysis/alpha_physical_guard.py
 
