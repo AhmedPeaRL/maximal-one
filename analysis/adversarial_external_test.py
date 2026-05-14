@@ -32,7 +32,7 @@ def is_structured(alpha1, alpha2):
 
 def run_test():
     # === REAL DATA ===
-    real_df = pd.read_csv("real-data/sunspots_global.csv")
+    real_df = pd.read_csv("real-data/sunspots_global_extended.csv")
     col = "Sunspots" if "Sunspots" in real_df.columns else "value"
     real_series = real_df[col].values
     
