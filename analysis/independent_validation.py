@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.signal import welch
 from scipy.stats import linregress
+from scipy.ndimage import uniform_filter1d
 
 FREQ_MIN = 0.03
 FREQ_MAX = 0.20
@@ -53,10 +54,10 @@ def estimate_alpha_welch(series):
     if len(freqs) < 12:
         return np.nan
 
-    psd = np.convolve(
+    psd = uniform_filter1d(
         psd,
-        np.ones(3) / 3,
-        mode="same"
+        size=3,
+        mode="nearest"
     )
 
     psd = np.round(psd, 8)
@@ -75,7 +76,7 @@ def estimate_alpha_welch(series):
 
     slopes = []
 
-    window = 5
+    window = 9
 
     for i in range(len(log_f) - window):
 
