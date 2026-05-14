@@ -158,6 +158,10 @@ def run_test():
     np.random.seed(42)
 
     data = fetch_external()
+
+    if np.std(data) < 1e-6:
+        raise SystemExit("❌ degenerate external data")
+    
     # 🔥 normalization before analysis
     data = stable_normalize(data)
     fft_alpha, welch_alpha = preflight_check(data)
@@ -280,7 +284,7 @@ def run_test():
     print("=== NULL MODEL TEST ===")
 
     # 🔥 run null test on TRAIN regime only
-    null_result = run_null_test(train)
+    null_result = run_null_test(np.concatenate(train_pool))
 
     print(
         "Null test result:",
