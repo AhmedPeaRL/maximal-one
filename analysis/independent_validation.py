@@ -3,8 +3,8 @@ from scipy.signal import welch
 from scipy.stats import linregress
 from scipy.ndimage import uniform_filter1d
 
-FREQ_MIN = 0.03
-FREQ_MAX = 0.20
+FREQ_MIN = 0.01
+FREQ_MAX = 0.35
 
 def sanitize_alpha(alpha):
 
