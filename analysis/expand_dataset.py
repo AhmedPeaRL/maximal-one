@@ -16,6 +16,12 @@ x_new = np.linspace(0, len(series) - 1, len(series) * 2)
 
 extended = np.interp(x_new, x, series)
 
+# 🔥 كسر النعومة الصناعية
+rng = np.random.default_rng(42)
+noise = rng.normal(0, np.std(series)*0.02, size=len(extended))
+
+extended = extended + noise
+
 pd.DataFrame({"Sunspots": extended}).to_csv(output_path, index=False)
 
 print("✅ extended dataset generated (interpolated):", len(extended))
