@@ -1,7 +1,6 @@
 import numpy as np
 from analysis.falsification_tests import run_falsification
 
-
 def check_null_gap(series,rng):
 
     res = run_falsification(series, rng)
@@ -19,13 +18,18 @@ def check_null_gap(series,rng):
 
     min_gap = min(gaps)
 
-    print("Gaps:", gaps)
+    adaptive_threshold = max(
+        0.20,
+        0.1 * np.std([real, shuffled, phase, noise])
+    )
 
-    if min_gap < 0.20:
+    print("Gaps:", gaps)
+    print("Adaptive threshold:", adaptive_threshold)
+
+    if min_gap < adaptive_threshold:
         raise SystemExit("❌ Null separation too weak")
 
     print("✅ NULL GAP HOLDS")
-
 
 if __name__ == "__main__":
     import pandas as pd
