@@ -58,6 +58,25 @@ def main():
     np.random.seed(args.seed)  # 🔥 مهم جداً
     os.makedirs(args.output_dir, exist_ok=True)
 
+    # === ENSURE DATASET EXISTS (SELF-CONTAINED REPRODUCTION) ===
+    if not os.path.exists("real-data/sunspots_global.csv"):
+        raise SystemExit("❌ Base dataset missing — cannot proceed")
+    
+    if not os.path.exists("real-data/sunspots_global_extended.csv"):
+        print("⚠️ Extended dataset missing — generating...")
+    
+        import subprocess
+    
+        subprocess.run(
+            ["python", "analysis/expand_dataset.py"],
+            check=True
+        )
+    
+        if not os.path.exists("real-data/sunspots_global_extended.csv"):
+            raise SystemExit("❌ Failed to generate extended dataset")
+    
+        print("✅ Extended dataset generated on-the-fly")
+
     try:
         import pandas as pd
         df = pd.read_csv(
