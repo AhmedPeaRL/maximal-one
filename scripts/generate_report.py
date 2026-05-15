@@ -150,10 +150,12 @@ def main():
         from analysis.falsification_tests import run_falsification
         from analysis.numerical_spectral_verification import block_bootstrap
         from analysis.statistical_significance import monte_carlo_p_value
+        from analysis.multi_scale_validation import evaluate_scale_invariance
 
         falsification_rng = np.random.default_rng(args.seed + 101)
         bootstrap_rng = np.random.default_rng(args.seed + 202)
         stats_rng = np.random.default_rng(args.seed + 303)
+        scale_test = evaluate_scale_invariance(series)
 
         falsification = recursively_freeze(
             run_falsification(
@@ -180,6 +182,9 @@ def main():
         for key, value in falsification.items():
             if not np.isfinite(value):
                 raise SystemExit(f"❌ Invalid falsification metric: {key}")
+
+        if not scale_test.get("scale_invariant", False):
+            raise SystemExit("❌ Failed scale invariance test")
         
         if stats["p_value"] > 0.05:
             print("⚠️ Weak statistical signal — continuing with caution")
@@ -251,6 +256,7 @@ def main():
                 "generator": generator_type
             },
             "statistical_test": stats,
+            "multi_scale_validation": scale_test,
             "cross_method_validation": {
                 "fft_alpha": stable_float(alpha),
                 "welch_alpha": stable_float(alpha_welch),
