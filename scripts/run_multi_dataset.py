@@ -69,6 +69,18 @@ def safe_collect(fn, seeds):
 
     return vals
 
+def to_native(obj):
+    if isinstance(obj, dict):
+        return {k: to_native(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [to_native(v) for v in obj]
+    elif isinstance(obj, tuple):
+        return tuple(to_native(v) for v in obj)
+    elif isinstance(obj, np.generic):
+        return obj.item()
+    else:
+        return obj
+
 def main():
     os.makedirs("artifacts", exist_ok=True)
 
@@ -155,14 +167,16 @@ def main():
     report = {
         "alphas": results,
         "checks": {
-            "not_noise": not_noise,
-            "internal_stability": stability_pass
+            "not_noise": bool(not_noise),
+            "internal_stability": bool(stability_pass)
         }
     }
 
+    report = to_native(report)
+
     with open("artifacts/multi_report.json", "w") as f:
         json.dump(report, f, indent=2)
-
+    
     print("Multi-dataset report generated")
     print("✅ MULTI-DATASET CLAIM HOLDS")
 
