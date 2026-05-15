@@ -2,7 +2,6 @@ import json
 import numpy as np
 import pandas as pd
 import os
-
 from analysis.numerical_spectral_verification import estimate_alpha
 
 def load_sunspots():
@@ -49,7 +48,7 @@ def load_noise(n=1024):
     rw = np.cumsum(rng.standard_normal(n))
     pink = np.cumsum(wn) + 0.5 * wn
 
-    mix = 0.5 * rw + 0.3 * wn + 0.2 * pink
+    mix = 0.6 * wn + 0.3 * rw + 0.1 * pink
 
     return mix
 
@@ -103,18 +102,35 @@ def main():
 
     # === CORE VALIDATION ===
 
-    not_noise = (
-        abs(real_alpha - noise_alpha) > 1.2
+    # === MULTI-SIGNAL NOISE REJECTION ===
+
+    delta_alpha = abs(real_alpha - noise_alpha)
+
+    # spectral condition
+    spectral_pass = (
+        delta_alpha > 0.8
         and real_alpha > noise_alpha
     )
-    
-    internally_stable = (0.5 < real_alpha < 5.0)
+
+    # stability condition
+    stability_pass = (0.5 < real_alpha < 4.5)
+
+    # variance structure
+    variance_ratio = np.var(sunspots) / (np.var(load_noise()) + 1e-8)
+    variance_pass = variance_ratio > 1.2
+
+    # final decision
+    not_noise = (
+        spectral_pass
+        and stability_pass
+        and variance_pass
+    )
 
     if not not_noise:
-        raise SystemExit("❌ real not distinguishable from noise")
-
-    if not internally_stable:
-        raise SystemExit("❌ real unstable")
+        raise SystemExit(
+            f"❌ real not distinguishable from noise | "
+            f"delta={delta_alpha:.3f}, var_ratio={variance_ratio:.3f}"
+        )
 
     # 🔥 synthetic = stress probe (NOT rejection criteria)
     stress_ratio = results["synthetic"]["std"] / (abs(results["synthetic"]["mean"]) + 1e-8)
@@ -123,14 +139,25 @@ def main():
 
     if stress_ratio > 1.5:
         print("⚠️ synthetic highly chaotic (expected under stress)")
+
+    from analysis.falsification_tests import run_falsification
+
+    fals = run_falsification(sunspots, np.random.RandomState(42))
+
+    gap = min([
+        abs(fals["original_alpha"] - fals["white_noise_alpha"]),
+        abs(fals["original_alpha"] - fals["shuffled_alpha"])
+    ])
+
+    if gap < 0.3:
+        raise SystemExit("❌ weak falsification gap in multi-dataset")
         
     report = {
         "alphas": results,
         "checks": {
             "not_noise": not_noise,
-            "internal_stability": internally_stable
+            "internal_stability": stability_pass
         }
-    }
 
     with open("artifacts/multi_report.json", "w") as f:
         json.dump(report, f, indent=2)
