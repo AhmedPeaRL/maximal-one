@@ -175,7 +175,7 @@ def advanced_null_test(series):
 
 if __name__ == "__main__":
 
-    series = load_series("real-data/sunspots_global.csv")
+    series = load_series("real-data/sunspots_global_extended.csv")
 
     real_alpha, res, verdict = advanced_null_test(series)
 
