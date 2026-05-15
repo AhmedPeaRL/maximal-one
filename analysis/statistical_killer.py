@@ -42,6 +42,8 @@ if __name__ == "__main__":
     real_alpha = estimate_alpha(series)
 
     # ✅ null distribution
+    null_alphas = build_null_distribution(series, n=500)
+    
     from analysis.null_hierarchy import evaluate_all_nulls
 
     null_summary = evaluate_all_nulls(series)
