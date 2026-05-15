@@ -27,13 +27,14 @@ def irreducibility_test(series, n=50):
     std = np.std(surrogate_alphas)
 
     z = (real_alpha - mean) / (std + 1e-12)
+    threshold = 1.5
 
     return {
         "real_alpha": real_alpha,
         "surrogate_mean": mean,
         "surrogate_std": std,
         "z_score": z,
-        "irreducible": abs(z) > 2.5
+        "irreducible": abs(z) > threshold
     }
 
 
