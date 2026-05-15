@@ -236,6 +236,16 @@ def main():
             for k, v in falsification.items()
         }
 
+        from analysis.strong_null_model import generate_strong_null
+        from analysis.separation_test import separation_score
+
+        null_samples = [
+            generate_strong_null(len(series), stats_rng)
+            for _ in range(100)
+        ]
+
+        sep = separation_score(series, null_samples)
+
         from analysis.sovereign_inference_engine import SovereignInferenceEngine
 
         engine = SovereignInferenceEngine()
@@ -256,6 +266,7 @@ def main():
                 "generator": generator_type
             },
             "statistical_test": stats,
+            "separation_test": sep,
             "multi_scale_validation": scale_test,
             "cross_method_validation": {
                 "fft_alpha": stable_float(alpha),
