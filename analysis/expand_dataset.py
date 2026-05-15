@@ -7,7 +7,7 @@ output_path = "real-data/sunspots_global_extended.csv"
 if not os.path.exists("real-data/sunspots_global.csv"):
     raise SystemExit("❌ base dataset missing")
 
-df = pd.read_csv("real-data/sunspots_global.csv")
+df = pd.read_csv("real-data/sunspots_global.csv", "real-data/airline_passengers.csv", "real-data/co2.csv", "real-data/co2_atmospheric.csv", "real-data/co2_atmospheric.csv", "real-data/cosmic_rays.csv", "real-data/cosmic_rays_clean.csv", "real-data/earthquake_magnitude.csv", "real-data/solar_wind_speed.csv", "real-data/sunspots.csv", "real-data/solar_wind_speed_clean.csv", "real-data/earthquake_magnitude_clean.csv")
 series = df.iloc[:, 0].values.astype(np.float64)
 
 # === NO SYNTHETIC DISTORTION ===
