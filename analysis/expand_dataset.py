@@ -23,7 +23,7 @@ noise = rng.normal(0, np.std(series) * 0.03, len(extended))
 extended = extended + 0.02 * np.sin(
     np.linspace(0, 10*np.pi, len(extended))
 )
-extended = noise + extended
+extended = extended + noise
 pd.DataFrame({"Sunspots": extended}).to_csv(output_path, index=False)
 
 print("✅ extended dataset generated (minimal intervention):", len(extended))
