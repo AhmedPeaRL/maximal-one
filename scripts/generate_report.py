@@ -81,6 +81,7 @@ def main():
         import pandas as pd
         df = pd.read_csv(
             "real-data/sunspots_global_extended.csv",
+            "real-data/sunspots_global.csv",
             dtype=np.float64,
             engine="c"
         )
