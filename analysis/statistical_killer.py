@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
     print("=== NULL HIERARCHY ===")
     for k, v in null_summary.items():
-        print(k, v))
+        print(k, v)
 
     # ✅ تنظيف الـ NaNs (مهم جداً)
     null_alphas = null_alphas[np.isfinite(null_alphas)]
