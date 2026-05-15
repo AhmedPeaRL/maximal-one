@@ -158,6 +158,7 @@ def main():
             "not_noise": not_noise,
             "internal_stability": stability_pass
         }
+    }
 
     with open("artifacts/multi_report.json", "w") as f:
         json.dump(report, f, indent=2)
