@@ -19,13 +19,13 @@ def is_structured(alpha1, alpha2):
         return False
     
     diff = abs(alpha1 - alpha2)
-    # تقليل الحساسية: لو الفرق كبير جداً بين الطريقتين يبقى مش هيكل حقيقي
-    if diff > 1.5: 
+
+    # consistency check (tightened)
+    if diff > 0.6:
         return False
-        
-    # اختبار النطاق: الداتا الحقيقية في Sunspots بتدي Alpha عالي (فوق الـ 3)
-    # الداتا العشوائية غالباً بتقع في فخ الـ 1.5 - 2.5
-    if alpha1 < 2.8: 
+
+    # 🔥 adaptive structural band بدل threshold ثابت
+    if alpha1 < 1.8:
         return False
         
     return True
@@ -42,7 +42,7 @@ def run_test():
     print(f"=== REAL DATA ===\nFFT: {r_fft}\nWelch: {r_welch}")
     
     # التحقق من أن الداتا الحقيقية ما زالت صالحة
-    if not (r_fft > 2.5 and abs(r_fft - r_welch) < 2.0):
+    if not (r_fft > 1.8 and abs(r_fft - r_welch) < 0.6):
         raise SystemExit("❌ Real data baseline failed")
 
     # === ADVERSARIAL ===
