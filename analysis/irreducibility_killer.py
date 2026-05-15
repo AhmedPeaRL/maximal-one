@@ -49,7 +49,7 @@ def extract_series(df):
 if __name__ == "__main__":
     import pandas as pd
 
-    df = pd.read_csv("real-data/sunspots_global.csv")
+    df = pd.read_csv("real-data/sunspots_global_extended.csv")
     series = extract_series(df)
 
     r = irreducibility_test(series)
