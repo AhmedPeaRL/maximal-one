@@ -418,6 +418,9 @@ jobs:
   
       - name: External Reproduction Guard
         run: python analysis/external_reproduction_guard.py
+
+      - name: TRUE External Runner (REAL ISOLATION)
+        run: python analysis/TRUE_external_runner.py
   
   ingest-witness:
     runs-on: ubuntu-24.04
@@ -1755,9 +1758,6 @@ jobs:
     # =========================
     # 5) SCIENTIFIC VALIDATION
     # =========================
-
-    - name: TRUE External Runner (REAL ISOLATION)
-      run: python analysis/TRUE_external_runner.py
 
     - name: External Irreducible Anchor V2
       run: python analysis/external_irreducible_anchor_v2.py
