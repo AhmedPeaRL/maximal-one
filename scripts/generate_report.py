@@ -87,6 +87,13 @@ def main():
 
         real = df.iloc[:, 0].astype(np.float64).values
 
+        # 🔥 DETREND + DIFFERENCE (critical)
+        real = real - np.mean(real)
+        real = np.diff(real)
+
+        # normalize
+        real = real / (np.std(real) + 1e-12)
+
         if "value" in df.columns:
             real = df["value"].values
         elif "Sunspots" in df.columns:
