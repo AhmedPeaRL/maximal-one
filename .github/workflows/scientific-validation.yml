@@ -64,10 +64,6 @@ jobs:
           pip install --upgrade pip
           pip install --require-hashes -r requirements-lock.txt
 
-      - name: Environment fingerprint
-        run: |
-          python analysis/environment_fingerprint.py
-
       - name: Generate extended dataset (MANDATORY)
         run: |
           python analysis/expand_dataset.py
@@ -321,6 +317,10 @@ jobs:
 
       - name: REAL External Blind Test (MANDATORY)
         run: python analysis/real_external_blind_test.py
+
+      - name: Environment fingerprint
+        run: |
+          python analysis/environment_fingerprint.py
 
       - name: Export commit
         run: echo "GITHUB_SHA=${{ github.sha }}" >> $GITHUB_ENV
