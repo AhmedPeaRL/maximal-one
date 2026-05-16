@@ -10,21 +10,38 @@ if not os.path.exists("real-data/sunspots_global.csv"):
 df = pd.read_csv("real-data/sunspots_global.csv")
 series = df.iloc[:, 0].values.astype(np.float64)
 
-# 🔥 بدل interpolation → block-resampling (يحافظ على structure)
 rng = np.random.default_rng(42)
 
-blocks = []
-block_size = 32
+# =========================
+# 🔥 MULTI-SCALE PRESERVATION
+# =========================
 
-for _ in range(len(series) // block_size):
-    start = rng.integers(0, len(series) - block_size)
-    blocks.extend(series[start:start + block_size])
+def generate_multiscale_series(base, rng, repeats=4):
+    n = len(base)
+    result = []
 
-extended = np.array(blocks, dtype=np.float64)
+    for _ in range(repeats):
+        # 🔹 random block
+        start = rng.integers(0, n - 32)
+        block = base[start:start+32].copy()
 
-# 🔥 preserve structure instead of destroying it
+        # 🔹 inject weak correlated noise
+        noise = rng.normal(0, np.std(block) * 0.15, len(block))
+        block = block + noise
+
+        # 🔹 random walk drift (very weak)
+        drift = np.cumsum(rng.normal(0, 0.02, len(block)))
+        block = block + drift
+
+        result.extend(block)
+
+    return np.array(result, dtype=np.float64)
+
+extended = generate_multiscale_series(series, rng, repeats=6)
+
+# 🔥 final normalization (global)
 extended = (extended - np.mean(extended)) / (np.std(extended) + 1e-12)
 
 pd.DataFrame({"Sunspots": extended}).to_csv(output_path, index=False)
 
-print("✅ extended dataset generated (BLOCK-RESAMPLED):", len(extended))
+print("✅ extended dataset generated (MULTI-SCALE PRESERVED):", len(extended))
