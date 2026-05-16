@@ -21,11 +21,11 @@ extended = np.interp(x_new, x, series)
 rng = np.random.default_rng(42)
 
 # 🔥 noise أقوى شوية + jitter
-noise = rng.normal(0, np.std(series) * 0.03, len(extended))
+noise = rng.normal(0, np.std(series) * 0.05, len(extended))
 
 # 🔥 small nonlinear perturbation
-extended = extended + 0.08 * np.sin(
-    np.linspace(0, 20*np.pi, len(extended))
+extended = extended + 0.15 * np.sin(
+    np.linspace(0, 30*np.pi, len(extended))
 )
 
 # inject regime shifts
