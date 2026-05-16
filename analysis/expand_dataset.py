@@ -17,26 +17,36 @@ rng = np.random.default_rng(42)
 # =========================
 
 def generate_multiscale_series(base, rng, repeats=4):
+
+    base = np.asarray(base, dtype=np.float64)
     n = len(base)
-    result = []
+
+    # 🔥 FFT
+    fft = np.fft.rfft(base)
+    mag = np.abs(fft)
+
+    # 🔥 phase randomization (لكن محافظ على spectrum)
+    new_series = []
 
     for _ in range(repeats):
-        # 🔹 random block
-        start = rng.integers(0, n - 32)
-        block = base[start:start+32].copy()
 
-        # 🔹 inject weak correlated noise
-        noise = rng.normal(0, np.std(base) * 0.05, len(block))
-        block = block + noise
+        phases = rng.uniform(0, 2*np.pi, len(fft))
+        phases[0] = 0.0
+        if n % 2 == 0:
+            phases[-1] = 0.0
 
-        # 🔹 random walk drift (very weak)
-        drift = np.cumsum(rng.normal(0, 0.005, len(block)))
-        block = block + drift
+        new_fft = mag * np.exp(1j * phases)
 
-        result.extend(block)
+        s = np.fft.irfft(new_fft, n=n)
 
-    return np.array(result, dtype=np.float64)
+        # 🔥 slight perturbation بدون كسر scale
+        noise = rng.normal(0, np.std(s)*0.02, n)
+        s = s + noise
 
+        new_series.append(s)
+
+    return np.concatenate(new_series)
+    
 extended = generate_multiscale_series(series, rng, repeats=6)
 
 # 🔥 final normalization (global)
