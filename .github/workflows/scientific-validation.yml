@@ -137,9 +137,6 @@ jobs:
       - name: Irreducibility Killer Test (CRITICAL)
         run: python analysis/irreducibility_killer.py
 
-      - name: Anti self deception guard
-        run: python analysis/anti_self_deception_guard.py
-
       - name: Run causal hint
         run: python analysis/causal_hint.py
   
@@ -161,6 +158,9 @@ jobs:
 
           print("✅ Prediction:", res)
           PY
+
+      - name: Anti self deception guard
+        run: python analysis/anti_self_deception_guard.py
 
       - name: Statistical significance test (CRITICAL)
         run: python analysis/statistical_killer.py
