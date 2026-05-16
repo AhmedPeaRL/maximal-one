@@ -43,7 +43,7 @@ def evaluate_scale_invariance(series):
     mean = np.mean(alphas)
 
     # 🔥 شرط مهم جداً
-    invariant = std < 0.6
+    invariant = std < 0.4
 
     return {
         "scales": results,
