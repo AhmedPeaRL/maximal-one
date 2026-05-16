@@ -1,0 +1,26 @@
+{
+  "alphas": [
+    {
+      "alpha": 3.82907606,
+      "dataset": "real-data/sunspots_global.csv"
+    },
+    {
+      "alpha": 3.49335685,
+      "dataset": "real-data/sunspots_global_extended.csv"
+    },
+    {
+      "alpha": -1.0,
+      "dataset": "real-data/white_noise.csv"
+    },
+    {
+      "alpha": 1.81584256,
+      "dataset": "real-data/random_walk.csv"
+    },
+    {
+      "alpha": -1.0,
+      "dataset": "real-data/shuffled_sunspots.csv"
+    }
+  ],
+  "cross_domain_std": 0.8806481644939758,
+  "valid_domains": 3
+}
