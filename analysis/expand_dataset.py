@@ -25,7 +25,9 @@ extended = np.array(blocks, dtype=np.float64)
 # 🔥 minimal noise (مش smoothing)
 noise = rng.normal(0, np.std(series) * 0.02, len(extended))
 extended = extended + noise
-extended = np.diff(extended, prepend=extended[0])
+
+# 🔥 preserve structure instead of destroying it
+extended = (extended - np.mean(extended)) / (np.std(extended) + 1e-12)
 
 pd.DataFrame({"Sunspots": extended}).to_csv(output_path, index=False)
 
