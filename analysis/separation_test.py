@@ -14,7 +14,7 @@ def separation_score(real, null_samples):
     if len(null_alphas) < 10:
         return None
 
-    gap = real_alpha - np.mean(null_alphas)
+    gap = (real_alpha - np.mean(null_alphas)) / (np.std(null_alphas) + 1e-12)
 
     return {
         "real_alpha": real_alpha,
