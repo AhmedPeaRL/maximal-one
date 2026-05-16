@@ -2,13 +2,21 @@ import numpy as np
 from analysis.numerical_spectral_verification import estimate_alpha
 
 def generate_surrogate(series):
-    """
-    Phase randomization surrogate (preserves distribution, kills structure)
-    """
-    fft_vals = np.fft.rfft(series)
-    phases = np.exp(1j * np.random.uniform(0, 2*np.pi, len(fft_vals)))
-    new_fft = np.abs(fft_vals) * phases
-    surrogate = np.fft.irfft(new_fft)
+    series = np.asarray(series, dtype=np.float64)
+    n = len(series)
+
+    # random walk component
+    rw = np.cumsum(np.random.standard_normal(n))
+
+    # heavy noise
+    noise = np.random.normal(0, np.std(series), n)
+
+    # shuffle جزء من الإشارة
+    shuffled = np.random.permutation(series)
+
+    # mix
+    surrogate = 0.4 * rw + 0.3 * noise + 0.3 * shuffled
+
     return surrogate
 
 def irreducibility_test(series, n=50):
