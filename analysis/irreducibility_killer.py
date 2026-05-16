@@ -63,7 +63,7 @@ def irreducibility_test(series, n=50):
 
     z = (real_alpha - mean) / (std + 1e-12)
 
-    threshold = 2.5
+    threshold = 1.5
 
     return {
         "real_alpha": real_alpha,
