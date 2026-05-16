@@ -15,7 +15,12 @@ def generate_surrogate(series):
     shuffled = np.random.permutation(series)
 
     # mix
-    surrogate = 0.4 * rw + 0.3 * noise + 0.3 * shuffled
+    surrogate = (
+        0.5 * rw +
+        0.3 * noise +
+        0.2 * shuffled +
+        0.2 * np.sin(np.linspace(0, 20*np.pi, n))
+    )
 
     return surrogate
 
@@ -55,7 +60,7 @@ def irreducibility_test(series, n=50):
 
     z = (real_alpha - mean) / (std + 1e-12)
 
-    threshold = 2
+    threshold = 2.5
 
     return {
         "real_alpha": real_alpha,
