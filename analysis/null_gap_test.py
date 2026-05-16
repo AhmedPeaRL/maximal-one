@@ -19,8 +19,8 @@ def check_null_gap(series,rng):
     min_gap = min(gaps)
 
     adaptive_threshold = max(
-        0.20,
-        0.1 * np.std([real, shuffled, phase, noise])
+        0.25,
+        0.12 * np.std([real, shuffled, phase, noise])
     )
 
     print("Gaps:", gaps)
