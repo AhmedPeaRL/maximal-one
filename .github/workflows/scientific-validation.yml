@@ -114,34 +114,7 @@ jobs:
 
           print("✅ control datasets generated")
           PY
-
-      - name: Irreducibility Killer Test (CRITICAL)
-        run: python analysis/irreducibility_killer.py
-
-      - name: Run canonical experiment ONLY
-        run: |
-          python scripts/generate_report.py --seed 42 --canonical
-
-      - name: Dataset provenance guard
-        run: |
-          python analysis/dataset_provenance_guard.py
-
-      - name: Null Gap Test
-        run: |
-          python analysis/null_gap_test.py
-
-      - name: Run causal hint
-        run: python analysis/causal_hint.py
-
-      - name: Anti self deception guard
-        run: python analysis/anti_self_deception_guard.py
-
-      - name: Statistical significance test (CRITICAL)
-        run: python analysis/statistical_killer.py
-
-      - name: Advanced Null Killer (CRITICAL)
-        run: python analysis/advanced_null_killer.py
-
+          
       - name: Predictive validation
         run: |
           python - <<'PY'
@@ -186,6 +159,33 @@ jobs:
 
           print("✅ Prediction:", res)
           PY
+
+      - name: Irreducibility Killer Test (CRITICAL)
+        run: python analysis/irreducibility_killer.py
+
+      - name: Run canonical experiment ONLY
+        run: |
+          python scripts/generate_report.py --seed 42 --canonical
+
+      - name: Dataset provenance guard
+        run: |
+          python analysis/dataset_provenance_guard.py
+
+      - name: Null Gap Test
+        run: |
+          python analysis/null_gap_test.py
+
+      - name: Run causal hint
+        run: python analysis/causal_hint.py
+
+      - name: Anti self deception guard
+        run: python analysis/anti_self_deception_guard.py
+
+      - name: Statistical significance test (CRITICAL)
+        run: python analysis/statistical_killer.py
+
+      - name: Advanced Null Killer (CRITICAL)
+        run: python analysis/advanced_null_killer.py
 
       - name: Extract alpha signal
         run: |
