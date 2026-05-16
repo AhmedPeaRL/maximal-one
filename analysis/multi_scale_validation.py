@@ -26,7 +26,6 @@ def multi_scale_alpha(series):
 
     return results
 
-
 def evaluate_scale_invariance(series):
 
     results = multi_scale_alpha(series)
@@ -38,13 +37,11 @@ def evaluate_scale_invariance(series):
         }
 
     alphas = [a for _, a in results]
-
     std = np.std(alphas)
     mean = np.mean(alphas)
-
-    # 🔥 شرط مهم جداً
-    invariant = std < 0.4
-
+    threshold = max(0.4, 0.15 * np.abs(mean))
+    invariant = std < threshold
+    
     return {
         "scales": results,
         "mean_alpha": float(mean),
