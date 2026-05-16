@@ -115,6 +115,10 @@ jobs:
           print("✅ control datasets generated")
           PY
 
+      - name: Run canonical experiment ONLY
+        run: |
+          python scripts/generate_report.py --seed 42 --canonical
+
       - name: Dataset provenance guard
         run: |
           python analysis/dataset_provenance_guard.py
@@ -127,10 +131,6 @@ jobs:
 
       - name: Advanced Null Killer (CRITICAL)
         run: python analysis/advanced_null_killer.py
-
-      - name: Run canonical experiment ONLY
-        run: |
-          python scripts/generate_report.py --seed 42 --canonical
 
       - name: Extract alpha signal
         run: |
