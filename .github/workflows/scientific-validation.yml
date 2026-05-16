@@ -119,9 +119,38 @@ jobs:
         run: |
           python scripts/generate_report.py --seed 42 --canonical
 
+      - name: Anti self deception guard
+        run: python analysis/anti_self_deception_guard.py
+
+      - name: Run causal hint
+        run: python analysis/causal_hint.py
+  
+      - name: Predictive validation
+        run: |
+          python - <<'PY'
+          import pandas as pd
+          from analysis.predictive_validation import evaluate_prediction
+
+          df = pd.read_csv("real-data/sunspots_global_extended.csv")
+          col = "Sunspots" if "Sunspots" in df.columns else "value"
+
+          res = evaluate_prediction(df[col].values)
+
+          if not res["valid"]:
+              raise SystemExit(
+                  f"❌ Predictive regime validation failed: {res}"
+              )
+
+          print("✅ Prediction:", res)
+          PY
+
       - name: Dataset provenance guard
         run: |
           python analysis/dataset_provenance_guard.py
+
+      - name: Null Gap Test
+        run: |
+          python analysis/null_gap_test.py
 
       - name: Statistical significance test (CRITICAL)
         run: python analysis/statistical_killer.py
@@ -191,32 +220,7 @@ jobs:
 
       - name: Alpha diagnostics
         run: python analysis/alpha_diagnostics.py
-
-      - name: Anti self deception guard
-        run: python analysis/anti_self_deception_guard.py
-
-      - name: Run causal hint
-        run: python analysis/causal_hint.py
-        
-      - name: Predictive validation
-        run: |
-          python - <<'PY'
-          import pandas as pd
-          from analysis.predictive_validation import evaluate_prediction
-
-          df = pd.read_csv("real-data/sunspots_global_extended.csv")
-          col = "Sunspots" if "Sunspots" in df.columns else "value"
-
-          res = evaluate_prediction(df[col].values)
-
-          if not res["valid"]:
-              raise SystemExit(
-                  f"❌ Predictive regime validation failed: {res}"
-              )
-
-          print("✅ Prediction:", res)
-          PY
-
+    
       - name: Cross-domain validation
         run: |
           python analysis/cross_domain_validator.py
@@ -228,10 +232,6 @@ jobs:
       - name: Cross-domain band guard
         run: |
           python analysis/cross_domain_band_guard.py
-          
-      - name: Null Gap Test
-        run: |
-          python analysis/null_gap_test.py
 
       - name: Preferred Band Guard
         run: |
