@@ -85,14 +85,14 @@ def main():
             engine="c"
         )
 
-        real = df.iloc[:, 0].astype(np.float64).values
-
         if "value" in df.columns:
             real = df["value"].values
         elif "Sunspots" in df.columns:
             real = df["Sunspots"].values
         else:
             raise ValueError("No valid column")
+
+        real = df.iloc[:, 0].astype(np.float64).values
 
         # 🔥 DETREND + DIFFERENCE (critical)
         real = real - np.mean(real)
