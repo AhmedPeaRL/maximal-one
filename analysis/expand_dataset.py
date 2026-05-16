@@ -23,9 +23,9 @@ rng = np.random.default_rng(42)
 # 🔥 noise أقوى شوية + jitter
 noise = rng.normal(0, np.std(series) * 0.05, len(extended))
 
-# 🔥 small nonlinear perturbation
-extended = extended + 0.15 * np.sin(
-    np.linspace(0, 30*np.pi, len(extended))
+# 🔥 خفّف الحقن الصناعي
+extended = extended + 0.05 * np.sin(
+    np.linspace(0, 20*np.pi, len(extended))
 )
 
 # inject regime shifts
