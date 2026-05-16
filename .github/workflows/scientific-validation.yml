@@ -122,6 +122,10 @@ jobs:
       - name: Dataset provenance guard
         run: |
           python analysis/dataset_provenance_guard.py
+
+      - name: Null Gap Test
+        run: |
+          python analysis/null_gap_test.py
   
       - name: Predictive validation
         run: |
@@ -147,10 +151,6 @@ jobs:
 
       - name: Run causal hint
         run: python analysis/causal_hint.py
-
-      - name: Null Gap Test
-        run: |
-          python analysis/null_gap_test.py
 
       - name: Statistical significance test (CRITICAL)
         run: python analysis/statistical_killer.py
