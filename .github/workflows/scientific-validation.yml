@@ -906,6 +906,17 @@ jobs:
         run: |
           python - <<'PY'
           import json, time, os
+          import hashlib
+
+          with open("artifacts/canonical_report.json", "rb") as f:
+              data = f.read()
+
+          h = hashlib.sha256(data).hexdigest()
+
+          with open("artifacts/report.hash", "w") as f:
+              f.write(h)
+
+          print("✅ report.hash generated:", h)
 
           report = json.load(open("artifacts/canonical_report.json"))
 
