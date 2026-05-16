@@ -162,6 +162,8 @@ def main():
         falsification_rng = np.random.default_rng(args.seed + 101)
         bootstrap_rng = np.random.default_rng(args.seed + 202)
         stats_rng = np.random.default_rng(args.seed + 303)
+        series = series - np.mean(series)
+        series = series / (np.std(series) + 1e-12)
         scale_test = evaluate_scale_invariance(series)
 
         falsification = recursively_freeze(
