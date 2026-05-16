@@ -2,30 +2,28 @@ import numpy as np
 
 def phase_randomized_surrogate(series, rng):
     series = np.asarray(series, dtype=np.float64)
-
     n = len(series)
 
     fft = np.fft.rfft(series)
-
     magnitudes = np.abs(fft)
 
-    # 🔥 بدل random phases pure → نكسر coherence
-    random_phases = rng.uniform(
-        low=0,
-        high=2*np.pi,
-        size=len(fft)
-    )
+    # 🎯 Phase randomization (strong)
+    random_phases = rng.uniform(0, 2*np.pi, len(fft))
 
-    # 🔥 نحافظ فقط على DC component
+    # preserve DC only
     random_phases[0] = 0.0
-
     if n % 2 == 0:
         random_phases[-1] = 0.0
 
-    # 🔥 إدخال distortion طيفي بسيط
-    magnitudes = magnitudes * (
-        1 + 0.15 * rng.standard_normal(len(magnitudes))
-    )
+    # 🔥 STRONG spectral distortion (critical fix)
+    distortion = 1 + 0.35 * rng.standard_normal(len(magnitudes))
+    distortion = np.clip(distortion, 0.3, 2.5)
+
+    magnitudes = magnitudes * distortion
+
+    # 🔥 random band suppression (break long memory)
+    drop_mask = rng.uniform(0, 1, len(magnitudes)) < 0.15
+    magnitudes[drop_mask] *= rng.uniform(0.1, 0.5)
 
     new_fft = magnitudes * np.exp(1j * random_phases)
 
