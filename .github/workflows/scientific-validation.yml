@@ -118,12 +118,6 @@ jobs:
       - name: Run canonical experiment ONLY
         run: |
           python scripts/generate_report.py --seed 42 --canonical
-
-      - name: Anti self deception guard
-        run: python analysis/anti_self_deception_guard.py
-
-      - name: Run causal hint
-        run: python analysis/causal_hint.py
   
       - name: Predictive validation
         run: |
@@ -143,6 +137,12 @@ jobs:
 
           print("✅ Prediction:", res)
           PY
+
+      - name: Anti self deception guard
+        run: python analysis/anti_self_deception_guard.py
+
+      - name: Run causal hint
+        run: python analysis/causal_hint.py
 
       - name: Dataset provenance guard
         run: |
