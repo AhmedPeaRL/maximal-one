@@ -26,11 +26,11 @@ def generate_multiscale_series(base, rng, repeats=4):
         block = base[start:start+32].copy()
 
         # 🔹 inject weak correlated noise
-        noise = rng.normal(0, np.std(block) * 0.15, len(block))
+        noise = rng.normal(0, np.std(base) * 0.05, len(block))
         block = block + noise
 
         # 🔹 random walk drift (very weak)
-        drift = np.cumsum(rng.normal(0, 0.02, len(block)))
+        drift = np.cumsum(rng.normal(0, 0.005, len(block)))
         block = block + drift
 
         result.extend(block)
