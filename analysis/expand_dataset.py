@@ -14,17 +14,13 @@ series = df.iloc[:, 0].values.astype(np.float64)
 rng = np.random.default_rng(42)
 
 blocks = []
-block_size = 8
+block_size = 32
 
 for _ in range(len(series) // block_size):
     start = rng.integers(0, len(series) - block_size)
     blocks.extend(series[start:start + block_size])
 
 extended = np.array(blocks, dtype=np.float64)
-
-# 🔥 minimal noise (مش smoothing)
-noise = rng.normal(0, np.std(series) * 0.02, len(extended))
-extended = extended + noise
 
 # 🔥 preserve structure instead of destroying it
 extended = (extended - np.mean(extended)) / (np.std(extended) + 1e-12)
