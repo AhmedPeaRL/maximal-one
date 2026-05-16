@@ -16,14 +16,13 @@ def phase_randomized_surrogate(series, rng):
         random_phases[-1] = 0.0
 
     # 🔥 STRONG spectral distortion (critical fix)
-    distortion = 1 + 0.35 * rng.standard_normal(len(magnitudes))
-    distortion = np.clip(distortion, 0.3, 2.5)
+    distortion = 1 + 0.8 * rng.standard_normal(len(magnitudes))
+    distortion = np.clip(distortion, 0.1, 3.0)
 
+    # 🔥 kill long memory بشكل أعنف
+    drop_mask = rng.uniform(0, 1, len(magnitudes)) < 0.35
+    magnitudes[drop_mask] *= rng.uniform(0.05, 0.3)
     magnitudes = magnitudes * distortion
-
-    # 🔥 random band suppression (break long memory)
-    drop_mask = rng.uniform(0, 1, len(magnitudes)) < 0.15
-    magnitudes[drop_mask] *= rng.uniform(0.1, 0.5)
 
     new_fft = magnitudes * np.exp(1j * random_phases)
 
