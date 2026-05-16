@@ -11,7 +11,6 @@ def generate_surrogate(series):
     surrogate = np.fft.irfft(new_fft)
     return surrogate
 
-
 def irreducibility_test(series, n=50):
     real_alpha = estimate_alpha(series)
 
@@ -23,11 +22,24 @@ def irreducibility_test(series, n=50):
 
     surrogate_alphas = np.array(surrogate_alphas)
 
+    # 🔥 FIX: remove NaN
+    surrogate_alphas = surrogate_alphas[np.isfinite(surrogate_alphas)]
+
+    if len(surrogate_alphas) < 5:
+        return {
+            "real_alpha": real_alpha,
+            "surrogate_mean": np.nan,
+            "surrogate_std": np.nan,
+            "z_score": np.nan,
+            "irreducible": False
+        }
+
     mean = np.mean(surrogate_alphas)
     std = np.std(surrogate_alphas)
 
     z = (real_alpha - mean) / (std + 1e-12)
-    threshold = 1.5
+
+    threshold = 2.0  # 🔥 شدّد الشرط
 
     return {
         "real_alpha": real_alpha,
@@ -37,7 +49,6 @@ def irreducibility_test(series, n=50):
         "irreducible": abs(z) > threshold
     }
 
-
 def extract_series(df):
     if "value" in df.columns:
         return df["value"].values
@@ -45,7 +56,6 @@ def extract_series(df):
         return df["Sunspots"].values
     else:
         raise ValueError("Dataset must contain 'value' or 'Sunspots'")
-
 
 if __name__ == "__main__":
     import pandas as pd
