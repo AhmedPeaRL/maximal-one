@@ -36,15 +36,21 @@ def evaluate_scale_invariance(series):
             "reason": "insufficient_scales"
         }
 
-    alphas = [a for _, a in results]
-    std = np.std(alphas)
-    mean = np.mean(alphas)
-    threshold = max(0.4, 0.15 * np.abs(mean))
-    invariant = std < threshold
-    
+    alphas = np.array([a for _, a in results])
+
+    # 🔥 robust metric بدل std العادي
+    median = np.median(alphas)
+    mad = np.median(np.abs(alphas - median)) + 1e-12
+
+    # 🔥 normalized dispersion
+    dispersion = mad / (np.abs(median) + 1e-12)
+
+    threshold = 0.25  # relaxed but still strict
+
     return {
         "scales": results,
-        "mean_alpha": float(mean),
-        "std_alpha": float(std),
-        "scale_invariant": bool(invariant)
+        "median_alpha": float(median),
+        "mad_alpha": float(mad),
+        "dispersion": float(dispersion),
+        "scale_invariant": bool(dispersion < threshold)
     }
