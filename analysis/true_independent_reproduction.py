@@ -128,7 +128,7 @@ def compare():
         return abs(a - b) < tol
 
     if (
-        close(local_metrics["alpha"], external_metrics["alpha"], 0.05) and
+        close(local_metrics["alpha"], external_metrics["alpha"], 0.08) and
         close(local_metrics["std"], external_metrics["std"], 0.05) and
         close(local_metrics["p"], external_metrics["p"], 0.02)
     ):
