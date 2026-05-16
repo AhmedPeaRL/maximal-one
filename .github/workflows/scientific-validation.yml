@@ -428,6 +428,10 @@ jobs:
 
       - name: TRUE External Runner (REAL ISOLATION)
         run: python analysis/TRUE_external_runner.py
+
+      - name: TRUE Independent Reproduction (HARD)
+        run: |
+          python analysis/true_independent_reproduction.py || exit 1
   
   ingest-witness:
     runs-on: ubuntu-24.04
@@ -1845,10 +1849,6 @@ jobs:
 
     - name: Export commit
       run: echo "GITHUB_SHA=${{ github.sha }}" >> $GITHUB_ENV  
-
-    - name: TRUE Independent Reproduction (HARD)
-      run: |
-        python analysis/true_independent_reproduction.py || exit 1
 
     - name: TRUE External Witness Node (REAL)
       run: |
