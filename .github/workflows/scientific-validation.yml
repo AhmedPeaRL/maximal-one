@@ -118,6 +118,10 @@ jobs:
       - name: Run canonical experiment ONLY
         run: |
           python scripts/generate_report.py --seed 42 --canonical
+
+      - name: Dataset provenance guard
+        run: |
+          python analysis/dataset_provenance_guard.py
   
       - name: Predictive validation
         run: |
@@ -143,10 +147,6 @@ jobs:
 
       - name: Run causal hint
         run: python analysis/causal_hint.py
-
-      - name: Dataset provenance guard
-        run: |
-          python analysis/dataset_provenance_guard.py
 
       - name: Null Gap Test
         run: |
