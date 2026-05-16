@@ -25,4 +25,4 @@ extended = extended + noise
 
 pd.DataFrame({"Sunspots": extended}).to_csv(output_path, index=False)
 
-print("✅ extended dataset generated (STRICT CLEAN):", len(extended))
+print("✅ extended dataset generated (PURE, NO STRUCTURE INJECTION):", len(extended))
