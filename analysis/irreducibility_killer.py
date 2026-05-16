@@ -26,8 +26,6 @@ def irreducibility_test(series, n=50):
     surrogate_alphas = surrogate_alphas[np.isfinite(surrogate_alphas)]
 
     if real_alpha < 2.0:
-        return { ... , "irreducible": False }
-        
     if len(surrogate_alphas) < 5:
         return {
             "real_alpha": real_alpha,
