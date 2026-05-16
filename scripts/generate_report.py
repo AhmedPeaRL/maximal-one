@@ -143,13 +143,13 @@ def main():
 
         alpha = estimate_alpha(series)
 
-        alpha = freeze_float(
-            alpha,
-            digits=8
-        )
+        alpha = freeze_float(alpha, digits=8)
 
-        if not np.isfinite(alpha):
-            raise SystemExit("❌ alpha invalid (NaN or Inf)")
+        if alpha is None:
+            raise SystemExit("❌ alpha became None after freezing")
+
+        if not isinstance(alpha, (int, float)) or not np.isfinite(alpha):
+            raise SystemExit(f"❌ alpha invalid: {alpha}")
 
         if alpha >= 5.0:
             raise SystemExit(f"❌ Unphysical alpha detected: {alpha}")
