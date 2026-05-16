@@ -1,0 +1,72 @@
+{
+  "cross_method_validation": {
+    "agreement": 0.009077,
+    "fft_alpha": 2.836667,
+    "welch_alpha": 2.82759
+  },
+  "metadata": {
+    "generator": "pure_real",
+    "seed": 42
+  },
+  "multi_scale_validation": {
+    "mean_alpha": 2.944579,
+    "scale_invariant": true,
+    "scales": [
+      [
+        1,
+        2.836667
+      ],
+      [
+        2,
+        2.89834
+      ],
+      [
+        4,
+        3.098729
+      ]
+    ],
+    "std_alpha": 0.111871
+  },
+  "separation_test": {
+    "gap": 2.113077,
+    "null_mean": 0.72359,
+    "real_alpha": 2.836667,
+    "std_null": 0.448334
+  },
+  "sovereign_layer": {
+    "decision": {
+      "action": "persist_structure",
+      "confidence": 2.474539,
+      "status": "STRUCTURE_DETECTED",
+      "threshold": 0.15
+    },
+    "engine_summary": {
+      "adaptive_threshold": 0.15,
+      "max_delta": 2.474539,
+      "mean_delta": 2.474539,
+      "state": "STRUCTURE_DETECTED",
+      "std_delta": 0.0
+    }
+  },
+  "spectral_profile": {
+    "bootstrap_mean": 2.193288,
+    "bootstrap_std": 0.307637,
+    "ci_high": 2.786947,
+    "ci_low": 1.656708,
+    "estimated_alpha": 2.836667,
+    "falsification_tests": {
+      "original_alpha": 2.836667,
+      "phase_randomized_alpha": 4.942852,
+      "shuffled_alpha": 2.03377,
+      "white_noise_alpha": 0.575724
+    },
+    "noise_alpha": 0.362128
+  },
+  "statistical_test": {
+    "null_mean": 0.70936,
+    "null_samples": 4416,
+    "null_std": 0.430606,
+    "observed_alpha": 2.836667,
+    "p_value": 1e-06
+  }
+}
