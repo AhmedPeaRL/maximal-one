@@ -114,6 +114,13 @@ jobs:
 
           print("✅ control datasets generated")
           PY
+
+      - name: Irreducibility Killer Test (CRITICAL)
+        run: python analysis/irreducibility_killer.py
+
+      - name: Run canonical experiment ONLY
+        run: |
+          python scripts/generate_report.py --seed 42 --canonical
           
       - name: Predictive validation
         run: |
@@ -159,13 +166,6 @@ jobs:
 
           print("✅ Prediction:", res)
           PY
-
-      - name: Irreducibility Killer Test (CRITICAL)
-        run: python analysis/irreducibility_killer.py
-
-      - name: Run canonical experiment ONLY
-        run: |
-          python scripts/generate_report.py --seed 42 --canonical
 
       - name: Dataset provenance guard
         run: |
