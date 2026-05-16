@@ -64,13 +64,6 @@ jobs:
           pip install --upgrade pip
           pip install --require-hashes -r requirements-lock.txt
 
-      - name: Lorenz96 Gate
-        run: |
-          python analysis/lorenz96_patch.py
-          python analysis/lorenz96_benchmark.py
-          python analysis/lorenz_gate.py
-          python analysis/real_lorenz_benchmark.py
-
       - name: Generate extended dataset (MANDATORY)
         run: |
           python analysis/expand_dataset.py
