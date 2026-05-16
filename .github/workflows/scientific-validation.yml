@@ -139,7 +139,16 @@ jobs:
 
       - name: Run causal hint
         run: python analysis/causal_hint.py
-  
+
+      - name: Anti self deception guard
+        run: python analysis/anti_self_deception_guard.py
+
+      - name: Statistical significance test (CRITICAL)
+        run: python analysis/statistical_killer.p
+
+      - name: Advanced Null Killer (CRITICAL)
+        run: python analysis/advanced_null_killer.py
+
       - name: Predictive validation
         run: |
           python - <<'PY'
@@ -158,15 +167,6 @@ jobs:
 
           print("✅ Prediction:", res)
           PY
-
-      - name: Anti self deception guard
-        run: python analysis/anti_self_deception_guard.py
-
-      - name: Statistical significance test (CRITICAL)
-        run: python analysis/statistical_killer.p
-
-      - name: Advanced Null Killer (CRITICAL)
-        run: python analysis/advanced_null_killer.py
 
       - name: Extract alpha signal
         run: |
