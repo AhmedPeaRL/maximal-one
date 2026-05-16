@@ -18,23 +18,13 @@ def irreducibility_test(series, n=50):
 
     for _ in range(n):
         s = generate_surrogate(series)
-        surrogate_alphas.append(estimate_alpha(s))
+        a = estimate_alpha(s)
+        if np.isfinite(a):
+            surrogate_alphas.append(a)
 
     surrogate_alphas = np.array(surrogate_alphas)
 
-    # 🔥 FIX: remove NaN
-    surrogate_alphas = surrogate_alphas[np.isfinite(surrogate_alphas)]
-    
     if len(surrogate_alphas) < 5:
-        return {
-            "real_alpha": real_alpha,
-            "surrogate_mean": np.nan,
-            "surrogate_std": np.nan,
-            "z_score": np.nan,
-            "irreducible": False
-        }
-
-    if real_alpha < 2.0:
         return {
             "real_alpha": real_alpha,
             "surrogate_mean": np.nan,
@@ -45,12 +35,23 @@ def irreducibility_test(series, n=50):
 
     mean = np.mean(surrogate_alphas)
     std = np.std(surrogate_alphas)
+
+    if not np.isfinite(real_alpha) or std < 1e-12:
+        return {
+            "real_alpha": real_alpha,
+            "surrogate_mean": mean,
+            "surrogate_std": std,
+            "z_score": np.nan,
+            "irreducible": False
+        }
+
     z = (real_alpha - mean) / (std + 1e-12)
-    threshold = 2.5  # 🔥 شدّد الشرط
+
+    threshold = 2.5
 
     return {
         "real_alpha": real_alpha,
-        "urrogate_mean": mean,
+        "surrogate_mean": mean,   # ✅ FIXED
         "surrogate_std": std,
         "z_score": z,
         "irreducible": abs(z) > threshold
@@ -69,6 +70,7 @@ if __name__ == "__main__":
 
     df = pd.read_csv("real-data/sunspots_global_extended.csv")
     series = extract_series(df)
+
     r = irreducibility_test(series)
 
     print("=== IRREDUCIBILITY TEST ===")
