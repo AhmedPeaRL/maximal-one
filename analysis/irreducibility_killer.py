@@ -24,8 +24,7 @@ def irreducibility_test(series, n=50):
 
     # 🔥 FIX: remove NaN
     surrogate_alphas = surrogate_alphas[np.isfinite(surrogate_alphas)]
-
-    if real_alpha < 2.0:
+    
     if len(surrogate_alphas) < 5:
         return {
             "real_alpha": real_alpha,
@@ -41,10 +40,10 @@ def irreducibility_test(series, n=50):
     z = (real_alpha - mean) / (std + 1e-12)
 
     threshold = 2.5  # 🔥 شدّد الشرط
-    
+
     return {
         "real_alpha": real_alpha,
-        "surrogate_mean": mean,
+        "urrogate_mean": mean,
         "surrogate_std": std,
         "z_score": z,
         "irreducible": abs(z) > threshold
