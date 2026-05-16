@@ -28,9 +28,10 @@ extended = extended + 0.05 * np.sin(
     np.linspace(0, 20*np.pi, len(extended))
 )
 
-# inject regime shifts
+# inject regime shifts (DETERMINISTIC)
 for i in range(0, len(extended), 200):
-    extended[i:i+50] += np.random.uniform(-10, 10)
+    shift = rng.uniform(-10, 10)
+    extended[i:i+50] += shift
     
 extended = extended + noise
 pd.DataFrame({"Sunspots": extended}).to_csv(output_path, index=False)
