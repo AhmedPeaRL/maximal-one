@@ -115,6 +115,9 @@ jobs:
           print("✅ control datasets generated")
           PY
 
+      - name: Irreducibility Killer Test (CRITICAL)
+        run: python analysis/irreducibility_killer.py
+
       - name: Run canonical experiment ONLY
         run: |
           python scripts/generate_report.py --seed 42 --canonical
@@ -126,9 +129,6 @@ jobs:
       - name: Null Gap Test
         run: |
           python analysis/null_gap_test.py
-
-      - name: Irreducibility Killer Test (CRITICAL)
-        run: python analysis/irreducibility_killer.py
 
       - name: Run causal hint
         run: python analysis/causal_hint.py
