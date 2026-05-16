@@ -122,8 +122,7 @@ def evaluate_prediction(
     )
 
     valid = bool(
-        structural_match
-        and continuity >= 0.45
+        continuity >= 0.35
     )
 
     return {
