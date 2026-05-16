@@ -36,11 +36,18 @@ def irreducibility_test(series, n=50):
 
     mean = np.mean(surrogate_alphas)
     std = np.std(surrogate_alphas)
-
     z = (real_alpha - mean) / (std + 1e-12)
-
     threshold = 2.5  # 🔥 شدّد الشرط
 
+    if real_alpha < 2.0:
+        return {
+            "real_alpha": real_alpha,
+            "surrogate_mean": np.nan,
+            "surrogate_std": np.nan,
+            "z_score": np.nan,
+            "irreducible": False
+        }
+    
     return {
         "real_alpha": real_alpha,
         "urrogate_mean": mean,
@@ -62,7 +69,6 @@ if __name__ == "__main__":
 
     df = pd.read_csv("real-data/sunspots_global_extended.csv")
     series = extract_series(df)
-
     r = irreducibility_test(series)
 
     print("=== IRREDUCIBILITY TEST ===")
