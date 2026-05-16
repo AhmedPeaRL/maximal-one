@@ -1,6 +1,13 @@
 import numpy as np
 from analysis.numerical_spectral_verification import estimate_alpha
 
+def downsample(series, factor):
+    n = len(series) // factor
+    return np.array([
+        np.mean(series[i*factor:(i+1)*factor])
+        for i in range(n)
+    ], dtype=np.float64)
+
 def multi_scale_alpha(series):
 
     series = np.asarray(series, dtype=np.float64)
@@ -12,7 +19,7 @@ def multi_scale_alpha(series):
 
         if s > 1:
             # downsample
-            scaled = series[::s]
+            scaled = downsample(series, s)
         else:
             scaled = series
 
