@@ -27,6 +27,9 @@ def generate_surrogate(series):
 def irreducibility_test(series, n=50):
     real_alpha = estimate_alpha(series)
 
+    if not np.isfinite(real_alpha):
+        real_alpha = 0.0
+
     surrogate_alphas = []
 
     for _ in range(n):
