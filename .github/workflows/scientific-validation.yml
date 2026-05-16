@@ -163,7 +163,7 @@ jobs:
         run: python analysis/anti_self_deception_guard.py
 
       - name: Statistical significance test (CRITICAL)
-        run: python analysis/statistical_killer.py
+        run: python analysis/statistical_killer.p
 
       - name: Advanced Null Killer (CRITICAL)
         run: python analysis/advanced_null_killer.py
@@ -358,6 +358,10 @@ jobs:
         run: |
           python analysis/external_replay_verifier.py
 
+      - name: TRUE Independent Reproduction (HARD)
+        run: |
+          python analysis/true_independent_reproduction.py || exit 1
+
       - name: Stabilize artifacts
         run: |
           python analysis/stabilize_artifacts.py
@@ -436,10 +440,6 @@ jobs:
       - name: TRUE External Runner (REAL ISOLATION)
         run: python analysis/TRUE_external_runner.py
 
-      - name: TRUE Independent Reproduction (HARD)
-        run: |
-          python analysis/true_independent_reproduction.py || exit 1
-  
   ingest-witness:
     runs-on: ubuntu-24.04
     needs: core-proof
