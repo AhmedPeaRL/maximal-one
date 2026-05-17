@@ -42,6 +42,7 @@ series = series.astype(np.float64)
 rng = np.random.default_rng(42)
 
 def generate_structure(base, repeats=6):
+def generate_structure(base, repeats=6):
     base = (base - np.mean(base)) / (np.std(base) + 1e-12)
 
     segments = []
@@ -49,22 +50,31 @@ def generate_structure(base, repeats=6):
     for _ in range(repeats):
         n = len(base)
 
-        window_size = rng.integers(50, min(200, n))
+        # 🔥 خليك تاخد segments طويلة
+        window_size = rng.integers(int(0.4*n), int(0.8*n))
         start = rng.integers(0, n - window_size)
 
         window = base[start:start + window_size].copy()
 
-        for j in range(1, len(window)):
-            window[j] = 0.85 * window[j-1] + 0.15 * window[j]
+        # 🔥 Long-range persistence (مش local smoothing)
+        for j in range(2, len(window)):
+            window[j] = (
+                0.6 * window[j-1] +
+                0.3 * window[j-2] +
+                0.1 * window[j]
+            )
 
-        window = np.tanh(window)
+        # 🔥 بلاش tanh (بيقتل structure)
+        # window = np.tanh(window)
 
-        noise = rng.normal(0, 0.2, len(window))
+        # 🔥 noise أخف بكتير
+        noise = rng.normal(0, 0.05, len(window))
         window += noise
 
         segments.append(window)
 
     full = np.concatenate(segments)
+
     full = (full - np.mean(full)) / (np.std(full) + 1e-12)
 
     return full
