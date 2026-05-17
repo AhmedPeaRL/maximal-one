@@ -59,7 +59,7 @@ def main():
     os.makedirs(args.output_dir, exist_ok=True)
 
     # === ENSURE DATASET EXISTS (SELF-CONTAINED REPRODUCTION) ===
-    if not os.path.exists("real-data/sunspots_global.csv"):
+    if not os.path.exists("real-data/sunspots_full.csv"):
         raise SystemExit("❌ Base dataset missing — cannot proceed")
     
     if not os.path.exists("real-data/sunspots_global_extended.csv"):
