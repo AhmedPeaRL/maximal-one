@@ -189,6 +189,10 @@ jobs:
           print("✅ STRICT CLAIM HOLDS")
           PY
 
+      - name: Cross-domain validation
+        run: |
+          python analysis/cross_domain_validator.py
+
       - name: Predictive validation
         run: |
           python - <<'PY'
@@ -246,11 +250,7 @@ jobs:
 
       - name: Alpha diagnostics
         run: python analysis/alpha_diagnostics.py
-    
-      - name: Cross-domain validation
-        run: |
-          python analysis/cross_domain_validator.py
-
+          
       - name: Canonical consensus guard
         run: |
           python analysis/canonical_consensus_guard.py
