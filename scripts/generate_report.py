@@ -92,7 +92,12 @@ def main():
         else:
             raise ValueError("No valid column")
 
-        real = df.iloc[:, 0].astype(np.float64).values
+        if "Sunspots" in df.columns:
+            real = df["Sunspots"].values
+        elif "value" in df.columns:
+            real = df["value"].values
+        else:
+            real = df.select_dtypes(include=[np.number]).iloc[:, 0].values
 
         # 🔥 keep original structure (no differencing)
         real = real - np.mean(real)
