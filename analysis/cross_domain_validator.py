@@ -9,7 +9,7 @@ DATA_DIR = "real-data"
 def load_series(path):
     df = pd.read_csv(path)
     df = df.select_dtypes(include=[np.number])
-    df = df.dropna(axis=1, how="all")
+    df = pd.read_csv(path, sep=None, engine="python", na_values=["***"])
 
     for col in df.columns:
         if pd.api.types.is_numeric_dtype(df[col]):
