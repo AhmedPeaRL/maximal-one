@@ -16,7 +16,7 @@ def load_series(path):
     if not Path(path).exists():
         raise ValueError(f"Missing file: {path}")
 
-    df = pd.read_csv(path, sep=None, engine="python", na_values=["***"])
+    df = pd.read_csv(path, sep=None, engine="python", na_values=["***"], skiprows=1)
 
     best_series = None
     best_score = 0
@@ -24,6 +24,9 @@ def load_series(path):
     for col in df.columns:
         if "date" in col.lower() or "month" in col.lower():
             continue
+
+        if col.lower() in ["passengers", "value"]:
+            s = pd.to_numeric(df[col], errors="coerce")
         
         s = pd.to_numeric(df[col], errors="coerce").dropna().values
 
