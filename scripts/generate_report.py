@@ -94,11 +94,8 @@ def main():
 
         real = df.iloc[:, 0].astype(np.float64).values
 
-        # 🔥 DETREND + DIFFERENCE (critical)
+        # 🔥 keep original structure (no differencing)
         real = real - np.mean(real)
-        real = np.diff(real)
-
-        # normalize
         real = real / (np.std(real) + 1e-12)
 
         synthetic = generate_series(rng, n=len(real))
