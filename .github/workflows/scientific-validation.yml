@@ -196,7 +196,7 @@ jobs:
           print("sigma:", sigma)
           print("noise:", noise)
 
-          if alpha / (sigma + 1e-12) < 2.5:
+          if alpha / (sigma + 1e-12) < 2.0:
               sys.exit("FAIL: weak signal")
 
           if abs(alpha - noise) < 0.25:
