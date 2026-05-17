@@ -7,7 +7,9 @@ from analysis.load_real_datasets import load_all
 DATA_DIR = "real-data"
 
 def load_series(path):
+    df = pd.read_csv(path, sep=None, engine="python", na_values=["***"])
     df = pd.read_csv(path)
+    df = df.select_dtypes(include=[np.number])
     df = df.dropna(axis=1, how="all")
 
     for col in df.columns:
