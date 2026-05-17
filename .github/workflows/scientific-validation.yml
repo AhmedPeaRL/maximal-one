@@ -118,10 +118,6 @@ jobs:
       - name: Irreducibility Killer Test (CRITICAL)
         run: python analysis/irreducibility_killer.py
 
-      - name: Cross-domain validation
-        run: |
-          python analysis/cross_domain_validator.py
-
       - name: Run causal hint
         run: python analysis/causal_hint.py
 
@@ -204,6 +200,10 @@ jobs:
       - name: Null Gap Test
         run: |
           python analysis/null_gap_test.py
+
+      - name: Cross-domain validation
+        run: |
+          python analysis/cross_domain_validator.py
 
       - name: Dataset provenance guard
         run: |
