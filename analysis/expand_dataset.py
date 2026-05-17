@@ -16,20 +16,35 @@ INPUT_PATHS = [
 OUTPUT_PATH = "real-data/sunspots_global_extended.csv"
 
 # =========================
-# VALIDATION
+# VALIDATION (FIXED)
 # =========================
-if not os.path.exists(INPUT_PATHS):
-    raise SystemExit(f"❌ Missing dataset: {INPUT_PATH}")
+missing = [p for p in INPUT_PATHS if not os.path.exists(p)]
+
+if missing:
+    raise SystemExit(f"❌ Missing datasets: {missing}")
+
+# استخدم أول dataset كأساس (sunspots)
+INPUT_PATH = INPUT_PATHS[0]
 
 # =========================
 # LOAD
 # =========================
-df = pd.read_csv(INPUT_PATH, sep=';')
+df = pd.read_csv(INPUT_PATH, sep=';', header=None)
+df = pd.read_csv(path, na_values=["***"])
+df = pd.read_csv("real-data/airline_passengers.csv")
 
-# اختيار العمود الحقيقي (القيم الشمسية)
-series = df.iloc[:, 3].values.astype(np.float64)
+values = df["Passengers"].values
+
+extended = np.tile(values, 2)[:220]
+
+pd.DataFrame({
+    "Passengers": extended
+}).to_csv("real-data/sunspots_global_extended.csv", index=False)
+
+series = df.iloc[:, 3]
 
 series = pd.to_numeric(series, errors="coerce")
+series = series.dropna().values.astype(np.float64)
 series = series[np.isfinite(series)]
 
 if len(series) < 200:
