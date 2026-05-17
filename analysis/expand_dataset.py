@@ -82,6 +82,7 @@ def generate_structure(base, repeats=6):
     coarse = np.repeat(coarse, 4)[:len(full)]
 
     full = 0.7 * full + 0.3 * coarse
+    full = (full - np.mean(full)) / (np.std(full) + 1e-12)
     
     return full
 
