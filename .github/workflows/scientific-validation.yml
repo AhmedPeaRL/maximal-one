@@ -115,9 +115,6 @@ jobs:
           print("✅ control datasets generated")
           PY
 
-      - name: Irreducibility Killer Test (CRITICAL)
-        run: python analysis/irreducibility_killer.py
-
       - name: Cross-domain validation
         run: |
           python analysis/cross_domain_validator.py
@@ -247,6 +244,9 @@ jobs:
       - name: Dataset provenance guard
         run: |
           python analysis/dataset_provenance_guard.py
+
+      - name: Irreducibility Killer Test (CRITICAL)
+        run: python analysis/irreducibility_killer.py
 
       - name: Alpha diagnostics
         run: python analysis/alpha_diagnostics.py
