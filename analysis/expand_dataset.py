@@ -42,7 +42,6 @@ series = series.astype(np.float64)
 rng = np.random.default_rng(42)
 
 def generate_structure(base, repeats=6):
-def generate_structure(base, repeats=6):
     base = (base - np.mean(base)) / (np.std(base) + 1e-12)
 
     segments = []
