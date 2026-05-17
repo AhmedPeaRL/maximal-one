@@ -10,43 +10,34 @@ DATASETS = {
 }
 
 def load_series(path):
-    df = pd.read_csv(path, na_values=["***"])
+
+    if not Path(path).exists():
+        raise ValueError(f"Missing file: {path}")
+
     df = pd.read_csv(path)
-    df = pd.read_csv("real-data/airline_passengers.csv")
-    df = pd.read_csv(INPUT_PATH, sep=';', header=None)
-    series = df.iloc[:, 3]
-    series = pd.to_numeric(series, errors="coerce")
-    series = series.dropna().values.astype(np.float64)
-    values = df["Passengers"].values
-    extended = np.tile(values, 2)[:220]
 
-    pd.DataFrame({
-        "Passengers": extended
-    }).to_csv("real-data/sunspots_global_extended.csv", index=False)
-
-    # 🔥 محاولة تحويل كل الأعمدة لأرقام
+    # convert all to numeric
     for col in df.columns:
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
     df = df.dropna(axis=1, how="all")
 
     for col in df.columns:
-        if df[col].dtype != object:
+        series = df[col].dropna().values
 
-            series = df[col].dropna().values
+        if len(series) < 200:
+            continue
 
-            if len(series) < 200:
-                raise ValueError(f"Too small: {path}")
+        std = np.std(series)
+        if std < 1e-6:
+            continue
 
-            std = np.std(series)
-            if std < 1e-6:
-                raise ValueError(f"Constant series: {path}")
+        # normalize
+        series = (series - np.mean(series)) / std
 
-            series = (series - np.mean(series)) / std
+        return series
 
-            return series
-
-    raise ValueError(f"No numeric column: {path}")
+    raise ValueError(f"No valid numeric column in {path}")
 
 def load_all():
 
