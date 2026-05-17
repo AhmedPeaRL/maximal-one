@@ -5,7 +5,7 @@ import numpy as np
 # =========================
 # CONFIG
 # =========================
-INPUT_PATH = "real-data/sunspots_full.csv, real-data/airline_passengers.csv, real-data/temperature_global.csv, real-data/co2.csv, real-data/earthquake_magnitude_clean.csv"
+INPUT_PATH = "real-data/sunspots_full.csv, real-data/sp500.csv, real-data/airline_passengers.csv, real-data/temperature_global.csv, real-data/co2.csv, real-data/earthquake_magnitude_clean.csv"
 OUTPUT_PATH = "real-data/sunspots_global_extended.csv"
 
 # =========================
