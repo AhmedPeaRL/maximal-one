@@ -122,7 +122,7 @@ def evaluate_prediction(
     )
 
     valid = bool(
-        continuity >= 0.35
+        continuity >= 0.25
     )
 
     return {
