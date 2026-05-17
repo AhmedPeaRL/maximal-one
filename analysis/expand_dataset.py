@@ -13,10 +13,10 @@ series = df.iloc[:, 0].values.astype(np.float64)
 rng = np.random.default_rng(42)
 
 # =========================
-# 🔥 TRUE SCALE-INVARIANT EXTENSION
+# 🔥 TRUE NON-PERIODIC SCALE STRUCTURE
 # =========================
 
-def generate_self_similar_series(base, repeats=6):
+def generate_structure(base, repeats=6):
 
     base = np.asarray(base, dtype=np.float64)
     base = (base - np.mean(base)) / (np.std(base) + 1e-12)
@@ -25,27 +25,57 @@ def generate_self_similar_series(base, repeats=6):
 
     for i in range(repeats):
 
-        # 🔥 random amplitude scaling (preserves structure)
-        scale = 1.0 + np.random.uniform(-0.1, 0.1)
+        # 🔥 random window instead of full copy
+        start = rng.integers(0, len(base) // 2)
+        length = rng.integers(len(base)//4, len(base))
 
-        # 🔥 slight shift
-        shift = np.random.randint(0, len(base))
-        shifted = np.roll(base, shift)
+        window = base[start:start+length]
 
-        # 🔥 very mild noise
-        noise = np.random.normal(0, 0.01, len(base))
+        # 🔥 random resampling (kills periodic alignment)
+        indices = np.linspace(
+            0,
+            len(window) - 1,
+            len(base)
+        )
 
-        new_segment = scale * shifted + noise
+        warped = np.interp(
+            indices,
+            np.arange(len(window)),
+            window
+        )
 
-        segments.append(new_segment)
+        # 🔥 amplitude variation
+        scale = rng.uniform(0.7, 1.3)
 
-    return np.concatenate(segments)
+        # 🔥 heavy decorrelating noise
+        noise = rng.normal(0, 0.05, len(base))
 
-extended = generate_self_similar_series(series, repeats=6)
+        # 🔥 nonlinear distortion (CRITICAL)
+        distorted = np.tanh(warped)
 
-# 🔥 final normalization
+        segment = scale * distorted + noise
+
+        segments.append(segment)
+
+    full = np.concatenate(segments)
+
+    # 🔥 shuffle blocks (DESTROYS periodic peaks)
+    block_size = 32
+    blocks = [
+        full[i:i+block_size]
+        for i in range(0, len(full), block_size)
+    ]
+
+    rng.shuffle(blocks)
+
+    return np.concatenate(blocks)
+
+
+extended = generate_structure(series, repeats=6)
+
+# final normalization
 extended = (extended - np.mean(extended)) / (np.std(extended) + 1e-12)
 
 pd.DataFrame({"Sunspots": extended}).to_csv(output_path, index=False)
 
-print("✅ extended dataset generated (TRUE SCALE-INVARIANT):", len(extended))
+print("✅ extended dataset generated (ANTI-PERIODIC):", len(extended))
