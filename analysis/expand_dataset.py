@@ -47,11 +47,11 @@ def generate_structure(base, repeats=6):
         # 🔥 amplitude variation
         scale = rng.uniform(0.7, 1.3)
 
-        # 🔥 heavy decorrelating noise
-        noise = rng.normal(0, 0.05, len(base))
+        # 🔥 controlled nonlinear transformation (preserves structure)
+        distorted = np.sign(warped) * (np.abs(warped) ** 0.75)
 
-        # 🔥 nonlinear distortion (CRITICAL)
-        distorted = np.tanh(warped)
+        # 🔥 LOW noise (critical fix)
+        noise = rng.normal(0, 0.015, len(base))
 
         segment = scale * distorted + noise
 
@@ -59,17 +59,7 @@ def generate_structure(base, repeats=6):
 
     full = np.concatenate(segments)
 
-    # 🔥 shuffle blocks (DESTROYS periodic peaks)
-    block_size = 32
-    blocks = [
-        full[i:i+block_size]
-        for i in range(0, len(full), block_size)
-    ]
-
-    rng.shuffle(blocks)
-
-    return np.concatenate(blocks)
-
+    return full
 
 extended = generate_structure(series, repeats=6)
 
