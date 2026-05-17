@@ -13,37 +13,39 @@ DATASETS = {
 }
 
 def load_series(path):
-
     if not Path(path).exists():
         raise ValueError(f"Missing file: {path}")
 
     df = pd.read_csv(path, sep=None, engine="python")
 
-    # convert all to numeric
-    for col in df.columns:
-        df[col] = pd.to_numeric(df[col], errors="coerce")
-
-    df = df.dropna(axis=1, how="all")
+    best_series = None
+    best_score = 0
 
     for col in df.columns:
-        series = df[col].dropna().values
+        s = pd.to_numeric(df[col], errors="coerce").dropna().values
 
-        if len(series) < 200:
+        if len(s) < 200:
             continue
 
-        std = np.std(series)
+        std = np.std(s)
         if std < 1e-6:
             continue
 
-        # normalize
-        series = (series - np.mean(series)) / std
+        score = std * len(s)
 
-        return series
+        if score > best_score:
+            best_score = score
+            best_series = s
 
-    raise ValueError(f"No valid numeric column in {path}")
+    if best_series is None:
+        raise ValueError(f"No valid numeric column in {path}")
+
+    best_series = (best_series - np.mean(best_series)) / (np.std(best_series) + 1e-12)
+
+    return best_series
+
 
 def load_all():
-
     out = {}
 
     for name, path in DATASETS.items():
