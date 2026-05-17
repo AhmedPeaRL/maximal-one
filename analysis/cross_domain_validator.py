@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 from analysis.numerical_spectral_verification import estimate_alpha
+from analysis.load_real_datasets import load_all
 
 DATA_DIR = "real-data"
 
@@ -29,6 +30,23 @@ def load_series(path):
 def main():
     results = []
     failed = []
+    datasets = load_all()
+
+    for name, series in datasets.items():
+
+        alpha = estimate_alpha(series)
+
+        if not np.isfinite(alpha) or alpha < 0.3:
+            print(f"{name}: rejected")
+            continue
+
+        print(f"{name}: alpha={alpha}")
+        results.append(alpha)
+
+    if len(results) < 2:
+        raise SystemExit("❌ Cross-domain failed")
+
+    print("✅ CROSS DOMAIN REAL PASSED")
 
     for file in sorted(os.listdir(DATA_DIR)):
         if file.endswith(".csv"):
