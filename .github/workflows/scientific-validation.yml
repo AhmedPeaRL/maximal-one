@@ -124,6 +124,10 @@ jobs:
       - name: Anti self deception guard
         run: python analysis/anti_self_deception_guard.py
 
+      - name: Run canonical experiment ONLY
+        run: |
+          python scripts/generate_report.py --seed 42 --canonical
+          
       - name: Predictive validation
         run: |
           python - <<'PY'
@@ -168,11 +172,7 @@ jobs:
 
           print("✅ Prediction:", res)
           PY
-
-      - name: Run canonical experiment ONLY
-        run: |
-          python scripts/generate_report.py --seed 42 --canonical
-
+          
       - name: Extract alpha signal
         run: |
           python - <<'PY'
