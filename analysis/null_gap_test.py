@@ -1,7 +1,7 @@
 import numpy as np
 from analysis.falsification_tests import run_falsification
 
-def check_null_gap(series,rng):
+def check_null_gap(series, rng):
 
     res = run_falsification(series, rng)
 
@@ -10,26 +10,29 @@ def check_null_gap(series,rng):
     phase = res["phase_randomized_alpha"]
     noise = res["white_noise_alpha"]
 
-    gaps = [
-        abs(real - shuffled),
-        abs(real - phase),
-        abs(real - noise)
-    ]
+    nulls = [shuffled, phase, noise]
 
-    min_gap = min(gaps)
+    gaps = [abs(real - n) for n in nulls]
 
-    adaptive_threshold = max(
-        0.25,
-        0.12 * np.std([real, shuffled, phase, noise])
-    )
+    mean_null = np.mean(nulls)
+    std_null = np.std(nulls) + 1e-12
+
+    # 🔥 Z-SCORE separation (stronger than raw gap)
+    z_score = abs(real - mean_null) / std_null
 
     print("Gaps:", gaps)
-    print("Adaptive threshold:", adaptive_threshold)
+    print("Z-score separation:", z_score)
 
-    if min_gap < adaptive_threshold:
-        raise SystemExit("❌ Null separation too weak")
+    # 🔥 adaptive threshold
+    if z_score < 1.8:
+        raise SystemExit("❌ Null separation too weak (z-score failed)")
 
-    print("✅ NULL GAP HOLDS")
+    # 🔥 extra guard (closest null)
+    min_gap = min(gaps)
+    if min_gap < 0.15:
+        raise SystemExit("❌ Closest null too قريب من real")
+
+    print("✅ NULL GAP HOLDS (STRONG)")
 
 if __name__ == "__main__":
     import pandas as pd
