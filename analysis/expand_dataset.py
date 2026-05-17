@@ -58,9 +58,9 @@ def generate_structure(base, repeats=6):
         # 🔥 Long-range persistence (مش local smoothing)
         for j in range(2, len(window)):
             window[j] = (
-                0.6 * window[j-1] +
-                0.3 * window[j-2] +
-                0.1 * window[j]
+                window[j]
+                + 0.25 * np.sign(window[j-1]) * np.sqrt(abs(window[j-1]))
+                - 0.15 * window[j-2]**2
             )
 
         # 🔥 بلاش tanh (بيقتل structure)
@@ -74,6 +74,14 @@ def generate_structure(base, repeats=6):
 
     full = np.concatenate(segments)
 
+    # 🔥 break permutation symmetry
+    trend = np.linspace(-1, 1, len(full))
+    full = full + 0.3 * trend * np.sign(full)
+
+    coarse = full[::4]
+    coarse = np.repeat(coarse, 4)[:len(full)]
+
+    full = 0.7 * full + 0.3 * coarse
     full = (full - np.mean(full)) / (np.std(full) + 1e-12)
 
     return full
