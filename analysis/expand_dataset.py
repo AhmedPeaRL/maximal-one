@@ -30,7 +30,7 @@ df = pd.read_csv(INPUT_PATH, sep=';')
 series = df.iloc[:, 3].values.astype(np.float64)
 
 series = pd.to_numeric(series, errors="coerce")
-series = series[np.isfinite(series)])]
+series = series[np.isfinite(series)]
 
 if len(series) < 200:
     raise SystemExit("❌ Dataset too small after cleaning")
