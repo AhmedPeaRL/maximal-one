@@ -4,6 +4,9 @@ from pathlib import Path
 
 DATASETS = {
     "sunspots": "real-data/sunspots_full.csv",
+    "co2": "real-data/co2.csv",
+    "passengers": "real-data/airline_passengers.csv",
+    "cosmic_rays": "real-data/cosmic_rays_clean.csv",
     "extended": "real-data/sunspots_global_extended.csv",
     "temperature": "real-data/temperature_global.csv",
     "sp500": "real-data/sp500.csv"
@@ -14,7 +17,7 @@ def load_series(path):
     if not Path(path).exists():
         raise ValueError(f"Missing file: {path}")
 
-    df = pd.read_csv(path)
+    df = pd.read_csv(path, sep=None, engine="python")
 
     # convert all to numeric
     for col in df.columns:
