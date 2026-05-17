@@ -18,7 +18,7 @@ OUTPUT_PATH = "real-data/sunspots_global_extended.csv"
 # =========================
 # VALIDATION
 # =========================
-if not os.path.exists(INPUT_PATH):
+if not os.path.exists(INPUT_PATHS):
     raise SystemExit(f"❌ Missing dataset: {INPUT_PATH}")
 
 # =========================
