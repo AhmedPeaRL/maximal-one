@@ -118,15 +118,15 @@ jobs:
       - name: Irreducibility Killer Test (CRITICAL)
         run: python analysis/irreducibility_killer.py
 
+      - name: Cross-domain validation
+        run: |
+          python analysis/cross_domain_validator.py
+
       - name: Run causal hint
         run: python analysis/causal_hint.py
 
       - name: Anti self deception guard
         run: python analysis/anti_self_deception_guard.py
-
-      - name: Cross-domain validation
-        run: |
-          python analysis/cross_domain_validator.py
 
       - name: Predictive validation
         run: |
