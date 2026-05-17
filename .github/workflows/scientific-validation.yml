@@ -118,6 +118,15 @@ jobs:
       - name: Cross-domain validation
         run: |
           python analysis/cross_domain_validator.py
+          
+      - name: Irreducibility Killer Test (CRITICAL)
+        run: python analysis/irreducibility_killer.py
+
+      - name: Run causal hint
+        run: python analysis/causal_hint.py
+
+      - name: Anti self deception guard
+        run: python analysis/anti_self_deception_guard.py
 
       - name: Predictive validation
         run: |
@@ -229,12 +238,6 @@ jobs:
         run: |
           python analysis/null_gap_test.py
 
-      - name: Run causal hint
-        run: python analysis/causal_hint.py
-
-      - name: Anti self deception guard
-        run: python analysis/anti_self_deception_guard.py
-        
       - name: Statistical significance test (CRITICAL)
         run: python analysis/statistical_killer.py
 
@@ -244,9 +247,6 @@ jobs:
       - name: Dataset provenance guard
         run: |
           python analysis/dataset_provenance_guard.py
-
-      - name: Irreducibility Killer Test (CRITICAL)
-        run: python analysis/irreducibility_killer.py
 
       - name: Alpha diagnostics
         run: python analysis/alpha_diagnostics.py
