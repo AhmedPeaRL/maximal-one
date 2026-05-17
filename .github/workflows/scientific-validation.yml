@@ -115,51 +115,6 @@ jobs:
           print("✅ control datasets generated")
           PY
 
-      - name: Predictive validation
-        run: |
-          python - <<'PY'
-          import numpy as np
-          import pandas as pd
-
-          def detect_periodicity(series):
-              fft = np.abs(np.fft.rfft(series))**2
-              ratio = np.max(fft) / (np.mean(fft) + 1e-12)
-              return ratio
-
-          def run():
-              df = pd.read_csv("real-data/sunspots_global_extended.csv")
-              col = df.columns[0]
-
-              series = df[col].values
-
-              ratio = detect_periodicity(series)
-
-              print("Spectral peak ratio:", ratio)
-
-              if ratio > 50:
-                  raise SystemExit("❌ Synthetic periodic structure detected")
-
-              print("✅ No artificial periodic dominance")
-
-          if __name__ == "__main__":
-              run()
-              
-          import pandas as pd
-          from analysis.predictive_validation import evaluate_prediction
-
-          df = pd.read_csv("real-data/sunspots_global_extended.csv")
-          col = "Sunspots" if "Sunspots" in df.columns else "value"
-
-          res = evaluate_prediction(df[col].values)
-
-          if not res["valid"]:
-              raise SystemExit(
-                  f"❌ Predictive regime validation failed: {res}"
-              )
-
-          print("✅ Prediction:", res)
-          PY
-
       - name: Irreducibility Killer Test (CRITICAL)
         run: python analysis/irreducibility_killer.py
 
@@ -169,6 +124,9 @@ jobs:
 
       - name: Run causal hint
         run: python analysis/causal_hint.py
+
+      - name: Anti self deception guard
+        run: python analysis/anti_self_deception_guard.py
 
       - name: Run canonical experiment ONLY
         run: |
@@ -231,8 +189,50 @@ jobs:
           print("✅ STRICT CLAIM HOLDS")
           PY
 
-      - name: Anti self deception guard
-        run: python analysis/anti_self_deception_guard.py
+      - name: Predictive validation
+        run: |
+          python - <<'PY'
+          import numpy as np
+          import pandas as pd
+
+          def detect_periodicity(series):
+              fft = np.abs(np.fft.rfft(series))**2
+              ratio = np.max(fft) / (np.mean(fft) + 1e-12)
+              return ratio
+
+          def run():
+              df = pd.read_csv("real-data/sunspots_global_extended.csv")
+              col = df.columns[0]
+
+              series = df[col].values
+
+              ratio = detect_periodicity(series)
+
+              print("Spectral peak ratio:", ratio)
+
+              if ratio > 50:
+                  raise SystemExit("❌ Synthetic periodic structure detected")
+
+              print("✅ No artificial periodic dominance")
+
+          if __name__ == "__main__":
+              run()
+              
+          import pandas as pd
+          from analysis.predictive_validation import evaluate_prediction
+
+          df = pd.read_csv("real-data/sunspots_global_extended.csv")
+          col = "Sunspots" if "Sunspots" in df.columns else "value"
+
+          res = evaluate_prediction(df[col].values)
+
+          if not res["valid"]:
+              raise SystemExit(
+                  f"❌ Predictive regime validation failed: {res}"
+              )
+
+          print("✅ Prediction:", res)
+          PY
 
       - name: Statistical significance test (CRITICAL)
         run: python analysis/statistical_killer.py
