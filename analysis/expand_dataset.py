@@ -4,10 +4,16 @@ import numpy as np
 
 output_path = "real-data/sunspots_global_extended.csv"
 
-if not os.path.exists("real-data/sunspots_global.csv"):
+if not os.path.exists("real-data/sunspots_full.csv", 
+                     "real-data/temperature_global.csv", 
+                     "real-data/airline_passengers.csv", 
+                     "real-data/co2_atmospheric.csv"):
     raise SystemExit("❌ base dataset missing")
 
-df = pd.read_csv("real-data/sunspots_global.csv")
+df = pd.read_csv("real-data/sunspots_full.csv", 
+                     "real-data/temperature_global.csv", 
+                     "real-data/airline_passengers.csv", 
+                     "real-data/co2_atmospheric.csv")
 series = df.iloc[:, 0].values.astype(np.float64)
 
 rng = np.random.default_rng(42)
