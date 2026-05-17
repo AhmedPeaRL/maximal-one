@@ -13,45 +13,39 @@ series = df.iloc[:, 0].values.astype(np.float64)
 rng = np.random.default_rng(42)
 
 # =========================
-# 🔥 MULTI-SCALE PRESERVATION
+# 🔥 TRUE SCALE-INVARIANT EXTENSION
 # =========================
 
-def generate_multiscale_series(base, rng, repeats=4):
+def generate_self_similar_series(base, repeats=6):
 
     base = np.asarray(base, dtype=np.float64)
-    n = len(base)
+    base = (base - np.mean(base)) / (np.std(base) + 1e-12)
 
-    # 🔥 FFT
-    fft = np.fft.rfft(base)
-    mag = np.abs(fft)
+    segments = []
 
-    # 🔥 phase randomization (لكن محافظ على spectrum)
-    new_series = []
+    for i in range(repeats):
 
-    for _ in range(repeats):
+        # 🔥 random amplitude scaling (preserves structure)
+        scale = 1.0 + np.random.uniform(-0.1, 0.1)
 
-        phases = rng.uniform(0, 2*np.pi, len(fft))
-        phases[0] = 0.0
-        if n % 2 == 0:
-            phases[-1] = 0.0
+        # 🔥 slight shift
+        shift = np.random.randint(0, len(base))
+        shifted = np.roll(base, shift)
 
-        new_fft = mag * np.exp(1j * phases)
+        # 🔥 very mild noise
+        noise = np.random.normal(0, 0.01, len(base))
 
-        s = np.fft.irfft(new_fft, n=n)
+        new_segment = scale * shifted + noise
 
-        # 🔥 slight perturbation بدون كسر scale
-        noise = rng.normal(0, np.std(s)*0.02, n)
-        s = s + noise
+        segments.append(new_segment)
 
-        new_series.append(s)
+    return np.concatenate(segments)
 
-    return np.concatenate(new_series)
-    
-extended = generate_multiscale_series(series, rng, repeats=6)
+extended = generate_self_similar_series(series, repeats=6)
 
-# 🔥 final normalization (global)
+# 🔥 final normalization
 extended = (extended - np.mean(extended)) / (np.std(extended) + 1e-12)
 
 pd.DataFrame({"Sunspots": extended}).to_csv(output_path, index=False)
 
-print("✅ extended dataset generated (MULTI-SCALE PRESERVED):", len(extended))
+print("✅ extended dataset generated (TRUE SCALE-INVARIANT):", len(extended))
