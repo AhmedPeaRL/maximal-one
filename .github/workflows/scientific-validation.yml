@@ -115,6 +115,15 @@ jobs:
           print("✅ control datasets generated")
           PY
 
+      - name: Irreducibility Killer Test (CRITICAL)
+        run: python analysis/irreducibility_killer.py
+
+      - name: Run causal hint
+        run: python analysis/causal_hint.py
+
+      - name: Anti self deception guard
+        run: python analysis/anti_self_deception_guard.py
+
       - name: Cross-domain validation
         run: |
           python analysis/cross_domain_validator.py
@@ -164,15 +173,6 @@ jobs:
           print("✅ Prediction:", res)
           PY
 
-      - name: Irreducibility Killer Test (CRITICAL)
-        run: python analysis/irreducibility_killer.py
-
-      - name: Run causal hint
-        run: python analysis/causal_hint.py
-
-      - name: Anti self deception guard
-        run: python analysis/anti_self_deception_guard.py
-        
       - name: Run canonical experiment ONLY
         run: |
           python scripts/generate_report.py --seed 42 --canonical
@@ -200,6 +200,39 @@ jobs:
 
           print("PASS: non-trivial structure detected")
           PY
+
+      - name: Dataset provenance guard
+        run: |
+          python analysis/dataset_provenance_guard.py
+
+      - name: Alpha diagnostics
+        run: python analysis/alpha_diagnostics.py
+          
+      - name: Canonical consensus guard
+        run: |
+          python analysis/canonical_consensus_guard.py
+
+      - name: Cross-domain band guard
+        run: |
+          python analysis/cross_domain_band_guard.py
+
+      - name: Preferred Band Guard
+        run: |
+          python analysis/preferred_band_guard.py
+
+      - name: Theoretical consistency guard
+        run: |
+          python analysis/theoretical_consistency_guard.py
+          
+      - name: Null Gap Test
+        run: |
+          python analysis/null_gap_test.py
+
+      - name: Statistical significance test (CRITICAL)
+        run: python analysis/statistical_killer.py
+
+      - name: Advanced Null Killer (CRITICAL)
+        run: python analysis/advanced_null_killer.py
 
       - name: Extract alpha (fixed)
         run: |
@@ -233,43 +266,6 @@ jobs:
 
           print("✅ STRICT CLAIM HOLDS")
           PY
-          
-      - name: Null Gap Test
-        run: |
-          python analysis/null_gap_test.py
-
-      - name: Statistical significance test (CRITICAL)
-        run: python analysis/statistical_killer.py
-
-      - name: Advanced Null Killer (CRITICAL)
-        run: python analysis/advanced_null_killer.py
-        
-      - name: Dataset provenance guard
-        run: |
-          python analysis/dataset_provenance_guard.py
-
-      - name: Alpha diagnostics
-        run: python analysis/alpha_diagnostics.py
-          
-      - name: Canonical consensus guard
-        run: |
-          python analysis/canonical_consensus_guard.py
-
-      - name: Cross-domain band guard
-        run: |
-          python analysis/cross_domain_band_guard.py
-
-      - name: Preferred Band Guard
-        run: |
-          python analysis/preferred_band_guard.py
-
-      - name: Theoretical consistency guard
-        run: |
-          python analysis/theoretical_consistency_guard.py
-
-      - name: Physical interpretation
-        run: |
-          python analysis/physical_interpretation.py
 
       - name: Run multi-dataset proof
         run: |
@@ -286,6 +282,10 @@ jobs:
       - name: Anti forced structure guard
         run: |
           python analysis/anti_forced_structure_guard.py
+          
+      - name: Physical interpretation
+        run: |
+          python analysis/physical_interpretation.py
 
       - name: Numerical consistency check
         run: |
