@@ -4,7 +4,7 @@ from pathlib import Path
 
 DATASETS = {
     "sunspots": "real-data/sunspots_full.csv",
-    "co2": "real-data/co2.csv",
+    "co2": "real-data/co2_atmospheric_clean.csv",
     "passengers": "real-data/airline_passengers.csv",
     "cosmic_rays": "real-data/cosmic_rays_clean.csv",
     "extended": "real-data/sunspots_global_extended.csv",
