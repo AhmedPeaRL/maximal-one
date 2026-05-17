@@ -172,10 +172,6 @@ jobs:
 
           print("✅ Prediction:", res)
           PY
-          
-      - name: Null Gap Test
-        run: |
-          python analysis/null_gap_test.py
 
       - name: Run canonical experiment ONLY
         run: |
@@ -204,6 +200,10 @@ jobs:
 
           print("PASS: non-trivial structure detected")
           PY
+
+      - name: Null Gap Test
+        run: |
+          python analysis/null_gap_test.py
 
       - name: Dataset provenance guard
         run: |
