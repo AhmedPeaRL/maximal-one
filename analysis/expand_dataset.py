@@ -25,49 +25,40 @@ def generate_structure(base, repeats=6):
 
     for i in range(repeats):
 
-        # 🔥 random slice
-        start = rng.integers(0, len(base) // 2)
-        length = rng.integers(len(base)//4, len(base))
-        window = base[start:start+length]
+        # 🔥 completely random subspace projection
+        idx = rng.choice(len(base), size=rng.integers(50, len(base)), replace=False)
+        window = base[idx]
 
-        # 🔥 NON-UNIFORM RESAMPLING (CRITICAL FIX)
-        target_len = rng.integers(len(base)//2, int(len(base)*1.5))
+        # 🔥 random permutation (DESTROYS ORDER MEMORY)
+        window = rng.permutation(window)
 
-        x_old = np.linspace(0, 1, len(window))
-        x_new = np.sort(rng.uniform(0, 1, target_len))  # 🔥 irregular grid
+        # 🔥 random nonlinear mixing
+        mix = rng.normal(0, 1, len(window))
+        window = 0.7 * window + 0.3 * mix
 
-        warped = np.interp(x_new, x_old, window)
+        # 🔥 chaotic warping (NOT interpolation-based)
+        warped = np.tanh(window * rng.uniform(0.5, 2.5))
 
-        # 🔥 random cut again (kills structure memory)
-        cut_start = rng.integers(0, len(warped)//3)
-        cut_len = rng.integers(len(warped)//2, len(warped))
-        warped = warped[cut_start:cut_start+cut_len]
+        # 🔥 stochastic differential evolution step
+        for _ in range(3):
+            noise = rng.normal(0, 0.1, len(warped))
+            warped = warped + noise * np.gradient(warped)
 
-        # 🔥 nonlinear distortion (stronger)
-        distorted = np.sign(warped) * (np.abs(warped) ** rng.uniform(0.6, 0.9))
+        # 🔥 break any residual structure
+        warped = rng.permutation(warped)
 
-        # 🔥 amplitude randomization
-        scale = rng.uniform(0.5, 1.5)
+        segments.append(warped)
 
-        # 🔥 adaptive noise (important)
-        noise = rng.normal(0, 0.03 * np.std(distorted), len(distorted))
-
-        segment = scale * distorted + noise
-
-        segments.append(segment)
-
-    # 🔥 concatenate WITHOUT forcing equal lengths
     full = np.concatenate(segments)
 
-    # 🔥 FINAL RANDOM RESAMPLING (DESTROYS GLOBAL PERIODICITY)
-    target_final = len(base) * repeats
+    # 🔥 FINAL DESTRUCTIVE MIX
+    noise = rng.normal(0, np.std(full)*0.5, len(full))
+    full = 0.6 * full + 0.4 * noise
 
-    x_old = np.linspace(0, 1, len(full))
-    x_new = np.sort(rng.uniform(0, 1, target_final))
+    # 🔥 normalize
+    full = (full - np.mean(full)) / (np.std(full) + 1e-12)
 
-    final = np.interp(x_new, x_old, full)
-
-    return final
+    return full
 
 extended = generate_structure(series, repeats=6)
 
