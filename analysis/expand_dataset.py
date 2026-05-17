@@ -12,50 +12,39 @@ series = df.iloc[:, 0].values.astype(np.float64)
 
 rng = np.random.default_rng(42)
 
-# =========================
-# 🔥 TRUE NON-PERIODIC STRUCTURE (FIXED)
-# =========================
-
 def generate_structure(base, repeats=6):
 
     base = np.asarray(base, dtype=np.float64)
+
+    # normalize
     base = (base - np.mean(base)) / (np.std(base) + 1e-12)
 
     segments = []
 
     for i in range(repeats):
 
-        # 🔥 completely random subspace projection
-        idx = rng.choice(len(base), size=rng.integers(50, len(base)), replace=False)
-        window = base[idx]
+        # 🔥 take contiguous chunk (preserve structure)
+        start = rng.integers(0, len(base) - 200)
+        window = base[start:start + rng.integers(150, 300)]
 
-        # 🔥 random permutation (DESTROYS ORDER MEMORY)
-        window = rng.permutation(window)
+        # 🔥 controlled noise (NOT destructive)
+        noise = rng.normal(0, 0.2, len(window))
 
-        # 🔥 random nonlinear mixing
-        mix = rng.normal(0, 1, len(window))
-        window = 0.7 * window + 0.3 * mix
+        # 🔥 persistent mixing (keeps memory)
+        for j in range(1, len(window)):
+            window[j] = 0.85 * window[j-1] + 0.15 * window[j]
 
-        # 🔥 chaotic warping (NOT interpolation-based)
-        warped = np.tanh(window * rng.uniform(0.5, 2.5))
+        # 🔥 mild nonlinear transform (NOT killing spectrum)
+        window = np.tanh(window * rng.uniform(0.8, 1.2))
 
-        # 🔥 stochastic differential evolution step
-        for _ in range(3):
-            noise = rng.normal(0, 0.1, len(warped))
-            warped = warped + noise * np.gradient(warped)
+        # 🔥 add noise
+        window = window + noise
 
-        # 🔥 break any residual structure
-        warped = rng.permutation(warped)
-
-        segments.append(warped)
+        segments.append(window)
 
     full = np.concatenate(segments)
 
-    # 🔥 FINAL DESTRUCTIVE MIX
-    noise = rng.normal(0, np.std(full)*0.5, len(full))
-    full = 0.6 * full + 0.4 * noise
-
-    # 🔥 normalize
+    # 🔥 FINAL LIGHT NORMALIZATION (NO DESTRUCTION)
     full = (full - np.mean(full)) / (np.std(full) + 1e-12)
 
     return full
