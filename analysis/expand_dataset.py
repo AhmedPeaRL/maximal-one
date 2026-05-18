@@ -15,7 +15,7 @@ if not os.path.exists(INPUT_PATH):
     raise SystemExit(f"❌ Missing dataset: {INPUT_PATH}")
 
 # auto-detect separator
-df = pd.read_csv(INPUT_PATH, sep=None, engine="python")
+df = pd.read_csv(INPUT_PATH, sep=";", engine="python")
 
 # convert all to numeric
 for col in df.columns:
