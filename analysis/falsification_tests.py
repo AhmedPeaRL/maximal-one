@@ -1,8 +1,6 @@
 import numpy as np
-
 from analysis.numerical_spectral_verification import estimate_alpha
 from analysis.spectral_surrogate import phase_randomized_surrogate
-
 
 def shuffle_test(series, rng):
     shuffled = rng.permutation(series)
@@ -25,11 +23,9 @@ def phase_randomization(series, rng):
     surrogate = phase_randomized_surrogate(series, rng)
     return estimate_alpha(surrogate)
 
-
 def white_noise_control(n, rng):
     wn = rng.standard_normal(n)
     return estimate_alpha(wn)
-
 
 def run_falsification(series, rng):
     results = {}
