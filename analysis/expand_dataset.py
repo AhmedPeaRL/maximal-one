@@ -14,7 +14,6 @@ OUTPUT_PATH = "real-data/sunspots_global_extended.csv"
 if not os.path.exists(INPUT_PATH):
     raise SystemExit(f"❌ Missing dataset: {INPUT_PATH}")
 
-# auto-detect separator
 df = pd.read_csv(INPUT_PATH, sep=";", engine="python")
 
 # convert all to numeric
