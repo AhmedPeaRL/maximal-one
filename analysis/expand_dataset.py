@@ -50,14 +50,15 @@ def generate_structure(base):
     out = np.zeros_like(base)
 
     for i in range(1, n):
-        # memory بدون kernel ثابت
-        lag = rng.integers(1, min(i, 50))
-        memory = 0.5 * out[i - lag]
+        upper = min(i, 50)
 
-        # innovation مش خطية
+        if upper <= 1:
+            memory = 0.0
+        else:
+            lag = rng.integers(1, upper)
+            memory = 0.5 * out[i - lag]
+
         innovation = 0.3 * np.tanh(base[i])
-
-        # noise غير ثابت
         noise = rng.normal(0, 0.2 + 0.1 * np.abs(base[i]))
 
         out[i] = memory + innovation + noise
