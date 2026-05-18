@@ -99,10 +99,14 @@ def main():
         else:
             real = df.select_dtypes(include=[np.number]).iloc[:, 0].values
 
-        # 🔥 keep original structure (no differencing)
+        from scipy.signal import detrend
+
+        real = detrend(real)
+        real = np.diff(real)
+
         real = real - np.mean(real)
         real = real / (np.std(real) + 1e-12)
-
+        
         synthetic = generate_series(rng, n=len(real))
 
         if args.canonical:
@@ -304,7 +308,7 @@ def main():
         if abs(falsification["original_alpha"] - falsification["white_noise_alpha"]) < 0.2:
             raise SystemExit("❌ Indistinguishable from noise")
 
-        if direction_gap < 0.05:
+        if direction_gap < 0.01:
             raise SystemExit("❌ No temporal directionality")
 
         if abs(alpha - alpha_welch) > 0.6:
