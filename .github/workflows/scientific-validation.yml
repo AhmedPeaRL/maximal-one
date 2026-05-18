@@ -154,8 +154,8 @@ jobs:
               print("Spectral peak ratio:", ratio)
 
               if ratio > 50 and np.std(series) > 1:
-                  raise SystemExit("❌ Synthetic periodic structure detected")
-
+                  print("❌ HIGH PERIODICITY DETECTED:", ratio)
+                  raise SystemExit("Periodic artifact detected")
               print("✅ No artificial periodic dominance")
 
           if __name__ == "__main__":
