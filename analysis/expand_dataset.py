@@ -29,16 +29,14 @@ series = series.astype(np.float64)
 
 rng = np.random.default_rng(42)
 
-# 🔥 FIXED CHAOTIC TRANSFORM (NO PERIODICITY)
 def chaotic_transform(x):
     out = np.zeros_like(x)
-    out[:3] = x[:3]
+    out[0] = x[0]
 
-    for i in range(3, len(x)):
+    for i in range(1, len(x)):
         out[i] = (
-            0.45 * np.tanh(x[i-1]) +
-            0.25 * x[i-2] * np.sign(x[i-3]) +
-            0.2 * np.log1p(abs(x[i])) * np.sign(x[i]) +
+            0.6 * np.tanh(x[i-1]) +
+            0.3 * np.sign(x[i-1]) * abs(x[i-1])**0.5 +
             0.1 * rng.normal()
         )
 
@@ -49,11 +47,9 @@ def generate_structure(base):
 
     segments = []
 
-    for _ in range(8):
-        n = len(base)
-
-        start = rng.integers(0, int(0.6 * n))
-        length = rng.integers(int(0.3 * n), int(0.6 * n))
+    for _ in range(6):  # reduced complexity
+        start = rng.integers(0, len(base)//2)
+        length = rng.integers(len(base)//4, len(base)//2)
 
         segment = base[start:start+length]
 
@@ -62,31 +58,17 @@ def generate_structure(base):
 
         segment = chaotic_transform(segment)
 
-        # 🔥 REDUCED MEMORY (CRITICAL FIX)
-        for i in range(1, len(segment)):
-            segment[i] += 0.45 * segment[i-1]
+        # remove feedback amplification (IMPORTANT FIX)
+        segment = np.convolve(segment, np.ones(3)/3, mode="same")
 
-        # 🔥 RANDOM RESAMPLING بدل warp
-        idx = np.sort(rng.choice(len(segment), size=len(segment), replace=True))
-        segment = segment[idx]
-
-        # 🔥 NOISE CONTROLLED
-        noise = rng.normal(0, 0.3 * np.std(segment), len(segment))
+        noise = rng.normal(0, 0.2, len(segment))
         segment = segment + noise
 
         segments.append(segment)
 
     full = np.concatenate(segments)
 
-    # 🔥 STRUCTURE-PRESERVING MIX (بديل آمن)
-    mix_strength = 0.15
-    shift = rng.integers(1, len(full)//10)
-
-    full = (
-        (1 - mix_strength) * full +
-        mix_strength * np.roll(full, shift)
-    )
-
+    # NO SHIFT MIXING
     full = (full - np.mean(full)) / (np.std(full) + 1e-12)
 
     return full
