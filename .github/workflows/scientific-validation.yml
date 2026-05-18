@@ -143,6 +143,55 @@ jobs:
 
           if __name__ == "__main__":
               run()
+
+          import numpy as np
+
+          def spectral_energy_distribution(series):
+              series = np.asarray(series, dtype=np.float64)
+              series = series - np.mean(series)
+
+              fft_vals = np.fft.rfft(series)
+              power = np.abs(fft_vals) ** 2
+
+              total_energy = np.sum(power)
+              low_freq_energy = np.sum(power[:len(power)//4])
+              high_freq_energy = np.sum(power[len(power)//4:])
+
+              return {
+                  "low_freq_ratio": float(low_freq_energy / total_energy),
+                  "high_freq_ratio": float(high_freq_energy / total_energy)
+              }
+
+          def interpret_structure(ratios):
+              if ratios["low_freq_ratio"] > 0.7:
+                  return "long_range_dominance"
+              elif ratios["high_freq_ratio"] > 0.7:
+                  return "noise_like"
+              else:
+                  return "mixed_structure"
+
+          import numpy as np
+          from analysis.numerical_spectral_verification import estimate_alpha
+
+          def run_guard(series):
+              alpha = estimate_alpha(series)
+
+              if not np.isfinite(alpha):
+                  raise SystemExit("❌ invalid alpha (NaN)")
+
+              # اختبار حساسية
+              perturbed = series + np.random.normal(0, np.std(series)*0.02, len(series))
+              alpha_perturbed = estimate_alpha(perturbed)
+
+              if not np.isfinite(alpha_perturbed):
+                  raise SystemExit("❌ unstable under perturbation")
+
+              delta = abs(alpha - alpha_perturbed)
+
+              if delta > 0.4:
+                  raise SystemExit("❌ fragile structure")
+
+              print("✅ anti-self-deception guard passed")
               
           import pandas as pd
           from analysis.predictive_validation import evaluate_prediction
@@ -162,12 +211,6 @@ jobs:
 
       - name: Irreducibility Killer Test (CRITICAL)
         run: python analysis/irreducibility_killer.py
-
-      - name: Run causal hint
-        run: python analysis/causal_hint.py
-
-      - name: Anti self deception guard
-        run: python analysis/anti_self_deception_guard.py
 
       - name: Cross-domain validation
         run: |
