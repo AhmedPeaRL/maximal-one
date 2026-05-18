@@ -42,6 +42,10 @@ series = series.astype(np.float64)
 rng = np.random.default_rng(42)
 
 def generate_structure(base, repeats=6):
+    base = np.asarray(base, dtype=np.float64)
+
+    # تنظيف الأول
+    base = base[np.isfinite(base)]
     base = (base - np.mean(base)) / (np.std(base) + 1e-12)
 
     segments = []
@@ -49,41 +53,38 @@ def generate_structure(base, repeats=6):
     for _ in range(repeats):
         n = len(base)
 
-        # 🔥 خليك تاخد segments طويلة
-        window_size = rng.integers(int(0.4*n), int(0.8*n))
+        window_size = rng.integers(int(0.4*n), int(0.7*n))
         start = rng.integers(0, n - window_size)
 
         window = base[start:start + window_size].copy()
 
-        # 🔥 Long-range persistence (مش local smoothing)
+        # ✅ SAFE dynamics (بدون explosion)
         for j in range(2, len(window)):
+            prev = window[j-1]
+            prev2 = window[j-2]
+
             window[j] = (
-                window[j]
-                + 0.25 * np.sign(window[j-1]) * np.sqrt(abs(window[j-1]))
-                - 0.15 * window[j-2]**2
+                0.85 * window[j] +
+                0.1 * prev +
+                0.05 * np.sign(prev) * np.sqrt(abs(prev))
+                - 0.02 * np.tanh(prev2)   # بدل power
             )
 
-        # 🔥 بلاش tanh (بيقتل structure)
-        # window = np.tanh(window)
-
-        # 🔥 noise أخف بكتير
-        noise = rng.normal(0, 0.05, len(window))
-        window += noise
+        # noise خفيف
+        window += rng.normal(0, 0.03, len(window))
 
         segments.append(window)
 
     full = np.concatenate(segments)
 
-    # 🔥 break permutation symmetry
-    trend = np.linspace(-1, 1, len(full))
-    full = full + 0.3 * trend * np.sign(full)
+    # trend خفيف
+    trend = np.linspace(-0.5, 0.5, len(full))
+    full = full + 0.1 * trend
 
-    coarse = full[::4]
-    coarse = np.repeat(coarse, 4)[:len(full)]
-
-    full = 0.7 * full + 0.3 * coarse
+    # normalize آمن
+    full = full[np.isfinite(full)]
     full = (full - np.mean(full)) / (np.std(full) + 1e-12)
-    
+
     return full
 
 # =========================
