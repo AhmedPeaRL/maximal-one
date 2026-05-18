@@ -64,7 +64,7 @@ def generate_structure(base):
 
         # 🔥 REDUCED MEMORY (CRITICAL FIX)
         for i in range(1, len(segment)):
-            segment[i] += 0.25 * segment[i-1]
+            segment[i] += 0.45 * segment[i-1]
 
         # 🔥 RANDOM RESAMPLING بدل warp
         idx = np.sort(rng.choice(len(segment), size=len(segment), replace=True))
@@ -78,9 +78,14 @@ def generate_structure(base):
 
     full = np.concatenate(segments)
 
-    # 🔥 FINAL RANDOMIZATION
-    shuffle_idx = rng.permutation(len(full))
-    full = full[shuffle_idx]
+    # 🔥 STRUCTURE-PRESERVING MIX (بديل آمن)
+    mix_strength = 0.15
+    shift = rng.integers(1, len(full)//10)
+
+    full = (
+        (1 - mix_strength) * full +
+        mix_strength * np.roll(full, shift)
+    )
 
     full = (full - np.mean(full)) / (np.std(full) + 1e-12)
 
