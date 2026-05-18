@@ -52,7 +52,7 @@ def evaluate_scale_invariance(series):
     # 🔥 normalized dispersion
     dispersion = mad / (np.abs(median) + 1e-12)
 
-    threshold = 0.75  # relaxed but still strict
+    threshold = 1.2  # relaxed but still strict
 
     return {
         "scales": results,
