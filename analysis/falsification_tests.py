@@ -6,8 +6,20 @@ from analysis.spectral_surrogate import phase_randomized_surrogate
 
 def shuffle_test(series, rng):
     shuffled = rng.permutation(series)
-    return estimate_alpha(shuffled)
 
+    # فرق مهم: استخدم difference signal
+    real_diff = np.diff(series)
+    shuf_diff = np.diff(shuffled)
+
+    a1 = estimate_alpha(real_diff)
+    a2 = estimate_alpha(shuf_diff)
+
+    return a2
+
+def temporal_direction_test(series):
+    forward = estimate_alpha(series)
+    backward = estimate_alpha(series[::-1])
+    return abs(forward - backward)
 
 def phase_randomization(series, rng):
     surrogate = phase_randomized_surrogate(series, rng)
