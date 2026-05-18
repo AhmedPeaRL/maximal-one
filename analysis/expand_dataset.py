@@ -47,9 +47,6 @@ def generate_structure(base):
     base = base.copy()
     base = (base - np.mean(base)) / (np.std(base) + 1e-12)
 
-    # 🔥 shuffle BEFORE anything (kills memory loop)
-    base = rng.permutation(base)
-
     segments = []
 
     for _ in range(8):
@@ -63,26 +60,25 @@ def generate_structure(base):
         if len(segment) < 100:
             continue
 
-        # 🔥 chaotic transform
         segment = chaotic_transform(segment)
 
-        # 🔥 random warping (kills periodicity)
+        # 🔥 reinforce temporal memory
+        for i in range(1, len(segment)):
+            segment[i] += 0.6 * segment[i-1]
+
         warp = np.linspace(0, 1, len(segment))
-        warp = warp ** rng.uniform(0.5, 2.0)
+        warp = warp ** rng.uniform(0.8, 1.2)
         segment = np.interp(warp, np.linspace(0,1,len(segment)), segment)
 
-        # 🔥 heavy stochastic mixing
         noise = rng.normal(0, np.std(segment), len(segment))
-        segment = 0.7 * segment + 0.3 * noise
+        segment = 0.9 * segment + 0.1 * noise
 
         segments.append(segment)
 
     full = np.concatenate(segments)
 
-    # 🔥 break any remaining structure
-    full += rng.normal(0, 0.2, len(full))
+    full += rng.normal(0, 0.05, len(full))
 
-    # 🔥 DO NOT over-normalize
     full = (full - np.mean(full)) / (np.std(full) + 1e-12)
 
     return full
