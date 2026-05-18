@@ -107,6 +107,8 @@ def main():
 
         if args.canonical:
             series = real.copy()
+            series = series - np.mean(series)
+            series = series / (np.std(series) + 1e-12)
             
             generator_type = "pure_real"
         else:
