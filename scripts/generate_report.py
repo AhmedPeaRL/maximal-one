@@ -160,11 +160,13 @@ def main():
             raise SystemExit(f"❌ Unphysical alpha detected: {alpha}")
     
         from analysis.falsification_tests import run_falsification
+        from analysis.falsification_tests import temporal_direction_test
         from analysis.numerical_spectral_verification import block_bootstrap
         from analysis.statistical_significance import monte_carlo_p_value
         from analysis.multi_scale_validation import evaluate_scale_invariance
 
         falsification_rng = np.random.default_rng(args.seed + 101)
+        direction_gap = temporal_direction_test(series)
         bootstrap_rng = np.random.default_rng(args.seed + 202)
         stats_rng = np.random.default_rng(args.seed + 303)
         series = series - np.mean(series)
@@ -301,6 +303,9 @@ def main():
 
         if abs(falsification["original_alpha"] - falsification["white_noise_alpha"]) < 0.2:
             raise SystemExit("❌ Indistinguishable from noise")
+
+        if direction_gap < 0.05:
+            raise SystemExit("❌ No temporal directionality")
 
         if abs(alpha - alpha_welch) > 0.6:
             raise SystemExit("❌ Method inconsistency too high")
