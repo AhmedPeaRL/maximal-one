@@ -119,32 +119,6 @@ jobs:
         run: |
           python - <<'PY'
           import numpy as np
-          import pandas as pd
-
-          def detect_periodicity(series):
-              fft = np.abs(np.fft.rfft(series))**2
-              ratio = np.max(fft) / (np.mean(fft) + 1e-12)
-              return ratio
-
-          def run():
-              df = pd.read_csv("real-data/sunspots_global_extended.csv")
-              col = df.columns[0]
-
-              series = df[col].values
-
-              ratio = detect_periodicity(series)
-
-              print("Spectral peak ratio:", ratio)
-
-              if ratio > 20:
-                  print("❌ HIGH PERIODICITY DETECTED:", ratio)
-                  raise SystemExit("Periodic artifact detected")
-              print("✅ No artificial periodic dominance")
-
-          if __name__ == "__main__":
-              run()
-
-          import numpy as np
 
           def spectral_energy_distribution(series):
               series = np.asarray(series, dtype=np.float64)
@@ -192,6 +166,32 @@ jobs:
                   raise SystemExit("❌ fragile structure")
 
               print("✅ anti-self-deception guard passed")
+              
+          import numpy as np
+          import pandas as pd
+
+          def detect_periodicity(series):
+              fft = np.abs(np.fft.rfft(series))**2
+              ratio = np.max(fft) / (np.mean(fft) + 1e-12)
+              return ratio
+
+          def run():
+              df = pd.read_csv("real-data/sunspots_global_extended.csv")
+              col = df.columns[0]
+
+              series = df[col].values
+
+              ratio = detect_periodicity(series)
+
+              print("Spectral peak ratio:", ratio)
+
+              if ratio > 20:
+                  print("❌ HIGH PERIODICITY DETECTED:", ratio)
+                  raise SystemExit("Periodic artifact detected")
+              print("✅ No artificial periodic dominance")
+
+          if __name__ == "__main__":
+              run()
               
           import pandas as pd
           from analysis.predictive_validation import evaluate_prediction
