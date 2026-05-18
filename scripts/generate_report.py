@@ -296,7 +296,7 @@ def main():
             }
         }
 
-        if abs(falsification["original_alpha"] - falsification["shuffled_alpha"]) < 0.2:
+        if abs(falsification["original_alpha"] - falsification["shuffled_alpha"]) < 0.35:
             raise SystemExit("❌ Structure not real (shuffle invariant)")
 
         if abs(falsification["original_alpha"] - falsification["white_noise_alpha"]) < 0.2:
