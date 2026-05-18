@@ -177,7 +177,7 @@ jobs:
 
               print("Spectral peak ratio:", ratio)
 
-              if ratio > 120:
+              if ratio > 20:
                   print("❌ HIGH PERIODICITY DETECTED:", ratio)
                   raise SystemExit("Periodic artifact detected")
               print("✅ No artificial periodic dominance")
