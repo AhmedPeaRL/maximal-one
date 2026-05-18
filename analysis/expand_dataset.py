@@ -48,22 +48,29 @@ def generate_structure(base):
     rng = np.random.default_rng(42)
 
     out = np.zeros_like(base)
-
-    # seed البداية
     out[0] = base[0]
 
     for i in range(1, len(base)):
 
-        noise = rng.normal(0, 0.15)
+        # 🔥 تقليل الـ memory لتفادي resonance
+        memory = 0.55 * out[i-1]
 
-        memory = 0.75 * out[i-1]
+        # 🔥 إدخال decorrelation
+        lag = rng.integers(1, 5)
+        delayed = base[i-lag] if i-lag >= 0 else base[i]
 
-        innovation = 0.25 * base[i]
+        innovation = 0.3 * delayed
+
+        # 🔥 noise أقوى شوية
+        noise = rng.normal(0, 0.25)
 
         out[i] = memory + innovation + noise
 
-    # non-linear distortion خفيف (بدون periodicity)
-    out = np.tanh(out)
+    # 🔥 إزالة أي trend دوري خفي
+    out = out - np.convolve(out, np.ones(15)/15, mode='same')
+
+    # 🔥 non-linearity خفيفة
+    out = np.tanh(0.8 * out)
 
     # normalization
     out = (out - np.mean(out)) / (np.std(out) + 1e-12)
