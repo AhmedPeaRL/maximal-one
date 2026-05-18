@@ -2,14 +2,12 @@ import numpy as np
 from analysis.numerical_spectral_verification import estimate_alpha
 
 def separation_score(real, null_samples):
-
     real_alpha = estimate_alpha(real)
 
-    null_alphas = [
-        estimate_alpha(x)
-        for x in null_samples
-        if np.isfinite(estimate_alpha(x))
-    ]
+def null_model(n, rng):
+    x = rng.standard_normal(n)
+    x = np.cumsum(x)
+    return x
 
     if len(null_alphas) < 10:
         return None
