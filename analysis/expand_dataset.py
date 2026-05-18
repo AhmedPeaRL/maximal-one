@@ -43,36 +43,39 @@ rng = np.random.default_rng(42)
 def generate_structure(base, repeats=4):
     base = np.asarray(base, dtype=np.float64)
 
-    # تنظيف
     base = base[np.isfinite(base)]
     base = (base - np.mean(base)) / (np.std(base) + 1e-12)
 
     segments = []
 
     for _ in range(repeats):
-        # بدل slicing العشوائي → خد contiguous block
         n = len(base)
-        start = rng.integers(0, int(0.3 * n))
-        end = start + int(0.6 * n)
+
+        start = rng.integers(0, int(0.4 * n))
+        end = start + int(0.5 * n)
 
         segment = base[start:end].copy()
 
-        # 🔥 حافظ على causal structure
+        # 🔥 causal structure
         for j in range(2, len(segment)):
             segment[j] = (
-                0.92 * segment[j-1] +
-                0.05 * segment[j-2] +
-                0.03 * segment[j]
+                0.85 * segment[j-1] +
+                0.10 * segment[j-2] +
+                0.05 * segment[j]
             )
 
-        # noise ضعيف جداً
-        segment += rng.normal(0, 0.01, len(segment))
+        # 🔥 multi-scale blending (ده المفتاح)
+        smooth = np.convolve(segment, np.ones(5)/5, mode="same")
+        segment = 0.7 * segment + 0.3 * smooth
+
+        # 🔥 weak noise
+        segment += rng.normal(0, 0.02, len(segment))
 
         segments.append(segment)
 
     full = np.concatenate(segments)
 
-    # normalize
+    # 🔥 global rescale
     full = (full - np.mean(full)) / (np.std(full) + 1e-12)
 
     return full
