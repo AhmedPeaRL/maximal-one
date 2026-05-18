@@ -127,6 +127,10 @@ jobs:
       - name: Cross-domain validation
         run: |
           python analysis/cross_domain_validator.py
+
+      - name: Null Gap Test
+        run: |
+          python analysis/null_gap_test.py
           
       - name: Predictive validation
         run: |
@@ -149,7 +153,7 @@ jobs:
 
               print("Spectral peak ratio:", ratio)
 
-              if ratio > 500 and np.std(series) > 1:
+              if ratio > 500:
                   print("❌ HIGH PERIODICITY DETECTED:", ratio)
                   raise SystemExit("Periodic artifact detected")
               print("✅ No artificial periodic dominance")
@@ -200,10 +204,6 @@ jobs:
 
           print("PASS: non-trivial structure detected")
           PY
-
-      - name: Null Gap Test
-        run: |
-          python analysis/null_gap_test.py
 
       - name: Dataset provenance guard
         run: |
