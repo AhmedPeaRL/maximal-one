@@ -31,6 +31,8 @@ def load_series(path):
             continue
 
         s = pd.to_numeric(df[col], errors="coerce")
+        s = s.replace([np.inf, -np.inf], np.nan)
+        s = s.dropna()
         s = s[np.isfinite(s)]
 
         if len(s) < 200:
