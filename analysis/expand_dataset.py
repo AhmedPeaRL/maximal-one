@@ -2,31 +2,23 @@ import os
 import pandas as pd
 import numpy as np
 
-# =========================
-# CONFIG
-# =========================
 INPUT_PATH = "real-data/sunspots_full.csv"
 OUTPUT_PATH = "real-data/sunspots_global_extended.csv"
 
-# =========================
-# LOAD (robust)
-# =========================
 if not os.path.exists(INPUT_PATH):
     raise SystemExit(f"❌ Missing dataset: {INPUT_PATH}")
 
 df = pd.read_csv(INPUT_PATH, sep=";", engine="python")
 
-# convert all to numeric
 for col in df.columns:
     df[col] = pd.to_numeric(df[col], errors="coerce")
 
 df = df.dropna(axis=1, how="all")
 
-# pick best numeric column
 series = None
 for col in df.columns:
     s = df[col].dropna().values
-    if len(s) > 200 and np.std(s) > 1e-6:
+    if len(s) > 300 and np.std(s) > 1e-6:
         series = s
         break
 
@@ -35,63 +27,67 @@ if series is None:
 
 series = series.astype(np.float64)
 
-# =========================
-# GENERATOR
-# =========================
 rng = np.random.default_rng(42)
 
-def generate_structure(base, repeats=4):
-    base = np.asarray(base, dtype=np.float64)
+def chaotic_transform(x):
+    out = np.zeros_like(x)
+    out[0:3] = x[0:3]
 
-    base = base[np.isfinite(base)]
+    for i in range(3, len(x)):
+        out[i] = (
+            0.4 * np.tanh(x[i-1]) +
+            0.3 * x[i-2] * np.cos(x[i-3]) +
+            0.2 * np.sin(x[i]) +
+            0.1 * rng.normal()
+        )
+
+    return out
+
+def generate_structure(base):
+    base = base.copy()
     base = (base - np.mean(base)) / (np.std(base) + 1e-12)
+
+    # 🔥 shuffle BEFORE anything (kills memory loop)
+    base = rng.permutation(base)
 
     segments = []
 
-    for _ in range(repeats):
+    for _ in range(8):
         n = len(base)
 
-        start = rng.integers(0, int(0.3 * n))
-        end = start + int(0.6 * n)
+        start = rng.integers(0, int(0.5 * n))
+        length = rng.integers(int(0.3 * n), int(0.7 * n))
 
-        segment = base[start:end].copy()
+        segment = base[start:start+length]
 
-        # 🔥 NON-LINEAR DYNAMICS (بدل linear)
-        for j in range(3, len(segment)):
-            segment[j] = (
-                0.6 * np.tanh(segment[j-1]) +
-                0.25 * segment[j-2] * segment[j-3] +
-                0.15 * np.sin(segment[j])
-            )
+        if len(segment) < 100:
+            continue
 
-        # 🔥 FRACTAL RESCALING
-        scale = rng.uniform(0.8, 1.2)
-        segment *= scale
+        # 🔥 chaotic transform
+        segment = chaotic_transform(segment)
 
-        # 🔥 MULTI-SCALE MIX
-        smooth1 = np.convolve(segment, np.ones(3)/3, mode="same")
-        smooth2 = np.convolve(segment, np.ones(9)/9, mode="same")
+        # 🔥 random warping (kills periodicity)
+        warp = np.linspace(0, 1, len(segment))
+        warp = warp ** rng.uniform(0.5, 2.0)
+        segment = np.interp(warp, np.linspace(0,1,len(segment)), segment)
 
-        segment = 0.5 * segment + 0.3 * smooth1 + 0.2 * smooth2
-
-        # 🔥 CONTROLLED NOISE (أضعف)
-        segment += rng.normal(0, 0.01, len(segment))
+        # 🔥 heavy stochastic mixing
+        noise = rng.normal(0, np.std(segment), len(segment))
+        segment = 0.7 * segment + 0.3 * noise
 
         segments.append(segment)
 
     full = np.concatenate(segments)
 
-    # 🔥 BREAK GLOBAL PERIODICITY
-    full += 0.05 * np.random.standard_normal(len(full))
+    # 🔥 break any remaining structure
+    full += rng.normal(0, 0.2, len(full))
 
+    # 🔥 DO NOT over-normalize
     full = (full - np.mean(full)) / (np.std(full) + 1e-12)
 
     return full
 
-# =========================
-# RUN
-# =========================
-extended = generate_structure(series, repeats=6)
+extended = generate_structure(series)
 
 pd.DataFrame({"value": extended}).to_csv(OUTPUT_PATH, index=False)
 
