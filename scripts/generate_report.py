@@ -106,7 +106,8 @@ def main():
         synthetic = generate_series(rng, n=len(real))
 
         if args.canonical:
-            series = real
+            series = real.copy()
+            
             generator_type = "pure_real"
         else:
             series = synthetic
