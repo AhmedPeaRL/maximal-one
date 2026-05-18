@@ -18,10 +18,12 @@ def load_series(path):
 
     df = pd.read_csv(
         path,
-        sep="," if path.endswith(".csv") else None,
+        sep=None,
         engine="python",
-        na_values=["***"]
+        quoting=3,
+        on_bad_lines="skip"
     )
+    df.columns = [str(c).strip().lower() for c in df.columns]
 
     best_series = None
     best_score = 0
@@ -55,6 +57,12 @@ def load_series(path):
         if score > best_score:
             best_score = score
             best_series = s
+
+        if "passengers" in df.columns:
+            s = pd.to_numeric(df["passengers"], errors="coerce")
+
+        if "j-d" in df.columns:
+            s = pd.to_numeric(df["j-d"], errors="coerce")
 
     if best_series is None:
         raise ValueError(f"No valid numeric column in {path}")
