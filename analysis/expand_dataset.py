@@ -40,48 +40,39 @@ series = series.astype(np.float64)
 # =========================
 rng = np.random.default_rng(42)
 
-def generate_structure(base, repeats=6):
+def generate_structure(base, repeats=4):
     base = np.asarray(base, dtype=np.float64)
 
-    # تنظيف الأول
+    # تنظيف
     base = base[np.isfinite(base)]
     base = (base - np.mean(base)) / (np.std(base) + 1e-12)
 
     segments = []
 
     for _ in range(repeats):
+        # بدل slicing العشوائي → خد contiguous block
         n = len(base)
+        start = rng.integers(0, int(0.3 * n))
+        end = start + int(0.6 * n)
 
-        window_size = rng.integers(int(0.4*n), int(0.7*n))
-        start = rng.integers(0, n - window_size)
+        segment = base[start:end].copy()
 
-        window = base[start:start + window_size].copy()
-
-        # ✅ SAFE dynamics (بدون explosion)
-        for j in range(2, len(window)):
-            prev = window[j-1]
-            prev2 = window[j-2]
-
-            window[j] = (
-                0.85 * window[j] +
-                0.1 * prev +
-                0.05 * np.sign(prev) * np.sqrt(abs(prev))
-                - 0.02 * np.tanh(prev2)   # بدل power
+        # 🔥 حافظ على causal structure
+        for j in range(2, len(segment)):
+            segment[j] = (
+                0.92 * segment[j-1] +
+                0.05 * segment[j-2] +
+                0.03 * segment[j]
             )
 
-        # noise خفيف
-        window += rng.normal(0, 0.03, len(window))
+        # noise ضعيف جداً
+        segment += rng.normal(0, 0.01, len(segment))
 
-        segments.append(window)
+        segments.append(segment)
 
     full = np.concatenate(segments)
 
-    # trend خفيف
-    trend = np.linspace(-0.5, 0.5, len(full))
-    full = full + 0.1 * trend
-
-    # normalize آمن
-    full = full[np.isfinite(full)]
+    # normalize
     full = (full - np.mean(full)) / (np.std(full) + 1e-12)
 
     return full
