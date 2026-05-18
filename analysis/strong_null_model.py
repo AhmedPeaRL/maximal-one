@@ -1,14 +1,18 @@
 import numpy as np
 
 def generate_strong_null(n, rng):
-    # random walk أخف
-    rw = np.cumsum(rng.standard_normal(n)) * 0.5
+    rw = np.cumsum(rng.standard_normal(n))
 
-    # periodic أضعف
-    t = np.linspace(0, 6*np.pi, n)
-    seasonal = 0.1 * np.sin(t)
+    t = np.linspace(0, 20*np.pi, n)
+    seasonal = 0.3 * np.sin(t)
 
-    # noise أعلى
-    noise = rng.normal(0, 1.2, n)
+    noise = rng.normal(0, np.std(rw), n)
 
-    return rw + seasonal + noise
+    # 🔥 أقوى
+    mix = (
+        0.6 * rw +
+        0.3 * seasonal +
+        0.3 * noise
+    )
+
+    return mix
