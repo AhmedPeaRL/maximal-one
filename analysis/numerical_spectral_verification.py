@@ -117,6 +117,9 @@ def estimate_alpha(series):
     if len(series) < 128:
         return np.nan
 
+    if np.std(series) < 1e-5:
+        return np.nan
+
     series = series - np.mean(series)
 
     freqs, psd = welch(series, nperseg=128)
