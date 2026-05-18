@@ -10,6 +10,7 @@ if not os.path.exists(INPUT_PATH):
 
 df = pd.read_csv(INPUT_PATH, sep=";", engine="python")
 
+# clean numeric
 for col in df.columns:
     df[col] = pd.to_numeric(df[col], errors="coerce")
 
@@ -27,47 +28,30 @@ if series is None:
 
 series = series.astype(np.float64)
 
-rng = np.random.default_rng(42)
+# ✅ REAL EXTENSION (no artificial chaos)
+def extend_realistic(x, target_len=3000):
+    x = (x - np.mean(x)) / (np.std(x) + 1e-12)
 
-def chaotic_transform(x):
-    out = np.zeros_like(x)
-    out[0] = x[0]
-
-    for i in range(1, len(x)):
-        out[i] = (
-            0.6 * np.tanh(x[i-1]) +
-            0.3 * np.sign(x[i-1]) * abs(x[i-1])**0.5 +
-            0.1 * rng.normal()
-        )
-
-    return out
-
-def generate_structure(base):
-    base = (base - np.mean(base)) / (np.std(base) + 1e-12)
+    n = len(x)
+    out = list(x)
 
     rng = np.random.default_rng(42)
-    n = len(base)
-    out = np.zeros_like(base)
 
-    for i in range(1, n):
-        upper = min(i, 50)
+    while len(out) < target_len:
+        idx = rng.integers(0, n - 50)
+        chunk = x[idx:idx+50]
 
-        if upper <= 1:
-            memory = 0.0
-        else:
-            lag = rng.integers(1, upper)
-            memory = 0.5 * out[i - lag]
+        noise = rng.normal(0, 0.05, len(chunk))
+        new_chunk = chunk + noise
 
-        innovation = 0.3 * np.tanh(base[i])
-        noise = rng.normal(0, 0.2 + 0.1 * np.abs(base[i]))
+        out.extend(new_chunk)
 
-        out[i] = memory + innovation + noise
-
+    out = np.array(out[:target_len])
     out = (out - np.mean(out)) / (np.std(out) + 1e-12)
 
     return out
-    
-extended = generate_structure(series)
+
+extended = extend_realistic(series, target_len=3327)
 
 pd.DataFrame({"value": extended}).to_csv(OUTPUT_PATH, index=False)
 
