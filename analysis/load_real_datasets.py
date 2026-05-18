@@ -32,7 +32,9 @@ def load_series(path):
         if any(x in col_lower for x in ["date", "month", "year"]):
             continue
 
-        if not any(c.isdigit() for c in str(df[col].iloc[0])):
+        try:
+            float(str(df[col].iloc[0]).replace(",", "").replace(" ", ""))
+        except:
             continue
 
         df = df.replace("***", np.nan)
