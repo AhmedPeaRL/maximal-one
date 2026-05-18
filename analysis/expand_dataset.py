@@ -47,30 +47,34 @@ def generate_structure(base):
 
     rng = np.random.default_rng(42)
 
+    n = len(base)
     out = np.zeros_like(base)
-    out[0] = base[0]
 
-    for i in range(1, len(base)):
+    # 🔥 persistent memory (long-range)
+    H = 0.72  # Hurst-like control
 
-        # 🔥 تقليل الـ memory لتفادي resonance
-        memory = 0.55 * out[i-1]
+    for i in range(1, n):
+        # long memory kernel
+        weights = np.exp(-np.arange(min(i, 50)) / (10 + 5 * H))
+        weights /= np.sum(weights)
 
-        # 🔥 إدخال decorrelation
-        lag = rng.integers(1, 5)
-        delayed = base[i-lag] if i-lag >= 0 else base[i]
+        memory = np.sum(out[i-len(weights):i] * weights[::-1])
 
-        innovation = 0.3 * delayed
+        # innovation from base (scaled)
+        innovation = 0.25 * base[i]
 
-        # 🔥 noise أقوى شوية
-        noise = rng.normal(0, 0.25)
+        # scale-adaptive noise
+        noise_scale = 0.15 + 0.1 * (i / n)
+        noise = rng.normal(0, noise_scale)
 
         out[i] = memory + innovation + noise
 
-    # 🔥 إزالة أي trend دوري خفي
-    out = out - np.convolve(out, np.ones(15)/15, mode='same')
+    # 🔥 global detrending
+    trend = np.linspace(out[0], out[-1], n)
+    out = out - trend * 0.3
 
-    # 🔥 non-linearity خفيفة
-    out = np.tanh(0.8 * out)
+    # 🔥 soft nonlinearity
+    out = np.tanh(0.6 * out)
 
     # normalization
     out = (out - np.mean(out)) / (np.std(out) + 1e-12)
