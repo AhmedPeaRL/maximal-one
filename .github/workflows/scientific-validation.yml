@@ -128,34 +128,6 @@ jobs:
         run: |
           python analysis/cross_domain_validator.py
 
-      - name: Run canonical experiment ONLY
-        run: |
-          python scripts/generate_report.py --seed 42 --canonical
-          
-      - name: Extract alpha signal
-        run: |
-          python - <<'PY'
-          import json, sys
-
-          r = json.load(open("artifacts/canonical_report.json"))
-
-          alpha = r["spectral_profile"]["estimated_alpha"]
-          sigma = r["spectral_profile"]["bootstrap_std"]
-          noise = r["spectral_profile"]["noise_alpha"]
-
-          print("alpha:", alpha)
-          print("sigma:", sigma)
-          print("noise:", noise)
-
-          if alpha / (sigma + 1e-12) < 2.0:
-              sys.exit("FAIL: weak signal")
-
-          if abs(alpha - noise) < 0.25:
-              sys.exit("FAIL: indistinguishable from noise")
-
-          print("PASS: non-trivial structure detected")
-          PY
-
       - name: Predictive validation
         run: |
           python - <<'PY'
@@ -199,6 +171,34 @@ jobs:
               )
 
           print("✅ Prediction:", res)
+          PY
+
+      - name: Run canonical experiment ONLY
+        run: |
+          python scripts/generate_report.py --seed 42 --canonical
+          
+      - name: Extract alpha signal
+        run: |
+          python - <<'PY'
+          import json, sys
+
+          r = json.load(open("artifacts/canonical_report.json"))
+
+          alpha = r["spectral_profile"]["estimated_alpha"]
+          sigma = r["spectral_profile"]["bootstrap_std"]
+          noise = r["spectral_profile"]["noise_alpha"]
+
+          print("alpha:", alpha)
+          print("sigma:", sigma)
+          print("noise:", noise)
+
+          if alpha / (sigma + 1e-12) < 2.0:
+              sys.exit("FAIL: weak signal")
+
+          if abs(alpha - noise) < 0.25:
+              sys.exit("FAIL: indistinguishable from noise")
+
+          print("PASS: non-trivial structure detected")
           PY
 
       - name: Null Gap Test
