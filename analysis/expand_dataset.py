@@ -29,22 +29,22 @@ series = series.astype(np.float64)
 
 rng = np.random.default_rng(42)
 
+# 🔥 FIXED CHAOTIC TRANSFORM (NO PERIODICITY)
 def chaotic_transform(x):
     out = np.zeros_like(x)
-    out[0:3] = x[0:3]
+    out[:3] = x[:3]
 
     for i in range(3, len(x)):
         out[i] = (
-            0.4 * np.tanh(x[i-1]) +
-            0.3 * x[i-2] * np.cos(x[i-3]) +
-            0.2 * np.sin(x[i]) +
+            0.45 * np.tanh(x[i-1]) +
+            0.25 * x[i-2] * np.sign(x[i-3]) +
+            0.2 * np.log1p(abs(x[i])) * np.sign(x[i]) +
             0.1 * rng.normal()
         )
 
     return out
 
 def generate_structure(base):
-    base = base.copy()
     base = (base - np.mean(base)) / (np.std(base) + 1e-12)
 
     segments = []
@@ -52,8 +52,8 @@ def generate_structure(base):
     for _ in range(8):
         n = len(base)
 
-        start = rng.integers(0, int(0.5 * n))
-        length = rng.integers(int(0.3 * n), int(0.7 * n))
+        start = rng.integers(0, int(0.6 * n))
+        length = rng.integers(int(0.3 * n), int(0.6 * n))
 
         segment = base[start:start+length]
 
@@ -62,22 +62,25 @@ def generate_structure(base):
 
         segment = chaotic_transform(segment)
 
-        # 🔥 reinforce temporal memory
+        # 🔥 REDUCED MEMORY (CRITICAL FIX)
         for i in range(1, len(segment)):
-            segment[i] += 0.6 * segment[i-1]
+            segment[i] += 0.25 * segment[i-1]
 
-        warp = np.linspace(0, 1, len(segment))
-        warp = warp ** rng.uniform(0.8, 1.2)
-        segment = np.interp(warp, np.linspace(0,1,len(segment)), segment)
+        # 🔥 RANDOM RESAMPLING بدل warp
+        idx = np.sort(rng.choice(len(segment), size=len(segment), replace=True))
+        segment = segment[idx]
 
-        noise = rng.normal(0, np.std(segment), len(segment))
-        segment = 0.9 * segment + 0.1 * noise
+        # 🔥 NOISE CONTROLLED
+        noise = rng.normal(0, 0.3 * np.std(segment), len(segment))
+        segment = segment + noise
 
         segments.append(segment)
 
     full = np.concatenate(segments)
 
-    full += rng.normal(0, 0.05, len(full))
+    # 🔥 FINAL RANDOMIZATION
+    shuffle_idx = rng.permutation(len(full))
+    full = full[shuffle_idx]
 
     full = (full - np.mean(full)) / (np.std(full) + 1e-12)
 
