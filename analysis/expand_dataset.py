@@ -51,31 +51,39 @@ def generate_structure(base, repeats=4):
     for _ in range(repeats):
         n = len(base)
 
-        start = rng.integers(0, int(0.4 * n))
-        end = start + int(0.5 * n)
+        start = rng.integers(0, int(0.3 * n))
+        end = start + int(0.6 * n)
 
         segment = base[start:end].copy()
 
-        # 🔥 causal structure
-        for j in range(2, len(segment)):
+        # 🔥 NON-LINEAR DYNAMICS (بدل linear)
+        for j in range(3, len(segment)):
             segment[j] = (
-                0.85 * segment[j-1] +
-                0.10 * segment[j-2] +
-                0.05 * segment[j]
+                0.6 * np.tanh(segment[j-1]) +
+                0.25 * segment[j-2] * segment[j-3] +
+                0.15 * np.sin(segment[j])
             )
 
-        # 🔥 multi-scale blending (ده المفتاح)
-        smooth = np.convolve(segment, np.ones(5)/5, mode="same")
-        segment = 0.7 * segment + 0.3 * smooth
+        # 🔥 FRACTAL RESCALING
+        scale = rng.uniform(0.8, 1.2)
+        segment *= scale
 
-        # 🔥 weak noise
-        segment += rng.normal(0, 0.02, len(segment))
+        # 🔥 MULTI-SCALE MIX
+        smooth1 = np.convolve(segment, np.ones(3)/3, mode="same")
+        smooth2 = np.convolve(segment, np.ones(9)/9, mode="same")
+
+        segment = 0.5 * segment + 0.3 * smooth1 + 0.2 * smooth2
+
+        # 🔥 CONTROLLED NOISE (أضعف)
+        segment += rng.normal(0, 0.01, len(segment))
 
         segments.append(segment)
 
     full = np.concatenate(segments)
 
-    # 🔥 global rescale
+    # 🔥 BREAK GLOBAL PERIODICITY
+    full += 0.05 * np.random.standard_normal(len(full))
+
     full = (full - np.mean(full)) / (np.std(full) + 1e-12)
 
     return full
