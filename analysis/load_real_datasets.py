@@ -18,16 +18,22 @@ def load_series(path):
 
     df = pd.read_csv(
         path,
-        sep=None,
+        sep="," if path.endswith(".csv") else None,
         engine="python",
         na_values=["***"]
     )
+    df = df.replace("***", np.nan)
 
     best_series = None
     best_score = 0
 
     for col in df.columns:
-        if any(x in col.lower() for x in ["date", "month", "year"]):
+        col_lower = col.lower()
+
+        if any(x in col_lower for x in ["date", "month", "year"]):
+            continue
+
+        if not any(c.isdigit() for c in str(df[col].iloc[0])):
             continue
 
         s = pd.to_numeric(df[col], errors="coerce")
