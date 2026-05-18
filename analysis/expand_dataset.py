@@ -45,34 +45,31 @@ def chaotic_transform(x):
 def generate_structure(base):
     base = (base - np.mean(base)) / (np.std(base) + 1e-12)
 
-    segments = []
+    rng = np.random.default_rng(42)
 
-    for _ in range(6):  # reduced complexity
-        start = rng.integers(0, len(base)//2)
-        length = rng.integers(len(base)//4, len(base)//2)
+    out = np.zeros_like(base)
 
-        segment = base[start:start+length]
+    # seed البداية
+    out[0] = base[0]
 
-        if len(segment) < 100:
-            continue
+    for i in range(1, len(base)):
 
-        segment = chaotic_transform(segment)
+        noise = rng.normal(0, 0.15)
 
-        # remove feedback amplification (IMPORTANT FIX)
-        segment = np.convolve(segment, np.ones(3)/3, mode="same")
+        memory = 0.75 * out[i-1]
 
-        noise = rng.normal(0, 0.2, len(segment))
-        segment = segment + noise
+        innovation = 0.25 * base[i]
 
-        segments.append(segment)
+        out[i] = memory + innovation + noise
 
-    full = np.concatenate(segments)
+    # non-linear distortion خفيف (بدون periodicity)
+    out = np.tanh(out)
 
-    # NO SHIFT MIXING
-    full = (full - np.mean(full)) / (np.std(full) + 1e-12)
+    # normalization
+    out = (out - np.mean(out)) / (np.std(out) + 1e-12)
 
-    return full
-
+    return out
+    
 extended = generate_structure(series)
 
 pd.DataFrame({"value": extended}).to_csv(OUTPUT_PATH, index=False)
