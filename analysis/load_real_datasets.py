@@ -16,19 +16,22 @@ def load_series(path):
     if not Path(path).exists():
         raise ValueError(f"Missing file: {path}")
 
-    df = pd.read_csv(path, sep=None, engine="python", na_values=["***"], skiprows=1)
+    df = pd.read_csv(
+        path,
+        sep=None,
+        engine="python",
+        na_values=["***"]
+    )
 
     best_series = None
     best_score = 0
 
     for col in df.columns:
-        if "date" in col.lower() or "month" in col.lower():
+        if any(x in col.lower() for x in ["date", "month", "year"]):
             continue
 
-        if col.lower() in ["passengers", "value"]:
-            s = pd.to_numeric(df[col], errors="coerce")
-        
-        s = pd.to_numeric(df[col], errors="coerce").dropna().values
+        s = pd.to_numeric(df[col], errors="coerce")
+        s = s[np.isfinite(s)]
 
         if len(s) < 200:
             continue
@@ -49,7 +52,6 @@ def load_series(path):
     best_series = (best_series - np.mean(best_series)) / (np.std(best_series) + 1e-12)
 
     return best_series
-
 
 def load_all():
     out = {}
