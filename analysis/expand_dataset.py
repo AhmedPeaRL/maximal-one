@@ -34,10 +34,13 @@ def extend_realistic(x, target_len=3000):
 
     # 🔥 remove strong periodicity
     from scipy.signal import detrend
-    x = detrend(x)
 
-    # 🔥 differencing kills periodic cycles
-    x = np.diff(x)
+    # خفّف الاتجاه العام
+    x = detrend(x, type="linear")
+
+    # حافظ على structure
+    x = x - np.mean(x)
+    x = x / (np.std(x) + 1e-12))
 
     # normalize
     x = (x - np.mean(x)) / (np.std(x) + 1e-12)
@@ -52,7 +55,7 @@ def extend_realistic(x, target_len=3000):
         chunk = x[idx:idx+50]
 
         # 🔥 stronger stochastic deformation
-        noise = rng.normal(0, 0.15, len(chunk))
+        noise = rng.normal(0, 0.05, len(chunk))
         drift = rng.normal(0, 0.01)
 
         new_chunk = chunk + noise + drift
