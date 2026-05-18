@@ -30,6 +30,16 @@ series = series.astype(np.float64)
 
 # ✅ REAL EXTENSION (no artificial chaos)
 def extend_realistic(x, target_len=3000):
+    x = np.asarray(x, dtype=np.float64)
+
+    # 🔥 remove strong periodicity
+    from scipy.signal import detrend
+    x = detrend(x)
+
+    # 🔥 differencing kills periodic cycles
+    x = np.diff(x)
+
+    # normalize
     x = (x - np.mean(x)) / (np.std(x) + 1e-12)
 
     n = len(x)
@@ -41,8 +51,11 @@ def extend_realistic(x, target_len=3000):
         idx = rng.integers(0, n - 50)
         chunk = x[idx:idx+50]
 
-        noise = rng.normal(0, 0.05, len(chunk))
-        new_chunk = chunk + noise
+        # 🔥 stronger stochastic deformation
+        noise = rng.normal(0, 0.15, len(chunk))
+        drift = rng.normal(0, 0.01)
+
+        new_chunk = chunk + noise + drift
 
         out.extend(new_chunk)
 
