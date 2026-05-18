@@ -2,7 +2,7 @@
   "constraint_model": {
     "statement": "Observed spectral exponents emerge from bounded scaling behavior under finite-energy stochastic systems with non-trivial temporal dependency.",
     
-    "lower_bound_reason": "alpha below 0.5 collapses toward structureless stochastic behavior and fails relational persistence tests.",
+    "lower_bound_reason": "alpha below 0.5 collapses toward structureless stochastic behavior",
     
     "upper_bound_reason": "alpha above 5.0 indicates estimator saturation, numerical instability, or non-physical divergence under finite sampling.",
     
