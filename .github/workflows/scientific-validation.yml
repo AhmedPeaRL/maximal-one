@@ -128,10 +128,6 @@ jobs:
         run: |
           python analysis/cross_domain_validator.py
 
-      - name: Null Gap Test
-        run: |
-          python analysis/null_gap_test.py
-          
       - name: Predictive validation
         run: |
           python - <<'PY'
@@ -204,6 +200,10 @@ jobs:
 
           print("PASS: non-trivial structure detected")
           PY
+
+      - name: Null Gap Test
+        run: |
+          python analysis/null_gap_test.py
 
       - name: Dataset provenance guard
         run: |
