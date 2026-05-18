@@ -58,11 +58,11 @@ def load_series(path):
             best_score = score
             best_series = s
 
-    if "passengers" in df.columns:
-        s = pd.to_numeric(df["passengers"], errors="coerce")
+        if "passengers" in col_lower:
+            s = pd.to_numeric(df["passengers"], errors="coerce")
 
-    if "j-d" in df.columns:
-        s = pd.to_numeric(df["j-d"], errors="coerce")
+        if "j-d" in col_lower:
+            s = pd.to_numeric(df["j-d"], errors="coerce")
 
     if best_series is None:
         raise ValueError(f"No valid numeric column in {path}")
