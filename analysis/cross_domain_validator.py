@@ -7,8 +7,13 @@ from analysis.load_real_datasets import load_all
 DATA_DIR = "real-data"
 
 def load_series(path):
-    df = pd.read_csv(path, sep=None, engine="python", na_values=["***"])
-
+    df = pd.read_csv(
+        path,
+        sep=";" if path.endswith(".csv") else None,
+        engine="python",
+        na_values=["***"]
+    )
+    df = df.replace("***", np.nan)
     df = df.select_dtypes(include=[np.number])
     if df.shape[1] == 0:
         raise ValueError("No numeric columns")
