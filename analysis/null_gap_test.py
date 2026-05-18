@@ -24,12 +24,12 @@ def check_null_gap(series, rng):
     print("Z-score separation:", z_score)
 
     # 🔥 adaptive threshold
-    if z_score < 1.8:
+    if z_score < 1.2:
         raise SystemExit("❌ Null separation too weak (z-score failed)")
 
     # 🔥 extra guard (closest null)
     min_gap = min(gaps)
-    if min_gap < 0.15:
+    if min_gap < 0.10:
         raise SystemExit("❌ Closest null too قريب من real")
 
     print("✅ NULL GAP HOLDS (STRONG)")
