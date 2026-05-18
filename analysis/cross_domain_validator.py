@@ -7,30 +7,30 @@ from analysis.load_real_datasets import load_all
 DATA_DIR = "real-data"
 
 def load_series(path):
-    df = pd.read_csv(path)
+    df = pd.read_csv(
+        path,
+        sep=None,
+        engine="python",
+        na_values=["***"]
+    )
+
     df = df.select_dtypes(include=[np.number])
-    df = pd.read_csv(path, sep=None, engine="python", na_values=["***"], skiprows=1)
-    
-    for col in df.columns:
-        if "date" in col.lower() or "month" in col.lower():
-            continue
-            
-        if col.lower() in ["passengers", "value"]:
-            s = pd.to_numeric(df[col], errors="coerce")
-    
-        if pd.api.types.is_numeric_dtype(df[col]):
-            series = df[col].dropna().values
 
-            if len(series) < 32:
-                raise ValueError("Series too small")
+    if df.shape[1] == 0:
+        raise ValueError("No numeric columns")
 
-            # 🔥 normalization (CRITICAL)
-            std = np.std(series)
-            if std < 1e-3:
-                raise ValueError("Near-constant series")
-           
-            series = (series - np.mean(series)) / std
-            return series
+    series = df.iloc[:, 0].dropna().values
+
+    if len(series) < 64:
+        raise ValueError("Series too small")
+
+    std = np.std(series)
+    if std < 1e-6:
+        raise ValueError("Near-constant")
+
+    series = (series - np.mean(series)) / std
+
+    return series
 
     raise ValueError(f"No valid numeric column in {path}")
     
