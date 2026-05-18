@@ -18,7 +18,7 @@ def load_series(path):
 
     df = pd.read_csv(
         path,
-        sep="," if path.endswith(".csv") else None,
+        sep=";" if path.endswith(".csv") else None,
         engine="python",
         na_values=["***"]
     )
