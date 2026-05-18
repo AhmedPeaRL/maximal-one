@@ -22,7 +22,6 @@ def load_series(path):
         engine="python",
         na_values=["***"]
     )
-    df = df.replace("***", np.nan)
 
     best_series = None
     best_score = 0
@@ -36,6 +35,7 @@ def load_series(path):
         if not any(c.isdigit() for c in str(df[col].iloc[0])):
             continue
 
+        df = df.replace("***", np.nan)
         s = pd.to_numeric(df[col], errors="coerce")
         s = s.replace([np.inf, -np.inf], np.nan)
         s = s.dropna()
