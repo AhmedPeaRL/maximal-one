@@ -112,89 +112,31 @@ def robust_local_slopes(
     return f(np.mean(core))
 
 def estimate_alpha(series):
+    series = np.asarray(series, dtype=np.float64)
 
-    series = np.asarray(
-        series,
-        dtype=np.float64
-    )
-
-    if not np.all(np.isfinite(series)):
+    if len(series) < 128:
         return np.nan
 
-    series = series - f(np.mean(series))
+    series = series - np.mean(series)
 
-    n = len(series)
+    freqs, psd = welch(series, nperseg=128)
 
-    if n < 64:
-        return np.nan
-
-    freqs, psd = welch(
-        series,
-        window="hann",
-        detrend="constant",
-        scaling="density",
-        nperseg=min(128, n),
-        average="median"
-    )
-
-    freqs = np.round(freqs, FREEZE_DECIMALS)
-    psd = np.round(psd, FREEZE_DECIMALS)
-
-    mask = (
-        (freqs > 0.01)
-        & (freqs < 0.35)
-    )
+    mask = (freqs > 0.02) & (freqs < 0.4)
 
     freqs = freqs[mask]
     psd = psd[mask]
 
-    if len(freqs) < 12:
+    if len(freqs) < 10:
         return np.nan
 
-    psd = uniform_filter1d(
-        psd,
-        size=3,
-        mode="nearest"
-    )
+    log_f = np.log(freqs)
+    log_p = np.log(psd + 1e-12)
 
-    psd = np.round(
-        psd,
-        FREEZE_DECIMALS
-    )
+    slope = np.polyfit(log_f, log_p, 1)[0]
 
-    psd = np.maximum(psd, 1e-12)
+    alpha = -slope
 
-    log_f = np.round(
-        np.log(freqs),
-        FREEZE_DECIMALS
-    )
-
-    log_psd = np.round(
-        np.log(psd),
-        FREEZE_DECIMALS
-    )
-
-    slope = robust_local_slopes(
-        log_f,
-        log_psd,
-        window=9
-    )
-
-    if not np.isfinite(slope):
-        return np.nan
-
-    if slope >= 0:
-        return 0.3
-
-    alpha = f(-slope)
-
-    if not np.isfinite(alpha):
-        return 0.0
-
-    if alpha > 5:
-        return np.nan
-
-    return f(alpha)
+    return float(np.clip(alpha, 0.0, 5.0))
 
 def block_bootstrap(
     series,
