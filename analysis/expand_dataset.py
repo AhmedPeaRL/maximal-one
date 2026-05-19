@@ -10,7 +10,7 @@ if not os.path.exists(INPUT_PATH):
 
 df = pd.read_csv(INPUT_PATH, sep=";", engine="python")
 
-# clean numeric
+# تنظيف الأعمدة
 for col in df.columns:
     df[col] = pd.to_numeric(df[col], errors="coerce")
 
@@ -28,12 +28,9 @@ if series is None:
 
 series = series.astype(np.float64)
 
-# ✅ STRUCTURE-PRESERVING EXTENSION
+# ✅ EXTENSION بدون قتل الطاقة
 def extend_realistic(x, target_len=3327):
     x = np.asarray(x, dtype=np.float64)
-
-    # normalize فقط (بدون قتل structure)
-    x = (x - np.mean(x)) / (np.std(x) + 1e-12)
 
     n = len(x)
     out = list(x)
@@ -41,24 +38,20 @@ def extend_realistic(x, target_len=3327):
     rng = np.random.default_rng(42)
 
     while len(out) < target_len:
-        idx = rng.integers(0, n - 100)
-        chunk = x[idx:idx+100]
+        idx = rng.integers(0, n - 120)
+        chunk = x[idx:idx+120]
 
-        # 🔥 minimal noise فقط
-        noise = rng.normal(0, 0.01, len(chunk))
+        # 🔥 حافظ على amplitude
+        scale = 1.0 + rng.normal(0, 0.01)
 
-        # 🔥 scaling بسيط بدل distortion
-        scale = rng.normal(1.0, 0.02)
+        # 🔥 noise ضعيف جداً
+        noise = rng.normal(0, np.std(x)*0.005, len(chunk))
 
         new_chunk = scale * chunk + noise
-
         out.extend(new_chunk)
 
     out = np.array(out[:target_len])
-
-    # normalize نهائي
-    out = (out - np.mean(out)) / (np.std(out) + 1e-12)
-
+    
     return out
 
 extended = extend_realistic(series, target_len=3327)
