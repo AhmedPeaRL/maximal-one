@@ -218,26 +218,26 @@ jobs:
               def __init__(self, system: LinearSystem):
                   self.system = system
 
-          def verify(self):
-              A = self.system.A
-              B = self.system.B
-              M = self.system.M
+              def verify(self):
+                  A = self.system.A
+                  B = self.system.B
+                  M = self.system.M
 
-              spectral_radius_squared = np.linalg.norm(A)**2
+                  spectral_radius_squared = np.linalg.norm(A)**2
 
-              if spectral_radius_squared >= 1:
+                  if spectral_radius_squared >= 1:
+                      return {
+                          "stable": False,
+                          "reason": "Spectral radius squared >= 1"
+                      }
+
+                  ultimate_bound = (np.linalg.norm(B)**2 * M**2) / (1 - spectral_radius_squared)
+
                   return {
-                      "stable": False,
-                      "reason": "Spectral radius squared >= 1"
+                      "stable": True,
+                      "spectral_radius_squared": float(spectral_radius_squared),
+                      "ultimate_bound": float(ultimate_bound)
                   }
-
-              ultimate_bound = (np.linalg.norm(B)**2 * M**2) / (1 - spectral_radius_squared)
-
-              return {
-                  "stable": True,
-                  "spectral_radius_squared": float(spectral_radius_squared),
-                  "ultimate_bound": float(ultimate_bound)
-              }
 
           import subprocess
           import sys
@@ -454,7 +454,6 @@ jobs:
           if __name__ == "__main__":
               main()
 
-          python - <<'PY'
           import pandas as pd
           from analysis.independent_validation import compare_methods
 
