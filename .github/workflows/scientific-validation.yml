@@ -43,6 +43,11 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.15"
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v5
         with:
@@ -50,11 +55,6 @@ jobs:
                    
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v5
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11.15"
 
       - name: Enforce deterministic env
         run: |
