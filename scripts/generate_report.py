@@ -299,7 +299,7 @@ def main():
             }
         }
 
-        if abs(original_alpha - shuffled_alpha) < 0.15:
+        if abs(falsification["original_alpha"] - falsification["shuffled_alpha"]) < 0.15:
             raise SystemExit("❌ Weak structure (near shuffle)")
 
         if abs(falsification["original_alpha"] - falsification["white_noise_alpha"]) < 0.2:
