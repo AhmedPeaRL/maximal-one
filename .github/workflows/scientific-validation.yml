@@ -271,7 +271,6 @@ jobs:
 
           print("✅ Prediction:", res)
 
-          python - <<'PY'
           import json
           import numpy as np
           import pandas as pd
@@ -493,12 +492,21 @@ jobs:
         run: |
           python scripts/generate_report.py --seed 42 --canonical
           
-      - name: Extract alpha signal
+      - name: Extract alpha signal (fixed)
         run: |
           python - <<'PY'
           import json, sys
 
           r = json.load(open("artifacts/canonical_report.json"))
+          claim = json.load(open("core-scientific/strict_claim.json"))
+
+          sp = r["spectral_profile"]
+
+          alpha = sp["estimated_alpha"]
+          sigma = sp["bootstrap_std"]
+
+          expected_min, expected_max = claim["expected_result"]["alpha_range"]
+          max_sigma = claim["expected_result"]["max_sigma"]
 
           alpha = r["spectral_profile"]["estimated_alpha"]
           sigma = r["spectral_profile"]["bootstrap_std"]
@@ -507,6 +515,18 @@ jobs:
           print("alpha:", alpha)
           print("sigma:", sigma)
           print("noise:", noise)
+
+          # STRICT VALIDATION
+          if not np.isfinite(sigma):
+              raise SystemExit("❌ sigma is NaN")
+              
+          if not (expected_min <= alpha <= expected_max):
+              raise SystemExit("❌ alpha خارج النطاق المتوقع")
+
+          if sigma > max_sigma:
+              raise SystemExit("❌ sigma أعلى من الحد")
+
+          print("✅ STRICT CLAIM HOLDS")
 
           if alpha / (sigma + 1e-12) < 2.0:
               sys.exit("FAIL: weak signal")
@@ -550,39 +570,6 @@ jobs:
       - name: Advanced Null Killer (CRITICAL)
         run: python analysis/advanced_null_killer.py
 
-      - name: Extract alpha (fixed)
-        run: |
-          python - <<'PY'
-          import json
-          import numpy as np
-
-          r = json.load(open("artifacts/canonical_report.json"))
-          claim = json.load(open("core-scientific/strict_claim.json"))
-
-          sp = r["spectral_profile"]
-
-          alpha = sp["estimated_alpha"]
-          sigma = sp["bootstrap_std"]
-
-          expected_min, expected_max = claim["expected_result"]["alpha_range"]
-          max_sigma = claim["expected_result"]["max_sigma"]
-
-          print("alpha:", alpha)
-          print("sigma:", sigma)
-
-          # STRICT VALIDATION
-          if not np.isfinite(sigma):
-              raise SystemExit("❌ sigma is NaN")
-              
-          if not (expected_min <= alpha <= expected_max):
-              raise SystemExit("❌ alpha خارج النطاق المتوقع")
-
-          if sigma > max_sigma:
-              raise SystemExit("❌ sigma أعلى من الحد")
-
-          print("✅ STRICT CLAIM HOLDS")
-          PY
-          
       - name: Invariant Stability Guard
         run: |
           python analysis/invariant_stability_guard.py
