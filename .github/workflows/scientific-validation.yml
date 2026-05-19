@@ -209,9 +209,7 @@ jobs:
               )
 
           print("✅ Prediction:", res)
-          PY
-
-          python - <<'PY'
+          
           import json
           import numpy as np
           import pandas as pd
