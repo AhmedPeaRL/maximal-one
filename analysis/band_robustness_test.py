@@ -81,7 +81,7 @@ def test_bands(series):
 
 if __name__ == "__main__":
 
-    df = pd.read_csv("real-data/sunspots_global.csv")
+    df = pd.read_csv("real-data/sunspots_global_extended.csv")
 
     col = "Sunspots" if "Sunspots" in df.columns else "value"
 
