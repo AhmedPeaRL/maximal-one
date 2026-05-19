@@ -49,12 +49,12 @@ jobs:
           python-version: "3.11.15"
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v5
+        uses: github/codeql-action/init@v4
         with:
           languages: javascript, python
                    
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v5
+        uses: github/codeql-action/analyze@v4
 
       - name: Enforce deterministic env
         run: |
