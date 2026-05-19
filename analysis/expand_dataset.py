@@ -40,7 +40,7 @@ def extend_realistic(x, target_len=3000):
 
     # حافظ على structure
     x = x - np.mean(x)
-    x = x / (np.std(x) + 1e-12))
+    x = x / (np.std(x) + 1e-12)
 
     # normalize
     x = (x - np.mean(x)) / (np.std(x) + 1e-12)
