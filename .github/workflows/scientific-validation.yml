@@ -2901,7 +2901,7 @@ jobs:
           fi
 
           cd experiments
-          python multi_seed_sweep.py
+          python multi_seed_sweep.py 
 
       - name: Run power analysis
         run: |
@@ -2936,7 +2936,7 @@ jobs:
           mkdir -p ../data
           python model_comparison.py > ../data/model_comparison.txt
 
-      - name: Run Hurst analysis
+      - name: Run Hurst & Multi-Seed Lorenz96 analysis
         run: |
           if [ ! -d experiments ]; then
             echo "experiments folder missing → creating fallback"
@@ -2946,6 +2946,7 @@ jobs:
           cd experiments
           mkdir -p ../data
           python hurst_dfa.py > ../data/hurst.txt
+          python multi_seed_lorenz96.py > ../data/multi_seed_lorenz96.txt
 
       - name: Run Null Ensemble Test
         run: |
