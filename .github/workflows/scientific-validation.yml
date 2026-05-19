@@ -923,7 +923,9 @@ jobs:
         run: python analysis/external_source_integrity_guard.py
   
       - name: External Reproduction Guard
-        run: python analysis/external_reproduction_guard.py
+        run: |
+          python analysis/external_reproduction_guard.py
+          python analysis/true_external_reproduction_guard.py
 
       - name: TRUE External Runner (REAL ISOLATION)
         run: python analysis/TRUE_external_runner.py
