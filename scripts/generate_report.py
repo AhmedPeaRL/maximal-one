@@ -100,9 +100,9 @@ def main():
             real = df.select_dtypes(include=[np.number]).iloc[:, 0].values
 
         from scipy.signal import detrend
-
+        real = detrend(real)
         real = real - np.mean(real)
-        real = real / (np.std(real) + 1e-12)
+        # ❌ سيب الـ std زي ما هو
         
         synthetic = generate_series(rng, n=len(real))
 
