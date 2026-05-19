@@ -28,21 +28,11 @@ if series is None:
 
 series = series.astype(np.float64)
 
-# ✅ REAL EXTENSION (no artificial chaos)
-def extend_realistic(x, target_len=3000):
+# ✅ STRUCTURE-PRESERVING EXTENSION
+def extend_realistic(x, target_len=3327):
     x = np.asarray(x, dtype=np.float64)
 
-    # 🔥 remove strong periodicity
-    from scipy.signal import detrend
-
-    # خفّف الاتجاه العام
-    x = detrend(x, type="linear")
-
-    # حافظ على structure
-    x = x - np.mean(x)
-    x = x / (np.std(x) + 1e-12)
-
-    # normalize
+    # normalize فقط (بدون قتل structure)
     x = (x - np.mean(x)) / (np.std(x) + 1e-12)
 
     n = len(x)
@@ -51,18 +41,22 @@ def extend_realistic(x, target_len=3000):
     rng = np.random.default_rng(42)
 
     while len(out) < target_len:
-        idx = rng.integers(0, n - 50)
-        chunk = x[idx:idx+50]
+        idx = rng.integers(0, n - 100)
+        chunk = x[idx:idx+100]
 
-        # 🔥 stronger stochastic deformation
-        noise = rng.normal(0, 0.05, len(chunk))
-        drift = rng.normal(0, 0.01)
+        # 🔥 minimal noise فقط
+        noise = rng.normal(0, 0.01, len(chunk))
 
-        new_chunk = chunk + noise + drift
+        # 🔥 scaling بسيط بدل distortion
+        scale = rng.normal(1.0, 0.02)
+
+        new_chunk = scale * chunk + noise
 
         out.extend(new_chunk)
 
     out = np.array(out[:target_len])
+
+    # normalize نهائي
     out = (out - np.mean(out)) / (np.std(out) + 1e-12)
 
     return out
