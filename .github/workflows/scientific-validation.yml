@@ -580,6 +580,7 @@ jobs:
         run: |
           python - <<'PY'
           import json, sys
+          import numpy as np
 
           r = json.load(open("artifacts/canonical_report.json"))
           claim = json.load(open("core-scientific/strict_claim.json"))
