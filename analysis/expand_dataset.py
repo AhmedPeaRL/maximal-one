@@ -28,31 +28,27 @@ if series is None:
 
 series = series.astype(np.float64)
 
-# ✅ EXTENSION بدون قتل الطاقة
 def extend_realistic(x, target_len=3327):
     x = np.asarray(x, dtype=np.float64)
 
-    n = len(x)
-    out = list(x)
+    # ❌ بدل chunk stitching
+    # ✅ استخدم AR embedding يحافظ على structure
 
+    n = len(x)
     rng = np.random.default_rng(42)
 
+    # estimate AR(1) coefficient
+    phi = np.corrcoef(x[:-1], x[1:])[0,1]
+
+    out = list(x)
+
     while len(out) < target_len:
-        idx = rng.integers(0, n - 120)
-        chunk = x[idx:idx+120]
+        prev = out[-1]
+        noise = rng.normal(0, np.std(x)*0.1)
+        new_val = phi * prev + noise
+        out.append(new_val)
 
-        # 🔥 حافظ على amplitude
-        scale = 1.0 + rng.normal(0, 0.01)
-
-        # 🔥 noise ضعيف جداً
-        noise = rng.normal(0, np.std(x)*0.005, len(chunk))
-
-        new_chunk = scale * chunk + noise
-        out.extend(new_chunk)
-
-    out = np.array(out[:target_len])
-    
-    return out
+    return np.array(out[:target_len])
 
 extended = extend_realistic(series, target_len=3327)
 
