@@ -210,7 +210,8 @@ jobs:
 
           print("✅ Prediction:", res)
           PY
-
+          python scripts/run_multi_dataset.py
+    
       - name: Irreducibility Killer Test (CRITICAL)
         run: python analysis/irreducibility_killer.py
 
@@ -311,11 +312,7 @@ jobs:
 
           print("✅ STRICT CLAIM HOLDS")
           PY
-
-      - name: Run multi-dataset proof
-        run: |
-          python scripts/run_multi_dataset.py
-
+          
       - name: Invariant Stability Guard
         run: |
           python analysis/invariant_stability_guard.py
