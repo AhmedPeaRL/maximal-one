@@ -1,0 +1,27 @@
+{
+  "alphas": [
+    {
+      "alpha": -1.0,
+      "dataset": "real-data/sunspots_global.csv",
+      "error": "[Errno 2] No such file or directory: 'real-data/sunspots_global.csv'"
+    },
+    {
+      "alpha": 3.315298030740131,
+      "dataset": "real-data/sunspots_global_extended.csv"
+    },
+    {
+      "alpha": 0.0,
+      "dataset": "real-data/white_noise.csv"
+    },
+    {
+      "alpha": 1.6604628969319044,
+      "dataset": "real-data/random_walk.csv"
+    },
+    {
+      "alpha": 0.014181905712420213,
+      "dataset": "real-data/shuffled_sunspots.csv"
+    }
+  ],
+  "cross_domain_std": 1.3476765228864853,
+  "valid_domains": 3
+}
