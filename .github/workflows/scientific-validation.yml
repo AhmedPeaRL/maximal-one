@@ -543,6 +543,65 @@ jobs:
           if __name__ == "__main__":
               main()
 
+          import numpy as np
+          import json
+
+          def check_stability(alphas):
+              alphas = np.array(alphas)
+
+              if len(alphas) < 3:
+                  raise SystemExit(f"❌ Not enough VALID alpha values: {alphas}")
+
+              real = alphas[0]
+              synthetic = alphas[1]
+              noise = alphas[2]
+
+              print(f"real: {real}")
+              print(f"synthetic: {synthetic}")
+              print(f"noise: {noise}")
+
+              # guard ضد NaN
+              if not (np.isfinite(real) and np.isfinite(synthetic) and np.isfinite(noise)):
+                  raise SystemExit("❌ Non-finite values detected after filtering")
+
+              cond1 = abs(real - noise) > 0.4
+              cond2 = abs(real - synthetic) > 0.3
+              cond3 = abs(synthetic - noise) > 0.2
+
+              if not (cond1 and cond2 and cond3):
+                  raise SystemExit("❌ Structural separation failed")
+
+              print("✅ RELATIONAL INVARIANT HOLDS")
+
+          def extract_structured_alphas(alphas_dict):
+              try:
+                  real = alphas_dict["real"]["sunspots"]
+                  synthetic = alphas_dict["synthetic"]["mean"]
+                  noise = alphas_dict["noise"]["white"]
+              except KeyError as e:
+                  raise SystemExit(f"❌ Missing required alpha key: {e}")
+
+              values = [real, synthetic, noise]
+
+              for name, v in zip(["real", "synthetic", "noise"], values):
+                  if not isinstance(v, (int, float)) or not np.isfinite(v):
+                      raise SystemExit(f"❌ Invalid {name} alpha: {v}")
+
+              return values
+
+          if __name__ == "__main__":
+              data = json.load(open("artifacts/multi_report.json"))
+
+              if "alphas" not in data:
+                  raise SystemExit("❌ Invalid report format: missing 'alphas'")
+
+              alphas_dict = data["alphas"]
+              alphas = extract_structured_alphas(alphas_dict)
+
+              print(f"extracted_alphas: {alphas}")
+
+              check_stability(alphas)
+
           import pandas as pd
           from analysis.independent_validation import compare_methods
 
@@ -568,6 +627,12 @@ jobs:
 
           print("✅ Numerical consistency holds")
           PY
+
+      - name: Statistical significance test (CRITICAL)
+        run: python analysis/statistical_killer.py
+
+      - name: Advanced Null Killer (CRITICAL)
+        run: python analysis/advanced_null_killer.py
     
       - name: Irreducibility Killer Test (CRITICAL)
         run: python analysis/irreducibility_killer.py
@@ -648,16 +713,6 @@ jobs:
       - name: Theoretical consistency guard
         run: |
           python analysis/theoretical_consistency_guard.py
-
-      - name: Statistical significance test (CRITICAL)
-        run: python analysis/statistical_killer.py
-
-      - name: Advanced Null Killer (CRITICAL)
-        run: python analysis/advanced_null_killer.py
-
-      - name: Invariant Stability Guard
-        run: |
-          python analysis/invariant_stability_guard.py
 
       - name: Saturation guard
         run: |
