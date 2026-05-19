@@ -6,15 +6,18 @@ concurrency:
   
 on:
   push:
+    branches: [ "main", "attractor-evolution", "evolution" ]
   workflow_dispatch:
   repository_dispatch:
     types: [external_witness, external_dispatch, external_reproduction]
   pull_request:
+    branches: [ "main" ]
   
 permissions:
   contents: write
   actions: read
   pull-requests: read
+  security-events: write
   
 env:
   PYTHONHASHSEED: "42"
@@ -39,6 +42,14 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v5
+        with:
+          languages: javascript, python
+                   
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v5
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -74,6 +85,33 @@ jobs:
           fi
 
           echo "✅ extended dataset exists"
+
+          python - <<'PY'
+          import pandas as pd
+          from analysis.independent_validation import compare_methods
+
+          df = pd.read_csv("real-data/sunspots_global_extended.csv")
+
+          col = "Sunspots" if "Sunspots" in df.columns else "value"
+          compare_methods(df[col].values)
+
+          fft_alpha, welch_alpha = compare_methods(
+              df[col].values
+          )
+
+          delta = abs(
+              fft_alpha - welch_alpha
+          )
+
+          print("FINAL DELTA:", delta)
+
+          if delta > 0.60:
+              raise SystemExit(
+                  "❌ Numerical inconsistency"
+              )
+
+          print("✅ Numerical consistency holds")
+          PY
 
           python - <<'PY'
           import pandas as pd
@@ -194,6 +232,56 @@ jobs:
 
           if __name__ == "__main__":
               run()
+
+          import numpy as np
+
+          class LinearSystem:
+              def __init__(self, A, B, M):
+                  self.A = np.array(A, dtype=float)
+                  self.B = np.array(B, dtype=float)
+                  self.M = float(M)
+
+          class TheoreticalVerifier:
+              def __init__(self, system: LinearSystem):
+                  self.system = system
+
+          def verify(self):
+              A = self.system.A
+              B = self.system.B
+              M = self.system.M
+
+              spectral_radius_squared = np.linalg.norm(A)**2
+
+              if spectral_radius_squared >= 1:
+                  return {
+                      "stable": False,
+                      "reason": "Spectral radius squared >= 1"
+                  }
+
+              ultimate_bound = (np.linalg.norm(B)**2 * M**2) / (1 - spectral_radius_squared)
+
+              return {
+                  "stable": True,
+                  "spectral_radius_squared": float(spectral_radius_squared),
+                  "ultimate_bound": float(ultimate_bound)
+              }
+
+          import subprocess
+          import sys
+
+          scripts = [
+              "stability/linear_family_certification.py",
+              "stability/nonlinear_lasalle_gate.py",
+              "stability/symbolic_proof_generator.py",
+              "integrity/cryptographic_stamp.py"
+          ]
+
+          for script in scripts:
+              result = subprocess.run([sys.executable, script])
+              if result.returncode != 0:
+                  raise RuntimeError(f"Pipeline failed at {script}")
+
+          print("Full reproducible research pipeline passed.")
               
           import pandas as pd
           from analysis.predictive_validation import evaluate_prediction
@@ -209,7 +297,8 @@ jobs:
               )
 
           print("✅ Prediction:", res)
-          
+
+          python - <<'PY'
           import json
           import numpy as np
           import pandas as pd
@@ -510,52 +599,12 @@ jobs:
         run: |
           python analysis/physical_interpretation.py
 
-      - name: Numerical consistency check
-        run: |
-          python - <<'PY'
-          import pandas as pd
-          from analysis.independent_validation import compare_methods
-
-          df = pd.read_csv("real-data/sunspots_global_extended.csv")
-
-          col = "Sunspots" if "Sunspots" in df.columns else "value"
-
-          fft_alpha, welch_alpha = compare_methods(
-              df[col].values
-          )
-
-          delta = abs(
-              fft_alpha - welch_alpha
-          )
-
-          print("FINAL DELTA:", delta)
-
-          if delta > 0.60:
-              raise SystemExit(
-                  "❌ Numerical inconsistency"
-              )
-
-          print("✅ Numerical consistency holds")
-          PY
-
       - name: Pipeline sovereignty guard
         run: python analysis/pipeline_sovereignty_guard.py
         
       - name: Band robustness test
         run: |
           python analysis/band_robustness_test.py
-
-      - name: Independent validation
-        run: |
-          python - <<'PY'
-          import pandas as pd
-          from analysis.independent_validation import compare_methods
-
-          df = pd.read_csv("real-data/sunspots_global_extended.csv")
-          col = "Sunspots" if "Sunspots" in df.columns else "value"
-
-          compare_methods(df[col].values)
-          PY
 
       - name: Estimator calibration guard
         run: |
@@ -580,6 +629,26 @@ jobs:
       - name: Export fingerprint
         run: |
           python - <<'PY'
+          import requests, hashlib, json
+
+          URL = "https://ahmedpearl.github.io/maximal-one/public/repro_bundle/canonical_report.json"
+          HASH_URL = "https://ahmedpearl.github.io/maximal-one/public/repro_bundle/report.hash"
+
+          r = requests.get(URL)
+          data = r.text
+
+          h = hashlib.sha256(data.encode()).hexdigest()
+
+          expected = requests.get(HASH_URL).text.strip()
+
+          print("Computed:", h)
+          print("Expected:", expected)
+
+          if h == expected:
+            print("MATCH ✅")
+          else:
+              print("MISMATCH ❌")
+
           import json
           from analysis.external_reproduction_guard import compute_fingerprint
 
