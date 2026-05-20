@@ -21,11 +21,8 @@ h_fbm = hurst_rs(fbm_series)
 
 try:
     data = pd.read_csv("../data/multi_seed_results.csv")
-except Exception:
-    print("⚠️ fallback dataset used")
-    data = pd.DataFrame({
-        "spectral_exponent": np.random.normal(0.6, 0.1, 200)
-    })
+except (pd.errors.EmptyDataError, FileNotFoundError):
+    raise RuntimeError("Dataset missing or empty")
 
 h_model = np.mean(data["spectral_exponent"])
 h_fbm = 0.5
