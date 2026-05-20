@@ -9,9 +9,12 @@ def generate_strong_null(n, rng):
     noise = rng.normal(0, np.std(rw), n)
 
     mix = (
-        0.4 * rw +
-        0.2 * seasonal +
-        0.4 * noise
+        0.6 * noise +   # dominant noise
+        0.2 * rw +
+        0.2 * seasonal
     )
+
+    # 🔥 destroy long memory
+    mix = np.diff(mix, prepend=mix[0])
 
     return mix
