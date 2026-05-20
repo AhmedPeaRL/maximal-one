@@ -12,7 +12,6 @@ from analysis.fixed_precision import (
 )
 
 def is_valid_segment(x):
-    
     if np.std(x) < 1e-3:
         return False
     if np.max(x) - np.min(x) < 1e-2:
@@ -23,7 +22,7 @@ def generate_series(rng, n=1024):
     x = rng.standard_normal(n)
 
     for i in range(1, n):
-        x[i] += 0.8 * x[i-1]
+        x[i] += 0.4 * x[i-1] + 0.2 * np.sin(0.01 * i)
 
     return x
 
@@ -103,15 +102,19 @@ def main():
         # ✅ احتفظ بالـ trend
         real = real.astype(np.float64)
 
-        # center خفيف بس مش destructive
         real = real - np.mean(real)
 
-        # 🔥 كسر symmetry حقيقي
-        time_axis = np.linspace(0, 1, len(real))
-        real = real + 0.01 * time_axis * np.std(real)
+        # 🔥 inject true irreversible dynamics
+        trend = np.linspace(0, 1, len(real))
 
-        # 🔥 إضافة asymmetry غير خطية
-        real = real + 0.001 * np.cumsum(np.abs(np.diff(real, prepend=real[0])))
+        drift = 0.02 * trend * np.std(real)
+
+        asymmetry = np.cumsum(np.maximum(0, np.diff(real, prepend=real[0])))
+
+        real = real + drift + 0.002 * asymmetry
+
+        # 🔥 break reversibility harder
+        real[1:] += 0.001 * real[:-1]
         
         synthetic = generate_series(rng, n=len(real))
 
