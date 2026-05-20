@@ -1,0 +1,26 @@
+{
+  "environment": {
+    "python": "3.11",
+    "numpy": "locked",
+    "scipy": "locked"
+  },
+  "determinism": {
+    "seed": 42,
+    "threads_locked": true
+  },
+  "data": {
+    "source": "real-data/",
+    "extended_method": "block_bootstrap",
+    "no_ar_model": true
+  },
+  "validation": {
+    "scale_invariance_strict": true,
+    "cross_domain_required": true,
+    "falsification_required": true
+  },
+  "reproducibility": {
+    "canonical_json": true,
+    "hash_required": true,
+    "external_match": true
+  }
+}
