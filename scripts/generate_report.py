@@ -308,7 +308,7 @@ def main():
         if direction_gap < 0.01:
             raise SystemExit("❌ No temporal directionality")
 
-        if abs(alpha - alpha_welch) > 0.6:
+        if abs(alpha - alpha_welch) > 0.3:
             raise SystemExit("❌ Method inconsistency too high")
 
         output_path = os.path.join(
