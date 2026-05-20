@@ -15,7 +15,12 @@ def separation_score(real, null_samples):
         return None
 
     null_alphas = np.array(null_alphas)
-    gap = (real_alpha - np.mean(null_alphas)) / (np.std(null_alphas) + 1e-6)
+  
+    gap = abs(real_alpha - np.mean(null_alphas)) / (np.std(null_alphas) + 1e-6)
+
+    # 🔥 enforce minimum separation
+    if gap < 1.0:
+        return None
     
     return {
         "real_alpha": float(real_alpha),
