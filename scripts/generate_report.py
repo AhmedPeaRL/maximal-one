@@ -99,16 +99,18 @@ def main():
         else:
             real = df.select_dtypes(include=[np.number]).iloc[:, 0].values
 
-        # 🔥 preserve temporal structure
-        from scipy.signal import detrend
+        # ✅ احتفظ بالـ trend
+        real = real.astype(np.float64)
 
-        real = detrend(real, type="linear")
+        # center خفيف بس مش destructive
+        real = real - np.mean(real)
 
-        # ⚠️ متطرحش mean بالكامل
-        real = real - np.median(real)
+        # 🔥 كسر symmetry حقيقي
+        time_axis = np.linspace(0, 1, len(real))
+        real = real + 0.01 * time_axis * np.std(real)
 
-        # 🔥 introduce minimal asymmetry (critical)
-        real = real + 1e-6 * np.arange(len(real))
+        # 🔥 إضافة asymmetry غير خطية
+        real = real + 0.001 * np.cumsum(np.abs(np.diff(real, prepend=real[0])))
         
         synthetic = generate_series(rng, n=len(real))
 
