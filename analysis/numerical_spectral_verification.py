@@ -139,7 +139,13 @@ def estimate_alpha(series):
 
     alpha = -slope
 
-    return float(np.clip(alpha, 0.0, 5.0))
+    alpha = float(alpha)
+
+    # 🔥 reject saturation instead of clipping
+    if alpha > 4.5:
+        return np.nan
+
+    return float(np.clip(alpha, 0.0, 4.5))
 
 def block_bootstrap(
     series,
