@@ -99,8 +99,6 @@ def main():
         else:
             real = df.select_dtypes(include=[np.number]).iloc[:, 0].values
 
-        # ❌ بلاش detrend الكامل لأنه بيقتل الاتجاه
-        # real = detrend(real, type="linear")
         # ✅ احتفظ بالـ trend
         real = real.astype(np.float64)
 
