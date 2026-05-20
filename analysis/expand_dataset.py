@@ -31,22 +31,16 @@ series = series.astype(np.float64)
 def extend_realistic(x, target_len=3327):
     x = np.asarray(x, dtype=np.float64)
 
-    # ❌ بدل chunk stitching
-    # ✅ استخدم AR embedding يحافظ على structure
-
-    n = len(x)
+    # ✅ bootstrap blocks بدل AR
     rng = np.random.default_rng(42)
+    block_size = 32
 
-    # estimate AR(1) coefficient
-    phi = np.corrcoef(x[:-1], x[1:])[0,1]
-
-    out = list(x)
+    out = []
 
     while len(out) < target_len:
-        prev = out[-1]
-        noise = rng.normal(0, np.std(x)*0.1)
-        new_val = phi * prev + noise
-        out.append(new_val)
+        start = rng.integers(0, len(x) - block_size)
+        block = x[start:start+block_size]
+        out.extend(block)
 
     return np.array(out[:target_len])
 
