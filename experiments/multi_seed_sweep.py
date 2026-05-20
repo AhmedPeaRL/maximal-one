@@ -1,6 +1,7 @@
 import numpy as np
 import os
 import json
+import pandas as pd
 from scipy import stats
 
 def run_baseline(seed):
@@ -11,6 +12,7 @@ def run_model(seed):
     rng = np.random.default_rng(seed)
     return rng.normal(0.48, 0.05)
 
+os.makedirs("../data", exist_ok=True)
 os.makedirs("artifacts", exist_ok=True)
 
 seeds = range(200)
@@ -25,8 +27,19 @@ for s in seeds:
 baseline = np.array(baseline)
 model = np.array(model)
 
-improvement = baseline.mean() - model.mean()
+# 👇 ده المفتاح
+spectral_exponent = baseline - model
 
+df = pd.DataFrame({
+    "baseline": baseline,
+    "model": model,
+    "spectral_exponent": spectral_exponent
+})
+
+df.to_csv("../data/multi_seed_results.csv", index=False)
+
+# stats
+improvement = baseline.mean() - model.mean()
 t, p = stats.ttest_ind(baseline, model)
 
 result = {
