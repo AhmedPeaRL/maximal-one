@@ -18,13 +18,16 @@ def main():
         os.makedirs("../data", exist_ok=True)
         df.to_csv(path, index=False)
 
-    df = pd.read_csv(path)
+       try:
+           df = pd.read_csv(path)
+       except (FileNotFoundError, pd.errors.EmptyDataError):
+           df = pd.DataFrame()
 
-    if df.empty or "spectral_exponent" not in df.columns:
-        print("⚠️ Invalid dataset → regenerating fallback spectral_exponent")
-        df = pd.DataFrame({
-            "spectral_exponent": np.random.normal(1.0, 0.1, 200)
-        })
+       if df.empty or "spectral_exponent" not in df.columns:
+           print("⚠️ Invalid or missing dataset → regenerating spectral_exponent fallback")
+           df = pd.DataFrame({
+               "spectral_exponent": np.random.normal(1.0, 0.1, 200)
+           })
 
     # نستخدم spectral_exponent بدلاً من mu_boot
     alphas = df["spectral_exponent"].values
