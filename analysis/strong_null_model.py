@@ -8,11 +8,10 @@ def generate_strong_null(n, rng):
 
     noise = rng.normal(0, np.std(rw), n)
 
-    # 🔥 أقوى
     mix = (
-        0.6 * rw +
-        0.3 * seasonal +
-        0.3 * noise
+        0.4 * rw +
+        0.2 * seasonal +
+        0.4 * noise
     )
 
     return mix
