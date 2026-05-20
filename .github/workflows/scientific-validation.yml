@@ -2901,7 +2901,14 @@ jobs:
           fi
 
           cd experiments
-          python multi_seed_sweep.py 
+          python multi_seed_sweep.py
+
+      - name: Validate dataset
+        run: |
+          if [ ! -s data/multi_seed_results.csv ]; then
+            echo "❌ dataset missing or empty"
+            exit 1
+          fi
 
       - name: Run power analysis
         run: |
