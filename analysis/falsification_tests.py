@@ -15,9 +15,16 @@ def shuffle_test(series, rng):
     return a2
 
 def temporal_direction_test(series):
-    forward = estimate_alpha(series)
-    backward = estimate_alpha(series[::-1])
-    return abs(forward - backward)
+    series = np.asarray(series, dtype=np.float64)
+
+    # 🔥 استخدم first difference (يكسر symmetry)
+    fwd = estimate_alpha(np.diff(series))
+    bwd = estimate_alpha(np.diff(series[::-1]))
+
+    if not (np.isfinite(fwd) and np.isfinite(bwd)):
+        return 0.0
+
+    return float(abs(fwd - bwd))
 
 def phase_randomization(series, rng):
     surrogate = phase_randomized_surrogate(series, rng)
