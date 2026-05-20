@@ -59,10 +59,16 @@ def load_series(path):
             best_series = s
 
         if "passengers" in col_lower:
-            s = pd.to_numeric(df["passengers"], errors="coerce")
+            s = pd.to_numeric(df[col], errors="coerce")
+            s = s.dropna()
+            if len(s) > 100:
+                return (s - np.mean(s)) / (np.std(s) + 1e-12)
 
         if "j-d" in col_lower:
-            s = pd.to_numeric(df["j-d"], errors="coerce")
+            s = pd.to_numeric(df[col], errors="coerce")
+            s = s.dropna()
+            if len(s) > 100:
+                return (s - np.mean(s)) / (np.std(s) + 1e-12)
 
     if best_series is None:
         raise ValueError(f"No valid numeric column in {path}")
