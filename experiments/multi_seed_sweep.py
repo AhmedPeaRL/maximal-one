@@ -36,7 +36,13 @@ df = pd.DataFrame({
     "spectral_exponent": spectral_exponent
 })
 
-df.to_csv("../data/multi_seed_results.csv", index=False)
+output_path = "../data/multi_seed_results.csv"
+
+df.to_csv(output_path, index=False)
+
+# 🔒 ضمان إن الملف مش فاضي
+if not os.path.exists(output_path) or os.path.getsize(output_path) == 0:
+    raise RuntimeError("Dataset write failed: empty file")
 
 # stats
 improvement = baseline.mean() - model.mean()
