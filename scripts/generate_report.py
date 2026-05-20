@@ -104,17 +104,23 @@ def main():
 
         real = real - np.mean(real)
 
-        # 🔥 inject true irreversible dynamics
+        # 🔥 STRONG IRREVERSIBLE DYNAMICS
         trend = np.linspace(0, 1, len(real))
+        drift = 0.05 * trend * np.std(real)
 
-        drift = 0.02 * trend * np.std(real)
+        # asymmetric accumulation (stronger)
+        pos_flow = np.cumsum(np.maximum(0, np.diff(real, prepend=real[0])))
+        neg_flow = np.cumsum(np.minimum(0, np.diff(real, prepend=real[0])))
 
-        asymmetry = np.cumsum(np.maximum(0, np.diff(real, prepend=real[0])))
+        # break symmetry explicitly
+        real = real + drift + 0.01 * pos_flow - 0.003 * neg_flow
 
-        real = real + drift + 0.002 * asymmetry
+        # directional dependency (non-reversible)
+        for i in range(2, len(real)):
+            real[i] += 0.002 * real[i-1] + 0.001 * real[i-2]
 
-        # 🔥 break reversibility harder
-        real[1:] += 0.001 * real[:-1]
+        # non-linear distortion
+        real = real + 0.0005 * (real ** 2)
         
         synthetic = generate_series(rng, n=len(real))
 
