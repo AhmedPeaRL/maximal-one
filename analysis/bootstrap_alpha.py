@@ -1,6 +1,6 @@
 import json
 import numpy as np
-from .numerical_spectral_verification import estimate_alpha
+from analysis.numerical_spectral_verification import estimate_alpha
 
 np.random.seed(42)
 
