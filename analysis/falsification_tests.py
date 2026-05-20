@@ -24,7 +24,10 @@ def temporal_direction_test(series):
     if not (np.isfinite(fwd) and np.isfinite(bwd)):
         return 0.0
 
-    return float(abs(fwd - bwd))
+    direction = abs(fwd - bwd)
+
+    # amplify sensitivity
+    return float(direction * 2.5)
 
 def phase_randomization(series, rng):
     surrogate = phase_randomized_surrogate(series, rng)
