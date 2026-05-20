@@ -28,8 +28,17 @@ def hcm_model(x):
     return ll, 2
 
 def main():
-    df = pd.read_csv("../data/multi_seed_results.csv")
-    x = df["value"].values
+    path = "../data/multi_seed_results.csv"
+
+    try:
+        df = pd.read_csv(path)
+    except:
+        raise RuntimeError("Dataset missing or corrupted")
+
+    if "spectral_exponent" not in df.columns:
+        raise ValueError("spectral_exponent column missing")
+
+    x = df["spectral_exponent"].values  # ✅ FIX
 
     n = len(x)
 
@@ -41,14 +50,11 @@ def main():
     bic_ar = compute_bic(ll_ar, n, k_ar)
     bic_hcm = compute_bic(ll_hcm, n, k_hcm)
 
-    delta_bic_ar = bic_ar - bic_hcm
-    delta_bic_rw = bic_rw - bic_hcm
-
     print("BIC Random Walk:", bic_rw)
     print("BIC AR(1):", bic_ar)
     print("BIC HCM:", bic_hcm)
-    print("ΔBIC (AR - HCM):", delta_bic_ar)
-    print("ΔBIC (RW - HCM):", delta_bic_rw)
+    print("ΔBIC (AR - HCM):", bic_ar - bic_hcm)
+    print("ΔBIC (RW - HCM):", bic_rw - bic_hcm)
 
 if __name__ == "__main__":
     main()
