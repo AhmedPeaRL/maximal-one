@@ -99,17 +99,21 @@ def main():
         else:
             real = df.select_dtypes(include=[np.number]).iloc[:, 0].values
 
+        # 🔥 preserve temporal structure
         from scipy.signal import detrend
-        real = detrend(real)
-        real = real - np.mean(real)
-        # ❌ سيب الـ std زي ما هو
+
+        real = detrend(real, type="linear")
+
+        # ⚠️ متطرحش mean بالكامل
+        real = real - np.median(real)
+
+        # 🔥 introduce minimal asymmetry (critical)
+        real = real + 1e-6 * np.arange(len(real))
         
         synthetic = generate_series(rng, n=len(real))
 
         if args.canonical:
             series = real.copy()
-            series = series - np.mean(series)
-            series = series / (np.std(series) + 1e-12)
             
             generator_type = "pure_real"
         else:
