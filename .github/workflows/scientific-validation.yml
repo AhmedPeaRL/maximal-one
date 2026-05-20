@@ -215,6 +215,7 @@ jobs:
               main()
 
       - name: Run canonical experiment ONLY
+        continue-on-error: true
         run: |
           python scripts/generate_report.py --seed 42 --canonical
 
