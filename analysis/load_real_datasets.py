@@ -45,7 +45,7 @@ def load_series(path):
         s = s.dropna()
         s = s[np.isfinite(s)]
 
-        if len(s) < 200:
+        if len(s) < 120:
             continue
 
         std = np.std(s)
@@ -57,6 +57,8 @@ def load_series(path):
         if score > best_score:
             best_score = score
             best_series = s
+
+        df = df.replace(",", "", regex=True)
 
         if "passengers" in col_lower:
             s = pd.to_numeric(df[col], errors="coerce")
