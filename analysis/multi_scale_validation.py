@@ -9,7 +9,6 @@ def downsample(series, factor):
     ], dtype=np.float64)
 
 def multi_scale_alpha(series):
-
     series = np.asarray(series, dtype=np.float64)
 
     scales = [1, 2, 4, 8]
@@ -34,7 +33,6 @@ def multi_scale_alpha(series):
     return results
 
 def evaluate_scale_invariance(series):
-
     results = multi_scale_alpha(series)
 
     if len(results) < 3:
@@ -52,7 +50,13 @@ def evaluate_scale_invariance(series):
     # 🔥 normalized dispersion
     dispersion = mad / (np.abs(median) + 1e-12)
 
-    threshold = 1.2  # relaxed but still strict
+    threshold = 0.6  # relaxed but still strict
+
+    if any(a == 0.0 for _, a in results[1:]):
+        return {
+            "valid": False,
+            "reason": "scale collapse detected"
+        }
 
     return {
         "scales": results,
