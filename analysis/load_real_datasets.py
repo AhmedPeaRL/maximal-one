@@ -81,12 +81,14 @@ def load_series(path):
 
         # 🔥 special handling for temperature dataset
         if "temperature" in path:
-            df = df.replace("***", np.nan)
-            if "j-d" in col_lower:
+        df = df.replace("***", np.nan)
+
+        for col in df.columns:
+            if col.strip().lower() in ["j-d", "j_d", "jd"]:
                 s = pd.to_numeric(df[col], errors="coerce").dropna()
                 if len(s) > 100:
                     return (s - np.mean(s)) / (np.std(s) + 1e-12)
-
+    
     if best_series is None:
         raise ValueError(f"No valid numeric column in {path}")
 
