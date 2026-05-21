@@ -52,7 +52,6 @@ def load_series(path):
             continue
 
         df = df.replace("***", np.nan)
-        df[col] = df[col].astype(str).str.replace(" ", "")
         s = pd.to_numeric(df[col], errors="coerce")
         s = s.replace([np.inf, -np.inf], np.nan)
         s = s.dropna()
@@ -77,6 +76,8 @@ def load_series(path):
             s = pd.to_numeric(df[col], errors="coerce").dropna()
             if len(s) > 100:
                 return (s - np.mean(s)) / (np.std(s) + 1e-12)
+
+        df[col] = df[col].astype(str).str.replace(" ", "")
 
         # 🔥 special handling for temperature dataset
         if "temperature" in path:
