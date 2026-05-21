@@ -264,6 +264,7 @@ jobs:
 
           if __name__ == "__main__":
               main()
+          PY
 
       - name: Irreducibility Killer Test (CRITICAL)
         run: python analysis/irreducibility_killer.py
