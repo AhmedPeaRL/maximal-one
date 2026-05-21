@@ -19,18 +19,26 @@ def is_valid_segment(x):
     return True
 
 def generate_series(rng, n=1024):
+    # base white noise
     x = rng.standard_normal(n)
 
-    # 🔥 weaker memory
-    for i in range(1, n):
-        x[i] += 0.15 * x[i-1]
+    # ❌ remove autoregressive memory
+    # ❌ no x[i-1] dependency
 
-    # 🔥 destroy long-range structure
-    noise = rng.normal(0, np.std(x), n)
-    x = 0.7 * noise + 0.3 * x
+    # 🔥 introduce controlled chaos (non-persistent)
+    jumps = rng.normal(0, 1.5, n)
+    mask = rng.uniform(0, 1, n) < 0.1
+    x[mask] += jumps[mask]
 
-    # 🔥 remove directional bias
+    # 🔥 destroy long-range correlation
     x = np.diff(x, prepend=x[0])
+
+    # 🔥 random local shuffling (break structure)
+    for _ in range(5):
+        i = rng.integers(0, n-20)
+        block = x[i:i+20].copy()
+        rng.shuffle(block)
+        x[i:i+20] = block
 
     return x
 
