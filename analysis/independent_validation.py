@@ -18,128 +18,50 @@ def sanitize_alpha(alpha):
     return float(alpha)
 
 def estimate_alpha_welch(series):
+    import numpy as np
+    from scipy.signal import welch
+    from scipy.ndimage import uniform_filter1d
 
-    series = np.asarray(
-        series,
-        dtype=np.float64
-    )
+    series = np.asarray(series, dtype=np.float64)
+
+    if len(series) < 128:
+        return np.nan
 
     if not np.all(np.isfinite(series)):
         return np.nan
 
-    n = len(series)
-
-    if n < 64:
-        return np.nan
-
+    # 🔥 نفس preprocessing بتاع FFT
+    series = uniform_filter1d(series, size=3)
     series = series - np.mean(series)
 
     freqs, psd = welch(
         series,
-        nperseg=min(128, n),
-        scaling="density",
+        nperseg=128,
         window="hann",
         detrend="constant",
-        average="median"
+        scaling="density"
     )
 
-    mask = (
-        (freqs > FREQ_MIN)
-        & (freqs < FREQ_MAX)
-    )
+    # 🔥 نفس range بالظبط
+    mask = (freqs > 0.02) & (freqs < 0.4)
 
     freqs = freqs[mask]
     psd = psd[mask]
 
-    if len(freqs) < 12:
+    if len(freqs) < 10:
         return np.nan
 
-    psd = uniform_filter1d(
-        psd,
-        size=3,
-        mode="nearest"
-    )
+    log_f = np.log(freqs)
+    log_psd = np.log(psd + 1e-12)
 
-    psd = np.round(psd, 8)
-
-    psd = np.maximum(psd, 1e-12)
-
-    log_f = np.round(
-        np.log(freqs),
-        8
-    )
-
-    log_psd = np.round(
-        np.log(psd),
-        8
-    )
-
-    slopes = []
-
-    window = 9
-
-    for i in range(len(log_f) - window):
-
-        x = log_f[i:i + window]
-        y = log_psd[i:i + window]
-
-        if np.std(y) < 1e-8:
-            continue
-
-        try:
-
-            coeffs = np.polyfit(
-                x,
-                y,
-                1
-            )
-
-            slope = float(
-                np.round(coeffs[0], 8)
-            )
-
-            if np.isfinite(slope):
-                slopes.append(slope)
-
-        except Exception:
-            continue
-
-    if len(slopes) < 6:
-        return np.nan
-
-    slopes = np.asarray(
-        slopes,
-        dtype=np.float64
-    )
-
-    median = np.median(slopes)
-
-    mad = np.median(
-        np.abs(slopes - median)
-    ) + 1e-12
-
-    filtered = slopes[
-        np.abs(slopes - median)
-        < 2.5 * mad
-    ]
-
-    if len(filtered) < 4:
-        filtered = slopes
-
-    slope = np.mean(filtered)
-
-    if slope > 0:
-        slope = -abs(slope)
-
+    slope = np.polyfit(log_f, log_psd, 1)[0]
     alpha = -slope
 
-    return float(
-        np.round(
-            sanitize_alpha(alpha),
-            8
-        )
-    )
+    if not np.isfinite(alpha):
+        return np.nan
 
+    return float(np.clip(alpha, 0.0, 4.5))
+    
 def compare_methods(series):
 
     from analysis.numerical_spectral_verification import (
