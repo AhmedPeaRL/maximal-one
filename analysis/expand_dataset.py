@@ -33,13 +33,19 @@ def extend_realistic(x, target_len=3327):
 
     # ✅ bootstrap blocks بدل AR
     rng = np.random.default_rng(42)
-    block_size = 64
+    block_size = rng.integers(32, 96)
 
     out = []
 
     while len(out) < target_len:
+        block_size = rng.integers(32, 96)
         start = rng.integers(0, len(x) - block_size)
         block = x[start:start+block_size]
+
+        # 🔥 jitter بسيط يمنع periodicity
+        noise = rng.normal(0, 0.01 * np.std(x), size=len(block))
+        block = block + noise
+
         out.extend(block)
 
     return np.array(out[:target_len])
