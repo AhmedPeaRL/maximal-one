@@ -40,12 +40,16 @@ def extend_realistic(x, target_len=3327):
 
         block = x[start:start+block_size].copy()
 
-        # 🔥 حافظ على structure الحقيقي (مفيش diff)
-        noise = rng.normal(0, 0.02 * np.std(x), size=len(block))
+        # 🔥 بدل ما نحافظ على structure → نكسره جزئياً
+        noise = rng.normal(0, 0.08 * np.std(x), size=len(block))
         block = block + noise
 
-        # 🔥 slight scaling variation
-        scale = rng.uniform(0.95, 1.05)
+        # 🔥 distort autocorrelation
+        block = block - 0.3 * np.roll(block, 1)
+        block[0] = block[1]
+
+        # 🔥 random scaling أقوى
+        scale = rng.uniform(0.85, 1.15)
         block = block * scale
 
         out.extend(block)
