@@ -189,8 +189,7 @@ def main():
         
         # 🔥 preserve directionality (no full normalization)
         series = series.astype(np.float64)
-        series = series / (np.std(series) + 1e-12)
-
+        
         # 🔥 restore asymmetry after normalization
         trend = np.linspace(0, 1, len(series))
         series = series + 0.02 * trend
