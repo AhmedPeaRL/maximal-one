@@ -21,8 +21,16 @@ def is_valid_segment(x):
 def generate_series(rng, n=1024):
     x = rng.standard_normal(n)
 
+    # 🔥 weaker memory
     for i in range(1, n):
-        x[i] += 0.4 * x[i-1] + 0.2 * np.sin(0.01 * i)
+        x[i] += 0.15 * x[i-1]
+
+    # 🔥 destroy long-range structure
+    noise = rng.normal(0, np.std(x), n)
+    x = 0.7 * noise + 0.3 * x
+
+    # 🔥 remove directional bias
+    x = np.diff(x, prepend=x[0])
 
     return x
 
