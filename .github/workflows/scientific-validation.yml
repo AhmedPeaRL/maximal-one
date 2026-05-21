@@ -764,6 +764,7 @@ jobs:
 
               check_stability(alphas)
 
+          python - <<'PY'
           import pandas as pd
           from analysis.independent_validation import compare_methods
 
