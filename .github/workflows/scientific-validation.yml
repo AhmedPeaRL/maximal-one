@@ -750,7 +750,7 @@ jobs:
                   raise SystemExit("❌ Non-finite values detected after filtering")
 
               cond1 = abs(real - noise) > 0.4
-              cond2 = abs(real - synthetic) > 0.2
+              cond2 = abs(real - synthetic) > 0.35
               cond3 = abs(synthetic - noise) > 0.2
 
               if not (cond1 and cond2 and cond3):
