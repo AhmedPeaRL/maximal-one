@@ -324,6 +324,7 @@ jobs:
 
           if __name__ == "__main__":
               main()
+          PY
 
       - name: Extract alpha signal (fixed)
         run: |
@@ -420,8 +421,8 @@ jobs:
               if delta > 0.4:
                   raise SystemExit("❌ fragile structure")
 
-              print("✅ anti-self-deception guard passed")
-              PY
+          print("✅ anti-self-deception guard passed")
+          PY
 
           python - <<'PY'
           import numpy as np
@@ -701,6 +702,7 @@ jobs:
 
           if __name__ == "__main__":
               main()
+          PY
 
           python - <<'PY'
           import numpy as np
