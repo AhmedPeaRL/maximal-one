@@ -25,6 +25,17 @@ def load_series(path):
     )
     df.columns = [str(c).strip().lower() for c in df.columns]
 
+    # 🔥🔥 FIX حقيقي للـ SP500 (قبل أي loop)
+    if "sp500" in path.lower():
+        for col in df.columns:
+            col_lower = col.lower()
+            if "close" in col_lower:
+                s = pd.to_numeric(df[col], errors="coerce")
+                s = s.replace([np.inf, -np.inf], np.nan).dropna()
+
+                if len(s) > 120:
+                    return (s - np.mean(s)) / (np.std(s) + 1e-12)
+
     best_series = None
     best_score = 0
 
@@ -34,13 +45,6 @@ def load_series(path):
         # 🔥 تجاهل الأعمدة الزمنية
         if any(x in col_lower for x in ["date", "month", "year"]):
             continue
-
-        # 🔥 FIX CRITICAL: SP500 column override
-        if "sp500" in path.lower():
-            if "close" in col_lower:
-                s = pd.to_numeric(df[col], errors="coerce").dropna()
-                if len(s) > 120:
-                    return (s - np.mean(s)) / (np.std(s) + 1e-12)
 
         try:
             float(str(df[col].iloc[0]).replace(",", "").replace(" ", ""))
@@ -77,6 +81,7 @@ def load_series(path):
         if "temperature" in path:
             df = df.replace("***", np.nan)
             if "j-d" in col_lower:
+                df[col] = df[col].astype(str).str.replace(" ", "")
                 s = pd.to_numeric(df[col], errors="coerce").dropna()
                 if len(s) > 100:
                     return (s - np.mean(s)) / (np.std(s) + 1e-12)
