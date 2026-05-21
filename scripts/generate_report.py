@@ -19,35 +19,31 @@ def is_valid_segment(x):
     return True
 
 def generate_series(rng, n=1024):
-    # 🔥 pure null مركب (anti-persistence)
     wn = rng.standard_normal(n)
 
-    # random walk (لكن هنكسره)
+    # 🔥 random walk
     rw = np.cumsum(rng.standard_normal(n))
 
-    # seasonal بسيط
-    t = np.linspace(0, 10*np.pi, n)
-    seasonal = np.sin(t)
+    # 🔥 mix
+    x = 0.5 * wn + 0.5 * np.diff(rw, prepend=rw[0])
 
-    # 🔥 mix controlled
-    x = (
-        0.7 * wn +
-        0.2 * np.diff(rw, prepend=rw[0]) +
-        0.1 * seasonal
-    )
+    # 🔥 كسر كامل للـ persistence
+    x = x - 0.5 * np.roll(x, 1)
+    x[0] = 0.0
 
-    # 🔥 destroy persistence بالكامل
-    x = np.diff(x, prepend=x[0])
-
-    # 🔥 phase randomization قوي
+    # 🔥 heavy phase destruction
     fft = np.fft.rfft(x)
     phases = rng.uniform(0, 2*np.pi, len(fft))
     phases[0] = 0.0
-    fft = np.abs(fft) * np.exp(1j * phases)
-    x = np.fft.irfft(fft, n=n)
+
+    magnitudes = np.abs(fft)
+    magnitudes *= rng.uniform(0.1, 0.5, len(magnitudes))
+
+    new_fft = magnitudes * np.exp(1j * phases)
+    x = np.fft.irfft(new_fft, n=n)
 
     return x
-
+    
 def stable_float(x, digits=6):
     return float(round(x, digits))
 
