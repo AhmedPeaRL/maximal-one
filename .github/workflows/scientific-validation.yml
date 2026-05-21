@@ -790,7 +790,7 @@ jobs:
               print(f"extracted_alphas: {alphas}")
 
               check_stability(alphas)
-              PY
+           PY
 
       - name: Statistical significance test (CRITICAL)
         run: python analysis/statistical_killer.py
