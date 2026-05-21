@@ -120,8 +120,8 @@ def estimate_alpha(series):
     if np.std(series) < 1e-5:
         return np.nan
 
-    series = series - np.mean(series)
     series = uniform_filter1d(series, size=3)
+    series = series - np.mean(series)
 
     freqs, psd = welch(series, nperseg=128)
 
