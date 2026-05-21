@@ -33,12 +33,12 @@ def extend_realistic(x, target_len=3327):
 
     # ✅ bootstrap blocks بدل AR
     rng = np.random.default_rng(42)
-    block_size = rng.integers(32, 96)
+    block_size = rng.integers(16, 64)
 
     out = []
 
     while len(out) < target_len:
-        block_size = rng.integers(32, 96)
+        block_size = rng.integers(16, 64)
         start = rng.integers(0, len(x) - block_size)
         block = x[start:start+block_size]
 
