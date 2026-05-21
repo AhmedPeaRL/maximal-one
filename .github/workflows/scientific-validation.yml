@@ -175,6 +175,7 @@ jobs:
               )
 
           print("✅ DATASET PROVENANCE SEALED")
+          PY
 
           python - <<'PY'
           import os
@@ -422,6 +423,7 @@ jobs:
                   raise SystemExit("❌ fragile structure")
 
               print("✅ anti-self-deception guard passed")
+              PY
 
           python - <<'PY'
           import numpy as np
@@ -454,7 +456,6 @@ jobs:
           if __name__ == "__main__":
               run()
 
-          python - <<'PY'
           import numpy as np
 
           class LinearSystem:
@@ -520,6 +521,7 @@ jobs:
               )
 
           print("✅ Prediction:", res)
+          PY
 
           python - <<'PY'
           import json
