@@ -80,7 +80,7 @@ def load_series(path):
         df[col] = df[col].astype(str).str.replace(" ", "")
 
         # 🔥 special handling for temperature dataset
-        if "temperature" in path:
+        if "temperature" in path.lower():
             df = df.replace("***", np.nan)
 
             for col in df.columns:
