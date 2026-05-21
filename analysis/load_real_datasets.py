@@ -76,8 +76,8 @@ def load_series(path):
         # 🔥 special handling for temperature dataset
         if "temperature" in path:
             df = df.replace("***", np.nan)
-            if "j-d" in df.columns:
-                s = pd.to_numeric(df["j-d"], errors="coerce").dropna()
+            if "j-d" in col_lower:
+                s = pd.to_numeric(df[col], errors="coerce").dropna()
                 if len(s) > 100:
                     return (s - np.mean(s)) / (np.std(s) + 1e-12)
 
