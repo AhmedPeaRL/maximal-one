@@ -19,26 +19,32 @@ def is_valid_segment(x):
     return True
 
 def generate_series(rng, n=1024):
-    # base white noise
-    x = rng.standard_normal(n)
+    # 🔥 pure null مركب (anti-persistence)
+    wn = rng.standard_normal(n)
 
-    # ❌ remove autoregressive memory
-    # ❌ no x[i-1] dependency
+    # random walk (لكن هنكسره)
+    rw = np.cumsum(rng.standard_normal(n))
 
-    # 🔥 introduce controlled chaos (non-persistent)
-    jumps = rng.normal(0, 1.5, n)
-    mask = rng.uniform(0, 1, n) < 0.1
-    x[mask] += jumps[mask]
+    # seasonal بسيط
+    t = np.linspace(0, 10*np.pi, n)
+    seasonal = np.sin(t)
 
-    # 🔥 destroy long-range correlation
+    # 🔥 mix controlled
+    x = (
+        0.7 * wn +
+        0.2 * np.diff(rw, prepend=rw[0]) +
+        0.1 * seasonal
+    )
+
+    # 🔥 destroy persistence بالكامل
     x = np.diff(x, prepend=x[0])
 
-    # 🔥 random local shuffling (break structure)
-    for _ in range(5):
-        i = rng.integers(0, n-20)
-        block = x[i:i+20].copy()
-        rng.shuffle(block)
-        x[i:i+20] = block
+    # 🔥 phase randomization قوي
+    fft = np.fft.rfft(x)
+    phases = rng.uniform(0, 2*np.pi, len(fft))
+    phases[0] = 0.0
+    fft = np.abs(fft) * np.exp(1j * phases)
+    x = np.fft.irfft(fft, n=n)
 
     return x
 
