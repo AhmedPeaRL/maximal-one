@@ -186,7 +186,9 @@ def main():
         direction_gap = temporal_direction_test(series)
         bootstrap_rng = np.random.default_rng(args.seed + 202)
         stats_rng = np.random.default_rng(args.seed + 303)
-        series = series - np.mean(series)
+        
+        # 🔥 preserve directionality (no full normalization)
+        series = series.astype(np.float64)
         series = series / (np.std(series) + 1e-12)
         scale_test = evaluate_scale_invariance(series)
 
