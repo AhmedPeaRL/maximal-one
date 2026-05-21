@@ -82,7 +82,6 @@ def load_series(path):
         # 🔥 special handling for temperature dataset
         if "temperature" in path.lower():
             df = df.replace("***", np.nan)
-
             for col in df.columns:
                 if col.strip().lower() in ["j-d", "j_d", "jd"]:
                     s = pd.to_numeric(df[col], errors="coerce").dropna()
