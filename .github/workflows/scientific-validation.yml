@@ -400,8 +400,6 @@ jobs:
               else:
                   return "mixed_structure"
 
-          python - <<'PY'
-          import numpy as np
           from analysis.numerical_spectral_verification import estimate_alpha
 
           def run_guard(series):
@@ -456,8 +454,6 @@ jobs:
           if __name__ == "__main__":
               run()
 
-          import numpy as np
-
           class LinearSystem:
               def __init__(self, A, B, M):
                   self.A = np.array(A, dtype=float)
@@ -488,8 +484,7 @@ jobs:
                       "spectral_radius_squared": float(spectral_radius_squared),
                       "ultimate_bound": float(ultimate_bound)
                   }
-
-          python - <<'PY'
+                  
           import subprocess
           import sys
 
@@ -767,7 +762,6 @@ jobs:
 
               check_stability(alphas)
 
-          python - <<'PY'
           import pandas as pd
           from analysis.independent_validation import compare_methods
 
