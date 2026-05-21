@@ -9,9 +9,9 @@ def generate_strong_null(n, rng):
     noise = rng.normal(0, np.std(rw), n)
 
     mix = (
-        0.6 * noise +   # dominant noise
-        0.2 * rw +
-        0.2 * seasonal
+        0.8 * noise +   # 🔥 خلي noise dominant أكتر
+        0.1 * rw +
+        0.1 * seasonal
     )
 
     # 🔥 destroy structure aggressively
