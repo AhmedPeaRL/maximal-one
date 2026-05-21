@@ -45,7 +45,6 @@ def extend_realistic(x, target_len=3327):
         # 🔥 jitter بسيط يمنع periodicity
         noise = rng.normal(0, 0.05 * np.std(x), size=len(block))
         block = np.diff(block, prepend=block[0])
-        block = block + noise
 
         out.extend(block)
 
