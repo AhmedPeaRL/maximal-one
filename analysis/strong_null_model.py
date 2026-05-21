@@ -14,12 +14,10 @@ def generate_strong_null(n, rng):
         0.1 * seasonal
     )
 
-    # 🔥 destroy structure aggressively
     mix = np.diff(mix, prepend=mix[0])
-    mix = np.diff(mix, prepend=mix[0])  # double differencing
 
-    # remove persistence
-    mix = mix - 0.8 * np.roll(mix, 1)
+    # 🔥 reduce over-destruction
+    mix = mix - 0.3 * np.roll(mix, 1)
     mix[0] = 0.0
 
     return mix
