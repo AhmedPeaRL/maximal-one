@@ -121,6 +121,7 @@ def estimate_alpha(series):
         return np.nan
 
     series = series - np.mean(series)
+    series = uniform_filter1d(series, size=3)
 
     freqs, psd = welch(series, nperseg=128)
 
