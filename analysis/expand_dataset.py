@@ -30,21 +30,23 @@ series = series.astype(np.float64)
 
 def extend_realistic(x, target_len=3327):
     x = np.asarray(x, dtype=np.float64)
-
-    # ✅ bootstrap blocks بدل AR
     rng = np.random.default_rng(42)
-    block_size = rng.integers(16, 64)
 
     out = []
 
     while len(out) < target_len:
-        block_size = rng.integers(16, 64)
+        block_size = rng.integers(32, 128)
         start = rng.integers(0, len(x) - block_size)
-        block = x[start:start+block_size]
 
-        # 🔥 jitter بسيط يمنع periodicity
-        noise = rng.normal(0, 0.05 * np.std(x), size=len(block))
-        block = np.diff(block, prepend=block[0])
+        block = x[start:start+block_size].copy()
+
+        # 🔥 حافظ على structure الحقيقي (مفيش diff)
+        noise = rng.normal(0, 0.02 * np.std(x), size=len(block))
+        block = block + noise
+
+        # 🔥 slight scaling variation
+        scale = rng.uniform(0.95, 1.05)
+        block = block * scale
 
         out.extend(block)
 
