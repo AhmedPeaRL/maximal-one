@@ -272,12 +272,6 @@ jobs:
           if __name__ == "__main__":
               main()
 
-      - name: Statistical significance test (CRITICAL)
-        run: python analysis/statistical_killer.py
-
-      - name: Advanced Null Killer (CRITICAL)
-        run: python analysis/advanced_null_killer.py
-
       - name: Predictive validation
         run: |
           python - <<'PY'
@@ -738,6 +732,12 @@ jobs:
 
           print("PASS: non-trivial structure detected")
           PY
+
+      - name: Statistical significance test (CRITICAL)
+        run: python analysis/statistical_killer.py
+
+      - name: Advanced Null Killer (CRITICAL)
+        run: python analysis/advanced_null_killer.py
 
       - name: Null Gap Test
         run: |
