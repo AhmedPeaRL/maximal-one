@@ -14,7 +14,8 @@ def generate_strong_null(n, rng):
         0.1 * seasonal
     )
 
-    mix = np.diff(mix, prepend=mix[0])
+    mix = mix - np.mean(mix)
+    mix = mix / (np.std(mix) + 1e-12)
 
     # 🔥 reduce over-destruction
     mix = mix - 0.3 * np.roll(mix, 1)
