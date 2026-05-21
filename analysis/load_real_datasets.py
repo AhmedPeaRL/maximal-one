@@ -31,8 +31,16 @@ def load_series(path):
     for col in df.columns:
         col_lower = col.lower()
 
+        # 🔥 تجاهل الأعمدة الزمنية
         if any(x in col_lower for x in ["date", "month", "year"]):
             continue
+
+        # 🔥 FIX CRITICAL: SP500 column override
+        if "sp500" in path.lower():
+            if "close" in col_lower:
+                s = pd.to_numeric(df[col], errors="coerce").dropna()
+                if len(s) > 120:
+                    return (s - np.mean(s)) / (np.std(s) + 1e-12)
 
         try:
             float(str(df[col].iloc[0]).replace(",", "").replace(" ", ""))
@@ -53,22 +61,21 @@ def load_series(path):
             continue
 
         score = std * len(s)
-
         if score > best_score:
             best_score = score
             best_series = s
 
         df = df.replace(",", "", regex=True)
 
+        # 🔥 passengers override
         if "passengers" in col_lower:
-            s = pd.to_numeric(df[col], errors="coerce")
-            s = s.dropna()
+            s = pd.to_numeric(df[col], errors="coerce").dropna()
             if len(s) > 100:
                 return (s - np.mean(s)) / (np.std(s) + 1e-12)
 
+        # 🔥 temperature override
         if "j-d" in col_lower:
-            s = pd.to_numeric(df[col], errors="coerce")
-            s = s.dropna()
+            s = pd.to_numeric(df[col], errors="coerce").dropna()
             if len(s) > 100:
                 return (s - np.mean(s)) / (np.std(s) + 1e-12)
 
