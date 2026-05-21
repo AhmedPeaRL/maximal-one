@@ -133,6 +133,11 @@ jobs:
           DATASETS = [
               "real-data/sunspots_full.csv",
               "real-data/sunspots_global_extended.csv",
+              "real-data/co2_atmospheric_clean.csv",
+              "real-data/airline_passengers.csv",
+              "real-data/cosmic_rays_clean.csv",
+              "real-data/temperature_global.csv",
+              "real-data/sp500.csv",
               "real-data/white_noise.csv",
               "real-data/random_walk.csv",
               "real-data/shuffled_sunspots.csv"
