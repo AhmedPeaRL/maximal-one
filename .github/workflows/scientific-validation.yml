@@ -214,6 +214,9 @@ jobs:
           if __name__ == "__main__":
               main()
 
+      - name: Irreducibility Killer Test (CRITICAL)
+        run: python analysis/irreducibility_killer.py
+
       - name: Run canonical experiment ONLY
         continue-on-error: true
         run: |
@@ -274,9 +277,6 @@ jobs:
 
       - name: Advanced Null Killer (CRITICAL)
         run: python analysis/advanced_null_killer.py
-    
-      - name: Irreducibility Killer Test (CRITICAL)
-        run: python analysis/irreducibility_killer.py
 
       - name: Predictive validation
         run: |
