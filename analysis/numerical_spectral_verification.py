@@ -113,7 +113,7 @@ def robust_local_slopes(
 
 def estimate_alpha(series):
     series = np.asarray(series, dtype=np.float64)
-    series = uniform_filter1d(series, size=3)
+    series = uniform_filter1d(series, size=2)
 
     if len(series) < 128:
         return np.nan
@@ -142,9 +142,8 @@ def estimate_alpha(series):
 
     alpha = float(alpha)
 
-    # 🔥 reject saturation instead of clipping
     if alpha > 3.5:
-        return np.nan
+        alpha = 3.5
 
     return float(np.clip(alpha, 0.0, 4.5))
 
