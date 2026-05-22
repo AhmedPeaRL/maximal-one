@@ -35,27 +35,23 @@ def extend_realistic(x, target_len=3327):
     out = []
 
     while len(out) < target_len:
-        block_size = rng.integers(32, 128)
+        block_size = rng.integers(64, 256)
         start = rng.integers(0, len(x) - block_size)
 
         block = x[start:start+block_size].copy()
 
-        # 🔥 بدل ما نحافظ على structure → نكسره جزئياً
-        noise = rng.normal(0, 0.08 * np.std(x), size=len(block))
+        # ✅ noise ضعيف جداً (يحافظ على structure)
+        noise = rng.normal(0, 0.02 * np.std(x), size=len(block))
         block = block + noise
 
-        # 🔥 distort autocorrelation
-        block = block - 0.3 * np.roll(block, 1)
-        block[0] = block[1]
-
-        # 🔥 random scaling أقوى
-        scale = rng.uniform(0.85, 1.15)
+        # ✅ scaling محدود
+        scale = rng.uniform(0.95, 1.05)
         block = block * scale
 
         out.extend(block)
 
     return np.array(out[:target_len])
-
+    
 extended = extend_realistic(series, target_len=3327)
 
 pd.DataFrame({"value": extended}).to_csv(OUTPUT_PATH, index=False)
