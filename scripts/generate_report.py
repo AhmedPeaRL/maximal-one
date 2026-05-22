@@ -118,7 +118,9 @@ def main():
 
         # ✅ preserve real structure فقط
         real = real.astype(np.float64)
-        real = real - np.mean(real)
+        
+        # 🔥 prevent artificial smoothing artifacts
+        real = real + 1e-6 * np.random.default_rng(args.seed).standard_normal(len(real))
         
         synthetic = generate_series(rng, n=len(real))
 
