@@ -84,8 +84,10 @@ def load_series(path):
             df = pd.read_csv(path, skiprows=1)
             df = df.replace("***", np.nan)
             if "J-D" in df.columns:
-                s = pd.to_numeric(df["J-D"], errors="coerce").dropna()
+                s = pd.to_numeric(df["J-D"], errors="coerce")
+                s = s.dropna()
                 if len(s) > 100:
+                    s = s.astype(np.float64)
                     return (s - np.mean(s)) / (np.std(s) + 1e-12)
     
     if best_series is None:
