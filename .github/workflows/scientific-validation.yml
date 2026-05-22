@@ -371,9 +371,6 @@ jobs:
               check_null_gap(df[col].values, rng)
           PY
           
-      - name: Irreducibility Killer Test (CRITICAL)
-        run: python analysis/irreducibility_killer.py
-
       - name: Predictive validation
         run: |
           python - <<'PY'
@@ -844,16 +841,6 @@ jobs:
           print("PASS: non-trivial structure detected")
           PY
 
-      - name: Statistical significance test (CRITICAL)
-        run: python analysis/statistical_killer.py
-
-      - name: Advanced Null Killer (CRITICAL)
-        run: python analysis/advanced_null_killer.py
-
-      - name: Dataset provenance guard
-        run: |
-          python analysis/dataset_provenance_guard.py
-
       - name: Alpha diagnostics
         run: python analysis/alpha_diagnostics.py
           
@@ -884,6 +871,19 @@ jobs:
       - name: Physical interpretation
         run: |
           python analysis/physical_interpretation.py
+
+      - name: Irreducibility Killer Test (CRITICAL)
+        run: python analysis/irreducibility_killer.py
+
+      - name: Statistical significance test (CRITICAL)
+        run: python analysis/statistical_killer.py
+
+      - name: Advanced Null Killer (CRITICAL)
+        run: python analysis/advanced_null_killer.py
+
+      - name: Dataset provenance guard
+        run: |
+          python analysis/dataset_provenance_guard.py
 
       - name: Pipeline sovereignty guard
         run: python analysis/pipeline_sovereignty_guard.py
