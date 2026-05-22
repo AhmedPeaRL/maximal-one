@@ -50,7 +50,8 @@ def evaluate_scale_invariance(series):
     # 🔥 normalized dispersion
     dispersion = mad / (np.abs(median) + 1e-12)
 
-    threshold = 0.6  # relaxed but still strict
+    # 🔥 dynamic threshold based on scale count
+    threshold = 0.25 + 0.1 * len(results)
 
     if any(a == 0.0 for _, a in results[1:]):
         return {
