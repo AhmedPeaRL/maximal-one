@@ -26,9 +26,7 @@ def generate_series(rng, n=1024):
 
     # 🔥 mix
     x = 0.5 * wn + 0.5 * np.diff(rw, prepend=rw[0])
-
-    # 🔥 كسر كامل للـ persistence
-    x = x - 0.5 * np.roll(x, 1)
+    
     x[0] = 0.0
 
     # 🔥 heavy phase destruction
@@ -163,6 +161,9 @@ def main():
                 noise_samples.append(alpha_noise_sample)
 
         alpha = estimate_alpha(series)
+
+        if not np.isfinite(alpha):
+            alpha = 0.0
 
         alpha = freeze_float(alpha, digits=8)
 
