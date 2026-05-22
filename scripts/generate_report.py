@@ -116,9 +116,6 @@ def main():
         # ✅ preserve real structure فقط
         real = real.astype(np.float64)
         
-        # 🔥 prevent artificial smoothing artifacts
-        real = real + 1e-6 * np.random.default_rng(args.seed).standard_normal(len(real))
-        
         synthetic = generate_series(rng, n=len(real))
 
         if args.canonical:
@@ -330,7 +327,7 @@ def main():
         if direction_gap < 0.005:
             print("⚠️ Weak temporal directionality — tolerated")
 
-        if abs(alpha - alpha_welch) > 0.8:
+        if abs(alpha - alpha_welch) > 0.35:
             raise SystemExit("❌ Method inconsistency too high")
 
         output_path = os.path.join(
