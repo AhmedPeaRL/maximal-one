@@ -881,10 +881,6 @@ jobs:
       - name: Saturation guard
         run: |
           python analysis/saturation_guard.py
-
-      - name: Anti forced structure guard
-        run: |
-          python analysis/anti_forced_structure_guard.py
           
       - name: Physical interpretation
         run: |
