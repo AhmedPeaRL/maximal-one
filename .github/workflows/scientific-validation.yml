@@ -463,59 +463,59 @@ jobs:
 
           for label, target_alpha in EXPECTED:
 
-          x = generate_colored_noise(
-              target_alpha,
-              N
-          )
+              x = generate_colored_noise(
+                  target_alpha,
+                  N
+              )
 
-          estimated = estimate_alpha(x)
+              estimated = estimate_alpha(x)
 
-          error = abs(
-              estimated - target_alpha
-          )
+              error = abs(
+                  estimated - target_alpha
+              )
 
-          results.append({
-              "type": label,
-              "target": target_alpha,
-              "estimated": float(estimated),
-              "abs_error": float(error)
-          })
+              results.append({
+                  "type": label,
+                  "target": target_alpha,
+                  "estimated": float(estimated),
+                  "abs_error": float(error)
+              })
 
-          mean_error = np.mean([
-              r["abs_error"]
-              for r in results
-          ])
+              mean_error = np.mean([
+                  r["abs_error"]
+                  for r in results
+              ])
 
-          report = {
-              "mean_abs_error": float(mean_error),
-              "results": results
-          }
+              report = {
+                  "mean_abs_error": float(mean_error),
+                  "results": results
+              }
 
-          with open(
-              "artifacts/estimator_calibration.json",
-              "w"
-          ) as f:
+              with open(
+                  "artifacts/estimator_calibration.json",
+                  "w"
+              ) as f:
 
-              json.dump(
+                  json.dump(
+                      report,
+                      f,
+                      indent=2
+                  )
+
+              print(json.dumps(
                   report,
-                  f,
                   indent=2
+              ))
+
+              if mean_error > 0.35:
+                  raise SystemExit(
+                      "❌ estimator calibration failed"
+                  )
+
+              print(
+                  "✅ estimator calibration stable"
               )
-
-          print(json.dumps(
-              report,
-              indent=2
-          ))
-
-          if mean_error > 0.35:
-              raise SystemExit(
-                  "❌ estimator calibration failed"
-              )
-
-          print(
-              "✅ estimator calibration stable"
-          )
-          PY
+              PY
 
       - name: Extract alpha signal (fixed)
         run: |
