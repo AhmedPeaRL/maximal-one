@@ -31,7 +31,7 @@ def estimate_alpha_welch(series):
         return np.nan
 
     # 🔥 نفس preprocessing بتاع FFT
-    series = uniform_filter1d(series, size=3)
+    series = uniform_filter1d(series, size=2)
     series = series - np.mean(series)
 
     freqs, psd = welch(
