@@ -143,7 +143,7 @@ def estimate_alpha(series):
     alpha = float(alpha)
 
     # 🔥 reject saturation instead of clipping
-    if alpha > 4.5:
+    if alpha > 3.5:
         return np.nan
 
     return float(np.clip(alpha, 0.0, 4.5))
