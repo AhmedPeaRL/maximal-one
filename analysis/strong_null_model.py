@@ -9,16 +9,16 @@ def generate_strong_null(n, rng):
     noise = rng.normal(0, np.std(rw), n)
 
     mix = (
-        0.8 * noise +   # 🔥 خلي noise dominant أكتر
-        0.1 * rw +
-        0.1 * seasonal
+        0.9 * noise +   # 🔥 noise أعلى
+        0.05 * rw +
+        0.05 * seasonal
     )
 
     mix = mix - np.mean(mix)
     mix = mix / (np.std(mix) + 1e-12)
 
     # 🔥 reduce over-destruction
-    mix = mix - 0.3 * np.roll(mix, 1)
+    mix = mix - 0.6 * np.roll(mix, 1)  # 🔥 destroy persistence أكتر
     mix[0] = 0.0
 
     return mix
