@@ -15,9 +15,7 @@ alpha = estimate_alpha(x)
 
 print("White noise alpha:", alpha)
 
-if alpha > 1.5:
-    raise SystemExit(
-        "❌ artificial structure inflation detected"
-    )
+if not (0.8 < alpha < 1.3):
+    raise SystemExit("❌ artificial structure inflation detected")
 
 print("✅ no forced structure detected")
