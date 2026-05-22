@@ -278,7 +278,7 @@ def main():
 
         null_samples = [
             generate_strong_null(len(series), stats_rng)
-            for _ in range(100)
+            for _ in range(200)
         ]
 
         sep = separation_score(series, null_samples)
