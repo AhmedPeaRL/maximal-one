@@ -30,27 +30,25 @@ series = series.astype(np.float64)
 
 def extend_realistic(x, target_len=3327):
     x = np.asarray(x, dtype=np.float64)
+
+    # 🔥 نحافظ على spectrum الحقيقي
+    fft = np.fft.rfft(x)
+    mag = np.abs(fft)
+
     rng = np.random.default_rng(42)
 
-    out = []
+    # 🔥 phase randomization خفيف (مش destroy)
+    phase = np.angle(fft)
+    phase_noise = rng.normal(0, 0.05, len(phase))
 
-    while len(out) < target_len:
-        block_size = rng.integers(64, 256)
-        start = rng.integers(0, len(x) - block_size)
+    new_fft = mag * np.exp(1j * (phase + phase_noise))
 
-        block = x[start:start+block_size].copy()
+    extended = np.fft.irfft(new_fft, n=target_len)
 
-        # ✅ noise ضعيف جداً (يحافظ على structure)
-        noise = rng.normal(0, 0.02 * np.std(x), size=len(block))
-        block = block + noise
+    # 🔥 normalize بدون قتل structure
+    extended = extended - np.mean(extended)
 
-        # ✅ scaling محدود
-        scale = rng.uniform(0.95, 1.05)
-        block = block * scale
-
-        out.extend(block)
-
-    return np.array(out[:target_len])
+    return extended.astype(np.float64)
     
 extended = extend_realistic(series, target_len=3327)
 
