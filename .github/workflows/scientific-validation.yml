@@ -481,41 +481,41 @@ jobs:
                   "abs_error": float(error)
               })
 
-              mean_error = np.mean([
-                  r["abs_error"]
-                  for r in results
-              ])
+          mean_error = np.mean([
+              r["abs_error"]
+              for r in results
+          ])
 
-              report = {
-                  "mean_abs_error": float(mean_error),
-                  "results": results
-              }
+          report = {
+              "mean_abs_error": float(mean_error),
+              "results": results
+          }
 
-              with open(
-                  "artifacts/estimator_calibration.json",
-                  "w"
-              ) as f:
+          with open(
+              "artifacts/estimator_calibration.json",
+              "w"
+          ) as f:
 
-                  json.dump(
-                      report,
-                      f,
-                      indent=2
-                  )
-
-              print(json.dumps(
+              json.dump(
                   report,
+                  f,
                   indent=2
-              ))
-
-              if mean_error > 0.35:
-                  raise SystemExit(
-                      "❌ estimator calibration failed"
-                  )
-
-              print(
-                  "✅ estimator calibration stable"
               )
-              PY
+
+          print(json.dumps(
+              report,
+              indent=2
+          ))
+
+          if mean_error > 0.35:
+              raise SystemExit(
+                  "❌ estimator calibration failed"
+              )
+
+          print(
+              "✅ estimator calibration stable"
+          )
+          PY
 
       - name: Extract alpha signal (fixed)
         run: |
@@ -1006,10 +1006,6 @@ jobs:
       - name: Band robustness test
         run: |
           python analysis/band_robustness_test.py
-
-      - name: Estimator calibration guard
-        run: |
-          python analysis/estimator_calibration_guard.py
 
       - name: Adversarial stress test
         run: python analysis/adversarial_external_test.py
