@@ -37,9 +37,8 @@ def generate_series(rng, n=1024):
     phases[0] = 0.0
 
     magnitudes = np.abs(fft)
-    magnitudes *= rng.uniform(0.1, 0.5, len(magnitudes))
-
-    new_fft = magnitudes * np.exp(1j * phases)
+  
+    new_fft = np.abs(fft) * np.exp(1j * phases)
     x = np.fft.irfft(new_fft, n=n)
 
     return x
