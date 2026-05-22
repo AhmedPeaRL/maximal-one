@@ -81,12 +81,10 @@ def load_series(path):
 
         # 🔥 special handling for temperature dataset
         if "temperature" in path.lower():
-            df = pd.read_csv(path)
+            df = pd.read_csv(path, skiprows=1)
             df = df.replace("***", np.nan)
-            cols = [c.lower() for c in df.columns]
-            if "j-d" in cols:
-                idx = cols.index("j-d")
-                s = pd.to_numeric(df.iloc[:, idx], errors="coerce").dropna()
+            if "J-D" in df.columns:
+                s = pd.to_numeric(df["J-D"], errors="coerce").dropna()
                 if len(s) > 100:
                     return (s - np.mean(s)) / (np.std(s) + 1e-12)
     
