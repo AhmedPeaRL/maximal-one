@@ -140,10 +140,12 @@ def estimate_alpha(series):
 
     alpha = -slope
 
-    alpha = float(alpha)
+    # 🔥 NO HARD CLIPPING
+    if not np.isfinite(alpha):
+        return np.nan
 
-    if alpha > 3.5:
-        alpha = 3.5
+    # soft physical constraint only
+    alpha = float(np.clip(alpha, 0.0, 4.5))
 
     return float(np.clip(alpha, 0.0, 4.5))
 
