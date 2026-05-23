@@ -188,7 +188,7 @@ def main():
         
         # 🔥 preserve directionality (no full normalization)
         series = series.astype(np.float64)
-        series = np.pad(series, (0, 256-len(series)), mode='wrap')
+        series = (series - np.mean(series))
 
         # 🔥 restore asymmetry after normalization
         trend = np.linspace(0, 1, len(series))
