@@ -51,6 +51,14 @@ def inflation_test(series):
 
     if not (np.isfinite(a_half) and np.isfinite(a_full)):
         return True
+
+    delta = abs(a_full - a_half)
+
+    if delta > 0.8:
+        raise SystemExit(
+            f"❌ Inflation detected: delta={delta}"
+        )    
+    print("✅ No inflation artifact")
     
 def stable_float(x, digits=6):
     return float(round(x, digits))
@@ -357,14 +365,6 @@ def main():
 
             if method_delta > 0.6:
                 raise SystemExit("❌ Method inconsistency too high (hard fail)")
-
-        delta = abs(a_full - a_half)
-
-        if delta > 0.8:
-            raise SystemExit(
-                f"❌ Inflation detected: delta={delta}"
-            )    
-        print("✅ No inflation artifact")
         
         output_path = os.path.join(
             args.output_dir,
