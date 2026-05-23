@@ -44,6 +44,9 @@ for path in DATASETS:
             .values
         )
 
+        if len(series) < 256:
+            series = np.pad(series, (0, 256-len(series)), mode='wrap')
+
         alpha = estimate_alpha(series)
 
         if not np.isfinite(alpha):
