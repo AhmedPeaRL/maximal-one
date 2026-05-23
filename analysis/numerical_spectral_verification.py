@@ -124,7 +124,7 @@ def estimate_alpha(series):
 
     freqs, psd = welch(series, nperseg=256)
 
-    mask = (freqs > 0.01) & (freqs < 0.25)
+    mask = (freqs > 0.005) & (freqs < 0.4)
     freqs = freqs[mask]
     psd = psd[mask]
 
