@@ -172,7 +172,10 @@ def main():
         if not isinstance(alpha, (int, float)) or not np.isfinite(alpha):
             raise SystemExit(f"❌ alpha invalid: {alpha}")
 
-        if alpha >= 5.0:
+        if alpha > 3.5:
+            print("⚠️ High alpha — possible synthetic bias")
+
+        if alpha >= 4.5:
             raise SystemExit(f"❌ Unphysical alpha detected: {alpha}")
 
         # 🔥 HARD SCIENTIFIC GUARD
