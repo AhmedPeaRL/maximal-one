@@ -225,93 +225,6 @@ jobs:
 
           if __name__ == "__main__":
               main()
-          PY
-
-      - name: Run canonical experiment ONLY
-        continue-on-error: true
-        run: |
-          python scripts/generate_report.py --seed 42 --canonical
-
-          python - <<'PY'
-          import json
-          import os
-          from datetime import datetime
-
-          REPORT_PATH = "artifacts/canonical_report.json"
-          HISTORY_PATH = "data/experiment_history.json"
-
-          def load_report():
-              if not os.path.exists(REPORT_PATH):
-                  return None
-              with open(REPORT_PATH) as f:
-                  return json.load(f)
-
-          def load_history():
-              if not os.path.exists(HISTORY_PATH):
-                  return []
-              try:
-                  with open(HISTORY_PATH) as f:
-                      return json.load(f)
-              except:
-                  return []
-
-          def save_history(history):
-              with open(HISTORY_PATH,"w") as f:
-                  json.dump(history,f,indent=2)
-
-          def main():
-              report = load_report()
-              if report is None:
-                  print("No canonical report found.")
-                  return
-
-              history = load_history()
-
-              entry = {
-                  "timestamp": datetime.utcnow().isoformat(),
-                  "spectral_alpha": report.get("spectral_profile",{}).get("estimated_alpha"),
-                  "bootstrap_std": report.get("spectral_profile",{}).get("bootstrap_std"),
-                  "environment": report.get("_environment",{})
-              }
-
-              history.append(entry)
-              save_history(history)
-              
-              print("Experiment history updated.")
-
-          if __name__ == "__main__":
-              main()
-
-          import json
-          import numpy as np
-
-          with open("artifacts/canonical_report.json") as f:
-              r = json.load(f)
-
-          alpha = r["spectral_profile"]["estimated_alpha"]
-          sigma = r["spectral_profile"]["bootstrap_std"]
-
-          print("=== ALPHA DIAGNOSTICS ===")
-          print("alpha:", alpha)
-          print("sigma:", sigma)
-
-          if alpha > 3:
-              print("⚠️ Likely scaling error (FFT/log mismatch)")
-
-          if sigma > 1:
-              print("⚠️ Bootstrap instability / insufficient sample")
-
-          if alpha > 5 and sigma > 1:
-              print("🚨 SYSTEMIC FAILURE: signal is dominated by noise or misfit")
-
-          ratio = alpha / (sigma + 1e-9)
-          print("alpha/sigma ratio:", ratio)
-
-          if ratio < 1:
-              print("⚠️ weak signal vs noise")
-
-          print("=== END ===")
-          PY
 
           python - <<'PY'
           import pandas as pd
@@ -553,6 +466,92 @@ jobs:
               raise SystemExit("❌ artificial structure inflation detected")
 
           print("✅ no forced structure detected")
+          PY
+
+      - name: Run canonical experiment ONLY
+        continue-on-error: true
+        run: |
+          python scripts/generate_report.py --seed 42 --canonical
+
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime
+
+          REPORT_PATH = "artifacts/canonical_report.json"
+          HISTORY_PATH = "data/experiment_history.json"
+
+          def load_report():
+              if not os.path.exists(REPORT_PATH):
+                  return None
+              with open(REPORT_PATH) as f:
+                  return json.load(f)
+
+          def load_history():
+              if not os.path.exists(HISTORY_PATH):
+                  return []
+              try:
+                  with open(HISTORY_PATH) as f:
+                      return json.load(f)
+              except:
+                  return []
+
+          def save_history(history):
+              with open(HISTORY_PATH,"w") as f:
+                  json.dump(history,f,indent=2)
+
+          def main():
+              report = load_report()
+              if report is None:
+                  print("No canonical report found.")
+                  return
+
+              history = load_history()
+
+              entry = {
+                  "timestamp": datetime.utcnow().isoformat(),
+                  "spectral_alpha": report.get("spectral_profile",{}).get("estimated_alpha"),
+                  "bootstrap_std": report.get("spectral_profile",{}).get("bootstrap_std"),
+                  "environment": report.get("_environment",{})
+              }
+
+              history.append(entry)
+              save_history(history)
+              
+              print("Experiment history updated.")
+
+          if __name__ == "__main__":
+              main()
+
+          import json
+          import numpy as np
+
+          with open("artifacts/canonical_report.json") as f:
+              r = json.load(f)
+
+          alpha = r["spectral_profile"]["estimated_alpha"]
+          sigma = r["spectral_profile"]["bootstrap_std"]
+
+          print("=== ALPHA DIAGNOSTICS ===")
+          print("alpha:", alpha)
+          print("sigma:", sigma)
+
+          if alpha > 3:
+              print("⚠️ Likely scaling error (FFT/log mismatch)")
+
+          if sigma > 1:
+              print("⚠️ Bootstrap instability / insufficient sample")
+
+          if alpha > 5 and sigma > 1:
+              print("🚨 SYSTEMIC FAILURE: signal is dominated by noise or misfit")
+
+          ratio = alpha / (sigma + 1e-9)
+          print("alpha/sigma ratio:", ratio)
+
+          if ratio < 1:
+              print("⚠️ weak signal vs noise")
+
+          print("=== END ===")
           PY
 
       - name: Extract alpha signal (fixed)
