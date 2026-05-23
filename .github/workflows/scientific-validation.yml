@@ -269,6 +269,52 @@ jobs:
           )
           PY
 
+      - name: Extract alpha signal (fixed)
+        run: |
+          python - <<'PY'
+          import json, sys
+          import numpy as np
+
+          r = json.load(open("artifacts/canonical_report.json"))
+          claim = json.load(open("core-scientific/strict_claim.json"))
+
+          sp = r["spectral_profile"]
+
+          alpha = sp["estimated_alpha"]
+          sigma = sp["bootstrap_std"]
+
+          expected_min, expected_max = claim["expected_result"]["alpha_range"]
+          max_sigma = claim["expected_result"]["max_sigma"]
+
+          alpha = r["spectral_profile"]["estimated_alpha"]
+          sigma = r["spectral_profile"]["bootstrap_std"]
+          noise = r["spectral_profile"]["noise_alpha"]
+
+          print("alpha:", alpha)
+          print("sigma:", sigma)
+          print("noise:", noise)
+
+          # STRICT VALIDATION
+          if not np.isfinite(sigma):
+              raise SystemExit("❌ sigma is NaN")
+              
+          if not (expected_min <= alpha <= expected_max):
+              raise SystemExit("❌ alpha خارج النطاق المتوقع")
+
+          if sigma > max_sigma:
+              raise SystemExit("❌ sigma أعلى من الحد")
+
+          print("✅ STRICT CLAIM HOLDS")
+
+          if alpha / (sigma + 1e-12) < 2.0:
+              sys.exit("FAIL: weak signal")
+
+          if abs(alpha - noise) < 0.25:
+              sys.exit("FAIL: indistinguishable from noise")
+
+          print("PASS: non-trivial structure detected")
+          PY
+
       - name: Generate extended dataset (MANDATORY)
         run: |
           python analysis/expand_dataset.py
@@ -549,52 +595,6 @@ jobs:
               raise SystemExit("❌ artificial structure inflation detected")
 
           print("✅ no forced structure detected")
-          PY
-
-      - name: Extract alpha signal (fixed)
-        run: |
-          python - <<'PY'
-          import json, sys
-          import numpy as np
-
-          r = json.load(open("artifacts/canonical_report.json"))
-          claim = json.load(open("core-scientific/strict_claim.json"))
-
-          sp = r["spectral_profile"]
-
-          alpha = sp["estimated_alpha"]
-          sigma = sp["bootstrap_std"]
-
-          expected_min, expected_max = claim["expected_result"]["alpha_range"]
-          max_sigma = claim["expected_result"]["max_sigma"]
-
-          alpha = r["spectral_profile"]["estimated_alpha"]
-          sigma = r["spectral_profile"]["bootstrap_std"]
-          noise = r["spectral_profile"]["noise_alpha"]
-
-          print("alpha:", alpha)
-          print("sigma:", sigma)
-          print("noise:", noise)
-
-          # STRICT VALIDATION
-          if not np.isfinite(sigma):
-              raise SystemExit("❌ sigma is NaN")
-              
-          if not (expected_min <= alpha <= expected_max):
-              raise SystemExit("❌ alpha خارج النطاق المتوقع")
-
-          if sigma > max_sigma:
-              raise SystemExit("❌ sigma أعلى من الحد")
-
-          print("✅ STRICT CLAIM HOLDS")
-
-          if alpha / (sigma + 1e-12) < 2.0:
-              sys.exit("FAIL: weak signal")
-
-          if abs(alpha - noise) < 0.25:
-              sys.exit("FAIL: indistinguishable from noise")
-
-          print("PASS: non-trivial structure detected")
           PY
           
       - name: Predictive validation
