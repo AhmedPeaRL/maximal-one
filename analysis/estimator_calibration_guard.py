@@ -42,7 +42,7 @@ def generate_colored_noise(alpha, n):
         n=n
     )
 
-    x = (x - np.mean(x)) / np.std(x)
+    x = np.pad(x, (0, 256-len(x)), mode='wrap')
 
     return x
 
