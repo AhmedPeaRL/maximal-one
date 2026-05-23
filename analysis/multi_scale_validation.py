@@ -25,6 +25,9 @@ def multi_scale_alpha(series):
         if len(scaled) < 64:
             continue
 
+        if len(scaled) < 256:
+            scaled = np.pad(scaled, (0, 256-len(scaled)), mode='wrap')
+
         alpha = estimate_alpha(scaled)
 
         if np.isfinite(alpha):
