@@ -7,7 +7,6 @@ FREQ_MIN = 0.01
 FREQ_MAX = 0.35
 
 def sanitize_alpha(alpha):
-
     if not np.isfinite(alpha):
         return np.nan
 
