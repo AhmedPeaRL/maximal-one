@@ -80,9 +80,9 @@ def load_series(path):
         df[col] = df[col].astype(str).str.replace(" ", "")
 
         if "temperature" in path.lower():
-            df = pd.read_csv(path, skiprows=1)
-            df = df.replace("***", np.nan)
+            df = pd.read_csv(path, skiprows=1, sep=",")
             df.columns = [c.strip() for c in df.columns]
+            df = df.replace("***", np.nan)
             if "J-D" in df.columns:
                 s = pd.to_numeric(df["J-D"], errors="coerce").dropna()
                 if len(s) > 120:
