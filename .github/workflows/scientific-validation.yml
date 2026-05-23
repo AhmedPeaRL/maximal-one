@@ -250,7 +250,6 @@ jobs:
               )
 
           print("✅ Numerical consistency holds")
-          PY
           
           import numpy as np
           from analysis.falsification_tests import run_falsification
