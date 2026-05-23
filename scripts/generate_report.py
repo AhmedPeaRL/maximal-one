@@ -70,24 +70,6 @@ def main():
     rng = np.random.default_rng(args.seed)
     np.random.seed(args.seed)  # 🔥 مهم جداً
     os.makedirs(args.output_dir, exist_ok=True)
-    x = np.asarray(series, dtype=np.float64)
-
-    half = x[:len(x)//2]
-    full = x
-
-    a_half = estimate_alpha(half)
-    a_full = estimate_alpha(full)
-
-    if not (np.isfinite(a_half) and np.isfinite(a_full)):
-        return True
-
-    delta = abs(a_full - a_half)
-
-    if delta > 0.8:
-        raise SystemExit(
-            f"❌ Inflation detected: delta={delta}"
-        )    
-    print("✅ No inflation artifact")
 
     # === ENSURE DATASET EXISTS (SELF-CONTAINED REPRODUCTION) ===
     if not os.path.exists("real-data/sunspots_full.csv"):
@@ -201,6 +183,25 @@ def main():
             raise SystemExit(
                 f"❌ Alpha out of physical range: {alpha}"
             )
+
+        x = np.asarray(series, dtype=np.float64)
+
+        half = x[:len(x)//2]
+        full = x
+
+        a_half = estimate_alpha(half)
+        a_full = estimate_alpha(full)
+
+        if not (np.isfinite(a_half) and np.isfinite(a_full)):
+            return True
+
+        delta = abs(a_full - a_half)
+
+        if delta > 0.8:
+            raise SystemExit(
+                f"❌ Inflation detected: delta={delta}"
+            )    
+        print("✅ No inflation artifact")
     
         from analysis.falsification_tests import run_falsification
         from analysis.falsification_tests import temporal_direction_test
