@@ -11,6 +11,10 @@ def monte_carlo_p_value(series, observed_alpha, rng, trials=5000):
         from analysis.strong_null_model import generate_strong_null
 
         wn = generate_strong_null(n, rng)
+        
+        if len(wn) < 256:
+            wn = np.pad(wn, (0, 256-len(wn)), mode='wrap')
+
         alpha = estimate_alpha(wn)
 
         if np.isfinite(alpha):
