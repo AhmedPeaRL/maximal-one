@@ -156,8 +156,11 @@ def main():
             if alpha_noise_sample is not None and np.isfinite(alpha_noise_sample):
                 noise_samples.append(alpha_noise_sample)
 
-        alpha = estimate_alpha(series)
+        if len(series) < 256:
+            series = np.pad(series, (0, 256-len(series)), mode='wrap')
 
+        alpha = estimate_alpha(series)
+        
         if not np.isfinite(alpha):
             alpha = 0.0
 
@@ -185,8 +188,8 @@ def main():
         
         # 🔥 preserve directionality (no full normalization)
         series = series.astype(np.float64)
-        series = (series - np.mean(series))
-        
+        series = np.pad(series, (0, 256-len(series)), mode='wrap')
+
         # 🔥 restore asymmetry after normalization
         trend = np.linspace(0, 1, len(series))
         
