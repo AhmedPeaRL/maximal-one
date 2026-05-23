@@ -51,7 +51,7 @@ def extend_realistic(x, target_len=3327):
     extended = np.array(extended[:target_len], dtype=np.float64)
 
     # 🔥 controlled noise (weak but non-trivial)
-    noise = rng.normal(0, np.std(x)*0.05, target_len)
+    noise = rng.normal(0, np.std(x)*0.02, target_len)
     extended = extended + noise
 
     return extended
