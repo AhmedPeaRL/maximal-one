@@ -37,11 +37,14 @@ def extend_realistic(x, target_len=3327):
     repeats = target_len // len(x) + 1
     extended = np.tile(x, repeats)[:target_len]
 
-    # 🔥 add tiny noise فقط (مش random walk)
+    # 🔥 بدل noise أبيض → correlated noise
     rng = np.random.default_rng(42)
-    noise = rng.normal(0, np.std(x) * 0.02, target_len)
 
-    extended = extended + noise
+    noise = np.cumsum(rng.normal(0, np.std(x)*0.005, target_len))
+
+    noise = (noise - np.mean(noise)) / (np.std(noise) + 1e-12)
+
+    extended = extended + 0.05 * noise
 
     return extended.astype(np.float64)
     
