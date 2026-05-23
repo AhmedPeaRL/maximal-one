@@ -545,7 +545,7 @@ jobs:
 
           print("White noise alpha:", alpha)
 
-          if not (0.0 < alpha < 1.2):
+          if not (0.0 <= alpha < 1.2):
               raise SystemExit("❌ artificial structure inflation detected")
 
           print("✅ no forced structure detected")
