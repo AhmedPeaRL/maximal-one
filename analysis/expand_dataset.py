@@ -40,7 +40,7 @@ def extend_realistic(x, target_len=3327):
     # 🔥 بدل noise أبيض → correlated noise
     rng = np.random.default_rng(42)
 
-    noise = rng.normal(0, np.std(x)*0.01, target_len)
+    noise = rng.normal(0, np.std(x)*0.03, target_len)
     noise = (noise - np.mean(noise)) / (np.std(noise) + 1e-12)
 
     extended = extended + noise
