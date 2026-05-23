@@ -29,7 +29,7 @@ def estimate_alpha_welch(series):
     if not np.all(np.isfinite(series)):
         return np.nan
 
-    # 🔥 EXACT SAME preprocessing
+    # نفس preprocessing بالظبط
     series = series - np.mean(series)
 
     freqs, psd = welch(
@@ -40,9 +40,7 @@ def estimate_alpha_welch(series):
         scaling="density"
     )
 
-    # 🔥 SAME EXACT RANGE
-    mask = (freqs > 0.01) & (freqs < 0.3)
-
+    mask = (freqs > 0.01) & (freqs < 0.25)
     freqs = freqs[mask]
     psd = psd[mask]
 
@@ -55,10 +53,13 @@ def estimate_alpha_welch(series):
     slope = np.polyfit(log_f, log_psd, 1)[0]
     alpha = -slope
 
-    # 🔥 SAME bias correction
-    alpha = alpha * 0.65
+    if not np.isfinite(alpha):
+        return np.nan
 
-    return float(np.clip(alpha, 0.0, 4.5))
+    if alpha < 0:
+        alpha = 0.0
+
+    return float(alpha)
     
 def compare_methods(series):
 
