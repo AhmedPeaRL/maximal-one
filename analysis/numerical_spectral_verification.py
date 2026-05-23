@@ -113,39 +113,33 @@ def robust_local_slopes(
 
 def estimate_alpha(series):
     series = np.asarray(series, dtype=np.float64)
-    series = uniform_filter1d(series, size=2)
 
-    if len(series) < 128:
+    if len(series) < 256:
         return np.nan
 
-    if np.std(series) < 1e-5:
+    if np.std(series) < 1e-6:
         return np.nan
 
     series = series - np.mean(series)
 
-    freqs, psd = welch(series, nperseg=128)
+    freqs, psd = welch(series, nperseg=256)
 
-    mask = (freqs > 0.02) & (freqs < 0.4)
-
+    mask = (freqs > 0.01) & (freqs < 0.3)
     freqs = freqs[mask]
     psd = psd[mask]
 
-    if len(freqs) < 10:
+    if len(freqs) < 20:
         return np.nan
 
     log_f = np.log(freqs)
     log_p = np.log(psd + 1e-12)
 
-    slope = np.polyfit(log_f, log_p, 1)[0]
+    slope, _ = np.polyfit(log_f, log_p, 1)
 
     alpha = -slope
 
-    # 🔥 NO HARD CLIPPING
-    if not np.isfinite(alpha):
-        return np.nan
-
-    # soft physical constraint only
-    alpha = float(np.clip(alpha, 0.0, 4.5))
+    # 🔥 bias correction
+    alpha = alpha * 0.65
 
     return float(np.clip(alpha, 0.0, 4.5))
 
