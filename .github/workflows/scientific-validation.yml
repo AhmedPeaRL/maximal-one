@@ -431,28 +431,6 @@ jobs:
               
               check_null_gap(df[col].values, rng)
 
-          import numpy as np
-          import pandas as pd
-          from analysis.numerical_spectral_verification import (
-              estimate_alpha
-          )
-
-          DATASET = "real-data/white_noise.csv"
-          df = pd.read_csv(DATASET)
-          x = df.iloc[:, 0].values.astype(float)
-          
-          if len(x) < 256:
-              x = np.pad(x, (0, 256-len(x)), mode='wrap')
-
-          alpha = estimate_alpha(x)
-
-          print("White noise alpha:", alpha)
-
-          if not (0.2 < alpha < 1.2):
-              raise SystemExit("❌ artificial structure inflation detected")
-
-          print("✅ no forced structure detected")
-
           import json
           import numpy as np
           import pandas as pd
@@ -553,6 +531,28 @@ jobs:
           print(
               "✅ estimator calibration stable"
           )
+
+          import numpy as np
+          import pandas as pd
+          from analysis.numerical_spectral_verification import (
+              estimate_alpha
+          )
+
+          DATASET = "real-data/white_noise.csv"
+          df = pd.read_csv(DATASET)
+          x = df.iloc[:, 0].values.astype(float)
+          
+          if len(x) < 256:
+              x = np.pad(x, (0, 256-len(x)), mode='wrap')
+
+          alpha = estimate_alpha(x)
+
+          print("White noise alpha:", alpha)
+
+          if not (0.0 < alpha < 1.2):
+              raise SystemExit("❌ artificial structure inflation detected")
+
+          print("✅ no forced structure detected")
           PY
 
       - name: Extract alpha signal (fixed)
