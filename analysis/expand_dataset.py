@@ -44,9 +44,7 @@ def extend_realistic(x, target_len=3327):
 
         # 🔥 random amplitude + slight trend variation
         scale = rng.uniform(0.8, 1.2)
-        trend = np.linspace(0, rng.uniform(-0.5, 0.5), len(segment))
-
-        seg = scale * segment + trend
+        seg = scale * segment
 
         extended.extend(seg)
 
