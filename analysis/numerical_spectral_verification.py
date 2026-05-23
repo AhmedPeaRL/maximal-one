@@ -140,7 +140,15 @@ def estimate_alpha(series):
 
     # ✅ remove fake bias
 
-    return float(np.clip(alpha, 0.0, 3.0))
+    # 🔥 REMOVE HARD CLIP
+    if not np.isfinite(alpha):
+        return np.nan
+
+    # soft constraint only
+    if alpha < 0:
+        alpha = 0.0
+
+    return float(alpha)
     
 def block_bootstrap(
     series,
