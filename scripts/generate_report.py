@@ -29,7 +29,6 @@ def generate_series(rng, n=1024):
     
     x[0] = 0.0
 
-    # 🔥 heavy phase destruction
     fft = np.fft.rfft(x)
     phases = rng.uniform(0, 2*np.pi, len(fft))
     phases[0] = 0.0
