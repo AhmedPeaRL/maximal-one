@@ -144,9 +144,8 @@ def estimate_alpha(series):
     if not np.isfinite(alpha):
         return np.nan
 
-    # soft constraint only
     if alpha < 0:
-        alpha = 0.0
+        return np.nan
 
     return float(alpha)
     
