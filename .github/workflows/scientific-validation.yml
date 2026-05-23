@@ -250,6 +250,56 @@ jobs:
               )
 
           print("✅ Numerical consistency holds")
+
+          import hashlib
+          import json
+          import pandas as pd
+
+          DATASETS = [
+              "real-data/sunspots_full.csv",
+              "real-data/sunspots_global_extended.csv",
+              "real-data/co2_atmospheric_clean.csv",
+              "real-data/airline_passengers.csv",
+              "real-data/cosmic_rays_clean.csv",
+              "real-data/temperature_global.csv",
+              "real-data/sp500.csv",
+              "real-data/white_noise.csv",
+              "real-data/random_walk.csv",
+              "real-data/shuffled_sunspots.csv"
+          ]
+
+          def sha256_file(path):
+              h = hashlib.sha256()
+
+              with open(path, "rb") as f:
+                  while chunk := f.read(8192):
+                      h.update(chunk)
+
+              return h.hexdigest()
+
+          report = {}
+
+          for path in DATASETS:
+              df = pd.read_csv(path)
+
+              report[path] = {
+                  "rows": int(len(df)),
+                  "columns": list(df.columns),
+                  "sha256": sha256_file(path)
+              }
+
+          with open(
+              "artifacts/dataset_provenance.json",
+              "w"
+          ) as f:
+              json.dump(
+                  report,
+                  f,
+                  indent=2,
+                  sort_keys=True
+              )
+
+          print("✅ DATASET PROVENANCE SEALED")
           
           import numpy as np
           from analysis.falsification_tests import run_falsification
@@ -312,56 +362,93 @@ jobs:
               raise SystemExit("❌ artificial structure inflation detected")
 
           print("✅ no forced structure detected")
-          
-          import hashlib
+          PY
+
+      - name: Run canonical experiment ONLY
+        continue-on-error: true
+        run: |
+          python scripts/generate_report.py --seed 42 --canonical
+
+          python - <<'PY'
           import json
-          import pandas as pd
+          import os
+          from datetime import datetime
 
-          DATASETS = [
-              "real-data/sunspots_full.csv",
-              "real-data/sunspots_global_extended.csv",
-              "real-data/co2_atmospheric_clean.csv",
-              "real-data/airline_passengers.csv",
-              "real-data/cosmic_rays_clean.csv",
-              "real-data/temperature_global.csv",
-              "real-data/sp500.csv",
-              "real-data/white_noise.csv",
-              "real-data/random_walk.csv",
-              "real-data/shuffled_sunspots.csv"
-          ]
+          REPORT_PATH = "artifacts/canonical_report.json"
+          HISTORY_PATH = "data/experiment_history.json"
 
-          def sha256_file(path):
-              h = hashlib.sha256()
+          def load_report():
+              if not os.path.exists(REPORT_PATH):
+                  return None
+              with open(REPORT_PATH) as f:
+                  return json.load(f)
 
-              with open(path, "rb") as f:
-                  while chunk := f.read(8192):
-                      h.update(chunk)
+          def load_history():
+              if not os.path.exists(HISTORY_PATH):
+                  return []
+              try:
+                  with open(HISTORY_PATH) as f:
+                      return json.load(f)
+              except:
+                  return []
 
-              return h.hexdigest()
+          def save_history(history):
+              with open(HISTORY_PATH,"w") as f:
+                  json.dump(history,f,indent=2)
 
-          report = {}
+          def main():
+              report = load_report()
+              if report is None:
+                  print("No canonical report found.")
+                  return
 
-          for path in DATASETS:
-              df = pd.read_csv(path)
+              history = load_history()
 
-              report[path] = {
-                  "rows": int(len(df)),
-                  "columns": list(df.columns),
-                  "sha256": sha256_file(path)
+              entry = {
+                  "timestamp": datetime.utcnow().isoformat(),
+                  "spectral_alpha": report.get("spectral_profile",{}).get("estimated_alpha"),
+                  "bootstrap_std": report.get("spectral_profile",{}).get("bootstrap_std"),
+                  "environment": report.get("_environment",{})
               }
 
-          with open(
-              "artifacts/dataset_provenance.json",
-              "w"
-          ) as f:
-              json.dump(
-                  report,
-                  f,
-                  indent=2,
-                  sort_keys=True
-              )
+              history.append(entry)
+              save_history(history)
+              
+              print("Experiment history updated.")
 
-          print("✅ DATASET PROVENANCE SEALED")
+          if __name__ == "__main__":
+              main()
+
+          import json
+          import numpy as np
+
+          with open("artifacts/canonical_report.json") as f:
+              r = json.load(f)
+
+          alpha = r["spectral_profile"]["estimated_alpha"]
+          sigma = r["spectral_profile"]["bootstrap_std"]
+
+          print("=== ALPHA DIAGNOSTICS ===")
+          print("alpha:", alpha)
+          print("sigma:", sigma)
+
+          if alpha > 3:
+              print("⚠️ Likely scaling error (FFT/log mismatch)")
+
+          if sigma > 1:
+              print("⚠️ Bootstrap instability / insufficient sample")
+
+          if alpha > 5 and sigma > 1:
+              print("🚨 SYSTEMIC FAILURE: signal is dominated by noise or misfit")
+
+          ratio = alpha / (sigma + 1e-9)
+          print("alpha/sigma ratio:", ratio)
+
+          if ratio < 1:
+              print("⚠️ weak signal vs noise")
+
+          print("=== END ===")
+          PY
 
           import json
           import numpy as np
@@ -463,93 +550,6 @@ jobs:
           print(
               "✅ estimator calibration stable"
           )
-          PY
-
-      - name: Run canonical experiment ONLY
-        continue-on-error: true
-        run: |
-          python scripts/generate_report.py --seed 42 --canonical
-
-          python - <<'PY'
-          import json
-          import os
-          from datetime import datetime
-
-          REPORT_PATH = "artifacts/canonical_report.json"
-          HISTORY_PATH = "data/experiment_history.json"
-
-          def load_report():
-              if not os.path.exists(REPORT_PATH):
-                  return None
-              with open(REPORT_PATH) as f:
-                  return json.load(f)
-
-          def load_history():
-              if not os.path.exists(HISTORY_PATH):
-                  return []
-              try:
-                  with open(HISTORY_PATH) as f:
-                      return json.load(f)
-              except:
-                  return []
-
-          def save_history(history):
-              with open(HISTORY_PATH,"w") as f:
-                  json.dump(history,f,indent=2)
-
-          def main():
-              report = load_report()
-              if report is None:
-                  print("No canonical report found.")
-                  return
-
-              history = load_history()
-
-              entry = {
-                  "timestamp": datetime.utcnow().isoformat(),
-                  "spectral_alpha": report.get("spectral_profile",{}).get("estimated_alpha"),
-                  "bootstrap_std": report.get("spectral_profile",{}).get("bootstrap_std"),
-                  "environment": report.get("_environment",{})
-              }
-
-              history.append(entry)
-              save_history(history)
-              
-              print("Experiment history updated.")
-
-          if __name__ == "__main__":
-              main()
-
-          import json
-          import numpy as np
-
-          with open("artifacts/canonical_report.json") as f:
-              r = json.load(f)
-
-          alpha = r["spectral_profile"]["estimated_alpha"]
-          sigma = r["spectral_profile"]["bootstrap_std"]
-
-          print("=== ALPHA DIAGNOSTICS ===")
-          print("alpha:", alpha)
-          print("sigma:", sigma)
-
-          if alpha > 3:
-              print("⚠️ Likely scaling error (FFT/log mismatch)")
-
-          if sigma > 1:
-              print("⚠️ Bootstrap instability / insufficient sample")
-
-          if alpha > 5 and sigma > 1:
-              print("🚨 SYSTEMIC FAILURE: signal is dominated by noise or misfit")
-
-          ratio = alpha / (sigma + 1e-9)
-          print("alpha/sigma ratio:", ratio)
-
-          if ratio < 1:
-              print("⚠️ weak signal vs noise")
-
-          print("=== END ===")
-          PY
 
       - name: Extract alpha signal (fixed)
         run: |
