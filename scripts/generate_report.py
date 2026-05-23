@@ -39,6 +39,18 @@ def generate_series(rng, n=1024):
     x = np.fft.irfft(new_fft, n=n)
 
     return x
+
+def inflation_test(series):
+    x = np.asarray(series, dtype=np.float64)
+
+    half = x[:len(x)//2]
+    full = x
+
+    a_half = estimate_alpha(half)
+    a_full = estimate_alpha(full)
+
+    if not (np.isfinite(a_half) and np.isfinite(a_full)):
+        return True
     
 def stable_float(x, digits=6):
     return float(round(x, digits))
@@ -174,6 +186,15 @@ def main():
 
         if alpha >= 5.0:
             raise SystemExit(f"❌ Unphysical alpha detected: {alpha}")
+
+        # 🔥 HARD SCIENTIFIC GUARD
+        EXPECTED_MIN = 0.5
+        EXPECTED_MAX = 4.5
+
+        if not (EXPECTED_MIN <= alpha <= EXPECTED_MAX):
+            raise SystemExit(
+                f"❌ Alpha out of physical range: {alpha}"
+            )
     
         from analysis.falsification_tests import run_falsification
         from analysis.falsification_tests import temporal_direction_test
@@ -336,6 +357,14 @@ def main():
 
             if method_delta > 0.6:
                 raise SystemExit("❌ Method inconsistency too high (hard fail)")
+
+        delta = abs(a_full - a_half)
+
+        if delta > 0.8:
+            raise SystemExit(
+                f"❌ Inflation detected: delta={delta}"
+            )    
+        print("✅ No inflation artifact")
         
         output_path = os.path.join(
             args.output_dir,
