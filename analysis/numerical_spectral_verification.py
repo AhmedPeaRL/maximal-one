@@ -145,7 +145,7 @@ def estimate_alpha(series):
         return np.nan
 
     if alpha < 0:
-        return np.nan
+        return 0.0
 
     return float(alpha)
     
