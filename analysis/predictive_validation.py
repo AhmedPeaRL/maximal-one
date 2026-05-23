@@ -5,7 +5,6 @@ from analysis.numerical_spectral_verification import (
 )
 
 def classify_alpha(alpha):
-
     if not np.isfinite(alpha):
         return "invalid"
 
@@ -18,16 +17,13 @@ def classify_alpha(alpha):
     return "random_like"
 
 def predict_next_trend(series):
-
     series = np.asarray(
         series,
         dtype=np.float64
     )
 
-    if len(series) < 128:
-        return None
-
-    alpha = estimate_alpha(series)
+    if len(series) < 256:
+        series = np.pad(series, (0, 256-len(series)), mode='wrap')
 
     if not np.isfinite(alpha):
         return None
@@ -38,7 +34,6 @@ def predict_next_trend(series):
     }
 
 def continuity_score(a, b):
-
     if not (
         np.isfinite(a)
         and np.isfinite(b)
