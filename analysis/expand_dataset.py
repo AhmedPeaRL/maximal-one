@@ -34,18 +34,29 @@ def extend_realistic(x, target_len=3327):
     if len(x) >= target_len:
         return x[:target_len]
 
-    repeats = target_len // len(x) + 1
-    extended = np.tile(x, repeats)[:target_len]
-
-    # 🔥 بدل noise أبيض → correlated noise
     rng = np.random.default_rng(42)
 
-    noise = rng.normal(0, np.std(x)*0.03, target_len)
-    noise = (noise - np.mean(noise)) / (np.std(noise) + 1e-12)
+    extended = []
 
+    while len(extended) < target_len:
+        start = rng.integers(0, len(x) - 200)
+        segment = x[start:start+200]
+
+        # 🔥 random amplitude + slight trend variation
+        scale = rng.uniform(0.8, 1.2)
+        trend = np.linspace(0, rng.uniform(-0.5, 0.5), len(segment))
+
+        seg = scale * segment + trend
+
+        extended.extend(seg)
+
+    extended = np.array(extended[:target_len], dtype=np.float64)
+
+    # 🔥 controlled noise (weak but non-trivial)
+    noise = rng.normal(0, np.std(x)*0.05, target_len)
     extended = extended + noise
 
-    return extended.astype(np.float64)
+    return extended
     
 extended = extend_realistic(series, target_len=3327)
 
