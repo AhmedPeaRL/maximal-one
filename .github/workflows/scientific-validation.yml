@@ -220,7 +220,6 @@ jobs:
           if __name__ == "__main__":
               main()
 
-          python - <<'PY'
           import json
           import numpy as np
           import pandas as pd
@@ -486,7 +485,6 @@ jobs:
               )
 
           print("✅ DATASET PROVENANCE SEALED")
-          PY
           
           import numpy as np
           from analysis.falsification_tests import run_falsification
