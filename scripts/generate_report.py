@@ -360,8 +360,7 @@ def main():
         method_delta = abs(alpha - alpha_welch)
 
         if method_delta > 0.35:
-            print(f"⚠️ Method mismatch: {method_delta} — soft warning")
-
+            raise SystemExit("❌ Method inconsistency (violates strict claim)")
             if method_delta > 0.6:
                 raise SystemExit("❌ Method inconsistency too high (hard fail)")
         
