@@ -226,7 +226,6 @@ jobs:
           if __name__ == "__main__":
               main()
 
-          python - <<'PY'
           import pandas as pd
           from analysis.independent_validation import compare_methods
 
