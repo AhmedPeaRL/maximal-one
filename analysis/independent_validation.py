@@ -20,35 +20,33 @@ def sanitize_alpha(alpha):
 def estimate_alpha_welch(series):
     import numpy as np
     from scipy.signal import welch
-    from scipy.ndimage import uniform_filter1d
 
     series = np.asarray(series, dtype=np.float64)
 
-    if len(series) < 128:
+    if len(series) < 256:
         return np.nan
 
     if not np.all(np.isfinite(series)):
         return np.nan
 
-    # 🔥 نفس preprocessing بتاع FFT
-    series = uniform_filter1d(series, size=2)
+    # 🔥 EXACT SAME preprocessing
     series = series - np.mean(series)
 
     freqs, psd = welch(
         series,
-        nperseg=128,
+        nperseg=256,
         window="hann",
         detrend="constant",
         scaling="density"
     )
 
-    # 🔥 نفس range بالظبط
-    mask = (freqs > 0.02) & (freqs < 0.4)
+    # 🔥 SAME EXACT RANGE
+    mask = (freqs > 0.01) & (freqs < 0.3)
 
     freqs = freqs[mask]
     psd = psd[mask]
 
-    if len(freqs) < 10:
+    if len(freqs) < 20:
         return np.nan
 
     log_f = np.log(freqs)
@@ -57,8 +55,8 @@ def estimate_alpha_welch(series):
     slope = np.polyfit(log_f, log_psd, 1)[0]
     alpha = -slope
 
-    if not np.isfinite(alpha):
-        return np.nan
+    # 🔥 SAME bias correction
+    alpha = alpha * 0.65
 
     return float(np.clip(alpha, 0.0, 4.5))
     
