@@ -124,7 +124,7 @@ def estimate_alpha(series):
 
     freqs, psd = welch(series, nperseg=256)
 
-    mask = (freqs > 0.01) & (freqs < 0.3)
+    mask = (freqs > 0.01) & (freqs < 0.25)
     freqs = freqs[mask]
     psd = psd[mask]
 
@@ -134,15 +134,14 @@ def estimate_alpha(series):
     log_f = np.log(freqs)
     log_p = np.log(psd + 1e-12)
 
-    slope, _ = np.polyfit(log_f, log_p, 1)
+    slope = np.polyfit(log_f, log_p, 1)[0]
 
     alpha = -slope
 
-    # 🔥 bias correction
-    alpha = alpha * 0.65
+    # ✅ remove fake bias
 
-    return float(np.clip(alpha, 0.0, 4.5))
-
+    return float(np.clip(alpha, 0.0, 3.0))
+    
 def block_bootstrap(
     series,
     rng,
