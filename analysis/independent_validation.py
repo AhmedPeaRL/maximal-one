@@ -57,7 +57,7 @@ def estimate_alpha_welch(series):
         return np.nan
 
     if alpha < 0:
-        alpha = 0.0
+        return np.nan
 
     return float(alpha)
     
