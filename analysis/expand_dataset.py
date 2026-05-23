@@ -34,18 +34,14 @@ def extend_realistic(x, target_len=3327):
     if len(x) >= target_len:
         return x[:target_len]
 
-    # ✅ امتداد زمني طبيعي بدون لمس spectrum
     repeats = target_len // len(x) + 1
-    
-    # 🔥 stochastic extension بدل التكرار
+    extended = np.tile(x, repeats)[:target_len]
+
+    # 🔥 add tiny noise فقط (مش random walk)
     rng = np.random.default_rng(42)
+    noise = rng.normal(0, np.std(x) * 0.02, target_len)
 
-    increments = rng.normal(0, np.std(x), target_len)
-    extended = np.cumsum(increments)
-
-    # match scale
-    extended = (extended - np.mean(extended)) / (np.std(extended) + 1e-12)
-    extended = extended * np.std(x)
+    extended = extended + noise
 
     return extended.astype(np.float64)
     
