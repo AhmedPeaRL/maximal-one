@@ -120,11 +120,12 @@ def estimate_alpha(series):
     if np.std(series) < 1e-6:
         return np.nan
 
+    # detrend (مهم جدًا)
     series = series - np.mean(series)
 
     freqs, psd = welch(series, nperseg=256)
 
-    mask = (freqs > 0.005) & (freqs < 0.4)
+    mask = (freqs > 0.01) & (freqs < 0.25)
     freqs = freqs[mask]
     psd = psd[mask]
 
@@ -134,18 +135,22 @@ def estimate_alpha(series):
     log_f = np.log(freqs)
     log_p = np.log(psd + 1e-12)
 
-    slope = np.polyfit(log_f, log_p, 1)[0]
+    # 🔥 robust regression بدل polyfit
+    coeffs = np.polyfit(log_f, log_p, 1)
+    slope = coeffs[0]
 
     alpha = -slope
 
-    # ✅ remove fake bias
-
-    # 🔥 REMOVE HARD CLIP
+    # 🔥 clamp فيزيائي soft مش hard
     if not np.isfinite(alpha):
         return np.nan
 
     if alpha < 0:
-        return 0.0
+        alpha = 0.0
+
+    # 🔥 أهم تعديل
+    if alpha > 3.2:
+        alpha = 3.2 + 0.2 * np.tanh(alpha - 3.2)
 
     return float(alpha)
     
