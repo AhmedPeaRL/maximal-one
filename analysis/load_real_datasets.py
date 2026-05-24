@@ -81,20 +81,14 @@ def load_series(path):
 
         if "temperature" in path.lower():
             df = pd.read_csv(path, skiprows=1)
+
             df = df.replace("***", np.nan)
 
             if "J-D" in df.columns:
                 s = pd.to_numeric(df["J-D"], errors="coerce").dropna()
 
                 if len(s) > 100:
-                    s = s.astype(np.float64)
                     return (s - np.mean(s)) / (np.std(s) + 1e-12)
-
-            # fallback
-            numeric = df.select_dtypes(include=[np.number]).dropna()
-            if numeric.shape[1] > 0:
-                s = numeric.iloc[:, 0].values
-                return (s - np.mean(s)) / (np.std(s) + 1e-12)
 
             raise ValueError("Temperature dataset parsing failed")
     
