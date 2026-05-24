@@ -25,7 +25,7 @@ def generate_series(rng, n=1024):
     rw = np.cumsum(rng.standard_normal(n))
 
     # 🔥 mix
-    x = 0.5 * wn + 0.5 * np.diff(rw, prepend=rw[0])
+    x = 0.7 * wn + 0.3 * np.diff(rw, prepend=rw[0])
     
     x[0] = 0.0
 
@@ -171,6 +171,10 @@ def main():
 
         if not isinstance(alpha, (int, float)) or not np.isfinite(alpha):
             raise SystemExit(f"❌ alpha invalid: {alpha}")
+
+        # 🔥 HARD ANTI-INFLATION GUARD
+        if alpha > 2.5:
+            raise SystemExit(f"❌ Suspicious alpha inflation detected: {alpha}")
 
         if alpha > 3.5:
             print("⚠️ High alpha — possible synthetic bias")
