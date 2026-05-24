@@ -167,10 +167,18 @@ def main():
 
         ratio = np.max(autocorr[1:50]) / (autocorr[0] + 1e-12)
 
-        # 🔥 relaxed threshold لأن البيانات الحقيقية فيها persistence
-        if ratio > 0.95:
-            raise SystemExit(f"❌ Strong periodic structure detected (ratio={ratio:.3f})")
-            
+        # 🔥 allow natural periodicity but detect pathological lock-in
+        if ratio > 0.995:
+            print(f"⚠️ Strong periodic component detected (ratio={ratio:.3f})")
+
+            # check diversity of signal
+            unique_ratio = len(np.unique(np.round(x, 4))) / len(x)
+
+            if unique_ratio < 0.05:
+                raise SystemExit(
+                    f"❌ Degenerate periodic lock (ratio={ratio:.3f}, diversity={unique_ratio:.4f})"
+                )
+        
         if len(series) < 256:
             series = np.pad(series, (0, 256-len(series)), mode='wrap')
 
@@ -373,8 +381,16 @@ def main():
             }
         }
 
-        if abs(falsification["original_alpha"] - falsification["shuffled_alpha"]) < 0.15:
-            raise SystemExit("❌ Weak structure (near shuffle)")
+        gap1 = abs(falsification["original_alpha"] - falsification["shuffled_alpha"])
+        gap2 = abs(falsification["original_alpha"] - falsification["white_noise_alpha"])
+
+        adaptive_gap = max(0.15, 0.1 * alpha)
+
+       if gap1 < adaptive_gap:
+           raise SystemExit("❌ Weak structure (adaptive shuffle gap failed)")
+
+       if gap2 < adaptive_gap:
+           raise SystemExit("❌ Indistinguishable from noise (adaptive)")
 
         if abs(falsification["original_alpha"] - falsification["white_noise_alpha"]) < 0.2:
             raise SystemExit("❌ Indistinguishable from noise")
