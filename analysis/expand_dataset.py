@@ -41,11 +41,14 @@ def extend_realistic(x, target_len=3327):
     while len(extended) < target_len:
         segment = x.copy()
 
-        # 🔥 random scaling + jitter
-        scale = rng.uniform(0.8, 1.2)
-        noise = rng.normal(0, np.std(x)*0.05, len(segment))
+        # 🔥 jitter بسيط فقط (بدون scaling قاتل)
+        noise = rng.normal(0, np.std(x)*0.02, len(segment))
 
-        segment = scale * segment + noise
+        segment = segment + noise
+
+        # 🔥 shuffle جزئي (يكسر التكرار الدوري)
+        idx = rng.choice(len(segment), size=int(0.1*len(segment)), replace=False)
+        segment[idx] = segment[idx[::-1]]
 
         extended.extend(segment)
 
