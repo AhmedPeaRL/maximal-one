@@ -1,7 +1,6 @@
 import json
 import numpy as np
 import pandas as pd
-
 from analysis.numerical_spectral_verification import (
     estimate_alpha
 )
@@ -16,9 +15,7 @@ EXPECTED = [
 
 N = 2048
 
-
 def generate_colored_noise(alpha, n):
-
     freqs = np.fft.rfftfreq(n)
 
     freqs = np.where(
@@ -42,10 +39,9 @@ def generate_colored_noise(alpha, n):
         n=n
     )
 
-    x = np.pad(x, (0, 256-len(x)), mode='wrap')
+    x = (x - np.mean(x)) / np.std(x)
 
     return x
-
 
 results = []
 
