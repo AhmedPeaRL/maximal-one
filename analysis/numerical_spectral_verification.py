@@ -148,9 +148,8 @@ def estimate_alpha(series):
     if alpha < 0:
         alpha = 0.0
 
-    # 🔥 أهم تعديل
-    if alpha > 3.2:
-        alpha = 3.2 + 0.2 * np.tanh(alpha - 3.2)
+    if alpha > 3.0:
+        alpha = 3.0 + 0.15 * np.tanh(alpha - 3.0)
 
     return float(alpha)
     
