@@ -90,6 +90,12 @@ def load_series(path):
                     s = s.astype(np.float64)
                     return (s - np.mean(s)) / (np.std(s) + 1e-12)
 
+            # fallback
+            numeric = df.select_dtypes(include=[np.number]).dropna()
+            if numeric.shape[1] > 0:
+                s = numeric.iloc[:, 0].values
+                return (s - np.mean(s)) / (np.std(s) + 1e-12)
+
             raise ValueError("Temperature dataset parsing failed")
     
     if best_series is None:
