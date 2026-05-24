@@ -39,7 +39,7 @@ def estimate_alpha_welch(series):
         scaling="density"
     )
 
-    mask = (freqs > 0.005) & (freqs < 0.4)
+    mask = (freqs > 0.01) & (freqs < 0.25)
     freqs = freqs[mask]
     psd = psd[mask]
 
