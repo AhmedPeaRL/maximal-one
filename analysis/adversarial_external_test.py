@@ -5,7 +5,7 @@ from analysis.numerical_spectral_verification import (
     estimate_alpha
 )
 from analysis.independent_validation import (
-    estimate_alpha_welch
+    core_alpha_estimation
 )
 
 def generate_adversarial_signal(n=1000):
@@ -37,7 +37,7 @@ def run_test():
     real_series = real_df[col].values
     
     r_fft = estimate_alpha(real_series)
-    r_welch = estimate_alpha_welch(real_series)
+    r_welch = core_alpha_estimation(real_series)
     
     print(f"=== REAL DATA ===\nFFT: {r_fft}\nWelch: {r_welch}")
     
@@ -47,7 +47,7 @@ def run_test():
 
     # === ADVERSARIAL ===
     adv = generate_adversarial_signal(len(real_series))
-    a_fft, a_welch = estimate_alpha(adv), estimate_alpha_welch(adv)
+    a_fft, a_welch = estimate_alpha(adv),core_alpha_estimation(adv)
     
     print(f"\n=== ADVERSARIAL DATA ===\nFFT: {a_fft}\nWelch: {a_welch}")
     
