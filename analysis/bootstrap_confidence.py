@@ -1,7 +1,7 @@
 import numpy as np
 
 from analysis.independent_validation import (
-    estimate_alpha_welch
+    core_alpha_estimation
 )
 
 from analysis.numerical_spectral_verification import (
@@ -78,7 +78,7 @@ def dual_bootstrap(series):
 
     welch_conf = bootstrap_alpha(
         series,
-        estimate_alpha_welch
+        core_alpha_estimation
     )
 
     return {
