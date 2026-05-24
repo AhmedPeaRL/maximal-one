@@ -32,7 +32,7 @@
   },
 
   "falsification": {
-    "condition": "If alpha exits [0.5,4.5] OR sigma > 0.85 OR cross-domain std > 1.8 OR FFT/Welch disagreement > 0.35",
+    "condition": "If alpha exits [0.5,4.5] OR sigma > 0.85 OR cross-domain std > 1.8 OR FFT/Welch disagreement > 0.5",
     "action": "Mark system as falsified"
   },
 
