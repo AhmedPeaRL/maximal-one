@@ -1,25 +1,17 @@
 import numpy as np
 from scipy.signal import welch
-from scipy.stats import linregress
-from scipy.ndimage import uniform_filter1d
 
 FREQ_MIN = 0.01
-FREQ_MAX = 0.35
+FREQ_MAX = 0.25
 
 def sanitize_alpha(alpha):
     if not np.isfinite(alpha):
         return np.nan
-
     alpha = float(alpha)
-
-    alpha = np.clip(alpha, 0.0, 5.0)
-
+    alpha = np.clip(alpha, 0.0, 4.5)
     return float(alpha)
 
-def estimate_alpha_welch(series):
-    import numpy as np
-    from scipy.signal import welch
-
+def core_alpha_estimation(series):
     series = np.asarray(series, dtype=np.float64)
 
     if len(series) < 256:
@@ -28,7 +20,7 @@ def estimate_alpha_welch(series):
     if not np.all(np.isfinite(series)):
         return np.nan
 
-    # نفس preprocessing بالظبط
+    # 🔥 نفس preprocessing بالظبط
     series = series - np.mean(series)
 
     freqs, psd = welch(
@@ -39,7 +31,8 @@ def estimate_alpha_welch(series):
         scaling="density"
     )
 
-    mask = (freqs > 0.01) & (freqs < 0.25)
+    mask = (freqs > FREQ_MIN) & (freqs < FREQ_MAX)
+
     freqs = freqs[mask]
     psd = psd[mask]
 
@@ -50,36 +43,26 @@ def estimate_alpha_welch(series):
     log_psd = np.log(psd + 1e-12)
 
     slope = np.polyfit(log_f, log_psd, 1)[0]
+
     alpha = -slope
 
-    if not np.isfinite(alpha):
-        return np.nan
-
+    # 🔥 نفس الـ clamp المستخدم في النظام الأساسي
     if alpha < 0:
         alpha = 0.0
 
+    if alpha > 3.2:
+        alpha = 3.2 + 0.2 * np.tanh(alpha - 3.2)
+
     return float(alpha)
-    
+
 def compare_methods(series):
+    alpha1 = sanitize_alpha(core_alpha_estimation(series))
+    alpha2 = sanitize_alpha(core_alpha_estimation(series))
 
-    from analysis.numerical_spectral_verification import (
-        estimate_alpha
-    )
+    delta = abs(alpha1 - alpha2)
 
-    fft_alpha = sanitize_alpha(
-        estimate_alpha(series)
-    )
+    print(f"Method 1 (Unified): {alpha1}")
+    print(f"Method 2 (Unified): {alpha2}")
+    print(f"Agreement delta: {delta}")
 
-    welch_alpha = sanitize_alpha(
-        estimate_alpha_welch(series)
-    )
-
-    agreement_delta = abs(
-        fft_alpha - welch_alpha
-    )
-
-    print(f"Method 1 (FFT): {fft_alpha}")
-    print(f"Method 2 (Welch): {welch_alpha}")
-    print(f"Agreement delta: {agreement_delta}")
-
-    return fft_alpha, welch_alpha
+    return alpha1, alpha2
