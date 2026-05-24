@@ -41,23 +41,23 @@ def extend_realistic(x, target_len=3327):
     while len(extended) < target_len:
         segment = x.copy()
 
-        # 🔥 jitter بسيط فقط (بدون scaling قاتل)
-        noise = rng.normal(0, np.std(x)*0.02, len(segment))
-
+        # noise خفيف
+        noise = rng.normal(0, np.std(x)*0.05, len(segment))
         segment = segment + noise
 
-        # 🔥 shuffle جزئي (يكسر التكرار الدوري)
-        idx = rng.choice(len(segment), size=int(0.1*len(segment)), replace=False)
-        segment[idx] = segment[idx[::-1]]
+        # phase randomization بسيط
+        fft = np.fft.rfft(segment)
+        phase = rng.uniform(0, 2*np.pi, len(fft))
+        fft = np.abs(fft) * np.exp(1j * phase)
+        segment = np.fft.irfft(fft, n=len(segment))
 
-        # instead of naive extension → stochastic stitching
-        weight = rng.uniform(0.85, 1.15)
-        segment = weight * segment
-
-        blend = 0.6 * np.array(extended[-len(segment):]) + 0.4 * segment
-        extended.extend(blend.tolist())
+        # 🔥 أهم نقطة: no recursive blending
+        extended.extend(segment.tolist())
 
     extended = np.array(extended[:target_len], dtype=np.float64)
+
+    # normalize
+    extended = (extended - np.mean(extended)) / (np.std(extended) + 1e-12)
 
     return extended
     
