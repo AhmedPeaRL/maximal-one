@@ -62,9 +62,14 @@ def extend_realistic(x, target_len=3327):
 
     extended = np.array(extended[:target_len], dtype=np.float64)
 
-    # normalize
-    extended = (extended - np.mean(extended)) / (np.std(extended) + 1e-12)
+    # 🔥 preserve low-frequency structure
+    trend = np.linspace(-0.5, 0.5, len(extended))
+    extended = extended + 0.15 * trend
 
+    # normalize lightly (not full whitening)
+    extended = (extended - np.mean(extended)) / (np.std(extended) + 1e-12)
+    extended = extended * 0.8 + 0.2 * trend
+    
     return extended
     
 extended = extend_realistic(series, target_len=3327)
