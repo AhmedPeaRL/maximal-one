@@ -258,10 +258,10 @@ def main():
         if stats["p_value"] > 0.05:
             print("⚠️ Weak statistical signal — continuing with caution")
 
-        from analysis.independent_validation import estimate_alpha_welch
+        from analysis.independent_validation import core_alpha_estimation
 
         alpha_welch = stable_float(
-            estimate_alpha_welch(series),
+            core_alpha_estimation(series),
             digits=8
         )
 
