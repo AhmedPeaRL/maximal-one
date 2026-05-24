@@ -39,22 +39,23 @@ def extend_realistic(x, target_len=3327):
     extended = []
 
     while len(extended) < target_len:
-        start = rng.integers(0, len(x) - 200)
-        segment = x[start:start+200]
+        start = rng.integers(0, len(x) - 300)
+        segment = x[start:start+300]
 
-        # 🔥 random amplitude + slight trend variation
-        scale = rng.uniform(0.8, 1.2)
-        seg = scale * segment
+        # 🔥 overlap blending
+        if len(extended) > 0:
+            overlap = min(50, len(segment))
+            prev = np.array(extended[-overlap:])
+            segment[:overlap] = 0.5 * prev + 0.5 * segment[:overlap]
 
-        extended.extend(seg)
+        extended.extend(segment)
 
     extended = np.array(extended[:target_len], dtype=np.float64)
 
-    # 🔥 controlled noise (weak but non-trivial)
-    noise = rng.normal(0, np.std(x)*0.02, target_len)
-    extended = extended + noise
+    # 🔥 weaker noise (أهم)
+    noise = rng.normal(0, np.std(x)*0.01, target_len)
 
-    return extended
+    return extended + noise
     
 extended = extend_realistic(series, target_len=3327)
 
