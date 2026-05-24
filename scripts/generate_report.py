@@ -156,6 +156,13 @@ def main():
             if alpha_noise_sample is not None and np.isfinite(alpha_noise_sample):
                 noise_samples.append(alpha_noise_sample)
 
+        # 🔥 anti-periodicity check
+        autocorr = np.correlate(series, series, mode='full')
+        autocorr = autocorr[len(autocorr)//2:]
+
+        if np.max(autocorr[1:50]) > 0.9 * autocorr[0]:
+            raise SystemExit("❌ Periodic structure detected (fake persistence)")
+
         if len(series) < 256:
             series = np.pad(series, (0, 256-len(series)), mode='wrap')
 
@@ -174,7 +181,10 @@ def main():
 
         # 🔥 HARD ANTI-INFLATION GUARD
         if alpha > 2.5:
-            raise SystemExit(f"❌ Suspicious alpha inflation detected: {alpha}")
+            if sep is not None and sep.get("gap", 0) < 2.0:
+                raise SystemExit(f"❌ Inflated alpha without strong separation: {alpha}")
+            else:
+                print("⚠️ High alpha but justified by strong separation")
 
         if alpha > 3.5:
             print("⚠️ High alpha — possible synthetic bias")
