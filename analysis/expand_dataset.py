@@ -50,7 +50,12 @@ def extend_realistic(x, target_len=3327):
         idx = rng.choice(len(segment), size=int(0.1*len(segment)), replace=False)
         segment[idx] = segment[idx[::-1]]
 
-        extended.extend(segment)
+        # instead of naive extension → stochastic stitching
+        weight = rng.uniform(0.85, 1.15)
+        segment = weight * segment
+
+        blend = 0.6 * np.array(extended[-len(segment):]) + 0.4 * segment
+        extended.extend(blend.tolist())
 
     extended = np.array(extended[:target_len], dtype=np.float64)
 
