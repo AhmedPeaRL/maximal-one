@@ -160,8 +160,10 @@ def main():
         autocorr = np.correlate(series, series, mode='full')
         autocorr = autocorr[len(autocorr)//2:]
 
-        if np.max(autocorr[1:50]) > 0.9 * autocorr[0]:
-            raise SystemExit("❌ Periodic structure detected (fake persistence)")
+        ratio = np.max(autocorr[1:50]) / (autocorr[0] + 1e-12)
+
+        if ratio > 0.85:
+            raise SystemExit(f"❌ Periodic structure detected (ratio={ratio:.3f})")
 
         if len(series) < 256:
             series = np.pad(series, (0, 256-len(series)), mode='wrap')
@@ -178,13 +180,6 @@ def main():
 
         if not isinstance(alpha, (int, float)) or not np.isfinite(alpha):
             raise SystemExit(f"❌ alpha invalid: {alpha}")
-
-        # 🔥 HARD ANTI-INFLATION GUARD
-        if alpha > 2.5:
-            if sep is not None and sep.get("gap", 0) < 2.0:
-                raise SystemExit(f"❌ Inflated alpha without strong separation: {alpha}")
-            else:
-                print("⚠️ High alpha but justified by strong separation")
 
         if alpha > 3.5:
             print("⚠️ High alpha — possible synthetic bias")
@@ -328,6 +323,13 @@ def main():
         ]
 
         sep = separation_score(series, null_samples)
+
+        # 🔥 HARD ANTI-INFLATION GUARD
+        if alpha > 2.5:
+            if sep is not None and sep.get("gap", 0) < 2.0:
+                raise SystemExit(f"❌ Inflated alpha without strong separation: {alpha}")
+            else:
+                print("⚠️ High alpha but justified by strong separation")
 
         from analysis.sovereign_inference_engine import SovereignInferenceEngine
 
