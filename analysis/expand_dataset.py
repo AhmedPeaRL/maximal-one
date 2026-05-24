@@ -36,26 +36,22 @@ def extend_realistic(x, target_len=3327):
 
     rng = np.random.default_rng(42)
 
-    extended = []
+    extended = list(x)
 
     while len(extended) < target_len:
-        start = rng.integers(0, len(x) - 300)
-        segment = x[start:start+300]
+        segment = x.copy()
 
-        # 🔥 overlap blending
-        if len(extended) > 0:
-            overlap = min(50, len(segment))
-            prev = np.array(extended[-overlap:])
-            segment[:overlap] = 0.5 * prev + 0.5 * segment[:overlap]
+        # 🔥 random scaling + jitter
+        scale = rng.uniform(0.8, 1.2)
+        noise = rng.normal(0, np.std(x)*0.05, len(segment))
+
+        segment = scale * segment + noise
 
         extended.extend(segment)
 
     extended = np.array(extended[:target_len], dtype=np.float64)
 
-    # 🔥 weaker noise (أهم)
-    noise = rng.normal(0, np.std(x)*0.01, target_len)
-
-    return extended + noise
+    return extended
     
 extended = extend_realistic(series, target_len=3327)
 
