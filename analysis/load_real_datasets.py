@@ -77,8 +77,6 @@ def load_series(path):
             if len(s) > 100:
                 return (s - np.mean(s)) / (np.std(s) + 1e-12)
 
-        df[col] = df[col].astype(str).str.replace(" ", "")
-
         if "temperature" in path.lower():
             df = pd.read_csv(path, skiprows=1)
 
