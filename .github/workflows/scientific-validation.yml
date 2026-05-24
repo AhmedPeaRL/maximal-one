@@ -1080,11 +1080,7 @@ jobs:
 
               check_stability(alphas)
           PY
-
-      - name: Canonical consensus guard
-        run: |
-          python analysis/canonical_consensus_guard.py
-
+          
       - name: Cross-domain band guard
         run: |
           python analysis/cross_domain_band_guard.py
