@@ -362,7 +362,7 @@ def main():
 
         method_delta = abs(alpha - alpha_welch)
 
-        if method_delta > 0.35:
+        if method_delta > 0.25:
             raise SystemExit("❌ Method inconsistency (violates strict claim)")
             if method_delta > 0.6:
                 raise SystemExit("❌ Method inconsistency too high (hard fail)")
