@@ -45,36 +45,22 @@ def extend_realistic(x, target_len=3327):
     extended = list(x)
 
     while len(extended) < target_len:
-        segment = x.copy()
+        # 🔥 خُد window عشوائي مش copy كامل
+        start = rng.integers(0, len(x) - 200)
+        segment = x[start:start+200].copy()
 
-        # noise خفيف
-        noise = rng.normal(0, np.std(x)*0.05, len(segment))
-        segment = segment + noise
+        # 🔥 noise خفيف جداً
+        noise = rng.normal(0, np.std(x)*0.02, len(segment))
+        segment += noise
 
-        # phase randomization بسيط
-        fft = np.fft.rfft(segment)
-        phase = rng.uniform(0, 2*np.pi, len(fft))
-        fft = np.abs(fft) * np.exp(1j * phase)
-        segment = np.fft.irfft(fft, n=len(segment))
-
-        # 🔥 أهم نقطة: no recursive blending
+        # 🔥 بدون phase randomization هنا
         extended.extend(segment.tolist())
 
     extended = np.array(extended[:target_len], dtype=np.float64)
 
-    # 🔥 preserve low-frequency structure
-    trend = np.linspace(-0.5, 0.5, len(extended))
-    extended = extended + 0.15 * trend
+    # 🔥 preserve structure بدون trend صناعي
+    extended = (extended - np.mean(extended)) / (np.std(extended) + 1e-12)
 
-    # normalize gently بدون قتل structure
-    mean = np.mean(extended)
-    std = np.std(extended) + 1e-12
-
-    extended = (extended - mean) / std
-
-    # preserve spectral shape
-    extended = extended + 0.1 * trend
-    
     return extended
     
 extended = extend_realistic(series, target_len=3327)
