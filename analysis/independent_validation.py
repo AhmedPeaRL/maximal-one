@@ -42,7 +42,7 @@ def core_alpha_estimation(series):
     log_f = np.log(freqs)
     log_psd = np.log(psd + 1e-12)
 
-    coeffs = np.polyfit(log_f, log_p, 1)
+    coeffs = np.polyfit(log_f, log_psd, 1)
     slope = coeffs[0]
 
     alpha = -slope
