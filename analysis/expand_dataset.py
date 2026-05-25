@@ -66,9 +66,14 @@ def extend_realistic(x, target_len=3327):
     trend = np.linspace(-0.5, 0.5, len(extended))
     extended = extended + 0.15 * trend
 
-    # normalize lightly (not full whitening)
-    extended = (extended - np.mean(extended)) / (np.std(extended) + 1e-12)
-    extended = extended * 0.8 + 0.2 * trend
+    # normalize gently بدون قتل structure
+    mean = np.mean(extended)
+    std = np.std(extended) + 1e-12
+
+    extended = (extended - mean) / std
+
+    # preserve spectral shape
+    extended = extended + 0.1 * trend
     
     return extended
     
