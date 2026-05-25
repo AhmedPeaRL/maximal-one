@@ -191,6 +191,9 @@ def block_bootstrap(
             dtype=np.float64
         )
 
+        if len(sample) < 256:
+            sample = np.pad(sample, (0, 256-len(sample)), mode='reflect')
+
         alpha = estimate_alpha(sample)
 
         if np.isfinite(alpha):
