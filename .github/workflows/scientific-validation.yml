@@ -169,7 +169,7 @@ jobs:
 
                   alpha = estimate_alpha(series)
 
-                  if not np.isfinite(alpha) or alpha < 0.3:
+                  if not np.isfinite(alpha) or alpha < 0.5:
                       print(f"{name}: rejected")
                       continue
 
