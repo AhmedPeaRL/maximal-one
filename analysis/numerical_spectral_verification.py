@@ -205,7 +205,6 @@ def block_bootstrap(
     )
 
     if len(alphas) < 8:
-
         return {
             "mean": np.nan,
             "std": np.nan,
@@ -218,4 +217,4 @@ def block_bootstrap(
         "std": f(np.std(alphas)),
         "ci_low": f(np.percentile(alphas, 2.5)),
         "ci_high": f(np.percentile(alphas, 97.5))
-        }
+    
