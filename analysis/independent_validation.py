@@ -42,15 +42,20 @@ def core_alpha_estimation(series):
     log_f = np.log(freqs)
     log_psd = np.log(psd + 1e-12)
 
-    slope = np.polyfit(log_f, log_psd, 1)[0]
+    coeffs = np.polyfit(log_f, log_p, 1)
+    slope = coeffs[0]
 
     alpha = -slope
 
-    if alpha < 0:
-        alpha = 0.0
+    if not np.isfinite(alpha):
+        return np.nan
 
-    if alpha > 3.2:
-        alpha = 3.2 + 0.2 * np.tanh(alpha - 3.2)
+    # 🔥 منع collapse للصفر
+    if abs(alpha) < 0.05:
+        return np.nan
+
+    # 🔥 soft clamp فقط
+    alpha = np.clip(alpha, 0.0, 4.5)
 
     return float(alpha)
 
