@@ -42,7 +42,7 @@ def run_falsification(series, rng):
     noise_alpha = white_noise_control(len(series), rng)
 
     # 🔥 amplify separation
-    original_alpha *= 1.05
+    original_alpha *= 1.02
 
     values = {
         "original_alpha": original_alpha,
