@@ -98,20 +98,13 @@ def main():
             engine="c"
         )
 
-        if "value" in df.columns:
-            real = df["value"].values
-        elif "Sunspots" in df.columns:
-            real = df["Sunspots"].values
-        else:
-            raise ValueError("No valid column")
-
         if "Sunspots" in df.columns:
             real = df["Sunspots"].values
         elif "value" in df.columns:
             real = df["value"].values
         else:
             real = df.select_dtypes(include=[np.number]).iloc[:, 0].values
-
+      
         # ✅ preserve real structure فقط
         real = real.astype(np.float64)
         
