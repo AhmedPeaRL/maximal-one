@@ -149,7 +149,7 @@ def estimate_alpha(series):
         return 0.05
 
     # 🔥 soft clamp فقط
-    alpha = np.clip(alpha, 0.5, 4.2)
+    alpha = np.clip(alpha, 0.05, 4.2)
 
     return float(alpha)
     
