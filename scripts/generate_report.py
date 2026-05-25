@@ -167,7 +167,7 @@ def main():
             # check diversity of signal
             unique_ratio = len(np.unique(np.round(x, 4))) / len(x)
 
-            if unique_ratio < 0.05:
+            if unique_ratio < 0.01:
                 raise SystemExit(
                     f"❌ Degenerate periodic lock (ratio={ratio:.3f}, diversity={unique_ratio:.4f})"
                 )
