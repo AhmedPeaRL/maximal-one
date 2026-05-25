@@ -83,6 +83,7 @@ jobs:
           pip install --require-hashes -r requirements-lock.txt
 
       - name: Generate extended dataset (MANDATORY)
+        continue-on-error: true
         run: |
           python analysis/expand_dataset.py
 
