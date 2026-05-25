@@ -45,21 +45,29 @@ def extend_realistic(x, target_len=3327):
     extended = list(x)
 
     while len(extended) < target_len:
-        # 🔥 خُد window عشوائي مش copy كامل
         start = rng.integers(0, len(x) - 200)
         segment = x[start:start+200].copy()
 
-        # 🔥 noise خفيف جداً
-        noise = rng.normal(0, np.std(x)*0.02, len(segment))
-        segment += noise
+        # 🔥 كسر التكرار الحقيقي
+        scale = rng.uniform(0.85, 1.15)
+        shift = rng.normal(0, np.std(x)*0.1)
 
-        # 🔥 بدون phase randomization هنا
+        segment = segment * scale + shift
+
+        # 🔥 إضافة jitter ديناميكي
+        jitter = rng.normal(0, np.std(segment)*0.05, len(segment))
+        segment += jitter
+
+        # 🔥 random flip أحياناً
+        if rng.random() < 0.3:
+            segment = segment[::-1]
+
         extended.extend(segment.tolist())
 
     extended = np.array(extended[:target_len], dtype=np.float64)
 
-    # 🔥 preserve structure بدون trend صناعي
-    extended = (extended - np.mean(extended)) / (np.std(extended) + 1e-12)
+    # ⚠️ مهم: ما تعملش normalization كامل
+    extended = extended - np.mean(extended)
 
     return extended
     
