@@ -1,5 +1,4 @@
 import numpy as np
-
 from analysis.numerical_spectral_verification import (
     estimate_alpha
 )
@@ -23,7 +22,7 @@ def predict_next_trend(series):
     )
 
     if len(series) < 256:
-        series = np.pad(series, (0, 256-len(series)), mode='wrap')
+        series = np.pad(series, (0, 256-len(series)), mode='reflect')
 
     alpha = estimate_alpha(series)
     
