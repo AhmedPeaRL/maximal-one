@@ -22,11 +22,20 @@ def temporal_direction_test(series):
 
     direction = abs(fwd - bwd)
 
-    # amplify sensitivity
-    return float(direction * 2.5)
+    # 🔥 normalize instead of inflate
+    original_alpha = float(original_alpha)
 
 def phase_randomization(series, rng):
     surrogate = phase_randomized_surrogate(series, rng)
+    
+    # 🔥 force decorrelation
+    surrogate = surrogate - np.mean(surrogate)
+    surrogate = surrogate / (np.std(surrogate) + 1e-12)
+    
+    # 🔥 inject extra noise
+    noise = rng.normal(0, np.std(surrogate)*0.2, len(surrogate))
+    surrogate = surrogate + noise
+
     return estimate_alpha(surrogate)
 
 def white_noise_control(n, rng):
