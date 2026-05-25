@@ -141,15 +141,15 @@ def estimate_alpha(series):
 
     alpha = -slope
 
-    # 🔥 clamp فيزيائي soft مش hard
     if not np.isfinite(alpha):
         return np.nan
 
-    if alpha < 0:
-        alpha = 0.0
+    # 🔥 منع collapse للصفر
+    if abs(alpha) < 0.05:
+        return np.nan
 
-    if alpha > 3.0:
-        alpha = 3.0 + 0.15 * np.tanh(alpha - 3.0)
+    # 🔥 soft clamp فقط
+    alpha = np.clip(alpha, 0.0, 4.5)
 
     return float(alpha)
     
