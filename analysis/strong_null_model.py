@@ -7,6 +7,9 @@ def generate_strong_null(n, rng):
     wn = wn - np.mean(wn)
     wn = wn / (np.std(wn) + 1e-12)
 
+    # 🔥 kill structure harder
+    wn = wn + rng.normal(0, 0.3, n)
+
     # 🔥 phase destroy بالكامل
     fft = np.fft.rfft(wn)
     phase = rng.uniform(0, 2*np.pi, len(fft))
