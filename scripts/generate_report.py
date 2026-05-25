@@ -379,11 +379,11 @@ def main():
 
         adaptive_gap = max(0.15, 0.1 * alpha)
 
-       if gap1 < adaptive_gap:
-           raise SystemExit("❌ Weak structure (adaptive shuffle gap failed)")
+        if gap1 < adaptive_gap:
+            raise SystemExit("❌ Weak structure (adaptive shuffle gap failed)")
 
-       if gap2 < adaptive_gap:
-           raise SystemExit("❌ Indistinguishable from noise (adaptive)")
+        if gap2 < adaptive_gap:
+            raise SystemExit("❌ Indistinguishable from noise (adaptive)")
 
         if abs(falsification["original_alpha"] - falsification["white_noise_alpha"]) < 0.2:
             raise SystemExit("❌ Indistinguishable from noise")
