@@ -166,7 +166,7 @@ jobs:
               for name, series in datasets.items():
 
                   if len(series) < 256:
-                      series = np.pad(series, (0, 256-len(series)), mode='wrap')
+                      series = np.pad(series, (0, 256-len(series)), mode='reflect')
 
                   alpha = estimate_alpha(series)
 
@@ -263,7 +263,7 @@ jobs:
           x = df.iloc[:, 0].values.astype(float)
           
           if len(x) < 256:
-              x = np.pad(x, (0, 256-len(x)), mode='wrap')
+              x = np.pad(x, (0, 256-len(x)), mode='reflect')
 
           alpha = estimate_alpha(x)
 
@@ -437,7 +437,7 @@ jobs:
                       .values
                   )
                   if len(series) < 256:
-                      series = np.pad(series, (0, 256-len(series)), mode='wrap')
+                      series = np.pad(series, (0, 256-len(series)), mode='reflect')
 
                   alpha = estimate_alpha(series)
 
@@ -715,7 +715,7 @@ jobs:
 
           def run_guard(series):
               if len(series) < 256:
-                  series = np.pad(series, (0, 256-len(series)), mode='wrap')
+                  series = np.pad(series, (0, 256-len(series)), mode='reflect')
 
               alpha = estimate_alpha(series)
 
