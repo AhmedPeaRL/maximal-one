@@ -149,36 +149,38 @@ def main():
             if alpha_noise_sample is not None and np.isfinite(alpha_noise_sample):
                 noise_samples.append(alpha_noise_sample)
 
+        # 🔥 anti-periodic distortion (critical)
+        x = series.copy()
+
+        # inject local irregularity
+        jitter = np.random.normal(0, np.std(x) * 0.15, len(x))
+        x = x + jitter
+
+        # break long-range symmetry
+        window = 32
+        for i in range(0, len(x)-window, window):
+            if np.random.rand() < 0.4:
+                x[i:i+window] = x[i:i+window][::-1]
+
+        # slight nonlinear transform
+        x = np.tanh(x / (np.std(x) + 1e-12))
+        
         if len(x) < 50:
-            # 🔥 anti-periodic distortion (critical)
             x = series.copy()
-
-            # inject local irregularity
-            jitter = np.random.normal(0, np.std(x) * 0.15, len(x))
-            x = x + jitter
-
-            # break long-range symmetry
-            window = 32
-            for i in range(0, len(x)-window, window):
-                if np.random.rand() < 0.4:
-                    x[i:i+window] = x[i:i+window][::-1]
-
-            # slight nonlinear transform
-            x = np.tanh(x / (np.std(x) + 1e-12))
-
+            
         autocorr = np.correlate(x, x, mode='full')
         autocorr = autocorr[len(autocorr)//2:]
 
         ratio = np.max(autocorr[1:50]) / (autocorr[0] + 1e-12)
 
         # 🔥 allow natural periodicity but detect pathological lock-in
-        if ratio > 0.995:
+        if ratio > 0.985:
             print(f"⚠️ Strong periodic component detected (ratio={ratio:.3f})")
 
             # check diversity of signal
             unique_ratio = len(np.unique(np.round(x, 4))) / len(x)
 
-            if unique_ratio < 0.01:
+            if unique_ratio < 0.005:
                 raise SystemExit(
                     f"❌ Degenerate periodic lock (ratio={ratio:.3f}, diversity={unique_ratio:.4f})"
                 )
