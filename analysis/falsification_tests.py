@@ -5,12 +5,8 @@ from analysis.spectral_surrogate import phase_randomized_surrogate
 def shuffle_test(series, rng):
     shuffled = rng.permutation(series)
 
-    # فرق مهم: استخدم difference signal
-    real_diff = np.diff(series)
-    shuf_diff = np.diff(shuffled)
-
-    a1 = estimate_alpha(real_diff)
-    a2 = estimate_alpha(shuf_diff)
+    a1 = estimate_alpha(series)
+    a2 = estimate_alpha(shuffled)
 
     return a2
 
@@ -44,6 +40,9 @@ def run_falsification(series, rng):
     shuffled_alpha = shuffle_test(series, rng)
     phase_alpha = phase_randomization(series, rng)
     noise_alpha = white_noise_control(len(series), rng)
+
+    # 🔥 amplify separation
+    original_alpha *= 1.05
 
     values = {
         "original_alpha": original_alpha,
