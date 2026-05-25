@@ -15,7 +15,6 @@ def multi_scale_alpha(series):
     results = []
 
     for s in scales:
-
         if s > 1:
             # downsample
             scaled = downsample(series, s)
@@ -26,7 +25,7 @@ def multi_scale_alpha(series):
             continue
 
         if len(scaled) < 256:
-            scaled = np.pad(scaled, (0, 256-len(scaled)), mode='wrap')
+            scaled = np.pad(scaled, (0, 256-len(scaled)), mode='reflect')
 
         alpha = estimate_alpha(scaled)
 
