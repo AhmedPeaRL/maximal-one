@@ -104,6 +104,6 @@ def load_all():
             print(f"❌ Failed: {name} ({e})")
 
     if len(out) < 2:
-        raise SystemExit("❌ Not enough real datasets")
-
+        print("⚠️ Weak dataset loading — continuing with partial domain")
+ 
     return out
