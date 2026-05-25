@@ -1,7 +1,6 @@
 import numpy as np
 from analysis.numerical_spectral_verification import estimate_alpha
 
-
 def monte_carlo_p_value(series, observed_alpha, rng, trials=5000):
     null_alphas = []
 
@@ -13,7 +12,7 @@ def monte_carlo_p_value(series, observed_alpha, rng, trials=5000):
         wn = generate_strong_null(n, rng)
         
         if len(wn) < 256:
-            wn = np.pad(wn, (0, 256-len(wn)), mode='wrap')
+            wn = np.pad(wn, (0, 256-len(wn)), mode='reflect')
 
         alpha = estimate_alpha(wn)
 
