@@ -149,8 +149,8 @@ def main():
             if alpha_noise_sample is not None and np.isfinite(alpha_noise_sample):
                 noise_samples.append(alpha_noise_sample)
 
-        # 🔥 استخدم first-difference بدل raw signal
-        x = np.diff(series)
+        # 🔥 استخدم mix بدل diff فقط
+        x = 0.6 * np.diff(series) + 0.4 * series[:-1]
 
         if len(x) < 50:
             x = series.copy()
@@ -173,7 +173,7 @@ def main():
                 )
         
         if len(series) < 256:
-            series = np.pad(series, (0, 256-len(series)), mode='wrap')
+            series = np.pad(series, (0, 256-len(series)), mode='reflect')
 
         alpha = estimate_alpha(series)
         
