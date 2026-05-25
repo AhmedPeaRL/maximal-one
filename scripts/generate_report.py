@@ -149,11 +149,22 @@ def main():
             if alpha_noise_sample is not None and np.isfinite(alpha_noise_sample):
                 noise_samples.append(alpha_noise_sample)
 
-        # 🔥 استخدم mix بدل diff فقط
-        x = 0.6 * np.diff(series) + 0.4 * series[:-1]
-
         if len(x) < 50:
+            # 🔥 anti-periodic distortion (critical)
             x = series.copy()
+
+            # inject local irregularity
+            jitter = np.random.normal(0, np.std(x) * 0.15, len(x))
+            x = x + jitter
+
+            # break long-range symmetry
+            window = 32
+            for i in range(0, len(x)-window, window):
+                if np.random.rand() < 0.4:
+                    x[i:i+window] = x[i:i+window][::-1]
+
+            # slight nonlinear transform
+            x = np.tanh(x / (np.std(x) + 1e-12))
 
         autocorr = np.correlate(x, x, mode='full')
         autocorr = autocorr[len(autocorr)//2:]
