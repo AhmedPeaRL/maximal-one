@@ -15,21 +15,15 @@ def separation_score(real, null_samples):
         return None
 
     null_alphas = np.array(null_alphas)
-  
-    gap = abs(real_alpha - np.mean(null_alphas)) / (np.std(null_alphas) + 1e-6)
 
-    if gap < 1.2:
-        return {
-            "real_alpha": float(real_alpha),
-            "null_mean": float(np.mean(null_alphas)),
-            "gap": float(gap),
-            "std_null": float(np.std(null_alphas)),
-            "warning": "weak separation"
-        }
-    
+    mean_null = np.mean(null_alphas)
+    std_null = np.std(null_alphas) + 1e-12
+
+    z = abs(real_alpha - mean_null) / std_null
+
     return {
         "real_alpha": float(real_alpha),
-        "null_mean": float(np.mean(null_alphas)),
-        "gap": float(gap),
-        "std_null": float(np.std(null_alphas))
+        "null_mean": float(mean_null),
+        "z_score": float(z),
+        "std_null": float(std_null)
     }
