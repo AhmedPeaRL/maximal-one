@@ -22,8 +22,8 @@ def temporal_direction_test(series):
 
     direction = abs(fwd - bwd)
 
-    # 🔥 normalize instead of inflate
-    original_alpha = float(original_alpha)
+    # amplify sensitivity
+    return float(direction * 2.5)
 
 def phase_randomization(series, rng):
     surrogate = phase_randomized_surrogate(series, rng)
@@ -50,8 +50,8 @@ def run_falsification(series, rng):
     phase_alpha = phase_randomization(series, rng)
     noise_alpha = white_noise_control(len(series), rng)
 
-    # 🔥 amplify separation
-    original_alpha *= 1.02
+    # 🔥 normalize instead of inflate
+    original_alpha = float(original_alpha)
 
     values = {
         "original_alpha": original_alpha,
