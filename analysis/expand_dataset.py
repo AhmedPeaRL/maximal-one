@@ -40,36 +40,20 @@ def extend_realistic(x, target_len=3327):
     if len(x) >= target_len:
         return x[:target_len]
 
-    rng = np.random.default_rng(42)
-
     extended = list(x)
 
     while len(extended) < target_len:
-        start = rng.integers(0, len(x) - 200)
+        # 🔥 reuse real structure ONLY (no distortion)
+        start = np.random.randint(0, len(x) - 200)
         segment = x[start:start+200].copy()
 
-        # 🔥 كسر التكرار الحقيقي
-        scale = rng.uniform(0.85, 1.15)
-        shift = rng.normal(0, np.std(x)*0.1)
-
-        segment = segment * scale + shift
-
-        # 🔥 إضافة jitter ديناميكي
-        jitter = rng.normal(0, np.std(segment)*0.05, len(segment))
-        segment += jitter
-
-        # 🔥 random flip أحياناً
-        if rng.random() < 0.3:
-            segment = segment[::-1]
+        # 🔥 ONLY minimal noise (preserve spectrum)
+        noise = np.random.normal(0, np.std(segment)*0.01, len(segment))
+        segment = segment + noise
 
         extended.extend(segment.tolist())
 
-    extended = np.array(extended[:target_len], dtype=np.float64)
-
-    # ✅ preserve raw structure (no centering here)
-    extended = extended
-
-    return extended
+    return np.array(extended[:target_len], dtype=np.float64)
     
 extended = extend_realistic(series, target_len=3327)
 
