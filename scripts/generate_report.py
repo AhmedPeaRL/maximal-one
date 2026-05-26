@@ -161,7 +161,7 @@ def main():
         autocorr = np.correlate(x, x, mode='full')
         autocorr = autocorr[len(autocorr)//2:]
 
-        ratio = np.max(autocorr[1:50]) / (autocorr[0] + 1e-12)
+        ratio = np.percentile(autocorr[1:100], 95) / (autocorr[0] + 1e-12)
 
         # 🔥 allow natural periodicity but detect pathological lock-in
         if ratio > 0.985:
