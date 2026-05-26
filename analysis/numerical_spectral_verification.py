@@ -144,9 +144,8 @@ def estimate_alpha(series):
     if not np.isfinite(alpha):
         return np.nan
 
-    # 🔥 بدل ما نرجع NaN → نعتبره weak structure
     if abs(alpha) < 0.05:
-        return 0.05
+        return np.nan
 
     # 🔥 soft clamp فقط
     alpha = np.clip(alpha, 0.05, 4.2)
