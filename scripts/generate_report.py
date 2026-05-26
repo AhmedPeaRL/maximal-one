@@ -240,9 +240,13 @@ def main():
         series = series.astype(np.float64)
         series = series - np.mean(series)
 
+        # 🔥 scale without killing structure
+        std = np.std(series)
+        if std > 1e-6:
+            series = series / std
+
         # 🔥 restore asymmetry after normalization
         trend = np.linspace(0, 1, len(series))
-        
         scale_test = evaluate_scale_invariance(series)
 
         falsification = recursively_freeze(
@@ -280,7 +284,6 @@ def main():
         from analysis.independent_validation import compare_methods
 
         alpha_fft, alpha_welch = compare_methods(series)
-
         alpha = stable_float(alpha_fft, 8)
         alpha_welch = stable_float(alpha_welch, 8)
 
