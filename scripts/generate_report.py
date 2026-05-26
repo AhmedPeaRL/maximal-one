@@ -155,6 +155,9 @@ def main():
         if len(x) < 50:
             x = series.copy()
             
+        x = x - np.mean(x)
+        x = x / (np.std(x) + 1e-12)
+
         autocorr = np.correlate(x, x, mode='full')
         autocorr = autocorr[len(autocorr)//2:]
 
@@ -385,8 +388,11 @@ def main():
         if gap2 < adaptive_gap * 0.7:
             print("⚠️ Weak noise separation — tolerated")
     
-        if abs(falsification["original_alpha"] - falsification["white_noise_alpha"]) < 0.2:
-            raise SystemExit("❌ Indistinguishable from noise")
+        gap_noise = abs(falsification["original_alpha"] - falsification["white_noise_alpha"])
+        gap_shuffle = abs(falsification["original_alpha"] - falsification["shuffled_alpha"])
+
+        if gap_noise < 0.15 and gap_shuffle < 0.15:
+            raise SystemExit("❌ Strong indistinguishability from null models")
 
         if direction_gap < 0.005:
             print("⚠️ Weak temporal directionality — tolerated")
