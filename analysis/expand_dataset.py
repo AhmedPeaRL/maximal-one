@@ -43,13 +43,20 @@ def extend_realistic(x, target_len=3327):
     extended = list(x)
 
     while len(extended) < target_len:
-        # 🔥 reuse real structure ONLY (no distortion)
-        start = np.random.randint(0, len(x) - 200)
-        segment = x[start:start+200].copy()
+        start = np.random.randint(0, len(x) - 300)
+        segment = x[start:start+300].copy()
 
-        # 🔥 ONLY minimal noise (preserve spectrum)
-        noise = np.random.normal(0, np.std(segment)*0.01, len(segment))
+        # 🔥 inject controlled drift (يكسر التكرار)
+        drift = np.linspace(0, np.random.normal(0, 0.2), len(segment))
+        segment = segment + drift
+
+        # 🔥 stronger noise (بس مش destroy)
+        noise = np.random.normal(0, np.std(segment)*0.05, len(segment))
         segment = segment + noise
+
+        # 🔥 random scaling
+        scale = np.random.uniform(0.8, 1.2)
+        segment = segment * scale
 
         extended.extend(segment.tolist())
 
