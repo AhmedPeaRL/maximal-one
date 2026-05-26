@@ -7,8 +7,9 @@ def generate_strong_null(n, rng):
     wn = wn - np.mean(wn)
     wn = wn / (np.std(wn) + 1e-12)
 
-    # 🔥 destroy temporal correlation بالكامل
-    wn = np.diff(wn, prepend=wn[0])
+    # 🔥 أقل عدوانية
+    if rng.random() < 0.5:
+        wn = np.diff(wn, prepend=wn[0])
 
     # 🔥 heavy phase randomization
     fft = np.fft.rfft(wn)
