@@ -41,22 +41,25 @@ def extend_realistic(x, target_len=3327):
         return x[:target_len]
 
     extended = list(x)
+    rng = np.random.default_rng(42)
 
     while len(extended) < target_len:
-        start = np.random.randint(0, len(x) - 300)
+        start = rng.integers(0, len(x) - 300)
         segment = x[start:start+300].copy()
 
-        # 🔥 inject controlled drift (يكسر التكرار)
-        drift = np.linspace(0, np.random.normal(0, 0.2), len(segment))
-        segment = segment + drift
+        # 🔥 dynamic nonlinear distortion
+        segment = segment * (1 + 0.3 * np.sin(np.linspace(0, np.pi, len(segment))))
 
-        # 🔥 stronger noise (بس مش destroy)
-        noise = np.random.normal(0, np.std(segment)*0.05, len(segment))
+        # 🔥 regime switching
+        if rng.random() < 0.5:
+            segment = np.flip(segment)
+
+        # 🔥 stronger decorrelation noise
+        noise = rng.normal(0, np.std(segment)*0.15, len(segment))
         segment = segment + noise
 
-        # 🔥 random scaling
-        scale = np.random.uniform(0.8, 1.2)
-        segment = segment * scale
+        # 🔥 break local autocorrelation
+        segment = np.diff(segment, prepend=segment[0])
 
         extended.extend(segment.tolist())
 
