@@ -149,21 +149,8 @@ def main():
             if alpha_noise_sample is not None and np.isfinite(alpha_noise_sample):
                 noise_samples.append(alpha_noise_sample)
 
-        # 🔥 anti-periodic distortion (critical)
+        # ✅ PURE MEASUREMENT MODE (NO DISTORTION)
         x = series.copy()
-
-        # inject local irregularity
-        jitter = np.random.normal(0, np.std(x) * 0.15, len(x))
-        x = x + jitter
-
-        # break long-range symmetry
-        window = 32
-        for i in range(0, len(x)-window, window):
-            if np.random.rand() < 0.4:
-                x[i:i+window] = x[i:i+window][::-1]
-
-        # slight nonlinear transform
-        x = np.tanh(x / (np.std(x) + 1e-12))
         
         if len(x) < 50:
             x = series.copy()
@@ -246,9 +233,9 @@ def main():
         bootstrap_rng = np.random.default_rng(args.seed + 202)
         stats_rng = np.random.default_rng(args.seed + 303)
         
-        # 🔥 preserve directionality (no full normalization)
+        # ✅ minimal preprocessing only
         series = series.astype(np.float64)
-        series = (series - np.mean(series))
+        series = series - np.mean(series)
 
         # 🔥 restore asymmetry after normalization
         trend = np.linspace(0, 1, len(series))
