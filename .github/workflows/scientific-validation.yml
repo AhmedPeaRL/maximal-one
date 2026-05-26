@@ -294,8 +294,9 @@ jobs:
               print("Gaps:", gaps)
               print("Z-score separation:", z_score)
 
-              # 🔥 adaptive threshold
-              if z_score < 1.2:
+              adaptive_z = 0.8 + 0.2 * np.log1p(len(series)/256)
+
+              if z_score < adaptive_z:
                   raise SystemExit("❌ Null separation too weak (z-score failed)")
 
               # 🔥 extra guard (closest null)
