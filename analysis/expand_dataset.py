@@ -66,8 +66,8 @@ def extend_realistic(x, target_len=3327):
 
     extended = np.array(extended[:target_len], dtype=np.float64)
 
-    # ⚠️ مهم: ما تعملش normalization كامل
-    extended = extended - np.mean(extended)
+    # ✅ preserve raw structure (no centering here)
+    extended = extended
 
     return extended
     
