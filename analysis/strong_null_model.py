@@ -18,6 +18,7 @@ def generate_strong_null(n, rng):
     x = np.fft.irfft(fft, n=n)
 
     # 🔥 inject anti-structure noise
-    x += rng.normal(0, 0.5, n)
+    x += rng.normal(0, 1.0, n)
+    x = np.diff(x, prepend=x[0])
 
     return x.astype(np.float64)
