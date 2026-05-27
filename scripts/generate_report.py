@@ -178,16 +178,7 @@ def main():
         if len(series) < 256:
             series = np.pad(series, (0, 256-len(series)), mode='reflect')
 
-        from analysis.independent_validation import compare_methods
-
-        alpha_fft, alpha_welch = compare_methods(series)
-
-        candidates = [alpha_fft, alpha_welch]
-
-        alpha = np.nanmedian([
-            a for a in candidates
-            if np.isfinite(a)
-        ])
+        alpha = estimate_alpha(series)
         
         if not np.isfinite(alpha):
             alpha = 0.0
@@ -296,6 +287,13 @@ def main():
         from analysis.independent_validation import compare_methods
 
         alpha_fft, alpha_welch = compare_methods(series)
+
+        candidates = [alpha_fft, alpha_welch]
+
+        alpha = np.nanmedian([
+            a for a in candidates
+            if np.isfinite(a)
+        ])
 
         if np.isfinite(alpha_fft) and np.isfinite(alpha_welch):
             alpha = stable_float((alpha_fft + alpha_welch) / 2, 8)
