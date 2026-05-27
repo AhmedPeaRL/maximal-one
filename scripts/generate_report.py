@@ -178,7 +178,14 @@ def main():
         if len(series) < 256:
             series = np.pad(series, (0, 256-len(series)), mode='reflect')
 
-        alpha = estimate_alpha(series)
+        alpha_fft, alpha_welch = compare_methods(series)
+
+        candidates = [alpha_fft, alpha_welch]
+
+        alpha = np.nanmedian([
+            a for a in candidates
+            if np.isfinite(a)
+        ])
         
         if not np.isfinite(alpha):
             alpha = 0.0
@@ -244,9 +251,12 @@ def main():
         std = np.std(series)
         if std > 1e-6:
             series = series / std
+        else:
+            return SystemExit("❌ Degenerate signal")
 
         # 🔥 restore asymmetry after normalization
         trend = np.linspace(0, 1, len(series))
+        series = series + 0.05 * trend
         scale_test = evaluate_scale_invariance(series)
 
         falsification = recursively_freeze(
