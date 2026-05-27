@@ -1,33 +1,37 @@
 import numpy as np
 
 def phase_randomized_surrogate(series, rng):
+
     series = np.asarray(series, dtype=np.float64)
+
     n = len(series)
 
     fft = np.fft.rfft(series)
-    magnitudes = np.abs(fft)
 
-    # 🎯 Phase randomization (strong)
-    random_phases = rng.uniform(0, 2*np.pi, len(fft))
+    amplitudes = np.abs(fft)
 
-    # preserve DC only
-    random_phases[0] = 0.0
+    phases = np.angle(fft)
+
+    random_phases = rng.uniform(
+        0,
+        2*np.pi,
+        len(phases)
+    )
+
+    random_phases[0] = phases[0]
+
     if n % 2 == 0:
-        random_phases[-1] = 0.0
+        random_phases[-1] = phases[-1]
 
-    distortion = 1 + 0.2 * rng.standard_normal(len(magnitudes))
-    distortion = np.clip(distortion, 0.05, 4.0)
+    surrogate_fft = amplitudes * np.exp(
+        1j * random_phases
+    )
 
-    # 🔥 random drop heavy
-    drop_mask = rng.uniform(0, 1, len(magnitudes)) < 0.5
-    magnitudes[drop_mask] *= rng.uniform(0.01, 0.2)
-    magnitudes = magnitudes * distortion
+    surrogate = np.fft.irfft(
+        surrogate_fft,
+        n=n
+    )
 
-    new_fft = magnitudes * np.exp(1j * random_phases)
-
-    surrogate = np.fft.irfft(new_fft, n=n)
-
-    if not np.all(np.isfinite(surrogate)):
-        raise ValueError("Invalid surrogate generated")
+    surrogate = surrogate.astype(np.float64)
 
     return surrogate
