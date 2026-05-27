@@ -15,13 +15,8 @@ def phase_randomized_surrogate(series, rng):
     if n % 2 == 0:
         random_phases[-1] = 0.0
 
-    # 🔥 ULTRA STRONG DISTORTION
-    distortion = 1 + 0.3 * rng.standard_normal(len(magnitudes))
+    distortion = 1 + 0.2 * rng.standard_normal(len(magnitudes))
     distortion = np.clip(distortion, 0.05, 4.0)
-
-    # 🔥 kill low frequencies (critical)
-    low_freq_cut = int(0.2 * len(magnitudes))
-    magnitudes[:low_freq_cut] *= rng.uniform(0.01, 0.2)
 
     # 🔥 random drop heavy
     drop_mask = rng.uniform(0, 1, len(magnitudes)) < 0.5
