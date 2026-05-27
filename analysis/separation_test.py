@@ -18,7 +18,11 @@ def separation_score(real, null_samples):
     mean_null = np.mean(null_alphas)
     std_null = np.std(null_alphas) + 1e-12
 
-    z = abs(real_alpha - mean_null) / std_null
+    if std_null < 1e-3:
+        return None
+
+    z = (real_alpha - mean_null) / (std_null + 1e-12)
+    z = abs(z)
 
     # 🔥 NEW: minimum enforced gap
     gap = abs(real_alpha - mean_null)
