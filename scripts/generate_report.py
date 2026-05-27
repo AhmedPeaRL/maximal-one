@@ -284,7 +284,14 @@ def main():
         from analysis.independent_validation import compare_methods
 
         alpha_fft, alpha_welch = compare_methods(series)
-        alpha = stable_float(alpha_fft, 8)
+
+        if np.isfinite(alpha_fft) and np.isfinite(alpha_welch):
+            alpha = stable_float((alpha_fft + alpha_welch) / 2, 8)
+        elif np.isfinite(alpha_fft):
+            alpha = stable_float(alpha_fft, 8)
+        else:
+            alpha = stable_float(alpha_welch, 8)
+    
         alpha_welch = stable_float(alpha_welch, 8)
 
         # 🔥 تنظيف صارم للـ noise samples
@@ -305,6 +312,9 @@ def main():
             alpha,
             digits=8
         )
+
+        if abs(alpha - alpha_noise) < 0.1:
+            print("⚠️ Alpha too close to noise — weak structure")
 
         boot = {
             "mean": stable_float(boot["mean"], 8),
