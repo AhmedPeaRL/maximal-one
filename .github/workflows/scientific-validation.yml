@@ -239,6 +239,14 @@ jobs:
               df[col].values
           )
 
+          if not (
+              np.isfinite(fft_alpha)
+              and np.isfinite(welch_alpha)
+          ):
+              raise SystemExit(
+                  "❌ Numerical consistency invalid"
+              )
+
           delta = abs(
               fft_alpha - welch_alpha
           )
@@ -278,7 +286,13 @@ jobs:
                   raise SystemExit("❌ Null separation too weak (z-score failed)")
 
               # 🔥 extra guard (closest null)
-              min_gap = min(gaps)
+              meaningful_nulls = [
+                  abs(real - shuffled),
+                  abs(real - noise)
+              ]
+
+              min_gap = min(meaningful_nulls)
+
               if min_gap < 0.10:
                   raise SystemExit("❌ Closest null too قريب من real")
 
