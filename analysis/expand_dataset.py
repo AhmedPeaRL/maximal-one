@@ -47,19 +47,15 @@ def extend_realistic(x, target_len=3327):
         start = rng.integers(0, len(x) - 300)
         segment = x[start:start+300].copy()
 
-        # 🔥 dynamic nonlinear distortion
-        segment = segment * (1 + 0.3 * np.sin(np.linspace(0, np.pi, len(segment))))
+        # 🔥 حافظ على structure
+        scale = rng.uniform(0.8, 1.2)
+        segment = segment * scale
 
-        # 🔥 regime switching
-        if rng.random() < 0.5:
-            segment = np.flip(segment)
-
-        # 🔥 stronger decorrelation noise
-        noise = rng.normal(0, np.std(segment)*0.15, len(segment))
+        # 🔥 small noise فقط
+        noise = rng.normal(0, np.std(segment)*0.05, len(segment))
         segment = segment + noise
 
-        # 🔥 break local autocorrelation
-        segment = np.diff(segment, prepend=segment[0])
+        # 🔥 no differencing ❌❌❌
 
         extended.extend(segment.tolist())
 
