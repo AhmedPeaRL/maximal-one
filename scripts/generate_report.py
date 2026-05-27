@@ -181,7 +181,9 @@ def main():
         alpha = estimate_alpha(series)
         
         if not np.isfinite(alpha):
-            alpha = 0.0
+            raise SystemExit(
+                "❌ Alpha estimation failed"
+            )
 
         alpha = freeze_float(alpha, digits=8)
 
