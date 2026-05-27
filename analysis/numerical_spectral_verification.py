@@ -148,11 +148,9 @@ def estimate_alpha(series):
     if not np.isfinite(alpha):
         return np.nan
 
-    if abs(alpha) < 0.02:
-        return 0.02
-
-    # 🔥 soft clamp فقط
-    alpha = np.clip(alpha, 0.05, 4.2)
+    # 🔥 soft guard فقط
+    if alpha < -2 or alpha > 6:
+        return np.nan
 
     return float(alpha)
     
