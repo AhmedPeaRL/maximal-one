@@ -31,8 +31,12 @@ def core_alpha_estimation(series):
     if not np.all(np.isfinite(series)):
         return np.nan
 
-    # نفس preprocessing
     series = series - np.mean(series)
+
+    # 🔥 scale without killing structure
+    std = np.std(series)
+    if std > 1e-6:
+        series = series / std
 
     freqs, psd = welch(
         series,
