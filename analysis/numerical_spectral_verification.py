@@ -120,9 +120,13 @@ def estimate_alpha(series):
     if np.std(series) < 1e-6:
         return np.nan
 
-    # detrend (مهم جدًا)
     series = series - np.mean(series)
 
+    # 🔥 scale without killing structure
+    std = np.std(series)
+    if std > 1e-6:
+        series = series / std
+    
     freqs, psd = welch(series, nperseg=256)
 
     mask = (freqs > 0.01) & (freqs < 0.25)
