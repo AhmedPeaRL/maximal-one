@@ -112,24 +112,55 @@ def robust_local_slopes(
     return f(np.mean(core))
 
 def estimate_alpha(series):
+
     series = np.asarray(series, dtype=np.float64)
 
     if len(series) < 256:
         return np.nan
 
-    if np.std(series) < 1e-6:
+    if not np.all(np.isfinite(series)):
         return np.nan
 
+    if np.std(series) < 1e-8:
+        return np.nan
+
+    # 🔥 remove mean
     series = series - np.mean(series)
 
-    # 🔥 scale without killing structure
-    std = np.std(series)
-    if std > 1e-6:
-        series = series / std
-    
-    freqs, psd = welch(series, nperseg=256)
+    # 🔥 detect integrated processes
+    diff_std = np.std(np.diff(series))
 
-    mask = (freqs > 0.01) & (freqs < 0.25)
+    raw_std = np.std(series)
+
+    integration_ratio = raw_std / (diff_std + 1e-12)
+
+    # 🔥 adaptive detrending
+    if integration_ratio > 8.0:
+        series = np.diff(series)
+
+    # normalize
+    std = np.std(series)
+
+    if std < 1e-12:
+        return np.nan
+
+    series = series / std
+
+    freqs, psd = welch(
+        series,
+        nperseg=min(256, len(series)//2),
+        window="hann",
+        detrend="linear",
+        scaling="density"
+    )
+
+    mask = (
+        (freqs > 0.01)
+        & (freqs < 0.25)
+        & np.isfinite(psd)
+        & (psd > 0)
+    )
+
     freqs = freqs[mask]
     psd = psd[mask]
 
@@ -137,20 +168,22 @@ def estimate_alpha(series):
         return np.nan
 
     log_f = np.log(freqs)
-    log_p = np.log(psd + 1e-12)
+    log_psd = np.log(psd)
 
-    # 🔥 robust regression بدل polyfit
-    coeffs = np.polyfit(log_f, log_p, 1)
-    slope = coeffs[0]
-
-    alpha = -slope
-
-    if not np.isfinite(alpha):
+    try:
+        coeffs = np.polyfit(log_f, log_psd, 1)
+        slope = coeffs[0]
+    except Exception:
         return np.nan
 
-    # 🔥 soft guard فقط
-    if alpha < -2 or alpha > 6:
+    alpha = float(-slope)
+
+    # 🔥 physical clipping
+    if alpha < -0.25:
         return np.nan
+
+    if alpha > 3.0:
+        alpha = 3.0
 
     return float(alpha)
     
