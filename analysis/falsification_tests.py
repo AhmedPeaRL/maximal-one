@@ -33,7 +33,7 @@ def phase_randomization(series, rng):
     surrogate = surrogate / (np.std(surrogate) + 1e-12)
     
     # 🔥 inject extra noise
-    noise = rng.normal(0, np.std(surrogate)*0.2, len(surrogate))
+    noise = rng.normal(0, np.std(surrogate)*0.05, len(surrogate))
     surrogate = surrogate + noise
 
     return estimate_alpha(surrogate)
