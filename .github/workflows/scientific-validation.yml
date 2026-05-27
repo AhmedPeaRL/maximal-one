@@ -692,6 +692,11 @@ jobs:
               series = np.asarray(series, dtype=np.float64)
               series = series - np.mean(series)
 
+              # 🔥 scale without killing structure
+              std = np.std(series)
+              if std > 1e-6:
+                  series = series / std
+
               fft_vals = np.fft.rfft(series)
               power = np.abs(fft_vals) ** 2
 
