@@ -247,9 +247,6 @@ def main():
         else:
             return SystemExit("❌ Degenerate signal")
 
-        # 🔥 restore asymmetry after normalization
-        trend = np.linspace(0, 1, len(series))
-        series = series + 0.05 * trend
         scale_test = evaluate_scale_invariance(series)
 
         falsification = recursively_freeze(
