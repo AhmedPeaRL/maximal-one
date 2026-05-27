@@ -6,6 +6,7 @@ import os
 import traceback
 import analysis.hard_determinism_lock
 from analysis.numerical_spectral_verification import estimate_alpha
+from analysis.independent_validation import compare_methods
 from analysis.fixed_precision import (
     recursively_freeze,
     freeze_float
