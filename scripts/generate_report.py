@@ -6,7 +6,6 @@ import os
 import traceback
 import analysis.hard_determinism_lock
 from analysis.numerical_spectral_verification import estimate_alpha
-from analysis.independent_validation import compare_methods
 from analysis.fixed_precision import (
     recursively_freeze,
     freeze_float
@@ -178,6 +177,8 @@ def main():
         
         if len(series) < 256:
             series = np.pad(series, (0, 256-len(series)), mode='reflect')
+
+        from analysis.independent_validation import compare_methods
 
         alpha_fft, alpha_welch = compare_methods(series)
 
