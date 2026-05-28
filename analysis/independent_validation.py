@@ -42,7 +42,7 @@ def core_alpha_estimation(series):
         series,
         nperseg=256,
         window="hann",
-        detrend="constant",
+        detrend="linear",
         scaling="density"
     )
 
