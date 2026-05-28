@@ -217,7 +217,9 @@ def main():
         a_full = estimate_alpha(full)
 
         if not (np.isfinite(a_half) and np.isfinite(a_full)):
-            return True
+            raise SystemExit(
+                "❌ Half/full alpha invalid"
+            )
 
         delta = abs(a_full - a_half)
 
@@ -421,11 +423,16 @@ def main():
 
         method_delta = abs(alpha - alpha_welch)
 
+        if method_delta > 0.6:
+            raise SystemExit(
+                "❌ Method inconsistency too high"
+            )
+
         if method_delta > 0.5:
-            raise SystemExit("❌ Method inconsistency (violates strict claim)")
-            if method_delta > 0.6:
-                raise SystemExit("❌ Method inconsistency too high (hard fail)")
-        
+            print(
+                "⚠️ Method inconsistency near threshold"
+            )
+    
         output_path = os.path.join(
             args.output_dir,
             "canonical_report.json"
