@@ -29,9 +29,21 @@ def monte_carlo_p_value(series, observed_alpha, rng, trials=5000):
             "p_value": 1.0
         }
 
+    distance = np.abs(
+        null_alphas - np.median(null_alphas)
+    )
+
+    observed_distance = abs(
+        observed_alpha - np.median(null_alphas)
+    )
+
     p_value = max(
         1e-6,
-        float(np.mean(null_alphas >= observed_alpha))
+        float(
+            np.mean(
+                distance >= observed_distance
+            )
+        )
     )
 
     return {
