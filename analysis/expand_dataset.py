@@ -69,7 +69,7 @@ def extend_realistic(x, target_len=3327):
         # 🔥 minimal perturbation
         noise = rng.normal(
             0,
-            local_std * 0.015,
+            local_std * 0.05,
             len(segment)
         )
 
