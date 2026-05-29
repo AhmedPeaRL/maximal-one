@@ -112,7 +112,6 @@ def robust_local_slopes(
     return f(np.mean(core))
 
 def estimate_alpha(series):
-
     series = np.asarray(series, dtype=np.float64)
 
     if len(series) < 256:
@@ -178,19 +177,10 @@ def estimate_alpha(series):
 
     alpha = float(-slope)
 
-    # 🔥 physically meaningful spectral bounds only
-    if not np.isfinite(alpha):
+    # 🔥 physical clipping
+    if alpha < -0.25:
         return np.nan
 
-    # white noise may fluctuate slightly below zero numerically
-    if alpha < -0.05:
-        return np.nan
-
-    # clamp tiny negatives to true white-noise floor
-    if -0.05 <= alpha < 0.0:
-        alpha = 0.0
-
-    # hard upper physical saturation
     if alpha > 3.0:
         alpha = 3.0
 
