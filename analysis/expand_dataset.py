@@ -41,7 +41,6 @@ if np.std(series) < 1e-6:
     raise SystemExit("❌ Degenerate dataset")
 
 def extend_realistic(x, target_len=3327):
-
     x = np.asarray(x, dtype=np.float64)
 
     if len(x) >= target_len:
@@ -69,7 +68,7 @@ def extend_realistic(x, target_len=3327):
         # 🔥 minimal perturbation
         noise = rng.normal(
             0,
-            local_std * 0.05,
+            local_std * 0.12,
             len(segment)
         )
 
@@ -83,7 +82,6 @@ def extend_realistic(x, target_len=3327):
     )
 
     return out
-
 
 extended = extend_realistic(
     series,
