@@ -178,10 +178,19 @@ def estimate_alpha(series):
 
     alpha = float(-slope)
 
-    # 🔥 physical clipping
-    if alpha < -0.25:
+    # 🔥 physically meaningful spectral bounds only
+    if not np.isfinite(alpha):
         return np.nan
 
+    # white noise may fluctuate slightly below zero numerically
+    if alpha < -0.05:
+        return np.nan
+
+    # clamp tiny negatives to true white-noise floor
+    if -0.05 <= alpha < 0.0:
+        alpha = 0.0
+
+    # hard upper physical saturation
     if alpha > 3.0:
         alpha = 3.0
 
