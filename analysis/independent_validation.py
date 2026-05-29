@@ -1,11 +1,9 @@
 import numpy as np
 from scipy.signal import welch
-
 from analysis.numerical_spectral_verification import estimate_alpha
 
 FREQ_MIN = 0.01
 FREQ_MAX = 0.25
-
 
 def sanitize_alpha(alpha):
     if alpha is None:
@@ -20,7 +18,6 @@ def sanitize_alpha(alpha):
     alpha = np.clip(alpha, 0.0, 4.5)
 
     return float(alpha)
-
 
 def core_alpha_estimation(series):
     series = np.asarray(series, dtype=np.float64)
@@ -72,10 +69,9 @@ def core_alpha_estimation(series):
     if abs(alpha) < 0.05:
         return np.nan
 
-    alpha = np.clip(alpha, 0.0, 4.5)
+    alpha = np.clip(alpha, 0.0, 3.0)
 
     return float(alpha)
-
 
 def compare_methods(series):
     """
