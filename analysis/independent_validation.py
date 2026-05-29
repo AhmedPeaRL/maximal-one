@@ -69,7 +69,7 @@ def core_alpha_estimation(series):
     if abs(alpha) < 0.05:
         return np.nan
 
-    alpha = np.clip(alpha, 0.0, 3.0)
+    alpha = np.clip(alpha, 0.05, 3.0)
 
     return float(alpha)
 
