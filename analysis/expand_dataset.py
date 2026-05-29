@@ -48,24 +48,38 @@ def extend_realistic(x, target_len=3327):
 
     rng = np.random.default_rng(42)
 
-    extended = list(x)
+    extended = []
+
+    cursor = 0
 
     while len(extended) < target_len:
 
+        window = rng.integers(192, 320)
+
         start = rng.integers(
             0,
-            len(x) - 256
+            max(1, len(x) - window)
         )
 
-        segment = x[start:start+256].copy()
+        segment = x[start:start+window].copy()
 
-        # 🔥 preserve local variance
         local_std = np.std(segment)
 
         if local_std < 1e-6:
             continue
 
-        # 🔥 minimal perturbation
+        # 🔥 adaptive nonlinear warp
+        t = np.linspace(0, 1, len(segment))
+
+        warp = (
+            1.0
+            + 0.08 * np.sin(2*np.pi*t)
+            + 0.04 * np.cos(5*np.pi*t)
+        )
+
+        segment = segment * warp
+
+        # 🔥 local stochastic perturbation
         noise = rng.normal(
             0,
             local_std * 0.12,
@@ -74,12 +88,49 @@ def extend_realistic(x, target_len=3327):
 
         segment = segment + noise
 
+        # 🔥 sparse decorrelation
+        if rng.random() < 0.35:
+            segment = np.diff(
+                segment,
+                prepend=segment[0]
+            )
+
+        # 🔥 polarity regime switch
+        if rng.random() < 0.15:
+            segment = -segment
+
+        # 🔥 smooth boundary blending
+        if len(extended) > 32:
+
+            overlap = min(32, len(segment))
+
+            prev = np.asarray(
+                extended[-overlap:],
+                dtype=np.float64
+            )
+
+            blend = np.linspace(0, 1, overlap)
+
+            segment[:overlap] = (
+                prev * (1 - blend)
+                + segment[:overlap] * blend
+            )
+
         extended.extend(segment.tolist())
+
+        cursor += len(segment)
 
     out = np.asarray(
         extended[:target_len],
         dtype=np.float64
     )
+
+    out = out - np.mean(out)
+
+    std = np.std(out)
+
+    if std > 1e-12:
+        out = out / std
 
     return out
 
