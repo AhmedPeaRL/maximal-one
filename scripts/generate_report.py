@@ -228,6 +228,14 @@ def main():
                 f"❌ Inflation detected: delta={delta}"
             )    
         print("✅ No inflation artifact")
+
+        from analysis.integration_diagnostics import (
+            integration_score,
+            classify_process
+        )
+
+        integration_ratio = integration_score(series)
+        process_class = classify_process(series)
     
         from analysis.falsification_tests import run_falsification
         from analysis.falsification_tests import temporal_direction_test
@@ -383,6 +391,13 @@ def main():
             "metadata": {
                 "seed": args.seed,
                 "generator": generator_type
+            },
+            "integration_diagnostics": {
+                "integration_ratio": stable_float(
+                    integration_ratio,
+                    8
+                ),
+                "process_class": process_class
             },
             "statistical_test": stats,
             "separation_test": sep,
