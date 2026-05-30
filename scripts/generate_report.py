@@ -366,6 +366,17 @@ def main():
 
         sep = separation_score(series, null_samples)
 
+        if sep is not None:
+            if sep["z_score"] < 1.0:
+                raise SystemExit(
+                    "❌ weak separation z-score"
+                )
+
+        if sep["relative_gap"] < 0.25:
+            raise SystemExit(
+                "❌ weak relative separation"
+            )
+
         # 🔥 HARD ANTI-INFLATION GUARD
         if alpha > 2.5:
             if sep is not None and sep.get("gap", 0) < 2.0:
