@@ -82,21 +82,21 @@ def extend_realistic(x, target_len=3327):
         # 🔥 local stochastic perturbation
         noise = rng.normal(
             0,
-            local_std * 0.12,
+            local_std * 0.05,
             len(segment)
         )
 
         segment = segment + noise
 
         # 🔥 sparse decorrelation
-        if rng.random() < 0.35:
+        if rng.random() < 0.15:
             segment = np.diff(
                 segment,
                 prepend=segment[0]
             )
 
         # 🔥 polarity regime switch
-        if rng.random() < 0.15:
+        if rng.random() < 0.05:
             segment = -segment
 
         # 🔥 smooth boundary blending
