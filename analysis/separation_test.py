@@ -2,7 +2,6 @@ import numpy as np
 from analysis.numerical_spectral_verification import estimate_alpha
 
 def separation_score(real, null_samples):
-
     real_alpha = estimate_alpha(real)
 
     null_alphas = []
@@ -42,11 +41,16 @@ def separation_score(real, null_samples):
         real_alpha - median_null
     )
 
+    relative_gap = gap / (
+        abs(median_null) + 1e-12
+    )
+
     return {
         "real_alpha": float(real_alpha),
         "null_mean": float(mean_null),
         "null_median": float(median_null),
         "z_score": float(z),
         "gap": float(gap),
+        "relative_gap": float(relative_gap),
         "robust_std": float(robust_std)
     }
