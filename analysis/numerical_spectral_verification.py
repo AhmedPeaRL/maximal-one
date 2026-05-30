@@ -177,12 +177,17 @@ def estimate_alpha(series):
 
     alpha = float(-slope)
 
-    # 🔥 physical clipping
-    if alpha < -0.25:
+    if not np.isfinite(alpha):
         return np.nan
 
-    if alpha > 3.0:
-        alpha = 3.0
+    # numerical tolerance zone
+    if alpha < 0:
+        if alpha > -0.20:
+            alpha = 0.0
+        else:
+            return np.nan
+
+    alpha = min(alpha, 3.0)
 
     return float(alpha)
     
