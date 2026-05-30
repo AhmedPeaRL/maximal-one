@@ -371,11 +371,10 @@ def main():
                 raise SystemExit(
                     "❌ weak separation z-score"
                 )
-
-        if sep["relative_gap"] < 0.25:
-            raise SystemExit(
-                "❌ weak relative separation"
-            )
+            if sep["relative_gap"] < 0.25:
+                raise SystemExit(
+                    "❌ weak relative separation"
+                )
 
         # 🔥 HARD ANTI-INFLATION GUARD
         if alpha > 2.5:
