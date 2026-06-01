@@ -372,6 +372,31 @@ jobs:
 
               return True
 
+          def persistence_score(series):
+              series = np.asarray(
+                  series,
+                  dtype=np.float64
+              )
+              if len(series) < 256:
+                  return 0.0
+
+              raw_std = np.std(series)
+              diff_std = np.std(
+                  np.diff(series)
+              ) + 1e-12
+              ratio = raw_std / diff_std
+              ac1 = np.corrcoef(
+                  series[:-1],
+                  series[1:]
+              )[0,1]
+              score = (
+                  0.6 * np.tanh(ac1)
+                  +
+                  0.4 * np.tanh(ratio/10)
+              )
+
+              return float(score)
+
           def run_test():
               # === REAL DATA ===
               real_df = pd.read_csv("real-data/sunspots_global_extended.csv")
@@ -416,10 +441,15 @@ jobs:
               a_fft, a_welch = estimate_alpha(adv),core_alpha_estimation(adv)
               print(f"\n=== ADVERSARIAL DATA ===\nFFT: {a_fft}\nWelch: {a_welch}")
               
-              is_adv_structured = is_structured(
-                  a_fft,
-                  a_welch,
-                  sep
+              p_score = persistence_score(adv)
+              is_adv_structured = (
+                  is_structured(
+                      a_fft,
+                      a_welch,
+                      sep
+                  )
+                  and
+                  p_score > 0.55
               )
               if is_adv_structured:
                   # لو لسه بيخدعنا، نستخدم اختبار القوة الطيفية (Spectral Power)
