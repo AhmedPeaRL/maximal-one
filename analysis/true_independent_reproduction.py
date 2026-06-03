@@ -7,10 +7,8 @@ import time
 
 REPO_URL = "https://github.com/ahmedpearl/maximal-one.git"
 
-
 def sha256(data):
     return hashlib.sha256(data.encode()).hexdigest()
-
 
 def run_fresh_clone():
     tmp = tempfile.mkdtemp()
@@ -25,7 +23,6 @@ def run_fresh_clone():
     ], check=True)
 
     return tmp
-
 
 def run_pipeline(path):
     print("Running independent pipeline...")
@@ -55,7 +52,6 @@ def run_pipeline(path):
     with open(report_path) as f:
         return f.read()
 
-
 def normalize(raw):
     data = json.loads(raw)
 
@@ -78,16 +74,15 @@ def normalize(raw):
 
     cleaned = clean(data)
 
+    assert "spectral_profile" in cleaned
+    assert "estimated_alpha" in cleaned["spectral_profile"]
+
     return json.dumps(
         cleaned,
         sort_keys=True,
         separators=(',', ':')
     )
-
-    assert "spectral_profile" in cleaned
-    assert "estimated_alpha" in cleaned["spectral_profile"]
     
-   
 def compare():
     local_path = "artifacts/canonical_report.json"
 
@@ -137,7 +132,6 @@ def compare():
 
     print("❌ SEMANTIC DIVERGENCE DETECTED")
     return False
-
 
 if __name__ == "__main__":
     ok = compare()
