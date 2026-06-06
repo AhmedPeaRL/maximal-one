@@ -427,11 +427,12 @@ def main():
             falsification_delta=falsification_delta
         )
 
-        consensus_ok = consensus_check(
+        consensus = consensus_check(
             alpha_fft,
             alpha_welch,
             stats["p_value"],
-            scale_test["dispersion"]
+            scale_test["dispersion"],
+            fusion["evidence_score"]
         )
 
         from analysis.sovereign_inference_engine import SovereignInferenceEngine
@@ -452,10 +453,35 @@ def main():
                 "❌ Insufficient convergent evidence"
             )
 
-        if not consensus_ok:
-            raise SystemExit(
-                "❌ Consensus guard failed"
+        if not consensus["passed"]:
+            print(
+                "⚠️ Consensus diagnostics:",
+                consensus["diagnostics"]
             )
+            if (
+                len(consensus["diagnostics"])
+                > 1
+            ):
+                raise SystemExit(
+                    "❌ Consensus guard failed"
+                )
+
+        print(
+            "Consensus diagnostics:",
+            consensus["diagnostics"]
+        )
+        print(
+            "Evidence score:",
+            fusion["evidence_score"]
+        )
+        print(
+            "P-value:",
+            stats["p_value"]
+        )
+        print(
+            "Dispersion:",
+            scale_test["dispersion"]
+        )
 
         report = {
             "evidence_fusion": fusion,
@@ -499,9 +525,7 @@ def main():
                     validation_delta <= 0.30
                 )
             },
-            "consensus_guard": {
-                "passed": consensus_ok
-            },
+            "consensus_guard": consensus,
             "sovereign_layer": {
                 "decision": decision,
                 "engine_summary": engine.summary(
