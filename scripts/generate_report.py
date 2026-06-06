@@ -242,6 +242,13 @@ def main():
         from analysis.numerical_spectral_verification import block_bootstrap
         from analysis.statistical_significance import monte_carlo_p_value
         from analysis.multi_scale_validation import evaluate_scale_invariance
+        from analysis.cross_seed_validation import run as cross_seed_validation
+        from analysis.evidence_fusion import (
+            evidence_fusion
+        )
+        from analysis.consensus_guard import (
+            consensus_check
+        )
 
         falsification_rng = np.random.default_rng(args.seed + 101)
         direction_gap = temporal_direction_test(series)
@@ -260,6 +267,16 @@ def main():
             return SystemExit("❌ Degenerate signal")
 
         scale_test = evaluate_scale_invariance(series)
+        cross_seed = cross_seed_validation(
+            series
+        )
+        if not cross_seed.get(
+            "seed_stable",
+            False
+        ):
+            raise SystemExit(
+                "❌ Cross-seed instability detected"
+            )
 
         falsification = recursively_freeze(
             run_falsification(
@@ -297,21 +314,24 @@ def main():
 
         alpha_fft, alpha_welch = compare_methods(series)
 
-        candidates = [alpha_fft, alpha_welch]
+        if not np.isfinite(alpha_fft):
+            raise SystemExit(
+                "❌ Primary alpha estimator failed"
+            )
 
-        alpha = np.nanmedian([
-            a for a in candidates
-            if np.isfinite(a)
-        ])
+        alpha = stable_float(
+            alpha_fft,
+            8
+        )
 
-        if np.isfinite(alpha_fft) and np.isfinite(alpha_welch):
-            alpha = stable_float((alpha_fft + alpha_welch) / 2, 8)
-        elif np.isfinite(alpha_fft):
-            alpha = stable_float(alpha_fft, 8)
-        else:
-            alpha = stable_float(alpha_welch, 8)
-    
-        alpha_welch = stable_float(alpha_welch, 8)
+        validation_delta = np.nan
+
+        if np.isfinite(alpha_welch):
+            validation_delta = abs(
+                alpha_fft
+                -
+                alpha_welch
+            )
 
         # 🔥 تنظيف صارم للـ noise samples
         clean_noise = [
@@ -383,12 +403,62 @@ def main():
             else:
                 print("⚠️ High alpha but justified by strong separation")
 
+        falsification_delta = abs(
+            falsification["original_alpha"]
+            -
+            falsification["white_noise_alpha"]
+        )
+
+        validation_delta = abs(
+            alpha_fft
+            -
+            alpha_welch
+        )
+
+        fusion = evidence_fusion(
+            alpha_delta=abs(
+                alpha - alpha_noise
+            ),
+            p_value=stats["p_value"],
+            scale_dispersion=scale_test[
+                "dispersion"
+            ],
+            validation_delta=validation_delta,
+            falsification_delta=falsification_delta
+        )
+
+        consensus_ok = consensus_check(
+            alpha_fft,
+            alpha_welch,
+            stats["p_value"],
+            scale_test["dispersion"]
+        )
+
+        if not consensus_ok:
+            raise SystemExit(
+                "❌ Consensus guard failed"
+            )
+
         from analysis.sovereign_inference_engine import SovereignInferenceEngine
 
         engine = SovereignInferenceEngine()
         decision = engine.ingest(alpha, alpha_noise)
+        decision["primary_estimator"] = "FFT"
+        decision["independent_validator"] = "Welch"
+        decision["validation_delta"] = stable_float(
+            validation_delta,
+            8
+        )
+
+        if not fusion[
+            "structure_detected"
+        ]:
+            raise SystemExit(
+                "❌ Insufficient convergent evidence"
+            )
 
         report = {
+            "evidence_fusion": fusion,
             "spectral_profile": {
                 "estimated_alpha": alpha,
                 "bootstrap_mean": boot["mean"],
@@ -412,10 +482,25 @@ def main():
             "statistical_test": stats,
             "separation_test": sep,
             "multi_scale_validation": scale_test,
+            "cross_seed_validation": cross_seed,
             "cross_method_validation": {
-                "fft_alpha": stable_float(alpha),
-                "welch_alpha": stable_float(alpha_welch),
-                "agreement": stable_float(abs(alpha - alpha_welch))
+                "primary_method": "FFT",
+                "validation_method": "Welch",
+                "fft_alpha": stable_float(
+                    alpha_fft
+                ),
+                "welch_alpha": stable_float(
+                    alpha_welch
+                ),
+                "agreement_delta": stable_float(
+                    validation_delta
+                ),
+                "validated": bool(
+                    validation_delta <= 0.30
+                )
+            },
+            "consensus_guard": {
+                "passed": consensus_ok
             },
             "sovereign_layer": {
                 "decision": decision,
@@ -446,14 +531,19 @@ def main():
         if direction_gap < 0.005:
             print("⚠️ Weak temporal directionality — tolerated")
 
-        method_delta = abs(alpha - alpha_welch)
+        method_delta = validation_delta
 
-        if method_delta > 0.6:
+        if not np.isfinite(method_delta):
+            raise SystemExit(
+                "❌ Independent validation unavailable"
+            )
+
+        if method_delta > 0.30:
             raise SystemExit(
                 "❌ Method inconsistency too high"
             )
 
-        if method_delta > 0.5:
+        if method_delta > 0.20:
             print(
                 "⚠️ Method inconsistency near threshold"
             )
