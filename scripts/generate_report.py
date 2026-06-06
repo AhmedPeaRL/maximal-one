@@ -434,11 +434,6 @@ def main():
             scale_test["dispersion"]
         )
 
-        if not consensus_ok:
-            raise SystemExit(
-                "❌ Consensus guard failed"
-            )
-
         from analysis.sovereign_inference_engine import SovereignInferenceEngine
 
         engine = SovereignInferenceEngine()
@@ -455,6 +450,11 @@ def main():
         ]:
             raise SystemExit(
                 "❌ Insufficient convergent evidence"
+            )
+
+        if not consensus_ok:
+            raise SystemExit(
+                "❌ Consensus guard failed"
             )
 
         report = {
