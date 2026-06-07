@@ -26,28 +26,3 @@ def phase_randomized_surrogate(series, rng):
     surrogate = surrogate.astype(np.float64)
 
     return surrogate
-
-def phase_surrogate_guard(
-    original_alpha,
-    phase_alpha
-):
-
-    if (
-        not np.isfinite(original_alpha)
-        or
-        not np.isfinite(phase_alpha)
-    ):
-        return {
-            "passed": False,
-            "gap": None
-        }
-
-    gap = abs(
-        float(original_alpha)
-        - float(phase_alpha)
-    )
-
-    return {
-        "passed": bool(gap >= 0.05),
-        "gap": float(round(gap, 8))
-    }
