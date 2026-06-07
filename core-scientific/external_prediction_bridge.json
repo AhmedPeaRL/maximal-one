@@ -5,7 +5,7 @@
   "prediction_targets": [
     {
       "id": "solar_activity_proxy",
-      "source": "real-data/sunspots_global.csv",
+      "source": "real-data/sunspots_global_extended.csv",
       "type": "time_series",
       "metric": "next_step_direction",
       "horizon": 1
