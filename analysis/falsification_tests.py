@@ -1,8 +1,37 @@
 import numpy as np
-
 from analysis.numerical_spectral_verification import estimate_alpha
 from analysis.spectral_surrogate import phase_randomized_surrogate
 
+def validate(
+    alpha,
+    boot_mean,
+    boot_std
+):
+
+    if (
+        not np.isfinite(alpha)
+        or
+        not np.isfinite(boot_mean)
+        or
+        not np.isfinite(boot_std)
+    ):
+        return {
+            "passed": False
+        }
+
+    z = abs(
+        alpha - boot_mean
+    ) / (
+        boot_std + 1e-12
+    )
+
+    return {
+        "passed": bool(z < 3.0),
+        "z_score": float(
+            round(z, 8)
+        )
+    }
+    
 def shuffle_test(series, rng):
     shuffled = rng.permutation(series)
     return estimate_alpha(shuffled)
