@@ -31,6 +31,31 @@ def validate(
             round(z, 8)
         )
     }
+
+def phase_surrogate_guard(
+    original_alpha,
+    phase_alpha
+):
+
+    if (
+        not np.isfinite(original_alpha)
+        or
+        not np.isfinite(phase_alpha)
+    ):
+        return {
+            "passed": False,
+            "gap": None
+        }
+
+    gap = abs(
+        float(original_alpha)
+        - float(phase_alpha)
+    )
+
+    return {
+        "passed": bool(gap >= 0.05),
+        "gap": float(round(gap, 8))
+    }
     
 def shuffle_test(series, rng):
     shuffled = rng.permutation(series)
