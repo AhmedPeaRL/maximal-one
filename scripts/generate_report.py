@@ -239,6 +239,8 @@ def main():
     
         from analysis.falsification_tests import run_falsification
         from analysis.falsification_tests import temporal_direction_test
+        from analysis.falsification_tests import phase_surrogate_guard
+        from analysis.falsification_tests import validate as validate_bootstrap
         from analysis.numerical_spectral_verification import block_bootstrap
         from analysis.statistical_significance import monte_carlo_p_value
         from analysis.multi_scale_validation import evaluate_scale_invariance
@@ -284,6 +286,25 @@ def main():
                 falsification_rng
             )
         )
+
+        phase_guard = phase_surrogate_guard(
+            falsification["original_alpha"],
+            falsification["phase_randomized_alpha"]
+        )
+        if not phase_guard["passed"]:
+            raise SystemExit(
+                "❌ Phase surrogate falsification failed"
+            )
+
+        bootstrap_guard = validate_bootstrap(
+            alpha,
+            boot["mean"],
+            boot["std"]
+        )
+        if not bootstrap_guard["passed"]:
+            raise SystemExit(
+                "❌ Bootstrap consistency failed"
+            )
 
         boot = recursively_freeze(
             block_bootstrap(
@@ -485,6 +506,8 @@ def main():
 
         report = {
             "evidence_fusion": fusion,
+            "phase_surrogate_guard": phase_guard,
+            "bootstrap_consistency_guard": bootstrap_guard,
             "spectral_profile": {
                 "estimated_alpha": alpha,
                 "bootstrap_mean": boot["mean"],
@@ -538,7 +561,10 @@ def main():
         gap1 = abs(falsification["original_alpha"] - falsification["shuffled_alpha"])
         gap2 = abs(falsification["original_alpha"] - falsification["white_noise_alpha"])
 
-        adaptive_gap = max(0.15, 0.1 * alpha)
+        adaptive_gap = max(
+            0.20,
+            0.15 * alpha
+        )
 
         if gap1 < adaptive_gap * 0.7:
             print("⚠️ Weak shuffle gap — tolerated")
@@ -549,8 +575,14 @@ def main():
         gap_noise = abs(falsification["original_alpha"] - falsification["white_noise_alpha"])
         gap_shuffle = abs(falsification["original_alpha"] - falsification["shuffled_alpha"])
 
-        if gap_noise < 0.10 and gap_shuffle < 0.10:
-            print("⚠️ Weak separation — tolerated under constrained signal")
+        if gap_noise < 0.10:
+            raise SystemExit(
+                "❌ Noise separation too weak"
+            )
+        if gap_shuffle < 0.10:
+            raise SystemExit(
+                "❌ Shuffle separation too weak"
+            )
     
         if direction_gap < 0.005:
             print("⚠️ Weak temporal directionality — tolerated")
