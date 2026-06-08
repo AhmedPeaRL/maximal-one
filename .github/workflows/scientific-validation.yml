@@ -338,10 +338,31 @@ jobs:
           )
 
           def generate_adversarial_signal(n=1000):
-              # خلية عشوائية تماماً مع تشويش عالي لكسر أي تشابه بالصدفة
-              x = np.cumsum(np.random.standard_normal(n))
-              noise = np.random.normal(0, 2, n) 
-              return x + noise
+              wn = np.random.standard_normal(n)
+              high_freq = np.sin(
+                  np.linspace(
+                      0,
+                      80*np.pi,
+                      n
+                  )
+              )
+              burst = np.zeros(n)
+              idx = np.random.randint(
+                  0,
+                  n,
+                  25
+              )
+              burst[idx] = np.random.normal(
+                  0,
+                  8,
+                  len(idx)
+              )
+
+              return (
+                  wn
+                  + 0.4*high_freq
+                  + burst
+              )
 
           def is_structured(
               alpha1,
