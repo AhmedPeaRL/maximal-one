@@ -28,11 +28,16 @@ def separation_score(real, null_samples):
     median_null = np.median(null_alphas)
 
     robust_std = (
+        1.4826 *
         np.median(
-            np.abs(null_alphas - median_null)
-        ) + 1e-12
+            np.abs(
+                null_alphas
+                - median_null
+            )
+        )
+        + 1e-12
     )
-
+    
     z = abs(
         real_alpha - median_null
     ) / robust_std
