@@ -44,10 +44,41 @@ def phase_surrogate_null(n, rng):
 def generate_strong_null(n, rng):
     p = rng.random()
 
-    if p < 0.4:
-        return white_null(n, rng)
+    if p < 0.25:
+        return white_null(
+            n,
+            rng
+        )
+
+    elif p < 0.50:
+        return random_walk_null(
+            n,
+            rng
+        )
 
     elif p < 0.75:
-        return random_walk_null(n, rng)
+        return phase_surrogate_null(
+            n,
+            rng
+        )
 
-    return phase_surrogate_null(n, rng)
+    else:
+
+        x = np.cumsum(
+            rng.standard_normal(n)
+        )
+
+        x += (
+            0.5 *
+            rng.standard_normal(n)
+        )
+
+        x = (
+            x - np.mean(x)
+        ) / (
+            np.std(x) + 1e-12
+        )
+
+        return x.astype(
+            np.float64
+    )
