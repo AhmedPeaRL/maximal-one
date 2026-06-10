@@ -1,28 +1,32 @@
 import numpy as np
-
 from analysis.numerical_spectral_verification import (
     estimate_alpha
 )
 
-
-SEEDS = [
-    11,
-    42,
-    101,
-    777,
-    2025
-]
-
+SEEDS = [11,42,101,777,2025]
 
 def run(series):
-
     alphas = []
 
     for seed in SEEDS:
 
         rng = np.random.default_rng(seed)
 
-        alpha = estimate_alpha(series)
+        perturbation = rng.normal(
+            0,
+            np.std(series) * 0.001,
+            len(series)
+        )
+
+        test_series = (
+            series
+            +
+            perturbation
+        )
+
+        alpha = estimate_alpha(
+            test_series
+        )
 
         if np.isfinite(alpha):
             alphas.append(alpha)
@@ -33,7 +37,10 @@ def run(series):
             "valid": False
         }
 
-    alphas = np.array(alphas)
+    alphas = np.asarray(
+        alphas,
+        dtype=np.float64
+    )
 
     return {
         "valid": True,
