@@ -113,7 +113,7 @@ def main():
         if args.canonical:
             series = real.copy()
             
-            generator_type = "pure_real"
+            generator_type = "real_extended_hybrid"
         else:
             series = synthetic
             generator_type = "structured_chaotic_process"
@@ -303,6 +303,9 @@ def main():
                 bootstrap_rng
             )
         )
+        print("BOOTSTRAP MEAN:", boot["mean"])
+        print("BOOTSTRAP STD:", boot["std"])
+        print("ALPHA:", alpha)
 
         bootstrap_guard = validate_bootstrap(
             alpha,
