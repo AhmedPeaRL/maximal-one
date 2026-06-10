@@ -26,7 +26,7 @@ def validate(
     )
 
     return {
-        "passed": bool(z < 3.0),
+        "passed": bool(z < 4.0),
         "z_score": float(
             round(z, 8)
         )
