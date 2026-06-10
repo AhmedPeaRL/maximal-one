@@ -194,9 +194,15 @@ def estimate_alpha(series):
 def block_bootstrap(
     series,
     rng,
-    block_size=16,
+    block_size=None,
     num_boot=100
 ):
+
+    if block_size is None:
+        block_size = max(
+            64,
+            len(series)//50
+        )
 
     series = np.asarray(
         series,
