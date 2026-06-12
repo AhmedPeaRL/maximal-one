@@ -200,8 +200,12 @@ def block_bootstrap(
 
     if block_size is None:
         block_size = max(
-            64,
-            len(series)//50
+            256,
+            len(series)//12
+        )
+        block_size = min(
+            block_size,
+            len(series)//2
         )
 
     series = np.asarray(
