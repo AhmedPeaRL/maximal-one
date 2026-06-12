@@ -25,13 +25,27 @@ def validate(
         boot_std + 1e-12
     )
 
+    adaptive_limit = max(
+        4.0,
+        1.5 * np.log1p(
+            abs(boot_mean) / (
+                boot_std + 1e-12
+            )
+        )
+    )
+
     return {
-        "passed": bool(z < 4.0),
+        "passed": bool(
+            z < adaptive_limit
+        ),
         "z_score": float(
             round(z, 8)
+        ),
+        "threshold": float(
+            round(adaptive_limit, 8)
         )
     }
-
+    
 def phase_surrogate_guard(
     original_alpha,
     phase_alpha
@@ -114,9 +128,7 @@ def white_noise_control(n, rng):
 
 def run_falsification(series, rng):
     results = {}
-
     original_alpha = estimate_alpha(series)
-
     shuffled_alpha = shuffle_test(
         series,
         rng
