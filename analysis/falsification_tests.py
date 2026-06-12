@@ -25,24 +25,10 @@ def validate(
         boot_std + 1e-12
     )
 
-    adaptive_limit = max(
-        4.0,
-        1.5 * np.log1p(
-            abs(boot_mean) / (
-                boot_std + 1e-12
-            )
-        )
-    )
-
     return {
-        "passed": bool(
-            z < adaptive_limit
-        ),
+        "passed": bool(z < 4.0),
         "z_score": float(
             round(z, 8)
-        ),
-        "threshold": float(
-            round(adaptive_limit, 8)
         )
     }
 
