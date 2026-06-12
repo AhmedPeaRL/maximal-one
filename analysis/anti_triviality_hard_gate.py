@@ -4,21 +4,19 @@ import json
 import sys
 from pathlib import Path
 import time
+
 START_TIME = time.time()
 MAX_RUNTIME = 300  # seconds
-
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-
 ART = Path("artifacts")
 
 # -----------------------------
 # Load series
 # -----------------------------
-
 def load_series():
-    path = Path("real-data/sunspots_global_prepared.csv")
+    path = Path("real-data/sunspots_global_extended.csv")
 
     # 🔥 HARD GUARANTEE
     if not path.exists():
@@ -32,7 +30,7 @@ def load_series():
         )
 
         subprocess.run(
-            ["python", "analysis/dataset_preprocessor.py", "real-data/sunspots_global.csv"],
+            ["python", "analysis/dataset_preprocessor.py", "real-data/sunspots_full.csv"],
             check=False
         )
 
@@ -52,7 +50,6 @@ def load_series():
 # -----------------------------
 # HARD transformations
 # -----------------------------
-
 def difference(series):
     return np.diff(series)
 
@@ -60,7 +57,6 @@ def nonlinear_transform(series):
     return np.tanh(series) + 0.1 * np.sin(series)
 
 def phase_scramble(series):
-
     # 🔥 LIMIT SIZE
     if len(series) > 800:
         series = series[-800:]
@@ -84,7 +80,6 @@ def block_shuffle(series, block_size=20):
 # -----------------------------
 # predictors
 # -----------------------------
-
 def persistence(history):
     return history[-1]
 
@@ -128,9 +123,7 @@ def hcm_predict(history):
 # -----------------------------
 # evaluation
 # -----------------------------
-
 def rolling_mse(series, model, max_steps=300):
-
     split = int(len(series)*0.7)
     train = list(series[:split])
     test = series[split:]
@@ -163,9 +156,7 @@ def rolling_mse(series, model, max_steps=300):
 # -----------------------------
 # core
 # -----------------------------
-
 def evaluate(series):
-
     from analysis.structure_detector import detect_structure
 
     # 🔥 HARD LIMIT SERIES SIZE
@@ -226,7 +217,6 @@ def evaluate(series):
     return results
 
 def rolling_mse_split(train, test, model, max_steps=120):
-
     history = list(train)
     preds = []
 
@@ -258,7 +248,6 @@ def rolling_mse_split(train, test, model, max_steps=120):
     return float(np.mean((np.array(test[:len(preds)]) - np.array(preds))**2))
 
 def multi_seed_eval(series, seeds=5):
-
     all_results = []
 
     for s in range(seeds):
@@ -269,7 +258,6 @@ def multi_seed_eval(series, seeds=5):
     return all_results
 
 def aggregate_results(all_results):
-
     summary = {}
 
     keys = set()
@@ -342,10 +330,10 @@ def aggregate_results(all_results):
                     "samples": 0
                 }
     return summary
+    
 # -----------------------------
 # JSON SAFE CONVERTER (CRITICAL FIX)
 # -----------------------------
-
 def to_json_safe(obj):
     import numpy as np
 
@@ -369,9 +357,7 @@ def to_json_safe(obj):
 
     return obj
     
-
 def main():
-
     series = load_series()
 
     if series is None:
@@ -393,7 +379,6 @@ def main():
     (ART / "anti_triviality_hard.json").write_text(
         json.dumps(safe_result, indent=2)
     )
-
 
 if __name__ == "__main__":
     main()
