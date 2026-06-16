@@ -134,8 +134,13 @@ def estimate_alpha(series):
     integration_ratio = raw_std / (diff_std + 1e-12)
 
     # 🔥 adaptive detrending
-    if integration_ratio > 12.0:
-        series = np.diff(series)
+    if integration_ratio > 8.0:
+        alpha_raw = alpha_from_raw()
+        alpha_diff = alpha_from_diff()
+        alpha = min(
+            alpha_raw,
+            alpha_diff
+        )
 
     # normalize
     std = np.std(series)
