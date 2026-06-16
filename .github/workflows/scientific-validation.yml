@@ -1054,18 +1054,6 @@ jobs:
 
               return x
 
-          def load_noise(n=1024):
-              rng = np.random.default_rng(999)
-
-              # mixture of hard nulls
-              wn = rng.standard_normal(n)
-              rw = np.cumsum(rng.standard_normal(n))
-              pink = np.cumsum(wn) + 0.5 * wn
-
-              mix = 0.6 * wn + 0.3 * rw + 0.1 * pink
-
-              return mix
-
           def evaluate(series):
               return float(estimate_alpha(series))
 
@@ -1123,8 +1111,30 @@ jobs:
               results["synthetic"]["std"] = float(np.std(synthetic_vals))
 
               # === NOISE ===
-              noise_alpha = evaluate(load_noise())
+              from analysis.strong_null_model import generate_strong_null
+              rng = np.random.default_rng(999)
+              null_alphas = []
+              for _ in range(25):
+                  null_series = generate_strong_null(
+                      len(sunspots),
+                      rng
+                  )
+                  a = evaluate(null_series)
+                  if np.isfinite(a):
+                      null_alphas.append(a)
+              noise_alpha = float(np.median(null_alphas))
               results["noise"]["white"] = noise_alpha
+
+              null_mean = np.mean(null_alphas)
+              null_std = (
+                  np.std(null_alphas)
+                  + 1e-12
+              )
+
+              z_score = (
+                  real_alpha
+                  - null_mean
+              ) / null_std
 
               # === CORE VALIDATION ===
 
@@ -1132,8 +1142,7 @@ jobs:
 
               # spectral condition
               spectral_pass = (
-                  delta_alpha > 0.8
-                  and real_alpha > noise_alpha
+                  z_score > 2.0
               )
 
               # stability condition
