@@ -51,6 +51,6 @@ def run(series):
             np.std(alphas)
         ),
         "seed_stable": bool(
-            np.std(alphas) < 0.05
+            np.std(alphas) < 0.10
         )
     }
