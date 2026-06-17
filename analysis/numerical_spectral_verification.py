@@ -126,25 +126,16 @@ def estimate_alpha(series):
     # 🔥 remove mean
     series = series - np.mean(series)
 
-    # 🔥 detect integrated processes
+    # integration diagnostic only
     diff_std = np.std(np.diff(series))
-
     raw_std = np.std(series)
-
-    integration_ratio = raw_std / (diff_std + 1e-12)
-
-    # 🔥 adaptive detrending
-    if integration_ratio > 8.0:
-        alpha_raw = alpha_from_raw()
-        alpha_diff = alpha_from_diff()
-        alpha = min(
-            alpha_raw,
-            alpha_diff
-        )
-
+    integration_ratio = raw_std / (
+        diff_std + 1e-12
+    )
+    # retained for diagnostics only
+    # no adaptive alpha override
     # normalize
     std = np.std(series)
-
     if std < 1e-12:
         return np.nan
 
@@ -167,7 +158,6 @@ def estimate_alpha(series):
 
     freqs = freqs[mask]
     psd = psd[mask]
-
     if len(freqs) < 20:
         return np.nan
 
@@ -181,7 +171,6 @@ def estimate_alpha(series):
         return np.nan
 
     alpha = float(-slope)
-
     if not np.isfinite(alpha):
         return np.nan
 
