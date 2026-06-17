@@ -91,14 +91,12 @@ jobs:
             echo "❌ extended dataset not generated"
             exit 1
           fi
-
           echo "✅ extended dataset exists"
 
           python - <<'PY'
           import pandas as pd
 
           df = pd.read_csv("real-data/sunspots_global_extended.csv")
-
           if len(df) < 10:
               raise SystemExit("Dataset too small")
 
@@ -1122,6 +1120,17 @@ jobs:
                   a = evaluate(null_series)
                   if np.isfinite(a):
                       null_alphas.append(a)
+
+              print(
+                  f"""
+              real_alpha      = {real_alpha:.4f}
+              null_mean       = {null_mean:.4f}
+              null_std        = {null_std:.4f}
+              z_score         = {z_score:.4f}
+              null_median     = {np.median(null_alphas):.4f}
+                  """
+              )
+
               noise_alpha = float(np.median(null_alphas))
               results["noise"]["white"] = noise_alpha
 
@@ -1137,7 +1146,6 @@ jobs:
               ) / null_std
 
               # === CORE VALIDATION ===
-
               delta_alpha = abs(real_alpha - noise_alpha)
 
               # spectral condition
