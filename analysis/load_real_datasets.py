@@ -66,7 +66,7 @@ def load_series(path):
         s = s.dropna()
         s = s[np.isfinite(s)]
 
-        if len(s) < 120:
+        if len(s) < 80:
             continue
 
         std = np.std(s)
@@ -91,6 +91,13 @@ def load_series(path):
 
     best_series = (best_series - np.mean(best_series)) / (np.std(best_series) + 1e-12)
 
+    if len(best_series) < 256:
+        best_series = np.pad(
+            best_series,
+            (0, 256 - len(best_series)),
+            mode="reflect"
+        )
+    
     return best_series
 
 def load_all():
