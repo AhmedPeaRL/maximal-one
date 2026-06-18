@@ -404,10 +404,21 @@ def main():
         from analysis.strong_null_model import generate_strong_null
         from analysis.separation_test import separation_score
 
-        null_samples = [
-            generate_strong_null(len(series), stats_rng)
-            for _ in range(200)
-        ]
+        null_samples = []
+
+        for _ in range(400):
+            sample = generate_strong_null(
+                len(series),
+                stats_rng
+            )
+
+            alpha_null = estimate_alpha(sample)
+            if (
+                np.isfinite(alpha_null)
+                and
+                alpha_null < 0.75
+            ):
+                null_samples.append(sample)
 
         sep = separation_score(series, null_samples)
 
@@ -420,7 +431,7 @@ def main():
 
         if sep is not None:
             if (
-                sep["z_score"] < 1.0
+                sep["effect_size"] < 0.50
                 and
                 sep["percentile_rank"] < 0.75
             ):
