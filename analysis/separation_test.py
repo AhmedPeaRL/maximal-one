@@ -30,7 +30,11 @@ def separation_score(real, null_samples):
     gap = abs(
         real_alpha
         -
-        median_null
+        np.mean(null_alphas)
+    )
+
+    effect_size = gap / (
+        np.std(null_alphas) + 1e-12
     )
 
     z_score = gap / (
@@ -57,6 +61,7 @@ def separation_score(real, null_samples):
         "null_q3": float(q3),
         "robust_sigma": float(robust_sigma),
         "gap": float(gap),
+        "effect_size": float(effect_size),
         "z_score": float(z_score),
         "relative_gap": float(relative_gap),
         "percentile_rank": percentile_rank
