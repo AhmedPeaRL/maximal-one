@@ -44,7 +44,9 @@ def separation_score(real, null_samples):
 
     percentile_rank = float(
         np.mean(
-            null_alphas < real_alpha
+            np.abs(null_alphas - median_null)
+            <
+            np.abs(real_alpha - median_null)
         )
     )
 
