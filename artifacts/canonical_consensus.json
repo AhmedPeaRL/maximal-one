@@ -1,0 +1,27 @@
+{
+  "alphas": [
+    {
+      "alpha": -1.0,
+      "dataset": "real-data/sunspots_full.csv",
+      "error": "No valid column in real-data/sunspots_full.csv"
+    },
+    {
+      "alpha": 0.9495301477440793,
+      "dataset": "real-data/sunspots_global_extended.csv"
+    },
+    {
+      "alpha": 0.0,
+      "dataset": "real-data/white_noise.csv"
+    },
+    {
+      "alpha": 1.9544957517686854,
+      "dataset": "real-data/random_walk.csv"
+    },
+    {
+      "alpha": 0.009497503363936857,
+      "dataset": "real-data/shuffled_sunspots.csv"
+    }
+  ],
+  "cross_domain_std": 0.7941896935500712,
+  "valid_domains": 3
+}
