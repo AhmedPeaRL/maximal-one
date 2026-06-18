@@ -11,42 +11,42 @@ def separation_score(real, null_samples):
         if np.isfinite(a):
             null_alphas.append(a)
 
-        if len(null_alphas) < 20:
-            return None
+    if len(null_alphas) < 20:
+        return None
 
-        null_alphas = np.asarray(
-            null_alphas,
-            dtype=np.float64
+    null_alphas = np.asarray(
+        null_alphas,
+        dtype=np.float64
+    )
+
+    median_null = np.median(null_alphas)
+
+    q1 = np.percentile(null_alphas, 25)
+    q3 = np.percentile(null_alphas, 75)
+
+    iqr = q3 - q1 + 1e-12
+    robust_sigma = iqr / 1.349
+
+    gap = abs(
+        real_alpha
+        -
+        median_null
+    )
+
+    z_score = gap / (
+        robust_sigma + 1e-12
+    )
+
+    relative_gap = gap / (
+        abs(median_null)
+        + 1e-12
+    )
+
+    percentile_rank = float(
+        np.mean(
+            null_alphas < real_alpha
         )
-
-        median_null = np.median(null_alphas)
-
-        q1 = np.percentile(null_alphas, 25)
-        q3 = np.percentile(null_alphas, 75)
-
-        iqr = q3 - q1 + 1e-12
-        robust_sigma = iqr / 1.349
-
-        gap = abs(
-            real_alpha
-            -
-            median_null
-        )
-
-        z_score = gap / (
-            robust_sigma + 1e-12
-        )
-
-        relative_gap = gap / (
-            abs(median_null)
-            + 1e-12
-        )
-
-        percentile_rank = float(
-            np.mean(
-                null_alphas < real_alpha
-            )
-        )
+    )
 
     return {
         "real_alpha": float(real_alpha),
