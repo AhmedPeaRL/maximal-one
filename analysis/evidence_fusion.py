@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def bounded(x):
     if x is None:
         return 0.0
@@ -8,8 +7,13 @@ def bounded(x):
     if not np.isfinite(x):
         return 0.0
 
-    return float(np.clip(x, 0.0, 1.0))
-
+    return float(
+        np.clip(
+            x,
+            0.0,
+            1.0
+        )
+    )
 
 def evidence_fusion(
     alpha_delta,
@@ -20,7 +24,7 @@ def evidence_fusion(
 ):
 
     alpha_score = bounded(
-        alpha_delta / 2.0
+        alpha_delta / 0.50
     )
 
     p_score = bounded(
@@ -32,11 +36,13 @@ def evidence_fusion(
     )
 
     validation_score = bounded(
-        1.0 - validation_delta
+        1.0 - (
+            validation_delta / 0.30
+        )
     )
 
     falsification_score = bounded(
-        falsification_delta / 2.0
+        falsification_delta / 0.50
     )
 
     score = (
@@ -48,8 +54,15 @@ def evidence_fusion(
     )
 
     return {
+        "alpha_score": float(alpha_score),
+        "p_score": float(p_score),
+        "scale_score": float(scale_score),
+        "validation_score": float(validation_score),
+        "falsification_score": float(
+            falsification_score
+        ),
         "evidence_score": float(score),
         "structure_detected": bool(
-            score > 0.65
+            score >= 0.65
         )
     }
