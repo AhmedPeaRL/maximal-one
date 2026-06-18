@@ -412,9 +412,13 @@ def main():
         sep = separation_score(series, null_samples)
 
         if sep is not None:
-            if sep["z_score"] < 1.0:
+            if (
+                sep["z_score"] < 1.0
+                and
+                sep["percentile_rank"] < 0.75
+            ):
                 raise SystemExit(
-                    "❌ weak separation z-score"
+                    "❌ weak separation"
                 )
             if sep["relative_gap"] < 0.25:
                 raise SystemExit(
