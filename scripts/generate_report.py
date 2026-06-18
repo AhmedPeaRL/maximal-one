@@ -411,6 +411,13 @@ def main():
 
         sep = separation_score(series, null_samples)
 
+        print("=== SEPARATION ===")
+        if sep is None:
+            print("SEP = None")
+        else:
+            for k, v in sep.items():
+                print(f"{k}: {v}")
+
         if sep is not None:
             if (
                 sep["z_score"] < 1.0
