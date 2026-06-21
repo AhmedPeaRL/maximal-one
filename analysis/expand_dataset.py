@@ -41,7 +41,10 @@ if np.std(series) < 1e-6:
     raise SystemExit("❌ Degenerate dataset")
 
 def extend_realistic(x, target_len=3327):
-    x = np.asarray(x, dtype=np.float64)
+    x = np.asarray(
+        x,
+        dtype=np.float64
+    )
 
     if len(x) >= target_len:
         return x[:target_len]
@@ -50,75 +53,25 @@ def extend_realistic(x, target_len=3327):
 
     extended = []
 
-    cursor = 0
-
     while len(extended) < target_len:
 
-        window = rng.integers(192, 320)
+        block = rng.integers(
+            128,
+            256
+        )
 
         start = rng.integers(
             0,
-            max(1, len(x) - window)
+            max(1, len(x) - block)
         )
 
-        segment = x[start:start+window].copy()
+        segment = x[
+            start:start+block
+        ]
 
-        local_std = np.std(segment)
-
-        if local_std < 1e-6:
-            continue
-
-        # 🔥 adaptive nonlinear warp
-        t = np.linspace(0, 1, len(segment))
-
-        warp = (
-            1.0
-            + 0.08 * np.sin(2*np.pi*t)
-            + 0.04 * np.cos(5*np.pi*t)
+        extended.extend(
+            segment.tolist()
         )
-
-        segment = segment * warp
-
-        # 🔥 local stochastic perturbation
-        noise = rng.normal(
-            0,
-            local_std * 0.05,
-            len(segment)
-        )
-
-        segment = segment + noise
-
-        # 🔥 sparse decorrelation
-        if rng.random() < 0.15:
-            segment = np.diff(
-                segment,
-                prepend=segment[0]
-            )
-
-        # 🔥 polarity regime switch
-        if rng.random() < 0.05:
-            segment = -segment
-
-        # 🔥 smooth boundary blending
-        if len(extended) > 32:
-
-            overlap = min(32, len(segment))
-
-            prev = np.asarray(
-                extended[-overlap:],
-                dtype=np.float64
-            )
-
-            blend = np.linspace(0, 1, overlap)
-
-            segment[:overlap] = (
-                prev * (1 - blend)
-                + segment[:overlap] * blend
-            )
-
-        extended.extend(segment.tolist())
-
-        cursor += len(segment)
 
     out = np.asarray(
         extended[:target_len],
