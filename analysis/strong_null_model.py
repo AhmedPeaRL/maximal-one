@@ -56,22 +56,57 @@ def ar1_null(n, rng, phi=None):
 
     return x
 
+def block_shuffle_null(n, rng):
+    x = rng.standard_normal(n)
+
+    block = rng.integers(
+        16,
+        64
+    )
+
+    chunks = [
+        x[i:i+block]
+        for i in range(
+            0,
+            n,
+            block
+        )
+    ]
+
+    rng.shuffle(chunks)
+
+    x = np.concatenate(chunks)
+
+    x = (
+        x - np.mean(x)
+    ) / (
+        np.std(x) + 1e-12
+    )
+
+    return x.astype(
+        np.float64
+    )
+
 def generate_strong_null(n, rng):
     p = rng.random()
 
-    if p < 0.20:
+    if p < 0.16:
         return white_null(n, rng)
 
-    elif p < 0.40:
+    elif p < 0.32:
         return random_walk_null(n, rng)
 
-    elif p < 0.60:
+    elif p < 0.48:
         return phase_surrogate_null(n, rng)
 
-    elif p < 0.80:
+    elif p < 0.64:
         return ar1_null(n, rng)
 
+    elif p < 0.80:
+        return block_shuffle_null(n, rng)
+
     else:
+
         x = np.cumsum(
             rng.standard_normal(n)
         )
@@ -89,4 +124,4 @@ def generate_strong_null(n, rng):
 
         return x.astype(
             np.float64
-)
+    )
