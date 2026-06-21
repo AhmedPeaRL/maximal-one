@@ -64,5 +64,8 @@ def separation_score(real, null_samples):
         "effect_size": float(effect_size),
         "z_score": float(z_score),
         "relative_gap": float(relative_gap),
-        "percentile_rank": percentile_rank
+        "percentile_rank": percentile_rank,
+        "null_count": int(
+            len(null_alphas)
+        )
     }
