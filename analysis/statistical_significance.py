@@ -1,55 +1,105 @@
 import numpy as np
-from analysis.numerical_spectral_verification import estimate_alpha
+from analysis.numerical_spectral_verification import (
+    estimate_alpha
+)
+from analysis.strong_null_model import (
+    generate_strong_null
+)
 
-def monte_carlo_p_value(series, observed_alpha, rng, trials=5000):
-    null_alphas = []
+def monte_carlo_p_value(
+    series,
+    observed_alpha,
+    rng,
+    trials=5000
+):
 
     n = len(series)
 
+    null_alphas = []
+
     for _ in range(trials):
-        from analysis.strong_null_model import generate_strong_null
 
-        wn = generate_strong_null(n, rng)
-        
-        if len(wn) < 256:
-            wn = np.pad(wn, (0, 256-len(wn)), mode='reflect')
+        sample = generate_strong_null(
+            n,
+            rng
+        )
 
-        alpha = estimate_alpha(wn)
+        if len(sample) < 256:
+            sample = np.pad(
+                sample,
+                (0, 256-len(sample)),
+                mode="reflect"
+            )
 
-        if np.isfinite(alpha):
-            null_alphas.append(alpha)
+        a = estimate_alpha(sample)
 
-    null_alphas = np.array(null_alphas)
+        if np.isfinite(a):
+            null_alphas.append(
+                float(a)
+            )
+
+    null_alphas = np.asarray(
+        null_alphas,
+        dtype=np.float64
+    )
 
     if len(null_alphas) < 20:
+
         return {
-            "observed_alpha": float(observed_alpha),
+            "observed_alpha": float(
+                observed_alpha
+            ),
             "null_mean": np.nan,
             "null_std": np.nan,
             "p_value": 1.0
         }
 
-    distance = np.abs(
-        null_alphas - np.median(null_alphas)
+    null_median = np.median(
+        null_alphas
     )
 
-    observed_distance = abs(
-        observed_alpha - np.median(null_alphas)
+    observed_gap = abs(
+        observed_alpha
+        -
+        null_median
     )
 
-    p_value = max(
-        1e-6,
-        float(
-            np.mean(
-                distance >= observed_distance
-            )
+    null_gaps = abs(
+        null_alphas
+        -
+        null_median
+    )
+
+    p_value = float(
+        np.mean(
+            null_gaps >= observed_gap
         )
     )
 
+    p_value = max(
+        p_value,
+        1.0 / len(null_alphas)
+    )
+
     return {
-        "observed_alpha": float(observed_alpha),
-        "null_mean": float(np.mean(null_alphas)),
-        "null_std": float(np.std(null_alphas)),
-        "p_value": float(p_value),
-        "null_samples": int(len(null_alphas))
+        "observed_alpha":
+            float(observed_alpha),
+
+        "null_mean":
+            float(np.mean(null_alphas)),
+
+        "null_std":
+            float(np.std(null_alphas)),
+
+        "null_median":
+            float(null_median),
+
+        "observed_gap":
+            float(observed_gap),
+
+        "p_value":
+            float(p_value),
+
+        "null_samples":
+            int(len(null_alphas))
     }
