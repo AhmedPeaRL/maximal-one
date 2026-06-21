@@ -10,7 +10,7 @@ def monte_carlo_p_value(
     series,
     observed_alpha,
     rng,
-    trials=5000
+    trials=20000
 ):
 
     n = len(series)
