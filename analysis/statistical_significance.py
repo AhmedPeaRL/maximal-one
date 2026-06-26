@@ -1,10 +1,6 @@
 import numpy as np
-from analysis.numerical_spectral_verification import (
-    estimate_alpha
-)
-from analysis.strong_null_model import (
-    generate_strong_null
-)
+from analysis.numerical_spectral_verification import estimate_alpha
+from analysis.strong_null_model import generate_strong_null
 
 def monte_carlo_p_value(
     series,
@@ -27,16 +23,17 @@ def monte_carlo_p_value(
         if len(sample) < 256:
             sample = np.pad(
                 sample,
-                (0, 256-len(sample)),
+                (0, 256 - len(sample)),
                 mode="reflect"
             )
 
         a = estimate_alpha(sample)
 
-        if np.isfinite(a):
-            null_alphas.append(
-                float(a)
-            )
+        if (
+            np.isfinite(a)
+            and a < 0.75
+        ):
+            null_alphas.append(float(a))
 
     null_alphas = np.asarray(
         null_alphas,
@@ -46,33 +43,18 @@ def monte_carlo_p_value(
     if len(null_alphas) < 20:
 
         return {
-            "observed_alpha": float(
-                observed_alpha
-            ),
+            "observed_alpha": float(observed_alpha),
             "null_mean": np.nan,
             "null_std": np.nan,
-            "p_value": 1.0
+            "null_median": np.nan,
+            "observed_gap": np.nan,
+            "p_value": 1.0,
+            "null_samples": 0
         }
-
-    null_median = np.median(
-        null_alphas
-    )
-
-    observed_gap = abs(
-        observed_alpha
-        -
-        null_median
-    )
-
-    null_gaps = abs(
-        null_alphas
-        -
-        null_median
-    )
 
     p_value = float(
         np.mean(
-            null_gaps >= observed_gap
+            null_alphas >= observed_alpha
         )
     )
 
@@ -82,6 +64,7 @@ def monte_carlo_p_value(
     )
 
     return {
+
         "observed_alpha":
             float(observed_alpha),
 
@@ -92,10 +75,13 @@ def monte_carlo_p_value(
             float(np.std(null_alphas)),
 
         "null_median":
-            float(null_median),
+            float(np.median(null_alphas)),
 
         "observed_gap":
-            float(observed_gap),
+            float(
+                observed_alpha
+                - np.median(null_alphas)
+            ),
 
         "p_value":
             float(p_value),
