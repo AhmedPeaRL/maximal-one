@@ -29,10 +29,7 @@ def monte_carlo_p_value(
 
         a = estimate_alpha(sample)
 
-        if (
-            np.isfinite(a)
-            and a < 0.75
-        ):
+        if np.isfinite(a):
             null_alphas.append(float(a))
 
     null_alphas = np.asarray(
@@ -61,6 +58,11 @@ def monte_carlo_p_value(
     p_value = max(
         p_value,
         1.0 / len(null_alphas)
+    )
+
+    filtered_fraction = (
+        len(null_alphas)
+        / trials
     )
 
     return {
