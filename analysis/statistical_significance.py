@@ -89,5 +89,8 @@ def monte_carlo_p_value(
             float(p_value),
 
         "null_samples":
-            int(len(null_alphas))
+            int(len(null_alphas)),
+
+        "filtered_fraction":
+        float(filtered_fraction)
     }
