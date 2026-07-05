@@ -413,11 +413,7 @@ def main():
             )
 
             alpha_null = estimate_alpha(sample)
-            if (
-                np.isfinite(alpha_null)
-                and
-                alpha_null < 0.75
-            ):
+            if np.isfinite(alpha_null):
                 null_samples.append(sample)
 
         sep = separation_score(series, null_samples)
