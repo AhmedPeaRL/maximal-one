@@ -124,4 +124,4 @@ def generate_strong_null(n, rng):
 
         return x.astype(
             np.float64
-    )
+        )
