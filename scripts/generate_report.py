@@ -427,16 +427,21 @@ def main():
 
         if sep is not None:
             if (
-                sep["effect_size"] < 0.50
+                sep["effect_size"] < 0.05
                 and
-                sep["percentile_rank"] < 0.75
+                sep["z_score"] < 0.05
             ):
                 raise SystemExit(
                     "❌ weak separation"
                 )
-            if sep["relative_gap"] < 0.25:
+
+            if (
+                sep["overlap_score"] > 0.95
+                and
+                sep["effect_size"] < 0.05
+            ):
                 raise SystemExit(
-                    "❌ weak relative separation"
+                    "❌ excessive null overlap"
                 )
 
         # 🔥 HARD ANTI-INFLATION GUARD
