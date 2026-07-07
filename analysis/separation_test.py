@@ -4,7 +4,7 @@ from analysis.numerical_spectral_verification import estimate_alpha
 def separation_score(real, null_samples):
     real_alpha = estimate_alpha(real)
     null_alphas = []
-
+    
     for s in null_samples:
         a = estimate_alpha(s)
 
@@ -20,10 +20,8 @@ def separation_score(real, null_samples):
     )
 
     median_null = np.median(null_alphas)
-
     q1 = np.percentile(null_alphas, 25)
     q3 = np.percentile(null_alphas, 75)
-
     iqr = q3 - q1 + 1e-12
     robust_sigma = iqr / 1.349
 
@@ -48,9 +46,15 @@ def separation_score(real, null_samples):
 
     percentile_rank = float(
         np.mean(
-            np.abs(null_alphas - median_null)
+            null_alphas <= real_alpha
+        )
+    )
+
+    overlap_score = float(
+        np.mean(
+            np.abs(null_alphas - real_alpha)
             <
-            np.abs(real_alpha - median_null)
+            robust_sigma
         )
     )
 
@@ -64,7 +68,8 @@ def separation_score(real, null_samples):
         "effect_size": float(effect_size),
         "z_score": float(z_score),
         "relative_gap": float(relative_gap),
-        "percentile_rank": percentile_rank,
+        "percentile_rank": float(percentile_rank),
+        "overlap_score": float(overlap_score),
         "null_count": int(
             len(null_alphas)
         )
