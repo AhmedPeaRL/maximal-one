@@ -1,6 +1,17 @@
 import numpy as np
 from analysis.numerical_spectral_verification import estimate_alpha
+from scipy.signal import welch
 
+def spectral_fingerprint(series):
+    freqs, psd = welch(
+        series,
+        nperseg=min(256, len(series)//2)
+    )
+
+    psd = psd / (np.sum(psd) + 1e-12)
+
+    return psd.astype(np.float64)
+    
 def separation_score(real, null_samples):
     real_alpha = estimate_alpha(real)
     null_alphas = []
