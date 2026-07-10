@@ -43,7 +43,10 @@ def phase_surrogate_null(n, rng):
 
 def ar1_null(n, rng, phi=None):
     if phi is None:
-        phi = rng.uniform(0.6, 0.98)
+        phi = rng.uniform(
+            0.2,
+            0.8
+        )
 
     x = np.zeros(n, dtype=np.float64)
 
