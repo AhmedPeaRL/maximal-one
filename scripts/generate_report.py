@@ -427,9 +427,7 @@ def main():
 
         if sep is not None:
             if (
-                sep["effect_size"] < 0.05
-                and
-                sep["z_score"] < 0.05
+                sep["effect_size"] < 0.10
             ):
                 raise SystemExit(
                     "❌ weak separation"
