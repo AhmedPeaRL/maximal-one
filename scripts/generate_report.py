@@ -419,6 +419,19 @@ def main():
         sep = separation_score(series, null_samples)
 
         print("=== SEPARATION ===")
+        with open(
+            "core-scientific/strict_claim.json",
+            "r",
+            encoding="utf-8"
+        ) as f:
+            strict_claim = json.load(f)
+
+        required_z = (
+            strict_claim
+            ["expected_result"]
+            ["min_separation_z"]
+        )
+
         if sep is None:
             print("SEP = None")
         else:
@@ -427,10 +440,13 @@ def main():
 
         if sep is not None:
             if (
-                sep["effect_size"] < 0.10
+                sep["z_score"]
+                <
+                required_z
             ):
                 raise SystemExit(
-                    "❌ weak separation"
+                    f"❌ separation z-score too low: "
+                    f"{sep['z_score']:.3f}"
                 )
 
             if (
