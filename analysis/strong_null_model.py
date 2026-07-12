@@ -90,6 +90,32 @@ def block_shuffle_null(n, rng):
         np.float64
     )
 
+def pink_noise_null(n, rng):
+    x = rng.standard_normal(n)
+
+    fft = np.fft.rfft(x)
+
+    freqs = np.fft.rfftfreq(n)
+
+    freqs[0] = freqs[1]
+
+    fft = fft / np.sqrt(freqs)
+
+    x = np.fft.irfft(
+        fft,
+        n=n
+    )
+
+    x = (
+        x - np.mean(x)
+    ) / (
+        np.std(x) + 1e-12
+    )
+
+    return x.astype(
+        np.float64
+    )
+
 def generate_strong_null(n, rng):
     p = rng.random()
 
@@ -107,6 +133,12 @@ def generate_strong_null(n, rng):
 
     elif p < 0.80:
         return block_shuffle_null(n, rng)
+
+    elif p < 0.90:
+        return pink_noise_null(
+            n,
+            rng
+        )
 
     else:
 
