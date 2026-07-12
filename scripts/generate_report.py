@@ -418,6 +418,14 @@ def main():
 
         sep = separation_score(series, null_samples)
 
+        print(
+            "NULL STD:",
+            np.std([
+                estimate_alpha(s)
+                for s in null_samples
+            ])
+        )
+
         print("=== SEPARATION ===")
         with open(
             "core-scientific/strict_claim.json",
