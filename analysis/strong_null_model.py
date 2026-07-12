@@ -119,44 +119,11 @@ def pink_noise_null(n, rng):
 def generate_strong_null(n, rng):
     p = rng.random()
 
-    if p < 0.16:
+    if p < 0.33:
         return white_null(n, rng)
 
-    elif p < 0.32:
-        return random_walk_null(n, rng)
-
-    elif p < 0.48:
-        return phase_surrogate_null(n, rng)
-
-    elif p < 0.64:
+    elif p < 0.66:
         return ar1_null(n, rng)
 
-    elif p < 0.80:
-        return block_shuffle_null(n, rng)
-
-    elif p < 0.90:
-        return pink_noise_null(
-            n,
-            rng
-        )
-
     else:
-
-        x = np.cumsum(
-            rng.standard_normal(n)
-        )
-
-        x += (
-            0.5 *
-            rng.standard_normal(n)
-        )
-
-        x = (
-            x - np.mean(x)
-        ) / (
-            np.std(x) + 1e-12
-        )
-
-        return x.astype(
-            np.float64
-        )
+        return block_shuffle_null(n, rng)
