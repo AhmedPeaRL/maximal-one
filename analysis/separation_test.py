@@ -96,9 +96,15 @@ def separation_score(
 
     iqr = q3 - q1 + 1e-12
 
-    robust_sigma = (
-        iqr / 1.349
+    mad = np.median(
+        np.abs(
+            null_alphas - median_null
+        )
     )
+
+    robust_sigma = (
+        1.4826 * mad
+    ) + 1e-12
 
     gap = abs(
         real_alpha
