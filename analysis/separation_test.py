@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.signal import welch
-
 from analysis.numerical_spectral_verification import (
     estimate_alpha
 )
@@ -107,10 +106,11 @@ def separation_score(
         median_null
     )
 
-    alpha_effect = gap / (
-        np.std(
-            null_alphas
-        ) + 1e-12
+    alpha_effect = float(
+        gap /
+        (
+            robust_sigma + 1e-12
+        )
     )
 
     spectral_effect = float(
