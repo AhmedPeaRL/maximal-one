@@ -80,9 +80,34 @@ def phase_surrogate_guard(
         )
     }
     
-def shuffle_test(series, rng):
-    shuffled = rng.permutation(series)
-    return estimate_alpha(shuffled)
+def block_shuffle_test(
+    series,
+    rng,
+    block_size=32
+):
+
+    blocks = []
+
+    for i in range(
+        0,
+        len(series),
+        block_size
+    ):
+        blocks.append(
+            series[
+                i:i+block_size
+            ]
+        )
+
+    rng.shuffle(blocks)
+
+    shuffled = np.concatenate(
+        blocks
+    )
+
+    return estimate_alpha(
+        shuffled
+    )
 
 def temporal_direction_test(series):
     series = np.asarray(series, dtype=np.float64)
@@ -129,7 +154,7 @@ def white_noise_control(n, rng):
 def run_falsification(series, rng):
     results = {}
     original_alpha = estimate_alpha(series)
-    shuffled_alpha = shuffle_test(
+    shuffled_alpha = block_shuffle_test(
         series,
         rng
     )
