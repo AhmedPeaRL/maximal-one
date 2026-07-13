@@ -75,38 +75,74 @@ def main():
     if not os.path.exists("real-data/sunspots_full.csv"):
         raise SystemExit("❌ Base dataset missing — cannot proceed")
     
-    if not os.path.exists("real-data/sunspots_global_extended.csv"):
-        print("⚠️ Extended dataset missing — generating...")
-    
-        import subprocess
-    
-        subprocess.run(
-            ["python", "analysis/expand_dataset.py"],
-            check=True
+    PRIMARY_DATASET = (
+        "real-data/sunspots_full.csv"
+    )
+
+    AUXILIARY_DATASET = (
+        "real-data/sunspots_global_extended.csv"
+    )
+
+    if not os.path.exists(PRIMARY_DATASET):
+        raise SystemExit(
+            "❌ Primary dataset missing"
         )
-    
-        if not os.path.exists("real-data/sunspots_global_extended.csv"):
-            raise SystemExit("❌ Failed to generate extended dataset")
-    
-        print("✅ Extended dataset generated on-the-fly")
+
+    auxiliary_available = os.path.exists(
+        AUXILIARY_DATASET
+    )
+
+    if auxiliary_available:
+        print(
+            "✅ Auxiliary dataset available"
+        )
+    else:
+        print(
+            "⚠️ Auxiliary dataset unavailable"
+        )
 
     try:
         import pandas as pd
         df = pd.read_csv(
-            "real-data/sunspots_global_extended.csv",
-            dtype=np.float64,
-            engine="c"
+            PRIMARY_DATASET,
+            sep=";",
+            header=None,
+            engine="python"
         )
 
-        if "Sunspots" in df.columns:
-            real = df["Sunspots"].values
-        elif "value" in df.columns:
-            real = df["value"].values
-        else:
-            real = df.select_dtypes(include=[np.number]).iloc[:, 0].values
-      
-        # ✅ preserve real structure فقط
-        real = real.astype(np.float64)
+        df.columns = [
+            "year",
+            "month",
+            "decimal_year",
+            "sunspots",
+            "std",
+            "obs",
+            "flag"
+        ]
+
+        real = pd.to_numeric(
+            df["sunspots"],
+            errors="coerce"
+        ).dropna().values
+
+        real = real.astype(
+            np.float64
+        )
+
+        real_reference = real.copy()
+        extended_reference = None
+
+        if auxiliary_available:
+            ext_df = pd.read_csv(
+                AUXILIARY_DATASET
+            )
+
+            if "Sunspots" in ext_df.columns:
+                extended_reference = (
+                    ext_df["Sunspots"]
+                    .astype(np.float64)
+                    .values
+                )
         
         synthetic = generate_series(rng, n=len(real))
 
@@ -565,6 +601,27 @@ def main():
                 "ci_low": boot["ci_low"],
                 "ci_high": boot["ci_high"],
                 "noise_alpha": alpha_noise
+            },
+            "dataset_audit": {
+                "primary_dataset":
+                    "sunspots_full",
+
+                "primary_length":
+                    int(len(real_reference)),
+
+                "auxiliary_available":
+                    bool(
+                        extended_reference
+                        is not None
+                    ),
+
+                "auxiliary_length":
+                    int(
+                        len(extended_reference)
+                    )
+                    if extended_reference
+                    is not None
+                    else 0
             },
             "metadata": {
                 "seed": args.seed,
