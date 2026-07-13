@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.signal import welch
+from scipy.stats import wasserstein_distance
 from analysis.numerical_spectral_verification import (
     estimate_alpha
 )
@@ -78,6 +79,15 @@ def separation_score(
     fp_distances = np.asarray(
         fp_distances,
         dtype=np.float64
+    )
+
+    distribution_distance =
+    wasserstein_distance(
+        null_alphas,
+        np.repeat(
+            real_alpha,
+            len(null_alphas)
+        )
     )
 
     median_null = np.median(
@@ -204,6 +214,9 @@ def separation_score(
 
         "fingerprint_distance_mean":
         float(spectral_effect),
+
+        "wasserstein_distance":
+        float(distribution_distance),
 
         "null_count":
         int(
