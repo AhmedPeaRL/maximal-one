@@ -1,4 +1,6 @@
 import numpy as np
+from scipy.stats import entropy
+from scipy.signal import welch
 from analysis.numerical_spectral_verification import estimate_alpha
 from analysis.spectral_surrogate import phase_randomized_surrogate
 
@@ -138,7 +140,19 @@ def phase_randomization(series, rng):
     if std > 1e-12:
         surrogate = surrogate / std
 
-    return estimate_alpha(surrogate)
+    alpha = estimate_alpha(
+        surrogate
+    )
+
+    shape_distance = spectral_shape_distance(
+        series,
+        surrogate
+    )
+
+    return {
+        "alpha": alpha,
+        "shape_distance": shape_distance
+    }
 
 def white_noise_control(n, rng):
     wn = rng.standard_normal(n)
@@ -151,6 +165,30 @@ def white_noise_control(n, rng):
 
     return estimate_alpha(wn)
 
+def spectral_shape_distance(
+    original,
+    surrogate
+):
+    f1, p1 = welch(
+        original,
+        nperseg=min(256, len(original)//2)
+    )
+
+    f2, p2 = welch(
+        surrogate,
+        nperseg=min(256, len(surrogate)//2)
+    )
+
+    p1 = p1 / (np.sum(p1) + 1e-12)
+    p2 = p2 / (np.sum(p2) + 1e-12)
+
+    return float(
+        entropy(
+            p1 + 1e-12,
+            p2 + 1e-12
+        )
+    )
+
 def run_falsification(series, rng):
     results = {}
     original_alpha = estimate_alpha(series)
@@ -159,10 +197,16 @@ def run_falsification(series, rng):
         rng
     )
 
-    phase_alpha = phase_randomization(
+    phase_result = phase_randomization(
         series,
         rng
     )
+
+    phase_alpha = phase_result["alpha"]
+
+    shape_distance = phase_result[
+    "shape_distance"
+    ]
 
     noise_alpha = white_noise_control(
         len(series),
@@ -173,6 +217,8 @@ def run_falsification(series, rng):
         "original_alpha": original_alpha,
         "shuffled_alpha": shuffled_alpha,
         "phase_randomized_alpha": phase_alpha,
+        "phase_shape_distance":
+        shape_distance,
         "white_noise_alpha": noise_alpha
     }
 
