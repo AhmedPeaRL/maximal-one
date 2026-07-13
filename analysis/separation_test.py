@@ -81,8 +81,7 @@ def separation_score(
         dtype=np.float64
     )
 
-    distribution_distance =
-    wasserstein_distance(
+    distribution_distance = wasserstein_distance(
         null_alphas,
         np.repeat(
             real_alpha,
