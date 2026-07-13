@@ -101,10 +101,7 @@ def pink_noise_null(n, rng):
 
     fft = fft / np.sqrt(freqs)
 
-    x = np.fft.irfft(
-        fft,
-        n=n
-    )
+    x = np.fft.irfft(fft, n=n)
 
     x = (
         x - np.mean(x)
@@ -112,18 +109,19 @@ def pink_noise_null(n, rng):
         np.std(x) + 1e-12
     )
 
-    return x.astype(
-        np.float64
-    )
+    return x.astype(np.float64)
 
 def generate_strong_null(n, rng):
     p = rng.random()
 
-    if p < 0.33:
+    if p < 0.25:
         return white_null(n, rng)
 
-    elif p < 0.66:
+    elif p < 0.50:
         return ar1_null(n, rng)
 
-    else:
+    elif p < 0.75:
         return block_shuffle_null(n, rng)
+
+    else:
+        return pink_noise_null(n, rng)
