@@ -14,7 +14,7 @@ def run(series):
 
         perturbation = rng.normal(
             0,
-            np.std(series) * 0.001,
+            np.std(series) * 0.01,
             len(series)
         )
 
