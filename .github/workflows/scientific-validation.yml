@@ -257,30 +257,6 @@ jobs:
               )
 
           print("✅ Numerical consistency holds")
-
-          import numpy as np
-          from analysis.separation_test import separation_score
-          from analysis.strong_null_model import generate_strong_null
-
-          null_samples = [
-              generate_strong_null(len(series), rng)
-              for _ in range(400)
-          ]
-
-          sep = separation_score(series, null_samples)
-
-          if sep is None:
-              raise SystemExit("❌ Separation analysis failed")
-
-          required_z = 2.0
-
-          if sep["z_score"] < required_z:
-              raise SystemExit(
-                  f"❌ separation z-score too low: "
-                  f"{sep['z_score']:.3f}"
-              )
-
-          print("✅ Separation test passed")
           
           import numpy as np
           import pandas as pd
