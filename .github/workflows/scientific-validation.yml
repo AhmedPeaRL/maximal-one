@@ -259,52 +259,29 @@ jobs:
           print("✅ Numerical consistency holds")
 
           import numpy as np
-          from analysis.falsification_tests import run_falsification
+          from analysis.separation_test import separation_score
+          from analysis.strong_null_model import generate_strong_null
 
-          def check_null_gap(series, rng):
-              res = run_falsification(series, rng)
-              real = res["original_alpha"]
-              shuffled = res["shuffled_alpha"]
-              phase = res["phase_randomized_alpha"]
-              noise = res["white_noise_alpha"]
-              nulls = [shuffled, phase, noise]
-              gaps = [abs(real - n) for n in nulls]
-              mean_null = np.mean(nulls)
-              std_null = np.std(nulls) + 1e-12
+          null_samples = [
+              generate_strong_null(len(series), rng)
+              for _ in range(400)
+          ]
 
-              # 🔥 Z-SCORE separation (stronger than raw gap)
-              z_score = abs(real - mean_null) / std_null
+          sep = separation_score(series, null_samples)
 
-              print("Gaps:", gaps)
-              print("Z-score separation:", z_score)
+          if sep is None:
+              raise SystemExit("❌ Separation analysis failed")
 
-              adaptive_z = 0.6 + 0.15 * np.log1p(len(series)/256)
+          required_z = 2.0
 
-              if z_score < adaptive_z:
-                  raise SystemExit("❌ Null separation too weak (z-score failed)")
+          if sep["z_score"] < required_z:
+              raise SystemExit(
+                  f"❌ separation z-score too low: "
+                  f"{sep['z_score']:.3f}"
+              )
 
-              # 🔥 extra guard (closest null)
-              meaningful_nulls = [
-                  abs(real - shuffled),
-                  abs(real - noise)
-              ]
-
-              min_gap = min(meaningful_nulls)
-
-              if min_gap < 0.10:
-                  raise SystemExit("❌ Closest null too قريب من real")
-
-              print("✅ NULL GAP HOLDS (STRONG)")
-
-          if __name__ == "__main__":
-              import pandas as pd
-
-              df = pd.read_csv("real-data/sunspots_global_extended.csv")
-              col = "Sunspots" if "Sunspots" in df.columns else "value"
-              rng = np.random.RandomState(42)
-              
-              check_null_gap(df[col].values, rng)
-
+          print("✅ Separation test passed")
+          
           import numpy as np
           import pandas as pd
           from analysis.numerical_spectral_verification import (
