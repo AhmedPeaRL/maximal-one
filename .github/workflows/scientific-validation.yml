@@ -570,7 +570,7 @@ jobs:
                       "alpha": float(alpha)
                   })
 
-                  if alpha > 0:
+                  if alpha >= 0:
                           alphas.append(alpha)
 
               except Exception as e:
@@ -1074,17 +1074,7 @@ jobs:
                   if np.isfinite(a):
                       null_alphas.append(a)
 
-              print(
-                  f"""
-              real_alpha      = {real_alpha:.4f}
-              null_mean       = {null_mean:.4f}
-              null_std        = {null_std:.4f}
-              z_score         = {z_score:.4f}
-              null_median     = {np.median(null_alphas):.4f}
-                  """
-              )
-
-              noise_alpha = float(np.median(null_alphas))
+              noise_alpha = float(np.mean(null_alphas))
               results["noise"]["white"] = noise_alpha
 
               null_mean = np.mean(null_alphas)
@@ -1097,6 +1087,16 @@ jobs:
                   real_alpha
                   - null_mean
               ) / null_std
+
+              print(
+                  f"""
+              real_alpha      = {real_alpha:.4f}
+              null_mean       = {null_mean:.4f}
+              null_std        = {null_std:.4f}
+              z_score         = {z_score:.4f}
+              null_median     = {np.median(null_alphas):.4f}
+                  """
+              )
 
               # === CORE VALIDATION ===
               delta_alpha = abs(real_alpha - noise_alpha)
