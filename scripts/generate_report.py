@@ -10,11 +10,6 @@ from analysis.fixed_precision import (
     recursively_freeze,
     freeze_float
 )
-from analysis.predictive_validation import (
-    evaluate_prediction
-)
-
-prediction_validation = evaluate_prediction(series)
 
 def is_valid_segment(x):
     if np.std(x) < 1e-3:
@@ -289,6 +284,9 @@ def main():
         from analysis.consensus_guard import (
             consensus_check
         )
+        from analysis.predictive_validation import (
+            evaluate_prediction
+        )
 
         falsification_rng = np.random.default_rng(args.seed + 101)
         direction_gap = temporal_direction_test(series)
@@ -298,6 +296,8 @@ def main():
         # ✅ minimal preprocessing only
         series = series.astype(np.float64)
         series = series - np.mean(series)
+
+        prediction_validation = evaluate_prediction(series)
 
         # 🔥 scale without killing structure
         std = np.std(series)
