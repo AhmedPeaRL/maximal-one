@@ -10,6 +10,11 @@ from analysis.fixed_precision import (
     recursively_freeze,
     freeze_float
 )
+from analysis.predictive_validation import (
+    evaluate_prediction
+)
+
+prediction_validation = evaluate_prediction(series)
 
 def is_valid_segment(x):
     if np.std(x) < 1e-3:
@@ -590,6 +595,7 @@ def main():
         )
 
         report = {
+            "predictive_validation": prediction_validation,
             "evidence_fusion": fusion,
             "phase_surrogate_guard": phase_guard,
             "bootstrap_consistency_guard": bootstrap_guard,
