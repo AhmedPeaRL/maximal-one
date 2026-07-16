@@ -35,11 +35,7 @@ def consensus_check(
             "scale_instability"
         )
 
-    if (
-        p_value > 0.05
-        and
-        evidence_score < 0.65
-    ):
+    if p_value > 0.10:
         diagnostics.append(
             "weak_statistics"
         )
