@@ -30,7 +30,7 @@ def publish_anchor(hash_value):
             timeout=10
         )
 
-        return response.status_code == 200
+        return response.status_code in (200, 201)
 
     except Exception:
         return False
