@@ -11,7 +11,11 @@ def main():
 
     proof = {
         "hash": h,
-        "timestamp": time.time()
+        "timestamp": time.time(),
+        "algorithm": "sha256",
+        "artifact": "canonical_report.json",
+        "repository": "maximal-one",
+        "version": "canonical"
     }
 
     with open("public/external_proof.json", "w") as f:
