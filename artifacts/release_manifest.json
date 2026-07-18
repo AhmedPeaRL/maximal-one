@@ -1,0 +1,81 @@
+{
+  "artifact_count": 19,
+  "manifest": {
+    "artifact_closure.json": {
+      "sha256": "b9e95fc62143cbf5e4f5ed955262ff8c0dc931c9e73dea0826083ddbeef92a2d",
+      "size": 1773
+    },
+    "canonical_consensus.json": {
+      "sha256": "70564b18a852f6940f8c56fe279533dd09b84e4276c3b04f6dd0cc0cc75a32d7",
+      "size": 608
+    },
+    "canonical_report.json": {
+      "sha256": "127d8e574060833c375a00a11f84da620c6d23c1aa3108bf3f161314f8532ef4",
+      "size": 3498
+    },
+    "canonical_report.lock": {
+      "sha256": "bdfb158c3f5dda25d79321f3bf8b750f659c0a2575bfd54e63d22df4717545ca",
+      "size": 105
+    },
+    "dataset_provenance.json": {
+      "sha256": "cc065ec94a98509f50fbf94d64989fbde179d4932a05b6c24e5a1e84acd854da",
+      "size": 932
+    },
+    "environment_fingerprint.json": {
+      "sha256": "ea9101f88b798c57377b14d7cc8803ce7df5827ba8309e723d2f70c7dcd84003",
+      "size": 123
+    },
+    "estimator_calibration.json": {
+      "sha256": "cbf927ff5e28806e616a5059965b06aff62994cd0ff1b73275e4aa1c4b7b7762",
+      "size": 436
+    },
+    "external_classification.json": {
+      "sha256": "0eb8326e0dfab1c14b0c42ccca9f245f3664d73190f0d7912a462a96877eadad",
+      "size": 92
+    },
+    "external_replay_verification.json": {
+      "sha256": "5ee41d2e3ddb0190c61300a61981249c334cb5b8b7c288c6dae2626ca3df5411",
+      "size": 97
+    },
+    "external_witness.json": {
+      "sha256": "5491bdf38f1f7e7d68e3114a4cb0f6067ff1461be939ecad5af132d1fdc6f15f",
+      "size": 143
+    },
+    "fingerprint.txt": {
+      "sha256": "1a1bb09d79945c895d3e89a2c356c34c18b08bf205d5730ed11bc784487476e7",
+      "size": 64
+    },
+    "full_replay_consistency.json": {
+      "sha256": "b491ca76658ee5a3ae4e724f093d5874ca81d6ee5a7b38c9c9cddbb09713197a",
+      "size": 275
+    },
+    "physical_interpretation.json": {
+      "sha256": "189c3c2ab4654f721d7e78982560cc4d2de5736454cff03d1093129e36b8b5a0",
+      "size": 73
+    },
+    "pipeline_sovereignty.json": {
+      "sha256": "6990afcd7d65fc099c13cdb6b3aee819270d2fbb3bee4d3551dea637dc52ed11",
+      "size": 1312
+    },
+    "provenance_chain.json": {
+      "sha256": "28b9abcb557dd9c672cd92c1d7253dfd3676957acdcf61d0513fc5fce11f4a8f",
+      "size": 369
+    },
+    "report_hash_manifest.json": {
+      "sha256": "3a1688661f284dd961eaa072ee89a5b7a7aef1ccd9a8a85eb073509c8669488e",
+      "size": 87
+    },
+    "reproducibility_stamp.json": {
+      "sha256": "cc7d79e48555738f70c84341253ece696bb83ff017e96fc0a3fcd0a7d5ece91f",
+      "size": 140
+    },
+    "statistical_verdict.json": {
+      "sha256": "d6b66ec319d2917154737fa692a5ac183452dfdfb167f36848b1a0e3e1217650",
+      "size": 204
+    },
+    "witness_lock.json": {
+      "sha256": "4a2aed1446117269a7d66b27180b4522496520f5e3d30a33b7e95b38a58d328b",
+      "size": 692
+    }
+  }
+}
