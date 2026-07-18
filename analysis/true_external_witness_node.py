@@ -49,12 +49,6 @@ def normalize(raw):
 def compute_hash(data):
     return hashlib.sha256(data.encode()).hexdigest()
 
-def inject_entropy():
-    return {
-        "noise": random.random(),
-        "time": time.time()
-    }
-
 def main():
     raw, meta = fetch_external()
 
@@ -62,7 +56,6 @@ def main():
         result = {
             "status": "external_unavailable",
             "errors": meta,
-            "entropy": inject_entropy(),
             "verdict": "degraded_but_recorded"
         }
         print(json.dumps(result, indent=2))
@@ -75,12 +68,10 @@ def main():
         "status": "external_verified",
         "source": meta,
         "external_hash": h,
-        "entropy": inject_entropy(),
         "verdict": "independent_observation"
     }
 
     print(json.dumps(result, indent=2))
-
 
 if __name__ == "__main__":
     main()
