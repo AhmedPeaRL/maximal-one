@@ -123,19 +123,27 @@ Latest statistical test output is stored under:
 
     data/power_result.txt
 
+## Current Status
+
+This repository does not claim evidence of consciousness.
+
+Current validated result:
+
+- Reproducible spectral persistence
+- Cross-method agreement
+- Cross-seed stability
+- Deterministic replay
+
+Open questions:
+
+- Statistical significance remains weak
+- Independent third-party reproduction required
+- Additional datasets required
+
 ## Research Position
 
 See: core-scientific/research_position.md
 
-## Execution
-
-```bash
-pip install -r requirements.txt
-python master_experiment.py
-
-All outputs are deterministic under controlled seeds and constrained environments, subject to reproducibility limits of underlying infrastructure.
-
-```md
 ## External Reproducibility (Critical Requirement)
 
 This system is NOT considered scientifically valid until:
@@ -147,3 +155,11 @@ This system is NOT considered scientifically valid until:
 See:
 
 /external/REPRODUCE.md
+
+## Execution
+
+```bash
+pip install -r requirements.txt
+python master_experiment.py
+
+All outputs are deterministic under controlled seeds and constrained environments, subject to reproducibility limits of underlying infrastructure.
