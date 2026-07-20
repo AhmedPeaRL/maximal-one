@@ -1,7 +1,7 @@
 import requests
 import json
 
-URL = "https://ahmedpearl.github.io/maximal-one/public/irreducible_truth.json"
+URL = "https://ahmedpearl.github.io/maximal-one/public/repro_bundle/canonical_report.json"
 
 def run():
     print("Fetching external truth...")
