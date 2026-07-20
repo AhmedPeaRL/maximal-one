@@ -30,8 +30,8 @@ def run():
         return
 
     try:
-        alpha = data["core_claim"]["measured_alpha"]
-        sigma = data["core_claim"]["uncertainty_sigma"]
+        alpha = data["spectral_profile"]["estimated_alpha"]
+        sigma = data["separation_test"]["robust_sigma"]
 
         print("Alpha:", alpha)
         print("Sigma:", sigma)
@@ -44,7 +44,6 @@ def run():
     except KeyError:
         print("❌ JSON structure invalid")
         print(json.dumps(data, indent=2))
-
 
 if __name__ == "__main__":
     run()
