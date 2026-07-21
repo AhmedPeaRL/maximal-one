@@ -376,6 +376,11 @@ def main():
         if stats["p_value"] > 0.05:
             print("⚠️ Weak statistical signal — continuing with caution")
 
+        if stats["p_value"] > 0.05:
+            print(
+                "⚠️ Null hypothesis not rejected"
+            )
+
         from analysis.independent_validation import compare_methods
 
         alpha_fft, alpha_welch = compare_methods(series)
@@ -659,6 +664,16 @@ def main():
                 "validated": bool(
                     validation_delta <= 0.30
                 )
+            },
+            "scientific_interpretation": {
+                "null_rejected":
+                    bool(stats["p_value"] <= 0.05),
+                "evidence_strength":
+                    (
+                        "strong"
+                        if stats["p_value"] <= 0.05
+                        else "weak"
+                    )
             },
             "consensus_guard": consensus,
             "sovereign_layer": {
