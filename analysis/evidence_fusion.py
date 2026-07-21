@@ -46,8 +46,8 @@ def evidence_fusion(
     )
 
     score = (
-        0.25 * alpha_score
-        + 0.25 * p_score
+        0.15 * alpha_score
+        + 0.35 * p_score
         + 0.20 * scale_score
         + 0.15 * validation_score
         + 0.15 * falsification_score
