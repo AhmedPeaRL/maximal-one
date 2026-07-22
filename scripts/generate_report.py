@@ -673,6 +673,18 @@ def main():
                         "strong"
                         if stats["p_value"] <= 0.05
                         else "weak"
+                    ),
+                "claim_status":
+                    (
+                        "established"
+                        if stats["p_value"] <= 0.05
+                        else "under_investigation"
+                    ),
+                "reproducibility":
+                    (
+                        "confirmed"
+                        if cross_seed.get("seed_stable", False)
+                        else "unconfirmed"
                     )
             },
             "consensus_guard": consensus,
