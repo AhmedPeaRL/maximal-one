@@ -26,15 +26,11 @@ def generate_series(rng, n=1024):
 
     # 🔥 mix
     x = 0.7 * wn + 0.3 * np.diff(rw, prepend=rw[0])
-    
     x[0] = 0.0
-
     fft = np.fft.rfft(x)
     phases = rng.uniform(0, 2*np.pi, len(fft))
     phases[0] = 0.0
-
     magnitudes = np.abs(fft)
-  
     new_fft = np.abs(fft) * np.exp(1j * phases)
     x = np.fft.irfft(new_fft, n=n)
 
@@ -42,19 +38,6 @@ def generate_series(rng, n=1024):
 
 def stable_float(x, digits=6):
     return float(round(x, digits))
-
-def enforce_determinism(seed=42):
-    os.environ["PYTHONHASHSEED"] = str(seed)
-    random.seed(seed)
-    np.random.seed(seed)
-
-    # 🔒 Lock environment بالكامل
-    os.environ["OMP_NUM_THREADS"] = "1"
-    os.environ["MKL_NUM_THREADS"] = "1"
-    os.environ["OPENBLAS_NUM_THREADS"] = "1"
-    os.environ["NUMEXPR_NUM_THREADS"] = "1"
-
-enforce_determinism(42)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -196,7 +179,6 @@ def main():
 
         autocorr = np.correlate(x, x, mode='full')
         autocorr = autocorr[len(autocorr)//2:]
-
         ratio = np.percentile(autocorr[1:100], 95) / (autocorr[0] + 1e-12)
 
         # 🔥 allow natural periodicity but detect pathological lock-in
