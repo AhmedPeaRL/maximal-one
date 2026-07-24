@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.signal import welch
 from analysis.numerical_spectral_verification import estimate_alpha
 
 FREQ_MIN = 0.01
@@ -29,44 +28,42 @@ def core_alpha_estimation(series):
         return np.nan
 
     series = series - np.mean(series)
-
-    # 🔥 scale without killing structure
     std = np.std(series)
-    if std > 1e-6:
-        series = series / std
 
-    freqs, psd = welch(
-        series,
-        nperseg=256,
-        window="hann",
-        detrend="linear",
-        scaling="density"
+    if std < 1e-12:
+        return np.nan
+
+    series = series / std
+    fft = np.fft.rfft(series)
+    power = np.abs(fft) ** 2
+    freqs = np.fft.rfftfreq(len(series))
+
+    mask = (
+        (freqs > 0.01)
+        &
+        (freqs < 0.25)
+        &
+        (power > 0)
     )
 
-    mask = (freqs > FREQ_MIN) & (freqs < FREQ_MAX)
-
     freqs = freqs[mask]
-    psd = psd[mask]
+    power = power[mask]
 
     if len(freqs) < 20:
         return np.nan
 
-    log_f = np.log(freqs)
-    log_psd = np.log(psd + 1e-12)
+    x = np.log(freqs)
+    y = np.log(power)
 
     try:
-        coeffs = np.polyfit(log_f, log_psd, 1)
-        slope = coeffs[0]
+        slope, _ = np.polyfit(x, y, 1)
+
     except Exception:
         return np.nan
 
-    alpha = -slope
+    alpha = -float(slope)
 
     if not np.isfinite(alpha):
-        return np.nan
-
-    # 🔥 collapse guard
-    if abs(alpha) < 0.05:
         return np.nan
 
     alpha = np.clip(alpha, 0.05, 3.0)
