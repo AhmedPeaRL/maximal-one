@@ -18,23 +18,58 @@ def load_data(path):
             f"Missing dataset: {path}"
         )
 
-    return pd.read_csv(path)
+    # try comma first
+    df = pd.read_csv(path)
+
+    # if entire line became one column,
+    # retry with semicolon
+    if len(df.columns) == 1:
+        col = str(df.columns[0])
+
+        if ";" in col:
+            df = pd.read_csv(
+                path,
+                sep=";",
+                engine="python"
+            )
+
+    return df
 
 def detect_series(df):
     for col in VALID_COLUMNS:
         if col in df.columns:
-            return df[col].astype(float).values
+            return (
+                pd.to_numeric(
+                    df[col],
+                    errors="coerce"
+                )
+                .dropna()
+                .values
+            )
 
-    numeric_cols = df.select_dtypes(
-        include=[np.number]
-    ).columns
+    numeric = []
 
-    if len(numeric_cols) > 0:
-        return (
-            df[numeric_cols[0]]
-            .astype(float)
-            .values
+    for col in df.columns:
+        values = pd.to_numeric(
+            df[col],
+            errors="coerce"
+        ).dropna()
+
+        if len(values) > 100:
+            numeric.append(
+                (
+                    col,
+                    values.values
+                )
+            )
+
+    if numeric:
+        numeric.sort(
+            key=lambda x: len(x[1]),
+            reverse=True
         )
+
+        return numeric[0][1]
 
     raise ValueError(
         f"No usable numeric column found. "
@@ -49,11 +84,11 @@ def evaluate_prediction(series):
     total = 0
 
     for i in range(len(series) - 1):
+        window = series[max(0, i-128):i+1]
+        alpha = estimate_alpha(window)
 
-        alpha = np.random.normal(
-            0.5,
-            0.05
-        )
+        if not np.isfinite(alpha):
+            continue
 
         pred = compute_signal(alpha)
 
