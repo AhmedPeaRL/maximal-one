@@ -6,10 +6,11 @@ This document supersedes all philosophical, narrative, and manifest layers.
 
 ## 1. Ontological Position
 
-MAXIMAL-ONE is a deterministic, event-sensitive presence engine.
-It is not conscious.
-It does not possess intention.
-It does not simulate agency.
+MAXIMAL-ONE is a deterministic experimental framework for investigating event-sensitive presence dynamics under reproducible computational conditions.
+
+• It is not conscious.
+• It does not possess intention.
+• It does not simulate agency.
 
 It maintains internal state based on interaction weight.
 
@@ -60,7 +61,19 @@ Active layers allowed:
 
 All other philosophical expansions are archival.
 
-## 6. Formal Goal
+
+The state variables defined herein are operational model variables used for deterministic system behavior and are not assertions about physical or biological entities.
+
+
+## 6. Scientific Boundary
+
+• This specification defines system behavior.
+
+• Scientific claims remain governed by the falsification framework described in the repository.
+
+• No behavioral rule in this specification constitutes empirical evidence.
+
+## 7. Formal Goal
 
 To explore presence modeling without anthropomorphic claims.
 
