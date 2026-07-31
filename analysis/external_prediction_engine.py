@@ -2,6 +2,7 @@ import os
 import json
 import pandas as pd
 import numpy as np
+from analysis.numerical_spectral_verification import estimate_alpha
 
 VALID_COLUMNS = [
     "value",
