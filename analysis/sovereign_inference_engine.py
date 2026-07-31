@@ -1,10 +1,7 @@
 import numpy as np
 
-
 class SovereignInferenceEngine:
-
     def __init__(self):
-
         self.minimum_threshold = 0.15
 
     def adaptive_threshold(
@@ -42,7 +39,7 @@ class SovereignInferenceEngine:
         if delta > threshold:
 
             return {
-                "status": "STRUCTURE_DETECTED",
+                "status": "STRUCTURE_OBSERVED",
                 "confidence": float(
                     round(delta, 8)
                 ),
@@ -92,7 +89,7 @@ class SovereignInferenceEngine:
                 round(threshold, 8)
             ),
             "state": (
-                "STRUCTURE_DETECTED"
+                "STRUCTURE_OBSERVED"
                 if delta > threshold
                 else "NOISE_DOMINANT"
             )
