@@ -543,6 +543,27 @@ jobs:
           for path in DATASETS:
               try:
                   df = pd.read_csv(path)
+
+                  if len(df.columns) == 1:
+                      df = pd.read_csv(
+                          path,
+                          sep=";",
+                          header=None,
+                          engine="python"
+                      )
+                      if len(df.columns) >= 4:
+                          df.columns = [
+                              "Year",
+                              "Month",
+                              "DecimalYear",
+                              "Sunspots",
+                              *[
+                                  f"Extra{i}"
+                                  for i in range(
+                                      len(df.columns)-4
+                                  )
+                              ]
+                
                   col = None
                   for c in VALID_COLUMNS:
                       if c in df.columns:
