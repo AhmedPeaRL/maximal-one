@@ -563,6 +563,7 @@ jobs:
                                       len(df.columns)-4
                                   )
                               ]
+                          ]
                 
                   col = None
                   for c in VALID_COLUMNS:
