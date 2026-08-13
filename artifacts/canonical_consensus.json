@@ -1,0 +1,39 @@
+{
+  "alphas": [
+    {
+      "alpha": null,
+      "dataset": "real-data/sunspots_full.csv",
+      "error": "alpha is not finite",
+      "valid": false
+    },
+    {
+      "alpha": 0.9495301477440786,
+      "dataset": "real-data/sunspots_global_extended.csv",
+      "rows": 3327,
+      "valid": true
+    },
+    {
+      "alpha": null,
+      "dataset": "real-data/white_noise.csv",
+      "error": "No valid numeric series found in real-data/white_noise.csv",
+      "valid": false
+    },
+    {
+      "alpha": null,
+      "dataset": "real-data/random_walk.csv",
+      "error": "No valid numeric series found in real-data/random_walk.csv",
+      "valid": false
+    },
+    {
+      "alpha": 0.009497503363936857,
+      "dataset": "real-data/shuffled_sunspots.csv",
+      "rows": 3327,
+      "valid": true
+    }
+  ],
+  "consensus_passed": true,
+  "consensus_threshold": 1.8,
+  "cross_domain_std": 0.4700163221900709,
+  "status": "evaluated",
+  "valid_domains": 2
+}

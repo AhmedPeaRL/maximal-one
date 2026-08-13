@@ -1,0 +1,23 @@
+{
+  "artifact_count": 17,
+  "frozen": true,
+  "hashes": {
+    "canonical_consensus.json": "e0a7403c4449c3f3ba9f9cb8045f9380a9978aea58b7f16518f71f0865de32ea",
+    "canonical_report.json": "896d6485e418abcf641069cd1459ce5d68893e434ff46293ed25b38ade788432",
+    "dataset_provenance.json": "cc065ec94a98509f50fbf94d64989fbde179d4932a05b6c24e5a1e84acd854da",
+    "environment_fingerprint.json": "324c31e62abbe03bd6792654ed2884d52e3d6da9ff1010558a5e2002c6987bca",
+    "estimator_calibration.json": "cbf927ff5e28806e616a5059965b06aff62994cd0ff1b73275e4aa1c4b7b7762",
+    "external_classification.json": "0eb8326e0dfab1c14b0c42ccca9f245f3664d73190f0d7912a462a96877eadad",
+    "external_replay_verification.json": "5ee41d2e3ddb0190c61300a61981249c334cb5b8b7c288c6dae2626ca3df5411",
+    "external_witness.json": "5491bdf38f1f7e7d68e3114a4cb0f6067ff1461be939ecad5af132d1fdc6f15f",
+    "full_replay_consistency.json": "8bdd9e5da3ca8cebeb762d468a8e99bd9d88d09cb61b11345477218152c4fe1d",
+    "physical_interpretation.json": "189c3c2ab4654f721d7e78982560cc4d2de5736454cff03d1093129e36b8b5a0",
+    "pipeline_sovereignty.json": "fc1f40b0954cbba7fbced1dfa0b69b6d35786097b1b723f6533538c18904ae35",
+    "provenance_chain.json": "283647fe976ab736b753337396483b7a4e3310593fd1e49e5cb37920ec8eb356",
+    "release_manifest.json": "d41ca4a87914f1eceb2ec209feb598fa9a952a90ec00220fda7348ef39552047",
+    "report_hash_manifest.json": "e07ece00259ca70b1f5d0ef86caf7a824681f5249a2eebfc2a186455893deeff",
+    "reproducibility_stamp.json": "87730313c0d9630255011afe6ebdff598ce503b52ae40285901a327d405c69a0",
+    "statistical_verdict.json": "4c121352153a6e73de424ce8ba721af70c5eda5d3aad9e08f2d104cc0818ad3e",
+    "witness_lock.json": "766d662e2008a5249107357b08fdf6485047b1e5547de491d64a20839b977521"
+  }
+}
