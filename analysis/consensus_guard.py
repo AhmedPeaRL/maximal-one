@@ -40,14 +40,18 @@ def consensus_check(
             "weak_statistics"
         )
 
+    passed = len(diagnostics) == 0
+
+    if passed:
+        status = "supported"
+    elif "weak_statistics" in diagnostics:
+        status = "under_investigation"
+    else:
+        status = "inconclusive"
+
     return {
-        "passed": len(
-            diagnostics
-        ) == 0,
-
+        "passed": passed,
+        "status": status,
         "diagnostics": diagnostics,
-
-        "agreement_delta": float(
-            delta
-        )
+        "agreement_delta": float(delta),
     }
