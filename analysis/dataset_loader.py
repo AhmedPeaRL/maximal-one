@@ -1,8 +1,6 @@
 from __future__ import annotations
-
 from pathlib import Path
 from typing import Iterable
-
 import numpy as np
 import pandas as pd
 
@@ -71,8 +69,10 @@ def _numeric_named_column(df: pd.DataFrame) -> np.ndarray | None:
 
     return None
 
+def _numeric_column_from_frame(
+    df: pd.DataFrame
+) -> np.ndarray | None:
 
-def _numeric_column_from_frame(df: pd.DataFrame) -> np.ndarray | None:
     numeric = df.apply(
         pd.to_numeric,
         errors="coerce",
@@ -85,17 +85,52 @@ def _numeric_column_from_frame(df: pd.DataFrame) -> np.ndarray | None:
             dtype=np.float64
         )
 
-        if len(values) >= 32:
-            candidates.append(values)
+        if len(values) < 32:
+            continue
+
+        values = values[
+            np.isfinite(values)
+        ]
+
+        if len(values) < 32:
+            continue
+
+        if np.std(values) <= 1e-12:
+            continue
+
+        candidates.append(
+            (
+                col,
+                values
+            )
+        )
 
     if not candidates:
         return None
 
-    # Prefer the longest valid numeric column.
+    # Prefer columns whose semantic names indicate
+    # an actual measured signal.
+    preferred = {
+        "Sunspots",
+        "sunspots",
+        "value",
+        "Value",
+        "value_mean",
+        "signal",
+        "Signal",
+        "random_walk",
+        "white_noise",
+    }
+
+    for col, values in candidates:
+        if str(col) in preferred:
+            return values
+
+    # Otherwise choose the longest valid candidate.
     return max(
         candidates,
-        key=len,
-    )
+        key=lambda item: len(item[1])
+    )[1]
 
 def load_numeric_series(
     path: str | Path,
