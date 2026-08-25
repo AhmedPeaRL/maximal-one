@@ -49,12 +49,16 @@ def monte_carlo_p_value(
             "null_samples": 0
         }
 
-    p_value = float(
-        np.mean(
+    exceedances = int(
+        np.sum(
             null_alphas >= observed_alpha
         )
     )
 
+    p_value = float(
+        exceedances / len(null_alphas)
+    )
+    
     p_value = max(
         p_value,
         1.0 / len(null_alphas)
@@ -84,6 +88,8 @@ def monte_carlo_p_value(
                 observed_alpha
                 - np.median(null_alphas)
             ),
+
+        "exceedances": int(exceedances),
 
         "p_value":
             float(p_value),
