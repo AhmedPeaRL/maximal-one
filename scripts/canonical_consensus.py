@@ -1,4 +1,4 @@
-from __future__ import annotations
+from future import annotations
 import json
 from pathlib import Path
 import numpy as np
@@ -9,22 +9,34 @@ DATASETS = [
     {
         "path": "real-data/sunspots_full.csv",
         "role": "primary_real",
+        "independent": True,
+        "derived_from": None,
     },
     {
+    # This file is generated from sunspots_full.csv.
+    # It MUST NOT count as an independent real domain.
         "path": "real-data/sunspots_global_extended.csv",
-        "role": "real_auxiliary",
+        "role": "derived_real_control",
+        "independent": False,
+        "derived_from": "real-data/sunspots_full.csv",
     },
     {
         "path": "real-data/white_noise.csv",
         "role": "null_white",
+        "independent": False,
+        "derived_from": None,
     },
     {
         "path": "real-data/random_walk.csv",
         "role": "null_random_walk",
+        "independent": False,
+        "derived_from": None,
     },
     {
         "path": "real-data/shuffled_sunspots.csv",
         "role": "null_shuffle",
+        "independent": False,
+        "derived_from": "real-data/sunspots_global_extended.csv",
     },
 ]
 
@@ -34,23 +46,21 @@ OUTPUT = Path(
 
 def evaluate_dataset(spec):
     path = spec["path"]
-
     entry = {
         "dataset": path,
         "role": spec["role"],
+        "independent": bool(spec["independent"]),
+        "derived_from": spec["derived_from"],
         "valid": False,
         "alpha": None,
     }
 
     try:
         series = load_numeric_series(path)
-
         alpha = estimate_alpha(series)
 
         if not np.isfinite(alpha):
-            raise ValueError(
-                "alpha is not finite"
-            )
+            raise ValueError("alpha is not finite")
 
         entry["valid"] = True
         entry["rows"] = int(len(series))
@@ -68,16 +78,19 @@ def main():
     ]
 
     real_results = [
-        r for r in results
+        r
+        for r in results
         if r["role"] in {
             "primary_real",
-            "real_auxiliary",
+            "independent_real",
         }
         and r["valid"]
+        and r["independent"]
     ]
 
     null_results = [
-        r for r in results
+        r
+        for r in results
         if r["role"].startswith("null_")
         and r["valid"]
     ]
@@ -98,41 +111,42 @@ def main():
         dtype=np.float64,
     )
 
+    independent_real_domains = len(real_alphas)
     summary = {
         "status": "evaluated",
-        "datasets": results,
-        "valid_real_domains": int(
-            len(real_alphas)
-        ),
-        "valid_null_controls": int(
-            len(null_alphas)
-        ),
-        "real_domain_std": (
-            float(np.std(real_alphas))
-            if len(real_alphas) >= 2
-            else None
-        ),
-        "null_control_std": (
-            float(np.std(null_alphas))
-            if len(null_alphas) >= 2
-            else None
-        ),
-        "real_domain_consensus": (
-            bool(
-                len(real_alphas) >= 2
-                and
-                np.std(real_alphas) <= 1.8
-            )
-        ),
-        "null_controls_available": bool(
-            len(null_alphas) >= 1
-        ),
-        "interpretation": (
-            "real-domain replication requires "
-            "at least two independent real datasets; "
-            "shuffle and synthetic controls are not "
-            "counted as independent domains"
-        ),
+         "datasets": results,
+         "valid_real_domains": int(
+             independent_real_domains
+         ),
+         "valid_null_controls": int(
+             len(null_alphas)
+         ),
+         "real_domain_std": (
+             float(np.std(real_alphas))
+             if independent_real_domains >= 2
+             else None
+         ),
+         "null_control_std": (
+             float(np.std(null_alphas))
+             if len(null_alphas) >= 2
+             else None
+         ),
+         "real_domain_consensus": bool(
+             independent_real_domains >= 2
+             and np.std(real_alphas) <= 1.2
+         ),
+         "null_controls_available": bool(
+             len(null_alphas) >= 1
+         ),
+         "independent_real_replication_required": True,
+         "independent_real_replication_complete": bool(
+             independent_real_domains >= 2
+         ),
+         "interpretation": (
+             "Only genuinely independent real datasets count "
+             "toward cross-domain replication. Derived, shuffled, "
+             "synthetic, and null datasets do not count."
+         ),
     }
 
     OUTPUT.parent.mkdir(
@@ -156,12 +170,12 @@ def main():
         )
     )
 
-    if len(real_alphas) < 2:
+    if independent_real_domains < 2:
         print(
-            "⚠️ Real-domain replication incomplete."
+            "⚠️ Independent real-domain replication incomplete."
         )
         print(
-            "ℹ️ Controls are not counted as independent domains."
+            "ℹ️ Derived and control datasets are explicitly excluded."
         )
 
     if len(null_alphas) == 0:
@@ -170,17 +184,17 @@ def main():
         )
 
     if (
-        len(real_alphas) >= 2
+        independent_real_domains >= 2
         and
-        np.std(real_alphas) > 1.8
+        np.std(real_alphas) > 1.2
     ):
         raise SystemExit(
-            "❌ Real-domain dispersion too high"
+            "❌ Independent real-domain dispersion too high"
         )
 
     print(
         "✅ canonical consensus evaluated"
     )
 
-if __name__ == "__main__":
+if name == "main":
     main()
