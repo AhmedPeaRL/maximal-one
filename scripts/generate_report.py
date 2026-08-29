@@ -524,13 +524,34 @@ def main():
             validation_delta=validation_delta,
             falsification_delta=falsification_delta
         )
+        
+        from pathlib import Path
+
+        canonical_consensus_path = Path(
+            "artifacts/canonical_consensus.json"
+        )
+
+        if canonical_consensus_path.exists():
+            with canonical_consensus_path.open(
+                "r",
+                encoding="utf-8"
+            ) as f:
+                canonical_consensus = json.load(f)
+        else:
+            canonical_consensus = {
+                "valid_real_domains": 0
+            }
 
         consensus = consensus_check(
             alpha_fft,
             alpha_welch,
             stats["p_value"],
             scale_test["dispersion"],
-            fusion["evidence_score"]
+            fusion["evidence_score"],
+            independent_real_domains=canonical_consensus.get(
+                "valid_real_domains",
+                0
+            )
         )
 
         from analysis.sovereign_inference_engine import SovereignInferenceEngine
