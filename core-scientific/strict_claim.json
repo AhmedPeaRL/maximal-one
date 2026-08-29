@@ -1,11 +1,11 @@
 {
   "title": "Constrained Spectral Persistence Hypothesis",
-
-  "statement": "Deterministic spectral persistence signatures emerge reproducibly across selected heterogeneous temporal datasets and remain distinguishable from trivial stochastic null models under constrained validation.",
+  "statement": "A reproducible spectral persistence signature is hypothesized to occur in selected heterogeneous temporal datasets and to remain distinguishable from appropriately specified stochastic null models under preregistered validation. The hypothesis remains unestablished until statistical null rejection and independent real-domain replication are demonstrated.",
 
   "dataset": {
     "primary": "sunspots_global",
     "secondary_required": true,
+    "independent_real_domain_required": true,
     "adversarial_rejection_required": true,
     "cross_domain_required": true
   },
@@ -17,6 +17,7 @@
       "bootstrap_estimation",
       "cross_domain_validation",
       "adversarial_filtering",
+      "independent_null_testing",
       "external_reproduction"
     ],
     "seed": 42,
@@ -28,17 +29,30 @@
     "preferred_band": [0.6, 2.2],
     "max_cross_domain_std": 1.2,
     "max_sigma": 0.85,
-    "max_method_delta": 0.5,
-    "min_separation_z": 2.5
+    "max_method_delta": 0.30,
+    "min_separation_z": 2.5,
+    "max_p_value": 0.05,
+    "min_independent_real_domains": 2
   },
 
   "falsification": {
-    "condition": "If alpha exits [0.05,3.0] OR sigma > 0.85 OR cross-domain std > 1.2 OR FFT/Welch disagreement > 0.5",
-    "action": "Mark system as falsified"
+    "condition": "If alpha exits [0.05,3.0] OR sigma > 0.85 OR independent cross-domain std > 1.2 OR FFT/Welch disagreement > 0.30 OR p_value > 0.05 when the claim is evaluated as supported OR fewer than 2 independent real domains are available for replication.",
+    "action": "Do not support the scientific claim; mark it under investigation or falsified according to the failed condition."
   },
 
   "externality": {
     "independent_replay_required": true,
     "fingerprint_match_required": true
+  },
+
+  "epistemic_status": {
+    "current_status": "under_investigation",
+    "support_requires": [
+      "null_rejection",
+      "independent_real_domain_replication",
+      "cross_method_agreement",
+      "cross_seed_reproducibility",
+      "adversarial_control"
+    ]
   }
 }
