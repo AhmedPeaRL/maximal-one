@@ -1,4 +1,4 @@
-from future import annotations
+from __future__ import annotations
 import json
 from pathlib import Path
 import numpy as np
@@ -196,5 +196,5 @@ def main():
         "✅ canonical consensus evaluated"
     )
 
-if name == "main":
+if __name__ == "__main__":
     main()
