@@ -50,8 +50,16 @@ def validate(
     
 def phase_surrogate_guard(
     original_alpha,
-    phase_alpha
+    phase_alpha,
+    tolerance=0.10,
 ):
+    """
+    Phase randomization preserves the Fourier amplitude spectrum.
+
+    Therefore alpha similarity is expected when alpha is a spectral
+    slope estimator. This is a diagnostic of estimator behavior,
+    NOT a falsification of the spectral-persistence hypothesis.
+    """
 
     if (
         not np.isfinite(original_alpha)
@@ -60,26 +68,27 @@ def phase_surrogate_guard(
     ):
         return {
             "passed": False,
-            "gap": None
+            "gap": None,
+            "interpretation": "invalid_result",
+            "evidence_role": "diagnostic_only",
         }
 
     gap = abs(
         float(original_alpha)
-        - float(phase_alpha)
+        -
+        float(phase_alpha)
     )
 
-    # Phase surrogate preserves PSD
-    # therefore alpha similarity is expected.
-
     return {
-        "passed": True,
+        "passed": bool(gap <= tolerance),
         "gap": float(round(gap, 8)),
         "interpretation": (
-            "PSD preserved"
-            if gap < 0.05
+            "PSD-consistent"
+            if gap <= tolerance
             else
-            "PSD altered"
-        )
+            "PSD-consistency deviation"
+        ),
+        "evidence_role": "diagnostic_only",
     }
     
 def block_shuffle_test(
