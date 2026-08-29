@@ -176,8 +176,10 @@ jobs:
                   results.append(alpha)
 
               if len(results) < 2:
-                  print("⚠️ Cross-domain weak — continuing with single-domain dominance")
-
+                  raise SystemExit(
+                      "❌ Independent real-domain replication incomplete"
+                  )
+                  
               print("✅ CROSS DOMAIN REAL PASSED")
 
               for file in sorted(os.listdir(DATA_DIR)):
