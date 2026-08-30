@@ -237,3 +237,50 @@ def generate_strong_null(
     raise ValueError(
         f"Unknown null mode: {mode}"
     )
+
+def permutation_null(
+    series,
+    rng,
+):
+    """
+    Distribution-preserving permutation null.
+
+    Preserves the observed marginal values while destroying
+    their temporal ordering and therefore temporal dependence.
+
+    This is appropriate for testing whether the observed
+    spectral persistence exceeds what would be expected from
+    exchangeable observations with the same value distribution.
+    """
+
+    x = np.asarray(
+        series,
+        dtype=np.float64,
+    )
+
+    if x.ndim != 1:
+        raise ValueError(
+            "series must be one-dimensional"
+        )
+
+    if len(x) < 256:
+        raise ValueError(
+            "series too short for permutation null"
+        )
+
+    if not np.all(np.isfinite(x)):
+        raise ValueError(
+            "series contains non-finite values"
+        )
+
+    surrogate = np.array(
+        x,
+        dtype=np.float64,
+        copy=True,
+    )
+
+    rng.shuffle(surrogate)
+
+    return _normalize(
+        surrogate
+    )
