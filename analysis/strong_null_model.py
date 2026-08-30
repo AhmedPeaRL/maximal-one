@@ -1,127 +1,239 @@
+from __future__ import annotations
 import numpy as np
+
+def _normalize(x):
+    x = np.asarray(
+        x,
+        dtype=np.float64,
+    )
+
+    x = x - np.mean(x)
+
+    std = np.std(x)
+
+    if std < 1e-12:
+        return np.zeros_like(x)
+
+    return x / std
 
 def white_null(n, rng):
     x = rng.standard_normal(n)
-
-    x = x - np.mean(x)
-    x = x / (np.std(x) + 1e-12)
-
-    return x.astype(np.float64)
+    return _normalize(x)
 
 def random_walk_null(n, rng):
     x = np.cumsum(
         rng.standard_normal(n)
     )
 
-    x = x - np.mean(x)
-    x = x / (np.std(x) + 1e-12)
+    return _normalize(x)
 
-    return x.astype(np.float64)
+def ar1_null(n, rng, phi=0.5):
+    phi = float(phi)
 
-def phase_surrogate_null(n, rng):
-    wn = rng.standard_normal(n)
-
-    fft = np.fft.rfft(wn)
-
-    phase = rng.uniform(
-        0,
-        2*np.pi,
-        len(fft)
-    )
-
-    phase[0] = 0.0
-
-    x = np.fft.irfft(
-        np.abs(fft) * np.exp(1j * phase),
-        n=n
-    )
-
-    x = x - np.mean(x)
-    x = x / (np.std(x) + 1e-12)
-
-    return x.astype(np.float64)
-
-def ar1_null(n, rng, phi=None):
-    if phi is None:
-        phi = rng.uniform(
-            0.2,
-            0.8
+    if not (-0.99 < phi < 0.99):
+        raise ValueError(
+            "AR1 phi must be inside (-0.99, 0.99)"
         )
 
-    x = np.zeros(n, dtype=np.float64)
+    x = np.zeros(
+        n,
+        dtype=np.float64,
+    )
 
     eps = rng.standard_normal(n)
 
-    for i in range(1, n):
-        x[i] = phi * x[i - 1] + eps[i]
-
-    x = (x - np.mean(x)) / (np.std(x) + 1e-12)
-
-    return x
-
-def block_shuffle_null(n, rng):
-    x = rng.standard_normal(n)
-
-    block = rng.integers(
-        16,
-        64
+    innovation_scale = np.sqrt(
+        max(
+            1.0 - phi * phi,
+            1e-12,
+        )
     )
 
-    chunks = [
-        x[i:i+block]
+    for i in range(1, n):
+        x[i] = (
+            phi * x[i - 1]
+            + innovation_scale * eps[i]
+        )
+
+    return _normalize(x)
+
+def block_shuffle_null(
+    series,
+    rng,
+    block_size=32,
+):
+    """
+    Shuffle blocks of the observed series.
+
+    This preserves local within-block structure while
+    destroying long-range ordering.
+    """
+
+    x = np.asarray(
+        series,
+        dtype=np.float64,
+    ).copy()
+
+    n = len(x)
+
+    if n < block_size * 2:
+        return _normalize(x[::-1])
+
+    blocks = [
+        x[i:i + block_size]
         for i in range(
             0,
             n,
-            block
+            block_size,
         )
     ]
 
-    rng.shuffle(chunks)
+    rng.shuffle(blocks)
 
-    x = np.concatenate(chunks)
-
-    x = (
-        x - np.mean(x)
-    ) / (
-        np.std(x) + 1e-12
+    return _normalize(
+        np.concatenate(blocks)[:n]
     )
 
-    return x.astype(
-        np.float64
+def phase_surrogate_null(
+    series,
+    rng,
+):
+    """
+    Fourier phase-randomized surrogate.
+
+    Crucially, the amplitude spectrum is taken from
+    the OBSERVED series, not from independent white noise.
+
+    Therefore the surrogate approximately preserves the
+    observed power spectrum while destroying Fourier phase
+    relationships.
+    """
+
+    x = np.asarray(
+        series,
+        dtype=np.float64,
     )
 
-def pink_noise_null(n, rng):
-    x = rng.standard_normal(n)
+    if x.ndim != 1:
+        raise ValueError(
+            "series must be one-dimensional"
+        )
+
+    if len(x) < 256:
+        raise ValueError(
+            "series too short for phase surrogate"
+        )
+
+    x = x - np.mean(x)
 
     fft = np.fft.rfft(x)
 
-    freqs = np.fft.rfftfreq(n)
+    magnitude = np.abs(fft)
 
-    freqs[0] = freqs[1]
-
-    fft = fft / np.sqrt(freqs)
-
-    x = np.fft.irfft(fft, n=n)
-
-    x = (
-        x - np.mean(x)
-    ) / (
-        np.std(x) + 1e-12
+    phase = rng.uniform(
+        0.0,
+        2.0 * np.pi,
+        len(fft),
     )
 
-    return x.astype(np.float64)
+    # Preserve DC component.
+    phase[0] = 0.0
 
-def generate_strong_null(n, rng):
-    p = rng.random()
+    # For even n, Nyquist component must remain real.
+    if len(x) % 2 == 0:
+        phase[-1] = 0.0
 
-    if p < 0.25:
+    surrogate_fft = (
+        magnitude
+        * np.exp(1j * phase)
+    )
+
+    surrogate = np.fft.irfft(
+        surrogate_fft,
+        n=len(x),
+    )
+
+    return _normalize(surrogate)
+
+def generate_strong_null(
+    n,
+    rng,
+    mode="mixed",
+    observed_series=None,
+):
+    """
+    Generate null data.
+
+    mode:
+      - white
+      - ar1
+      - random_walk
+      - block_shuffle
+      - phase
+      - mixed
+
+    The mixed mode is a robustness ensemble and MUST NOT
+    be interpreted as a single uniquely defined null
+    hypothesis.
+    """
+
+    if mode == "white":
         return white_null(n, rng)
 
-    elif p < 0.50:
+    if mode == "ar1":
         return ar1_null(n, rng)
 
-    elif p < 0.75:
-        return block_shuffle_null(n, rng)
+    if mode == "random_walk":
+        return random_walk_null(n, rng)
 
-    else:
-        return pink_noise_null(n, rng)
+    if mode == "block_shuffle":
+        if observed_series is None:
+            raise ValueError(
+                "observed_series required for block_shuffle"
+            )
+
+        return block_shuffle_null(
+            observed_series,
+            rng,
+        )
+
+    if mode == "phase":
+        if observed_series is None:
+            raise ValueError(
+                "observed_series required for phase surrogate"
+            )
+
+        return phase_surrogate_null(
+            observed_series,
+            rng,
+        )
+
+    if mode == "mixed":
+        p = rng.random()
+
+        if p < 0.25:
+            return white_null(n, rng)
+
+        if p < 0.50:
+            return ar1_null(n, rng)
+
+        if p < 0.75:
+            if observed_series is not None:
+                return block_shuffle_null(
+                    observed_series,
+                    rng,
+                )
+
+            return random_walk_null(n, rng)
+
+        if observed_series is not None:
+            return phase_surrogate_null(
+                observed_series,
+                rng,
+            )
+
+        return white_null(n, rng)
+
+    raise ValueError(
+        f"Unknown null mode: {mode}"
+    )
