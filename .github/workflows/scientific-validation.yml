@@ -287,7 +287,7 @@ jobs:
               estimate_alpha
           )
           from analysis.independent_validation import (
-              core_alpha_estimation
+              periodogram_alpha_estimation
           )
 
           def generate_adversarial_signal(n=1000):
@@ -377,7 +377,7 @@ jobs:
               col = "Sunspots" if "Sunspots" in real_df.columns else "value"
               real_series = real_df[col].values
               r_fft = estimate_alpha(real_series)
-              r_welch = core_alpha_estimation(real_series)
+              r_welch = periodogram_alpha_estimation(real_series)
               
               print(f"=== REAL DATA ===\nFFT: {r_fft}\nWelch: {r_welch}")
               
@@ -442,7 +442,6 @@ jobs:
         run: python scripts/canonical_consensus.py
 
       - name: Run canonical experiment ONLY
-        continue-on-error: true
         run: |
           python scripts/generate_report.py --seed 42 --canonical
 
