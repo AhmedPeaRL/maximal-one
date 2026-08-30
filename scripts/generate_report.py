@@ -347,7 +347,24 @@ def main():
                 stats_rng
             )
         )
+        null_rejected = bool(
+            stats["valid"]
+            and
+            stats["p_value"] <= 0.05
+        )
 
+        if not null_rejected:
+            print(
+                "⚠️ Spectral surrogate null NOT rejected."
+            )
+            print(
+                "ℹ️ This result cannot be presented as statistically significant evidence."
+            )
+        else:
+            print(
+                "✅ Spectral surrogate null rejected at alpha=0.05."
+            )
+            
         for key, value in falsification.items():
             if not np.isfinite(value):
                 raise SystemExit(f"❌ Invalid falsification metric: {key}")
@@ -429,40 +446,63 @@ def main():
             for k, v in falsification.items()
         }
 
-        from analysis.strong_null_model import generate_strong_null
-        from analysis.separation_test import separation_score
+        from analysis.strong_null_model import (
+            phase_surrogate_null,
+        )
+        from analysis.separation_test import (
+            separation_score,
+        )
 
         null_samples = []
 
         for _ in range(400):
-            sample = generate_strong_null(
-                len(series),
-                stats_rng
+            sample = phase_surrogate_null(
+                series,
+                stats_rng,
             )
 
-            alpha_null = estimate_alpha(sample)
-            if np.isfinite(alpha_null):
-                null_samples.append(sample)
+            alpha_null = estimate_alpha(
+                sample
+            )
 
-        sep = separation_score(series, null_samples)
+            if np.isfinite(alpha_null):
+                null_samples.append(
+                    sample
+                )
+
+        sep = separation_score(
+            series,
+            null_samples,
+        )
+
+        null_alpha_values = [
+            estimate_alpha(s)
+            for s in null_samples
+        ]
+
+        null_alpha_values = [
+            x
+            for x in null_alpha_values
+            if np.isfinite(x)
+        ]
 
         print(
             "NULL STD:",
-            np.std([
-                estimate_alpha(s)
-                for s in null_samples
-            ])
+            np.std(null_alpha_values)
+            if null_alpha_values
+            else np.nan,
         )
 
         print("=== SEPARATION ===")
+
         with open(
             "core-scientific/strict_claim.json",
             "r",
-            encoding="utf-8"
+            encoding="utf-8",
         ) as f:
             strict_claim = json.load(f)
 
-        required_z = (
+        required_z = float(
             strict_claim
             ["expected_result"]
             ["min_separation_z"]
@@ -472,23 +512,23 @@ def main():
             print("SEP = None")
         else:
             for k, v in sep.items():
-                print(f"{k}: {v}")
+                print(
+                    f"{k}: {v}"
+                )
 
         if sep is not None:
             if (
-                sep["z_score"]
+                sep["alpha_z_score"]
                 <
                 required_z
             ):
                 raise SystemExit(
-                    f"❌ separation z-score too low: "
-                    f"{sep['z_score']:.3f}"
+                    "❌ separation z-score too low: "
+                    f"{sep['alpha_z_score']:.3f}"
                 )
 
             if (
                 sep["overlap_score"] > 0.95
-                and
-                sep["effect_size"] < 0.05
             ):
                 raise SystemExit(
                     "❌ excessive null overlap"
@@ -650,6 +690,7 @@ def main():
             },
             "statistical_test": stats,
             "separation_test": sep,
+            "null_rejected": null_rejected,
             "multi_scale_validation": scale_test,
             "cross_seed_validation": cross_seed,
             "cross_method_validation": {
