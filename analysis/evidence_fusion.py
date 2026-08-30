@@ -15,6 +15,28 @@ def bounded(x):
         )
     )
 
+def significance_score(p_value):
+    """
+    Converts statistical significance into a bounded evidence
+    component.
+
+    p > 0.05 contributes zero positive significance evidence.
+    This prevents failure to reject the null from being interpreted
+    as positive evidence.
+    """
+
+    if not np.isfinite(p_value):
+        return 0.0
+
+    if p_value >= 0.05:
+        return 0.0
+
+    return bounded(
+        1.0 - (
+            p_value / 0.05
+        )
+    )
+
 def evidence_fusion(
     alpha_delta,
     p_value,
@@ -22,13 +44,13 @@ def evidence_fusion(
     validation_delta,
     falsification_delta
 ):
-
+    
     alpha_score = bounded(
         alpha_delta / 0.50
     )
 
-    p_score = bounded(
-        1.0 - p_value
+    p_score = significance_score(
+        p_value
     )
 
     scale_score = bounded(
@@ -54,15 +76,30 @@ def evidence_fusion(
     )
 
     return {
-        "alpha_score": float(alpha_score),
-        "p_score": float(p_score),
-        "scale_score": float(scale_score),
-        "validation_score": float(validation_score),
+        "alpha_score": float(
+            alpha_score
+        ),
+        "p_score": float(
+            p_score
+        ),
+        "scale_score": float(
+            scale_score
+        ),
+        "validation_score": float(
+            validation_score
+        ),
         "falsification_score": float(
             falsification_score
         ),
-        "evidence_score": float(score),
+        "evidence_score": float(
+            score
+        ),
         "structure_detected": bool(
             score >= 0.65
-        )
+        ),
+        "significance_supported": bool(
+            np.isfinite(p_value)
+            and
+            p_value < 0.05
+        ),
     }
