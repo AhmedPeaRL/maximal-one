@@ -1,16 +1,13 @@
 import numpy as np
-
 from analysis.independent_validation import (
-    core_alpha_estimation
+    periodogram_alpha_estimation
 )
-
 from analysis.numerical_spectral_verification import (
     estimate_alpha,
     block_bootstrap
 )
 
 BOOTSTRAP_ITERATIONS = 128
-
 
 def bootstrap_alpha(
     series,
@@ -64,9 +61,7 @@ def bootstrap_alpha(
         "count": int(len(estimates))
     }
 
-
 def dual_bootstrap(series):
-
     rng = np.random.default_rng(42)
 
     fft_conf = block_bootstrap(
@@ -78,7 +73,7 @@ def dual_bootstrap(series):
 
     welch_conf = bootstrap_alpha(
         series,
-        core_alpha_estimation
+        periodogram_alpha_estimation
     )
 
     return {
