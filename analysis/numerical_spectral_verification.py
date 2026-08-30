@@ -1,118 +1,26 @@
+from __future__ import annotations
 import numpy as np
 from scipy.signal import welch
-from scipy.ndimage import uniform_filter1d
-
-np.set_printoptions(precision=15)
 
 FREEZE_DECIMALS = 8
 
 def f(x):
     return float(np.round(float(x), FREEZE_DECIMALS))
 
-def robust_local_slopes(
-    log_f,
-    log_psd,
-    window=7
-):
-
-    slopes = []
-
-    n = len(log_f)
-
-    if n < (window + 3):
-        return np.nan
-
-    for i in range(n - window):
-
-        x = np.asarray(
-            log_f[i:i + window],
-            dtype=np.float64
-        )
-
-        y = np.asarray(
-            log_psd[i:i + window],
-            dtype=np.float64
-        )
-
-        if (
-            not np.all(np.isfinite(x))
-            or not np.all(np.isfinite(y))
-        ):
-            continue
-
-        if np.std(y) < 1e-6:
-            continue
-
-        try:
-
-            coeffs = np.polyfit(
-                x,
-                y,
-                1
-            )
-
-            slope = f(coeffs[0])
-
-        except Exception:
-            continue
-
-        if np.isfinite(slope):
-            slopes.append(slope)
-
-    slopes = np.asarray(
-        slopes,
-        dtype=np.float64
-    )
-
-    if len(slopes) < 8:
-        return np.nan
-
-    slopes = np.round(
-        slopes,
-        FREEZE_DECIMALS
-    )
-
-    median = f(np.median(slopes))
-
-    mad = f(
-        np.median(
-            np.abs(slopes - median)
-        ) + 1e-12
-    )
-
-    filtered = slopes[
-        np.abs(slopes - median)
-        < 2.5 * mad
-    ]
-
-    if len(filtered) < 4:
-        filtered = slopes
-
-    filtered = np.round(
-        filtered,
-        FREEZE_DECIMALS
-    )
-
-    q1 = f(
-        np.percentile(filtered, 25)
-    )
-
-    q3 = f(
-        np.percentile(filtered, 75)
-    )
-
-    core = filtered[
-        (filtered >= q1)
-        & (filtered <= q3)
-    ]
-
-    if len(core) < 4:
-        core = filtered
-
-    return f(np.mean(core))
-
 def estimate_alpha(series):
+    """
+    Estimate spectral exponent alpha from a PSD power-law region.
+
+    IMPORTANT:
+    This function measures alpha.
+    It does NOT clip, force, or otherwise alter a valid estimate
+    to make it fit an expected scientific range.
+    """
+
     series = np.asarray(series, dtype=np.float64)
+
+    if series.ndim != 1:
+        return np.nan
 
     if len(series) < 256:
         return np.nan
@@ -123,127 +31,174 @@ def estimate_alpha(series):
     if np.std(series) < 1e-8:
         return np.nan
 
-    # 🔥 remove mean
     series = series - np.mean(series)
 
-    # integration diagnostic only
-    diff_std = np.std(np.diff(series))
-    raw_std = np.std(series)
-    integration_ratio = raw_std / (
-        diff_std + 1e-12
-    )
-    # retained for diagnostics only
-    # no adaptive alpha override
-    # normalize
     std = np.std(series)
+
     if std < 1e-12:
         return np.nan
 
     series = series / std
 
+    nperseg = min(256, len(series) // 2)
+
+    if nperseg < 128:
+        return np.nan
+
     freqs, psd = welch(
         series,
-        nperseg=min(256, len(series)//2),
+        nperseg=nperseg,
         window="hann",
         detrend="linear",
-        scaling="density"
+        scaling="density",
     )
 
     mask = (
         (freqs > 0.01)
         & (freqs < 0.25)
+        & np.isfinite(freqs)
         & np.isfinite(psd)
         & (psd > 0)
     )
 
     freqs = freqs[mask]
     psd = psd[mask]
+
     if len(freqs) < 20:
         return np.nan
 
     log_f = np.log(freqs)
     log_psd = np.log(psd)
 
+    if not (
+        np.all(np.isfinite(log_f))
+        and np.all(np.isfinite(log_psd))
+    ):
+        return np.nan
+
     try:
-        coeffs = np.polyfit(log_f, log_psd, 1)
-        slope = coeffs[0]
+        coeffs = np.polyfit(
+            log_f,
+            log_psd,
+            1,
+        )
     except Exception:
         return np.nan
 
-    alpha = float(-slope)
+    slope = float(coeffs[0])
+
+    if not np.isfinite(slope):
+        return np.nan
+
+    alpha = -slope
+
     if not np.isfinite(alpha):
         return np.nan
 
-    # numerical tolerance zone
+    # Tiny negative numerical excursions may be treated as zero.
     if alpha < 0:
         if alpha > -0.20:
             alpha = 0.0
         else:
             return np.nan
 
-    alpha = min(alpha, 3.0)
+    # NO SCIENTIFIC CLIPPING.
+    return f(alpha)
 
-    return float(alpha)
-    
 def block_bootstrap(
     series,
     rng,
     block_size=None,
-    num_boot=100
+    num_boot=100,
 ):
+    series = np.asarray(
+        series,
+        dtype=np.float64,
+    )
+
+    if series.ndim != 1:
+        return {
+            "mean": np.nan,
+            "std": np.nan,
+            "ci_low": np.nan,
+            "ci_high": np.nan,
+        }
+
+    n = len(series)
+
+    if n < 256:
+        return {
+            "mean": np.nan,
+            "std": np.nan,
+            "ci_low": np.nan,
+            "ci_high": np.nan,
+        }
+
+    if not np.all(np.isfinite(series)):
+        return {
+            "mean": np.nan,
+            "std": np.nan,
+            "ci_low": np.nan,
+            "ci_high": np.nan,
+        }
 
     if block_size is None:
         block_size = max(
-            256,
-            len(series)//12
+            64,
+            n // 12,
         )
         block_size = min(
             block_size,
-            len(series)//2
+            n // 2,
         )
 
-    series = np.asarray(
-        series,
-        dtype=np.float64
-    )
-
-    n = len(series)
+    if block_size < 8:
+        return {
+            "mean": np.nan,
+            "std": np.nan,
+            "ci_low": np.nan,
+            "ci_high": np.nan,
+        }
 
     alphas = []
 
     for _ in range(num_boot):
-
         sample = []
 
         while len(sample) < n:
+            max_start = n - block_size
 
-            start = rng.integers(
-                0,
-                n - block_size
-            )
+            if max_start <= 0:
+                start = 0
+            else:
+                start = int(
+                    rng.integers(
+                        0,
+                        max_start + 1,
+                    )
+                )
 
             block = series[
                 start:start + block_size
             ]
 
-            sample.extend(block)
+            sample.extend(block.tolist())
 
         sample = np.asarray(
             sample[:n],
-            dtype=np.float64
+            dtype=np.float64,
         )
-
-        if len(sample) < 256:
-            sample = np.pad(sample, (0, 256-len(sample)), mode='reflect')
 
         alpha = estimate_alpha(sample)
 
         if np.isfinite(alpha):
-            alphas.append(f(alpha))
+            alphas.append(
+                f(alpha)
+            )
 
     alphas = np.asarray(
         alphas,
-        dtype=np.float64
+        dtype=np.float64,
     )
 
     if len(alphas) < 8:
@@ -251,12 +206,12 @@ def block_bootstrap(
             "mean": np.nan,
             "std": np.nan,
             "ci_low": np.nan,
-            "ci_high": np.nan
+            "ci_high": np.nan,
         }
 
     return {
         "mean": f(np.mean(alphas)),
         "std": f(np.std(alphas)),
         "ci_low": f(np.percentile(alphas, 2.5)),
-        "ci_high": f(np.percentile(alphas, 97.5))
+        "ci_high": f(np.percentile(alphas, 97.5)),
     }
