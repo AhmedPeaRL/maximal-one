@@ -412,7 +412,7 @@ jobs:
                   adv,
                   nulls
               )
-              a_fft, a_welch = estimate_alpha(adv),core_alpha_estimation(adv)
+              a_fft, a_welch = estimate_alpha(adv),periodogram_alpha_estimation(adv)
               print(f"\n=== ADVERSARIAL DATA ===\nFFT: {a_fft}\nWelch: {a_welch}")
               
               p_score = persistence_score(adv)
