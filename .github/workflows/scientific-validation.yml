@@ -438,6 +438,9 @@ jobs:
               run_test()
           PY
 
+      - name: Canonical Cross-Domain Consensus
+        run: python scripts/canonical_consensus.py
+
       - name: Run canonical experiment ONLY
         continue-on-error: true
         run: |
@@ -871,9 +874,6 @@ jobs:
 
           print("✅ Prediction:", res)
           PY
-
-      - name: Canonical Cross-Domain Consensus
-        run: python scripts/canonical_consensus.py
           
       - name: Cross-domain band guard
         run: |
