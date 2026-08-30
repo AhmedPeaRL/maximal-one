@@ -4,7 +4,7 @@ from analysis.numerical_spectral_verification import (
     estimate_alpha,
 )
 from analysis.strong_null_model import (
-    phase_surrogate_null,
+    permutation_null,
 )
 
 def monte_carlo_p_value(
@@ -14,28 +14,34 @@ def monte_carlo_p_value(
     trials=5000,
 ):
     """
-    One-sided Monte Carlo test against phase-randomized
-    surrogates of the OBSERVED series.
+    One-sided Monte Carlo test against permutation nulls.
 
-    Null hypothesis:
-        The observed series' spectral magnitude is compatible
-        with randomized Fourier phases.
+    Primary null hypothesis:
 
-    This is a spectral-surrogate test.
+        The temporal ordering of the observed values does not
+        provide spectral persistence beyond what is expected
+        under exchangeability.
 
-    It does NOT establish:
+    The permutation null preserves the observed marginal
+    distribution while destroying temporal ordering.
+
+    This test does NOT establish:
         - causality
         - consciousness
         - a physical field
         - HCM correctness
 
-    It only tests whether the observed alpha is unusual
-    under this explicitly defined surrogate construction.
+    It tests only the specified spectral-persistence hypothesis
+    under the permutation null.
     """
 
     series = np.asarray(
         series,
         dtype=np.float64,
+    )
+
+    observed_alpha = float(
+        observed_alpha
     )
 
     if len(series) < 256:
@@ -46,7 +52,8 @@ def monte_carlo_p_value(
             "p_value_upper_bound": 1.0,
             "null_samples": 0,
             "exceedances": None,
-            "observed_alpha": float(observed_alpha),
+            "observed_alpha": observed_alpha,
+            "null_model": "permutation",
         }
 
     if not np.all(np.isfinite(series)):
@@ -57,13 +64,28 @@ def monte_carlo_p_value(
             "p_value_upper_bound": 1.0,
             "null_samples": 0,
             "exceedances": None,
-            "observed_alpha": float(observed_alpha),
+            "observed_alpha": observed_alpha,
+            "null_model": "permutation",
+        }
+
+    if not np.isfinite(observed_alpha):
+        return {
+            "valid": False,
+            "reason": "invalid_observed_alpha",
+            "p_value": 1.0,
+            "p_value_upper_bound": 1.0,
+            "null_samples": 0,
+            "exceedances": None,
+            "observed_alpha": observed_alpha,
+            "null_model": "permutation",
         }
 
     null_alphas = []
 
-    for _ in range(trials):
-        surrogate = phase_surrogate_null(
+    for _ in range(
+        int(trials)
+    ):
+        surrogate = permutation_null(
             series,
             rng,
         )
@@ -84,10 +106,12 @@ def monte_carlo_p_value(
 
     m = len(null_alphas)
 
-    if m < max(
+    minimum_valid = max(
         100,
         int(0.80 * trials),
-    ):
+    )
+
+    if m < minimum_valid:
         return {
             "valid": False,
             "reason": "insufficient_valid_surrogates",
@@ -95,10 +119,11 @@ def monte_carlo_p_value(
             "p_value_upper_bound": 1.0,
             "null_samples": int(m),
             "exceedances": None,
-            "observed_alpha": float(observed_alpha),
+            "observed_alpha": observed_alpha,
             "filtered_fraction": float(
                 m / max(trials, 1)
             ),
+            "null_model": "permutation",
         }
 
     exceedances = int(
@@ -107,6 +132,7 @@ def monte_carlo_p_value(
         )
     )
 
+    # +1 correction prevents an artificial p=0.
     p_value = float(
         (exceedances + 1.0)
         /
@@ -132,9 +158,7 @@ def monte_carlo_p_value(
     return {
         "valid": True,
         "reason": None,
-        "observed_alpha": float(
-            observed_alpha
-        ),
+        "observed_alpha": observed_alpha,
         "null_mean": float(
             np.mean(null_alphas)
         ),
@@ -152,17 +176,11 @@ def monte_carlo_p_value(
         "exceedances": int(
             exceedances
         ),
-        "p_value": float(
-            p_value
-        ),
-        "p_value_upper_bound": float(
-            p_upper
-        ),
+        "p_value": p_value,
+        "p_value_upper_bound": p_upper,
         "null_samples": int(m),
         "filtered_fraction": float(
             m / max(trials, 1)
         ),
-        "null_model": (
-            "phase_randomized_observed_series"
-        ),
+        "null_model": "permutation",
     }
