@@ -4,7 +4,7 @@ from analysis.numerical_spectral_verification import (
     estimate_alpha
 )
 from analysis.independent_validation import (
-    core_alpha_estimation
+    periodogram_alpha_estimation
 )
 
 def generate_adversarial_signal(n=1000):
@@ -50,7 +50,7 @@ def run_test():
     col = "Sunspots" if "Sunspots" in real_df.columns else "value"
     real_series = real_df[col].values
     r_fft = estimate_alpha(real_series)
-    r_welch = core_alpha_estimation(real_series)
+    r_welch = periodogram_alpha_estimation(real_series)
     
     print(f"=== REAL DATA ===\nFFT: {r_fft}\nWelch: {r_welch}")
     
@@ -86,7 +86,7 @@ def run_test():
         adv,
         nulls
     )
-    a_fft, a_welch = estimate_alpha(adv),core_alpha_estimation(adv)
+    a_fft, a_welch = estimate_alpha(adv),periodogram_alpha_estimation(adv)
     
     print(f"\n=== ADVERSARIAL DATA ===\nFFT: {a_fft}\nWelch: {a_welch}")
     
