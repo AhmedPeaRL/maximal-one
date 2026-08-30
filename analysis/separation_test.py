@@ -1,30 +1,67 @@
+from __future__ import annotations
 import numpy as np
 from scipy.signal import welch
 from scipy.stats import wasserstein_distance
 from analysis.numerical_spectral_verification import (
-    estimate_alpha
+    estimate_alpha,
 )
 
 def spectral_fingerprint(series):
+    series = np.asarray(
+        series,
+        dtype=np.float64,
+    )
+
+    if len(series) < 64:
+        return np.asarray(
+            [],
+            dtype=np.float64,
+        )
+
+    nperseg = min(
+        256,
+        len(series) // 2,
+    )
+
     freqs, psd = welch(
         series,
-        nperseg=min(
-            256,
-            len(series) // 2
+        nperseg=nperseg,
+        window="hann",
+        detrend="linear",
+        scaling="density",
+    )
+
+    mask = (
+        np.isfinite(freqs)
+        & np.isfinite(psd)
+        & (freqs > 0)
+        & (psd >= 0)
+    )
+
+    psd = psd[mask]
+
+    total = np.sum(psd)
+
+    if total <= 0:
+        return np.asarray(
+            [],
+            dtype=np.float64,
         )
-    )
 
-    psd = psd / (
-        np.sum(psd) + 1e-12
+    return (
+        psd / total
+    ).astype(
+        np.float64
     )
-
-    return psd.astype(np.float64)
 
 def fingerprint_distance(a, b):
     m = min(
         len(a),
-        len(b)
+        len(b),
     )
+
+    if m == 0:
+        return np.nan
 
     a = a[:m]
     b = b[:m]
@@ -39,33 +76,38 @@ def fingerprint_distance(a, b):
 
 def separation_score(
     real,
-    null_samples
+    null_samples,
 ):
-
     real_alpha = estimate_alpha(real)
 
-    real_fp = spectral_fingerprint(
-        real
-    )
+    if not np.isfinite(real_alpha):
+        return None
+
+    real_fp = spectral_fingerprint(real)
 
     null_alphas = []
     fp_distances = []
 
-    for s in null_samples:
+    for sample in null_samples:
+        alpha = estimate_alpha(sample)
 
-        alpha = estimate_alpha(s)
+        if not np.isfinite(alpha):
+            continue
 
-        if np.isfinite(alpha):
+        null_alphas.append(
+            float(alpha)
+        )
 
-            null_alphas.append(alpha)
+        fp = spectral_fingerprint(sample)
 
-            fp = spectral_fingerprint(s)
+        distance = fingerprint_distance(
+            real_fp,
+            fp,
+        )
 
+        if np.isfinite(distance):
             fp_distances.append(
-                fingerprint_distance(
-                    real_fp,
-                    fp
-                )
+                distance
             )
 
     if len(null_alphas) < 20:
@@ -73,41 +115,39 @@ def separation_score(
 
     null_alphas = np.asarray(
         null_alphas,
-        dtype=np.float64
+        dtype=np.float64,
     )
 
     fp_distances = np.asarray(
         fp_distances,
-        dtype=np.float64
+        dtype=np.float64,
     )
 
-    distribution_distance = wasserstein_distance(
-        null_alphas,
-        np.repeat(
-            real_alpha,
-            len(null_alphas)
+    median_null = float(
+        np.median(null_alphas)
+    )
+
+    q1 = float(
+        np.percentile(
+            null_alphas,
+            25,
         )
     )
 
-    median_null = np.median(
-        null_alphas
+    q3 = float(
+        np.percentile(
+            null_alphas,
+            75,
+        )
     )
 
-    q1 = np.percentile(
-        null_alphas,
-        25
-    )
-
-    q3 = np.percentile(
-        null_alphas,
-        75
-    )
-
-    iqr = q3 - q1 + 1e-12
-
-    mad = np.median(
-        np.abs(
-            null_alphas - median_null
+    mad = float(
+        np.median(
+            np.abs(
+                null_alphas
+                -
+                median_null
+            )
         )
     )
 
@@ -121,27 +161,10 @@ def separation_score(
         median_null
     )
 
-    alpha_effect = float(
-        gap /
-        (
-            robust_sigma + 1e-12
-        )
-    )
-
-    spectral_effect = float(
-        np.mean(
-            fp_distances
-        )
-    )
-
-    composite_effect = (
-        0.70 * alpha_effect
-        +
-        0.30 * spectral_effect
-    )
-
-    z_score = gap / (
-        robust_sigma + 1e-12
+    z_score = (
+        gap
+        /
+        robust_sigma
     )
 
     percentile_rank = float(
@@ -164,61 +187,62 @@ def separation_score(
         )
     )
 
-    relative_gap = gap / (
-        abs(
-            median_null
-        ) + 1e-12
+    relative_gap = (
+        gap
+        /
+        (
+            abs(median_null)
+            +
+            1e-12
+        )
+    )
+
+    distribution_distance = float(
+        wasserstein_distance(
+            null_alphas,
+            np.repeat(
+                real_alpha,
+                len(null_alphas),
+            ),
+        )
     )
 
     return {
-
-        "real_alpha":
-        float(real_alpha),
-
-        "null_median":
-        float(median_null),
-
-        "null_q1":
-        float(q1),
-
-        "null_q3":
-        float(q3),
-
-        "robust_sigma":
-        float(robust_sigma),
-
-        "gap":
-        float(gap),
-
-        "alpha_effect":
-        float(alpha_effect),
-
-        "spectral_effect":
-        float(spectral_effect),
-
-        "effect_size":
-        float(composite_effect),
-
-        "z_score":
-        float(z_score),
-
-        "relative_gap":
-        float(relative_gap),
-
-        "percentile_rank":
-        float(percentile_rank),
-
-        "overlap_score":
-        float(overlap_score),
-
-        "fingerprint_distance_mean":
-        float(spectral_effect),
-
-        "wasserstein_distance":
-        float(distribution_distance),
-
-        "null_count":
-        int(
+        "real_alpha": float(
+            real_alpha
+        ),
+        "null_median": float(
+            median_null
+        ),
+        "null_q1": q1,
+        "null_q3": q3,
+        "robust_sigma": float(
+            robust_sigma
+        ),
+        "gap": float(gap),
+        "alpha_z_score": float(
+            z_score
+        ),
+        "relative_gap": float(
+            relative_gap
+        ),
+        "percentile_rank": float(
+            percentile_rank
+        ),
+        "overlap_score": float(
+            overlap_score
+        ),
+        "fingerprint_distance_mean": (
+            float(
+                np.mean(fp_distances)
+            )
+            if len(fp_distances)
+            else np.nan
+        ),
+        "wasserstein_distance": (
+            distribution_distance
+        ),
+        "null_count": int(
             len(null_alphas)
-        )
+        ),
     }
