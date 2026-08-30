@@ -516,23 +516,36 @@ def main():
                     f"{k}: {v}"
                 )
 
-        if sep is not None:
-            if (
-                sep["alpha_z_score"]
-                <
-                required_z
-            ):
-                raise SystemExit(
-                    "❌ separation z-score too low: "
-                    f"{sep['alpha_z_score']:.3f}"
+        separation_support = True
+        separation_diagnostics = []
+
+        if sep is None:
+            separation_support = False
+            separation_diagnostics.append(
+                "separation_unavailable"
+            )
+        else:
+            if sep["alpha_z_score"] < required_z:
+                separation_support = False
+                separation_diagnostics.append(
+                    "separation_z_below_threshold"
                 )
 
-            if (
-                sep["overlap_score"] > 0.95
-            ):
-                raise SystemExit(
-                    "❌ excessive null overlap"
+            if sep["overlap_score"] > 0.95:
+                separation_support = False
+                separation_diagnostics.append(
+                    "excessive_null_overlap"
                 )
+
+        print(
+            "Separation support:",
+            separation_support
+        )
+
+        print(
+            "Separation diagnostics:",
+            separation_diagnostics
+        )
 
         # 🔥 HARD ANTI-INFLATION GUARD
         if alpha > 2.5:
@@ -592,6 +605,24 @@ def main():
                 "valid_real_domains",
                 0
             )
+        )
+
+        claim_supported = bool(
+            consensus.get("passed", False)
+            and null_rejected
+            and separation_support
+            and np.isfinite(validation_delta)
+            and validation_delta <= 0.30
+            and cross_seed.get(
+                "seed_stable",
+                False
+            )
+        )
+
+        claim_status = (
+            "established"
+            if claim_supported
+            else "under_investigation"
         )
 
         from analysis.sovereign_inference_engine import SovereignInferenceEngine
@@ -689,6 +720,16 @@ def main():
                 "process_class": process_class
             },
             "statistical_test": stats,
+            "separation_support": {
+                "supported": bool(separation_support),
+                "required_z": float(required_z),
+                "observed_z": (
+                    float(sep["alpha_z_score"])
+                    if sep is not None
+                    else None
+                ),
+                "diagnostics": separation_diagnostics,
+            },
             "separation_test": sep,
             "null_rejected": null_rejected,
             "multi_scale_validation": scale_test,
@@ -710,26 +751,25 @@ def main():
                 )
             },
             "scientific_interpretation": {
-                "null_rejected":
-                    bool(stats["p_value"] <= 0.05),
-                "evidence_strength":
-                    (
-                        "strong"
-                        if stats["p_value"] <= 0.05
-                        else "weak"
-                    ),
-                "claim_status":
-                    (
-                        "established"
-                        if stats["p_value"] <= 0.05
-                        else "under_investigation"
-                    ),
-                "reproducibility":
-                    (
-                        "confirmed"
-                        if cross_seed.get("seed_stable", False)
-                        else "unconfirmed"
-                    )
+                "null_rejected": bool(null_rejected),
+
+                "evidence_strength": (
+                    "strong"
+                    if claim_supported
+                    else "insufficient_for_establishment"
+                ),
+
+                "claim_status": claim_status,
+
+                "reproducibility": (
+                    "confirmed"
+                    if cross_seed.get("seed_stable", False)
+                    else "unconfirmed"
+                ),
+
+                "claim_support_gate": bool(
+                    claim_supported
+                ),
             },
             "consensus_guard": consensus,
             "sovereign_layer": {
