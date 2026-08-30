@@ -1,68 +1,104 @@
 from __future__ import annotations
 import numpy as np
-from analysis.numerical_spectral_verification import estimate_alpha
-from analysis.strong_null_model import generate_strong_null
+from analysis.numerical_spectral_verification import (
+    estimate_alpha,
+)
+from analysis.strong_null_model import (
+    phase_surrogate_null,
+)
 
 def monte_carlo_p_value(
     series,
     observed_alpha,
     rng,
-    trials=50000,
+    trials=5000,
 ):
     """
-    Conservative Monte Carlo upper-tail test.
+    One-sided Monte Carlo test against phase-randomized
+    surrogates of the OBSERVED series.
 
-    The +1 correction prevents reporting p=0 from finite
-    Monte Carlo sampling.
+    Null hypothesis:
+        The observed series' spectral magnitude is compatible
+        with randomized Fourier phases.
 
-    IMPORTANT:
-    This test does not establish a causal or physical mechanism.
-    It only evaluates whether the observed alpha is unusual
-    under the specified null ensemble.
+    This is a spectral-surrogate test.
+
+    It does NOT establish:
+        - causality
+        - consciousness
+        - a physical field
+        - HCM correctness
+
+    It only tests whether the observed alpha is unusual
+    under this explicitly defined surrogate construction.
     """
 
-    n = len(series)
+    series = np.asarray(
+        series,
+        dtype=np.float64,
+    )
+
+    if len(series) < 256:
+        return {
+            "valid": False,
+            "reason": "series_too_short",
+            "p_value": 1.0,
+            "p_value_upper_bound": 1.0,
+            "null_samples": 0,
+            "exceedances": None,
+            "observed_alpha": float(observed_alpha),
+        }
+
+    if not np.all(np.isfinite(series)):
+        return {
+            "valid": False,
+            "reason": "non_finite_series",
+            "p_value": 1.0,
+            "p_value_upper_bound": 1.0,
+            "null_samples": 0,
+            "exceedances": None,
+            "observed_alpha": float(observed_alpha),
+        }
+
     null_alphas = []
 
     for _ in range(trials):
-        sample = generate_strong_null(
-            n,
-            rng
+        surrogate = phase_surrogate_null(
+            series,
+            rng,
         )
-        if len(sample) < 256:
-            sample = np.pad(
-                sample,
-                (0, 256 - len(sample)),
-                mode="reflect"
-            )
 
-        alpha = estimate_alpha(sample)
+        alpha = estimate_alpha(
+            surrogate
+        )
+
         if np.isfinite(alpha):
             null_alphas.append(
                 float(alpha)
             )
-            
+
     null_alphas = np.asarray(
         null_alphas,
-        dtype=np.float64
+        dtype=np.float64,
     )
 
-    if len(null_alphas) < 100:
+    m = len(null_alphas)
+
+    if m < max(
+        100,
+        int(0.80 * trials),
+    ):
         return {
-            "observed_alpha": float(observed_alpha),
-            "null_mean": np.nan,
-            "null_std": np.nan,
-            "null_median": np.nan,
-            "observed_gap": np.nan,
-            "exceedances": None,
+            "valid": False,
+            "reason": "insufficient_valid_surrogates",
             "p_value": 1.0,
             "p_value_upper_bound": 1.0,
-            "null_samples": int(len(null_alphas)),
+            "null_samples": int(m),
+            "exceedances": None,
+            "observed_alpha": float(observed_alpha),
             "filtered_fraction": float(
-                len(null_alphas) / max(trials, 1)
+                m / max(trials, 1)
             ),
-            "valid": False,
-            "reason": "insufficient_null_samples",
         }
 
     exceedances = int(
@@ -71,21 +107,16 @@ def monte_carlo_p_value(
         )
     )
 
-    m = len(null_alphas)
-
-    # Conservative finite-sample Monte Carlo estimate.
     p_value = float(
         (exceedances + 1.0)
         /
         (m + 1.0)
     )
 
-    # Simple conservative upper confidence bound
-    # using a normal approximation only as a diagnostic.
     se = np.sqrt(
         max(
             p_value * (1.0 - p_value),
-            1e-12
+            1e-12,
         )
         /
         (m + 1.0)
@@ -94,11 +125,13 @@ def monte_carlo_p_value(
     p_upper = float(
         min(
             1.0,
-            p_value + 1.96 * se
+            p_value + 1.96 * se,
         )
     )
 
     return {
+        "valid": True,
+        "reason": None,
         "observed_alpha": float(
             observed_alpha
         ),
@@ -125,12 +158,11 @@ def monte_carlo_p_value(
         "p_value_upper_bound": float(
             p_upper
         ),
-        "null_samples": int(
-            m
-        ),
+        "null_samples": int(m),
         "filtered_fraction": float(
             m / max(trials, 1)
         ),
-        "valid": True,
-        "reason": None,
+        "null_model": (
+            "phase_randomized_observed_series"
+        ),
     }
