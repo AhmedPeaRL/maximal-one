@@ -382,26 +382,39 @@ def main():
 
         from analysis.independent_validation import compare_methods
 
-        alpha_fft, alpha_welch = compare_methods(series)
+        alpha_welch, alpha_fft = compare_methods(series)
+
+        if not np.isfinite(alpha_welch):
+            raise SystemExit(
+                "❌ Primary Welch alpha estimator failed"
+            )
 
         if not np.isfinite(alpha_fft):
             raise SystemExit(
-                "❌ Primary alpha estimator failed"
+                "❌ Independent FFT alpha estimator failed"
             )
 
         alpha = stable_float(
-            alpha_fft,
+            alpha_welch,
             8
         )
 
-        validation_delta = np.nan
+        validation_delta = abs(
+            alpha_welch -
+            alpha_fft
+        )
 
-        if np.isfinite(alpha_welch):
-            validation_delta = abs(
-                alpha_fft
-                -
-                alpha_welch
-            )
+        print(
+            f"Primary Welch alpha: {alpha_welch}"
+        )
+
+        print(
+            f"Independent FFT alpha: {alpha_fft}"
+        )
+
+        print(
+            f"Agreement delta: {validation_delta}"
+        )
 
         # 🔥 تنظيف صارم للـ noise samples
         clean_noise = [
@@ -524,12 +537,19 @@ def main():
             separation_diagnostics.append(
                 "separation_unavailable"
             )
+            
         else:
-            if sep["alpha_z_score"] < required_z:
+            if not sep.get("z_score_valid", False):
                 separation_support = False
                 separation_diagnostics.append(
-                    "separation_z_below_threshold"
+                    "null_scale_collapsed"
                 )
+            else:
+                if sep["alpha_z_score"] < required_z:
+                    separation_support = False
+                    separation_diagnostics.append(
+                        "separation_z_below_threshold"
+                    )
 
             if sep["overlap_score"] > 0.95:
                 separation_support = False
@@ -596,8 +616,8 @@ def main():
             }
 
         consensus = consensus_check(
-            alpha_fft,
             alpha_welch,
+            alpha_fft,
             stats["p_value"],
             scale_test["dispersion"],
             fusion["evidence_score"],
@@ -620,7 +640,7 @@ def main():
         )
 
         claim_status = (
-            "established"
+            "empirically_supported"
             if claim_supported
             else "under_investigation"
         )
@@ -755,11 +775,10 @@ def main():
                 "null_rejected": bool(null_rejected),
 
                 "evidence_strength": (
-                    "strong"
+                    "strong_for_specified_spectral_hypothesis"
                     if claim_supported
-                    else "insufficient_for_establishment"
+                    else "insufficient"
                 ),
-
                 "claim_status": claim_status,
 
                 "reproducibility": (
