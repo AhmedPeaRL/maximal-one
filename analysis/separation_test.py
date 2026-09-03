@@ -139,17 +139,12 @@ def separation_score(real, null_samples):
         )
     )
 
-    # -------------------------------------------------
-    # Robust separation scale.
-    #
-    # DO NOT manufacture a scientific z-score when
-    # the null MAD collapses to zero.
-    # -------------------------------------------------
-
     robust_sigma = float(
         1.4826 * mad
     )
 
+    # A robust z-score is valid ONLY when the
+    # null distribution has non-zero robust scale.
     if robust_sigma > 0:
         z_score = float(
             gap / robust_sigma
@@ -204,16 +199,24 @@ def separation_score(real, null_samples):
         "null_q3": q3,
         "robust_sigma": robust_sigma,
         "gap": gap,
+
+        # Explicit epistemic validity state.
         "alpha_z_score": z_score,
-        "z_score_valid": z_valid,
+        "z_score_valid": bool(z_valid),
+
         "relative_gap": relative_gap,
         "percentile_rank": percentile_rank,
         "overlap_score": overlap_score,
+
         "fingerprint_distance_mean": (
             float(np.mean(fp_distances))
             if len(fp_distances)
             else np.nan
         ),
-        "wasserstein_distance": distribution_distance,
-        "null_count": int(len(null_alphas)),
+
+        "wasserstein_distance":
+            distribution_distance,
+
+        "null_count":
+            int(len(null_alphas)),
     }
