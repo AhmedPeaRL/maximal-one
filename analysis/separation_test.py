@@ -64,6 +64,16 @@ def fingerprint_distance(a, b):
     )
 
 def separation_score(real, null_samples):
+    """
+    Compare the observed spectral exponent against a supplied
+    null ensemble.
+
+    IMPORTANT:
+    - A robust z-score is reported only when MAD > 0.
+    - A collapsed null distribution NEVER produces an artificial z-score.
+    - Empirical upper-tail probability is reported separately.
+    """
+
     real_alpha = estimate_alpha(real)
 
     if not np.isfinite(real_alpha):
@@ -132,27 +142,40 @@ def separation_score(real, null_samples):
         )
     )
 
-    gap = float(
-        abs(
-            real_alpha -
-            median_null
-        )
-    )
-
     robust_sigma = float(
         1.4826 * mad
     )
 
-    # A robust z-score is valid ONLY when the
-    # null distribution has non-zero robust scale.
+    gap = float(
+        real_alpha -
+        median_null
+    )
+
+    absolute_gap = abs(gap)
+
+    # Robust z-score is valid only for non-degenerate null scale.
     if robust_sigma > 0:
         z_score = float(
-            gap / robust_sigma
+            absolute_gap /
+            robust_sigma
         )
         z_valid = True
     else:
         z_score = None
         z_valid = False
+
+    # One-sided empirical upper-tail probability.
+    # +1 correction avoids reporting p=0.
+    exceedances = int(
+        np.sum(
+            null_alphas >= real_alpha
+        )
+    )
+
+    empirical_p_upper = float(
+        (exceedances + 1.0) /
+        (len(null_alphas) + 1.0)
+    )
 
     percentile_rank = float(
         np.mean(
@@ -160,8 +183,12 @@ def separation_score(real, null_samples):
         )
     )
 
-    overlap_score = (
-        float(
+    null_degenerate = bool(
+        robust_sigma <= 0
+    )
+
+    if robust_sigma > 0:
+        overlap_score = float(
             np.mean(
                 np.abs(
                     null_alphas -
@@ -169,13 +196,17 @@ def separation_score(real, null_samples):
                 ) < robust_sigma
             )
         )
-        if robust_sigma > 0
-        else 0.0
-    )
+    else:
+        # For a degenerate null, overlap means exact equality.
+        overlap_score = float(
+            np.mean(
+                null_alphas == real_alpha
+            )
+        )
 
     relative_gap = (
         float(
-            gap /
+            absolute_gap /
             abs(median_null)
         )
         if abs(median_null) > 0
@@ -194,15 +225,21 @@ def separation_score(real, null_samples):
 
     return {
         "real_alpha": float(real_alpha),
+
         "null_median": median_null,
         "null_q1": q1,
         "null_q3": q3,
-        "robust_sigma": robust_sigma,
-        "gap": gap,
 
-        # Explicit epistemic validity state.
+        "robust_sigma": robust_sigma,
+        "gap": absolute_gap,
+
         "alpha_z_score": z_score,
         "z_score_valid": bool(z_valid),
+
+        "null_degenerate": null_degenerate,
+
+        "empirical_p_upper": empirical_p_upper,
+        "null_exceedances": int(exceedances),
 
         "relative_gap": relative_gap,
         "percentile_rank": percentile_rank,
