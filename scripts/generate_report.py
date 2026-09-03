@@ -355,14 +355,18 @@ def main():
 
         if not null_rejected:
             print(
-                "⚠️ Spectral surrogate null NOT rejected."
+                "⚠️ Permutation null NOT rejected."
             )
             print(
                 "ℹ️ This result cannot be presented as statistically significant evidence."
             )
         else:
             print(
-                "✅ Spectral surrogate null rejected at alpha=0.05."
+                "✅ Permutation null rejected at alpha=0.05."
+            )
+            print(
+                "ℹ️ Interpretation: temporal ordering carries spectral persistence "
+                "beyond the exchangeable-value permutation null."
             )
             
         for key, value in falsification.items():
@@ -571,6 +575,17 @@ def main():
             separation_diagnostics
         )
 
+        if sep is not None:
+            print(
+                "Empirical separation p-value:",
+                sep.get("empirical_p_upper")
+            )
+
+            print(
+                "Null degenerate:",
+                sep.get("null_degenerate", False)
+            )
+
         # 🔥 HARD ANTI-INFLATION GUARD
         if alpha > 2.5:
             if sep is not None and sep.get("gap", 0) < 2.0:
@@ -770,12 +785,25 @@ def main():
                     and sep.get("alpha_z_score") is not None
                     and np.isfinite(sep["alpha_z_score"])
                 ),
+                "empirical_p_upper": (
+                    float(sep["empirical_p_upper"])
+                    if (
+                        sep is not None
+                        and sep.get("empirical_p_upper") is not None
+                        and np.isfinite(sep["empirical_p_upper"])
+                    )
+                    else None
+                ),
+                "null_degenerate": bool(
+                    sep is not None
+                    and sep.get("null_degenerate", False)
+                ),
                 "diagnostics": separation_diagnostics,
             },
             "separation_test": sep,
             "null_rejected": null_rejected,
             "multi_scale_validation": scale_test,
-            "cross_seed_validation": cross_seed,
+            "perturbation_stability": cross_seed,
             "cross_method_validation": {
                 "primary_method": "Welch_PSD",
                 "validation_method": "FFT_periodogram",
