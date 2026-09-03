@@ -52,7 +52,7 @@ def consensus_check(
     passed = len(diagnostics) == 0
 
     if passed:
-        status = "supported"
+        status = "consensus_validated"
     elif (
         "null_not_rejected" in diagnostics
         or "independent_real_replication_missing" in diagnostics
