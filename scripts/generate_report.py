@@ -520,6 +520,10 @@ def main():
             ["expected_result"]
             ["min_separation_z"]
         )
+        if not np.isfinite(required_z):
+            raise SystemExit(
+                "❌ Invalid separation threshold in strict_claim.json"
+            )
 
         if sep is None:
             print("SEP = None")
@@ -752,8 +756,19 @@ def main():
                 "required_z": float(required_z),
                 "observed_z": (
                     float(sep["alpha_z_score"])
-                    if sep is not None
+                    if (
+                        sep is not None
+                        and sep.get("z_score_valid", False)
+                        and sep.get("alpha_z_score") is not None
+                        and np.isfinite(sep["alpha_z_score"])
+                    )
                     else None
+                ),
+                "z_score_valid": bool(
+                    sep is not None
+                    and sep.get("z_score_valid", False)
+                    and sep.get("alpha_z_score") is not None
+                    and np.isfinite(sep["alpha_z_score"])
                 ),
                 "diagnostics": separation_diagnostics,
             },
