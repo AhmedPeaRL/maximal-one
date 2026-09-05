@@ -4,6 +4,7 @@ import numpy as np
 import random
 import os
 import traceback
+import hashlib
 import analysis.hard_determinism_lock
 from analysis.numerical_spectral_verification import estimate_alpha
 from analysis.fixed_precision import (
@@ -110,6 +111,24 @@ def main():
 
         real = real.astype(
             np.float64
+        )
+        real_bytes = np.ascontiguousarray(
+            real,
+            dtype=np.float64
+        ).tobytes()
+
+        real_sha256 = hashlib.sha256(
+            real_bytes
+        ).hexdigest()
+
+        print(
+            "Primary analysis length:",
+            len(real)
+        )
+
+        print(
+            "Primary analysis SHA256:",
+            real_sha256
         )
 
         real_reference = real.copy()
@@ -365,8 +384,8 @@ def main():
                 "✅ Permutation null rejected at alpha=0.05."
             )
             print(
-                "ℹ️ Interpretation: temporal ordering carries spectral persistence "
-                "beyond the exchangeable-value permutation null."
+                "ℹ️ Interpretation: "
+                "evidence against the specified exchangeability/permutation null only."
             )
             
         for key, value in falsification.items():
@@ -734,6 +753,8 @@ def main():
                 "noise_alpha": alpha_noise
             },
             "dataset_audit": {
+                "analysis_length": int(len(real)),
+                "analysis_sha256": real_sha256,
                 "primary_dataset":
                     "sunspots_full",
 
