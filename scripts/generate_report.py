@@ -150,7 +150,7 @@ def main():
         if args.canonical:
             series = real.copy()
             
-            generator_type = "real_extended_hybrid"
+            generator_type = "real_primary_canonical"
         else:
             series = synthetic
             generator_type = "structured_chaotic_process"
@@ -307,9 +307,33 @@ def main():
             return SystemExit("❌ Degenerate signal")
 
         scale_test = evaluate_scale_invariance(series)
+
+        if not isinstance(scale_test, dict):
+            raise SystemExit(
+                "❌ Scale validation returned a non-dict result"
+            )
+
+        scale_dispersion = scale_test.get(
+            "dispersion",
+            scale_test.get(
+                "relative_spread",
+                np.nan
+            )
+        )
+
+        if not np.isfinite(scale_dispersion):
+            print(
+                "⚠️ Scale dispersion unavailable."
+            )
+            print(
+                "ℹ️ Downstream evidence will treat "
+                "scale dispersion as invalid."
+            )
+
         cross_seed = cross_seed_validation(
             series
         )
+        
         if not cross_seed.get(
             "seed_stable",
             False
@@ -626,14 +650,20 @@ def main():
             alpha_welch
         )
 
+        scale_dispersion = scale_test.get(
+            "dispersion",
+            scale_test.get(
+                "relative_spread",
+                np.nan
+            )
+        )
+
         fusion = evidence_fusion(
             alpha_delta=abs(
                 alpha - alpha_noise
             ),
             p_value=stats["p_value"],
-            scale_dispersion=scale_test[
-                "dispersion"
-            ],
+            scale_dispersion=scale_dispersion,
             validation_delta=validation_delta,
             falsification_delta=falsification_delta
         )
@@ -659,7 +689,7 @@ def main():
             alpha_welch,
             alpha_fft,
             stats["p_value"],
-            scale_test["dispersion"],
+            scale_dispersion,
             fusion["evidence_score"],
             independent_real_domains=canonical_consensus.get(
                 "valid_real_domains",
@@ -733,7 +763,7 @@ def main():
         )
         print(
             "Dispersion:",
-            scale_test["dispersion"]
+            scale_dispersion
         )
 
         report = {
