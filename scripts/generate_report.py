@@ -132,6 +132,7 @@ def main():
         real_reference = real.copy()
         extended_reference = None
 
+        import pandas as pd
         if auxiliary_available:
             ext_df = pd.read_csv(
                 AUXILIARY_DATASET
