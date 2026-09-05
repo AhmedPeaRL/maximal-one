@@ -660,7 +660,10 @@ jobs:
           if sigma > max_sigma:
               raise SystemExit("❌ sigma أعلى من الحد")
 
-          print("✅ STRICT CLAIM HOLDS")
+          print(
+              "ℹ️ Strict-claim prerequisites evaluated; "
+              "global scientific support gate remains closed."
+          )
 
           if alpha / (sigma + 1e-12) < 2.0:
               sys.exit("FAIL: weak signal")
