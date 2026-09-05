@@ -1,36 +1,71 @@
+from __future__ import annotations
 import numpy as np
-from analysis.numerical_spectral_verification import estimate_alpha
+from analysis.numerical_spectral_verification import (
+    estimate_alpha,
+)
+
+SCALES = (1, 2, 4, 8)
+
+MAX_PAIRWISE_DELTA = 0.50
+MAX_RELATIVE_SPREAD = 0.40
 
 def downsample(series, factor):
+    series = np.asarray(series, dtype=np.float64)
+
+    if factor < 1:
+        raise ValueError("factor must be >= 1")
+
     n = len(series) // factor
-    return np.array([
-        np.mean(series[i*factor:(i+1)*factor])
-        for i in range(n)
-    ], dtype=np.float64)
+
+    if n < 1:
+        return np.asarray([], dtype=np.float64)
+
+    trimmed = series[: n * factor]
+
+    return trimmed.reshape(n, factor).mean(axis=1)
 
 def multi_scale_alpha(series):
     series = np.asarray(series, dtype=np.float64)
 
-    scales = [1, 2, 4, 8]
+    if series.ndim != 1:
+        return []
+
+    if not np.all(np.isfinite(series)):
+        return []
+
     results = []
 
-    for s in scales:
-        if s > 1:
-            # downsample
-            scaled = downsample(series, s)
+    for scale in SCALES:
+
+        if scale == 1:
+            scaled = series.copy()
         else:
-            scaled = series
+            scaled = downsample(
+                series,
+                scale,
+            )
 
         if len(scaled) < 64:
             continue
 
+        # Padding is retained only to satisfy the estimator's
+        # minimum-length requirement.
         if len(scaled) < 256:
-            scaled = np.pad(scaled, (0, 256-len(scaled)), mode='reflect')
+            scaled = np.pad(
+                scaled,
+                (0, 256 - len(scaled)),
+                mode="reflect",
+            )
 
         alpha = estimate_alpha(scaled)
 
         if np.isfinite(alpha):
-            results.append((s, float(alpha)))
+            results.append(
+                (
+                    int(scale),
+                    float(alpha),
+                )
+            )
 
     return results
 
@@ -40,31 +75,104 @@ def evaluate_scale_invariance(series):
     if len(results) < 3:
         return {
             "valid": False,
-            "reason": "insufficient_scales"
+            "reason": "insufficient_scales",
+            "scale_invariant": False,
         }
 
-    alphas = np.array([a for _, a in results])
+    scales = np.asarray(
+        [s for s, _ in results],
+        dtype=np.int64,
+    )
 
-    # 🔥 robust metric بدل std العادي
-    median = np.median(alphas)
-    mad = np.median(np.abs(alphas - median)) + 1e-12
+    alphas = np.asarray(
+        [a for _, a in results],
+        dtype=np.float64,
+    )
 
-    # 🔥 normalized dispersion
-    dispersion = mad / (np.abs(median) + 1e-12)
-
-    # 🔥 dynamic threshold based on scale count
-    threshold = 0.25 + 0.1 * len(results)
-
-    if any(a == 0.0 for _, a in results[1:]):
+    if not np.all(np.isfinite(alphas)):
         return {
             "valid": False,
-            "reason": "scale collapse detected"
+            "reason": "non_finite_scale_alpha",
+            "scale_invariant": False,
         }
 
+    if np.any(alphas < 0):
+        return {
+            "valid": False,
+            "reason": "negative_scale_alpha",
+            "scale_invariant": False,
+        }
+
+    median_alpha = float(np.median(alphas))
+
+    q1 = float(np.percentile(alphas, 25))
+    q3 = float(np.percentile(alphas, 75))
+
+    mad = float(
+        np.median(
+            np.abs(
+                alphas - median_alpha
+            )
+        )
+    )
+
+    robust_sigma = float(
+        1.4826 * mad
+    )
+
+    pairwise_delta = float(
+        np.max(alphas) -
+        np.min(alphas)
+    )
+
+    relative_spread = float(
+        pairwise_delta /
+        max(abs(median_alpha), 1e-12)
+    )
+
+    # A scale-invariance claim requires BOTH:
+    # 1. bounded absolute disagreement
+    # 2. bounded relative spread
+    #
+    # This prevents a robust median/MAD statistic from masking
+    # large systematic drift across scales.
+
+    scale_invariant = bool(
+        pairwise_delta <= MAX_PAIRWISE_DELTA
+        and
+        relative_spread <= MAX_RELATIVE_SPREAD
+    )
+
+    diagnostics = []
+
+    if pairwise_delta > MAX_PAIRWISE_DELTA:
+        diagnostics.append(
+            "pairwise_scale_delta_exceeded"
+        )
+
+    if relative_spread > MAX_RELATIVE_SPREAD:
+        diagnostics.append(
+            "relative_scale_spread_exceeded"
+        )
+
     return {
-        "scales": results,
-        "median_alpha": float(median),
+        "valid": True,
+        "scales": [
+            [
+                int(scale),
+                float(alpha),
+            ]
+            for scale, alpha in results
+        ],
+        "median_alpha": median_alpha,
+        "q1_alpha": q1,
+        "q3_alpha": q3,
         "mad_alpha": float(mad),
-        "dispersion": float(dispersion),
-        "scale_invariant": bool(dispersion < threshold)
+        "robust_sigma": robust_sigma,
+        "pairwise_delta": pairwise_delta,
+        "relative_spread": relative_spread,
+        "max_pairwise_delta": MAX_PAIRWISE_DELTA,
+        "max_relative_spread": MAX_RELATIVE_SPREAD,
+        "scale_invariant": scale_invariant,
+        "diagnostics": diagnostics,
     }
