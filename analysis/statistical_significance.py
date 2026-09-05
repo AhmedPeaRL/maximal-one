@@ -176,6 +176,13 @@ def monte_carlo_p_value(
         "exceedances": int(
             exceedances
         ),
+        "null_hypothesis": (
+            "exchangeable_values:"
+            "temporal_ordering_carries_no_additional_spectral_persistence"
+        ),
+        "test_interpretation": (
+            "Evidence against the specified exchangeability/permutation null only."
+        ),
         "p_value": p_value,
         "p_value_upper_bound": p_upper,
         "null_samples": int(m),
