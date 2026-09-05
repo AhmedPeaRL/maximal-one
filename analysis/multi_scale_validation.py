@@ -39,6 +39,7 @@ def multi_scale_alpha(series):
 
         if scale == 1:
             scaled = series.copy()
+
         else:
             scaled = downsample(
                 series,
@@ -48,8 +49,8 @@ def multi_scale_alpha(series):
         if len(scaled) < 64:
             continue
 
-        # Padding is retained only to satisfy the estimator's
-        # minimum-length requirement.
+        # Padding is retained only to satisfy
+        # the estimator's minimum-length requirement.
         if len(scaled) < 256:
             scaled = np.pad(
                 scaled,
@@ -77,6 +78,7 @@ def evaluate_scale_invariance(series):
             "valid": False,
             "reason": "insufficient_scales",
             "scale_invariant": False,
+            "dispersion": np.nan,
         }
 
     scales = np.asarray(
@@ -94,6 +96,7 @@ def evaluate_scale_invariance(series):
             "valid": False,
             "reason": "non_finite_scale_alpha",
             "scale_invariant": False,
+            "dispersion": np.nan,
         }
 
     if np.any(alphas < 0):
@@ -101,12 +104,20 @@ def evaluate_scale_invariance(series):
             "valid": False,
             "reason": "negative_scale_alpha",
             "scale_invariant": False,
+            "dispersion": np.nan,
         }
 
-    median_alpha = float(np.median(alphas))
+    median_alpha = float(
+        np.median(alphas)
+    )
 
-    q1 = float(np.percentile(alphas, 25))
-    q3 = float(np.percentile(alphas, 75))
+    q1 = float(
+        np.percentile(alphas, 25)
+    )
+
+    q3 = float(
+        np.percentile(alphas, 75)
+    )
 
     mad = float(
         np.median(
@@ -121,21 +132,28 @@ def evaluate_scale_invariance(series):
     )
 
     pairwise_delta = float(
-        np.max(alphas) -
+        np.max(alphas)
+        -
         np.min(alphas)
     )
 
     relative_spread = float(
-        pairwise_delta /
+        pairwise_delta
+        /
         max(abs(median_alpha), 1e-12)
     )
 
-    # A scale-invariance claim requires BOTH:
-    # 1. bounded absolute disagreement
-    # 2. bounded relative spread
+    # ---------------------------------------------------------
+    # Canonical dispersion definition
     #
-    # This prevents a robust median/MAD statistic from masking
-    # large systematic drift across scales.
+    # "dispersion" is explicitly defined as the relative
+    # spread across the evaluated scales.
+    #
+    # This is the quantity used by downstream evidence and
+    # consensus layers.
+    # ---------------------------------------------------------
+
+    dispersion = relative_spread
 
     scale_invariant = bool(
         pairwise_delta <= MAX_PAIRWISE_DELTA
@@ -157,6 +175,7 @@ def evaluate_scale_invariance(series):
 
     return {
         "valid": True,
+
         "scales": [
             [
                 int(scale),
@@ -164,15 +183,33 @@ def evaluate_scale_invariance(series):
             ]
             for scale, alpha in results
         ],
+
         "median_alpha": median_alpha,
+
         "q1_alpha": q1,
+
         "q3_alpha": q3,
+
         "mad_alpha": float(mad),
+
         "robust_sigma": robust_sigma,
+
         "pairwise_delta": pairwise_delta,
+
         "relative_spread": relative_spread,
-        "max_pairwise_delta": MAX_PAIRWISE_DELTA,
-        "max_relative_spread": MAX_RELATIVE_SPREAD,
-        "scale_invariant": scale_invariant,
-        "diagnostics": diagnostics,
+
+        # Canonical downstream field.
+        "dispersion": dispersion,
+
+        "max_pairwise_delta":
+            MAX_PAIRWISE_DELTA,
+
+        "max_relative_spread":
+            MAX_RELATIVE_SPREAD,
+
+        "scale_invariant":
+            scale_invariant,
+
+        "diagnostics":
+            diagnostics,
     }
