@@ -377,6 +377,35 @@ def main():
             boot["mean"],
             boot["std"]
         )
+        bootstrap_bias_gap = abs(
+            float(alpha) - float(boot["mean"])
+        )
+
+        bootstrap_bias_ratio = (
+            bootstrap_bias_gap /
+            (float(boot["std"]) + 1e-12)
+        )
+
+        bootstrap_bias_diagnostic = {
+            "absolute_gap": stable_float(
+                bootstrap_bias_gap,
+                8
+            ),
+            "std_units": stable_float(
+                bootstrap_bias_ratio,
+                8
+            ),
+            "flag": bool(
+                bootstrap_bias_ratio > 2.0
+            ),
+            "interpretation": (
+                "point_estimate differs materially from bootstrap center"
+                if bootstrap_bias_ratio > 2.0
+                else
+                "no large bootstrap-center discrepancy"
+            )
+        }
+        
         if not bootstrap_guard["passed"]:
             raise SystemExit(
                 "❌ Bootstrap consistency failed"
@@ -771,6 +800,7 @@ def main():
             "evidence_fusion": fusion,
             "phase_surrogate_guard": phase_guard,
             "bootstrap_consistency_guard": bootstrap_guard,
+            "bootstrap_bias_diagnostic": bootstrap_bias_diagnostic,
             "spectral_profile": {
                 "estimated_alpha": alpha,
                 "bootstrap_mean": boot["mean"],
