@@ -132,6 +132,7 @@ jobs:
 
           python - <<'PY'
           import pandas as pd
+          import numpy as np
 
           from analysis.independent_validation import compare_methods
 
