@@ -386,7 +386,7 @@ def main():
             (float(boot["std"]) + 1e-12)
         )
 
-        bootstrap_bias_diagnostic = {
+        bootstrap_center_discrepancy = {
             "absolute_gap": stable_float(
                 bootstrap_bias_gap,
                 8
@@ -399,11 +399,16 @@ def main():
                 bootstrap_bias_ratio > 2.0
             ),
             "interpretation": (
-                "point_estimate differs materially from bootstrap center"
+                "point estimate differs materially from the "
+                "center of the block-bootstrap resampling distribution; "
+                "this is a resampling-sensitivity diagnostic, "
+                "not evidence of estimator bias"
                 if bootstrap_bias_ratio > 2.0
                 else
-                "no large bootstrap-center discrepancy"
-            )
+                "no large discrepancy between point estimate and "
+                "block-bootstrap center"
+            ),
+            "evidence_role": "diagnostic_only"
         }
         
         if not bootstrap_guard["passed"]:
@@ -699,20 +704,52 @@ def main():
         
         from pathlib import Path
 
+        # ============================================================
+        # CANONICAL CONSENSUS MUST BE RECOMPUTED IN THIS RUN
+        # Never trust a stale artifact as scientific input.
+        # ============================================================
+
+        import subprocess
+        import sys
+
+        canonical_consensus_script = (
+            Path("scripts/canonical_consensus.py")
+        )
+
+        if not canonical_consensus_script.exists():
+            raise SystemExit(
+                "❌ Canonical consensus script missing"
+            )
+
+        subprocess.run(
+            [
+                sys.executable,
+                str(canonical_consensus_script),
+            ],
+            check=True,
+        )
+
         canonical_consensus_path = Path(
             "artifacts/canonical_consensus.json"
         )
 
-        if canonical_consensus_path.exists():
-            with canonical_consensus_path.open(
-                "r",
-                encoding="utf-8"
-            ) as f:
-                canonical_consensus = json.load(f)
-        else:
-            canonical_consensus = {
-                "valid_real_domains": 0
-            }
+        if not canonical_consensus_path.exists():
+            raise SystemExit(
+                "❌ Canonical consensus artifact was not generated"
+            )
+
+        with canonical_consensus_path.open(
+            "r",
+            encoding="utf-8"
+        ) as f:
+            canonical_consensus = json.load(f)
+
+        valid_real_domains = int(
+            canonical_consensus.get(
+                "valid_real_domains",
+                0
+            )
+        )
 
         consensus = consensus_check(
             alpha_welch,
@@ -720,10 +757,7 @@ def main():
             stats["p_value"],
             scale_dispersion,
             fusion["evidence_score"],
-            independent_real_domains=canonical_consensus.get(
-                "valid_real_domains",
-                0
-            )
+            independent_real_domains=valid_real_domains
         )
 
         claim_supported = bool(
@@ -800,7 +834,7 @@ def main():
             "evidence_fusion": fusion,
             "phase_surrogate_guard": phase_guard,
             "bootstrap_consistency_guard": bootstrap_guard,
-            "bootstrap_bias_diagnostic": bootstrap_bias_diagnostic,
+            "bootstrap_center_discrepancy": bootstrap_center_discrepancy,
             "spectral_profile": {
                 "estimated_alpha": alpha,
                 "bootstrap_mean": boot["mean"],
