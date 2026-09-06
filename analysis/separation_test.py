@@ -223,37 +223,40 @@ def separation_score(real, null_samples):
         )
     )
 
+    z_interpretation = (
+        "valid_robust_separation_against_supplied_null"    if z_valid and not null_degenerate
+        else
+        "z_score_not_interpretable_as_strength"
+    )
+
     return {
         "real_alpha": float(real_alpha),
-
         "null_median": median_null,
         "null_q1": q1,
         "null_q3": q3,
-
         "robust_sigma": robust_sigma,
         "gap": absolute_gap,
-
         "alpha_z_score": z_score,
         "z_score_valid": bool(z_valid),
-
+        "z_score_interpretation": z_interpretation,
+        "interpretation": (
+            "Observed alpha is separated from the supplied "
+            "permutation-null ensemble; this does not establish "
+            "mechanism, universality, or HCM causation."
+        ),
         "null_degenerate": null_degenerate,
-
         "empirical_p_upper": empirical_p_upper,
         "null_exceedances": int(exceedances),
-
         "relative_gap": relative_gap,
         "percentile_rank": percentile_rank,
         "overlap_score": overlap_score,
-
         "fingerprint_distance_mean": (
             float(np.mean(fp_distances))
             if len(fp_distances)
             else np.nan
         ),
-
         "wasserstein_distance":
             distribution_distance,
-
         "null_count":
             int(len(null_alphas)),
     }
