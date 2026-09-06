@@ -130,6 +130,9 @@ jobs:
           print("✅ control datasets generated")
           PY
 
+          python - <<'PY'
+          import pandas as pd
+
           from analysis.independent_validation import compare_methods
 
           df = pd.read_csv("real-data/sunspots_global_extended.csv")
