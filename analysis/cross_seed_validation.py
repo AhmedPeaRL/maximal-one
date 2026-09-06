@@ -1,30 +1,19 @@
 from __future__ import annotations
 import numpy as np
-from analysis.numerical_spectral_verification import (
-    estimate_alpha,
-)
+from analysis.numerical_spectral_verification import estimate_alpha
 
-SEEDS = (
-    11,
-    42,
-    101,
-    777,
-    2025,
-)
-
+SEEDS = (11, 42, 101, 777, 2025)
 PERTURBATION_FRACTION = 0.05
 MAX_STD_ALPHA = 0.10
 
 def run(series):
-    series = np.asarray(
-        series,
-        dtype=np.float64,
-    )
+    series = np.asarray(series, dtype=np.float64)
 
     if series.ndim != 1:
         return {
             "valid": False,
             "reason": "series_not_1d",
+            "test_type": "perturbation_stability",
             "seed_stable": False,
         }
 
@@ -32,6 +21,7 @@ def run(series):
         return {
             "valid": False,
             "reason": "non_finite_series",
+            "test_type": "perturbation_stability",
             "seed_stable": False,
         }
 
@@ -41,13 +31,13 @@ def run(series):
         return {
             "valid": False,
             "reason": "degenerate_series",
+            "test_type": "perturbation_stability",
             "seed_stable": False,
         }
 
     records = []
 
     for seed in SEEDS:
-
         rng = np.random.default_rng(seed)
 
         perturbation = rng.normal(
@@ -56,14 +46,9 @@ def run(series):
             size=len(series),
         )
 
-        test_series = (
-            series +
-            perturbation
-        )
+        test_series = series + perturbation
 
-        alpha = estimate_alpha(
-            test_series
-        )
+        alpha = estimate_alpha(test_series)
 
         if np.isfinite(alpha):
             records.append(
@@ -77,6 +62,7 @@ def run(series):
         return {
             "valid": False,
             "reason": "insufficient_valid_seeds",
+            "test_type": "perturbation_stability",
             "seed_stable": False,
             "records": records,
         }
@@ -86,18 +72,14 @@ def run(series):
         dtype=np.float64,
     )
 
-    mean_alpha = float(
-        np.mean(alphas)
-    )
-
-    std_alpha = float(
-        np.std(alphas)
-    )
+    mean_alpha = float(np.mean(alphas))
+    std_alpha = float(np.std(alphas))
 
     return {
         "valid": True,
 
-        # Explicitly name what this test actually measures.
+        # This test does NOT establish ordinary
+        # cross-seed reproducibility of the estimator.
         "test_type": "perturbation_stability",
 
         "records": records,
@@ -109,5 +91,10 @@ def run(series):
 
         "seed_stable": bool(
             std_alpha < MAX_STD_ALPHA
+        ),
+
+        "interpretation": (
+            "Stable under deterministic seeded perturbations; "
+            "this does not establish independent rerun reproducibility."
         ),
     }
