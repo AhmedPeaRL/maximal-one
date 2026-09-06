@@ -27,7 +27,6 @@ The canonical multi-scale validation currently fails.
 
 Observed:
 
-```text
 pairwise scale delta  = 1.462487
 relative spread      = 0.786982
 
