@@ -162,6 +162,7 @@ jobs:
               )
 
           print("✅ Numerical consistency holds")
+          PY
           
           import numpy as np
           import pandas as pd
