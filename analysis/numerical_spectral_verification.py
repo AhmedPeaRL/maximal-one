@@ -172,14 +172,14 @@ def estimate_alpha(
     if not np.isfinite(alpha):
         return np.nan
 
-    # Tiny negative numerical excursions may be treated as zero.
-    if alpha < 0:
-        if alpha > -0.20:
-            alpha = 0.0
-        else:
-            return np.nan
+    # Negative alpha is a valid spectral-slope estimate.
+    #
+    # It MUST remain observable because clipping negative values
+    # can collapse a permutation-null distribution and create
+    # an artificial degenerate null.
+    #
+    # No scientific clipping is performed.
 
-    # NO SCIENTIFIC CLIPPING.
     return f(alpha)
 
 def block_bootstrap(
