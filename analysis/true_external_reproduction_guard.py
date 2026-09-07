@@ -5,7 +5,6 @@ import time
 
 GITHUB_RAW = "https://raw.githubusercontent.com/ahmedpearl/maximal-one/main/artifacts/canonical_report.json"
 
-
 # =========================
 # NORMALIZATION CORE
 # =========================
@@ -20,7 +19,6 @@ VOLATILE_KEYS = {
     "_sealed"   # 🔥 مهم جدًا
 }
 
-
 def strip_volatile(obj):
     if isinstance(obj, dict):
         return {
@@ -32,7 +30,6 @@ def strip_volatile(obj):
         return [strip_volatile(x) for x in obj]
     return obj
 
-
 def normalize_numbers(obj):
     if isinstance(obj, dict):
         return {k: normalize_numbers(v) for k, v in obj.items()}
@@ -41,7 +38,6 @@ def normalize_numbers(obj):
     elif isinstance(obj, float):
         return round(obj, 8)
     return obj
-
 
 def normalize_json(raw_text):
     try:
@@ -54,7 +50,6 @@ def normalize_json(raw_text):
 
     except Exception:
         return None
-
 
 # =========================
 # NETWORK
@@ -80,10 +75,8 @@ def fetch_external():
 
     return None
 
-
 def sha256(data):
     return hashlib.sha256(data.encode()).hexdigest()
-
 
 # =========================
 # CORE
@@ -104,7 +97,6 @@ def compute_local():
     except:
         return None
 
-
 def compute_external():
     raw = fetch_external()
 
@@ -117,7 +109,6 @@ def compute_external():
         return None
 
     return norm, sha256(norm)
-
 
 def run():
     local = compute_local()
@@ -160,10 +151,13 @@ def run():
 
         time.sleep(5)
 
-    print("⚠️ External mismatch recorded — non-deterministic layer")
-    return True
+    print(
+        "❌ External reproduction mismatch remains unresolved."
+    )
 
+    return False
 
 if __name__ == "__main__":
     ok = run()
-      
+    if not ok:
+        raise SystemExit(1)
