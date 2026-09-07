@@ -1,9 +1,10 @@
 {
   "title": "Constrained Spectral Persistence Hypothesis",
-  "statement": "A reproducible spectral persistence signature is hypothesized to occur in selected heterogeneous temporal datasets and to remain distinguishable from appropriately specified stochastic null models under preregistered validation. The hypothesis remains unestablished until statistical null rejection and independent real-domain replication are demonstrated.",
+
+  "statement": "A spectral persistence signature is hypothesized to occur in selected heterogeneous temporal datasets and to remain distinguishable from appropriately specified stochastic null models under preregistered validation. The hypothesis remains unestablished until statistical null rejection, cross-method agreement, scale stability, and independent real-domain replication are demonstrated.",
 
   "dataset": {
-    "primary": "sunspots_global",
+    "primary": "sunspots_full.csv",
     "secondary_required": true,
     "independent_real_domain_required": true,
     "adversarial_rejection_required": true,
@@ -20,23 +21,70 @@
       "independent_null_testing",
       "external_reproduction"
     ],
+    "primary_estimator": "Welch_PSD",
+    "independent_validator": "FFT_periodogram",
     "seed": 42,
     "deterministic": true
   },
 
   "expected_result": {
-    "alpha_range": [0.05, 3.0],
-    "preferred_band": [0.6, 2.2],
+    "alpha_range": [
+      0.05,
+      3.0
+    ],
+
+    "preferred_band": [
+      0.6,
+      2.2
+    ],
+
     "max_cross_domain_std": 1.2,
+
     "max_sigma": 0.85,
+
     "max_method_delta": 0.30,
+
+    "max_scale_dispersion": 0.40,
+
     "min_separation_z": 2.5,
+
     "max_p_value": 0.05,
+
     "min_independent_real_domains": 2
   },
 
+  "scale_validation": {
+    "scales": [
+      1,
+      2,
+      4,
+      8
+    ],
+
+    "base_frequency_band": [
+      0.01,
+      0.25
+    ],
+
+    "comparison_basis": "same_original_frequency_band_mapped_into_each_temporally_aggregated_series",
+
+    "synthetic_padding_allowed": false
+  },
+
+  "reproducibility": {
+    "perturbation_stability": {
+      "status": "diagnostic_only",
+      "does_not_establish_independent_rerun_reproducibility": true
+    },
+
+    "independent_rerun": {
+      "required_for_final_reproducibility_claim": true
+    }
+  },
+
   "falsification": {
-    "condition": "If alpha exits [0.05,3.0] OR sigma > 0.85 OR independent cross-domain std > 1.2 OR FFT/Welch disagreement > 0.30 OR p_value > 0.05 when the claim is evaluated as supported OR fewer than 2 independent real domains are available for replication.",
+    "condition": "If alpha exits [0.05,3.0] OR sigma > 0.85 OR independent cross-domain std > 1.2 OR FFT/Welch disagreement > 0.30 OR scale dispersion > 0.40 OR p_value > 0.05 when the claim is evaluated as supported OR fewer than 2 independent real domains are available for replication.",
+
     "action": "Do not support the scientific claim; mark it under investigation or falsified according to the failed condition."
   },
 
@@ -47,11 +95,13 @@
 
   "epistemic_status": {
     "current_status": "under_investigation",
+
     "support_requires": [
       "null_rejection",
       "independent_real_domain_replication",
       "cross_method_agreement",
-      "cross_seed_reproducibility",
+      "scale_stability",
+      "independent_rerun_reproducibility",
       "adversarial_control"
     ]
   }
