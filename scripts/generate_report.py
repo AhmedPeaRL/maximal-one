@@ -803,12 +803,55 @@ def main():
             ),
         )
 
+        external_replay_path = Path(
+            "artifacts/external_replay_verification.json"
+        )
+
+        external_replay_verified = False
+
+        if external_replay_path.exists():
+            try:
+                with external_replay_path.open(
+                    "r",
+                    encoding="utf-8",
+                ) as f:
+                    external_replay = json.load(f)
+
+                external_replay_verified = bool(
+                    external_replay.get(
+                        "match",
+                        False,
+                    )
+                )
+
+            except Exception:
+                external_replay_verified = False
+
+        adversarial_control_passed = bool(
+            falsification.get(
+                "original_alpha",
+                np.nan,
+            )
+            !=
+            falsification.get(
+                "white_noise_alpha",
+                np.nan,
+            )
+        )
+
         claim_supported = bool(
-            consensus.get("passed", False)
+            consensus.get(
+                "passed",
+                False,
+            )
             and null_rejected
             and separation_support
-            and np.isfinite(validation_delta)
+            and np.isfinite(
+                validation_delta
+            )
             and validation_delta <= 0.30
+            and external_replay_verified
+            and adversarial_control_passed
         )
 
         claim_status = (
