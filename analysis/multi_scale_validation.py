@@ -10,7 +10,7 @@ SCALES = (1, 2, 4, 8)
 # Canonical spectral comparison band in the ORIGINAL
 # sampling units.
 BASE_FREQ_MIN = 0.01
-BASE_FREQ_MAX = 0.25
+BASE_FREQ_MAX = 0.05
 
 # Upper normalized frequency allowed after rescaling.
 # We deliberately stay below Nyquist.
@@ -155,10 +155,62 @@ def multi_scale_alpha(series):
 
         freq_min, freq_max = freq_band
 
-        alpha = estimate_alpha(
+        scaled = np.asarray(
             scaled,
-            freq_min=freq_min,
-            freq_max=freq_max,
+            dtype=np.float64,
+        )
+
+        scaled = (
+            scaled
+            - np.mean(scaled)
+        )
+
+        std = np.std(scaled)
+
+        if std < 1e-12:
+            continue
+
+        scaled = scaled / std
+
+        from scipy.signal import welch
+
+        nperseg = min(
+            1024,
+            len(scaled),
+        )
+
+        if nperseg < 128:
+            continue
+
+        freqs, psd = welch(
+            scaled,
+            nperseg=nperseg,
+            window="hann",
+            detrend="linear",
+            scaling="density",
+        )
+
+        mask = (
+            (freqs > freq_min)
+            &
+            (freqs < freq_max)
+            &
+            np.isfinite(freqs)
+            &
+            np.isfinite(psd)
+            &
+            (psd > 0)
+        )
+
+        if np.sum(mask) < 20:
+            continue
+
+        alpha = float(
+            -np.polyfit(
+                np.log(freqs[mask]),
+                np.log(psd[mask]),
+                1,
+            )[0]
         )
 
         if np.isfinite(alpha):
