@@ -51,6 +51,52 @@ def main():
         default="artifacts"
     )
     args = parser.parse_args()
+
+    from pathlib import Path
+
+    STRICT_CLAIM_PATH = Path(
+        "core-scientific/strict_claim.json"
+    )
+
+    if not STRICT_CLAIM_PATH.exists():
+        raise SystemExit(
+            "❌ strict_claim.json missing"
+        )
+
+    with STRICT_CLAIM_PATH.open(
+        "r",
+        encoding="utf-8",
+    ) as f:
+        strict_claim = json.load(f)
+
+    EXPECTED_MIN, EXPECTED_MAX = map(
+        float,
+        strict_claim["expected_result"]["alpha_range"]
+    )
+
+    MAX_METHOD_DELTA = float(
+        strict_claim["expected_result"]["max_method_delta"]
+    )
+
+    MAX_SCALE_DISPERSION = float(
+        strict_claim["expected_result"]["max_scale_dispersion"]
+    )
+
+    MAX_P_VALUE = float(
+        strict_claim["expected_result"]["max_p_value"]
+    )
+
+    MIN_INDEPENDENT_REAL_DOMAINS = int(
+        strict_claim["expected_result"][
+        "min_independent_real_domains"
+        ]
+    )
+
+    REQUIRED_SEPARATION_Z = float(
+        strict_claim["expected_result"][
+        "min_separation_z"
+        ]
+    )
     
     rng = np.random.default_rng(args.seed)
     np.random.seed(args.seed)  # 🔥 مهم جداً
@@ -226,19 +272,13 @@ def main():
         if not isinstance(alpha, (int, float)) or not np.isfinite(alpha):
             raise SystemExit(f"❌ alpha invalid: {alpha}")
 
-        if alpha > 3.5:
-            print("⚠️ High alpha — possible synthetic bias")
-
-        if alpha >= 4.5:
-            raise SystemExit(f"❌ Unphysical alpha detected: {alpha}")
-
-        # 🔥 HARD SCIENTIFIC GUARD
-        EXPECTED_MIN = 0.05
-        EXPECTED_MAX = 4.2
-
-        if not (EXPECTED_MIN <= alpha <= EXPECTED_MAX):
+        if not (
+            EXPECTED_MIN
+            <= alpha
+            <= EXPECTED_MAX
+        ):
             raise SystemExit(
-                f"❌ Alpha out of physical range: {alpha}"
+                f"❌ Alpha outside strict scientific range: {alpha}"
             )
 
         x = np.asarray(series, dtype=np.float64)
@@ -598,11 +638,8 @@ def main():
         ) as f:
             strict_claim = json.load(f)
 
-        required_z = float(
-            strict_claim
-            ["expected_result"]
-            ["min_separation_z"]
-        )
+        required_z = REQUIRED_SEPARATION_Z
+        
         if not np.isfinite(required_z):
             raise SystemExit(
                 "❌ Invalid separation threshold in strict_claim.json"
@@ -757,7 +794,13 @@ def main():
             stats["p_value"],
             scale_dispersion,
             fusion["evidence_score"],
-            independent_real_domains=valid_real_domains
+            independent_real_domains=valid_real_domains,
+            max_method_delta=MAX_METHOD_DELTA,
+            max_scale_dispersion=MAX_SCALE_DISPERSION,
+            max_p_value=MAX_P_VALUE,
+            min_independent_real_domains=(
+                MIN_INDEPENDENT_REAL_DOMAINS
+            ),
         )
 
         claim_supported = bool(
@@ -991,14 +1034,19 @@ def main():
                 "❌ Independent validation unavailable"
             )
 
-        if method_delta > 0.30:
-            raise SystemExit(
-                "❌ Method inconsistency too high"
-            )
+        if method_delta > MAX_METHOD_DELTA:
+             raise SystemExit(  
+                 "❌ Method inconsistency too high"  
+             )  
 
-        if method_delta > 0.20:
+        if (
+            method_delta
+            >
+            0.75 * MAX_METHOD_DELTA
+        ):
             print(
-                "⚠️ Method inconsistency near threshold"
+                "⚠️ Method inconsistency approaching "
+                "the canonical threshold"
             )
     
         output_path = os.path.join(
