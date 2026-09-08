@@ -257,7 +257,9 @@ def main():
                 )
         
         if len(series) < 256:
-            series = np.pad(series, (0, 256-len(series)), mode='reflect')
+            raise SystemExit(
+                f"❌ Canonical series too short; synthetic padding is forbidden: {len(series)}"
+            )
 
         alpha = estimate_alpha(series)
         if not np.isfinite(alpha):
