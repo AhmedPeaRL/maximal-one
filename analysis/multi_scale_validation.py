@@ -19,6 +19,23 @@ MAX_NORMALIZED_FREQ = 0.45
 MAX_PAIRWISE_DELTA = 0.50
 MAX_RELATIVE_SPREAD = 0.40
 
+primary_alpha = float(alphas[0])
+    max_primary_scale_delta = float(
+        np.max(
+            np.abs(
+                alphas - primary_alpha
+            )
+        )
+    )
+    primary_scale_ratio = float(
+        max_primary_scale_delta
+        /
+        max(
+            abs(primary_alpha),
+            1e-12
+        )
+    )
+
 def downsample(series, factor):
     """
     Temporal aggregation by non-overlapping block averaging.
@@ -341,6 +358,16 @@ def evaluate_scale_invariance(series):
 
     return {
         "valid": True,
+
+        "primary_scale_diagnostic": {
+            "primary_alpha": primary_alpha,
+            "max_absolute_delta": max_primary_scale_delta,
+            "relative_delta": primary_scale_ratio,
+            "interpretation": (
+                "diagnostic_only: compares the scale-1 "
+                "estimate with temporally aggregated estimates"
+            )
+        },
 
         "scales": [
             {
