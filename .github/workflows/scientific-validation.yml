@@ -110,22 +110,46 @@ jobs:
           import pandas as pd
           import numpy as np
 
-          np.random.seed(42)
+          rng = np.random.default_rng(42)
 
-          n = 200
+          # Controls must be long enough for the estimator.
+          n = 1024
 
-          # White noise
-          wn = np.random.randn(n)
-          pd.DataFrame({"value": wn}).to_csv("real-data/white_noise.csv", index=False)
+          # White noise: expected spectral exponent is approximately 0.
+          wn = rng.standard_normal(n)
 
-          # Random walk
-          rw = np.cumsum(np.random.randn(n))
-          pd.DataFrame({"value": rw}).to_csv("real-data/random_walk.csv", index=False)
+          pd.DataFrame(
+              {"value": wn}
+          ).to_csv(
+              "real-data/white_noise.csv",
+              index=False
+          )
 
-          # Shuffled sunspots
-          sun = pd.read_csv("real-data/sunspots_global_extended.csv").iloc[:,0].values
-          shuffled = np.random.permutation(sun)
-          pd.DataFrame({"value": shuffled}).to_csv("real-data/shuffled_sunspots.csv", index=False)
+          # Random walk.
+          rw = np.cumsum(
+              rng.standard_normal(n)
+          )
+
+          pd.DataFrame(
+              {"value": rw}
+          ).to_csv(
+              "real-data/random_walk.csv",
+              index=False
+          )
+
+          # Shuffled real-data control.
+          sun = pd.read_csv(
+              "real-data/sunspots_global_extended.csv"
+          ).iloc[:, 0].values
+
+          shuffled = rng.permutation(sun)
+
+          pd.DataFrame(
+              {"value": shuffled}
+          ).to_csv(
+              "real-data/shuffled_sunspots.csv",
+              index=False
+          )
 
           print("✅ control datasets generated")
           PY
@@ -165,28 +189,52 @@ jobs:
               )
 
           print("✅ Numerical consistency holds")
+          PY
           
-          import numpy as np
+          python - <<'PY'
           import pandas as pd
+          import numpy as np
+
           from analysis.numerical_spectral_verification import (
               estimate_alpha
           )
 
           DATASET = "real-data/white_noise.csv"
+
           df = pd.read_csv(DATASET)
+
           x = df.iloc[:, 0].values.astype(float)
-          
+
           if len(x) < 256:
-              x = np.pad(x, (0, 256-len(x)), mode='reflect')
+              raise SystemExit(
+                  "❌ White-noise control is shorter than estimator minimum"
+              )
 
           alpha = estimate_alpha(x)
 
           print("White noise alpha:", alpha)
 
-          if not (0.0 <= alpha < 1.2):
-              raise SystemExit("❌ artificial structure inflation detected")
+          if not np.isfinite(alpha):
+              raise SystemExit(
+                  "❌ White-noise estimator returned non-finite alpha"
+              )
 
-          print("✅ no forced structure detected")
+          # White noise is expected to be centered near alpha = 0.
+          # Negative finite estimates are valid and must remain observable.
+          WHITE_NOISE_MAX_ABS_ALPHA = 0.75
+
+          if abs(alpha) > WHITE_NOISE_MAX_ABS_ALPHA:
+              raise SystemExit(
+                  "❌ artificial structure inflation detected: "
+                  f"alpha={alpha}"
+              )
+
+          print(
+              "✅ white-noise control remains within "
+              f"calibrated tolerance ±{WHITE_NOISE_MAX_ABS_ALPHA}"
+          )
+          PY
+          
           import numpy as np
           import pandas as pd
           from analysis.numerical_spectral_verification import (
@@ -196,22 +244,32 @@ jobs:
               periodogram_alpha_estimation
           )
 
-          def generate_adversarial_signal(n=1000):
-              wn = np.random.standard_normal(n)
+          def generate_adversarial_signal(
+              n=1000,
+              rng=None
+          ):
+              if rng is None:
+                  rng = np.random.default_rng(42)
+
+              wn = rng.standard_normal(n)
+
               high_freq = np.sin(
                   np.linspace(
                       0,
-                      80*np.pi,
+                      80 * np.pi,
                       n
                   )
               )
+
               burst = np.zeros(n)
-              idx = np.random.randint(
+
+              idx = rng.integers(
                   0,
                   n,
                   25
               )
-              burst[idx] = np.random.normal(
+
+              burst[idx] = rng.normal(
                   0,
                   8,
                   len(idx)
@@ -219,7 +277,7 @@ jobs:
 
               return (
                   wn
-                  + 0.4*high_freq
+                  + 0.4 * high_freq
                   + burst
               )
 
@@ -305,12 +363,16 @@ jobs:
                   separation_score
               )
               # === ADVERSARIAL ===
-              adv = generate_adversarial_signal(len(real_series))
               rng = np.random.default_rng(42)
+              adv = generate_adversarial_signal(
+                  len(real_series),
+                  rng
+              )
+              null_rng = np.random.default_rng(42042)
               nulls = [
                   generate_strong_null(
                       len(adv),
-                      rng
+                      null_rng
                   )
                   for _ in range(100)
               ]
