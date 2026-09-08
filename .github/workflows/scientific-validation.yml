@@ -234,7 +234,8 @@ jobs:
               f"calibrated tolerance ±{WHITE_NOISE_MAX_ABS_ALPHA}"
           )
           PY
-          
+
+          python - <<'PY'
           import numpy as np
           import pandas as pd
           from analysis.numerical_spectral_verification import (
