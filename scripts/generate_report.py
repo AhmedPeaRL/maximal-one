@@ -808,8 +808,8 @@ def main():
         external_replay_path = Path(
             "artifacts/external_replay_verification.json"
         )
-
         external_replay_verified = False
+        fingerprint_match = False
 
         if external_replay_path.exists():
             try:
@@ -819,27 +819,54 @@ def main():
                 ) as f:
                     external_replay = json.load(f)
 
-                external_replay_verified = bool(
+                # Strict protocol:
+                # `match` alone is NOT sufficient.
+                # Final reproducibility requires both
+                # independent replay verification and
+                # fingerprint agreement.
+
+                external_replay_verified = (
                     external_replay.get(
-                        "match",
-                        False,
+                        "independent_replay_verified",
+                        False
                     )
+                    is True
+                )
+                fingerprint_match = (
+                    external_replay.get(
+                        "fingerprint_match",
+                        False
+                    )
+                    is True
                 )
 
             except Exception:
                 external_replay_verified = False
+                fingerprint_match = False
 
-        adversarial_control_passed = bool(
-            falsification.get(
-                "original_alpha",
-                np.nan,
-            )
-            !=
-            falsification.get(
-                "white_noise_alpha",
-                np.nan,
-            )
+        adversarial_control_path = Path(
+            "artifacts/adversarial_control.json"
         )
+        adversarial_control_passed = False
+
+        if adversarial_control_path.exists():
+            try:
+                with adversarial_control_path.open(
+                    "r",
+                    encoding="utf-8",
+                ) as f:
+                    adversarial_control = json.load(f)
+
+                adversarial_control_passed = (
+                    adversarial_control.get(
+                        "passed",
+                        False
+                    )
+                    is True
+                )
+
+            except Exception:
+                adversarial_control_passed = False
 
         claim_supported = bool(
             consensus.get(
@@ -848,11 +875,19 @@ def main():
             )
             and null_rejected
             and separation_support
+            and scale_test.get(
+                "scale_invariant",
+                False
+            )
+            and valid_real_domains >= (
+                MIN_INDEPENDENT_REAL_DOMAINS
+            )
             and np.isfinite(
                 validation_delta
             )
-            and validation_delta <= 0.30
+            and validation_delta <= MAX_METHOD_DELTA
             and external_replay_verified
+            and fingerprint_match
             and adversarial_control_passed
         )
 
@@ -937,16 +972,13 @@ def main():
                 "analysis_sha256": real_sha256,
                 "primary_dataset":
                     "sunspots_full",
-
                 "primary_length":
                     int(len(real_reference)),
-
                 "auxiliary_available":
                     bool(
                         extended_reference
                         is not None
                     ),
-
                 "auxiliary_length":
                     int(
                         len(extended_reference)
@@ -1017,18 +1049,32 @@ def main():
             },
             "scientific_interpretation": {
                 "null_rejected": bool(null_rejected),
-
                 "evidence_strength": (
                     "strong_for_specified_spectral_hypothesis"
                     if claim_supported
                     else "insufficient"
                 ),
                 "claim_status": claim_status,
-                "reproducibility": (
-                    "perturbation_stability_only"
-                    if cross_seed.get("seed_stable", False)
-                    else "perturbation_stability_failed"
-                ),
+                "reproducibility": {
+                    "perturbation_stability": (
+                        "passed"
+                        if cross_seed.get("seed_stable", False)
+                        else "failed"
+                    ),
+                    "independent_rerun": (
+                        "verified"
+                        if external_replay_verified
+                        else "not_verified"
+                    ),
+                    "fingerprint_match": bool(
+                        fingerprint_match
+                    ),
+                    "interpretation": (
+                        "Independent rerun and fingerprint "
+                        "verification are required for final "
+                        "reproducibility support."
+                    )
+                },
                 "claim_support_gate": bool(
                     claim_supported
                 ),
