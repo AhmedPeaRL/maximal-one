@@ -130,13 +130,18 @@ def run():
         external_norm, external_hash = external
 
         if external_hash == local_hash:
-            print("✅ True external reproduction confirmed")
+            print(
+                "✅ Public artifact retrieval and normalized fingerprint match confirmed"
+            )
             return True
 
         # fallback: compare normalized content similarity
         if external_norm == local_norm:
-            print("⚠️ Hash mismatch but content identical (non-critical)")
-            return True
+            print(
+                "❌ Hash mismatch resolved by normalized content equality; "
+                "this is NOT sufficient for independent scientific reproduction."
+            )
+            return False
 
         print("Waiting for GitHub propagation...")
         
