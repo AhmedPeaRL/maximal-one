@@ -371,6 +371,78 @@ def main():
 
         scale_test = evaluate_scale_invariance(series)
 
+        # ============================================================
+        # HARD CANONICAL ALPHA CONSISTENCY GATE
+        # ============================================================
+
+        canonical_alpha_for_scale = estimate_alpha(
+            series,
+            freq_min=0.01,
+            freq_max=0.05,
+        )
+
+        if not np.isfinite(
+            canonical_alpha_for_scale
+        ):
+            raise SystemExit(
+                "❌ Canonical alpha unavailable for scale consistency"
+            )
+
+        if not scale_test.get(
+            "valid",
+            False
+        ):
+            raise SystemExit(
+                "❌ Scale validation protocol invalid: "
+                + str(
+                    scale_test.get(
+                        "reason",
+                        "unknown_reason"
+                    )
+                )
+            )
+
+        scale_one_alpha = scale_test.get(
+            "scale_one_alpha"
+        )
+
+        if scale_one_alpha is None:
+            raise SystemExit(
+                "❌ Scale validation did not produce scale=1 alpha"
+            )
+
+        scale_one_delta = abs(
+            float(scale_one_alpha)
+            -
+            float(canonical_alpha_for_scale)
+        )
+
+        if scale_one_delta > 1e-8:
+            raise SystemExit(
+                "❌ INTERNAL SCIENTIFIC CONSISTENCY FAILURE: "
+                "scale=1 alpha differs from canonical alpha: "
+                f"delta={scale_one_delta:.12f}"
+            )
+
+        print(
+            "✅ HARD CANONICAL ALPHA CONSISTENCY PASSED"
+        )
+
+        print(
+            f"   canonical alpha: "
+            f"{canonical_alpha_for_scale:.8f}"
+        )
+
+        print(
+            f"   scale=1 alpha: "
+            f"{float(scale_one_alpha):.8f}"
+        )
+
+        print(
+            f"   delta: "
+            f"{scale_one_delta:.12f}"
+        )
+
         if not isinstance(scale_test, dict):
             raise SystemExit(
                 "❌ Scale validation returned a non-dict result"
