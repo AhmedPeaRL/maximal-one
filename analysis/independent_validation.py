@@ -2,26 +2,25 @@ from __future__ import annotations
 import numpy as np
 from analysis.numerical_spectral_verification import (
     estimate_alpha,
+    DEFAULT_FREQ_MIN,
+    DEFAULT_FREQ_MAX,
 )
 
-FREQ_MIN = 0.01
-FREQ_MAX = 0.25
 FREEZE_DECIMALS = 8
 
+FREQ_MIN = DEFAULT_FREQ_MIN
+FREQ_MAX = DEFAULT_FREQ_MAX
+
 def sanitize_alpha(alpha):
-    """
-    Validation-only sanitation.
-
-    No scientific clipping or forced range is applied.
-    Invalid/non-finite estimates are rejected.
-    """
-
     if alpha is None:
         return np.nan
 
     try:
         alpha = float(alpha)
-    except (TypeError, ValueError):
+    except (
+        TypeError,
+        ValueError,
+    ):
         return np.nan
 
     if not np.isfinite(alpha):
@@ -33,14 +32,11 @@ def periodogram_alpha_estimation(series):
     """
     Independent FFT-periodogram spectral exponent estimator.
 
-    IMPORTANT:
-    The primary estimator in numerical_spectral_verification.py
-    uses scipy.signal.welch().
+    The method remains independent from Welch, while using the
+    SAME declared physical frequency band.
 
-    This validator intentionally uses a direct FFT periodogram
-    so that methodological agreement is genuinely cross-method.
-
-    No scientific clipping is performed.
+    No clipping.
+    No forced agreement.
     """
 
     series = np.asarray(
@@ -54,27 +50,39 @@ def periodogram_alpha_estimation(series):
     if len(series) < 256:
         return np.nan
 
-    if not np.all(np.isfinite(series)):
+    if not np.all(
+        np.isfinite(series)
+    ):
         return np.nan
 
-    series = series - np.mean(series)
+    series = (
+        series
+        - np.mean(series)
+    )
 
     std = np.std(series)
 
     if std < 1e-12:
         return np.nan
 
-    series = series / std
+    series = (
+        series
+        / std
+    )
 
     n = len(series)
 
-    fft = np.fft.rfft(series)
+    fft = np.fft.rfft(
+        series
+    )
 
     power = (
         np.abs(fft) ** 2
     ) / float(n)
 
-    freqs = np.fft.rfftfreq(n)
+    freqs = np.fft.rfftfreq(
+        n
+    )
 
     mask = (
         (freqs > FREQ_MIN)
@@ -113,7 +121,9 @@ def periodogram_alpha_estimation(series):
     except Exception:
         return np.nan
 
-    slope = float(slope)
+    slope = float(
+        slope
+    )
 
     if not np.isfinite(slope):
         return np.nan
@@ -123,13 +133,6 @@ def periodogram_alpha_estimation(series):
     if not np.isfinite(alpha):
         return np.nan
 
-    # Tiny negative numerical excursions may be treated as zero.
-    if alpha < 0:
-        if alpha > -0.20:
-            alpha = 0.0
-        else:
-            return np.nan
-
     return float(
         np.round(
             alpha,
@@ -138,24 +141,14 @@ def periodogram_alpha_estimation(series):
     )
 
 def compare_methods(series):
-    """
-    Genuine independent methodological validation.
-
-    Primary:
-        Welch-based estimate_alpha()
-
-    Independent validator:
-        Direct FFT periodogram regression.
-
-    No scientific clipping or forced agreement is performed.
-    """
-
     alpha_primary = sanitize_alpha(
         estimate_alpha(series)
     )
 
     alpha_independent = sanitize_alpha(
-        periodogram_alpha_estimation(series)
+        periodogram_alpha_estimation(
+            series
+        )
     )
 
     if not (
@@ -183,7 +176,8 @@ def compare_methods(series):
     )
 
     print(
-        f"Independent FFT alpha: {alpha_independent}"
+        f"Independent FFT alpha: "
+        f"{alpha_independent}"
     )
 
     print(
@@ -195,7 +189,7 @@ def compare_methods(series):
         alpha_independent,
     )
 
-# Backward-compatible symbol for legacy callers.
-# This is intentionally an alias to the genuinely independent
-# FFT-periodogram estimator, NOT a Welch implementation.
-core_alpha_estimation = periodogram_alpha_estimation
+# Legacy compatibility.
+core_alpha_estimation = (
+    periodogram_alpha_estimation
+)
