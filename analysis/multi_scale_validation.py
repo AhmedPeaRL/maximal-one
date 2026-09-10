@@ -1,33 +1,26 @@
 from __future__ import annotations
 import numpy as np
-from scipy.signal import welch
+from analysis.numerical_spectral_verification import (
+    estimate_alpha,
+    DEFAULT_FREQ_MIN,
+    DEFAULT_FREQ_MAX,
+)
 
-# Canonical temporal aggregation scales.
+# ============================================================
+# CANONICAL TEMPORAL SCALES
+# ============================================================
+
 SCALES = (1, 2, 4, 8)
 
-# IMPORTANT:
-# This is the fixed ORIGINAL-sampling frequency band used
-# for the scale-robustness diagnostic.
-#
-# The primary estimator remains canonical [0.01, 0.25].
-BASE_FREQ_MIN = 0.01
-BASE_FREQ_MAX = 0.05
+BASE_FREQ_MIN = DEFAULT_FREQ_MIN
+BASE_FREQ_MAX = DEFAULT_FREQ_MAX
 
-# Stay below Nyquist after temporal aggregation.
 MAX_NORMALIZED_FREQ = 0.45
 
 MAX_PAIRWISE_DELTA = 0.50
 MAX_RELATIVE_SPREAD = 0.40
 
 def downsample(series, factor):
-    """
-    Temporal aggregation by non-overlapping block averaging.
-
-    This changes the sampling interval by `factor`.
-
-    No interpolation and no synthetic padding are allowed.
-    """
-
     series = np.asarray(
         series,
         dtype=np.float64,
@@ -61,18 +54,6 @@ def downsample(series, factor):
     ).mean(axis=1)
 
 def _scale_frequency_band(scale):
-    """
-    Map the fixed ORIGINAL-sampling frequency band into
-    the frequency coordinates of the temporally aggregated series.
-
-    If the sampling interval becomes `scale` times larger:
-
-        f_scaled = f_original * scale
-
-    No clipping is allowed because clipping would change the
-    physical comparison band between scales.
-    """
-
     lower = (
         BASE_FREQ_MIN
         * float(scale)
@@ -85,10 +66,14 @@ def _scale_frequency_band(scale):
 
     if not (
         np.isfinite(lower)
-        and np.isfinite(upper)
-        and lower > 0.0
-        and upper > lower
-        and upper < 0.5
+        and
+        np.isfinite(upper)
+        and
+        lower > 0.0
+        and
+        upper > lower
+        and
+        upper < 0.5
     ):
         return None
 
@@ -98,17 +83,6 @@ def _scale_frequency_band(scale):
     )
 
 def multi_scale_alpha(series):
-    """
-    Estimate spectral persistence across temporal aggregation scales.
-
-    This is a temporal-scale robustness test.
-
-    The same ORIGINAL physical frequency band is mapped into
-    the frequency coordinates of each aggregated series.
-
-    No synthetic padding is performed.
-    """
-
     series = np.asarray(
         series,
         dtype=np.float64,
@@ -127,14 +101,39 @@ def multi_scale_alpha(series):
     for scale in SCALES:
 
         if scale == 1:
-            scaled = series.copy()
-        else:
-            scaled = downsample(
+
+            # ====================================================
+            # ABSOLUTE PROTOCOL REQUIREMENT
+            #
+            # scale=1 MUST use the exact canonical estimator.
+            # ====================================================
+
+            alpha = estimate_alpha(
                 series,
-                scale,
+                freq_min=BASE_FREQ_MIN,
+                freq_max=BASE_FREQ_MAX,
             )
 
-        # Never manufacture observations.
+            if not np.isfinite(alpha):
+                continue
+
+            results.append(
+                (
+                    1,
+                    float(alpha),
+                    float(BASE_FREQ_MIN),
+                    float(BASE_FREQ_MAX),
+                    int(len(series)),
+                )
+            )
+
+            continue
+
+        scaled = downsample(
+            series,
+            scale,
+        )
+
         if len(scaled) < 256:
             continue
 
@@ -147,88 +146,11 @@ def multi_scale_alpha(series):
 
         freq_min, freq_max = freq_band
 
-        scaled = np.asarray(
+        alpha = estimate_alpha(
             scaled,
-            dtype=np.float64,
+            freq_min=freq_min,
+            freq_max=freq_max,
         )
-
-        scaled = (
-            scaled
-            - np.mean(scaled)
-        )
-
-        std = float(
-            np.std(scaled)
-        )
-
-        if not np.isfinite(std):
-            continue
-
-        if std < 1e-12:
-            continue
-
-        scaled = (
-            scaled
-            / std
-        )
-
-        nperseg = min(
-            1024,
-            len(scaled),
-        )
-
-        if nperseg < 128:
-            continue
-
-        freqs, psd = welch(
-            scaled,
-            nperseg=nperseg,
-            window="hann",
-            detrend="linear",
-            scaling="density",
-        )
-
-        mask = (
-            (freqs > freq_min)
-            &
-            (freqs < freq_max)
-            &
-            np.isfinite(freqs)
-            &
-            np.isfinite(psd)
-            &
-            (psd > 0)
-        )
-
-        if np.sum(mask) < 20:
-            continue
-
-        log_f = np.log(
-            freqs[mask]
-        )
-
-        log_psd = np.log(
-            psd[mask]
-        )
-
-        if not (
-            np.all(np.isfinite(log_f))
-            and np.all(np.isfinite(log_psd))
-        ):
-            continue
-
-        try:
-            slope = float(
-                np.polyfit(
-                    log_f,
-                    log_psd,
-                    1,
-                )[0]
-            )
-        except Exception:
-            continue
-
-        alpha = -slope
 
         if not np.isfinite(alpha):
             continue
@@ -260,12 +182,18 @@ def evaluate_scale_invariance(series):
         }
 
     scales = np.asarray(
-        [item[0] for item in results],
+        [
+            item[0]
+            for item in results
+        ],
         dtype=np.int64,
     )
 
     alphas = np.asarray(
-        [item[1] for item in results],
+        [
+            item[1]
+            for item in results
+        ],
         dtype=np.float64,
     )
 
@@ -280,15 +208,74 @@ def evaluate_scale_invariance(series):
             "scales": [],
         }
 
+    # ============================================================
+    # HARD INTERNAL CONSISTENCY CHECK
+    # ============================================================
+
+    canonical_alpha = estimate_alpha(
+        series,
+        freq_min=BASE_FREQ_MIN,
+        freq_max=BASE_FREQ_MAX,
+    )
+
+    if not np.isfinite(canonical_alpha):
+        return {
+            "valid": False,
+            "reason": "canonical_alpha_unavailable",
+            "scale_invariant": False,
+            "dispersion": np.nan,
+            "scales": [],
+        }
+
+    scale_one_indices = np.where(
+        scales == 1
+    )[0]
+
+    if len(scale_one_indices) != 1:
+        return {
+            "valid": False,
+            "reason": "scale_one_missing_or_duplicated",
+            "scale_invariant": False,
+            "dispersion": np.nan,
+            "scales": [],
+        }
+
+    scale_one_alpha = float(
+        alphas[
+            scale_one_indices[0]
+        ]
+    )
+
+    internal_delta = abs(
+        scale_one_alpha
+        -
+        float(canonical_alpha)
+    )
+
+    if internal_delta > 1e-8:
+        return {
+            "valid": False,
+            "reason": "scale_one_not_identical_to_canonical",
+            "scale_invariant": False,
+            "dispersion": np.nan,
+            "scales": [],
+            "canonical_alpha": float(
+                canonical_alpha
+            ),
+            "scale_one_alpha": scale_one_alpha,
+            "internal_delta": internal_delta,
+        }
+
     primary_alpha = float(
-        alphas[0]
+        canonical_alpha
     )
 
     max_primary_scale_delta = float(
         np.max(
             np.abs(
                 alphas
-                - primary_alpha
+                -
+                primary_alpha
             )
         )
     )
@@ -324,7 +311,8 @@ def evaluate_scale_invariance(series):
         np.median(
             np.abs(
                 alphas
-                - median_alpha
+                -
+                median_alpha
             )
         )
     )
@@ -373,16 +361,27 @@ def evaluate_scale_invariance(series):
     return {
         "valid": True,
 
+        "canonical_alpha": float(
+            canonical_alpha
+        ),
+
+        "scale_one_alpha": scale_one_alpha,
+
+        "scale_one_internal_delta":
+            float(internal_delta),
+
         "primary_scale_diagnostic": {
             "primary_alpha": primary_alpha,
             "max_absolute_delta":
                 max_primary_scale_delta,
             "relative_delta":
                 primary_scale_ratio,
-            "interpretation": (
-                "diagnostic_only: compares the scale-1 "
-                "estimate with temporally aggregated estimates"
-            ),
+            "interpretation":
+                "scale=1 is exactly the canonical "
+                "Welch estimator; other scales are "
+                "evaluated after temporal aggregation "
+                "using the same estimator and mapped "
+                "physical frequency band",
         },
 
         "scales": [
@@ -404,8 +403,9 @@ def evaluate_scale_invariance(series):
             "max_normalized_frequency":
                 MAX_NORMALIZED_FREQ,
             "interpretation":
-                "same_original_frequency_band_mapped "
-                "into each temporally aggregated series",
+                "same original physical frequency "
+                "band mapped into each temporally "
+                "aggregated series",
         },
 
         "median_alpha":
