@@ -5,6 +5,8 @@ import random
 import os
 import traceback
 import hashlib
+import subprocess
+import sys
 import analysis.hard_determinism_lock
 from analysis.load_real_datasets import load_series
 from analysis.numerical_spectral_verification import estimate_alpha
@@ -101,6 +103,24 @@ def main():
     rng = np.random.default_rng(args.seed)
     np.random.seed(args.seed)  # 🔥 مهم جداً
     os.makedirs(args.output_dir, exist_ok=True)
+
+    if args.canonical:
+        prepare_script = Path(
+            "scripts/prepare_canonical_inputs.py"
+        )
+
+        if not prepare_script.exists():
+            raise SystemExit(
+                "❌ Canonical input preparation script missing"
+            )
+
+        subprocess.run(
+            [
+                sys.executable,
+                str(prepare_script),
+            ],
+            check=True,
+        )
 
     # === ENSURE DATASET EXISTS (SELF-CONTAINED REPRODUCTION) ===
     if not os.path.exists("real-data/sunspots_full.csv"):
