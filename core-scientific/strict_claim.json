@@ -1,14 +1,33 @@
 {
   "title": "Constrained Spectral Persistence Hypothesis",
-  
-  "statement": "A spectral persistence signature is hypothesized to occur in selected heterogeneous temporal datasets and to remain distinguishable from appropriately specified stochastic null models under preregistered validation. The hypothesis remains unestablished until statistical null rejection, cross-method agreement, scale stability, and independent real-domain replication are demonstrated.",
+
+  "statement": "A spectral persistence signature is hypothesized to occur in selected heterogeneous temporal datasets and to remain distinguishable from appropriately specified stochastic null models under preregistered validation. The hypothesis remains unestablished until all declared validation layers agree internally, statistical null rejection is demonstrated, independent real-domain replication is demonstrated, and independent rerun reproducibility is verified.",
+
+  "epistemic_policy": {
+    "claim_status_is_machine_gated": true,
+    "no_claim_from_single_metric": true,
+    "no_claim_from_diagnostic_only_metric": true,
+    "no_claim_from_derived_dataset": true,
+    "no_claim_from_null_dataset": true,
+    "no_claim_from_perturbation_stability_alone": true,
+    "no_claim_from_internal_consistency_alone": true,
+    "no_claim_from_external_artifact_alone": true,
+    "mechanism_not_inferred_from_spectral_separation": true,
+    "universality_not_inferred_from_cross_domain_replication": true,
+    "hcm_causation_not_inferred_from_spectral_results": true
+  },
+
   "dataset": {
     "primary": "sunspots_full.csv",
     "secondary_required": true,
     "independent_real_domain_required": true,
     "adversarial_rejection_required": true,
-    "cross_domain_required": true
+    "cross_domain_required": true,
+    "derived_data_excluded_from_replication_count": true,
+    "shuffle_controls_excluded_from_replication_count": true,
+    "null_controls_excluded_from_replication_count": true
   },
+
   "method": {
     "pipeline": [
       "dataset_preprocessor",
@@ -22,8 +41,22 @@
     "primary_estimator": "Welch_PSD",
     "independent_validator": "FFT_periodogram",
     "seed": 42,
-    "deterministic": true
+    "deterministic": true,
+
+    "canonical_alpha_definition": {
+      "name": "canonical_primary_alpha",
+      "source": "primary_estimator",
+      "estimator": "Welch_PSD",
+      "must_be_identical_across_report_layers": true,
+      "recomputed_for_consistency_check": true
+    },
+
+    "alpha_provenance_required": true,
+    "frequency_band_provenance_required": true,
+    "estimator_provenance_required": true,
+    "normalization_provenance_required": true
   },
+
   "expected_result": {
     "alpha_range": [
       0.05,
@@ -37,10 +70,13 @@
     "max_sigma": 0.85,
     "max_method_delta": 0.30,
     "max_scale_dispersion": 0.40,
+    "max_internal_alpha_disagreement": 0.30,
+    "max_bootstrap_center_discrepancy_sigma": 2.5,
     "min_separation_z": 2.5,
     "max_p_value": 0.05,
     "min_independent_real_domains": 2
   },
+
   "scale_validation": {
     "scales": [
       1,
@@ -54,6 +90,7 @@
     ],
     "comparison_basis": "same_original_frequency_band_mapped_into_each_temporally_aggregated_series",
     "synthetic_padding_allowed": false,
+
     "protocol_amendment": {
       "status": "explicit_amendment_required",
       "reason": "The previous upper bound 0.25 cannot be mapped to scale 8 without exceeding the Nyquist limit. The canonical implementation therefore uses 0.01-0.05 so that the mapped upper frequency remains below Nyquist at every declared scale.",
@@ -67,6 +104,26 @@
       ]
     }
   },
+
+  "bootstrap_validation": {
+    "center_discrepancy": {
+      "status": "diagnostic_only",
+      "max_allowed_sigma_units": 2.5,
+      "failure_policy": "claim_support_blocked",
+      "does_not_establish_estimator_bias": true
+    }
+  },
+
+  "internal_consistency": {
+    "required": true,
+    "canonical_alpha_must_match_report_alpha": true,
+    "canonical_alpha_must_match_spectral_profile": true,
+    "canonical_alpha_must_match_separation_observed_alpha": true,
+    "canonical_alpha_must_match_statistical_test_observed_alpha": true,
+    "canonical_alpha_must_match_consensus_primary_alpha": true,
+    "maximum_allowed_alpha_disagreement": 0.30
+  },
+
   "reproducibility": {
     "perturbation_stability": {
       "status": "diagnostic_only",
@@ -74,16 +131,22 @@
     },
     "independent_rerun": {
       "required_for_final_reproducibility_claim": true
+    },
+    "fingerprint_match": {
+      "required_for_final_reproducibility_claim": true
     }
   },
+
   "falsification": {
-    "condition": "If alpha exits [0.05,3.0] OR sigma > 0.85 OR independent cross-domain std > 1.2 OR FFT/Welch disagreement > 0.30 OR scale dispersion > 0.40 OR p_value > 0.05 when the claim is evaluated as supported OR fewer than 2 independent real domains are available for replication.",
+    "condition": "If alpha exits [0.05,3.0] OR sigma > 0.85 OR independent cross-domain std > 1.2 OR FFT/Welch disagreement > 0.30 OR scale dispersion > 0.40 OR internal canonical-alpha disagreement > 0.30 OR bootstrap center discrepancy exceeds 2.5 sigma OR p_value > 0.05 when the claim is evaluated as supported OR fewer than 2 independent real domains are available for replication.",
     "action": "Do not support the scientific claim; mark it under investigation or falsified according to the failed condition."
   },
+
   "externality": {
     "independent_replay_required": true,
     "fingerprint_match_required": true
   },
+
   "epistemic_status": {
     "current_status": "under_investigation",
     "support_requires": [
@@ -91,7 +154,10 @@
       "independent_real_domain_replication",
       "cross_method_agreement",
       "scale_stability",
+      "internal_alpha_consistency",
+      "bootstrap_consistency",
       "independent_rerun_reproducibility",
+      "fingerprint_match",
       "adversarial_control"
     ]
   }
