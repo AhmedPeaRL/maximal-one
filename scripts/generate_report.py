@@ -479,6 +479,30 @@ def main():
                 "❌ Bootstrap consistency failed"
             )
 
+        MAX_BOOTSTRAP_CENTER_SIGMA = float(
+            strict_claim["expected_result"].get(
+                "max_bootstrap_center_discrepancy_sigma",
+                2.5,
+            )
+        )
+
+        if bootstrap_bias_ratio > MAX_BOOTSTRAP_CENTER_SIGMA:
+            raise SystemExit(
+                "❌ Bootstrap center discrepancy exceeds "
+                f"scientific tolerance: {bootstrap_bias_ratio:.8f} sigma "
+                f"> {MAX_BOOTSTRAP_CENTER_SIGMA:.8f}"
+            )
+
+        if bootstrap_bias_ratio > 2.0:
+            print(
+                "⚠️ Bootstrap center discrepancy is elevated "
+                f"({bootstrap_bias_ratio:.8f} sigma)"
+            )
+            print(
+                "ℹ️ Result remains usable only as a diagnostic; "
+                "scientific support is not strengthened by this metric."
+            )
+
         stats = recursively_freeze(
             monte_carlo_p_value(
                 series,
@@ -1180,6 +1204,31 @@ def main():
         write_canonical(
             output_path,
             report
+        )
+
+        # ============================================================
+        # FINAL CANONICAL SCIENTIFIC CONSISTENCY GATE
+        # ============================================================
+
+        validation_script = Path(
+            "scripts/validate_canonical_report.py"
+        )
+
+        if not validation_script.exists():
+            raise SystemExit(
+                "❌ Canonical report validator missing"
+            )
+
+        subprocess.run(
+            [
+                sys.executable,
+                str(validation_script),
+            ],
+            check=True,
+        )
+
+        print(
+            "✅ Canonical report generated and internally validated"
         )
             
         print("✅ Spectral report generated (stable & reproducible)")
