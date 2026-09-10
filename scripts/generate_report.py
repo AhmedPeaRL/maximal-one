@@ -5,8 +5,6 @@ import random
 import os
 import traceback
 import hashlib
-import subprocess
-import sys
 import analysis.hard_determinism_lock
 from analysis.load_real_datasets import load_series
 from analysis.numerical_spectral_verification import estimate_alpha
@@ -103,6 +101,9 @@ def main():
     rng = np.random.default_rng(args.seed)
     np.random.seed(args.seed)  # 🔥 مهم جداً
     os.makedirs(args.output_dir, exist_ok=True)
+
+    import subprocess
+    import sys
 
     if args.canonical:
         prepare_script = Path(
