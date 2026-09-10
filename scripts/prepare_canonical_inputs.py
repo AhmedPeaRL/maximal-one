@@ -1,5 +1,6 @@
 from __future__ import annotations
 import os
+import json
 import numpy as np
 import pandas as pd
 
@@ -58,12 +59,19 @@ def load_sunspots():
 def build_extended(series):
     if len(series) >= EXTENDED_LENGTH:
         extended = series[:EXTENDED_LENGTH].copy()
+
+        print(
+            "ℹ️ Derived dataset constructed as deterministic "
+            "prefix of canonical primary dataset"
+        )
+
     else:
         rng = np.random.default_rng(SEED)
 
         chunks = []
+        total = 0
 
-        while sum(len(x) for x in chunks) < EXTENDED_LENGTH:
+        while total < EXTENDED_LENGTH:
             block = int(
                 rng.integers(
                     128,
@@ -93,19 +101,37 @@ def build_extended(series):
                 )
 
             chunks.append(segment)
+            total += len(segment)
 
-        extended = np.concatenate(chunks)[:EXTENDED_LENGTH]
+        extended = np.concatenate(
+            chunks
+        )[:EXTENDED_LENGTH]
 
-        extended = extended - np.mean(extended)
+    extended = np.asarray(
+        extended,
+        dtype=np.float64,
+    )
 
-        std = np.std(extended)
+    if not np.all(
+        np.isfinite(extended)
+    ):
+        raise SystemExit(
+            "❌ Derived dataset contains non-finite values"
+        )
 
-        if std <= 1e-12:
-            raise SystemExit(
-                "❌ Derived dataset became degenerate"
-            )
+    extended = (
+        extended -
+        np.mean(extended)
+    )
 
-        extended = extended / std
+    std = np.std(extended)
+
+    if std <= 1e-12:
+        raise SystemExit(
+            "❌ Derived dataset became degenerate"
+        )
+
+    extended = extended / std
 
     pd.DataFrame(
         {
@@ -229,6 +255,33 @@ def main():
     extended = build_extended(
         series
     )
+
+    provenance = {
+        "dataset": EXTENDED_DATASET,
+        "source_dataset": BASE_DATASET,
+        "source_rows": int(len(series)),
+        "derived_rows": int(len(extended)),
+        "seed": SEED,
+        "construction": (
+            "deterministic_prefix"
+            if len(series) >= EXTENDED_LENGTH
+            else "deterministic_segment_concatenation"
+        ),
+        "independent_real_domain": False,
+        "eligible_for_cross_domain_replication": False,
+    }
+
+    with open(
+        "real-data/derived_provenance.json",
+        "w",
+        encoding="utf-8",
+    ) as f:
+        json.dump(
+            provenance,
+            f,
+            indent=2,
+            sort_keys=True,
+        )
 
     build_controls(
         extended
