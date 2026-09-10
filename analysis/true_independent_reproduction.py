@@ -82,6 +82,20 @@ def load_report(path):
     ) as f:
         return f.read()
 
+def prepare_canonical_inputs(path):
+    print(
+        "Preparing deterministic canonical inputs..."
+    )
+
+    subprocess.run(
+        [
+            "python",
+            "scripts/prepare_canonical_inputs.py",
+        ],
+        cwd=path,
+        check=True,
+    )
+
 def run_pipeline(path):
     print(
         "Running independent canonical pipeline..."
@@ -95,7 +109,13 @@ def run_pipeline(path):
         "OPENBLAS_NUM_THREADS": "1",
         "MKL_NUM_THREADS": "1",
         "NUMEXPR_NUM_THREADS": "1",
+        "MKL_DYNAMIC": "FALSE",
+        "OMP_DYNAMIC": "FALSE",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1",
     })
+
+    prepare_canonical_inputs(path)
 
     subprocess.run(
         [
@@ -118,7 +138,8 @@ def run_pipeline(path):
 
     if not os.path.exists(report_path):
         raise RuntimeError(
-            "Independent pipeline did not produce canonical_report.json"
+            "Independent pipeline did not produce "
+            "canonical_report.json"
         )
 
     return load_report(
@@ -135,25 +156,41 @@ def extract_required_structure(data):
             "bootstrap_std":
                 data["spectral_profile"]["bootstrap_std"],
         },
+
         "statistical_test": {
             "p_value":
                 data["statistical_test"]["p_value"],
             "valid":
                 data["statistical_test"]["valid"],
         },
+
         "cross_method_validation": {
             "primary_method":
-                data["cross_method_validation"]["primary_method"],
+                data[
+                    "cross_method_validation"
+                ]["primary_method"],
+
             "validation_method":
-                data["cross_method_validation"]["validation_method"],
+                data[
+                    "cross_method_validation"
+                ]["validation_method"],
+
             "agreement_delta":
-                data["cross_method_validation"]["agreement_delta"],
+                data[
+                    "cross_method_validation"
+                ]["agreement_delta"],
         },
+
         "dataset_audit": {
             "analysis_length":
-                data["dataset_audit"]["analysis_length"],
+                data["dataset_audit"][
+                    "analysis_length"
+                ],
+
             "analysis_sha256":
-                data["dataset_audit"]["analysis_sha256"],
+                data["dataset_audit"][
+                    "analysis_sha256"
+                ],
         },
     }
 
@@ -196,6 +233,11 @@ def compare():
         )
 
         if target:
+            print(
+                "Checking out exact workflow commit:",
+                target,
+            )
+
             subprocess.run(
                 [
                     "git",
@@ -253,23 +295,58 @@ def compare():
 
         print(
             "LOCAL FINGERPRINT:",
-            local_fingerprint
+            local_fingerprint,
         )
 
         print(
             "EXTERNAL FINGERPRINT:",
-            external_fingerprint
+            external_fingerprint,
         )
 
         print(
             "STRUCTURE MATCH:",
-            structure_match
+            structure_match,
         )
 
         print(
             "FINGERPRINT MATCH:",
-            fingerprint_match
+            fingerprint_match,
         )
+
+        if not fingerprint_match:
+            print(
+                "⚠️ Full canonical fingerprint mismatch."
+            )
+
+            local_dataset_audit = (
+                local_data.get(
+                    "dataset_audit",
+                    {}
+                )
+            )
+
+            external_dataset_audit = (
+                external_data.get(
+                    "dataset_audit",
+                    {}
+                )
+            )
+
+            print(
+                "LOCAL DATASET AUDIT:",
+                json.dumps(
+                    local_dataset_audit,
+                    sort_keys=True,
+                ),
+            )
+
+            print(
+                "EXTERNAL DATASET AUDIT:",
+                json.dumps(
+                    external_dataset_audit,
+                    sort_keys=True,
+                ),
+            )
 
         independent_replay_verified = bool(
             structure_match
@@ -299,25 +376,32 @@ def compare():
                 8,
 
             "volatile_keys_removed":
-                sorted(VOLATILE_KEYS),
+                sorted(
+                    VOLATILE_KEYS
+                ),
 
             "scientific_role":
                 "independent_reproducibility_gate",
 
-            "status": (
-                "verified"
-                if independent_replay_verified
-                else "failed"
-            ),
+            "canonical_input_preparation":
+                "scripts/prepare_canonical_inputs.py",
+
+            "status":
+                (
+                    "verified"
+                    if independent_replay_verified
+                    else "failed"
+                ),
         }
 
         os.makedirs(
             "artifacts",
-            exist_ok=True
+            exist_ok=True,
         )
 
         with open(
-            "artifacts/external_replay_verification.json",
+            "artifacts/"
+            "external_replay_verification.json",
             "w",
             encoding="utf-8",
         ) as f:
@@ -349,5 +433,6 @@ def compare():
 
 if __name__ == "__main__":
     ok = compare()
+
     if not ok:
         raise SystemExit(1)
