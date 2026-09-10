@@ -4,8 +4,28 @@ from scipy.signal import welch
 
 FREEZE_DECIMALS = 8
 
+# ============================================================
+# CANONICAL SPECTRAL PROTOCOL
+# ============================================================
+#
+# This frequency band is the declared canonical band for the
+# complete multi-scale protocol.
+#
+# It is intentionally restricted so that the same original
+# physical band can be mapped through scales 1, 2, 4 and 8
+# without crossing the normalized Nyquist limit.
+#
+# DO NOT change these values locally.
+# Any scientific change requires a protocol amendment.
+# ============================================================
+
 DEFAULT_FREQ_MIN = 0.01
-DEFAULT_FREQ_MAX = 0.25
+DEFAULT_FREQ_MAX = 0.05
+
+CANONICAL_NPERSEG = 256
+CANONICAL_WINDOW = "hann"
+CANONICAL_DETREND = "linear"
+CANONICAL_SCALING = "density"
 
 def f(x):
     return float(
@@ -44,21 +64,62 @@ def _validate_frequency_band(
         freq_max,
     )
 
+def _prepare_series(series):
+    series = np.asarray(
+        series,
+        dtype=np.float64,
+    )
+
+    if series.ndim != 1:
+        return None
+
+    if len(series) < 256:
+        return None
+
+    if not np.all(
+        np.isfinite(series)
+    ):
+        return None
+
+    if np.std(series) < 1e-8:
+        return None
+
+    series = (
+        series
+        - np.mean(series)
+    )
+
+    std = np.std(series)
+
+    if std < 1e-12:
+        return None
+
+    series = (
+        series
+        / std
+    )
+
+    return series
+
 def estimate_alpha(
     series,
     freq_min=DEFAULT_FREQ_MIN,
     freq_max=DEFAULT_FREQ_MAX,
 ):
     """
-    Estimate spectral exponent alpha from a PSD power-law region.
+    Canonical Welch PSD spectral exponent estimator.
 
-    The estimator itself performs measurement only.
+    This is the single canonical primary estimator used by:
 
-    It does NOT clip, force, or otherwise alter a valid estimate
-    to make it fit an expected scientific range.
+        - primary analysis
+        - bootstrap
+        - scale=1 validation
+        - scale validation
+        - cross-domain analysis
 
-    `freq_min` and `freq_max` define the normalized frequency
-    region used for regression.
+    No clipping.
+    No forced agreement.
+    No range correction.
     """
 
     frequency_band = _validate_frequency_band(
@@ -71,44 +132,13 @@ def estimate_alpha(
 
     freq_min, freq_max = frequency_band
 
-    series = np.asarray(
-        series,
-        dtype=np.float64,
-    )
+    series = _prepare_series(series)
 
-    if series.ndim != 1:
+    if series is None:
         return np.nan
-
-    if len(series) < 256:
-        return np.nan
-
-    if not np.all(
-        np.isfinite(series)
-    ):
-        return np.nan
-
-    if np.std(series) < 1e-8:
-        return np.nan
-
-    series = (
-        series
-        -
-        np.mean(series)
-    )
-
-    std = np.std(series)
-
-    if std < 1e-12:
-        return np.nan
-
-    series = (
-        series
-        /
-        std
-    )
 
     nperseg = min(
-        256,
+        CANONICAL_NPERSEG,
         len(series) // 2,
     )
 
@@ -118,9 +148,9 @@ def estimate_alpha(
     freqs, psd = welch(
         series,
         nperseg=nperseg,
-        window="hann",
-        detrend="linear",
-        scaling="density",
+        window=CANONICAL_WINDOW,
+        detrend=CANONICAL_DETREND,
+        scaling=CANONICAL_SCALING,
     )
 
     mask = (
@@ -172,14 +202,8 @@ def estimate_alpha(
     if not np.isfinite(alpha):
         return np.nan
 
-    # Negative alpha is a valid spectral-slope estimate.
-    #
-    # It MUST remain observable because clipping negative values
-    # can collapse a permutation-null distribution and create
-    # an artificial degenerate null.
-    #
-    # No scientific clipping is performed.
-
+    # Negative spectral exponents remain observable.
+    # No scientific clipping is allowed.
     return f(alpha)
 
 def block_bootstrap(
@@ -243,6 +267,7 @@ def block_bootstrap(
     alphas = []
 
     for _ in range(num_boot):
+
         sample = []
 
         while len(sample) < n:
