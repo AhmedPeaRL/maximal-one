@@ -70,11 +70,13 @@
     "max_sigma": 0.85,
     "max_method_delta": 0.30,
     "max_scale_dispersion": 0.40,
+    "max_same_estimator_disagreement": 1e-8,
     "max_internal_alpha_disagreement": 0.30,
     "max_bootstrap_center_discrepancy_sigma": 2.5,
     "min_separation_z": 2.5,
     "max_p_value": 0.05,
-    "min_independent_real_domains": 2
+    "min_independent_real_domains": 2,
+    "scale1_must_equal_canonical": true
   },
 
   "scale_validation": {
