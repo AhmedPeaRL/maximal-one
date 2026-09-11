@@ -1,7 +1,6 @@
 from __future__ import annotations
 import json
 import math
-import sys
 from pathlib import Path
 
 REPORT_PATH = Path("artifacts/canonical_report.json")
@@ -12,174 +11,436 @@ def finite(value):
 
 def require(condition, message):
     if not condition:
-        raise SystemExit(f"❌ INTERNAL SCIENTIFIC CONSISTENCY FAILURE: {message}")
+        raise SystemExit(
+            "❌ INTERNAL SCIENTIFIC CONSISTENCY FAILURE: "
+            f"{message}"
+        )
+
+def finite_float(value, name):
+    require(
+        finite(value),
+        f"{name} is missing or non-finite: {value}",
+    )
+    return float(value)
 
 def main():
-    require(REPORT_PATH.exists(), f"missing report: {REPORT_PATH}")
-    require(CLAIM_PATH.exists(), f"missing claim specification: {CLAIM_PATH}")
-
-    with REPORT_PATH.open("r", encoding="utf-8") as f:
-        report = json.load(f)
-
-    with CLAIM_PATH.open("r", encoding="utf-8") as f:
-        claim = json.load(f)
-
-    max_delta = float(
-        claim["expected_result"].get(
-            "max_internal_alpha_disagreement",
-            0.30,
-        )
+    require(
+        REPORT_PATH.exists(),
+        f"missing report: {REPORT_PATH}",
     )
-
-    spectral = report.get("spectral_profile", {})
-    cross_method = report.get("cross_method_validation", {})
-    separation = report.get("separation_test") or {}
-    statistical = report.get("statistical_test", {})
-    scale = report.get("multi_scale_validation", {})
-    consensus = report.get("consensus_guard", {})
-
-    canonical_alpha = spectral.get("estimated_alpha")
 
     require(
-        finite(canonical_alpha),
-        f"canonical spectral alpha is invalid: {canonical_alpha}",
+        CLAIM_PATH.exists(),
+        f"missing claim specification: {CLAIM_PATH}",
     )
 
-    canonical_alpha = float(canonical_alpha)
+    with REPORT_PATH.open(
+        "r",
+        encoding="utf-8",
+    ) as f:
+        report = json.load(f)
 
-    observations = {
-        "spectral_profile.estimated_alpha": canonical_alpha,
-        "statistical_test.observed_alpha": statistical.get(
-            "observed_alpha"
-        ),
-        "separation_test.real_alpha": separation.get(
-            "real_alpha"
-        ),
-        "cross_method_validation.welch_alpha": cross_method.get(
-            "welch_alpha"
-        ),
-    }
+    with CLAIM_PATH.open(
+        "r",
+        encoding="utf-8",
+    ) as f:
+        claim = json.load(f)
 
-    for name, value in observations.items():
-        require(
-            finite(value),
-            f"{name} is missing or non-finite: {value}",
+    expected = claim.get(
+        "expected_result",
+        {},
+    )
+
+    # ------------------------------------------------------------
+    # 1. Canonical alpha
+    # ------------------------------------------------------------
+
+    spectral = report.get(
+        "spectral_profile",
+        {},
+    )
+
+    canonical_alpha = finite_float(
+        spectral.get("estimated_alpha"),
+        "spectral_profile.estimated_alpha",
+    )
+
+    # ------------------------------------------------------------
+    # 2. Same-estimator identity guard
+    #
+    # These quantities are supposed to represent the same
+    # canonical Welch estimator. A tolerance of 0.30 is NOT
+    # scientifically acceptable here.
+    # ------------------------------------------------------------
+
+    cross_method = report.get(
+        "cross_method_validation",
+        {},
+    )
+
+    welch_alpha = finite_float(
+        cross_method.get("welch_alpha"),
+        "cross_method_validation.welch_alpha",
+    )
+
+    same_estimator_tol = float(
+        expected.get(
+            "max_same_estimator_disagreement",
+            1e-8,
+        )
+    )
+
+    welch_delta = abs(
+        canonical_alpha -
+        welch_alpha
+    )
+
+    require(
+        welch_delta <= same_estimator_tol,
+        (
+            "canonical alpha and canonical Welch alpha are "
+            "not numerically identical: "
+            f"delta={welch_delta:.12f}, "
+            f"allowed={same_estimator_tol:.12f}"
+        ),
+    )
+
+    # ------------------------------------------------------------
+    # 3. Statistical observed alpha must be the same canonical
+    # measurement.
+    # ------------------------------------------------------------
+
+    statistical = report.get(
+        "statistical_test",
+        {},
+    )
+
+    statistical_alpha = finite_float(
+        statistical.get("observed_alpha"),
+        "statistical_test.observed_alpha",
+    )
+
+    statistical_delta = abs(
+        canonical_alpha -
+        statistical_alpha
+    )
+
+    require(
+        statistical_delta <= same_estimator_tol,
+        (
+            "statistical_test.observed_alpha does not equal "
+            "canonical alpha: "
+            f"delta={statistical_delta:.12f}, "
+            f"allowed={same_estimator_tol:.12f}"
+        ),
+    )
+
+    # ------------------------------------------------------------
+    # 4. Separation observed alpha must also be canonical.
+    # ------------------------------------------------------------
+
+    separation = (
+        report.get("separation_test")
+        or {}
+    )
+
+    separation_alpha = finite_float(
+        separation.get("real_alpha"),
+        "separation_test.real_alpha",
+    )
+
+    separation_delta = abs(
+        canonical_alpha -
+        separation_alpha
+    )
+
+    require(
+        separation_delta <= same_estimator_tol,
+        (
+            "separation_test.real_alpha does not equal "
+            "canonical alpha: "
+            f"delta={separation_delta:.12f}, "
+            f"allowed={same_estimator_tol:.12f}"
+        ),
+    )
+
+    # ------------------------------------------------------------
+    # 5. SCALE=1 MUST BE THE SAME CANONICAL MEASUREMENT.
+    #
+    # This is the critical guard.
+    #
+    # If scale=1 currently reports ~2.525 while canonical
+    # reports ~0.953, this script MUST FAIL.
+    #
+    # We do not reinterpret that discrepancy.
+    # We do not loosen the threshold.
+    # We fix the scale-validation implementation.
+    # ------------------------------------------------------------
+
+    scale = report.get(
+        "multi_scale_validation",
+        {},
+    )
+
+    scale_primary = scale.get(
+        "primary_scale_diagnostic",
+        {},
+    )
+
+    scale_primary_alpha = finite_float(
+        scale_primary.get("primary_alpha"),
+        "multi_scale_validation.primary_scale_diagnostic.primary_alpha",
+    )
+
+    scale_delta = abs(
+        canonical_alpha -
+        scale_primary_alpha
+    )
+
+    require(
+        scale_delta <= same_estimator_tol,
+        (
+            "SCALE=1 DOES NOT REPRODUCE THE CANONICAL ESTIMATOR: "
+            f"canonical={canonical_alpha:.12f}, "
+            f"scale1={scale_primary_alpha:.12f}, "
+            f"delta={scale_delta:.12f}. "
+            "Scale validation is scientifically invalid until "
+            "the scale=1 implementation uses the exact canonical "
+            "Welch estimator and frequency-band definition."
+        ),
+    )
+
+    # ------------------------------------------------------------
+    # 6. Scale dispersion is a separate criterion.
+    # ------------------------------------------------------------
+
+    scale_dispersion = scale.get(
+        "dispersion",
+        scale.get(
+            "scale_dispersion",
+            None,
+        ),
+    )
+
+    if finite(scale_dispersion):
+
+        max_scale_dispersion = float(
+            expected.get(
+                "max_scale_dispersion",
+                0.40,
+            )
         )
 
-    disagreements = {}
-
-    for name, value in observations.items():
-        delta = abs(canonical_alpha - float(value))
-        disagreements[name] = delta
-
         require(
-            delta <= max_delta,
+            float(scale_dispersion)
+            <= max_scale_dispersion,
             (
-                f"{name} disagrees with canonical alpha by "
-                f"{delta:.8f}; maximum allowed is {max_delta:.8f}"
+                "scale dispersion exceeds declared threshold: "
+                f"{float(scale_dispersion):.8f} > "
+                f"{max_scale_dispersion:.8f}"
             ),
         )
 
-    bootstrap = report.get("bootstrap_center_discrepancy", {})
-    bootstrap_sigma = bootstrap.get("std_units")
+    # ------------------------------------------------------------
+    # 7. Bootstrap discrepancy remains diagnostic.
+    #
+    # It must be visible, but we do not silently convert it into
+    # evidence for the claim.
+    # ------------------------------------------------------------
+
+    bootstrap = report.get(
+        "bootstrap_center_discrepancy",
+        {},
+    )
+
+    bootstrap_sigma = bootstrap.get(
+        "std_units"
+    )
 
     if finite(bootstrap_sigma):
-        max_bootstrap_sigma = float(
-            claim["expected_result"].get(
+
+        declared_bootstrap_limit = float(
+            expected.get(
                 "max_bootstrap_center_discrepancy_sigma",
                 2.5,
             )
         )
 
-        require(
-            float(bootstrap_sigma) <= max_bootstrap_sigma,
-            (
+        if float(bootstrap_sigma) > declared_bootstrap_limit:
+            raise SystemExit(
+                "❌ INTERNAL SCIENTIFIC CONSISTENCY FAILURE: "
                 "bootstrap center discrepancy exceeds declared "
-                f"scientific tolerance: {bootstrap_sigma:.8f} > "
-                f"{max_bootstrap_sigma:.8f}"
-            ),
-        )
+                "diagnostic threshold: "
+                f"{float(bootstrap_sigma):.8f} > "
+                f"{declared_bootstrap_limit:.8f}"
+            )
 
-    scale_primary = scale.get("primary_scale_diagnostic", {})
-    scale_primary_alpha = scale_primary.get("primary_alpha")
+    # ------------------------------------------------------------
+    # 8. Consensus guard
+    # ------------------------------------------------------------
 
-    if finite(scale_primary_alpha):
-        scale_delta = abs(
-            canonical_alpha - float(scale_primary_alpha)
-        )
+    consensus = report.get(
+        "consensus_guard",
+        {},
+    )
 
-        require(
-            scale_delta <= max_delta,
-            (
-                "scale validation primary alpha is inconsistent "
-                f"with canonical alpha: delta={scale_delta:.8f}"
-            ),
-        )
-
-    # Consensus must never silently convert an inconsistent report
-    # into a supported scientific claim.
     if consensus.get("passed", False):
+
+        agreement_delta = consensus.get(
+            "agreement_delta"
+        )
+
         require(
-            finite(consensus.get("agreement_delta")),
+            finite(agreement_delta),
             "consensus agreement_delta is invalid",
         )
 
-    # Final epistemic guard.
-    scientific = report.setdefault(
+    # ------------------------------------------------------------
+    # 9. Independent domains
+    #
+    # Consensus may count ONLY datasets explicitly marked
+    # independent=True and valid=True.
+    # ------------------------------------------------------------
+
+    consensus_artifact = Path(
+        "artifacts/canonical_consensus.json"
+    )
+
+    if consensus_artifact.exists():
+
+        with consensus_artifact.open(
+            "r",
+            encoding="utf-8",
+        ) as f:
+            consensus_data = json.load(f)
+
+        datasets = consensus_data.get(
+            "datasets",
+            [],
+        )
+
+        counted = [
+            item
+            for item in datasets
+            if (
+                item.get("independent") is True
+                and item.get("valid") is True
+                and item.get("role")
+                in {
+                    "primary_real",
+                    "independent_real",
+                }
+            )
+        ]
+
+        declared_min_domains = int(
+            expected.get(
+                "min_independent_real_domains",
+                2,
+            )
+        )
+
+        require(
+            len(counted) >= declared_min_domains,
+            (
+                "insufficient genuinely independent real "
+                f"domains: {len(counted)} < "
+                f"{declared_min_domains}"
+            ),
+        )
+
+    # ------------------------------------------------------------
+    # 10. Claim support cannot be activated merely because the
+    # internal report looks good.
+    #
+    # External reproduction and adversarial validation remain
+    # separate gates.
+    # ------------------------------------------------------------
+
+    scientific = report.get(
         "scientific_interpretation",
         {},
     )
 
     claim_support_gate = bool(
-        scientific.get("claim_support_gate", False)
+        scientific.get(
+            "claim_support_gate",
+            False,
+        )
     )
 
     if claim_support_gate:
-        required_external = (
-            scientific.get("reproducibility", {})
-            .get("independent_rerun")
+
+        reproducibility = scientific.get(
+            "reproducibility",
+            {},
         )
 
         require(
-            required_external == "verified",
+            reproducibility.get(
+                "independent_rerun"
+            ) == "verified",
             (
-                "claim_support_gate=true while independent rerun "
-                "is not verified"
+                "claim_support_gate=true while "
+                "independent rerun is not verified"
             ),
         )
 
         require(
             bool(
-                scientific.get("reproducibility", {})
-                .get("fingerprint_match", False)
+                reproducibility.get(
+                    "fingerprint_match",
+                    False,
+                )
             ),
             (
-                "claim_support_gate=true while fingerprint_match "
-                "is false"
+                "claim_support_gate=true while "
+                "fingerprint_match=false"
             ),
         )
 
-    print("✅ Canonical report internal consistency verified")
-    print(f"   canonical alpha: {canonical_alpha:.8f}")
+    # ------------------------------------------------------------
+    # 11. Final output
+    # ------------------------------------------------------------
 
-    for name, delta in disagreements.items():
-        print(
-            f"   {name}: delta={delta:.8f}"
-        )
+    print(
+        "✅ Canonical report internal consistency verified"
+    )
+
+    print(
+        f"   canonical alpha: {canonical_alpha:.8f}"
+    )
+
+    print(
+        f"   canonical Welch delta: "
+        f"{welch_delta:.12f}"
+    )
+
+    print(
+        f"   statistical alpha delta: "
+        f"{statistical_delta:.12f}"
+    )
+
+    print(
+        f"   separation alpha delta: "
+        f"{separation_delta:.12f}"
+    )
+
+    print(
+        f"   scale=1 alpha delta: "
+        f"{scale_delta:.12f}"
+    )
 
     if finite(bootstrap_sigma):
+
         print(
-            f"   bootstrap center discrepancy: "
+            "   bootstrap center discrepancy: "
             f"{float(bootstrap_sigma):.8f} sigma"
         )
 
-    if finite(scale_primary_alpha):
-        print(
-            f"   scale primary alpha: "
-            f"{float(scale_primary_alpha):.8f}"
-        )
-
-    print("✅ Scientific epistemic gate verified")
+    print(
+        "✅ Scientific epistemic gate verified"
+    )
 
 if __name__ == "__main__":
     main()
