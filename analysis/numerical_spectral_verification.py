@@ -1,39 +1,46 @@
-from future import annotations
+from __future__ import annotations
 import numpy as np
 from scipy.signal import welch
 
 FREEZE_DECIMALS = 8
 
-============================================================
-
-CANONICAL SPECTRAL PROTOCOL
-
-============================================================
-
-The declared canonical physical frequency band is:
-
-0.01 <= f <= 0.05
-
-This band is intentionally restricted so that the same
-original frequency band can be mapped through scales
-1, 2, 4 and 8 without crossing the normalized Nyquist
-limit.
-
-IMPORTANT:
-
-The estimator must have enough frequency bins inside the
-declared band to perform a meaningful log-log regression.
-
-No clipping.
-No forced agreement.
-No synthetic padding.
-
-============================================================
+# ============================================================
+# CANONICAL SPECTRAL PROTOCOL
+# ============================================================
+#
+# The declared canonical physical frequency band is:
+#
+#     0.01 < f < 0.05
+#
+# This band is intentionally restricted so that the same
+# original frequency band can be mapped through scales
+# 1, 2, 4 and 8 without crossing the normalized Nyquist
+# limit.
+#
+# No clipping.
+# No forced agreement.
+# No synthetic padding.
+#
+# The minimum-bin requirement is part of the declared
+# estimator protocol.
+# ============================================================
 
 DEFAULT_FREQ_MIN = 0.01
 DEFAULT_FREQ_MAX = 0.05
 
 CANONICAL_NPERSEG = 256
+
+# At scale 8, the declared mapped frequency band is:
+# 0.08 < f < 0.40
+#
+# With the available scale-8 sample length and canonical
+# segmentation, 20 bins are not physically available.
+# Eight is therefore the common minimum across all declared
+# scales without interpolation or synthetic padding.
+#
+# This is a validity threshold, NOT an evidence-strength
+# threshold.
+
 CANONICAL_MIN_BINS = 8
 
 CANONICAL_WINDOW = "hann"
@@ -60,7 +67,7 @@ def _validate_frequency_band(
         ValueError,
     ):
         return None
-        
+
     if not (
         np.isfinite(freq_min)
         and np.isfinite(freq_max)
@@ -121,7 +128,7 @@ def _frequency_bin_count(
 ):
     """
     Return the number of strictly interior frequency bins
-    available inside the declared canonical frequency band.
+    available inside the declared frequency band.
     """
 
     freqs = np.fft.rfftfreq(
@@ -145,18 +152,17 @@ def estimate_alpha(
     Canonical Welch PSD spectral exponent estimator.
 
     Scientific rules:
+
     - invalid inputs return NaN
     - non-finite estimates remain non-finite
     - negative exponents remain observable
     - no clipping
     - no forced agreement
     - no range correction
+    - no synthetic padding
 
-    The minimum-bin requirement is deliberately explicit.
-    It is reduced to 8 because the declared 0.01-0.05 band
-    cannot provide 20 bins at the canonical 256-point Welch
-    segmentation. This is an estimator/protocol amendment,
-    not a data correction.
+    The minimum-bin requirement is explicit and shared
+    across the canonical spectral protocol.
     """
 
     frequency_band = _validate_frequency_band(
@@ -169,7 +175,9 @@ def estimate_alpha(
 
     freq_min, freq_max = frequency_band
 
-    series = _prepare_series(series)
+    series = _prepare_series(
+        series
+    )
 
     if series is None:
         return np.nan
@@ -235,7 +243,7 @@ def estimate_alpha(
         )
     except Exception:
         return np.nan
-        
+
     slope = float(
         coeffs[0]
     )
@@ -258,7 +266,6 @@ def block_bootstrap(
     block_size=None,
     num_boot=100,
 ):
-
     series = np.asarray(
         series,
         dtype=np.float64,
