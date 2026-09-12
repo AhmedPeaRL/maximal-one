@@ -624,7 +624,44 @@ def main():
 
         from analysis.independent_validation import compare_methods
 
-        alpha_welch, alpha_fft = compare_methods(series)
+        method_comparison = compare_methods(series)
+
+        if not isinstance(method_comparison, dict):
+            raise SystemExit(
+                "❌ Independent validation returned an unexpected object"
+            )
+
+        required_method_keys = {
+            "welch_alpha",
+            "fft_alpha",
+            "delta",
+            "finite",
+            "agreement",
+            "threshold",
+        }
+
+        missing_method_keys = (
+            required_method_keys
+            - set(method_comparison.keys())
+        )
+
+        if missing_method_keys:
+            raise SystemExit(
+                "❌ Independent validation missing required fields: "
+                + ", ".join(sorted(missing_method_keys))
+            )
+
+        alpha_welch = float(
+            method_comparison["welch_alpha"]
+        )
+
+        alpha_fft = float(
+            method_comparison["fft_alpha"]
+        )
+
+        validation_delta = float(
+            method_comparison["delta"]
+        )
 
         if not np.isfinite(alpha_welch):
             raise SystemExit(
@@ -636,14 +673,14 @@ def main():
                 "❌ Independent FFT alpha estimator failed"
             )
 
+        if not np.isfinite(validation_delta):
+            raise SystemExit(
+                "❌ Independent validation delta is non-finite"
+            )
+
         alpha = stable_float(
             alpha_welch,
             8
-        )
-
-        validation_delta = abs(
-            alpha_welch -
-            alpha_fft
         )
 
         print(
