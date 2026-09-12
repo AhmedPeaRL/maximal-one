@@ -54,7 +54,14 @@
     "alpha_provenance_required": true,
     "frequency_band_provenance_required": true,
     "estimator_provenance_required": true,
-    "normalization_provenance_required": true
+    "normalization_provenance_required": true,
+    "frequency_resolution": {
+      "minimum_frequency_bins": 8,
+      "protocol_status": "explicit_amendment",
+      "amended_from": 20,
+      "reason": "The declared canonical frequency band 0.01-0.05 cannot provide 20 independent frequency bins at the declared scale-8 temporal resolution without interpolation or synthetic padding. Eight is the common minimum available across all declared scales under the existing estimator and sampling protocol.",
+      "scientific_role": "minimum estimator validity requirement, not an evidence-strength criterion"
+    }
   },
 
   "expected_result": {
