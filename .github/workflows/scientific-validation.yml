@@ -113,8 +113,10 @@ jobs:
                   "❌ Canonical primary dataset has fewer than 4 columns"
               )
 
+          SIGNAL_COLUMN_INDEX = 3
+
           series = pd.to_numeric(
-              df.iloc[:, 3],
+              df.iloc[:, SIGNAL_COLUMN_INDEX],
               errors="coerce",
           ).to_numpy(
               dtype=np.float64,
@@ -128,7 +130,10 @@ jobs:
               )
 
           print("Dataset:", DATASET)
-          print("Signal column: canonical column index 3")
+          print(
+              "Signal column: canonical column index",
+              SIGNAL_COLUMN_INDEX,
+          )
           print("Rows:", len(series))
 
           result = compare_methods(series)
@@ -160,7 +165,10 @@ jobs:
           delta = float(result["delta"])
 
           print("Dataset:", DATASET)
-          print("Signal column:", col)
+          print(
+              "Signal column:",
+              f"canonical column index {SIGNAL_COLUMN_INDEX}",
+          )
           print("Rows:", len(series))
 
           print("Welch alpha:", repr(welch_alpha))
