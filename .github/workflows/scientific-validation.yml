@@ -99,48 +99,73 @@ jobs:
 
           from analysis.independent_validation import compare_methods
 
-          DATASET = "real-data/sunspots_global_extended.csv"
+          DATASET = "real-data/sunspots_full.csv"
 
-          df = pd.read_csv(DATASET)
+          df = pd.read_csv(
+              DATASET,
+              sep=";",
+              engine="python",
+              header=None,
+          )
 
-          col = "Sunspots" if "Sunspots" in df.columns else "value"
+          if df.shape[1] < 4:
+              raise SystemExit(
+                  "❌ Canonical primary dataset has fewer than 4 columns"
+              )
 
-          series = (
-              df[col]
-              .astype(np.float64)
-              .to_numpy()
+          series = pd.to_numeric(
+              df.iloc[:, 3],
+              errors="coerce",
+          ).to_numpy(
+              dtype=np.float64,
           )
 
           series = series[np.isfinite(series)]
 
           if len(series) < 256:
               raise SystemExit(
-                  f"❌ Extended dataset too short: {len(series)}"
+                  f"❌ Canonical primary dataset too short: {len(series)}"
               )
+
+          print("Dataset:", DATASET)
+          print("Signal column: canonical column index 3")
+          print("Rows:", len(series))
+
+          result = compare_methods(series)
+
+          if not isinstance(result, dict):
+              raise SystemExit(
+                  "❌ compare_methods() returned an unexpected object"
+              )
+
+          required_keys = {
+              "welch_alpha",
+              "fft_alpha",
+              "delta",
+              "finite",
+              "agreement",
+              "threshold",
+          }
+
+          missing = required_keys - set(result.keys())
+
+          if missing:
+              raise SystemExit(
+                  "❌ compare_methods() missing required fields: "
+                  + ", ".join(sorted(missing))
+              )
+
+          welch_alpha = float(result["welch_alpha"])
+          fft_alpha = float(result["fft_alpha"])
+          delta = float(result["delta"])
 
           print("Dataset:", DATASET)
           print("Signal column:", col)
           print("Rows:", len(series))
 
-          result = compare_methods(series)
-
-          if not isinstance(result, (tuple, list)):
-              raise SystemExit(
-                  "❌ compare_methods() returned an unexpected object"
-              )
-
-          if len(result) != 2:
-              raise SystemExit(
-                  f"❌ compare_methods() must return exactly two values; got {len(result)}"
-              )
-
-          # Canonical project convention:
-          # compare_methods() -> (Welch alpha, FFT alpha)
-          welch_alpha = float(result[0])
-          fft_alpha = float(result[1])
-
           print("Welch alpha:", repr(welch_alpha))
           print("FFT alpha:", repr(fft_alpha))
+          print("Method delta:", repr(delta))
 
           if not np.isfinite(welch_alpha):
               raise SystemExit(
@@ -152,20 +177,18 @@ jobs:
                   "❌ FFT estimator returned non-finite alpha"
               )
 
-          delta = abs(
-              welch_alpha - fft_alpha
-          )
+          if not np.isfinite(delta):
+              raise SystemExit(
+                  "❌ Cross-method delta is non-finite"
+              )
 
-          print("Method delta:", repr(delta))
-
-          # The strict claim defines 0.30 as the canonical
-          # cross-method tolerance.
           MAX_METHOD_DELTA = 0.30
 
           if delta > MAX_METHOD_DELTA:
               raise SystemExit(
                   "❌ Canonical method inconsistency: "
-                  f"delta={delta:.12f} > {MAX_METHOD_DELTA:.12f}"
+                  f"delta={delta:.12f} > "
+                  f"{MAX_METHOD_DELTA:.12f}"
               )
 
           print(
