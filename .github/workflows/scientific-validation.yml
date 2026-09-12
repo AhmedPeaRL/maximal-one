@@ -351,7 +351,7 @@ jobs:
 
           def run_test():
               # === REAL DATA ===
-              real_df = pd.read_csv("real-data/sunspots_global_extended.csv")
+              real_df = pd.read_csv("real-data/sunspots_full.csv")
               col = "Sunspots" if "Sunspots" in real_df.columns else "value"
               real_series = real_df[col].values
               r_welch = estimate_alpha(real_series)
