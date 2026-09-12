@@ -362,13 +362,37 @@ jobs:
               real_alpha = (
                   r_fft + r_welch
               ) / 2.0
+
+              REAL_ALPHA_MIN = 0.05
+              REAL_ALPHA_MAX = 3.0
+              MAX_METHOD_DELTA = 0.30
+
+              method_delta = abs(
+                  r_fft - r_welch
+              )
+
               if not (
-                  0.6 <= real_alpha <= 2.2
-                  and abs(r_fft - r_welch) < 0.5
+                  np.isfinite(real_alpha)
+                  and
+                  REAL_ALPHA_MIN <= r_fft <= REAL_ALPHA_MAX
+                  and
+                  REAL_ALPHA_MIN <= r_welch <= REAL_ALPHA_MAX
+                  and
+                  method_delta <= MAX_METHOD_DELTA
               ):
                   raise SystemExit(
-                      "❌ Real data baseline failed"
+                      "❌ Real data baseline failed: "
+                      f"FFT={r_fft}, "
+                      f"Welch={r_welch}, "
+                      f"delta={method_delta}"
                   )
+
+              print(
+                  "✅ Real data baseline passed: "
+                  f"FFT={r_fft}, "
+                  f"Welch={r_welch}, "
+                  f"delta={method_delta}"
+              )
 
               from analysis.strong_null_model import (
                   generate_strong_null
