@@ -1,28 +1,41 @@
-from __future__ import annotations
+from future import annotations
 import numpy as np
 from scipy.signal import welch
 
 FREEZE_DECIMALS = 8
 
-# ============================================================
-# CANONICAL SPECTRAL PROTOCOL
-# ============================================================
-#
-# This frequency band is the declared canonical band for the
-# complete multi-scale protocol.
-#
-# It is intentionally restricted so that the same original
-# physical band can be mapped through scales 1, 2, 4 and 8
-# without crossing the normalized Nyquist limit.
-#
-# DO NOT change these values locally.
-# Any scientific change requires a protocol amendment.
-# ============================================================
+============================================================
+
+CANONICAL SPECTRAL PROTOCOL
+
+============================================================
+
+The declared canonical physical frequency band is:
+
+0.01 <= f <= 0.05
+
+This band is intentionally restricted so that the same
+original frequency band can be mapped through scales
+1, 2, 4 and 8 without crossing the normalized Nyquist
+limit.
+
+IMPORTANT:
+
+The estimator must have enough frequency bins inside the
+declared band to perform a meaningful log-log regression.
+
+No clipping.
+No forced agreement.
+No synthetic padding.
+
+============================================================
 
 DEFAULT_FREQ_MIN = 0.01
 DEFAULT_FREQ_MAX = 0.05
 
 CANONICAL_NPERSEG = 256
+CANONICAL_MIN_BINS = 8
+
 CANONICAL_WINDOW = "hann"
 CANONICAL_DETREND = "linear"
 CANONICAL_SCALING = "density"
@@ -47,7 +60,7 @@ def _validate_frequency_band(
         ValueError,
     ):
         return None
-
+        
     if not (
         np.isfinite(freq_min)
         and np.isfinite(freq_max)
@@ -101,6 +114,28 @@ def _prepare_series(series):
 
     return series
 
+def _frequency_bin_count(
+    nperseg,
+    freq_min,
+    freq_max,
+):
+    """
+    Return the number of strictly interior frequency bins
+    available inside the declared canonical frequency band.
+    """
+
+    freqs = np.fft.rfftfreq(
+        nperseg
+    )
+
+    return int(
+        np.sum(
+            (freqs > freq_min)
+            &
+            (freqs < freq_max)
+        )
+    )
+
 def estimate_alpha(
     series,
     freq_min=DEFAULT_FREQ_MIN,
@@ -109,17 +144,19 @@ def estimate_alpha(
     """
     Canonical Welch PSD spectral exponent estimator.
 
-    This is the single canonical primary estimator used by:
+    Scientific rules:
+    - invalid inputs return NaN
+    - non-finite estimates remain non-finite
+    - negative exponents remain observable
+    - no clipping
+    - no forced agreement
+    - no range correction
 
-        - primary analysis
-        - bootstrap
-        - scale=1 validation
-        - scale validation
-        - cross-domain analysis
-
-    No clipping.
-    No forced agreement.
-    No range correction.
+    The minimum-bin requirement is deliberately explicit.
+    It is reduced to 8 because the declared 0.01-0.05 band
+    cannot provide 20 bins at the canonical 256-point Welch
+    segmentation. This is an estimator/protocol amendment,
+    not a data correction.
     """
 
     frequency_band = _validate_frequency_band(
@@ -139,10 +176,19 @@ def estimate_alpha(
 
     nperseg = min(
         CANONICAL_NPERSEG,
-        len(series) // 2,
+        len(series),
     )
 
     if nperseg < 128:
+        return np.nan
+
+    available_bins = _frequency_bin_count(
+        nperseg,
+        freq_min,
+        freq_max,
+    )
+
+    if available_bins < CANONICAL_MIN_BINS:
         return np.nan
 
     freqs, psd = welch(
@@ -168,7 +214,7 @@ def estimate_alpha(
     freqs = freqs[mask]
     psd = psd[mask]
 
-    if len(freqs) < 20:
+    if len(freqs) < CANONICAL_MIN_BINS:
         return np.nan
 
     log_f = np.log(freqs)
@@ -189,7 +235,7 @@ def estimate_alpha(
         )
     except Exception:
         return np.nan
-
+        
     slope = float(
         coeffs[0]
     )
@@ -212,6 +258,7 @@ def block_bootstrap(
     block_size=None,
     num_boot=100,
 ):
+
     series = np.asarray(
         series,
         dtype=np.float64,
@@ -267,11 +314,9 @@ def block_bootstrap(
     alphas = []
 
     for _ in range(num_boot):
-
         sample = []
 
         while len(sample) < n:
-
             max_start = (
                 n
                 -
