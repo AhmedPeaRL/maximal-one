@@ -4,6 +4,7 @@ from analysis.numerical_spectral_verification import (
     estimate_alpha,
     DEFAULT_FREQ_MIN,
     DEFAULT_FREQ_MAX,
+    CANONICAL_MIN_BINS,
 )
 
 FREEZE_DECIMALS = 8
@@ -99,7 +100,7 @@ def periodogram_alpha_estimation(series):
     freqs = freqs[mask]
     power = power[mask]
 
-    if len(freqs) < 20:
+    if len(freqs) < CANONICAL_MIN_BINS:
         return np.nan
 
     log_f = np.log(freqs)
