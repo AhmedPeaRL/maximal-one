@@ -8,40 +8,41 @@ FREEZE_DECIMALS = 8
 # CANONICAL SPECTRAL PROTOCOL
 # ============================================================
 #
-# The declared canonical physical frequency band is:
+# Canonical physical frequency band:
 #
 #     0.01 < f < 0.05
 #
-# This band is intentionally restricted so that the same
-# original frequency band can be mapped through scales
-# 1, 2, 4 and 8 without crossing the normalized Nyquist
-# limit.
+# The canonical Welch segmentation is deliberately longer
+# than the previous 256-point segmentation.
+#
+# Reason:
+#
+# The canonical estimator must provide sufficient frequency
+# resolution inside the declared physical band while remaining
+# directly comparable with the independent full-series FFT
+# estimator.
 #
 # No clipping.
 # No forced agreement.
 # No synthetic padding.
+# No post-hoc correction.
 #
-# The minimum-bin requirement is part of the declared
-# estimator protocol.
 # ============================================================
 
 DEFAULT_FREQ_MIN = 0.01
 DEFAULT_FREQ_MAX = 0.05
 
-CANONICAL_NPERSEG = 256
+# 1024-point segmentation provides approximately 41 frequency
+# bins inside the canonical 0.01-0.05 band for the primary
+# dataset and preserves adequate resolution at the declared
+# temporal scales.
+CANONICAL_NPERSEG = 1024
 
-# At scale 8, the declared mapped frequency band is:
-# 0.08 < f < 0.40
+# The minimum frequency-bin requirement is a validity condition,
+# not an evidence-strength criterion.
 #
-# With the available scale-8 sample length and canonical
-# segmentation, 20 bins are not physically available.
-# Eight is therefore the common minimum across all declared
-# scales without interpolation or synthetic padding.
-#
-# This is a validity threshold, NOT an evidence-strength
-# threshold.
-
-CANONICAL_MIN_BINS = 8
+# Twenty bins are retained as the canonical estimator minimum.
+CANONICAL_MIN_BINS = 20
 
 CANONICAL_WINDOW = "hann"
 CANONICAL_DETREND = "linear"
@@ -160,9 +161,11 @@ def estimate_alpha(
     - no forced agreement
     - no range correction
     - no synthetic padding
+    - no interpolation
+    - no post-hoc estimator correction
 
-    The minimum-bin requirement is explicit and shared
-    across the canonical spectral protocol.
+    The canonical segmentation length is 1024 points,
+    reduced only when the actual series is shorter.
     """
 
     frequency_band = _validate_frequency_band(
