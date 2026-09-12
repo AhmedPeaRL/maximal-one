@@ -33,11 +33,20 @@ def periodogram_alpha_estimation(series):
     """
     Independent FFT-periodogram spectral exponent estimator.
 
-    The method remains independent from Welch, while using the
-    SAME declared physical frequency band.
+    The estimator remains mathematically independent from Welch.
 
-    No clipping.
-    No forced agreement.
+    Shared protocol:
+    - same canonical physical frequency band
+    - same minimum-bin validity requirement
+    - finite inputs only
+    - no clipping
+    - no forced agreement
+    - no range correction
+    - no synthetic padding
+
+    IMPORTANT:
+    Agreement with Welch is an empirical validation result.
+    This function must never be modified to force agreement.
     """
 
     series = np.asarray(
@@ -56,12 +65,20 @@ def periodogram_alpha_estimation(series):
     ):
         return np.nan
 
+    mean = np.mean(series)
+
+    if not np.isfinite(mean):
+        return np.nan
+
     series = (
         series
-        - np.mean(series)
+        - mean
     )
 
     std = np.std(series)
+
+    if not np.isfinite(std):
+        return np.nan
 
     if std < 1e-12:
         return np.nan
@@ -107,9 +124,13 @@ def periodogram_alpha_estimation(series):
     log_power = np.log(power)
 
     if not (
-        np.all(np.isfinite(log_f))
+        np.all(
+            np.isfinite(log_f)
+        )
         and
-        np.all(np.isfinite(log_power))
+        np.all(
+            np.isfinite(log_power)
+        )
     ):
         return np.nan
 
@@ -142,6 +163,14 @@ def periodogram_alpha_estimation(series):
     )
 
 def compare_methods(series):
+    """
+    Compare the canonical Welch estimator with the
+    independent FFT-periodogram estimator.
+
+    This function reports disagreement exactly as observed.
+    It does not alter, normalize, clip, or repair disagreement.
+    """
+
     alpha_primary = sanitize_alpha(
         estimate_alpha(series)
     )
@@ -173,7 +202,8 @@ def compare_methods(series):
     )
 
     print(
-        f"Primary Welch alpha: {alpha_primary}"
+        f"Primary Welch alpha: "
+        f"{alpha_primary}"
     )
 
     print(
@@ -182,7 +212,8 @@ def compare_methods(series):
     )
 
     print(
-        f"Agreement delta: {delta}"
+        f"Agreement delta: "
+        f"{delta}"
     )
 
     return (
