@@ -18,10 +18,7 @@ def sanitize_alpha(alpha):
 
     try:
         alpha = float(alpha)
-    except (
-        TypeError,
-        ValueError,
-    ):
+    except (TypeError, ValueError):
         return np.nan
 
     if not np.isfinite(alpha):
@@ -29,89 +26,67 @@ def sanitize_alpha(alpha):
 
     return alpha
 
-def periodogram_alpha_estimation(series):
-    """
-    Independent FFT-periodogram spectral exponent estimator.
-
-    The estimator remains mathematically independent from Welch.
-
-    Shared protocol:
-    - same canonical physical frequency band
-    - same minimum-bin validity requirement
-    - finite inputs only
-    - no clipping
-    - no forced agreement
-    - no range correction
-    - no synthetic padding
-
-    IMPORTANT:
-    Agreement with Welch is an empirical validation result.
-    This function must never be modified to force agreement.
-    """
-
-    series = np.asarray(
-        series,
-        dtype=np.float64,
-    )
+def _prepare_series(series):
+    series = np.asarray(series, dtype=np.float64)
 
     if series.ndim != 1:
-        return np.nan
+        return None
 
     if len(series) < 256:
-        return np.nan
+        return None
 
-    if not np.all(
-        np.isfinite(series)
-    ):
-        return np.nan
+    if not np.all(np.isfinite(series)):
+        return None
 
     mean = np.mean(series)
 
     if not np.isfinite(mean):
-        return np.nan
+        return None
 
-    series = (
-        series
-        - mean
-    )
+    series = series - mean
 
     std = np.std(series)
 
-    if not np.isfinite(std):
-        return np.nan
+    if not np.isfinite(std) or std < 1e-12:
+        return None
 
-    if std < 1e-12:
-        return np.nan
+    return series / std
 
-    series = (
-        series
-        / std
-    )
+def periodogram_alpha_estimation(series):
+    """
+    Independent full-series FFT periodogram estimator.
+
+    This estimator intentionally remains mathematically
+    distinct from the canonical Welch estimator.
+
+    No clipping.
+    No forced agreement.
+    No post-hoc correction.
+    No range correction.
+
+    The returned disagreement with Welch is empirical evidence
+    and must remain observable.
+    """
+
+    series = _prepare_series(series)
+
+    if series is None:
+        return np.nan
 
     n = len(series)
 
-    fft = np.fft.rfft(
-        series
-    )
+    fft = np.fft.rfft(series)
 
-    power = (
-        np.abs(fft) ** 2
-    ) / float(n)
+    power = (np.abs(fft) ** 2) / float(n)
 
-    freqs = np.fft.rfftfreq(
-        n
-    )
+    freqs = np.fft.rfftfreq(n)
 
     mask = (
         (freqs > FREQ_MIN)
-        &
-        (freqs < FREQ_MAX)
-        &
-        np.isfinite(freqs)
-        &
-        np.isfinite(power)
-        &
-        (power > 0)
+        & (freqs < FREQ_MAX)
+        & np.isfinite(freqs)
+        & np.isfinite(power)
+        & (power > 0)
     )
 
     freqs = freqs[mask]
@@ -124,13 +99,8 @@ def periodogram_alpha_estimation(series):
     log_power = np.log(power)
 
     if not (
-        np.all(
-            np.isfinite(log_f)
-        )
-        and
-        np.all(
-            np.isfinite(log_power)
-        )
+        np.all(np.isfinite(log_f))
+        and np.all(np.isfinite(log_power))
     ):
         return np.nan
 
@@ -143,9 +113,7 @@ def periodogram_alpha_estimation(series):
     except Exception:
         return np.nan
 
-    slope = float(
-        slope
-    )
+    slope = float(slope)
 
     if not np.isfinite(slope):
         return np.nan
@@ -165,61 +133,53 @@ def periodogram_alpha_estimation(series):
 def compare_methods(series):
     """
     Compare the canonical Welch estimator with the
-    independent FFT-periodogram estimator.
+    independent full-series FFT periodogram.
 
-    This function reports disagreement exactly as observed.
-    It does not alter, normalize, clip, or repair disagreement.
+    IMPORTANT:
+    This function does not attempt to make the estimators agree.
+
+    Any disagreement is reported exactly as observed.
     """
 
-    alpha_primary = sanitize_alpha(
+    welch_alpha = sanitize_alpha(
         estimate_alpha(series)
     )
 
-    alpha_independent = sanitize_alpha(
-        periodogram_alpha_estimation(
-            series
-        )
+    fft_alpha = sanitize_alpha(
+        periodogram_alpha_estimation(series)
     )
 
     if not (
-        np.isfinite(alpha_primary)
-        and
-        np.isfinite(alpha_independent)
+        np.isfinite(welch_alpha)
+        and np.isfinite(fft_alpha)
     ):
-        print(
-            "⚠️ invalid alpha in one method"
-        )
-
-        return (
-            alpha_primary,
-            alpha_independent,
-        )
+        return {
+            "welch_alpha": float(welch_alpha),
+            "fft_alpha": float(fft_alpha),
+            "delta": np.nan,
+            "finite": False,
+            "agreement": False,
+        }
 
     delta = abs(
-        alpha_primary
-        -
-        alpha_independent
+        welch_alpha - fft_alpha
     )
 
-    print(
-        f"Primary Welch alpha: "
-        f"{alpha_primary}"
-    )
-
-    print(
-        f"Independent FFT alpha: "
-        f"{alpha_independent}"
-    )
-
-    print(
-        f"Agreement delta: "
-        f"{delta}"
-    )
-
-    return (
-        alpha_primary,
-        alpha_independent,
-    )
+    return {
+        "welch_alpha": float(welch_alpha),
+        "fft_alpha": float(fft_alpha),
+        "delta": float(
+            np.round(
+                delta,
+                FREEZE_DECIMALS,
+            )
+        ),
+        "finite": True,
+        "agreement": bool(
+            delta <= 0.30
+        ),
+        "threshold": 0.30,
+    }
 
 # Legacy compatibility.
 core_alpha_estimation = (
