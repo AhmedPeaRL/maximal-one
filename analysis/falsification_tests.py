@@ -121,18 +121,61 @@ def block_shuffle_test(
     )
 
 def temporal_direction_test(series):
-    series = np.asarray(series, dtype=np.float64)
+    """
+    Compare spectral estimates of forward and reversed
+    first-difference series.
 
-    fwd = estimate_alpha(np.diff(series))
-    bwd = estimate_alpha(np.diff(series[::-1]))
+    IMPORTANT:
+    Estimation failure is represented as NaN, never as zero.
+
+    Zero means measured agreement.
+    NaN means the diagnostic was unavailable.
+    """
+
+    series = np.asarray(
+        series,
+        dtype=np.float64,
+    )
+
+    if series.ndim != 1:
+        return np.nan
+
+    if len(series) < 258:
+        return np.nan
+
+    if not np.all(
+        np.isfinite(series)
+    ):
+        return np.nan
+
+    diff_forward = np.diff(
+        series
+    )
+
+    diff_backward = np.diff(
+        series[::-1]
+    )
+
+    fwd = estimate_alpha(
+        diff_forward
+    )
+
+    bwd = estimate_alpha(
+        diff_backward
+    )
 
     if not (
         np.isfinite(fwd)
         and np.isfinite(bwd)
     ):
-        return 0.0
+        return np.nan
 
-    return float(abs(fwd - bwd))
+    return float(
+        abs(
+            float(fwd)
+            - float(bwd)
+        )
+    )
 
 def phase_randomization(series, rng):
     surrogate = phase_randomized_surrogate(
