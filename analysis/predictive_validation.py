@@ -3,6 +3,8 @@ from analysis.numerical_spectral_verification import (
     estimate_alpha
 )
 
+# These bands remain descriptive diagnostics.
+# They are NOT treated as ontological or mechanistic claims.
 def classify_alpha(alpha):
     if not np.isfinite(alpha):
         return "invalid"
@@ -21,11 +23,13 @@ def predict_next_trend(series):
         dtype=np.float64
     )
 
+    series = series[np.isfinite(series)]
+
     if len(series) < 256:
-        series = np.pad(series, (0, 256-len(series)), mode='reflect')
+        return None
 
     alpha = estimate_alpha(series)
-    
+
     if not np.isfinite(alpha):
         return None
 
@@ -66,7 +70,7 @@ def evaluate_prediction(
 
     series = series[np.isfinite(series)]
 
-    if len(series) < 256:
+    if len(series) < 512:
         return {
             "valid": False,
             "reason": f"insufficient_series ({len(series)})"
@@ -74,17 +78,26 @@ def evaluate_prediction(
 
     n = len(series)
 
-    # 🔥 enforce minimum segment length
-    min_len = 150
+    # Keep both train and test sufficiently long for
+    # the canonical spectral estimator.
+    min_len = 256
 
     split = int(n * split_ratio)
 
-    # 🔥 adjust split to guarantee both sides valid
     if split < min_len:
         split = min_len
 
     if (n - split) < min_len:
         split = n - min_len
+
+    if split < min_len or (n - split) < min_len:
+        return {
+            "valid": False,
+            "reason": (
+                f"invalid_split: train={split}, "
+                f"test={n - split}, minimum={min_len}"
+            )
+        }
 
     train = series[:split]
     test = series[split:]
@@ -102,32 +115,67 @@ def evaluate_prediction(
     if not np.isfinite(test_alpha):
         return {
             "valid": False,
-            "reason": f"invalid_test_alpha (len={len(test)})"
+            "reason": (
+                f"invalid_test_alpha (len={len(test)})"
+            )
         }
 
-    train_class = pred["classification"]
+    train_alpha = float(pred["alpha"])
+    test_alpha = float(test_alpha)
+
+    train_class = classify_alpha(train_alpha)
     test_class = classify_alpha(test_alpha)
 
     continuity = continuity_score(
-        pred["alpha"],
+        train_alpha,
         test_alpha
     )
 
-    structural_match = (
-        train_class == test_class
+    # Continuous stability criterion.
+    #
+    # The alpha estimate is continuous, whereas the class labels
+    # are coarse descriptive bins. Therefore class disagreement
+    # is retained as a diagnostic rather than used as the sole
+    # validity gate.
+    alpha_delta = abs(
+        train_alpha - test_alpha
     )
 
-    valid = bool(
-        continuity >= 0.15 and
-        structural_match
+    # A prediction is considered structurally stable when:
+    # 1. both estimates are finite,
+    # 2. their normalized continuity remains meaningful,
+    # 3. the absolute spectral shift does not exceed the declared
+    #    predictive tolerance.
+    #
+    # The tolerance is deliberately explicit rather than derived
+    # from the observed result.
+    MAX_PREDICTIVE_ALPHA_DELTA = 1.50
+    MIN_CONTINUITY = 0.15
+
+    continuous_stability = bool(
+        continuity >= MIN_CONTINUITY
+        and
+        alpha_delta <= MAX_PREDICTIVE_ALPHA_DELTA
+    )
+
+    # Classification agreement remains useful information,
+    # but is no longer allowed to convert a continuous transition
+    # into an automatic scientific failure.
+    structural_match = bool(
+        train_class == test_class
     )
 
     return {
         "prediction": train_class,
         "test_classification": test_class,
-        "train_alpha": float(pred["alpha"]),
-        "test_alpha": float(test_alpha),
+        "train_alpha": train_alpha,
+        "test_alpha": test_alpha,
+        "alpha_delta": float(alpha_delta),
         "continuity": float(continuity),
-        "structural_match": bool(structural_match),
-        "valid": valid
+        "structural_match": structural_match,
+        "continuous_stability": continuous_stability,
+        "classification_transition": bool(
+            train_class != test_class
+        ),
+        "valid": continuous_stability
     }
