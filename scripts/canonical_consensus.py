@@ -1,13 +1,9 @@
-from __future__ import annotations
+from future import annotations
 import json
 from pathlib import Path
 import numpy as np
-from analysis.load_real_datasets import (
-    load_series,
-)
-from analysis.numerical_spectral_verification import (
-    estimate_alpha,
-)
+from analysis.load_real_datasets import load_series
+from analysis.numerical_spectral_verification import estimate_alpha
 
 DATASETS = [
     {
@@ -150,6 +146,34 @@ def main():
         )
     ]
 
+    excluded_real_domains = [
+        {
+            "dataset": r["dataset"],
+            "name": r["name"],
+            "role": r["role"],
+            "independent": bool(
+                r["independent"]
+            ),
+            "valid": bool(
+                r["valid"]
+            ),
+            "reason": r.get(
+                "error",
+                "excluded from independent real-domain replication",
+            ),
+        }
+        for r in results
+        if (
+            r["independent"]
+            and r["role"]
+            in {
+                "primary_real",
+                "independent_real",
+            }
+            and not r["valid"]
+        )
+    ]
+
     null_results = [
         r
         for r in results
@@ -193,56 +217,55 @@ def main():
     summary = {
         "status": "evaluated",
         "datasets": results,
-
         "valid_real_domains": int(
             independent_real_domains
         ),
-
         "real_domain_alphas": [
             float(x)
             for x in real_alphas
         ],
-
         "real_domain_median": (
             real_domain_median
         ),
-
         "real_domain_std": (
             real_domain_std
         ),
-
+        "excluded_real_domains": (
+            excluded_real_domains
+        ),
+        "excluded_real_domain_count": int(
+            len(excluded_real_domains)
+        ),
         "valid_null_controls": int(
             len(null_alphas)
         ),
-
         "null_control_std": (
             float(np.std(null_alphas))
             if len(null_alphas) >= 2
             else None
         ),
-
         "real_domain_consensus": bool(
             independent_real_domains >= 2
         ),
-
         "null_controls_available": bool(
             len(null_alphas) >= 1
         ),
-
         "independent_real_replication_required": True,
-
         "independent_real_replication_complete": bool(
             independent_real_domains >= 2
         ),
-
         "interpretation": (
             "Only genuinely independent real datasets "
             "count toward cross-domain replication. "
             "Derived, shuffled, synthetic, and null "
-            "datasets do not count."
+            "datasets do not count. "
+            "Independent real datasets that fail the "
+            "canonical alpha measurement are explicitly "
+            "listed in excluded_real_domains and are not "
+            "silently substituted or repaired."
         ),
     }
-
+    
     OUTPUT.parent.mkdir(
         parents=True,
         exist_ok=True,
@@ -275,6 +298,16 @@ def main():
         print(
             "✅ Independent real-domain replication available."
         )
+
+    if excluded_real_domains:
+        print(
+            "ℹ️ Excluded independent real domains:"
+        )
+        for item in excluded_real_domains:
+            print(
+                f"   - {item['name']}: "
+                f"{item['reason']}"
+            )
 
     if len(null_alphas) == 0:
         print(
