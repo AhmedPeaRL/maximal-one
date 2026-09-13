@@ -15,13 +15,55 @@ from analysis.independent_validation import compare_methods
 URL = "https://raw.githubusercontent.com/jbrownlee/Datasets/master/daily-min-temperatures.csv"
 
 def preflight_check(series):
-    fft_alpha, welch_alpha = compare_methods(series)
+    result = compare_methods(series)
 
-    if not np.isfinite(fft_alpha) or not np.isfinite(welch_alpha):
-        raise SystemExit("❌ invalid alpha from methods")
+    if not isinstance(result, dict):
+        raise SystemExit(
+            "❌ compare_methods() returned an unexpected object"
+        )
 
-    if abs(fft_alpha - welch_alpha) > 0.5:
-        raise SystemExit("❌ method disagreement — unstable alpha")
+    required_keys = {
+        "welch_alpha",
+        "fft_alpha",
+        "delta",
+        "finite",
+        "agreement",
+        "threshold",
+    }
+
+    missing = required_keys - set(result.keys())
+
+    if missing:
+        raise SystemExit(
+            "❌ compare_methods() missing required fields: "
+            + ", ".join(sorted(missing))
+        )
+
+    fft_alpha = float(
+        result["fft_alpha"]
+    )
+
+    welch_alpha = float(
+        result["welch_alpha"]
+    )
+
+    delta = float(
+        result["delta"]
+    )
+
+    if not (
+        np.isfinite(fft_alpha)
+        and np.isfinite(welch_alpha)
+        and np.isfinite(delta)
+    ):
+        raise SystemExit(
+            "❌ invalid alpha from methods"
+        )
+
+    if delta > 0.50:
+        raise SystemExit(
+            "❌ method disagreement — unstable alpha"
+        )
 
     return fft_alpha, welch_alpha
     
