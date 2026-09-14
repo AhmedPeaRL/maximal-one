@@ -18,6 +18,10 @@ URL = (
     "daily-min-temperatures.csv"
 )
 
+WINDOW = 512
+STRIDE = 128
+TRAIN_RATIO = 0.80
+
 def preflight_check(series):
     result = compare_methods(series)
 
@@ -58,8 +62,15 @@ def preflight_check(series):
 
     if delta > 0.50:
         raise SystemExit(
-            "method disagreement — unstable alpha"
-        )
+        "method disagreement — unstable alpha"
+    )
+
+    print(
+        "Training preflight:",
+        f"FFT={fft_alpha}",
+        f"Welch={welch_alpha}",
+        f"delta={delta}"
+    )
 
     return fft_alpha, welch_alpha
 
@@ -145,9 +156,9 @@ def fetch_external():
         .astype(np.float64)
     )
 
-    if len(values) < 128:
+    if len(values) < WINDOW * 4:
         raise ValueError(
-            "External dataset too small"
+            "External dataset too small for temporal holdout"
         )
 
     if not np.all(np.isfinite(values)):
@@ -163,7 +174,7 @@ def is_valid_segment(x):
         dtype=np.float64
     )
 
-    if len(x) < 128:
+    if len(x) < WINDOW:
         return False
 
     if not np.all(np.isfinite(x)):
@@ -177,9 +188,31 @@ def is_valid_segment(x):
 
     return True
 
+def make_windows(series):
+    series = np.asarray(
+        series,
+        dtype=np.float64
+    )
+
+    windows = [
+        series[i:i + WINDOW]
+        for i in range(
+            0,
+            len(series) - WINDOW + 1,
+            STRIDE
+        )
+    ]
+
+    return [
+        s
+        for s in windows
+        if is_valid_segment(s)
+    ]
+
 def bind_external_result(
     classification,
-    values
+    values,
+    metadata=None
 ):
     os.makedirs(
         "artifacts",
@@ -193,6 +226,9 @@ def bind_external_result(
         "mean": float(np.mean(values)),
         "std": float(np.std(values))
     }
+
+    if metadata is not None:
+        payload["metadata"] = metadata
 
     with open(
         "artifacts/external_witness.json",
@@ -243,71 +279,91 @@ def run_test():
             "degenerate external data"
         )
 
-    # IMPORTANT:
-    # Do not apply preprocessing fitted on the complete
-    # external series before the train/test split.
+    # ========================================================
+    # TRUE TEMPORAL HOLDOUT
+    # ========================================================
     #
-    # The canonical spectral estimator already performs
-    # centering and variance normalization internally.
+    # The raw external series is split BEFORE any windowing.
     #
-    # This keeps the external prediction test free from
-    # whole-series preprocessing leakage.
+    # Training occupies the first 80%.
+    # Testing occupies the final 20%.
+    #
+    # Therefore no training window can overlap a test window.
+    #
+    # No preprocessing is fitted on the complete series.
+    #
+    # The canonical spectral estimator performs its own
+    # centering and variance normalization.
+    #
 
-    window = 512
-    stride = 128
+    split_index = int(
+        len(data) * TRAIN_RATIO
+    )
 
-    segments = [
-        data[i:i + window]
-        for i in range(
-            0,
-            len(data) - window + 1,
-            stride
-        )
-    ]
+    train_raw = data[:split_index]
+    test_raw = data[split_index:]
 
-    segments = [
-        s
-        for s in segments
-        if is_valid_segment(s)
-    ]
-
-    if len(segments) < 6:
+    if len(train_raw) < WINDOW * 3:
         raise RuntimeError(
-            "Insufficient valid external windows"
+            "Insufficient raw training data"
         )
 
-    # ========================================================
-    # TEMPORAL HOLDOUT
-    # ========================================================
-    #
-    # The final windows are reserved for testing.
-    # No preprocessing, threshold fitting, or null testing
-    # uses these windows before prediction is evaluated.
-    #
+    if len(test_raw) < WINDOW * 2:
+        raise RuntimeError(
+            "Insufficient raw test data"
+        )
 
-    last_k = 3
+    train_pool = make_windows(
+        train_raw
+    )
 
-    train_pool = segments[:-last_k]
-    test_pool = segments[-last_k:]
+    test_pool = make_windows(
+        test_raw
+    )
 
     if len(train_pool) < 3:
         raise RuntimeError(
-            "Insufficient training windows"
+            "Insufficient valid training windows"
         )
 
     if len(test_pool) < 2:
         raise RuntimeError(
-            "Insufficient held-out test windows"
+            "Insufficient valid held-out test windows"
         )
+
+    print(
+        "External total length:",
+        len(data)
+    )
+
+    print(
+        "Temporal split index:",
+        split_index
+    )
+
+    print(
+        "Training length:",
+        len(train_raw)
+    )
+
+    print(
+        "Held-out test length:",
+        len(test_raw)
+    )
+
+    print(
+        "Training windows:",
+        len(train_pool)
+    )
+
+    print(
+        "Held-out test windows:",
+        len(test_pool)
+    )
 
     # ========================================================
     # TRAIN-ONLY PREFLIGHT
     # ========================================================
-    #
-    # Method comparison is now evaluated only on the training
-    # regime. The held-out test regime remains untouched until
-    # its prediction evaluation.
-    #
 
     train_series = np.concatenate(
         train_pool
@@ -322,7 +378,7 @@ def run_test():
 
         if np.isfinite(alpha):
             return float(alpha)
-            
+
         return None
 
     train_alphas = [
@@ -407,8 +463,10 @@ def run_test():
     # TRAIN-ONLY BOOTSTRAP
     # ========================================================
     #
-    # The uncertainty estimate is derived exclusively from
+    # This uncertainty estimate is derived exclusively from
     # the training regime.
+    #
+    # No held-out test values enter the bootstrap.
     #
 
     bootstrap = bootstrap_alpha_distribution(
@@ -431,6 +489,16 @@ def run_test():
         alpha_sigma
     )
 
+    # ========================================================
+    # PREDECLARED ADAPTIVE DRIFT TEST
+    # ========================================================
+    #
+    # IMPORTANT:
+    # The validator threshold is not changed here.
+    #
+    # A failure remains a failure.
+    #
+
     result = adaptive_alpha_pass(
         alpha_train,
         alpha_test,
@@ -452,15 +520,20 @@ def run_test():
         result["relative"]
     )
 
-    # ========================================================
-    # ADAPTIVE DRIFT GATE
-    # ========================================================
-    #
-    # No post-hoc tolerance change is made here.
-    #
-    # If the external regime genuinely drifts beyond the
-    # predeclared adaptive criterion, the test must fail.
-    #
+    metadata = {
+        "train_ratio": TRAIN_RATIO,
+        "window": WINDOW,
+        "stride": STRIDE,
+        "train_windows": len(train_pool),
+        "test_windows": len(test_pool),
+        "alpha_train": alpha_train,
+        "alpha_test": alpha_test,
+        "alpha_sigma": float(alpha_sigma),
+        "drift": float(result["drift"]),
+        "tolerance": float(result["tolerance"]),
+        "relative": float(result["relative"]),
+        "validator_reason": result["reason"]
+    }
 
     if not result["pass"]:
         classification = (
@@ -469,7 +542,8 @@ def run_test():
 
         bind_external_result(
             classification,
-            data
+            data,
+            metadata
         )
 
         raise SystemExit(
@@ -484,9 +558,10 @@ def run_test():
     # NULL MODEL TEST
     # ========================================================
     #
-    # Null testing is performed only on the training regime.
-    # The held-out test regime remains reserved for the
-    # temporal prediction evaluation.
+    # Null testing is performed on training data only.
+    #
+    # The held-out test regime has already served as the
+    # temporal prediction target and remains uncontaminated.
     #
 
     print(
@@ -504,10 +579,11 @@ def run_test():
 
     if not null_result["pass"]:
         classification = "noise_like"
-       
+
         bind_external_result(
             classification,
-            data
+            data,
+            metadata
         )
 
         write_external_classification(
@@ -524,7 +600,8 @@ def run_test():
 
     bind_external_result(
         classification,
-        data
+        data,
+        metadata
     )
 
     write_external_classification(
