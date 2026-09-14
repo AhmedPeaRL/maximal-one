@@ -22,6 +22,9 @@ WINDOW = 512
 STRIDE = 128
 TRAIN_RATIO = 0.80
 
+MIN_TRAIN_WINDOWS = 3
+MIN_TEST_WINDOWS = 2
+
 def preflight_check(series):
     result = compare_methods(series)
 
@@ -62,8 +65,8 @@ def preflight_check(series):
 
     if delta > 0.50:
         raise SystemExit(
-        "method disagreement — unstable alpha"
-    )
+            "method disagreement — unstable alpha"
+        )
 
     print(
         "Training preflight:",
@@ -209,6 +212,21 @@ def make_windows(series):
         if is_valid_segment(s)
     ]
 
+def minimum_series_length_for_windows(
+    window,
+    stride,
+    required_windows
+):
+    if required_windows < 1:
+        raise ValueError(
+            "required_windows must be >= 1"
+        )
+
+    return (
+        window
+        + (required_windows - 1) * stride
+    )
+
 def bind_external_result(
     classification,
     values,
@@ -303,14 +321,34 @@ def run_test():
     train_raw = data[:split_index]
     test_raw = data[split_index:]
 
-    if len(train_raw) < WINDOW * 3:
+    minimum_train_length = (
+        minimum_series_length_for_windows(
+            WINDOW,
+            STRIDE,
+            MIN_TRAIN_WINDOWS
+        )
+    )
+
+    minimum_test_length = (
+        minimum_series_length_for_windows(
+            WINDOW,
+            STRIDE,
+            MIN_TEST_WINDOWS
+        )
+    )
+
+    if len(train_raw) < minimum_train_length:
         raise RuntimeError(
-            "Insufficient raw training data"
+            "Insufficient raw training data: "
+            f"{len(train_raw)} < "
+            f"{minimum_train_length}"
         )
 
-    if len(test_raw) < WINDOW * 2:
+    if len(test_raw) < minimum_test_length:
         raise RuntimeError(
-            "Insufficient raw test data"
+            "Insufficient raw test data: "
+            f"{len(test_raw)} < "
+            f"{minimum_test_length}"
         )
 
     train_pool = make_windows(
@@ -321,14 +359,18 @@ def run_test():
         test_raw
     )
 
-    if len(train_pool) < 3:
+    if len(train_pool) < MIN_TRAIN_WINDOWS:
         raise RuntimeError(
-            "Insufficient valid training windows"
+            "Insufficient valid training windows: "
+            f"{len(train_pool)} < "
+            f"{MIN_TRAIN_WINDOWS}"
         )
 
-    if len(test_pool) < 2:
+    if len(test_pool) < MIN_TEST_WINDOWS:
         raise RuntimeError(
-            "Insufficient valid held-out test windows"
+            "Insufficient valid held-out test windows: "
+            f"{len(test_pool)} < "
+            f"{MIN_TEST_WINDOWS}"
         )
 
     print(
@@ -349,6 +391,16 @@ def run_test():
     print(
         "Held-out test length:",
         len(test_raw)
+    )
+
+    print(
+        "Minimum training length:",
+        minimum_train_length
+    )
+
+    print(
+        "Minimum held-out test length:",
+        minimum_test_length
     )
 
     print(
@@ -403,12 +455,12 @@ def run_test():
         if a is not None
     ]
 
-    if len(train_alphas) < 3:
+    if len(train_alphas) < MIN_TRAIN_WINDOWS:
         raise RuntimeError(
             "Insufficient robust alpha training samples"
         )
 
-    if len(test_alphas) < 2:
+    if len(test_alphas) < MIN_TEST_WINDOWS:
         raise RuntimeError(
             "Insufficient robust alpha test samples"
         )
@@ -462,12 +514,6 @@ def run_test():
     # ========================================================
     # TRAIN-ONLY BOOTSTRAP
     # ========================================================
-    #
-    # This uncertainty estimate is derived exclusively from
-    # the training regime.
-    #
-    # No held-out test values enter the bootstrap.
-    #
 
     bootstrap = bootstrap_alpha_distribution(
         train_series,
@@ -492,12 +538,6 @@ def run_test():
     # ========================================================
     # PREDECLARED ADAPTIVE DRIFT TEST
     # ========================================================
-    #
-    # IMPORTANT:
-    # The validator threshold is not changed here.
-    #
-    # A failure remains a failure.
-    #
 
     result = adaptive_alpha_pass(
         alpha_train,
@@ -524,6 +564,10 @@ def run_test():
         "train_ratio": TRAIN_RATIO,
         "window": WINDOW,
         "stride": STRIDE,
+        "minimum_train_windows": MIN_TRAIN_WINDOWS,
+        "minimum_test_windows": MIN_TEST_WINDOWS,
+        "minimum_train_length": minimum_train_length,
+        "minimum_test_length": minimum_test_length,
         "train_windows": len(train_pool),
         "test_windows": len(test_pool),
         "alpha_train": alpha_train,
@@ -557,12 +601,6 @@ def run_test():
     # ========================================================
     # NULL MODEL TEST
     # ========================================================
-    #
-    # Null testing is performed on training data only.
-    #
-    # The held-out test regime has already served as the
-    # temporal prediction target and remains uncontaminated.
-    #
 
     print(
         "=== NULL MODEL TEST ==="
