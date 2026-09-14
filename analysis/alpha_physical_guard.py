@@ -70,7 +70,7 @@ def validate_finite(value, name):
         sys.exit(1)
 
     strict_min, strict_max = map(float, strict_range)
-
+    
     ------------------------------------------------------------------
 
     Canonical scientific validity range
@@ -126,10 +126,10 @@ def validate_finite(value, name):
                 "ℹ️ External alpha is outside the legacy unified "
                 f"classification range [{legacy_min}, {legacy_max}]."
             )
-            print(
-                "ℹ️ This is diagnostic classification information only; "
-                "canonical scientific validity is governed by strict_claim.json."
-            )
+    print(
+        "ℹ️ This is diagnostic classification information only; "
+        "canonical scientific validity is governed by strict_claim.json."
+    )
 
     ------------------------------------------------------------------
 
