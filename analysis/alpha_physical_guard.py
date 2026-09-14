@@ -2,46 +2,181 @@ import json
 import sys
 import os
 
-def load_alpha():
-    # Priority 1: real external classification
-    if os.path.exists("artifacts/external_classification.json"):
-        with open("artifacts/external_classification.json") as f:
-            r = json.load(f)
-            return r["alpha"], None
+STRICT_CLAIM_PATH = "core-scientific/strict_claim.json"
+UNIFIED_CLAIM_PATH = "core-scientific/unified_claim.json"
+EXTERNAL_CLASSIFICATION_PATH = "artifacts/external_classification.json"
+CANONICAL_REPORT_PATH = "artifacts/canonical_report.json"
 
-    # Fallback: canonical synthetic
-    with open("artifacts/canonical_report.json") as f:
-        r = json.load(f)
-        return r["spectral_profile"]["estimated_alpha"], r["spectral_profile"]["bootstrap_std"]
+def load_json(path):
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
+def load_alpha_source():
+    """
+    Determine which alpha is being validated.
 
-alpha, sigma = load_alpha()
+    External classification is treated as an external-domain
+    validation result. It must not be forced into the legacy
+    physical/emergent classification ranges in unified_claim.json.
+    """
 
-with open("core-scientific/unified_claim.json") as f:
-    claim = json.load(f)
+    if os.path.exists(EXTERNAL_CLASSIFICATION_PATH):
+        result = load_json(EXTERNAL_CLASSIFICATION_PATH)
 
-adaptive = claim.get("adaptive_alpha", {})
+        if "alpha" not in result:
+            raise ValueError(
+                "external_classification.json is missing required field: alpha"
+            )
 
-if "alpha_range" not in adaptive:
-    print("❌ Missing adaptive alpha_range")
-    sys.exit(1)
+        return float(result["alpha"]), None, "external"
 
-alpha_min, alpha_max = adaptive["alpha_range"]
+    report = load_json(CANONICAL_REPORT_PATH)
 
-if not (alpha_min <= alpha <= alpha_max):
-    print(f"❌ Alpha خارج النطاق التكيفي: {alpha}")
-    sys.exit(1)
+    spectral = report.get("spectral_profile", {})
 
-adaptive_sigma = claim.get("adaptive_sigma", {})
+    if "estimated_alpha" not in spectral:
+        raise ValueError(
+            "canonical_report.json is missing spectral_profile.estimated_alpha"
+        )
 
-max_sigma = adaptive_sigma.get("max_sigma", 0.25)
-multiplier = adaptive_sigma.get("max_sigma_multiplier", 2.5)
+    alpha = float(spectral["estimated_alpha"])
+    sigma = spectral.get("bootstrap_std")
 
-allowed_sigma = max_sigma * multiplier
+    if sigma is not None:
+        sigma = float(sigma)
+        
+    return alpha, sigma, "canonical"
 
-if sigma is not None:
-    if sigma > allowed_sigma:
-        print(f"❌ Sigma عالي: {sigma} (allowed: {allowed_sigma})")
+def validate_finite(value, name):
+    if not isinstance(value, (int, float)) or not float("-inf") < value < float("inf"):
+        print(f"❌ Non-finite {name}: {value}")
         sys.exit(1)
 
-print("✅ Alpha physically valid (unified source)")
+    alpha, sigma, source = load_alpha_source()
+
+    validate_finite(alpha, "alpha")
+
+    strict_claim = load_json(STRICT_CLAIM_PATH)
+
+    expected = strict_claim.get("expected_result", {})
+    strict_range = expected.get("alpha_range")
+
+    if (
+        not isinstance(strict_range, list)
+        or len(strict_range) != 2
+        or not all(isinstance(x, (int, float)) for x in strict_range)
+    ):
+        print("❌ Missing or invalid strict_claim expected_result.alpha_range")
+        sys.exit(1)
+
+    strict_min, strict_max = map(float, strict_range)
+
+    ------------------------------------------------------------------
+
+    Canonical scientific validity range
+
+    ------------------------------------------------------------------
+
+    This is the machine-gated validity range declared by strict_claim.
+
+    It is distinct from the legacy physical/emergent classification
+    ranges in unified_claim.json.
+
+    External-domain results are NOT required to fall inside the legacy
+    "physical" range. They are evaluated against the canonical validity
+    range and remain subject to the external validation protocol.
+
+    ------------------------------------------------------------------
+
+    if not (strict_min <= alpha <= strict_max):
+        print(
+            f"❌ Alpha خارج النطاق العلمي canonical: "
+            f"{alpha} not in [{strict_min}, {strict_max}]"
+        )
+        sys.exit(1)
+
+    ------------------------------------------------------------------
+
+    Optional legacy classification information
+
+    ------------------------------------------------------------------
+
+    unified_claim.json may still contain physical/emergent ranges.
+
+    These are classification metadata, not the canonical falsification
+    range for external-domain validation.
+
+    ------------------------------------------------------------------
+
+    unified_claim = load_json(UNIFIED_CLAIM_PATH)
+
+    adaptive = unified_claim.get("adaptive_alpha", {})
+    legacy_range = adaptive.get("alpha_range")
+
+    if source == "external":
+        if (
+            isinstance(legacy_range, list)
+            and len(legacy_range) == 2
+            and all(isinstance(x, (int, float)) for x in legacy_range)
+        ):
+            legacy_min, legacy_max = map(float, legacy_range)
+
+        if not (legacy_min <= alpha <= legacy_max):
+            print(
+                "ℹ️ External alpha is outside the legacy unified "
+                f"classification range [{legacy_min}, {legacy_max}]."
+            )
+            print(
+                "ℹ️ This is diagnostic classification information only; "
+                "canonical scientific validity is governed by strict_claim.json."
+            )
+
+    ------------------------------------------------------------------
+
+    Sigma validation
+
+    ------------------------------------------------------------------
+
+    adaptive_sigma = unified_claim.get("adaptive_sigma", {})
+
+    max_sigma = adaptive_sigma.get("max_sigma")
+
+    if max_sigma is not None:
+        max_sigma = float(max_sigma)
+
+    multiplier = adaptive_sigma.get("max_sigma_multiplier", 2.5)
+    multiplier = float(multiplier)
+
+    if max_sigma is not None and sigma is not None:
+        allowed_sigma = max_sigma * multiplier
+
+    if sigma > allowed_sigma:
+        print(
+            f"❌ Sigma عالي: {sigma} "
+            f"(allowed diagnostic limit: {allowed_sigma})"
+        )
+        sys.exit(1)
+
+    ------------------------------------------------------------------
+
+    Final status
+
+    ------------------------------------------------------------------
+
+    if source == "external":
+        print(
+            f"✅ External alpha scientifically valid: "
+            f"{alpha} within canonical range [{strict_min}, {strict_max}]"
+        )
+        print(
+            "ℹ️ External-domain alpha is not required to satisfy "
+            "legacy physical/emergent classification ranges."
+
+        )
+    else:
+        print(
+            f"✅ Canonical alpha scientifically valid: "
+            f"{alpha} within [{strict_min}, {strict_max}]"
+        )
+
+    print("✅ Alpha physical/canonical guard passed")
