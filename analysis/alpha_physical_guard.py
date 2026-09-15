@@ -9,7 +9,7 @@ CANONICAL_REPORT_PATH = "artifacts/canonical_report.json"
 
 def load_json(path):
     with open(path, "r", encoding="utf-8") as f:
-    return json.load(f)
+        return json.load(f)
 
 def load_alpha_source():
     """
