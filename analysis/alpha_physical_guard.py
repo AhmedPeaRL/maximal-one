@@ -9,15 +9,19 @@ CANONICAL_REPORT_PATH = "artifacts/canonical_report.json"
 
 def load_json(path):
     with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+    return json.load(f)
 
 def load_alpha_source():
     """
     Determine which alpha is being validated.
 
     External classification is treated as an external-domain
-    validation result. It must not be forced into the legacy
-    physical/emergent classification ranges in unified_claim.json.
+    validation result. It is evaluated against the canonical
+    scientific validity range declared in strict_claim.json.
+
+    The legacy physical/emergent ranges in unified_claim.json
+    remain diagnostic classification information and are not
+    used as the canonical falsification range for external data.
     """
 
     if os.path.exists(EXTERNAL_CLASSIFICATION_PATH):
@@ -40,11 +44,12 @@ def load_alpha_source():
         )
 
     alpha = float(spectral["estimated_alpha"])
+
     sigma = spectral.get("bootstrap_std")
 
     if sigma is not None:
         sigma = float(sigma)
-        
+
     return alpha, sigma, "canonical"
 
 def validate_finite(value, name):
@@ -52,8 +57,9 @@ def validate_finite(value, name):
         print(f"❌ Non-finite {name}: {value}")
         sys.exit(1)
 
+def main():
     alpha, sigma, source = load_alpha_source()
-
+    
     validate_finite(alpha, "alpha")
 
     strict_claim = load_json(STRICT_CLAIM_PATH)
@@ -66,27 +72,26 @@ def validate_finite(value, name):
         or len(strict_range) != 2
         or not all(isinstance(x, (int, float)) for x in strict_range)
     ):
-        print("❌ Missing or invalid strict_claim expected_result.alpha_range")
+        print(
+            "❌ Missing or invalid "
+            "strict_claim expected_result.alpha_range"
+        )
         sys.exit(1)
 
     strict_min, strict_max = map(float, strict_range)
-    
-    ------------------------------------------------------------------
 
-    Canonical scientific validity range
-
-    ------------------------------------------------------------------
-
-    This is the machine-gated validity range declared by strict_claim.
-
-    It is distinct from the legacy physical/emergent classification
-    ranges in unified_claim.json.
-
-    External-domain results are NOT required to fall inside the legacy
-    "physical" range. They are evaluated against the canonical validity
-    range and remain subject to the external validation protocol.
-
-    ------------------------------------------------------------------
+    # ------------------------------------------------------------------
+    # Canonical scientific validity range
+    # ------------------------------------------------------------------
+    #
+    # This is the machine-gated scientific validity range declared by
+    # strict_claim.json.
+    #
+    # It is distinct from the legacy physical/emergent classification
+    # ranges in unified_claim.json.
+    #
+    # External-domain results are evaluated against this canonical range.
+    # ------------------------------------------------------------------
 
     if not (strict_min <= alpha <= strict_max):
         print(
@@ -95,18 +100,15 @@ def validate_finite(value, name):
         )
         sys.exit(1)
 
-    ------------------------------------------------------------------
-
-    Optional legacy classification information
-
-    ------------------------------------------------------------------
-
-    unified_claim.json may still contain physical/emergent ranges.
-
-    These are classification metadata, not the canonical falsification
-    range for external-domain validation.
-
-    ------------------------------------------------------------------
+    # ------------------------------------------------------------------
+    # Optional legacy classification information
+    # ------------------------------------------------------------------
+    #
+    # unified_claim.json may contain physical/emergent ranges.
+    # These ranges are retained as diagnostic classification metadata.
+    # They are not the canonical falsification range for external-domain
+    # validation.
+    # ------------------------------------------------------------------
 
     unified_claim = load_json(UNIFIED_CLAIM_PATH)
 
@@ -121,21 +123,20 @@ def validate_finite(value, name):
         ):
             legacy_min, legacy_max = map(float, legacy_range)
 
-        if not (legacy_min <= alpha <= legacy_max):
-            print(
-                "ℹ️ External alpha is outside the legacy unified "
-                f"classification range [{legacy_min}, {legacy_max}]."
-            )
-    print(
-        "ℹ️ This is diagnostic classification information only; "
-        "canonical scientific validity is governed by strict_claim.json."
-    )
+            if not (legacy_min <= alpha <= legacy_max):
+                print(
+                    "ℹ️ External alpha is outside the legacy unified "
+                    f"classification range [{legacy_min}, {legacy_max}]."
+                )
+                print(
+                    "ℹ️ This is diagnostic classification information only; "
+                    "canonical scientific validity is governed by "
+                    "strict_claim.json."
+                )
 
-    ------------------------------------------------------------------
-
-    Sigma validation
-
-    ------------------------------------------------------------------
+    # ------------------------------------------------------------------
+    # Sigma validation
+    # ------------------------------------------------------------------
 
     adaptive_sigma = unified_claim.get("adaptive_sigma", {})
 
@@ -150,28 +151,26 @@ def validate_finite(value, name):
     if max_sigma is not None and sigma is not None:
         allowed_sigma = max_sigma * multiplier
 
-    if sigma > allowed_sigma:
-        print(
-            f"❌ Sigma عالي: {sigma} "
-            f"(allowed diagnostic limit: {allowed_sigma})"
-        )
-        sys.exit(1)
+        if sigma > allowed_sigma:
+            print(
+                f"❌ Sigma عالي: {sigma} "
+                f"(allowed diagnostic limit: {allowed_sigma})"
+            )
+            sys.exit(1)
 
-    ------------------------------------------------------------------
-
-    Final status
-
-    ------------------------------------------------------------------
+    # ------------------------------------------------------------------
+    # Final status
+    # ------------------------------------------------------------------
 
     if source == "external":
         print(
             f"✅ External alpha scientifically valid: "
-            f"{alpha} within canonical range [{strict_min}, {strict_max}]"
+            f"{alpha} within canonical range "
+            f"[{strict_min}, {strict_max}]"
         )
         print(
             "ℹ️ External-domain alpha is not required to satisfy "
             "legacy physical/emergent classification ranges."
-
         )
     else:
         print(
@@ -180,3 +179,6 @@ def validate_finite(value, name):
         )
 
     print("✅ Alpha physical/canonical guard passed")
+
+if __name__ == "__main__":
+    main()
