@@ -1027,11 +1027,26 @@ def main():
             ),
         )
 
+        #============================================================
+        # EXTERNAL REPLAY IS AN EXTERNAL CI ATTESTATION
+        # ===========================================================
+        #
+        # The canonical scientific pipeline must NEVER manufacture
+        # its own independent replay evidence.
+        #
+        # An external replay is accepted only when a separately
+        # executed clean environment has produced an explicit
+        # attestation artifact.
+        #
+        # Internal deterministic reruns are diagnostic only.
+        # ============================================================
+
+        external_replay_verified = False
+        fingerprint_match = False
+
         external_replay_path = Path(
             "artifacts/external_replay_verification.json"
         )
-        external_replay_verified = False
-        fingerprint_match = False
 
         if external_replay_path.exists():
             try:
@@ -1041,30 +1056,57 @@ def main():
                 ) as f:
                     external_replay = json.load(f)
 
-                # Strict protocol:
-                # `match` alone is NOT sufficient.
-                # Final reproducibility requires both
-                # independent replay verification and
-                # fingerprint agreement.
-
                 external_replay_verified = (
                     external_replay.get(
                         "independent_replay_verified",
-                        False
+                        False,
                     )
                     is True
                 )
+
                 fingerprint_match = (
                     external_replay.get(
                         "fingerprint_match",
-                        False
+                        False,
                     )
                     is True
                 )
+
+                verification_method = (
+                    external_replay.get(
+                        "verification_method"
+                    )
+                )
+
+                # The artifact is not trusted unless it explicitly
+                # declares the required independent method.
+
+                if (
+                    verification_method
+                    !=
+                    "independent_clean_environment_rerun"
+                ):
+                    external_replay_verified = False
+                    fingerprint_match = False
 
             except Exception:
                 external_replay_verified = False
                 fingerprint_match = False
+
+        else:
+            print(
+                "ℹ️ No external replay attestation available."
+            )
+
+        print(
+            "External replay verified:",
+            external_replay_verified
+        )
+
+        print(
+            "External fingerprint match:",
+            fingerprint_match
+        )
 
         adversarial_control_path = Path(
             "artifacts/adversarial_control.json"
