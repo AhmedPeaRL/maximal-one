@@ -64,190 +64,210 @@ def main():
     replay = json.load(f)
 
   required = {
-    "independent_replay_verified",
-    "fingerprint_match",
-    "original_alpha",
-    "reproduced_alpha",
-    "delta",
-    "external_report_sha256",
-    "reproduced_report_sha256",
-    "external_environment",
-    "verification_method",
+      "independent_replay_verified",
+      "fingerprint_match",
+      "original_alpha",
+      "reproduced_alpha",
+      "delta",
+      "external_report_sha256",
+      "reproduced_report_sha256",
+      "external_environment",
+      "verification_method",
   }
 
-  missing = required - set(replay.keys())
-
-  require(
-    not missing,
-    "missing required fields: "
-    + ", ".join(sorted(missing)),
+  missing = (
+      required
+      -
+      set(replay.keys())
   )
 
   require(
-    replay["independent_replay_verified"] is True,
-    "independent_replay_verified is not true",
+      not missing,
+      "missing required fields: "
+      + ", ".join(sorted(missing)),
   )
 
   require(
-    replay["fingerprint_match"] is True,
-    "fingerprint_match is not true",
-  )
-
-  original_alpha = replay["original_alpha"]
-  reproduced_alpha = replay["reproduced_alpha"]
-  delta = replay["delta"]
-
-  require(
-    finite(original_alpha),
-    "original_alpha is missing or non-finite",
+      replay[
+          "independent_replay_verified"
+      ] is True,
+      "independent_replay_verified is not true",
   )
 
   require(
-    finite(reproduced_alpha),
-    "reproduced_alpha is missing or non-finite",
+      replay[
+          "fingerprint_match"
+      ] is True,
+      "fingerprint_match is not true",
+  )
+
+  original_alpha = replay[
+      "original_alpha"
+  ]
+
+  reproduced_alpha = replay[
+      "reproduced_alpha"
+  ]
+
+  delta = replay[
+      "delta"
+  ]
+
+  require(
+      finite(original_alpha),
+      "original_alpha is missing or non-finite",
   )
 
   require(
-    finite(delta),
-    "delta is missing or non-finite",
+      finite(reproduced_alpha),
+      "reproduced_alpha is missing or non-finite",
+  )
+
+  require(
+      finite(delta),
+      "delta is missing or non-finite",
   )
 
   calculated_delta = abs(
-    float(original_alpha)
-    -
-    float(reproduced_alpha)
+      float(original_alpha)
+      -
+      float(reproduced_alpha)
   )
 
   require(
-    abs(calculated_delta - float(delta))
-    <= 1e-8,
-    (
-      "reported delta does not match "
-      "the reproduced alpha values"
-    ),
+      abs(
+          calculated_delta
+          -
+          float(delta)
+      ) <= 1e-8,
+      (
+          "reported delta does not match "
+          "the reproduced alpha values"
+      ),
   )
 
   require(
-    float(delta) <= 1e-8,
-    (
-      "independent replay alpha does not "
-      "match canonical alpha"
-    ),
+      float(delta) <= 1e-8,
+      (
+          "independent replay alpha does not "
+          "match canonical alpha"
+      ),
   )
 
   original_hash = replay[
-    "external_report_sha256"
+      "external_report_sha256"
   ]
 
   reproduced_hash = replay[
-    "reproduced_report_sha256"
+      "reproduced_report_sha256"
   ]
 
   require(
-    isinstance(original_hash, str)
-    and len(original_hash) == 64,
-    "external_report_sha256 is invalid",
+      isinstance(original_hash, str)
+      and len(original_hash) == 64,
+      "external_report_sha256 is invalid",
   )
 
   require(
-    isinstance(reproduced_hash, str)
-    and len(reproduced_hash) == 64,
-    "reproduced_report_sha256 is invalid",
+      isinstance(reproduced_hash, str)
+      and len(reproduced_hash) == 64,
+      "reproduced_report_sha256 is invalid",
   )
 
   environment = replay[
-    "external_environment"
+      "external_environment"
   ]
 
   require(
-    isinstance(environment, dict),
-    "external_environment must be an object",
+      isinstance(environment, dict),
+      "external_environment must be an object",
   )
 
   required_environment = {
-    "python",
-    "numpy",
-    "scipy",
-    "platform",
+      "python",
+      "numpy",
+      "scipy",
+      "platform",
   }
 
   missing_environment = (
-    required_environment
-    -
-    set(environment.keys())
+      required_environment
+      -
+      set(environment.keys())
   )
 
   require(
-    not missing_environment,
-    (
-      "external environment is incomplete: "
-      +
-      ", ".join(
-        sorted(missing_environment)
-      )
-    ),
+      not missing_environment,
+      (
+          "external environment is incomplete: "
+          +
+          ", ".join(
+              sorted(missing_environment)
+          )
+      ),
   )
 
   method = replay[
-    "verification_method"
+      "verification_method"
   ]
 
   require(
-    method
-    == "independent_clean_environment_rerun",
-    (
-      "verification_method must explicitly "
-      "declare an independent clean-environment rerun"
-    ),
+      method
+      ==
+      "independent_clean_environment_rerun",
+      (
+          "verification_method must explicitly "
+          "declare an independent clean-environment rerun"
+      ),
   )
 
   print(
-    "EXTERNAL REPLAY VERIFIED"
+      "EXTERNAL REPLAY VERIFIED"
   )
 
   print(
-    "Independent rerun: TRUE"
+      "Independent rerun: TRUE"
   )
 
   print(
-    "Fingerprint match: TRUE"
+      "Fingerprint match: TRUE"
   )
 
   print(
-    "Canonical alpha:",
-    float(original_alpha),
+      "Canonical alpha:",
+      float(original_alpha),
   )
 
   print(
-    "Reproduced alpha:",
-    float(reproduced_alpha),
+      "Reproduced alpha:",
+      float(reproduced_alpha),
   )
 
   print(
-    "Delta:",
-    float(delta),
+      "Delta:",
+      float(delta),
   )
 
   print(
-    "External report SHA256:",
-    original_hash,
+      "External report SHA256:",
+      original_hash,
   )
 
   print(
-    "Reproduced report SHA256:",
-    reproduced_hash,
+      "Reproduced report SHA256:",
+      reproduced_hash,
   )
 
   print(
-    "External environment:",
-    json.dumps(
-      environment,
-      sort_keys=True,
-    ), 
+      "External environment:",
+      json.dumps(
+          environment,
+          sort_keys=True,
+      ),
   )
 
   print(
-    "Independent external replay gate PASSED."
+      "Independent external replay gate PASSED."
   )
 
 if __name__ == "__main__":
