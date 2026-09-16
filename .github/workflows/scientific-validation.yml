@@ -920,6 +920,11 @@ jobs:
 
           print("✅ Prediction:", res)
           PY
+
+      - name: Validate external replay evidence
+        if: ${{ hashFiles('artifacts/external_replay_verification.json') != '' }}
+        run: |
+          python scripts/validate_external_replay.py
           
       - name: Cross-domain band guard
         run: |
