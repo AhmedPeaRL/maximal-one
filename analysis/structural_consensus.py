@@ -1,33 +1,66 @@
 import numpy as np
 
-def structural_consensus(preds, history):
+def structural_consensus(preds, history, tolerance=1e-6):
+    """
+    Deterministic consensus over supplied predictions.
 
-    preds = np.array(preds)
+    No random value is manufactured when all predictions collapse to
+    the current observation. In that case the function returns the
+    current observation and explicitly exposes that no non-trivial
+    consensus existed.
+    """
 
-    if len(preds) == 0:
-        return history[-1]
+    preds = np.asarray(preds, dtype=np.float64)
+    history = np.asarray(history, dtype=np.float64)
 
-    last = history[-1]
+    if len(history) == 0:
+        raise ValueError("history must not be empty")
 
-    # 🔥 deviation awareness
+    last = float(history[-1])
+
+    finite = np.isfinite(preds)
+
+    if not np.any(finite):
+        return {
+            "prediction": last,
+            "consensus_available": False,
+            "reason": "no_finite_predictions",
+        }
+
+    preds = preds[finite]
+
     deviations = preds - last
 
-    # 🔥 kill trivial predictions
-    mask = np.abs(deviations) > 1e-6
+    nontrivial = np.abs(deviations) > tolerance
 
-    if np.sum(mask) > 0:
-        preds = preds[mask]
-        deviations = deviations[mask]
+    if not np.any(nontrivial):
+        return {
+            "prediction": last,
+            "consensus_available": False,
+            "reason": "all_predictions_trivial",
+        }
 
-    # 🔥 if all trivial → force escape
-    if len(preds) == 0:
-        std = np.std(history[-20:])
-        return float(last + np.sign(np.random.randn()) * std * 0.1)
+    preds = preds[nontrivial]
+    deviations = deviations[nontrivial]
 
-    # 🔥 weight by magnitude (not closeness)
-    weights = np.abs(deviations) + 1e-8
+    # Deterministic magnitude weighting.
+    weights = np.abs(deviations) + 1e-12
     weights /= np.sum(weights)
 
-    pred = np.sum(preds * weights)
+    prediction = float(
+        np.sum(preds * weights)
+    )
 
-    return float(pred)
+    if not np.isfinite(prediction):
+        return {
+            "prediction": last,
+            "consensus_available": False,
+            "reason": "nonfinite_consensus",
+        }
+
+    return {
+        "prediction": prediction,
+        "consensus_available": True,
+        "reason": "nontrivial_consensus",
+        "contributors": int(len(preds)),
+    }
