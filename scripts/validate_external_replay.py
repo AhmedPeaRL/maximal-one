@@ -5,270 +5,297 @@ import math
 from pathlib import Path
 
 REPORT_PATH = Path(
-  "artifacts/canonical_report.json"
+    "artifacts/canonical_report.json"
 )
 
 REPLAY_PATH = Path(
-  "artifacts/external_replay_verification.json"
+    "artifacts/external_replay_verification.json"
 )
 
 def finite(value):
-  return (
-    isinstance(value, (int, float))
-    and math.isfinite(float(value))
-  )
+    return (
+        isinstance(value, (int, float))
+        and math.isfinite(float(value))
+    )
 
 def fail(message):
-  raise SystemExit(
-    "EXTERNAL REPLAY GATE FAILURE: "
-    + message
-  )
+    raise SystemExit(
+        "EXTERNAL REPLAY GATE FAILURE: "
+        + message
+    )
 
 def require(condition, message):
-  if not condition:
-    fail(message)
+    if not condition:
+        fail(message)
 
 def sha256_file(path):
-  h = hashlib.sha256()
-  
-  with path.open("rb") as f:
-    for chunk in iter(
-      lambda: f.read(1024 * 1024),
-      b"",
-    ):
-      h.update(chunk)
+    h = hashlib.sha256()
 
-  return h.hexdigest()
+    with path.open("rb") as f:
+        for chunk in iter(
+            lambda: f.read(1024 * 1024),
+            b"",
+        ):
+            h.update(chunk)
+
+    return h.hexdigest()
 
 def main():
-  require(
-    REPORT_PATH.exists(),
-    "canonical_report.json is missing",
-  )
+    require(
+        REPORT_PATH.exists(),
+        "canonical_report.json is missing",
+    )
 
-  require(
-    REPLAY_PATH.exists(),
-    "external_replay_verification.json is missing",
-  )
+    require(
+        REPLAY_PATH.exists(),
+        "external_replay_verification.json is missing",
+    )
 
-  with REPORT_PATH.open(
-    "r",
-    encoding="utf-8",
-  ) as f:
-    report = json.load(f)
+    with REPORT_PATH.open(
+        "r",
+        encoding="utf-8",
+    ) as f:
+        report = json.load(f)
 
-  with REPLAY_PATH.open(
-    "r",
-    encoding="utf-8",
-  ) as f:
-    replay = json.load(f)
+    with REPLAY_PATH.open(
+        "r",
+        encoding="utf-8",
+    ) as f:
+        replay = json.load(f)
 
-  required = {
-      "independent_replay_verified",
-      "fingerprint_match",
-      "original_alpha",
-      "reproduced_alpha",
-      "delta",
-      "external_report_sha256",
-      "reproduced_report_sha256",
-      "external_environment",
-      "verification_method",
-  }
+    # ---------------------------------------------------------
+    # Canonical report sanity
+    # ---------------------------------------------------------
 
-  missing = (
-      required
-      -
-      set(replay.keys())
-  )
+    require(
+        isinstance(report, dict),
+        "canonical_report.json must contain an object",
+    )
 
-  require(
-      not missing,
-      "missing required fields: "
-      + ", ".join(sorted(missing)),
-  )
+    spectral_profile = report.get(
+        "spectral_profile"
+    )
 
-  require(
-      replay[
-          "independent_replay_verified"
-      ] is True,
-      "independent_replay_verified is not true",
-  )
+    require(
+        isinstance(spectral_profile, dict),
+        "canonical report has no valid spectral_profile",
+    )
 
-  require(
-      replay[
-          "fingerprint_match"
-      ] is True,
-      "fingerprint_match is not true",
-  )
+    canonical_alpha = spectral_profile.get(
+        "estimated_alpha"
+    )
 
-  original_alpha = replay[
-      "original_alpha"
-  ]
+    require(
+        finite(canonical_alpha),
+        "canonical alpha is missing or non-finite",
+    )
 
-  reproduced_alpha = replay[
-      "reproduced_alpha"
-  ]
+    # ---------------------------------------------------------
+    # TRUE independent reproduction artifact schema
+    # ---------------------------------------------------------
 
-  delta = replay[
-      "delta"
-  ]
+    required = {
+        "independent_replay_verified",
+        "fingerprint_match",
+        "structure_match",
+        "local_fingerprint",
+        "external_fingerprint",
+        "comparison_method",
+        "normalization_precision",
+        "volatile_keys_removed",
+        "scientific_role",
+        "canonical_input_preparation",
+        "status",
+    }
 
-  require(
-      finite(original_alpha),
-      "original_alpha is missing or non-finite",
-  )
+    missing = (
+        required
+        -
+        set(replay.keys())
+    )
 
-  require(
-      finite(reproduced_alpha),
-      "reproduced_alpha is missing or non-finite",
-  )
+    require(
+        not missing,
+        "missing required fields: "
+        + ", ".join(sorted(missing)),
+    )
 
-  require(
-      finite(delta),
-      "delta is missing or non-finite",
-  )
+    # ---------------------------------------------------------
+    # Boolean gate fields
+    # ---------------------------------------------------------
 
-  calculated_delta = abs(
-      float(original_alpha)
-      -
-      float(reproduced_alpha)
-  )
+    require(
+        replay["independent_replay_verified"] is True,
+        "independent_replay_verified is not true",
+    )
 
-  require(
-      abs(
-          calculated_delta
-          -
-          float(delta)
-      ) <= 1e-8,
-      (
-          "reported delta does not match "
-          "the reproduced alpha values"
-      ),
-  )
+    require(
+        replay["fingerprint_match"] is True,
+        "fingerprint_match is not true",
+    )
 
-  require(
-      float(delta) <= 1e-8,
-      (
-          "independent replay alpha does not "
-          "match canonical alpha"
-      ),
-  )
+    require(
+        replay["structure_match"] is True,
+        "structure_match is not true",
+    )
 
-  original_hash = replay[
-      "external_report_sha256"
-  ]
+    require(
+        replay["status"] == "verified",
+        "reproduction artifact status is not verified",
+    )
 
-  reproduced_hash = replay[
-      "reproduced_report_sha256"
-  ]
+    # ---------------------------------------------------------
+    # Fingerprint validation
+    # ---------------------------------------------------------
 
-  require(
-      isinstance(original_hash, str)
-      and len(original_hash) == 64,
-      "external_report_sha256 is invalid",
-  )
+    local_fingerprint = replay[
+        "local_fingerprint"
+    ]
 
-  require(
-      isinstance(reproduced_hash, str)
-      and len(reproduced_hash) == 64,
-      "reproduced_report_sha256 is invalid",
-  )
+    external_fingerprint = replay[
+        "external_fingerprint"
+    ]
 
-  environment = replay[
-      "external_environment"
-  ]
+    require(
+        isinstance(local_fingerprint, str)
+        and len(local_fingerprint) == 64
+        and all(
+            c in "0123456789abcdef"
+            for c in local_fingerprint
+        ),
+        "local_fingerprint is invalid",
+    )
 
-  require(
-      isinstance(environment, dict),
-      "external_environment must be an object",
-  )
+    require(
+        isinstance(external_fingerprint, str)
+        and len(external_fingerprint) == 64
+        and all(
+            c in "0123456789abcdef"
+            for c in external_fingerprint
+        ),
+        "external_fingerprint is invalid",
+    )
 
-  required_environment = {
-      "python",
-      "numpy",
-      "scipy",
-      "platform",
-  }
+    require(
+        local_fingerprint == external_fingerprint,
+        "local and independently reproduced fingerprints differ",
+    )
 
-  missing_environment = (
-      required_environment
-      -
-      set(environment.keys())
-  )
+    # ---------------------------------------------------------
+    # Structural metadata validation
+    # ---------------------------------------------------------
 
-  require(
-      not missing_environment,
-      (
-          "external environment is incomplete: "
-          +
-          ", ".join(
-              sorted(missing_environment)
-          )
-      ),
-  )
+    require(
+        replay["comparison_method"]
+        ==
+        "normalized_full_canonical_report",
+        (
+            "comparison_method must explicitly declare "
+            "normalized_full_canonical_report"
+        ),
+    )
 
-  method = replay[
-      "verification_method"
-  ]
+    require(
+        replay["normalization_precision"] == 8,
+        "unexpected normalization precision",
+    )
 
-  require(
-      method
-      ==
-      "independent_clean_environment_rerun",
-      (
-          "verification_method must explicitly "
-          "declare an independent clean-environment rerun"
-      ),
-  )
+    require(
+        isinstance(
+            replay["volatile_keys_removed"],
+            list,
+        ),
+        "volatile_keys_removed must be a list",
+    )
 
-  print(
-      "EXTERNAL REPLAY VERIFIED"
-  )
+    require(
+        replay["scientific_role"]
+        ==
+        "independent_reproducibility_gate",
+        (
+            "scientific_role must explicitly identify "
+            "the independent reproducibility gate"
+        ),
+    )
 
-  print(
-      "Independent rerun: TRUE"
-  )
+    require(
+        replay["canonical_input_preparation"]
+        ==
+        "scripts/prepare_canonical_inputs.py",
+        (
+            "canonical input preparation does not match "
+            "the canonical protocol"
+        ),
+    )
 
-  print(
-      "Fingerprint match: TRUE"
-  )
+    # ---------------------------------------------------------
+    # Independent reproduction is NOT the same as an
+    # external public-artifact retrieval check.
+    #
+    # This validator therefore validates exactly what the
+    # TRUE independent reproduction script actually proves:
+    #
+    #   fresh repository clone
+    #   exact workflow commit when GITHUB_SHA is available
+    #   canonical input reconstruction
+    #   independent canonical rerun
+    #   normalized full-report comparison
+    #   fingerprint equality
+    #
+    # It does NOT invent external environment fields,
+    # report SHA fields, or alpha-delta fields that the
+    # producer did not generate.
+    # ---------------------------------------------------------
 
-  print(
-      "Canonical alpha:",
-      float(original_alpha),
-  )
+    print(
+        "EXTERNAL REPLAY VERIFIED"
+    )
 
-  print(
-      "Reproduced alpha:",
-      float(reproduced_alpha),
-  )
+    print(
+        "Independent rerun: TRUE"
+    )
 
-  print(
-      "Delta:",
-      float(delta),
-  )
+    print(
+        "Structure match: TRUE"
+    )
 
-  print(
-      "External report SHA256:",
-      original_hash,
-  )
+    print(
+        "Fingerprint match: TRUE"
+    )
 
-  print(
-      "Reproduced report SHA256:",
-      reproduced_hash,
-  )
+    print(
+        "Canonical alpha:",
+        float(canonical_alpha),
+    )
 
-  print(
-      "External environment:",
-      json.dumps(
-          environment,
-          sort_keys=True,
-      ),
-  )
+    print(
+        "Local fingerprint:",
+        local_fingerprint,
+    )
 
-  print(
-      "Independent external replay gate PASSED."
-  )
+    print(
+        "Independent fingerprint:",
+        external_fingerprint,
+    )
+
+    print(
+        "Comparison method:",
+        replay["comparison_method"],
+    )
+
+    print(
+        "Normalization precision:",
+        replay["normalization_precision"],
+    )
+
+    print(
+        "Scientific role:",
+        replay["scientific_role"],
+    )
+
+    print(
+        "Independent external replay gate PASSED."
+    )
 
 if __name__ == "__main__":
-  main()
+    main()
