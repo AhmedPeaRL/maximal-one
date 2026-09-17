@@ -920,11 +920,6 @@ jobs:
 
           print("✅ Prediction:", res)
           PY
-
-      - name: Validate external replay evidence
-        if: ${{ hashFiles('artifacts/external_replay_verification.json') != '' }}
-        run: |
-          python scripts/validate_external_replay.py
           
       - name: Cross-domain band guard
         run: |
@@ -1020,7 +1015,13 @@ jobs:
 
       - name: TRUE Independent Reproduction (HARD)
         run: |
-          python analysis/true_independent_reproduction.py || exit 1
+          rm -f artifacts/external_replay_verification.json
+
+          python analysis/true_independent_reproduction.py
+
+      - name: Validate TRUE Independent Reproduction Evidence (HARD)
+        run: |
+          python scripts/validate_external_replay.py
 
       - name: Stabilize artifacts
         run: |
