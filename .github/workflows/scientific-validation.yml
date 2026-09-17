@@ -830,29 +830,183 @@ jobs:
           import numpy as np
           import pandas as pd
 
-          def detect_periodicity(series):
-              fft = np.abs(np.fft.rfft(series))**2
-              ratio = np.max(fft) / (np.mean(fft) + 1e-12)
-              return ratio
+          FREQ_MIN = 0.01
+          FREQ_MAX = 0.05
+          PEAK_RATIO_THRESHOLD = 20.0
+          MAX_BAND_PEAK_FRACTION = 0.50
+
+          def normalized_psd(series):
+              x = np.asarray(series, dtype=np.float64)
+
+              if x.ndim != 1 or len(x) < 500:
+                  raise ValueError(
+                      f"invalid periodicity input length={len(x)}"
+                  )
+
+              if not np.all(np.isfinite(x)):
+                  raise ValueError(
+                      "periodicity input contains non-finite values"
+                  )
+
+              x = x - np.mean(x)
+
+              std = np.std(x)
+
+              if std < 1e-12:
+                  raise ValueError(
+                      "periodicity input is degenerate"
+                  )
+
+              x = x / std
+
+              fft = np.fft.rfft(x)
+              power = np.abs(fft) ** 2
+              freqs = np.fft.rfftfreq(len(x))
+
+              finite = (
+                  np.isfinite(freqs)
+                  &
+                  np.isfinite(power)
+              )
+
+              freqs = freqs[finite]
+              power = power[finite]
+
+              return freqs, power
+
+          def periodicity_diagnostics(series):
+              freqs, power = normalized_psd(series)
+
+              positive = freqs > 0
+
+              if not np.any(positive):
+                  raise ValueError(
+                      "no positive-frequency bins available"
+                  )
+
+              positive_power = power[positive]
+
+              peak_index = int(
+                  np.argmax(positive_power)
+              )
+
+              peak_power = float(
+                  positive_power[peak_index]
+              )
+
+              mean_power = float(
+                  np.mean(positive_power)
+              )
+
+              peak_ratio = (
+                  peak_power
+                  /
+                  (mean_power + 1e-12)
+              )
+
+              band = (
+                  (freqs > FREQ_MIN)
+                  &
+                  (freqs < FREQ_MAX)
+              )
+
+              band_power = power[band]
+
+              if len(band_power) == 0:
+                  band_peak_fraction = 0.0
+              else:
+                  total_band_power = float(
+                      np.sum(band_power)
+                  )
+
+                  band_peak_power = float(
+                      np.max(band_power)
+                  )
+
+                  band_peak_fraction = (
+                      band_peak_power
+                      /
+                      (total_band_power + 1e-12)
+                  )
+
+              return {
+                  "peak_ratio": float(peak_ratio),
+                  "band_peak_fraction": float(
+                      band_peak_fraction
+                  ),
+              }
 
           def run():
-              df = pd.read_csv("real-data/sunspots_global_extended.csv")
-              col = df.columns[0]
+              df = pd.read_csv(
+                  "real-data/sunspots_global_extended.csv"
+              )
 
-              series = df[col].values
+              candidates = [
+                  "Sunspots",
+                  "sunspots",
+                  "value",
+              ]
 
-              ratio = detect_periodicity(series)
+              column = next(
+                  (
+                      c
+                      for c in candidates
+                      if c in df.columns
+                  ),
+                  None,
+              )
 
-              print("Spectral peak ratio:", ratio)
+              if column is None:
+                  raise SystemExit(
+                      "No recognised sunspot signal column"
+                  )
 
-              # allow natural periodic systems but reject artificial spikes
-              if ratio > 20:
-                  print("⚠️ Strong periodicity detected — checking natural origin")
+              series = df[column].to_numpy(
+                  dtype=np.float64
+              )
 
-                  if len(series) < 500:
-                      raise SystemExit("❌ suspicious periodic artifact (short series)")
+              diagnostics = periodicity_diagnostics(
+                  series
+              )
 
-              print("✅ No artificial periodic dominance")
+              peak_ratio = diagnostics[
+                  "peak_ratio"
+              ]
+
+              band_peak_fraction = diagnostics[
+                  "band_peak_fraction"
+              ]
+
+              print(
+                  "Spectral peak ratio:",
+                  peak_ratio,
+              )
+
+              print(
+                  "Band peak fraction:",
+                  band_peak_fraction,
+              )
+
+              if peak_ratio > PEAK_RATIO_THRESHOLD:
+                  print(
+                      "⚠️ Strong spectral concentration detected."
+                  )
+
+              if (
+                  band_peak_fraction
+                  >
+                  MAX_BAND_PEAK_FRACTION
+              ):
+                  raise SystemExit(
+                      "❌ Excessive single-bin concentration "
+                      "inside canonical band; periodicity "
+                      "cannot be declared non-artificial."
+                  )
+
+              print(
+                  "✅ No excessive single-bin "
+                  "spectral concentration detected."
+              )
 
           if __name__ == "__main__":
               run()
@@ -1009,6 +1163,9 @@ jobs:
         run: |
           cat artifacts/fingerprint.txt
 
+      - name: TRUE External Runner (REAL ISOLATION)
+        run: python analysis/TRUE_external_runner.py
+
       - name: External replay verifier
         run: |
           python analysis/external_replay_verifier.py
@@ -1103,9 +1260,6 @@ jobs:
         run: |
           python analysis/external_reproduction_guard.py
           python analysis/true_external_reproduction_guard.py
-
-      - name: TRUE External Runner (REAL ISOLATION)
-        run: python analysis/TRUE_external_runner.py
 
   ingest-witness:
     runs-on: ubuntu-24.04
