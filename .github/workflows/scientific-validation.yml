@@ -1023,6 +1023,10 @@ jobs:
         run: |
           python scripts/validate_external_replay.py
 
+      - name: Build reproducibility manifest
+        run: |
+          python analysis/build_reproducibility_manifest.py
+
       - name: Stabilize artifacts
         run: |
           python analysis/stabilize_artifacts.py
