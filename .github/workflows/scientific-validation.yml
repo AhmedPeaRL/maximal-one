@@ -2326,12 +2326,10 @@ jobs:
         apt-get update
         apt-get install -y build-essential g++
 
-    - name: Install locked dependencies (strict + fallback awareness)
+    - name: Install locked dependencies
       run: |
-        pip install --require-hashes -r requirements-lock.txt || {
-          echo "⚠️ Hash mismatch detected — recording divergence"
-          pip install -r requirements-lock.txt
-        }
+        set -euo pipefail
+        pip install --require-hashes -r requirements-lock.txt
         
     - name: Debug repo structure (early)
       run: |
@@ -2712,29 +2710,65 @@ jobs:
       run: python analysis/irreversible_notary.py
   
     - name: Soft Scientific Evaluation Layer
+      shell: bash
       run: |
-          echo "=== SOFT EVALUATION LAYER ==="
+        echo "=== SOFT EVALUATION LAYER ==="
 
-          FAILED=0
+        FAILED=0
+        NOT_EVALUABLE=0
 
-          run_check () {
-            CMD=$1
-            NAME=$2
+        run_check () {
+          CMD="$1"
+          NAME="$2"
 
-            if ! $CMD; then
-              echo "⚠️ $NAME failed — recorded as signal"
+          set +e
+          $CMD
+          RC=$?
+          set -e
+
+          case "$RC" in
+            0)
+              echo "✅ $NAME: evaluated successfully"
+              ;;
+
+            2)
+              echo "⚪ $NAME: NOT EVALUABLE — evidence unavailable or insufficient"
+              NOT_EVALUABLE=$((NOT_EVALUABLE+1))
+              ;;
+
+            *)
+              echo "❌ $NAME: evaluated failure"
               FAILED=$((FAILED+1))
-            else
-              echo "✅ $NAME passed"
-            fi
-          }
+              ;;
+          esac
+        }
 
-          run_check "python analysis/anti_triviality_hard_gate.py" "Anti-triviality"
-          run_check "python analysis/falsifiability_gate.py" "Falsifiability"
-          run_check "python analysis/universality_gate.py" "Universality"
-          run_check "python analysis/self_drift.py" "Drift"
+        run_check \
+          "python analysis/anti_triviality_hard_gate.py" \
+          "Anti-triviality"
 
-          echo "Soft failures: $FAILED"
+        run_check \
+          "python analysis/falsifiability_gate.py" \
+          "Falsifiability"
+
+        run_check \
+          "python analysis/universality_gate.py" \
+          "Universality"
+
+        run_check \
+          "python analysis/self_drift.py" \
+          "Drift"
+
+        echo "======================================"
+        echo "Soft evaluated failures: $FAILED"
+        echo "Soft not-evaluable signals: $NOT_EVALUABLE"
+        echo "======================================"
+
+        # This layer is intentionally soft.
+        # It records evidence state without converting
+        # missing evidence into scientific falsification.
+
+        exit 0
 
     - name: External Hostile Validation
       run: python analysis/external_hostile_validation.py
