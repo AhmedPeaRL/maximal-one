@@ -1,1 +1,34 @@
-PUBLIC KEY TO BE INSERTED AFTER GENERATION
+## HCM TRUST ANCHOR
+
+# Status: NOT YET ACTIVATED
+
+# Purpose:
+
+This file is reserved for the public verification key used
+to verify cryptographic signatures of released scientific
+artifacts.
+
+# Scientific status:
+
+A public key alone does not establish scientific validity.
+
+Cryptographic signing establishes provenance and integrity
+of an artifact, not truth of the scientific claim.
+
+# Activation requirements:
+
+1. Generate an Ed25519 signing key outside the repository.
+
+2. Keep the private key outside GitHub and outside the repository.
+
+3. Publish only the public verification key here.
+
+4. Record the key fingerprint.
+
+5. Sign released artifacts.
+
+6. Verify signatures independently before treating them as
+   provenance evidence.
+
+Until these requirements are completed, this trust anchor is
+NOT ACTIVE.
