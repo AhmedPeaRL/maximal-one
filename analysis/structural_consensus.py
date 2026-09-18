@@ -1,54 +1,66 @@
 import numpy as np
 
-def structural_consensus(preds, history, tolerance=1e-6):
+def structural_consensus(
+    preds,
+    history,
+    tolerance=1e-6,
+):
     """
-    Deterministic consensus over supplied predictions.
+    Deterministic descriptive consensus.
 
-    No random value is manufactured when all predictions collapse to
-    the current observation. In that case the function returns the
-    current observation and explicitly exposes that no non-trivial
-    consensus existed.
+    Consensus is descriptive only.
+    No prediction is favored because it is
+    farther from the current observation.
     """
 
-    preds = np.asarray(preds, dtype=np.float64)
-    history = np.asarray(history, dtype=np.float64)
+    preds = np.asarray(
+        preds,
+        dtype=np.float64,
+    )
+
+    history = np.asarray(
+        history,
+        dtype=np.float64,
+    )
 
     if len(history) == 0:
-        raise ValueError("history must not be empty")
+        raise ValueError(
+            "history must not be empty"
+        )
 
     last = float(history[-1])
 
-    finite = np.isfinite(preds)
+    finite = preds[
+        np.isfinite(preds)
+    ]
 
-    if not np.any(finite):
+    if len(finite) == 0:
         return {
             "prediction": last,
             "consensus_available": False,
             "reason": "no_finite_predictions",
+            "contributors": 0,
         }
 
-    preds = preds[finite]
+    deviations = finite - last
 
-    deviations = preds - last
-
-    nontrivial = np.abs(deviations) > tolerance
+    nontrivial = (
+        np.abs(deviations)
+        > tolerance
+    )
 
     if not np.any(nontrivial):
         return {
             "prediction": last,
             "consensus_available": False,
             "reason": "all_predictions_trivial",
+            "contributors": int(len(finite)),
         }
 
-    preds = preds[nontrivial]
-    deviations = deviations[nontrivial]
-
-    # Deterministic magnitude weighting.
-    weights = np.abs(deviations) + 1e-12
-    weights /= np.sum(weights)
-
+    # Median is deterministic and does not reward
+    # extreme predictions.
     prediction = float(
-        np.sum(preds * weights)
+        np.median(finite)
     )
 
     if not np.isfinite(prediction):
@@ -56,11 +68,15 @@ def structural_consensus(preds, history, tolerance=1e-6):
             "prediction": last,
             "consensus_available": False,
             "reason": "nonfinite_consensus",
+            "contributors": int(len(finite)),
         }
 
     return {
         "prediction": prediction,
         "consensus_available": True,
-        "reason": "nontrivial_consensus",
-        "contributors": int(len(preds)),
+        "reason": "median_consensus",
+        "contributors": int(len(finite)),
+        "nontrivial_contributors": int(
+            np.sum(nontrivial)
+        ),
     }
