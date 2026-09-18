@@ -3,7 +3,7 @@ import numpy as np
 def structural_consensus(
     preds,
     history,
-    tolerance=1e-6,
+    tolerance=1e-8,
 ):
     """
     Deterministic descriptive consensus.
