@@ -250,7 +250,7 @@ def separation_score(
         )
     )
 
-    empirical_p_upper = float(
+    diagnostic_empirical_p_upper = float(
         (
             exceedances
             +
@@ -370,8 +370,8 @@ def separation_score(
             ),
         "null_degenerate":
             null_degenerate,
-        "empirical_p_upper":
-            diagnostic_empirical_p_upper,
+        "diagnostic_empirical_p_upper":
+            empirical_p_upper,
         "null_exceedances":
             int(exceedances),
         "percentile_rank":
