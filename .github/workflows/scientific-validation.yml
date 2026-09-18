@@ -2273,7 +2273,6 @@ jobs:
       image: python:3.11.8-slim
     needs: consensus
     timeout-minutes: 20
-    continue-on-error: true
     
     defaults:
       run:
@@ -2327,9 +2326,11 @@ jobs:
         apt-get install -y build-essential g++
 
     - name: Install locked dependencies
+      shell: bash
       run: |
         set -euo pipefail
-        pip install --require-hashes -r requirements-lock.txt
+        python --version
+        python -m pip install --require-hashes -r requirements-lock.txt
         
     - name: Debug repo structure (early)
       run: |
@@ -2470,16 +2471,37 @@ jobs:
 
         echo "✅ extended dataset exists"
 
-    - name: Fetch datasets (controlled)
+    - name: Fetch optional external datasets
+      shell: bash
       run: |
-        set -e
+        set -euo pipefail
 
-        echo "Fetching datasets with timeout guard..."
+        mkdir -p artifacts
 
-        timeout 120 python -m analysis.global_chaos_fetcher || echo "⚠️ global fetch skipped"
-        timeout 120 python -m analysis.extended_chaos_fetcher || echo "⚠️ extended fetch skipped"
+        GLOBAL_STATUS=0
+        EXTENDED_STATUS=0
 
-        echo "Dataset fetch stage completed safely"
+        timeout 120 python -m analysis.global_chaos_fetcher || GLOBAL_STATUS=$?
+        timeout 120 python -m analysis.extended_chaos_fetcher || EXTENDED_STATUS=$?
+
+        python - <<PY
+        import json
+
+        status = {
+            "global_fetch_exit_code": ${GLOBAL_STATUS},
+            "extended_fetch_exit_code": ${EXTENDED_STATUS},
+            "evidence_status": (
+                "available"
+                if ${GLOBAL_STATUS} == 0 and ${EXTENDED_STATUS} == 0
+                else "partially_unavailable"
+            )
+        }
+
+        with open("artifacts/external_fetch_status.json", "w") as f:
+            json.dump(status, f, indent=2)
+        PY
+
+        cat artifacts/external_fetch_status.json
 
         python - <<'PY'
         import pandas as pd
@@ -2505,21 +2527,36 @@ jobs:
         print("✅ control datasets generated")
         PY
         
-    - name: Ensure sunspots dataset
+    - name: Require canonical dataset
+      shell: bash
       run: |
-        if [ ! -f real-data/sunspots_global_extended.csv ]; then
-          echo "Creating fallback dataset..."
-          python - <<'PY'
-        import pandas as pd, numpy as np, os
-        os.makedirs("real-data", exist_ok=True)
-        t=np.arange(0,2000)
-        v=50+40*np.sin(2*np.pi*t/11)+np.random.normal(0,5,len(t))
-        pd.DataFrame({"t":t,"value":v}).to_csv("real-data/sunspots_global_extended.csv",index=False)
+        set -euo pipefail
+
+        DATASET="real-data/sunspots_global_extended.csv"
+
+        if [ ! -f "$DATASET" ]; then
+          echo "❌ REQUIRED CANONICAL DATASET MISSING"
+          echo "Scientific execution must fail closed."
+          exit 1
+        fi
+
+        echo "✅ Canonical dataset present: $DATASET"
+
+        python - <<'PY'
+        import pandas as pd
+
+        path = "real-data/sunspots_global_extended.csv"
+        df = pd.read_csv(path)
+
+        if df.empty:
+            raise SystemExit("❌ Canonical dataset is empty")
+
+        print("Rows:", len(df))
+        print("Columns:", list(df.columns))
         PY
-            fi
 
-            python analysis/dataset_preprocessor.py real-data/sunspots_global_extended.csv
-
+        python analysis/dataset_preprocessor.py "$DATASET"
+        
     - name: Dataset pipeline
       run: |
         python -m analysis.dataset_sanitizer
