@@ -1,3 +1,4 @@
+from __future__ import annotations
 import numpy as np
 
 try:
@@ -9,6 +10,7 @@ except Exception:
 from analysis.hcm_phase_space_predictor import (
     HCMPhaseSpacePredictor,
 )
+
 from analysis.hcm_structural_predictor import (
     HCMStructuralPredictor,
 )
@@ -46,21 +48,21 @@ class HCMMetaPredictor:
 
         self.last_diagnostics = {}
 
-    # --------------------------------------------------
-    # Baselines
-    # --------------------------------------------------
-
     @staticmethod
     def persistence(history):
+        if len(history) == 0:
+            return np.nan
+
         return float(history[-1])
 
     @staticmethod
     def autoreg1(history):
+
         if (
             not HAS_STATSMODELS
             or len(history) < 20
         ):
-            return None
+            return np.nan
 
         try:
             model = AutoReg(
@@ -72,15 +74,17 @@ class HCMMetaPredictor:
                 old_names=False,
             ).fit()
 
-            pred = model.predict(
-                start=len(history),
-                end=len(history),
+            prediction = float(
+                model.predict(
+                    start=len(history),
+                    end=len(history),
+                )[0]
             )
 
-            value = float(pred[0])
-
-            if np.isfinite(value):
-                return value
+            if np.isfinite(
+                prediction
+            ):
+                return prediction
 
         except (
             ValueError,
@@ -89,24 +93,13 @@ class HCMMetaPredictor:
         ):
             pass
 
-        return None
-
-    # --------------------------------------------------
-    # Candidate scoring
-    # --------------------------------------------------
+        return np.nan
 
     def score_model(
         self,
         history,
-        model,
+        predictor,
     ):
-        """
-        Expanding-window validation inside the
-        already observed history.
-
-        Lower MSE is better.
-        """
-
         n = len(history)
 
         if n < self.minimum_history:
@@ -114,38 +107,46 @@ class HCMMetaPredictor:
 
         start = max(
             40,
-            n - self.validation_points - 1,
-        )
-
-        indices = list(
-            range(start, n - 1)
+            n
+            -
+            self.validation_points
+            -
+            1,
         )
 
         errors = []
 
-        for i in indices:
-
+        for i in range(
+            start,
+            n - 1,
+        ):
             sub_history = history[:i]
 
             try:
-                pred = model(
+                prediction = predictor(
                     sub_history
                 )
             except Exception:
                 continue
 
-            if pred is None:
+            if prediction is None:
                 continue
 
-            if not np.isfinite(pred):
+            if not np.isfinite(
+                prediction
+            ):
                 continue
 
-            true = float(
+            truth = float(
                 history[i]
             )
 
             errors.append(
-                (float(pred) - true) ** 2
+                (
+                    float(prediction)
+                    -
+                    truth
+                ) ** 2
             )
 
         if len(errors) < 4:
@@ -155,67 +156,63 @@ class HCMMetaPredictor:
             np.mean(errors)
         )
 
-    # --------------------------------------------------
-    # Selection
-    # --------------------------------------------------
-
     def select_best_prediction(
         self,
         history,
     ):
-
         candidates = []
 
-        # Persistence baseline
-        persistence_score = self.score_model(
-            history,
-            self.persistence,
-        )
+        candidate_failures = []
 
-        persistence_pred = (
-            self.persistence(history)
-        )
+        baseline_models = [
+            (
+                "persistence",
+                self.persistence,
+            ),
+            (
+                "ar1",
+                self.autoreg1,
+            ),
+        ]
 
-        if np.isfinite(
-            persistence_score
+        for name, predictor in (
+            baseline_models
         ):
-            candidates.append(
-                (
-                    persistence_score,
-                    "persistence",
-                    persistence_pred,
-                )
+            score = self.score_model(
+                history,
+                predictor,
             )
 
-        # AR(1) baseline
-        ar_score = self.score_model(
-            history,
-            self.autoreg1,
-        )
-
-        ar_pred = self.autoreg1(
-            history
-        )
-
-        if (
-            ar_pred is not None
-            and np.isfinite(ar_score)
-        ):
-            candidates.append(
-                (
-                    ar_score,
-                    "ar1",
-                    ar_pred,
+            try:
+                prediction = predictor(
+                    history
                 )
-            )
+            except Exception:
+                prediction = np.nan
 
-        # HCM candidates
+            if (
+                np.isfinite(score)
+                and
+                np.isfinite(prediction)
+            ):
+                candidates.append(
+                    (
+                        float(score),
+                        name,
+                        float(prediction),
+                    )
+                )
+            else:
+                candidate_failures.append(
+                    name
+                )
+
         for name, model in self.models:
             def predictor(
                 sub_history,
-                m=model,
+                current_model=model,
             ):
-                return m.predict(
+                return current_model.predict(
                     sub_history
                 )
 
@@ -225,65 +222,91 @@ class HCMMetaPredictor:
             )
 
             try:
-                pred = model.predict(
+                prediction = model.predict(
                     history
                 )
             except Exception:
-                continue
+                prediction = np.nan
 
             if (
                 np.isfinite(score)
-                and np.isfinite(pred)
+                and
+                np.isfinite(prediction)
             ):
                 candidates.append(
                     (
-                        score,
+                        float(score),
                         name,
-                        float(pred),
+                        float(prediction),
                     )
+                )
+            else:
+                candidate_failures.append(
+                    name
                 )
 
         if not candidates:
             self.last_diagnostics = {
-                "selection": "none",
+                "selection": None,
+                "status": "failed",
                 "reason": "no_valid_candidate",
+                "candidate_failures": (
+                    candidate_failures
+                ),
             }
 
-            return float(
-                history[-1]
-            )
+            return np.nan
 
-        # Lower validation MSE wins.
         candidates.sort(
-            key=lambda item: item[0]
+            key=lambda item: (
+                item[0],
+                item[1],
+            )
         )
 
-        best_score, best_name, best_pred = (
+        best_score, best_name, best_prediction = (
             candidates[0]
         )
 
         self.last_diagnostics = {
             "selection": best_name,
+            "status": "ok",
+            "selected_prediction": float(
+                best_prediction
+            ),
             "validation_mse": float(
                 best_score
             ),
             "candidate_count": len(
                 candidates
             ),
+            "candidate_failures": (
+                candidate_failures
+            ),
             "candidates": [
                 {
                     "name": name,
-                    "validation_mse": float(score),
+                    "validation_mse": float(
+                        score
+                    ),
                 }
                 for score, name, _ in candidates
             ],
+            "selection_basis": (
+                "lowest_expanding_origin_validation_mse"
+            ),
+            "hcm_selected": bool(
+                best_name
+                in {
+                    "phase_space",
+                    "structural",
+                }
+            ),
         }
 
-        return float(best_pred)
-
-    # --------------------------------------------------
-    # Final prediction
-    # --------------------------------------------------
+        return float(
+            best_prediction
+        )
 
     def predict(self, history):
         history = np.asarray(
@@ -305,13 +328,12 @@ class HCMMetaPredictor:
 
         if len(history) < self.minimum_history:
             self.last_diagnostics = {
-                "selection": "persistence",
+                "selection": None,
+                "status": "not_evaluable",
                 "reason": "insufficient_history",
             }
 
-            return float(
-                history[-1]
-            )
+            return np.nan
 
         return self.select_best_prediction(
             history
