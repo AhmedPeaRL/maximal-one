@@ -1,0 +1,21 @@
+{
+  "canonical_input_preparation": "scripts/prepare_canonical_inputs.py",
+  "comparison_method": "normalized_full_canonical_report",
+  "external_fingerprint": "00eeabd5c7e24a664c19d20eaf666f7e717ab570d65f508287cc99a87838fe34",
+  "fingerprint_match": true,
+  "independent_replay_verified": true,
+  "local_fingerprint": "00eeabd5c7e24a664c19d20eaf666f7e717ab570d65f508287cc99a87838fe34",
+  "normalization_precision": 8,
+  "scientific_role": "independent_reproducibility_gate",
+  "status": "verified",
+  "structure_match": true,
+  "volatile_keys_removed": [
+    "_environment",
+    "_sealed",
+    "execution_time",
+    "generated_at",
+    "host",
+    "runtime",
+    "timestamp"
+  ]
+}
