@@ -1,7 +1,55 @@
 {
-  "gaussian_noise": true,
-  "heavy_tail_noise": true,
-  "student_t_df": 3,
-  "input_shift": 0.2,
-  "scale_perturbation": 1.1
+  "version": "2.0",
+  "scientific_role": "adversarial_robustness_diagnostics",
+
+  "gaussian_noise": {
+    "enabled": true,
+    "levels": [0.05, 0.1, 0.2]
+  },
+
+  "heavy_tail_noise": {
+    "enabled": true,
+    "distribution": "student_t",
+    "degrees_of_freedom": [3, 5]
+  },
+
+  "input_shift": {
+    "enabled": true,
+    "levels": [0.05, 0.1, 0.2]
+  },
+
+  "scale_perturbation": {
+    "enabled": true,
+    "multipliers": [0.9, 1.1]
+  },
+
+  "spectral_distortion": {
+    "enabled": true,
+    "type": "controlled_band_amplitude_perturbation",
+    "levels": [0.05, 0.1]
+  },
+
+  "segment_distortion": {
+    "enabled": true,
+    "types": [
+      "segment_dropout",
+      "segment_permutation"
+    ]
+  },
+
+  "random_seed": 42,
+
+  "failure_policy": {
+    "model_failure": "fail_closed",
+    "invalid_output": "fail_closed",
+    "fallback_to_persistence": false,
+    "automatic_dataset_regeneration": false
+  },
+
+  "interpretation": {
+    "claim_role": "diagnostic_only",
+    "does_not_establish_mechanism": true,
+    "does_not_establish_universality": true,
+    "does_not_establish_hcm_causation": true
+  }
 }
