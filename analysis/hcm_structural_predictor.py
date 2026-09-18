@@ -1,3 +1,4 @@
+from __future__ import annotations
 import numpy as np
 
 class HCMStructuralPredictor:
@@ -7,10 +8,12 @@ class HCMStructuralPredictor:
         dim=4,
         k=8,
         theiler_window=None,
+        ridge=1e-6,
     ):
         self.delay = int(delay)
         self.dim = int(dim)
         self.k = int(k)
+        self.ridge = float(ridge)
 
         if self.delay < 1:
             raise ValueError("delay must be >= 1")
@@ -21,42 +24,78 @@ class HCMStructuralPredictor:
         if self.k < 1:
             raise ValueError("k must be >= 1")
 
+        if self.ridge < 0:
+            raise ValueError("ridge must be >= 0")
+
         if theiler_window is None:
             theiler_window = self.dim * self.delay
 
-        self.theiler_window = int(theiler_window)
+        self.theiler_window = int(
+            theiler_window
+        )
+
+        if self.theiler_window < 1:
+            raise ValueError(
+                "theiler_window must be >= 1"
+            )
+
+        self.last_status = "not_run"
+        self.last_reason = None
+
+    def _fail(self, reason):
+        self.last_status = "failed"
+        self.last_reason = reason
+        return np.nan
 
     def embed(self, series):
-        x = np.asarray(series, dtype=np.float64)
+        x = np.asarray(
+            series,
+            dtype=np.float64,
+        )
 
         if x.ndim != 1:
             return None
 
-        if not np.all(np.isfinite(x)):
+        if not np.all(
+            np.isfinite(x)
+        ):
             return None
 
-        n = len(x)
-        d = self.dim
-        tau = self.delay
+        required = (
+            self.dim * self.delay + 1
+        )
 
-        if n < d * tau + 1:
+        if len(x) < required:
             return None
 
         X = []
         Y = []
         indices = []
 
-        max_i = n - d * tau
+        max_i = (
+            len(x)
+            - self.dim * self.delay
+        )
 
         for i in range(max_i):
 
-            X.append([
-                x[i + j * tau]
-                for j in range(d)
-            ])
+            X.append(
+                [
+                    x[
+                        i + j * self.delay
+                    ]
+                    for j in range(
+                        self.dim
+                    )
+                ]
+            )
 
             Y.append(
-                x[i + d * tau]
+                x[
+                    i
+                    +
+                    self.dim * self.delay
+                ]
             )
 
             indices.append(i)
@@ -65,42 +104,88 @@ class HCMStructuralPredictor:
             return None
 
         return (
-            np.asarray(X, dtype=np.float64),
-            np.asarray(Y, dtype=np.float64),
-            np.asarray(indices, dtype=np.int64),
+            np.asarray(
+                X,
+                dtype=np.float64,
+            ),
+            np.asarray(
+                Y,
+                dtype=np.float64,
+            ),
+            np.asarray(
+                indices,
+                dtype=np.int64,
+            ),
         )
 
     def predict(self, history):
-        series = np.asarray(history, dtype=np.float64)
+        self.last_status = "running"
+        self.last_reason = None
 
-        if len(series) < 50:
-            return float(series[-1])
+        series = np.asarray(
+            history,
+            dtype=np.float64,
+        )
 
-        if not np.all(np.isfinite(series)):
-            return float(series[-1])
+        if len(series) < max(
+            50,
+            self.dim * self.delay + 2,
+        ):
+            return self._fail(
+                "insufficient_history"
+            )
 
-        data = self.embed(series)
+        if not np.all(
+            np.isfinite(series)
+        ):
+            return self._fail(
+                "nonfinite_history"
+            )
 
-        if data is None:
-            return float(series[-1])
+        embedded = self.embed(
+            series
+        )
 
-        X, Y, indices = data
+        if embedded is None:
+            return self._fail(
+                "embedding_failed"
+            )
+
+        X, Y, indices = embedded
+
+        if len(X) < self.k:
+            return self._fail(
+                "insufficient_embedded_states"
+            )
 
         query = np.asarray(
             [
-                series[-1 - i * self.delay]
+                series[
+                    -1 - i * self.delay
+                ]
                 for i in range(self.dim)
             ][::-1],
             dtype=np.float64,
         )
 
-        if len(X) < 3:
-            return float(series[-1])
+        if not np.all(
+            np.isfinite(query)
+        ):
+            return self._fail(
+                "nonfinite_query"
+            )
 
-        scales = np.std(X, axis=0)
+        scales = np.std(
+            X,
+            axis=0,
+        )
 
-        if not np.all(np.isfinite(scales)):
-            return float(series[-1])
+        if not np.all(
+            np.isfinite(scales)
+        ):
+            return self._fail(
+                "invalid_scales"
+            )
 
         scales = np.where(
             scales < 1e-12,
@@ -108,74 +193,126 @@ class HCMStructuralPredictor:
             scales,
         )
 
-        X_scaled = X / scales
-        query_scaled = query / scales
+        Xs = X / scales
+        qs = query / scales
 
-        dists = np.linalg.norm(
-            X_scaled - query_scaled,
+        distances = np.linalg.norm(
+            Xs - qs,
             axis=1,
         )
 
-        query_start = len(series) - self.dim * self.delay
+        query_index = (
+            len(series)
+            - self.dim * self.delay
+        )
 
         eligible = (
-            np.isfinite(dists)
-            & np.isfinite(Y)
-            & (
-                np.abs(indices - query_start)
-                > self.theiler_window
+            np.isfinite(distances)
+            &
+            np.isfinite(Y)
+            &
+            (
+                np.abs(
+                    indices - query_index
+                )
+                >
+                self.theiler_window
             )
         )
 
         if not np.any(eligible):
-            return float(series[-1])
+            return self._fail(
+                "no_theiler_eligible_neighbors"
+            )
 
-        valid_indices = np.where(eligible)[0]
+        valid_indices = np.where(
+            eligible
+        )[0]
 
         k = min(
             self.k,
             len(valid_indices),
         )
 
+        if k < 2:
+            return self._fail(
+                "insufficient_neighbors"
+            )
+
         nearest = valid_indices[
             np.argsort(
-                dists[valid_indices]
+                distances[
+                    valid_indices
+                ]
             )[:k]
         ]
 
-        Xn = X[nearest]
+        Xn = Xs[nearest]
         Yn = Y[nearest]
 
-        if len(Yn) < 2:
-            return float(Yn[0])
+        A = np.column_stack(
+            [
+                Xn,
+                np.ones(len(Xn)),
+            ]
+        )
 
         try:
-            A = np.hstack([
-                Xn,
-                np.ones(
-                    (len(Xn), 1),
-                    dtype=np.float64,
-                ),
-            ])
-
-            coeffs = np.linalg.lstsq(
-                A,
-                Yn,
-                rcond=None,
-            )[0]
-
-            pred = (
-                np.dot(
-                    query,
-                    coeffs[:-1],
-                )
-                + coeffs[-1]
+            lhs = (
+                A.T @ A
             )
 
-        except (np.linalg.LinAlgError, ValueError, FloatingPointError):
-            return float(series[-1])
+            if self.ridge > 0:
+                regularizer = (
+                    np.eye(
+                        lhs.shape[0],
+                        dtype=np.float64,
+                    )
+                )
 
-        if not np.isfinite(pred):
-            return float(series[-1])
+                # Do not regularize the intercept.
+                regularizer[-1, -1] = 0.0
 
-        return float(pred)
+                lhs = (
+                    lhs
+                    +
+                    self.ridge
+                    *
+                    regularizer
+                )
+
+            rhs = A.T @ Yn
+
+            coeffs = np.linalg.solve(
+                lhs,
+                rhs,
+            )
+
+            prediction = float(
+                np.dot(
+                    qs,
+                    coeffs[:-1],
+                )
+                +
+                coeffs[-1]
+            )
+
+        except (
+            np.linalg.LinAlgError,
+            ValueError,
+            FloatingPointError,
+        ):
+            return self._fail(
+                "local_regression_failed"
+            )
+
+        if not np.isfinite(
+            prediction
+        ):
+            return self._fail(
+                "nonfinite_prediction"
+            )
+
+        self.last_status = "ok"
+
+        return prediction
