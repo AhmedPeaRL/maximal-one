@@ -1632,14 +1632,12 @@ jobs:
           apt-get update
           DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential g++ python3-dev
 
-      - name: Install locked dependencies (strict)
+      - name: Install locked dependencies
+        shell: bash
         run: |
-          pip install --upgrade pip
-
-          if ! pip install --require-hashes -r requirements-lock.txt; then
-            echo "❌ Hash mismatch = reproducibility violation"
-            exit 1
-          fi
+          set -euo pipefail
+          python --version
+          python -m pip install --require-hashes -r requirements-lock.txt
            
       - name: Freeze environment
         run: pip freeze > pip-freeze.txt
@@ -2365,20 +2363,24 @@ jobs:
       run: |
         git --version
 
-    - name: Ensure git context (self-healing)
+    - name: Require valid git context
       shell: bash
       run: |
-        if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
-          echo "⚠️ Git context missing — fixing"
+        set -euo pipefail
 
-          git init
-          git remote add origin https://github.com/${{ github.repository }}.git
-
-          git fetch origin main || true
-          git checkout -b main origin/main || git checkout -b main
+        if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+          echo "❌ Scientific verifier is not inside a Git worktree."
+          echo "Scientific verification must fail closed."
+          exit 1
         fi
 
-        echo "✅ Git context ready"
+        if ! git rev-parse HEAD >/dev/null 2>&1; then
+          echo "❌ Git HEAD is unavailable."
+          exit 1
+        fi
+
+        echo "Git HEAD:"
+        git rev-parse HEAD
         
     - name: Fix Git ownership (CRITICAL)
       run: |
@@ -2726,7 +2728,6 @@ jobs:
         python analysis/external_multi_source_witness.py > artifacts/external_multi_witness.json || \
         echo "Multi-source witness degraded"
 
-
     # =========================
     # 6) FINAL GATES
     # =========================
@@ -2802,6 +2803,7 @@ jobs:
         echo "======================================"
 
         # This layer is intentionally soft.
+       
         # It records evidence state without converting
         # missing evidence into scientific falsification.
 
@@ -2912,7 +2914,6 @@ jobs:
 
     - name: Forced Market Collision
       run: python analysis/forced_market_collision.py
-
 
     # =========================
     # 7) PERSISTENCE
@@ -3117,13 +3118,14 @@ jobs:
 
         echo "=== CONFIGURE GIT ==="
         
-        git config --global credential.helper store
         git config user.name "github-actions"
         git config user.email "actions@github.com"
         git config pull.rebase true
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
         git config user.name "bot"
         git config user.email "bot@github.com"
+
+        git -c http.extraheader="AUTHORIZATION: bearer ${GH_TOKEN}"
 
         echo "=== PREP DATA (FIXED) ==="
 
@@ -3223,12 +3225,12 @@ jobs:
           apt-get update
           apt-get install -y build-essential g++
 
-      - name: Install locked dependencies (strict + fallback awareness)
+      - name: Install locked dependencies
+        shell: bash
         run: |
-          pip install --require-hashes -r requirements-lock.txt || {
-            echo "⚠️ Hash mismatch detected — recording divergence"
-            pip install -r requirements-lock.txt
-          }
+          set -euo pipefail
+          python --version
+          python -m pip install --require-hashes -r requirements-lock.txt
 
       - name: Freeze environment
         run: pip freeze
@@ -3267,12 +3269,12 @@ jobs:
           echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
           echo "NUMEXPR_NUM_THREADS=1" >> $GITHUB_ENV
       
-      - name: Install locked dependencies (strict + fallback awareness)
+      - name: Install locked dependencies
+        shell: bash
         run: |
-          pip install --require-hashes -r requirements-lock.txt || {
-            echo "⚠️ Hash mismatch detected — recording divergence"
-            pip install -r requirements-lock.txt
-          }
+          set -euo pipefail
+          python --version
+          python -m pip install --require-hashes -r requirements-lock.txt
 
       - name: Git bootstrap (GLOBAL FIX)
         env:
