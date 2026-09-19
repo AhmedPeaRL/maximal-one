@@ -1985,10 +1985,29 @@ jobs:
           name: report-hash
           path: artifacts
 
-      - name: Load single claim
+      - name: Load Authoritative Scientific Claim
+        shell: bash
         run: |
-          echo "=== SINGLE CLAIM ==="
-          cat core-scientific/one_claim_to_break.json
+          set -euo pipefail
+
+          echo "=== AUTHORITATIVE SCIENTIFIC CLAIM ==="
+          cat core-scientific/strict_claim.json
+
+          python - <<'PY'
+          import json
+
+          with open("core-scientific/strict_claim.json", encoding="utf-8") as f:
+              claim = json.load(f)
+
+          if not claim.get("statement"):
+              raise SystemExit("❌ strict_claim.json has no statement")
+
+          if "expected_result" not in claim:
+              raise SystemExit("❌ strict_claim.json has no expected_result")
+
+          print("✅ Authoritative strict claim loaded.")
+          print("Scientific status:", claim["epistemic_status"]["current_status"])
+          PY
 
       - name: Verify hash integrity
         shell: bash
@@ -2041,72 +2060,133 @@ jobs:
           echo "=== SCIENTIFIC CONTRACT ==="
           cat core-scientific/scientific_contract.json
 
-      - name: Enforce Unified Claim
+      - name: Verify Unified Claim Mirror
+        shell: bash
         run: |
-          node - <<'NODE'
-          const fs = require('fs');
+          set -euo pipefail
 
-          const unified = JSON.parse(fs.readFileSync('core-scientific/unified_claim.json','utf8'));
-          const report = JSON.parse(fs.readFileSync('artifacts/canonical_report.json','utf8'));
+          python - <<'PY'
+          import json
+          from pathlib import Path
 
-          const alpha = report.spectral_profile.estimated_alpha;
-          const sigma = report.spectral_profile.bootstrap_std;
+          unified_path = Path("core-scientific/unified_claim.json")
+          strict_path = Path("core-scientific/strict_claim.json")
 
-          if (!unified.adaptive_alpha || !Array.isArray(unified.adaptive_alpha.alpha_range)) {
-            console.error("❌ adaptive_alpha.alpha_range missing or invalid");
-            process.exit(1);
+          unified = json.loads(unified_path.read_text(encoding="utf-8"))
+          strict = json.loads(strict_path.read_text(encoding="utf-8"))
+
+          if unified.get("role") != "diagnostic_mirror_of_strict_claim":
+              raise SystemExit(
+                  "❌ unified_claim.json is not declared as a diagnostic mirror"
+              )
+
+          if unified.get("authoritative_claim_contract") != \
+             "core-scientific/strict_claim.json":
+              raise SystemExit(
+                  "❌ Unified claim does not point to strict_claim.json"
+              )
+
+          epistemic = unified.get("epistemic_status", {})
+
+          if epistemic.get("authoritative_verdict_source") != \
+             "strict_claim.json":
+              raise SystemExit(
+                  "❌ Unified claim does not identify strict_claim.json "
+                  "as the authoritative verdict source"
+              )
+
+          verdict = unified.get("verdict_logic", {})
+
+          if verdict.get("authoritative") is not False:
+              raise SystemExit(
+                  "❌ Unified claim must remain non-authoritative"
+              )
+
+          if verdict.get("acceptance_decision_must_not_be_derived_here") \
+             is not True:
+              raise SystemExit(
+                  "❌ Unified claim is not protected from deriving acceptance"
+              )
+
+          if verdict.get("strict_claim_controls_verdict") is not True:
+              raise SystemExit(
+                  "❌ Strict claim is not declared as controlling the verdict"
+              )
+
+          prohibited = set(
+              unified.get("prohibited_semantics", [])
+          )
+
+          required_prohibitions = {
+              "confidence_as_probability",
+              "adaptive_truth_threshold",
+              "automatic_claim_acceptance",
           }
 
-          if (!unified.adaptive_sigma) {
-            console.error("❌ adaptive_sigma missing");
-            process.exit(1);
-          }
+          missing = required_prohibitions - prohibited
 
-          if (unified.alpha_mode === "adaptive") {
+          if missing:
+              raise SystemExit(
+                  "❌ Unified claim is missing epistemic prohibitions: "
+                  + ", ".join(sorted(missing))
+              )
 
-            const tolerance = unified.adaptive_alpha.tolerance_sigma_multiplier * sigma;
+          if "expected_result" not in strict:
+              raise SystemExit(
+                  "❌ Authoritative strict claim has no expected_result"
+              )
 
-            console.log("Adaptive alpha mode active");
-            console.log("alpha:", alpha);
-            console.log("tolerance:", tolerance);
+          print("✅ Unified claim mirror verified.")
+          print("   Role: diagnostic mirror")
+          print("   Authority: strict_claim.json")
+          print("   Adaptive truth thresholds: prohibited")
+          print("   Automatic claim acceptance: prohibited")
+          PY
 
-          } else {
+      - name: Run Independent Contract Verification
+        shell: bash
+        run: |
+          set -euo pipefail
 
-            const alphaRange = unified.adaptive_alpha?.alpha_range;
+          python analysis/independent_verifier.py
 
-            if (!alphaRange || alphaRange.length !== 2) {
-              console.error("❌ Invalid alpha_range definition");
-              process.exit(1);
-            }
+          test -f public/independent_verification.json
 
-            if (alpha < alphaRange[0] || alpha > alphaRange[1]) {
-              console.error("❌ Unified claim failed: alpha out of range");
-              process.exit(1);
-            }
-          }
+          python - <<'PY'
+          import json
 
-          if (unified.sigma_mode === "adaptive") {
+          with open(
+              "public/independent_verification.json",
+              encoding="utf-8"
+          ) as f:
+              record = json.load(f)
 
-            const maxSigma = unified.adaptive_sigma.max_sigma_multiplier * sigma;
+          if record["integrity"]["passed"] is not True:
+              raise SystemExit(
+                  "❌ Independent verifier reported failed report integrity"
+              )
 
-            console.log("Adaptive sigma mode active");
-            console.log("sigma:", sigma);
-            console.log("adaptive max:", maxSigma);
+          if record["strict_contract"]["passed"] is not True:
+              raise SystemExit(
+                  "❌ Independent verifier reported failed strict contract"
+              )
 
-          } else {
+          if record["adaptive_thresholds"]["used"] is not False:
+              raise SystemExit(
+                  "❌ Adaptive thresholds were used by independent verifier"
+              )
 
-            if (sigma > unified.max_sigma) {
-              console.error("❌ Unified claim failed: sigma too high");
-              process.exit(1);
-            }
+          if record["scientific_claim_decision"]["made_here"] is not False:
+              raise SystemExit(
+                  "❌ Independent verifier must not promote the scientific claim"
+              )
 
-          }
-
-          console.log("✅ Unified claim enforced");
-          NODE
-
-      - name: Build Adaptive Claim
-        run: python analysis/adaptive_claim_builder.py
+          print("✅ Independent contract verification passed.")
+          print("   Report integrity: PASS")
+          print("   Strict contract: PASS")
+          print("   Adaptive thresholds: NOT USED")
+          print("   Scientific claim promotion: NOT PERFORMED")
+          PY
 
       - name: Load Runtime Mode
         id: mode
@@ -2114,22 +2194,7 @@ jobs:
           MODE=$(cat core-scientific/runtime_mode.json | jq -r '.mode')
           echo "MODE=$MODE" >> $GITHUB_ENV
           echo "Running in mode: $MODE"
-
-      - name: Conditional Claim Enforcement
-        run: |
-          if [ "$MODE" = "scientific_proof" ]; then
-            echo "Running STRICT scientific validation"
-            node core-scientific/enforce_strict.cjs
-
-          elif [ "$MODE" = "exploration" ]; then
-            echo "Running adaptive validation"
-            node core-scientific/enforce_adaptive.cjs
-
-          else
-            echo "Running minimal validation"
-            node core-scientific/enforce_minimal.cjs
-          fi
-
+          
       - name: Load Truth Commitment
         run: |
           echo "=== TRUTH COMMITMENT ==="
@@ -2157,6 +2222,70 @@ jobs:
 
             console.log("Minimal claim structure valid.");
             NODE
+
+      - name: Finalize Scientific Gate
+        id: final_gate
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test -f artifacts/canonical_report.json
+          test -f artifacts/report.hash
+          test -f public/independent_verification.json
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report = json.loads(
+              Path("artifacts/canonical_report.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+
+          verification = json.loads(
+              Path("public/independent_verification.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+
+          if verification["integrity"]["passed"] is not True:
+              raise SystemExit(
+                  "❌ Final gate: report integrity failed"
+              )
+
+          if verification["strict_contract"]["passed"] is not True:
+              raise SystemExit(
+                  "❌ Final gate: strict scientific contract failed"
+              )
+
+          if verification["adaptive_thresholds"]["used"] is not False:
+              raise SystemExit(
+                  "❌ Final gate: adaptive thresholds detected"
+              )
+
+          if verification["scientific_claim_decision"]["made_here"] is not False:
+              raise SystemExit(
+                  "❌ Final gate: verifier attempted scientific claim promotion"
+              )
+
+          print("========================================")
+          print("SCIENTIFIC VALIDATION GATE: PASS")
+          print("========================================")
+          print("Report integrity: PASS")
+          print("Strict contract: PASS")
+          print("Adaptive thresholds: NOT USED")
+          print("Claim promotion: NOT PERFORMED")
+          print(
+              "Scientific epistemic status:",
+              report.get("scientific_interpretation", {}).get(
+                  "claim_status",
+                  "unknown"
+              )
+          )
+          PY
+
+          echo "passed=true" >> "$GITHUB_OUTPUT"
       
       - name: Adaptive Attractor Sensor
         run: |
