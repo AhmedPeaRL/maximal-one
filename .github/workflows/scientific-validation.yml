@@ -1874,12 +1874,30 @@ jobs:
         run: |
           set -euo pipefail
 
+          test -f artifacts/canonical_report.json
+
           sha256sum artifacts/canonical_report.json \
             | cut -d " " -f1 \
             > artifacts/report.hash
 
           echo "Canonical report hash:"
           cat artifacts/report.hash
+
+          test -s artifacts/report.hash
+
+      - name: Upload canonical report
+        uses: actions/upload-artifact@v6
+        with:
+          name: canonical-report
+          path: artifacts/canonical_report.json
+          if-no-files-found: error
+
+      - name: Upload canonical report hash
+        uses: actions/upload-artifact@v6
+        with:
+          name: report-hash
+          path: artifacts/report.hash
+          if-no-files-found: error
 
       - name: GitHub public anchor
         run: python analysis/github_anchor.py
@@ -1894,16 +1912,6 @@ jobs:
 
       - name: Independent verification layer
         run: python analysis/independent_verifier.py
-
-      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
-        with:
-          name: canonical-report
-          path: artifacts/canonical_report.json
-
-      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
-        with:
-          name: report-hash
-          path: report.hash
 
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
@@ -1983,14 +1991,25 @@ jobs:
           cat core-scientific/one_claim_to_break.json
 
       - name: Verify hash integrity
+        shell: bash
         run: |
+          set -euo pipefail
+
+          test -f artifacts/canonical_report.json
+          test -f artifacts/report.hash
+
           CALC=$(sha256sum artifacts/canonical_report.json | cut -d " " -f1)
           STORED=$(cat artifacts/report.hash)
 
+          echo "Calculated: $CALC"
+          echo "Stored:     $STORED"
+
           if [ "$CALC" != "$STORED" ]; then
-            echo "Report integrity violation."
+            echo "❌ Report integrity violation."
             exit 1
           fi
+
+          echo "✅ Report/hash integrity verified."
 
       - name: Dump canonical report
         run: |
@@ -2159,11 +2178,12 @@ jobs:
             echo "✅ Attractor stable."
           fi
 
-      - name: Auto-revoke warning
+      - name: Report gate failure
         if: failure()
         run: |
-          echo "⚠️ Potential leak detected."
-          echo "👉 Action required: rotate tokens immediately."
+          echo "❌ Gate job failed."
+          echo "This failure is not, by itself, evidence of a secret leak."
+          echo "Inspect the failed step before taking credential-rotation action."
 
       - name: Normalize floating precision
         run: |
