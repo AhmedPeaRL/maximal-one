@@ -1,0 +1,18 @@
+{
+  "canonical_alpha": 2.525347,
+  "canonical_claim_status": "under_investigation",
+  "canonical_claim_support_gate": false,
+  "canonical_report_sha256": "00eeabd5c7e24a664c19d20eaf666f7e717ab570d65f508287cc99a87838fe34",
+  "comparison_method": "normalized_full_canonical_report",
+  "external_fingerprint": "00eeabd5c7e24a664c19d20eaf666f7e717ab570d65f508287cc99a87838fe34",
+  "fingerprint_match": true,
+  "independent_rerun_verified": true,
+  "interpretation": "The canonical scientific report is preserved as an immutable experiment snapshot. Reproducibility verification is represented separately by the independent replay artifact and this manifest. A verified rerun does not by itself establish mechanism, universality, consciousness, NEF, HCM causation, or resolution of the Hard Problem.",
+  "local_fingerprint": "00eeabd5c7e24a664c19d20eaf666f7e717ab570d65f508287cc99a87838fe34",
+  "normalization_precision": 8,
+  "replay_status": "verified",
+  "reproducibility_status": "verified",
+  "schema_version": "1.0",
+  "scientific_role": "independent_reproducibility_gate",
+  "structure_match": true
+}
