@@ -134,6 +134,74 @@ def validate_strict_contract(
         )
     )
 
+    cross_domain = report.get(
+        "cross_domain_replication",
+        {},
+    )
+
+    cross_domain_std = cross_domain.get(
+        "real_domain_std"
+    )
+
+    max_cross_domain_std = float(
+        expected.get(
+            "max_cross_domain_std",
+            1.2,
+        )
+    )
+
+    cross_domain_passed = (
+        finite(cross_domain_std)
+        and
+        float(cross_domain_std)
+        <= max_cross_domain_std
+    )
+
+    external_replay = report.get(
+        "scientific_interpretation",
+        {}
+    ).get(
+        "reproducibility",
+        {}
+    )
+
+    independent_rerun_verified = (
+        external_replay.get(
+            "independent_rerun"
+        )
+        == "verified"
+    )
+
+    fingerprint_verified = (
+        external_replay.get(
+            "fingerprint_match",
+            False,
+        )
+        is True
+    )
+
+    adversarial_path = Path(
+        "artifacts/adversarial_control.json"
+    )
+
+    adversarial_passed = False
+    
+    if adversarial_path.exists():
+        try:
+            adversarial = load_json(
+                adversarial_path
+            )
+
+            adversarial_passed = (
+                adversarial.get(
+                    "passed",
+                    False,
+                )
+                is True
+            )
+        except Exception:
+            adversarial_passed = False
+
     checks = {
         "alpha_within_declared_range":
             alpha_min <= alpha <= alpha_max,
@@ -165,6 +233,18 @@ def validate_strict_contract(
 
         "null_rejected":
             bool(report.get("null_rejected", False)),
+
+        "cross_domain_std_within_bound":
+            cross_domain_passed,
+
+        "independent_rerun_verified":
+            independent_rerun_verified,
+
+        "fingerprint_verified":
+            fingerprint_verified,
+
+        "adversarial_control_passed":
+            adversarial_passed,
     }
 
     passed = all(checks.values())
