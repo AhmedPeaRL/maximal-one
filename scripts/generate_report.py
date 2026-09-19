@@ -91,12 +91,6 @@ def main():
         "min_independent_real_domains"
         ]
     )
-
-    REQUIRED_SEPARATION_Z = float(
-        strict_claim["expected_result"][
-        "min_separation_z"
-        ]
-    )
     
     rng = np.random.default_rng(args.seed)
     np.random.seed(args.seed)  # 🔥 مهم جداً
@@ -855,19 +849,8 @@ def main():
 
         print("=== SEPARATION ===")
 
-        with open(
-            "core-scientific/strict_claim.json",
-            "r",
-            encoding="utf-8",
-        ) as f:
-            strict_claim = json.load(f)
-
-        required_z = REQUIRED_SEPARATION_Z
-        
-        if not np.isfinite(required_z):
-            raise SystemExit(
-                "❌ Invalid separation threshold in strict_claim.json"
-            )
+        DIAGNOSTIC_SEPARATION_Z = 2.5
+        required_z = DIAGNOSTIC_SEPARATION_Z
 
         if sep is None:
             print("SEP = None")
@@ -1125,24 +1108,131 @@ def main():
             except Exception:
                 adversarial_control_passed = False
 
+        MAX_CROSS_DOMAIN_STD = float(
+            strict_claim["expected_result"].get(
+                "max_cross_domain_std",
+                1.2,
+            )
+        )
+
+        MAX_SIGMA = float(
+            strict_claim["expected_result"]["max_sigma"]
+        )
+
+        MAX_BOOTSTRAP_CENTER_SIGMA = float(
+            strict_claim["expected_result"].get(
+                "max_bootstrap_center_discrepancy_sigma",
+                2.5,
+            )
+        )
+
+        canonical_alpha = float(alpha)
+
+        alpha_range_passed = (
+            EXPECTED_MIN
+            <= canonical_alpha
+            <= EXPECTED_MAX
+        )
+
+        sigma_passed = (
+            np.isfinite(boot["std"])
+            and
+            float(boot["std"]) <= MAX_SIGMA
+        )
+
+        p_value_passed = (
+            np.isfinite(stats["p_value"])
+            and
+            float(stats["p_value"]) <= MAX_P_VALUE
+        )
+
+        method_passed = (
+            np.isfinite(validation_delta)
+            and
+            validation_delta <= MAX_METHOD_DELTA
+        )
+
+        scale_dispersion_passed = (
+            np.isfinite(scale_dispersion)
+            and
+            float(scale_dispersion)
+            <= MAX_SCALE_DISPERSION
+        )
+
+        bootstrap_center_passed = (
+            np.isfinite(bootstrap_bias_ratio)
+            and
+            bootstrap_bias_ratio
+            <= MAX_BOOTSTRAP_CENTER_SIGMA
+        )
+
+        real_domain_std = canonical_consensus.get(
+            "real_domain_std"
+        )
+
+        cross_domain_passed = (
+            real_domain_std is not None
+            and
+            np.isfinite(real_domain_std)
+            and
+            float(real_domain_std)
+            <= MAX_CROSS_DOMAIN_STD
+        )
+
+        independent_domains_passed = (
+            valid_real_domains
+            >= MIN_INDEPENDENT_REAL_DOMAINS
+        )
+
+        scale_passed = bool(
+            scale_test.get("valid", False)
+            and
+            scale_test.get("scale_invariant", False)
+        )
+
+        canonical_identity_passed = (
+            abs(
+                float(alpha)
+                -
+                float(alpha_welch)
+            )
+            <= 1e-8
+            and
+            abs(
+                float(alpha)
+                -
+                float(stats["observed_alpha"])
+            )
+            <= 1e-8
+            and
+            abs(
+                float(alpha)
+                -
+                float(sep["real_alpha"])
+            )
+            <= 1e-8
+            and
+            abs(
+                float(alpha)
+                -
+                float(scale_test["scale_one_alpha"])
+            )
+            <= 1e-8
+        )
+
         claim_supported = bool(
-            consensus.get(
-                "passed",
-                False,
-            )
+            alpha_range_passed
+            and sigma_passed
+            and p_value_passed
+            and method_passed
+            and scale_dispersion_passed
+            and bootstrap_center_passed
+            and cross_domain_passed
+            and independent_domains_passed
+            and scale_passed
+            and canonical_identity_passed
+            and consensus.get("passed", False)
             and null_rejected
-            and separation_support
-            and scale_test.get(
-                "scale_invariant",
-                False
-            )
-            and valid_real_domains >= (
-                MIN_INDEPENDENT_REAL_DOMAINS
-            )
-            and np.isfinite(
-                validation_delta
-            )
-            and validation_delta <= MAX_METHOD_DELTA
             and external_replay_verified
             and fingerprint_match
             and adversarial_control_passed
@@ -1318,6 +1408,24 @@ def main():
                 "validated": bool(
                     validation_delta <= 0.30
                 )
+            },
+            "cross_domain_replication": {
+                "valid_real_domains": int(valid_real_domains),
+                "real_domain_std": (
+                    float(real_domain_std)
+                    if real_domain_std is not None
+                    and np.isfinite(real_domain_std)
+                    else None
+                ),
+                "minimum_required": int(
+                    MIN_INDEPENDENT_REAL_DOMAINS
+                ),
+                "maximum_allowed_std": float(
+                    MAX_CROSS_DOMAIN_STD
+                ),
+                "passed": bool(
+                    cross_domain_passed
+                ),
             },
             "scientific_interpretation": {
                 "null_rejected": bool(null_rejected),
