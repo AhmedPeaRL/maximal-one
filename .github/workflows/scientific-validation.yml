@@ -3189,117 +3189,138 @@ jobs:
 
     - name: Update Live Field State
       run: |
-        # dynamic_truth_binding.py
-        
         python - <<'PY'
         import json
         import os
 
+        REPORT = "artifacts/canonical_report.json"
+
         def load_real_signal():
-            try:
-                with open("artifacts/canonical_report.json") as f:
-                    r = json.load(f)
+            with open(REPORT, encoding="utf-8") as f:
+                r = json.load(f)
 
-                return {
-                    "alpha": r["spectral_profile"]["estimated_alpha"],
-                    "sigma": r["spectral_profile"]["bootstrap_std"],
-                    "confidence": max(0.0, min(1.0, 1 - r["spectral_profile"]["bootstrap_std"]))
-                }
-
-            except Exception:
-                return {
-                    "alpha": None,
-                    "sigma": None,
-                    "confidence": 0.0
-                }
-
-        def build_live_state():
-            signal = load_real_signal()
-
-            state = {
-                "global_state": "stable" if signal["confidence"] > 0.7 else "unstable",
-                "scientific_signal": signal,
-                "determinism": {
-                    "consensus": os.getenv("CONSENSUS", "false") == "true"
-                }
+            return {
+                "alpha": r["spectral_profile"]["estimated_alpha"],
+                "bootstrap_std": r["spectral_profile"]["bootstrap_std"],
+                "scientific_claim_status": (
+                    r.get("scientific_interpretation", {})
+                     .get("claim_status", "unknown")
+                ),
+                "claim_support_gate": bool(
+                    r.get("scientific_interpretation", {})
+                     .get("claim_support_gate", False)
+                )
             }
 
-            return state
+        signal = load_real_signal()
 
-        if __name__ == "__main__":
-            os.makedirs("data", exist_ok=True)
+        state = {
+            "global_state": (
+                "claim_under_investigation"
+                if signal["scientific_claim_status"] == "under_investigation"
+                else signal["scientific_claim_status"]
+            ),
+            "scientific_signal": signal,
+            "epistemic_policy": {
+                "confidence_as_probability": False,
+                "bootstrap_std_is_not_confidence": True,
+                "claim_status_is_report_bound": True
+            },
+            "determinism": {
+                "consensus": os.getenv("CONSENSUS", "false") == "true"
+            }
+        }
 
-            state = build_live_state()
+        os.makedirs("data", exist_ok=True)
 
-            with open("data/live_field_state.json","w") as f:
-                json.dump(state, f, indent=2)
+        with open("data/live_field_state.json", "w", encoding="utf-8") as f:
+            json.dump(state, f, indent=2)
 
-            print("Live state bound to real signal")
+        print("Live field state bound to measured signal without synthetic confidence.")
+        PY
 
     - name: Self Consistency Guard
       run: python analysis/self_consistency_guard.py
 
-    - name: Update Truth Surface (BOUND TO REAL SIGNAL)
+    - name: Update Truth Surface
       run: |
         python - <<'PY'
-        import json, time, os
+        import json
+        import os
+        import time
 
-        def load_signal():
-            try:
-                with open("artifacts/canonical_report.json") as f:
-                    r = json.load(f)
+        REPORT_PATH = "artifacts/canonical_report.json"
+        HASH_PATH = "artifacts/report.hash"
 
-                alpha = r["spectral_profile"]["estimated_alpha"]
-                sigma = r["spectral_profile"]["bootstrap_std"]
-
-                return {
-                    "alpha": alpha,
-                    "sigma": sigma,
-                    "confidence": max(0.0, min(1.0, 1 - sigma))
-                }
-
-            except Exception:
-                return {
-                    "alpha": None,
-                    "sigma": None,
-                    "confidence": 0.0
-                }
+        with open(REPORT_PATH, encoding="utf-8") as f:
+            report = json.load(f)
 
         report_hash = None
-        if os.path.exists("artifacts/report.hash"):
-           with open("artifacts/report.hash") as f:
-               report_hash = f.read().strip()
+        if os.path.exists(HASH_PATH):
+            with open(HASH_PATH, encoding="utf-8") as f:
+                report_hash = f.read().strip()
 
-        signal = load_signal()
+        interpretation = report.get("scientific_interpretation", {})
 
         truth = {
             "timestamp": time.time(),
-            "system_state": "stable" if signal["confidence"] > 0.7 else "unstable",
-            "determinism": {
-                "consensus": True,
-                "divergence": "controlled"
+
+            "system_state": interpretation.get(
+                "claim_status",
+                "under_investigation"
+            ),
+
+            "scientific_signal": {
+                "alpha": report["spectral_profile"]["estimated_alpha"],
+                "bootstrap_std": report["spectral_profile"]["bootstrap_std"]
             },
-            "scientific_signal": signal,
+
+            "claim_support": {
+                "gate": bool(
+                    interpretation.get("claim_support_gate", False)
+                ),
+                "status": interpretation.get(
+                    "claim_status",
+                    "under_investigation"
+                ),
+                "evidence_strength": interpretation.get(
+                    "evidence_strength",
+                    "unknown"
+                )
+            },
+
             "falsifiability": {
-                "status": "active",
-                "last_verdict": "not rejected"
+                "status": "active"
             },
+
+            "reproducibility": interpretation.get(
+                "reproducibility",
+                {}
+            ),
+
             "integrity": {
-                "report_hash": report_hash,
-                "environment_hash": "bound"
+                "report_hash": report_hash
             },
-            "decision": {
-                "global": "provisionally_valid" if signal["confidence"] > 0.6 else "under_test",
-                "reason": "bound to real computation only"
+
+            "epistemic_guard": {
+                "confidence_as_probability": False,
+                "adaptive_truth_threshold": False,
+                "mechanism_inferred": False,
+                "hcm_causation_inferred": False,
+                "universality_inferred": False
             }
         }
 
         os.makedirs("public", exist_ok=True)
 
-        with open("public/live_truth.json","w") as f:
+        with open(
+            "public/live_truth.json",
+            "w",
+            encoding="utf-8"
+        ) as f:
             json.dump(truth, f, indent=2)
 
-        print("Truth surface REALIGNED to computation")
+        print("Truth surface aligned to measured evidence and epistemic status.")
         PY
 
     - name: Extract market signal
@@ -3323,13 +3344,6 @@ jobs:
     - name: Adaptive weighting
       run: python analysis/adaptive_weights.py
 
-    - name: Ensure git exists
-      run: |
-        if ! command -v git &> /dev/null; then
-          echo "Installing git..."
-          apt-get update && apt-get install -y git
-        fi
-
     - name: Reality Closure Loop
       run: python analysis/reality_closure_loop.py
 
@@ -3342,7 +3356,7 @@ jobs:
     - name: Persist results (authoritative git layer)
       if: always()
       env:
-         GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
       working-directory: ${{ github.workspace }}
       shell: bash
       run: |
@@ -3350,106 +3364,74 @@ jobs:
 
         echo "=== VERIFY WORKSPACE ==="
         pwd
-        ls -la
+        test -d "$GITHUB_WORKSPACE/.git" || {
+          echo "❌ Missing .git worktree."
+          echo "Persistence must fail closed."
+          exit 1
+        }
 
-        echo "=== ENSURE GIT CONTEXT ==="
-
-        if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
-          echo "⚠️ Not inside git repo — reconstructing"
-
-          rm -rf .git
-
-          git init
-          git remote add origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
-
-          git fetch origin main
-
-          git checkout -b main origin/main || git checkout -b main
-
-          git reset --hard origin/main || true
-        fi
+        echo "=== VERIFY GIT CONTEXT ==="
+        git rev-parse --is-inside-work-tree
+        git rev-parse HEAD
 
         echo "=== CONFIGURE GIT ==="
-        
         git config user.name "github-actions"
         git config user.email "actions@github.com"
-        git config pull.rebase true
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
-        git config user.name "bot"
-        git config user.email "bot@github.com"
 
-        git -c http.extraheader="AUTHORIZATION: bearer ${GH_TOKEN}"
-
-        echo "=== PREP DATA (FIXED) ==="
+        echo "=== PREPARE PERSISTENCE DATA ==="
 
         mkdir -p data
 
-        # تأكد إن فيه artifacts
-        FILES=$(ls artifacts/*.json 2>/dev/null || true)
-
-        if [ -z "$FILES" ]; then
-          echo "⚠️ No artifacts found — generating fallback"
-
-          echo '{
-            "timestamp": '$(date +%s)',
-            "status": "no_artifact",
-            "coherence": 0
-          }' > data/fallback_$(date +%s).json
-
+        if compgen -G "artifacts/*.json" > /dev/null; then
+          while IFS= read -r -d '' f; do
+            BASENAME="$(basename "$f")"
+            cp "$f" "data/${GITHUB_RUN_ID}_${BASENAME}"
+          done < <(find artifacts -maxdepth 1 -type f -name '*.json' -print0)
         else
-          for f in $FILES; do
-            BASENAME=$(basename "$f")
-            cp "$f" "data/$(date +%s)_$BASENAME"
-          done
+          echo "⚠️ No JSON artifacts available; nothing to persist."
         fi
 
-        git add .
+        echo "=== STAGE EXPLICIT PERSISTENCE OUTPUTS ==="
+
+        git add data
 
         if git diff --cached --quiet; then
-          echo "No changes to commit"
+          echo "No persistence changes to commit."
           exit 0
         fi
 
-        git commit -m "Atomic state update" || echo "No changes"
+        git commit -m "Atomic state update"
 
-        echo "=== SAFE PUSH (TOKEN-INJECTED) ==="
+        echo "=== VERIFY REMOTE ==="
 
-        git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
-
-        git add data/external/
-
-        if git diff --cached --quiet; then
-          echo "No new witness → skipping push"
-          exit 0
-        fi
-
-        git commit -m "External witness ingestion" || {
-           echo "Nothing to commit"
-           exit 0
+        git remote get-url origin >/dev/null 2>&1 || {
+          echo "❌ Git remote origin is missing."
+          exit 1
         }
-        
-        python analysis/push_guard.py
+
+        echo "=== PUSH USING HTTP AUTH HEADER ==="
 
         SUCCESS=false
-          
+
         for i in 1 2 3 4 5
         do
-          git pull --rebase origin main || true
-            
-          if git push origin HEAD:main; then
-            echo "Push succeeded"
+          echo "Push attempt $i..."
+
+          if git -c http.extraheader="AUTHORIZATION: bearer ${GH_TOKEN}" \
+              push origin HEAD:main; then
+            echo "✅ Push succeeded."
             SUCCESS=true
             break
           fi
 
-          echo "Retry $i..."
+          echo "⚠️ Push attempt $i failed."
           sleep 2
-            
         done
-          
+
         if [ "$SUCCESS" = false ]; then
-          echo "Push skipped or failed gracefully (non-critical)"
-          exit 0
+          echo "❌ Persistence push failed after all retries."
+          exit 1
         fi
         
   stability-check:
