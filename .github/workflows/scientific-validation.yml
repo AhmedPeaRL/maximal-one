@@ -1870,7 +1870,16 @@ jobs:
           PY
 
       - name: Final cryptographic hash
-        run: sha256sum artifacts/canonical_report.json | cut -d " " -f1 > report.hash
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          sha256sum artifacts/canonical_report.json \
+            | cut -d " " -f1 \
+            > artifacts/report.hash
+
+          echo "Canonical report hash:"
+          cat artifacts/report.hash
 
       - name: GitHub public anchor
         run: python analysis/github_anchor.py
