@@ -1,6 +1,7 @@
 from __future__ import annotations
 import hashlib
 import json
+import math
 import os
 import time
 from pathlib import Path
@@ -14,31 +15,23 @@ def load_json(path: Path):
         return json.load(f)
 
 def sha256_file(path: Path) -> str:
-    h = hashlib.sha256()
+    digest = hashlib.sha256()
 
     with path.open("rb") as f:
         for chunk in iter(lambda: f.read(1024 * 1024), b""):
-            h.update(chunk)
+            digest.update(chunk)
 
-    return h.hexdigest()
+    return digest.hexdigest()
 
 def load_stored_report_hash() -> tuple[str, str]:
-    """
-    Prefer the canonical artifact location used by CI.
-    The root-level fallback exists only for the public
-    reproducibility bundle when run outside GitHub Actions.
-    """
-
-    candidates = [
+    candidates = (
         Path("artifacts/report.hash"),
         Path("report.hash"),
-    ]
+    )
 
     for path in candidates:
         if path.exists():
-            value = path.read_text(
-                encoding="utf-8"
-            ).strip()
+            value = path.read_text(encoding="utf-8").strip()
 
             if value:
                 return value, str(path)
@@ -50,7 +43,7 @@ def load_stored_report_hash() -> tuple[str, str]:
 def verify_report_integrity() -> dict:
     if not REPORT_PATH.exists():
         raise FileNotFoundError(
-            "canonical_report.json is missing"
+            "artifacts/canonical_report.json is missing"
         )
 
     stored_hash, hash_source = load_stored_report_hash()
@@ -63,19 +56,16 @@ def verify_report_integrity() -> dict:
         "hash_source": hash_source,
     }
 
+def finite(value) -> bool:
+    try:
+        return math.isfinite(float(value))
+    except (TypeError, ValueError):
+        return False
+
 def validate_strict_contract(
     report: dict,
     strict_claim: dict,
 ) -> dict:
-    """
-    Validate the report against the authoritative strict claim.
-
-    IMPORTANT:
-    - unified_claim.json is deliberately NOT consulted.
-    - No adaptive threshold is derived from observed data.
-    - This function does not declare the scientific claim true.
-    - It only evaluates declared contract conditions.
-    """
 
     expected = strict_claim["expected_result"]
 
@@ -108,6 +98,10 @@ def validate_strict_contract(
         report["consensus_guard"]["independent_real_domains"]
     )
 
+    bootstrap_discrepancy = float(
+        report["bootstrap_center_discrepancy"]["std_units"]
+    )
+
     alpha_min, alpha_max = map(
         float,
         expected["alpha_range"]
@@ -133,10 +127,6 @@ def validate_strict_contract(
         expected["min_independent_real_domains"]
     )
 
-    bootstrap_discrepancy = float(
-        report["bootstrap_center_discrepancy"]["std_units"]
-    )
-
     max_bootstrap_discrepancy = float(
         expected.get(
             "max_bootstrap_center_discrepancy_sigma",
@@ -145,56 +135,56 @@ def validate_strict_contract(
     )
 
     checks = {
-        "alpha_within_declared_range": (
-            alpha_min <= alpha <= alpha_max
-        ),
-        "sigma_within_declared_bound": (
-            sigma <= max_sigma
-        ),
-        "p_value_within_declared_bound": (
-            p_value <= max_p_value
-        ),
-        "cross_method_delta_within_bound": (
-            method_delta <= max_method_delta
-        ),
-        "scale_dispersion_within_bound": (
-            np_is_finite(scale_dispersion)
-            and
-            scale_dispersion <= max_scale_dispersion
-        ),
-        "minimum_independent_real_domains_met": (
-            independent_domains >= min_domains
-        ),
-        "bootstrap_center_discrepancy_within_bound": (
-            bootstrap_discrepancy <= max_bootstrap_discrepancy
-        ),
-        "scale_validation_passed": bool(
-            scale.get("valid", False)
-        ),
-        "scale_invariance_passed": bool(
-            scale.get("scale_invariant", False)
-        ),
-        "null_rejected": bool(
-            report.get("null_rejected", False)
-        ),
+        "alpha_within_declared_range":
+            alpha_min <= alpha <= alpha_max,
+
+        "sigma_within_declared_bound":
+            sigma <= max_sigma,
+
+        "p_value_within_declared_bound":
+            p_value <= max_p_value,
+
+        "cross_method_delta_within_bound":
+            method_delta <= max_method_delta,
+
+        "scale_dispersion_within_bound":
+            finite(scale_dispersion)
+            and scale_dispersion <= max_scale_dispersion,
+
+        "minimum_independent_real_domains_met":
+            independent_domains >= min_domains,
+
+        "bootstrap_center_discrepancy_within_bound":
+            bootstrap_discrepancy <= max_bootstrap_discrepancy,
+
+        "scale_validation_passed":
+            bool(scale.get("valid", False)),
+
+        "scale_invariance_passed":
+            bool(scale.get("scale_invariant", False)),
+
+        "null_rejected":
+            bool(report.get("null_rejected", False)),
     }
 
     passed = all(checks.values())
 
     return {
         "passed": bool(passed),
+
         "checks": checks,
+
         "measured": {
             "alpha": alpha,
             "sigma": sigma,
             "p_value": p_value,
-            "method_delta": method_delta,
+            "cross_method_delta": method_delta,
             "scale_dispersion": scale_dispersion,
             "independent_real_domains": independent_domains,
-            "bootstrap_center_discrepancy_sigma": (
-                bootstrap_discrepancy
-            ),
+            "bootstrap_center_discrepancy_sigma":
+                bootstrap_discrepancy,
         },
+
         "declared_limits": {
             "alpha_range": [
                 alpha_min,
@@ -203,27 +193,16 @@ def validate_strict_contract(
             "max_sigma": max_sigma,
             "max_p_value": max_p_value,
             "max_method_delta": max_method_delta,
-            "max_scale_dispersion": (
-                max_scale_dispersion
-            ),
-            "min_independent_real_domains": (
-                min_domains
-            ),
-            "max_bootstrap_center_discrepancy_sigma": (
-                max_bootstrap_discrepancy
-            ),
+            "max_scale_dispersion":
+                max_scale_dispersion,
+            "min_independent_real_domains":
+                min_domains,
+            "max_bootstrap_center_discrepancy_sigma":
+                max_bootstrap_discrepancy,
         },
     }
 
-def np_is_finite(value) -> bool:
-    try:
-        return bool(
-            __import__("math").isfinite(float(value))
-        )
-    except Exception:
-        return False
-
-def load_collapse():
+def load_collapse() -> dict:
     path = Path("artifacts/collapse_test.json")
 
     if not path.exists():
@@ -262,9 +241,7 @@ def build_external_record():
         )
 
     report = load_json(REPORT_PATH)
-    strict_claim = load_json(
-        STRICT_CLAIM_PATH
-    )
+    strict_claim = load_json(STRICT_CLAIM_PATH)
 
     integrity = verify_report_integrity()
 
@@ -279,30 +256,27 @@ def build_external_record():
         "source": "independent_layer",
 
         "authority": {
-            "authoritative_claim_contract": (
-                "core-scientific/strict_claim.json"
-            ),
-            "diagnostic_mirror": (
-                "core-scientific/unified_claim.json"
-            ),
-            "diagnostic_mirror_is_authoritative": False,
+            "authoritative_claim_contract":
+                "core-scientific/strict_claim.json",
+
+            "diagnostic_mirror":
+                "core-scientific/unified_claim.json",
+
+            "diagnostic_mirror_is_authoritative":
+                False,
         },
 
-        "verification_role": (
-            "contract_and_integrity_verification"
-        ),
+        "verification_role":
+            "contract_and_integrity_verification",
 
         "scientific_claim_decision": {
             "made_here": False,
-            "status": (
-                "under_investigation"
-            ),
-            "reason": (
-                "This verifier validates declared "
-                "contract conditions and report integrity. "
-                "It does not independently promote the "
-                "scientific claim to supported status."
-            ),
+            "status": "under_investigation",
+            "reason":
+                "This verifier validates declared contract "
+                "conditions and report integrity. It does not "
+                "independently promote the scientific claim "
+                "to supported status.",
         },
 
         "integrity": integrity,
@@ -313,12 +287,11 @@ def build_external_record():
 
         "adaptive_thresholds": {
             "used": False,
-            "reason": (
-                "Scientific acceptance boundaries are "
-                "read only from strict_claim.json. "
-                "Observed data are never used to "
-                "construct acceptance thresholds."
-            ),
+            "reason":
+                "Scientific acceptance boundaries are read "
+                "only from strict_claim.json. Observed data "
+                "are never used to construct acceptance "
+                "thresholds.",
         },
 
         "epistemic_guard": {
@@ -350,29 +323,25 @@ if __name__ == "__main__":
             sort_keys=True,
         )
 
-    print(
-        "Independent verification written."
-    )
-
+    print("Independent verification written.")
     print(
         "Authoritative contract: "
         "core-scientific/strict_claim.json"
     )
-
-    print(
-        "Adaptive thresholds used: False"
-    )
-
+    print("Adaptive thresholds used: False")
     print(
         "Scientific claim promotion by this verifier: False"
     )
-
     print(
         "Contract checks passed:",
         record["strict_contract"]["passed"],
     )
-
     print(
         "Report integrity passed:",
         record["integrity"]["passed"],
     )
+
+    if not record["integrity"]["passed"]:
+        raise SystemExit(
+            "❌ Report integrity verification failed."
+        )
