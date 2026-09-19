@@ -1,0 +1,17 @@
+{
+  "delta": 0.0,
+  "environment": {
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "python": "3.11.15"
+  },
+  "fingerprint_match": false,
+  "independent_replay_verified": false,
+  "interpretation": "This rerun verifies deterministic repeatability within the current execution environment. It does not constitute independent external reproducibility.",
+  "original_alpha": 2.525347,
+  "original_report_sha256": "b91c670f6c9dd6118a8d6909c94bde10a82b462e44d0ec8053c1c65593aac4e6",
+  "replay_type": "internal_same_environment_rerun",
+  "reproduced_alpha": 2.525347,
+  "reproduced_report_sha256": "b4128c14f6a237967ada2ea14afd0a117762185be58498d7e0a82114b421f29f",
+  "scientific_role": "diagnostic_only",
+  "verification_method": "same_environment_internal_rerun"
+}
