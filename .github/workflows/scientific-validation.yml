@@ -1985,6 +1985,24 @@ jobs:
           name: report-hash
           path: artifacts
 
+      - name: Enforce Scientific Proof Contract
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          MODE=$(jq -r '.mode' core-scientific/runtime_mode.json)
+
+          echo "Runtime mode: $MODE"
+
+          if [ "$MODE" != "scientific_proof" ]; then
+            echo "❌ Scientific validation requires scientific_proof mode."
+            exit 1
+          fi
+
+          echo "Running strict scientific validation."
+
+          node core-scientific/enforce_strict.cjs
+
       - name: Load Authoritative Scientific Claim
         shell: bash
         run: |
@@ -2065,83 +2083,129 @@ jobs:
         run: |
           set -euo pipefail
 
-          python - <<'PY'
-          import json
-          from pathlib import Path
+          node - <<'NODE'
+          const fs = require("fs");
 
-          unified_path = Path("core-scientific/unified_claim.json")
-          strict_path = Path("core-scientific/strict_claim.json")
+          const unified = JSON.parse(
+            fs.readFileSync(
+              "core-scientific/unified_claim.json",
+              "utf8"
+            )
+          );
 
-          unified = json.loads(unified_path.read_text(encoding="utf-8"))
-          strict = json.loads(strict_path.read_text(encoding="utf-8"))
+          const strict = JSON.parse(
+            fs.readFileSync(
+              "core-scientific/strict_claim.json",
+              "utf8"
+            )
+          );
 
-          if unified.get("role") != "diagnostic_mirror_of_strict_claim":
-              raise SystemExit(
-                  "❌ unified_claim.json is not declared as a diagnostic mirror"
-              )
+          const mode = JSON.parse(
+            fs.readFileSync(
+              "core-scientific/runtime_mode.json",
+              "utf8"
+            )
+          );
 
-          if unified.get("authoritative_claim_contract") != \
-             "core-scientific/strict_claim.json":
-              raise SystemExit(
-                  "❌ Unified claim does not point to strict_claim.json"
-              )
-
-          epistemic = unified.get("epistemic_status", {})
-
-          if epistemic.get("authoritative_verdict_source") != \
-             "strict_claim.json":
-              raise SystemExit(
-                  "❌ Unified claim does not identify strict_claim.json "
-                  "as the authoritative verdict source"
-              )
-
-          verdict = unified.get("verdict_logic", {})
-
-          if verdict.get("authoritative") is not False:
-              raise SystemExit(
-                  "❌ Unified claim must remain non-authoritative"
-              )
-
-          if verdict.get("acceptance_decision_must_not_be_derived_here") \
-             is not True:
-              raise SystemExit(
-                  "❌ Unified claim is not protected from deriving acceptance"
-              )
-
-          if verdict.get("strict_claim_controls_verdict") is not True:
-              raise SystemExit(
-                  "❌ Strict claim is not declared as controlling the verdict"
-              )
-
-          prohibited = set(
-              unified.get("prohibited_semantics", [])
-          )
-
-          required_prohibitions = {
-              "confidence_as_probability",
-              "adaptive_truth_threshold",
-              "automatic_claim_acceptance",
+          if (mode.mode !== "scientific_proof") {
+            console.error(
+              "❌ Scientific proof workflow requires runtime mode: scientific_proof"
+            );
+            process.exit(1);
           }
 
-          missing = required_prohibitions - prohibited
+          const proofMode =
+            mode.modes &&
+            mode.modes.scientific_proof;
 
-          if missing:
-              raise SystemExit(
-                  "❌ Unified claim is missing epistemic prohibitions: "
-                  + ", ".join(sorted(missing))
-              )
+          if (!proofMode) {
+            console.error(
+              "❌ scientific_proof mode definition is missing"
+            );
+            process.exit(1);
+          }
 
-          if "expected_result" not in strict:
-              raise SystemExit(
-                  "❌ Authoritative strict claim has no expected_result"
-              )
+          if (proofMode.allow_adaptive !== false) {
+            console.error(
+              "❌ Adaptive validation is enabled in scientific_proof mode"
+            );
+            process.exit(1);
+          }
 
-          print("✅ Unified claim mirror verified.")
-          print("   Role: diagnostic mirror")
-          print("   Authority: strict_claim.json")
-          print("   Adaptive truth thresholds: prohibited")
-          print("   Automatic claim acceptance: prohibited")
-          PY
+          if (proofMode.strict_claim !== true) {
+            console.error(
+              "❌ scientific_proof mode does not require strict_claim"
+            );
+            process.exit(1);
+          }
+
+          if (
+            unified.authoritative_claim_contract !==
+            "core-scientific/strict_claim.json"
+          ) {
+            console.error(
+              "❌ Unified claim does not point to strict_claim.json"
+            );
+            process.exit(1);
+          }
+
+          if (
+            unified.role !==
+            "diagnostic_mirror_of_strict_claim"
+          ) {
+            console.error(
+              "❌ Unified claim is not declared as a diagnostic mirror"
+            );
+            process.exit(1);
+          }
+
+          if (
+            !unified.verdict_logic ||
+            unified.verdict_logic.authoritative !== false ||
+            unified.verdict_logic.strict_claim_controls_verdict !== true ||
+            unified.verdict_logic.acceptance_decision_must_not_be_derived_here !== true
+          ) {
+            console.error(
+              "❌ Unified claim is allowed to act as an authority"
+            );
+            process.exit(1);
+          }
+
+          const forbiddenAdaptiveKeys = [
+            "adaptive_alpha",
+            "adaptive_sigma",
+            "alpha_modes",
+            "sigma_mode"
+          ];
+
+          for (const key of forbiddenAdaptiveKeys) {
+            if (Object.prototype.hasOwnProperty.call(unified, key)) {
+              console.error(
+                `❌ Forbidden adaptive field in scientific proof mirror: ${key}`
+              );
+              process.exit(1);
+            }
+          }
+
+          if (!strict.expected_result) {
+            console.error(
+              "❌ strict_claim.json expected_result is missing"
+            );
+            process.exit(1);
+          }
+
+          console.log(
+            "✅ Unified claim is a non-authoritative diagnostic mirror."
+          );
+
+          console.log(
+            "✅ strict_claim.json remains the sole authoritative scientific contract."
+          );
+
+          console.log(
+            "✅ Adaptive acceptance thresholds are disabled in scientific_proof mode."
+          );
+          NODE
 
       - name: Run Independent Contract Verification
         shell: bash
@@ -2437,31 +2501,90 @@ jobs:
     steps:
 
     # =========================
-    # 0) CHECKOUT FIRST (CRITICAL FIX)
+    # 0) CONTAINER BOOTSTRAP
     # =========================
 
     - name: HARD TIMEOUT GUARD
+      shell: bash
       run: |
+        set -euo pipefail
         echo "Starting guarded execution..."
         timeout 900 bash -c "echo guarded"
 
-    - name: Ensure workspace permissions
+    - name: Install Git before checkout
+      shell: bash
       run: |
-        chown -R root:root $GITHUB_WORKSPACE || true
+        set -euo pipefail
 
-    - uses: actions/checkout@v5
+        apt-get update
+        apt-get install -y --no-install-recommends \
+          git \
+          ca-certificates
+
+        git --version
+        echo "✅ Git is available before checkout."
+
+    - name: Ensure workspace permissions
+      shell: bash
+      run: |
+        set -euo pipefail
+        chown -R root:root "$GITHUB_WORKSPACE" || true
+
+    # =========================
+    # CHECKOUT MUST HAPPEN
+    # AFTER GIT INSTALLATION
+    # =========================
+
+    - name: Checkout repository
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0
         persist-credentials: false
 
-    - name: Enforce deterministic env
+    - name: Verify checkout produced Git worktree
+      shell: bash
       run: |
-        echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-        echo "PYTHONHASHSEED=42" >> $GITHUB_ENV
-        echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
-        echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
-        echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
-        echo "NUMEXPR_NUM_THREADS=1" >> $GITHUB_ENV
+        set -euo pipefail
+
+        echo "Workspace:"
+        pwd
+
+        echo "Git:"
+        git --version
+
+        if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+          echo "❌ Checkout did not produce a Git worktree."
+          echo "Scientific verification must fail closed."
+          exit 1
+        fi
+
+        if ! git rev-parse HEAD >/dev/null 2>&1; then
+          echo "❌ Git HEAD is unavailable."
+          echo "Scientific verification must fail closed."
+          exit 1
+        fi
+
+        echo "Git worktree:"
+        git rev-parse --is-inside-work-tree
+
+        echo "Git HEAD:"
+        git rev-parse HEAD
+
+    # =========================
+    # DETERMINISTIC ENVIRONMENT
+    # =========================
+
+    - name: Enforce deterministic env
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        echo "PYTHONPATH=$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
+        echo "PYTHONHASHSEED=42" >> "$GITHUB_ENV"
+        echo "OMP_NUM_THREADS=1" >> "$GITHUB_ENV"
+        echo "MKL_NUM_THREADS=1" >> "$GITHUB_ENV"
+        echo "OPENBLAS_NUM_THREADS=1" >> "$GITHUB_ENV"
+        echo "NUMEXPR_NUM_THREADS=1" >> "$GITHUB_ENV"
 
     - name: Log Input
       run: |
@@ -2511,34 +2634,6 @@ jobs:
       shell: bash
       run: |
         set -euo pipefail
-
-    - name: Install git (before any git usage)
-      run: |
-        apt-get update
-        apt-get install -y git
-
-    - name: Verify git installation
-      run: |
-        git --version
-
-    - name: Require valid git context
-      shell: bash
-      run: |
-        set -euo pipefail
-
-        if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-          echo "❌ Scientific verifier is not inside a Git worktree."
-          echo "Scientific verification must fail closed."
-          exit 1
-        fi
-
-        if ! git rev-parse HEAD >/dev/null 2>&1; then
-          echo "❌ Git HEAD is unavailable."
-          exit 1
-        fi
-
-        echo "Git HEAD:"
-        git rev-parse HEAD
         
     - name: Fix Git ownership (CRITICAL)
       run: |
