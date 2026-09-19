@@ -1074,6 +1074,11 @@ jobs:
 
           print("✅ Prediction:", res)
           PY
+
+      - name: Generate explicit adversarial control artifact
+        run: |
+          python analysis/adversarial_control.py
+          test -f artifacts/adversarial_control.json
           
       - name: Cross-domain band guard
         run: |
@@ -1713,6 +1718,11 @@ jobs:
 
           print("✅ control datasets generated")
           PY
+
+      - name: Generate explicit adversarial control artifact
+        run: |
+          python analysis/adversarial_control.py
+          test -f artifacts/adversarial_control.json
 
       - name: Alpha continuity guard
         run: python analysis/alpha_continuity_guard.py
@@ -3356,56 +3366,57 @@ jobs:
       run: python analysis/external_reproduction.py || echo "External reproduction degraded"
 
     - name: Persist authoritative verification artifacts
-      if: success()
+      if: >
+        success() &&
+        github.event_name != 'pull_request'
       working-directory: ${{ github.workspace }}
       shell: bash
       run: |
         set -euo pipefail
 
         echo "=== VERIFY WORKSPACE ==="
-        pwd
 
-        test -d .git || {
-          echo "❌ Missing .git worktree."
-          exit 1
-        }
-
-        echo "=== VERIFY GIT CONTEXT ==="
-
-        test "$(git rev-parse --is-inside-work-tree)" = "true"
-        git rev-parse HEAD >/dev/null
-
-        echo "HEAD: $(git rev-parse HEAD)"
-
-        echo "=== CONFIGURE GIT ==="
+        test -d .git
 
         git config user.name "github-actions"
         git config user.email "actions@github.com"
-        git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-        echo "=== PREPARE AUTHORITATIVE PERSISTENCE ==="
+        git config --global \
+          --add safe.directory "$GITHUB_WORKSPACE"
+
+        echo "=== FETCH CURRENT MAIN ==="
+
+        git fetch origin main
+
+        echo "Workflow SHA:"
+        echo "$GITHUB_SHA"
+
+        echo "Remote main:"
+        git rev-parse origin/main
+
+        echo "=== PREPARE ALLOWLIST ==="
 
         mkdir -p data/verification
 
-        # Explicit scientific allowlist.
         ALLOWLIST=(
           "artifacts/canonical_report.json"
           "artifacts/report.hash"
-          "artifacts/independent_verification.json"
           "artifacts/external_replay_verification.json"
+          "artifacts/adversarial_control.json"
           "artifacts/dataset_provenance.json"
         )
 
         for source in "${ALLOWLIST[@]}"; do
           if [ -f "$source" ]; then
-            cp "$source" "data/verification/$(basename "$source")"
+            cp \
+              "$source" \
+              "data/verification/$(basename "$source")"
+
             echo "Persisting: $source"
           else
             echo "Not present: $source"
           fi
         done
-
-        echo "=== STAGE ONLY ALLOWLISTED OUTPUTS ==="
 
         git add data/verification
 
@@ -3414,13 +3425,35 @@ jobs:
           exit 0
         fi
 
+        echo "=== CHECK REMOTE ADVANCEMENT ==="
+
+        if [ "$(git rev-parse HEAD)" != "$GITHUB_SHA" ]; then
+          echo "❌ Local HEAD is not the workflow commit."
+          exit 1
+        fi
+
+        if ! git merge-base \
+          --is-ancestor \
+          "$GITHUB_SHA" \
+          "origin/main"
+        then
+          echo "❌ Remote main advanced independently."
+          echo "No automatic rebase will be performed."
+          echo "Reason: scientific artifacts must never silently"
+          echo "change provenance after their computation."
+          exit 1
+        fi
+
         echo "=== COMMIT ==="
 
-        git commit -m "Persist scientific verification artifacts [skip ci]"
+        git commit \
+          -m "Persist scientific verification artifacts [skip ci]"
 
-        echo "=== PUSH ==="
+        echo "=== ATOMIC FAST-FORWARD PUSH ==="
 
-        git push origin HEAD:main
+        git push \
+          origin \
+          HEAD:main
 
         echo "✅ Authoritative persistence completed."
         
