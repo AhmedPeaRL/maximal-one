@@ -13,39 +13,39 @@ def load_signal():
         alpha = r["spectral_profile"]["estimated_alpha"]
         sigma = r["spectral_profile"]["bootstrap_std"]
 
-        confidence = max(0.0, min(1.0, 1 - sigma))
-
-        return alpha, sigma, confidence
+        return alpha, sigma
 
     except Exception:
         return None, None, 0.0
 
-
-def decide(alpha, sigma, confidence):
+def decide(alpha, sigma):
     if alpha is None:
         return "NO_SIGNAL", "missing data"
 
-    if confidence > 0.8 and 0.5 < alpha < 2.0:
-        return "SELL", "strong invariant detected"
-
-    if confidence > 0.6:
-        return "HOLD", "signal present but not strong"
-
-    return "KILL", "weak or unstable signal"
-
+    return (
+        "OBSERVE",
+        "Scientific report is diagnostic only; "
+        "no market confidence is inferred from bootstrap sigma."
+    )
 
 def main():
-    alpha, sigma, confidence = load_signal()
+    alpha, sigma = load_signal()
 
-    decision, reason = decide(alpha, sigma, confidence)
+    decision, reason = decide(
+        alpha,
+        sigma,
+    )
 
     result = {
         "timestamp": time.time(),
         "alpha": alpha,
         "sigma": sigma,
-        "confidence": confidence,
         "decision": decision,
-        "reason": reason
+        "reason": reason,
+        "epistemic_policy": {
+            "market_confidence_inferred_from_sigma": False,
+            "scientific_report_is_not_a_trading_authorization": True,
+        }
     }
 
     os.makedirs("public", exist_ok=True)
@@ -54,7 +54,6 @@ def main():
         json.dump(result, f, indent=2)
 
     print("Market decision generated:", decision)
-
 
 if __name__ == "__main__":
     main()
