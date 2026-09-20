@@ -333,6 +333,20 @@ def validate_strict_contract(
     )
 
     return {
+        # --------------------------------------------------------
+        # Compatibility field:
+        #
+        # The CI workflow currently reads:
+        # strict_contract["passed"]
+        #
+        # This MUST mean only that the declared empirical
+        # numerical/methodological contract passed.
+        #
+        # It does NOT mean that the scientific claim is supported.
+        # Evidence-completion requirements remain separate below.
+        # --------------------------------------------------------
+        "passed": bool(contract_passed),
+
         "contract_passed": bool(
             contract_passed
         ),
@@ -342,6 +356,12 @@ def validate_strict_contract(
         ),
 
         "support_ready": support_ready,
+
+        "scope":
+            "empirical_contract_only",
+
+        "does_not_mean_scientific_claim_supported":
+            True,
 
         "checks": {
             **contract_checks,
