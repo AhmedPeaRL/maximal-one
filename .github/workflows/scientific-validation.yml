@@ -1801,20 +1801,19 @@ jobs:
           alpha = report["spectral_profile"]["estimated_alpha"]
           sigma = report["spectral_profile"]["bootstrap_std"]
 
-          confidence = max(0.0, min(1.0, 1 - sigma))
-
           truth = {
               "system": "maximal-one",
               "timestamp": time.time(),
               "core_claim": {
                   "statement": "A persistent spectral structure (alpha) emerges across independent real-world chaotic datasets under deterministic processing.",
                   "measured_alpha": alpha,
-                  "uncertainty_sigma": sigma
+                  "bootstrap_sigma": sigma
               },
               "prediction": {
                   "next_alpha_expected": alpha,
-                  "confidence": confidence,
-                  "window": "next_run"
+                  "window": "next_run",
+                  "basis": "diagnostic_continuity_only",
+                  "not_a_probability": True
               },
               "falsification": {
                   "condition": "If alpha collapses to noise or becomes unstable across independent runs, the model is falsified.",
@@ -2365,7 +2364,19 @@ jobs:
 
           if verification["strict_contract"]["passed"] is not True:
               raise SystemExit(
-                  "❌ Final gate: strict scientific contract failed"
+                  "❌ Final gate: empirical scientific contract failed"
+              )
+
+          if verification["strict_contract"]["evidence_completion_passed"] is not True:
+              raise SystemExit(
+                  "❌ Final gate: declared evidence-completion requirements "
+                  "are not all verified"
+              )
+
+          if verification["strict_contract"]["support_ready"] is not True:
+              raise SystemExit(
+                  "❌ Final gate: final scientific support prerequisites "
+                  "are not complete"
               )
 
           if verification["adaptive_thresholds"]["used"] is not False:
@@ -2381,16 +2392,27 @@ jobs:
           print("========================================")
           print("SCIENTIFIC VALIDATION GATE: PASS")
           print("========================================")
-          print("Report integrity: PASS")
-          print("Strict contract: PASS")
+          print("Empirical contract: PASS")
+          print("Evidence completion: PASS")
+          print("Independent rerun: VERIFIED")
+          print("Fingerprint: MATCH")
           print("Adaptive thresholds: NOT USED")
-          print("Claim promotion: NOT PERFORMED")
+          print("Claim promotion by verifier: NOT PERFORMED")
+
           print(
-              "Scientific epistemic status:",
-              report.get("scientific_interpretation", {}).get(
+              "Canonical report epistemic status:",
+              report.get(
+                  "scientific_interpretation",
+                  {}
+              ).get(
                   "claim_status",
                   "unknown"
               )
+          )
+
+          print(
+              "Final support readiness:",
+              verification["strict_contract"]["support_ready"]
           )
           PY
 
