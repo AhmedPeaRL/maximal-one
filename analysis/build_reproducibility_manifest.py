@@ -137,6 +137,34 @@ def main() -> None:
                 )
             ),
 
+        "canonical_claim_support_gate_snapshot":
+            bool(
+                report
+                .get(
+                    "scientific_interpretation",
+                    {},
+                )
+                .get(
+                    "claim_support_gate",
+                    False,
+                )
+            ),
+
+        "reproducibility_gate":
+            {
+                "independent_rerun_verified":
+                    independent_rerun,
+
+                "fingerprint_match":
+                    fingerprint_match,
+
+                "structure_match":
+                    structure_match,
+
+                "verified":
+                    final_replay_verified,
+            },
+
         "independent_rerun_verified":
             independent_rerun,
 
