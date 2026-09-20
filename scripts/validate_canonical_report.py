@@ -421,6 +421,49 @@ def main():
             )
         ]
 
+        primary_real = [
+            item
+            for item in counted
+            if item.get("role") == "primary_real"
+        ]
+
+        require(
+            len(primary_real) == 1,
+            (
+                "consensus artifact must contain exactly "
+                "one valid primary_real dataset"
+            ),
+        )
+
+        consensus_primary_alpha = finite_float(
+            primary_real[0].get("alpha"),
+            "canonical_consensus.primary_real.alpha",
+        )
+
+        max_internal_alpha_disagreement = float(
+            expected.get(
+                "max_internal_alpha_disagreement",
+                0.30,
+            )
+        )
+
+        consensus_alpha_delta = exact_delta(
+            canonical_alpha,
+            consensus_primary_alpha,
+        )
+
+        require(
+            consensus_alpha_delta
+            <= max_internal_alpha_disagreement,
+            (
+                "canonical alpha disagrees with the "
+                "authoritative consensus primary alpha: "
+                f"delta={consensus_alpha_delta:.12f}, "
+                f"allowed="
+                f"{max_internal_alpha_disagreement:.12f}"
+            ),
+        )
+
         excluded = consensus.get(
             "excluded_real_domains"
         )
@@ -539,6 +582,12 @@ def main():
         print(
             "   bootstrap discrepancy: "
             f"{float(bootstrap_sigma):.8f} sigma"
+        )
+
+    if CONSENSUS_PATH.exists():
+        print(
+            f"   consensus primary alpha delta: "
+            f"{consensus_alpha_delta:.12f}"
         )
 
     print(
