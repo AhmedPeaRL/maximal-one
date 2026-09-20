@@ -1473,49 +1473,84 @@ jobs:
           
       - name: Safe authenticated push (FIXED)
         env:
-           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          set -e
-          
+          set -euo pipefail
+
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          
-          git add data/external/
-          
-          if git diff --cached --quiet; then
-            echo "No new witness → skipping push"
-            exit 0
-          fi
-          
-          git commit -m "External witness ingestion" || {
-             echo "Nothing to commit"
-             exit 0
-          }
 
-          python analysis/push_guard.py
-          
+          echo "=== STAGE EXTERNAL WITNESS ==="
+
+          WITNESS_STAGE="$(mktemp -d)"
+
+          mkdir -p "$WITNESS_STAGE/data/external"
+
+          cp -a \
+            data/external/. \
+            "$WITNESS_STAGE/data/external/"
+
+          echo "=== WITNESS PERSISTENCE LOOP ==="
+
           SUCCESS=false
-          
-          for i in 1 2 3 4 5
+
+          for attempt in 1 2 3 4 5
           do
-            git pull --rebase origin main || true
-            
-            if git push origin HEAD:main; then
-              echo "Push succeeded"
+            echo "----------------------------------------"
+            echo "Witness persistence attempt: $attempt"
+            echo "----------------------------------------"
+
+            git fetch origin main
+
+            REMOTE_SHA="$(git rev-parse origin/main)"
+
+            echo "Current remote main:"
+            echo "$REMOTE_SHA"
+
+            git reset --hard "$REMOTE_SHA"
+
+            mkdir -p data/external
+
+            cp -a \
+              "$WITNESS_STAGE/data/external/." \
+              data/external/
+
+            git add data/external/
+
+            if git diff --cached --quiet; then
+              echo "No new witness → skipping push"
               SUCCESS=true
               break
             fi
 
-            echo "Retry $i..."
-            sleep 2
-            
-          done
-          
-          if [ "$SUCCESS" = false ]; then
-            echo "Push skipped or failed gracefully (non-critical)"
-            exit 0
-          fi
+            git commit \
+              -m "External witness ingestion"
 
+            python analysis/push_guard.py
+
+            if git push \
+              --force-with-lease="refs/heads/main:$REMOTE_SHA" \
+              origin \
+              HEAD:main
+            then
+              echo "✅ External witness push succeeded."
+              SUCCESS=true
+              break
+            fi
+
+            echo "⚠️ Remote advanced during witness persistence."
+            echo "No rebase will be performed."
+            echo "Retrying from the new remote tip."
+
+            sleep 2
+          done
+
+          if [ "$SUCCESS" != true ]; then
+            echo "❌ External witness persistence failed safely."
+            echo "No force push and no silent rebase were performed."
+            exit 1
+          fi
+          
       - name: Append to witness chain
         run: |
           python analysis/witness_chain.py "$(cat payload.json)"
@@ -3367,95 +3402,204 @@ jobs:
 
     - name: Persist authoritative verification artifacts
       if: >
-        success() &&
-        github.event_name != 'pull_request'
+          success() &&
+          github.event_name != 'pull_request'
       working-directory: ${{ github.workspace }}
       shell: bash
       run: |
-        set -euo pipefail
+          set -euo pipefail
 
-        echo "=== VERIFY WORKSPACE ==="
+          echo "=== VERIFY WORKSPACE ==="
 
-        test -d .git
+          test -d .git
 
-        git config user.name "github-actions"
-        git config user.email "actions@github.com"
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
 
-        git config --global \
-          --add safe.directory "$GITHUB_WORKSPACE"
+          git config --global \
+            --add safe.directory "$GITHUB_WORKSPACE"
 
-        echo "=== FETCH CURRENT MAIN ==="
+          SOURCE_SHA="$GITHUB_SHA"
 
-        git fetch origin main
+          echo "Scientific source commit:"
+          echo "$SOURCE_SHA"
 
-        echo "Workflow SHA:"
-        echo "$GITHUB_SHA"
+          echo "=== STAGE COMPUTED ARTIFACTS OUTSIDE GIT HISTORY ==="
 
-        echo "Remote main:"
-        git rev-parse origin/main
+          STAGING_DIR="$(mktemp -d)"
 
-        echo "=== PREPARE ALLOWLIST ==="
+          ALLOWLIST=(
+            "artifacts/canonical_report.json"
+            "artifacts/report.hash"
+            "artifacts/external_replay_verification.json"
+            "artifacts/adversarial_control.json"
+            "artifacts/dataset_provenance.json"
+          )
 
-        mkdir -p data/verification
+          FOUND_ARTIFACT=false
 
-        ALLOWLIST=(
-          "artifacts/canonical_report.json"
-          "artifacts/report.hash"
-          "artifacts/external_replay_verification.json"
-          "artifacts/adversarial_control.json"
-          "artifacts/dataset_provenance.json"
-        )
+          for source in "${ALLOWLIST[@]}"; do
+            if [ -f "$source" ]; then
+              mkdir -p \
+                "$STAGING_DIR/$(dirname "$source")"
 
-        for source in "${ALLOWLIST[@]}"; do
-          if [ -f "$source" ]; then
-            cp \
-              "$source" \
-              "data/verification/$(basename "$source")"
+              cp \
+                "$source" \
+                "$STAGING_DIR/$source"
 
-            echo "Persisting: $source"
-          else
-            echo "Not present: $source"
+              echo "Staged: $source"
+              FOUND_ARTIFACT=true
+            else
+              echo "Not present: $source"
+            fi
+          done
+
+          if [ "$FOUND_ARTIFACT" = false ]; then
+            echo "❌ No authoritative verification artifacts found."
+            exit 1
           fi
-        done
 
-        git add data/verification
+          REPORT_HASH=""
 
-        if git diff --cached --quiet; then
-          echo "No authoritative persistence changes."
-          exit 0
-        fi
+          if [ -f "$STAGING_DIR/artifacts/report.hash" ]; then
+            REPORT_HASH="$(
+              cat "$STAGING_DIR/artifacts/report.hash"
+            )"
+          fi
 
-        echo "=== CHECK REMOTE ADVANCEMENT ==="
+          export SOURCE_SHA
+          export REPORT_HASH
 
-        if [ "$(git rev-parse HEAD)" != "$GITHUB_SHA" ]; then
-          echo "❌ Local HEAD is not the workflow commit."
-          exit 1
-        fi
+          echo "=== AUTHORITATIVE PERSISTENCE LOOP ==="
 
-        if ! git merge-base \
-          --is-ancestor \
-          "$GITHUB_SHA" \
-          "origin/main"
-        then
-          echo "❌ Remote main advanced independently."
-          echo "No automatic rebase will be performed."
-          echo "Reason: scientific artifacts must never silently"
-          echo "change provenance after their computation."
-          exit 1
-        fi
+          SUCCESS=false
 
-        echo "=== COMMIT ==="
+          for attempt in 1 2 3 4 5
+          do
+            echo "----------------------------------------"
+            echo "Persistence attempt: $attempt"
+            echo "----------------------------------------"
 
-        git commit \
-          -m "Persist scientific verification artifacts [skip ci]"
+            echo "Fetching current main..."
 
-        echo "=== ATOMIC FAST-FORWARD PUSH ==="
+            git fetch origin main
 
-        git push \
-          origin \
-          HEAD:main
+            REMOTE_SHA="$(git rev-parse origin/main)"
 
-        echo "✅ Authoritative persistence completed."
+            export REMOTE_SHA
+            export REPORT_HASH
+
+            echo "Source SHA:"
+            echo "$SOURCE_SHA"
+
+            echo "Current remote main:"
+            echo "$REMOTE_SHA"
+
+            if [ "$(git rev-parse HEAD)" != "$SOURCE_SHA" ] &&
+               [ "$attempt" = "1" ]; then
+              echo "❌ Local HEAD is not the workflow source commit."
+              echo "Scientific persistence aborted."
+              exit 1
+            fi
+
+            echo "Resetting local persistence base to current remote."
+
+            git reset --hard "$REMOTE_SHA"
+
+            echo "=== RESTORE AUTHORITATIVE ARTIFACTS ==="
+
+            mkdir -p data/verification
+
+            for source in "${ALLOWLIST[@]}"; do
+              if [ -f "$STAGING_DIR/$source" ]; then
+                cp \
+                  "$STAGING_DIR/$source" \
+                  "data/verification/$(basename "$source")"
+
+                echo "Persisting: $source"
+              fi
+            done
+
+            echo "=== WRITE PERSISTENCE PROVENANCE ==="
+
+            python - <<'PY'
+          import json
+          import os
+          import time
+
+          path = "data/verification/persistence_provenance.json"
+
+          source_sha = os.environ["SOURCE_SHA"]
+          remote_sha = os.environ["REMOTE_SHA"]
+          report_hash = os.environ.get("REPORT_HASH", "")
+
+          provenance = {
+              "schema": "hcm.authoritative_persistence_provenance.v1",
+              "source_commit": source_sha,
+              "persistence_parent": remote_sha,
+              "report_hash": report_hash,
+              "generated_at_unix": time.time(),
+              "history_policy": {
+                  "rebase_used": False,
+                  "force_push_used": False,
+                  "remote_history_overwritten": False
+              },
+              "epistemic_policy": {
+                  "persistence_does_not_promote_scientific_claim": True,
+                  "artifact_source_commit_is_explicit": True
+              }
+          }
+
+          with open(
+              path,
+              "w",
+              encoding="utf-8"
+          ) as f:
+              json.dump(
+                  provenance,
+                  f,
+                  indent=2,
+                  sort_keys=True
+              )
+          PY
+
+            git add data/verification
+
+            if git diff --cached --quiet; then
+              echo "No authoritative persistence changes."
+              SUCCESS=true
+              break
+            fi
+
+            echo "=== COMMIT ==="
+
+            git commit \
+              -m "Persist scientific verification artifacts [skip ci]"
+
+            echo "=== LEASED FAST-FORWARD PUSH ==="
+
+            if git push \
+              --force-with-lease="refs/heads/main:$REMOTE_SHA" \
+              origin \
+              HEAD:main
+            then
+              echo "✅ Authoritative persistence completed."
+              SUCCESS=true
+              break
+            fi
+
+            echo "⚠️ Remote main advanced during persistence."
+            echo "No rebase will be performed."
+            echo "Refreshing remote and retrying."
+
+            sleep 2
+          done
+
+          if [ "$SUCCESS" != true ]; then
+            echo "❌ Authoritative persistence could not obtain a stable main tip."
+            echo "No force push or silent rebase was performed."
+            exit 1
+          fi
         
   stability-check:
     runs-on: ubuntu-24.04
