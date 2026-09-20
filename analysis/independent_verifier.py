@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import hashlib
 import json
 import math
@@ -10,7 +11,7 @@ REPORT_PATH = Path("artifacts/canonical_report.json")
 STRICT_CLAIM_PATH = Path("core-scientific/strict_claim.json")
 OUTPUT_PATH = Path("public/independent_verification.json")
 
-def load_json(path: Path):
+def load_json(path: Path) -> dict:
     with path.open("r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -22,6 +23,12 @@ def sha256_file(path: Path) -> str:
             digest.update(chunk)
 
     return digest.hexdigest()
+
+def finite(value) -> bool:
+    try:
+        return math.isfinite(float(value))
+    except (TypeError, ValueError):
+        return False
 
 def load_stored_report_hash() -> tuple[str, str]:
     candidates = (
@@ -56,11 +63,63 @@ def verify_report_integrity() -> dict:
         "hash_source": hash_source,
     }
 
-def finite(value) -> bool:
+def read_external_replay_status(report: dict) -> dict:
+    reproducibility = (
+        report.get("scientific_interpretation", {})
+        .get("reproducibility", {})
+    )
+
+    independent_rerun_verified = (
+        reproducibility.get("independent_rerun") == "verified"
+    )
+
+    fingerprint_verified = (
+        reproducibility.get("fingerprint_match", False) is True
+    )
+
+    return {
+        "independent_rerun_verified": independent_rerun_verified,
+        "fingerprint_verified": fingerprint_verified,
+        "available": (
+            independent_rerun_verified
+            and fingerprint_verified
+        ),
+    }
+
+def read_adversarial_status() -> dict:
+    path = Path("artifacts/adversarial_control.json")
+
+    if not path.exists():
+        return {
+            "available": False,
+            "passed": False,
+            "status": "not_available",
+        }
+
     try:
-        return math.isfinite(float(value))
-    except (TypeError, ValueError):
-        return False
+        data = load_json(path)
+
+        passed = (
+            data.get("passed", False) is True
+        )
+
+        return {
+            "available": True,
+            "passed": passed,
+            "status": (
+                "passed"
+                if passed
+                else "failed"
+            ),
+        }
+
+    except Exception as exc:
+        return {
+            "available": True,
+            "passed": False,
+            "status": "unreadable",
+            "error": str(exc),
+        }
 
 def validate_strict_contract(
     report: dict,
@@ -134,6 +193,13 @@ def validate_strict_contract(
         )
     )
 
+    max_cross_domain_std = float(
+        expected.get(
+            "max_cross_domain_std",
+            1.2,
+        )
+    )
+
     cross_domain = report.get(
         "cross_domain_replication",
         {},
@@ -143,87 +209,72 @@ def validate_strict_contract(
         "real_domain_std"
     )
 
-    max_cross_domain_std = float(
-        expected.get(
-            "max_cross_domain_std",
-            1.2,
-        )
-    )
-
-    cross_domain_passed = (
+    cross_domain_std_passed = (
         finite(cross_domain_std)
         and
         float(cross_domain_std)
         <= max_cross_domain_std
     )
 
-    external_replay = report.get(
-        "scientific_interpretation",
-        {}
-    ).get(
-        "reproducibility",
-        {}
+    independent_domains_passed = (
+        independent_domains
+        >= min_domains
     )
 
-    independent_rerun_verified = (
-        external_replay.get(
-            "independent_rerun"
-        )
-        == "verified"
+    external_replay = read_external_replay_status(
+        report
     )
 
-    fingerprint_verified = (
-        external_replay.get(
-            "fingerprint_match",
-            False,
-        )
-        is True
-    )
+    adversarial = read_adversarial_status()
 
-    adversarial_path = Path(
-        "artifacts/adversarial_control.json"
-    )
+    # ------------------------------------------------------------
+    # CORE CONTRACT CHECKS
+    #
+    # These are the checks that evaluate whether the generated
+    # report satisfies the declared empirical contract.
+    #
+    # External replay and adversarial control are reported
+    # separately because they are evidence-completion layers,
+    # not properties of the numerical report itself.
+    # ------------------------------------------------------------
 
-    adversarial_passed = False
-    
-    if adversarial_path.exists():
-        try:
-            adversarial = load_json(
-                adversarial_path
-            )
-
-            adversarial_passed = (
-                adversarial.get(
-                    "passed",
-                    False,
-                )
-                is True
-            )
-        except Exception:
-            adversarial_passed = False
-
-    checks = {
+    contract_checks = {
         "alpha_within_declared_range":
+            finite(alpha)
+            and
             alpha_min <= alpha <= alpha_max,
 
         "sigma_within_declared_bound":
+            finite(sigma)
+            and
             sigma <= max_sigma,
 
         "p_value_within_declared_bound":
+            finite(p_value)
+            and
             p_value <= max_p_value,
 
         "cross_method_delta_within_bound":
+            finite(method_delta)
+            and
             method_delta <= max_method_delta,
 
         "scale_dispersion_within_bound":
             finite(scale_dispersion)
-            and scale_dispersion <= max_scale_dispersion,
+            and
+            scale_dispersion <= max_scale_dispersion,
 
         "minimum_independent_real_domains_met":
-            independent_domains >= min_domains,
+            independent_domains_passed,
+
+        "cross_domain_std_within_bound":
+            cross_domain_std_passed,
 
         "bootstrap_center_discrepancy_within_bound":
-            bootstrap_discrepancy <= max_bootstrap_discrepancy,
+            finite(bootstrap_discrepancy)
+            and
+            bootstrap_discrepancy
+            <= max_bootstrap_discrepancy,
 
         "scale_validation_passed":
             bool(scale.get("valid", False)),
@@ -233,34 +284,91 @@ def validate_strict_contract(
 
         "null_rejected":
             bool(report.get("null_rejected", False)),
-
-        "cross_domain_std_within_bound":
-            cross_domain_passed,
-
-        "independent_rerun_verified":
-            independent_rerun_verified,
-
-        "fingerprint_verified":
-            fingerprint_verified,
-
-        "adversarial_control_passed":
-            adversarial_passed,
     }
 
-    passed = all(checks.values())
+    contract_passed = all(
+        contract_checks.values()
+    )
+
+    # ------------------------------------------------------------
+    # EVIDENCE-COMPLETION CHECKS
+    #
+    # These remain explicit blockers for final scientific support.
+    # They are NOT silently converted into numerical success.
+    # ------------------------------------------------------------
+
+    evidence_completion_checks = {
+        "independent_rerun_verified":
+            external_replay[
+                "independent_rerun_verified"
+            ],
+
+        "fingerprint_verified":
+            external_replay[
+                "fingerprint_verified"
+            ],
+
+        "adversarial_control_passed":
+            adversarial[
+                "passed"
+            ],
+    }
+
+    evidence_completion = all(
+        evidence_completion_checks.values()
+    )
+
+    # ------------------------------------------------------------
+    # FINAL SUPPORT READINESS
+    #
+    # This is intentionally NOT a claim-promotion mechanism.
+    # It only states whether every declared support layer is
+    # present.
+    # ------------------------------------------------------------
+
+    support_ready = bool(
+        contract_passed
+        and
+        evidence_completion
+    )
 
     return {
-        "passed": bool(passed),
+        "contract_passed": bool(
+            contract_passed
+        ),
 
-        "checks": checks,
+        "evidence_completion_passed": bool(
+            evidence_completion
+        ),
+
+        "support_ready": support_ready,
+
+        "checks": {
+            **contract_checks,
+            **evidence_completion_checks,
+        },
+
+        "contract_checks": contract_checks,
+
+        "evidence_completion_checks":
+            evidence_completion_checks,
 
         "measured": {
             "alpha": alpha,
             "sigma": sigma,
             "p_value": p_value,
-            "cross_method_delta": method_delta,
-            "scale_dispersion": scale_dispersion,
-            "independent_real_domains": independent_domains,
+            "cross_method_delta":
+                method_delta,
+            "scale_dispersion":
+                scale_dispersion,
+            "independent_real_domains":
+                independent_domains,
+            "cross_domain_std":
+                (
+                    float(cross_domain_std)
+                    if finite(cross_domain_std)
+                    else None
+                ),
             "bootstrap_center_discrepancy_sigma":
                 bootstrap_discrepancy,
         },
@@ -270,20 +378,31 @@ def validate_strict_contract(
                 alpha_min,
                 alpha_max,
             ],
-            "max_sigma": max_sigma,
-            "max_p_value": max_p_value,
-            "max_method_delta": max_method_delta,
+            "max_sigma":
+                max_sigma,
+            "max_p_value":
+                max_p_value,
+            "max_method_delta":
+                max_method_delta,
             "max_scale_dispersion":
                 max_scale_dispersion,
+            "max_cross_domain_std":
+                max_cross_domain_std,
             "min_independent_real_domains":
                 min_domains,
             "max_bootstrap_center_discrepancy_sigma":
                 max_bootstrap_discrepancy,
         },
+
+        "external_replay": external_replay,
+
+        "adversarial_control": adversarial,
     }
 
 def load_collapse() -> dict:
-    path = Path("artifacts/collapse_test.json")
+    path = Path(
+        "artifacts/collapse_test.json"
+    )
 
     if not path.exists():
         return {
@@ -320,8 +439,13 @@ def build_external_record():
             "strict_claim.json is missing"
         )
 
-    report = load_json(REPORT_PATH)
-    strict_claim = load_json(STRICT_CLAIM_PATH)
+    report = load_json(
+        REPORT_PATH
+    )
+
+    strict_claim = load_json(
+        STRICT_CLAIM_PATH
+    )
 
     integrity = verify_report_integrity()
 
@@ -333,7 +457,8 @@ def build_external_record():
     return {
         "timestamp": time.time(),
 
-        "source": "independent_layer",
+        "source":
+            "independent_layer",
 
         "authority": {
             "authoritative_claim_contract":
@@ -347,26 +472,38 @@ def build_external_record():
         },
 
         "verification_role":
-            "contract_and_integrity_verification",
+            "contract_and_evidence_completion_verification",
 
         "scientific_claim_decision": {
             "made_here": False,
-            "status": "under_investigation",
+
+            "status":
+                "under_investigation",
+
+            "support_ready":
+                bool(
+                    contract["support_ready"]
+                ),
+
             "reason":
-                "This verifier validates declared contract "
-                "conditions and report integrity. It does not "
-                "independently promote the scientific claim "
-                "to supported status.",
+                "This verifier evaluates the declared "
+                "empirical contract and records evidence "
+                "completion status. It does not independently "
+                "promote the scientific claim.",
         },
 
-        "integrity": integrity,
+        "integrity":
+            integrity,
 
-        "strict_contract": contract,
+        "strict_contract":
+            contract,
 
-        "collapse_status": load_collapse(),
+        "collapse_status":
+            load_collapse(),
 
         "adaptive_thresholds": {
             "used": False,
+
             "reason":
                 "Scientific acceptance boundaries are read "
                 "only from strict_claim.json. Observed data "
@@ -375,12 +512,23 @@ def build_external_record():
         },
 
         "epistemic_guard": {
-            "confidence_as_probability": False,
-            "adaptive_truth_threshold": False,
-            "automatic_claim_acceptance": False,
-            "mechanism_inferred": False,
-            "hcm_causation_inferred": False,
-            "universality_inferred": False,
+            "confidence_as_probability":
+                False,
+
+            "adaptive_truth_threshold":
+                False,
+
+            "automatic_claim_acceptance":
+                False,
+
+            "mechanism_inferred":
+                False,
+
+            "hcm_causation_inferred":
+                False,
+
+            "universality_inferred":
+                False,
         },
     }
 
@@ -403,19 +551,44 @@ if __name__ == "__main__":
             sort_keys=True,
         )
 
-    print("Independent verification written.")
+    contract = record[
+        "strict_contract"
+    ]
+
+    print(
+        "Independent verification written."
+    )
+
     print(
         "Authoritative contract: "
         "core-scientific/strict_claim.json"
     )
-    print("Adaptive thresholds used: False")
+
     print(
-        "Scientific claim promotion by this verifier: False"
+        "Adaptive thresholds used: False"
     )
+
     print(
-        "Contract checks passed:",
-        record["strict_contract"]["passed"],
+        "Scientific claim promotion: NOT PERFORMED"
     )
+
+    print(
+        "Empirical contract passed:",
+        contract["contract_passed"],
+    )
+
+    print(
+        "Evidence completion passed:",
+        contract[
+            "evidence_completion_passed"
+        ],
+    )
+
+    print(
+        "Final support readiness:",
+        contract["support_ready"],
+    )
+
     print(
         "Report integrity passed:",
         record["integrity"]["passed"],
