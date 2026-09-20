@@ -64,27 +64,153 @@ def verify_report_integrity() -> dict:
     }
 
 def read_external_replay_status(report: dict) -> dict:
-    reproducibility = (
-        report.get("scientific_interpretation", {})
-        .get("reproducibility", {})
+    """
+    Read independent reproducibility evidence from the
+    dedicated external attestation artifact.
+
+    The canonical report is intentionally generated before
+    the external replay artifact exists.
+    Therefore the report
+    must NOT be used as the authoritative source for this
+    evidence-completion layer.
+
+    The canonical report remains the immutable measurement
+    snapshot; the external replay artifact is the independent
+    reproducibility attestation.
+    """
+
+    path = Path(
+        "artifacts/external_replay_verification.json"
     )
 
-    independent_rerun_verified = (
-        reproducibility.get("independent_rerun") == "verified"
-    )
+    if not path.exists():
+        return {
+            "available": False,
+            "independent_rerun_verified": False,
+            "fingerprint_verified": False,
+            "verification_method":
+                None,
+            "status": "not_available",
+            "source":
+                "artifacts/external_replay_verification.json",
+        }
 
-    fingerprint_verified = (
-        reproducibility.get("fingerprint_match", False) is True
-    )
+    try:
+        data = load_json(path)
 
-    return {
-        "independent_rerun_verified": independent_rerun_verified,
-        "fingerprint_verified": fingerprint_verified,
-        "available": (
+        independent_rerun_verified = (
+            data.get(
+                "independent_replay_verified",
+                False,
+            )
+            is True
+        )
+
+        fingerprint_verified = (
+            data.get(
+                "fingerprint_match",
+                False,
+            )
+            is True
+        )
+
+        structure_match = (
+            data.get(
+                "structure_match",
+                False,
+            )
+            is True
+        )
+
+        verification_method = (
+            data.get(
+                "comparison_method"
+            )
+        )
+
+        scientific_role = (
+            data.get(
+                "scientific_role"
+            )
+        )
+
+        valid_method = (
+            verification_method
+            ==
+            "normalized_full_canonical_report"
+        )
+
+        valid_role = (
+            scientific_role
+            ==
+            "independent_reproducibility_gate"
+        )
+
+        verified = bool(
             independent_rerun_verified
             and fingerprint_verified
-        ),
-    }
+            and structure_match
+            and valid_method
+            and valid_role
+            and data.get("status") == "verified"
+        )
+
+        return {
+            "available": True,
+            "independent_rerun_verified":
+                bool(
+                    independent_rerun_verified
+                    and
+                    structure_match
+                    and
+                    valid_method
+                    and
+                    valid_role
+                    and
+                    data.get("status") == "verified"
+                ),
+            "fingerprint_verified":
+                bool(
+                    fingerprint_verified
+                    and
+                    structure_match
+                    and
+                    valid_method
+                    and
+                    valid_role
+                    and
+                    data.get("status") == "verified"
+                ),
+            "structure_match":
+                structure_match,
+            "verification_method":
+                verification_method,
+            "scientific_role":
+                scientific_role,
+            "status":
+                data.get(
+                    "status",
+                    "unknown",
+                ),
+            "available_and_verified":
+                verified,
+            "source":
+                str(path),
+        }
+
+    except Exception as exc:
+        return {
+            "available": True,
+            "independent_rerun_verified": False,
+            "fingerprint_verified": False,
+            "structure_match": False,
+            "verification_method": None,
+            "scientific_role": None,
+            "status": "unreadable",
+            "available_and_verified": False,
+            "source": str(path),
+            "error": str(exc),
+        }
 
 def read_adversarial_status() -> dict:
     path = Path("artifacts/adversarial_control.json")
