@@ -1168,27 +1168,6 @@ jobs:
         run: |
           cat artifacts/fingerprint.txt
 
-      - name: TRUE External Runner (REAL ISOLATION)
-        run: python analysis/TRUE_external_runner.py
-
-      - name: External replay verifier
-        run: |
-          python analysis/external_replay_verifier.py
-
-      - name: TRUE Independent Reproduction (HARD)
-        run: |
-          rm -f artifacts/external_replay_verification.json
-
-          python analysis/true_independent_reproduction.py
-
-      - name: Validate TRUE Independent Reproduction Evidence (HARD)
-        run: |
-          python scripts/validate_external_replay.py
-
-      - name: Build reproducibility manifest
-        run: |
-          python analysis/build_reproducibility_manifest.py
-
       - name: Stabilize artifacts
         run: |
           python analysis/stabilize_artifacts.py
@@ -1754,6 +1733,92 @@ jobs:
           print("✅ control datasets generated")
           PY
 
+      - name: TRUE External Runner (REAL ISOLATION)
+        run: |
+          python analysis/TRUE_external_runner.py
+
+      - name: TRUE Independent Reproduction (HARD)
+        run: |
+          rm -f artifacts/external_replay_verification.json
+
+          python analysis/true_independent_reproduction.py
+
+      - name: Validate TRUE Independent Reproduction Evidence (HARD)
+        run: |
+          python scripts/validate_external_replay.py
+
+      - name: Build reproducibility manifest
+        run: |
+          python analysis/build_reproducibility_manifest.py
+
+      - name: Verify reproducibility manifest (HARD)
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path(
+              "artifacts/reproducibility_manifest.json"
+          )
+
+          if not path.exists():
+              raise SystemExit(
+                  "❌ Reproducibility manifest is missing"
+              )
+
+          data = json.loads(
+              path.read_text(
+                  encoding="utf-8"
+              )
+          )
+
+          if data.get(
+              "reproducibility_status"
+          ) != "verified":
+              raise SystemExit(
+                  "❌ Reproducibility manifest is not verified"
+              )
+
+          if data.get(
+              "independent_rerun_verified"
+          ) is not True:
+              raise SystemExit(
+                  "❌ Independent rerun is not verified"
+              )
+
+          if data.get(
+              "fingerprint_match"
+          ) is not True:
+              raise SystemExit(
+                  "❌ Independent fingerprint does not match"
+              )
+
+          if data.get(
+              "structure_match"
+          ) is not True:
+              raise SystemExit(
+                  "❌ Independent structure does not match"
+              )
+
+          print(
+              "✅ Reproducibility manifest is fully verified"
+          )
+          PY
+
+      - name: Upload external replay verification
+        uses: actions/upload-artifact@v6
+        with:
+          name: external-replay-verification
+          path: artifacts/external_replay_verification.json
+          if-no-files-found: error
+
+      - name: Upload reproducibility manifest
+        uses: actions/upload-artifact@v6
+        with:
+          name: reproducibility-manifest
+          path: artifacts/reproducibility_manifest.json
+          if-no-files-found: error
+
       - name: Generate explicit adversarial control artifact
         run: |
           python analysis/adversarial_control.py
@@ -2029,6 +2094,16 @@ jobs:
           name: report-hash
           path: artifacts
 
+      - uses: actions/download-artifact@v6
+        with:
+          name: external-replay-verification
+          path: artifacts
+
+      - uses: actions/download-artifact@v6
+        with:
+          name: reproducibility-manifest
+          path: artifacts
+
       - name: Enforce Scientific Proof Contract
         shell: bash
         run: |
@@ -2250,6 +2325,95 @@ jobs:
             "✅ Adaptive acceptance thresholds are disabled in scientific_proof mode."
           );
           NODE
+
+      - name: HARD Verify Independent Reproduction Evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test -f artifacts/external_replay_verification.json
+          test -f artifacts/reproducibility_manifest.json
+
+          python scripts/validate_external_replay.py
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          replay = json.loads(
+              Path(
+                  "artifacts/external_replay_verification.json"
+              ).read_text(
+                  encoding="utf-8"
+              )
+          )
+
+          manifest = json.loads(
+              Path(
+                  "artifacts/reproducibility_manifest.json"
+              ).read_text(
+                  encoding="utf-8"
+              )
+          )
+
+          required_replay = {
+              "independent_replay_verified": True,
+              "fingerprint_match": True,
+              "structure_match": True,
+              "status": "verified",
+          }
+
+          for key, expected in required_replay.items():
+              if replay.get(key) != expected:
+                  raise SystemExit(
+                      f"❌ Replay evidence failure: "
+                      f"{key}={replay.get(key)!r}, "
+                      f"expected={expected!r}"
+                  )
+
+          if manifest.get(
+              "reproducibility_status"
+          ) != "verified":
+              raise SystemExit(
+                  "❌ Reproducibility manifest is not verified"
+              )
+
+          if manifest.get(
+              "independent_rerun_verified"
+          ) is not True:
+              raise SystemExit(
+                  "❌ Manifest independent rerun is not verified"
+              )
+
+          if manifest.get(
+              "fingerprint_match"
+          ) is not True:
+              raise SystemExit(
+                  "❌ Manifest fingerprint match is not verified"
+              )
+
+          print(
+              "========================================"
+          )
+          print(
+              "INDEPENDENT REPRODUCTION EVIDENCE: PASS"
+          )
+          print(
+              "========================================"
+          )
+          print(
+              "Independent rerun: VERIFIED"
+          )
+          print(
+              "Fingerprint: MATCH"
+          )
+          print(
+              "Structure: MATCH"
+          )
+          print(
+              "Manifest: VERIFIED"
+          )
+          PY
 
       - name: Run Independent Contract Verification
         shell: bash
