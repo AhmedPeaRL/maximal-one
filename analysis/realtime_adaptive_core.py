@@ -1,91 +1,123 @@
+from __future__ import annotations
+
 import json
-import os
+from pathlib import Path
 import time
 
-STATE_PATH = "data/adaptive_state.json"
-REPORT_PATH = "artifacts/canonical_report.json"
+STATE_PATH = Path(
+    "data/adaptive_state.json"
+)
+
+REPORT_PATH = Path(
+    "artifacts/canonical_report.json"
+)
 
 def load_report():
+    if not REPORT_PATH.exists():
+        return None
+
     try:
-        with open(REPORT_PATH) as f:
-            return json.load(f)
-    except:
+        return json.loads(
+            REPORT_PATH.read_text(
+                encoding="utf-8"
+            )
+        )
+    except Exception:
         return None
 
 def load_state():
-    if not os.path.exists(STATE_PATH):
+    if not STATE_PATH.exists():
         return {
             "history": [],
             "weights": {
                 "alpha": 1.0,
                 "sigma": 1.0,
-                "confidence": 1.0
-            }
+                "confidence": 1.0,
+            },
+            "mode": "diagnostic_only",
         }
-    with open(STATE_PATH) as f:
-        return json.load(f)
+
+    return json.loads(
+        STATE_PATH.read_text(
+            encoding="utf-8"
+        )
+    )
 
 def save_state(state):
-    os.makedirs("data", exist_ok=True)
-    with open(STATE_PATH, "w") as f:
-        json.dump(state, f, indent=2)
+    STATE_PATH.parent.mkdir(
+        parents=True,
+        exist_ok=True
+    )
 
-def adapt_weights(signal, state):
-    alpha = signal.get("alpha")
-    sigma = signal.get("sigma")
-    confidence = signal.get("confidence")
-
-    if alpha is None or sigma is None:
-        return state
-
-    # 🔥 adaptive logic
-    if sigma > 0.2:
-        state["weights"]["sigma"] *= 1.1
-    else:
-        state["weights"]["sigma"] *= 0.95
-
-    if confidence < 0.6:
-        state["weights"]["confidence"] *= 1.2
-    else:
-        state["weights"]["confidence"] *= 0.9
-
-    if alpha < 0.5:
-        state["weights"]["alpha"] *= 1.05
-    else:
-        state["weights"]["alpha"] *= 0.97
-
-    return state
+    STATE_PATH.write_text(
+        json.dumps(
+            state,
+            indent=2,
+            sort_keys=True
+        ) + "\n",
+        encoding="utf-8",
+    )
 
 def extract_signal(report):
     try:
+        spectral = report[
+            "spectral_profile"
+        ]
+
         return {
-            "alpha": report["spectral_profile"]["estimated_alpha"],
-            "sigma": report["spectral_profile"]["bootstrap_std"],
-            "confidence": max(0.0, min(1.0, 1 - report["spectral_profile"]["bootstrap_std"]))
+            "alpha": spectral[
+                "estimated_alpha"
+            ],
+            "sigma": spectral[
+                "bootstrap_std"
+            ],
+            "claim_status": report[
+                "scientific_interpretation"
+            ].get(
+                "claim_status",
+                "unknown"
+            ),
+            "claim_support_gate": report[
+                "scientific_interpretation"
+            ].get(
+                "claim_support_gate",
+                False
+            ),
         }
-    except:
+
+    except Exception:
         return {}
 
 def main():
     report = load_report()
-    if not report:
-        print("No report found")
+
+    if report is None:
+        print("No canonical report found.")
         return
 
     state = load_state()
     signal = extract_signal(report)
 
-    state = adapt_weights(signal, state)
+    state["history"].append(
+        {
+            "timestamp": time.time(),
+            "signal": signal,
+            "weights_changed": False,
+            "mode": "diagnostic_only",
+        }
+    )
 
-    state["history"].append({
-        "timestamp": time.time(),
-        "signal": signal,
-        "weights": state["weights"]
-    })
+    state["epistemic_policy"] = {
+        "adaptive_weights_affect_scientific_claim": False,
+        "adaptive_state_affects_canonical_report": False,
+        "market_execution_authorized": False,
+    }
 
     save_state(state)
 
-    print("Adaptive state updated:", state["weights"])
+    print(
+        "Adaptive state recorded diagnostically only."
+    )
 
 if __name__ == "__main__":
     main()
