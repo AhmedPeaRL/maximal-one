@@ -1,75 +1,140 @@
-import json
-import time
+from __future__ import annotations
+
 import hashlib
-import os
+import json
 import random
-
-PREDICTION_FILE = "artifacts/reality_prediction.json"
-RESULT_FILE = "artifacts/reality_result.json"
-
-SEED = 42  # deterministic anchor
+import time
+from pathlib import Path
 
 
-def deterministic_price(t):
-    random.seed(SEED + int(t))
-    base = 30000
-    noise = random.uniform(-500, 500)
-    trend = (t % 10) * 50
+PREDICTION_FILE = Path(
+    "artifacts/reality_prediction.json"
+)
+
+RESULT_FILE = Path(
+    "artifacts/reality_result.json"
+)
+
+SEED = 42
+
+def deterministic_synthetic_series_value(t: int) -> float:
+    rng = random.Random(SEED + int(t))
+
+    base = 30000.0
+    noise = rng.uniform(-500.0, 500.0)
+    trend = (t % 10) * 50.0
+
     return base + trend + noise
 
+def generate_synthetic_prediction():
+    timestamp = int(time.time())
 
-def generate_prediction():
-    t = int(time.time())
-
-    price = deterministic_price(t)
+    reference_value = (
+        deterministic_synthetic_series_value(
+            timestamp
+        )
+    )
 
     prediction = {
-        "timestamp": t,
-        "prediction": "up" if price % 2 > 1 else "down",
-        "reference_price": price
+        "timestamp": timestamp,
+        "prediction": (
+            "up"
+            if reference_value % 2 > 1
+            else "down"
+        ),
+        "reference_value": reference_value,
+        "data_role": "synthetic_simulation",
+        "real_world_claim": False,
     }
 
-    raw = json.dumps(prediction, sort_keys=True).encode()
-    prediction["hash"] = hashlib.sha256(raw).hexdigest()
+    canonical = json.dumps(
+        prediction,
+        sort_keys=True
+    ).encode("utf-8")
 
-    os.makedirs("artifacts", exist_ok=True)
+    prediction["hash"] = hashlib.sha256(
+        canonical
+    ).hexdigest()
 
-    with open(PREDICTION_FILE, "w") as f:
-        json.dump(prediction, f, indent=2)
+    PREDICTION_FILE.parent.mkdir(
+        parents=True,
+        exist_ok=True
+    )
 
-    print("Prediction committed:", prediction["hash"])
+    PREDICTION_FILE.write_text(
+        json.dumps(
+            prediction,
+            indent=2,
+            sort_keys=True
+        ) + "\n",
+        encoding="utf-8",
+    )
 
+    return prediction
 
-def evaluate_prediction():
-    if not os.path.exists(PREDICTION_FILE):
-        print("No prediction found")
-        return
-
-    with open(PREDICTION_FILE) as f:
-        pred = json.load(f)
-
+def evaluate_synthetic_prediction(prediction):
     time.sleep(2)
 
-    t_new = int(time.time())
-    new_price = deterministic_price(t_new)
+    timestamp = int(time.time())
 
-    actual = "up" if new_price > pred["reference_price"] else "down"
+    new_value = (
+        deterministic_synthetic_series_value(
+            timestamp
+        )
+    )
+
+    actual = (
+        "up"
+        if new_value > prediction["reference_value"]
+        else "down"
+    )
 
     result = {
-        "prediction": pred["prediction"],
+        "prediction": prediction["prediction"],
         "actual": actual,
-        "correct": pred["prediction"] == actual,
-        "initial_price": pred["reference_price"],
-        "final_price": new_price,
-        "timestamp": t_new
+        "correct": (
+            prediction["prediction"] == actual
+        ),
+        "initial_value": prediction[
+            "reference_value"
+        ],
+        "final_value": new_value,
+        "timestamp": timestamp,
+        "data_role": "synthetic_simulation",
+        "real_world_claim": False,
+        "interpretation": (
+            "This is a deterministic synthetic "
+            "simulation only. It is not evidence "
+            "of real-world prediction."
+        ),
     }
 
-    with open(RESULT_FILE, "w") as f:
-        json.dump(result, f, indent=2)
+    RESULT_FILE.write_text(
+        json.dumps(
+            result,
+            indent=2,
+            sort_keys=True
+        ) + "\n",
+        encoding="utf-8",
+    )
 
-    print("Reality evaluated:", result)
+    return result
 
+def main():
+    prediction = generate_synthetic_prediction()
+    result = evaluate_synthetic_prediction(
+        prediction
+    )
+
+    print(
+        json.dumps(
+            {
+                "prediction": prediction,
+                "result": result,
+            },
+            indent=2
+        )
+    )
 
 if __name__ == "__main__":
-    generate_prediction()
-    evaluate_prediction()
+    main()
