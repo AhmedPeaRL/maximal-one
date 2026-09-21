@@ -1993,6 +1993,7 @@ jobs:
           test -s artifacts/report.hash
 
       - name: Final Provenance Closure
+        shell: bash
         env:
           FINALIZE_PHASE: "final"
         run: |
