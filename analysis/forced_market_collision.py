@@ -1,75 +1,100 @@
-import json
-import requests
-import time
-import os
+from __future__ import annotations
 
-OUTPUT_FILE = "public/market_collision_signal.json"
+import json
+from pathlib import Path
+
+REPORT_PATH = Path("artifacts/canonical_report.json")
+OUTPUT_FILE = Path("public/market_collision_signal.json")
 
 def load_signal():
+    if not REPORT_PATH.exists():
+        return None
+
     try:
-        with open("artifacts/canonical_report.json") as f:
-            r = json.load(f)
+        with REPORT_PATH.open("r", encoding="utf-8") as f:
+            report = json.load(f)
+
+        spectral = report.get("spectral_profile", {})
+        interpretation = report.get(
+            "scientific_interpretation",
+            {}
+        )
 
         return {
-            "alpha": r["spectral_profile"]["estimated_alpha"],
-            "sigma": r["spectral_profile"]["bootstrap_std"],
-            "confidence": max(0.0, min(1.0, 1 - r["spectral_profile"]["bootstrap_std"]))
+            "alpha": spectral.get("estimated_alpha"),
+            "sigma": spectral.get("bootstrap_std"),
+            "claim_status": interpretation.get(
+                "claim_status",
+                "unknown"
+            ),
+            "claim_support_gate": interpretation.get(
+                "claim_support_gate",
+                False
+            ),
         }
-    except:
+
+    except Exception:
         return None
 
 def build_market_signal(signal):
     if not signal:
         return {
             "status": "no_signal",
-            "action": "hold"
-        }
-
-    if signal["confidence"] > 0.75:
-        return {
-            "status": "strong_signal",
-            "action": "publish"
-        }
-
-    if signal["confidence"] > 0.6:
-        return {
-            "status": "weak_signal",
-            "action": "probe"
+            "action": "observe",
+            "scientific_authority": False,
         }
 
     return {
-        "status": "unstable",
-        "action": "hold"
+        "status": "diagnostic_only",
+        "action": "observe",
+        "scientific_authority": False,
+        "trading_authorization": False,
+        "reason": (
+            "The canonical scientific report is diagnostic only. "
+            "No market confidence, trading signal, or execution "
+            "authorization is inferred from alpha or bootstrap sigma."
+        ),
+        "source_claim_status": signal["claim_status"],
+        "source_claim_support_gate": signal[
+            "claim_support_gate"
+        ],
     }
 
-def external_ping(payload):
-    try:
-        # Example external endpoint (replace later with real)
-        requests.post("https://httpbin.org/post", json=payload, timeout=5)
-        return True
-    except:
-        return False
-
 def main():
-    os.makedirs("public", exist_ok=True)
+    OUTPUT_FILE.parent.mkdir(
+        parents=True,
+        exist_ok=True
+    )
 
     signal = load_signal()
     decision = build_market_signal(signal)
 
     payload = {
-        "timestamp": time.time(),
         "decision": decision,
-        "signal": signal
+        "signal": signal,
+        "epistemic_policy": {
+            "scientific_report_authorizes_trading": False,
+            "bootstrap_sigma_authorizes_trading": False,
+            "alpha_authorizes_trading": False,
+            "external_market_execution_enabled": False,
+        },
     }
 
-    success = external_ping(payload)
+    OUTPUT_FILE.write_text(
+        json.dumps(
+            payload,
+            indent=2,
+            sort_keys=True
+        ) + "\n",
+        encoding="utf-8",
+    )
 
-    payload["external_contact"] = success
-
-    with open(OUTPUT_FILE, "w") as f:
-        json.dump(payload, f, indent=2)
-
-    print("Forced market collision executed.")
+    print(
+        json.dumps(
+            payload,
+            indent=2
+        )
+    )
 
 if __name__ == "__main__":
     main()
