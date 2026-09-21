@@ -1192,7 +1192,9 @@ jobs:
         run: |
           python analysis/reproducibility_stamp_guard.py
 
-      - name: Finalize deterministic artifacts
+      - name: Finalize pre-external artifacts
+        env:
+          FINALIZE_PHASE: "pre_external"
         run: |
           python analysis/finalize_artifacts.py
 
@@ -1994,6 +1996,51 @@ jobs:
 
           test -s artifacts/report.hash
 
+      - name: Final Provenance Closure
+        env:
+          FINALIZE_PHASE: "final"
+        run: |
+          set -euo pipefail
+
+          python analysis/finalize_artifacts.py
+
+          echo "=== FINAL PROVENANCE CLOSURE ==="
+
+          test -f artifacts/external_replay_verification.json
+          test -f artifacts/witness_lock.json
+          test -f artifacts/artifact_closure.json
+          test -f artifacts/release_manifest.json
+          test -f artifacts/reproducibility_stamp.json
+          test -f artifacts/temporal_sovereignty.json
+          test -f artifacts/final_state_lock.json
+
+          echo "✅ External replay present"
+          echo "✅ Witness lock sealed"
+          echo "✅ Artifact closure sealed"
+          echo "✅ Release manifest sealed"
+          echo "✅ Reproducibility stamp sealed"
+          echo "✅ Temporal sovereignty sealed"
+          echo "✅ Final state lock sealed"
+          echo "✅ FINAL PROVENANCE CLOSURE COMPLETE"
+
+      - name: Upload final provenance closure
+        uses: actions/upload-artifact@v6
+        with:
+          name: final-provenance-closure
+          path: |
+            artifacts/external_replay_verification.json
+            artifacts/witness_lock.json
+            artifacts/artifact_closure.json
+            artifacts/release_manifest.json
+            artifacts/reproducibility_stamp.json
+            artifacts/temporal_sovereignty.json
+            artifacts/final_state_lock.json
+            artifacts/report_hash_manifest.json
+            artifacts/canonical_report.lock
+            artifacts/full_replay_consistency.json
+            artifacts/internal_replay_verification.json
+          if-no-files-found: error
+
       - name: Upload canonical report
         uses: actions/upload-artifact@v6
         with:
@@ -2102,6 +2149,11 @@ jobs:
       - uses: actions/download-artifact@v6
         with:
           name: reproducibility-manifest
+          path: artifacts
+
+      - uses: actions/download-artifact@v6
+        with:
+          name: final-provenance-closure
           path: artifacts
 
       - name: Enforce Scientific Proof Contract
@@ -2494,6 +2546,34 @@ jobs:
 
             console.log("Minimal claim structure valid.");
             NODE
+
+      - name: Verify Final Provenance Closure
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          REQUIRED=(
+            "artifacts/external_replay_verification.json"
+            "artifacts/witness_lock.json"
+            "artifacts/artifact_closure.json"
+            "artifacts/release_manifest.json"
+            "artifacts/reproducibility_stamp.json"
+            "artifacts/temporal_sovereignty.json"
+            "artifacts/final_state_lock.json"
+          )
+
+          for file in "${REQUIRED[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Missing final provenance artifact: $file"
+              exit 1
+            fi
+
+            echo "✅ Present: $file"
+          done
+
+          echo "========================================"
+          echo "FINAL PROVENANCE CLOSURE: VERIFIED"
+          echo "========================================"
 
       - name: Finalize Scientific Gate
         id: final_gate
