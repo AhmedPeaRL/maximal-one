@@ -7,7 +7,11 @@ ARTIFACTS = Path("artifacts")
 CRITICAL = [
     "canonical_report.json",
     "pipeline_sovereignty.json",
+    "provenance_chain.json",
+    "environment_fingerprint.json",
     "external_replay_verification.json",
+    "adversarial_control.json",
+    "witness_lock.json",
     "release_manifest.json",
     "reproducibility_stamp.json"
 ]
@@ -22,7 +26,6 @@ snapshot = {}
 missing = []
 
 for name in CRITICAL:
-
     p = ARTIFACTS / name
 
     if not p.exists():
@@ -52,5 +55,13 @@ out.write_text(
     ) + "\n"
 )
 
-print(json.dumps(report, indent=2))
-print("✅ TEMPORAL SOVEREIGNTY HOLDS")
+print(
+    json.dumps(
+        report,
+        indent=2
+    )
+)
+
+print(
+    "✅ TEMPORAL SOVEREIGNTY HOLDS"
+)
