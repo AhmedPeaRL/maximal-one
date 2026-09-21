@@ -26,10 +26,7 @@ FINAL_STAGES = PRE_EXTERNAL_STAGES + [
     "analysis/final_state_lock.py",
 ]
 
-phase = os.getenv(
-    "FINALIZE_PHASE",
-    "pre_external",
-).strip().lower()
+phase = os.getenv("FINALIZE_PHASE", "pre_external").strip().lower()
 
 if phase == "pre_external":
     stages = PRE_EXTERNAL_STAGES
@@ -39,20 +36,11 @@ elif phase == "final":
 
 else:
     raise SystemExit(
-        "❌ Unknown FINALIZE_PHASE. "
-        "Use 'pre_external' or 'final'."
+        "❌ Unknown FINALIZE_PHASE. Use 'pre_external' or 'final'."
     )
 
 for script in stages:
-    print(
-        f"\n=== RUNNING {script} ({phase}) ===\n"
-    )
+    print(f"\n=== RUNNING {script} ({phase}) ===\n")
+    subprocess.run(["python", script], check=True)
 
-    subprocess.run(
-        ["python", script],
-        check=True,
-    )
-
-print(
-    f"\n✅ ARTIFACT FINALIZATION COMPLETE: {phase}"
-)
+print(f"\n✅ ARTIFACT FINALIZATION COMPLETE: {phase}")
