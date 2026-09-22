@@ -2047,6 +2047,7 @@ jobs:
             artifacts/environment_fingerprint.json
             artifacts/external_witness.json
             artifacts/provenance_chain.json
+            artifacts/canonical_report.lock
 
       - name: Upload canonical report
         uses: actions/upload-artifact@v6
