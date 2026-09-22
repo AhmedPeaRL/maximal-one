@@ -16,7 +16,6 @@ payload = {}
 
 for path in ARTIFACTS:
     with open(path, "rb") as f:
-
         payload[path] = hashlib.sha256(
             f.read()
         ).hexdigest()
