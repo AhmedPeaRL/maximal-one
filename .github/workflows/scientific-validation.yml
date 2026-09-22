@@ -2044,6 +2044,7 @@ jobs:
             artifacts/alpha_history.json
             artifacts/cross_dataset_scan.json
             artifacts/dataset_provenance.json
+            artifacts/environment_fingerprint.json
 
       - name: Upload canonical report
         uses: actions/upload-artifact@v6
