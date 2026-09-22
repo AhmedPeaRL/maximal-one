@@ -6,6 +6,7 @@ ARTIFACTS = Path("artifacts")
 
 EXCLUDED = {
     "artifact_closure.json",
+    "release_manifest.json",
     "temporal_sovereignty.json",
     "final_state_lock.json"
 }
@@ -13,7 +14,6 @@ EXCLUDED = {
 hashes = {}
 
 for path in sorted(ARTIFACTS.glob("*.json")):
-
     if not path.is_file():
         continue
 
