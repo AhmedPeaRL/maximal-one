@@ -2042,6 +2042,7 @@ jobs:
             artifacts/full_replay_consistency.json
             artifacts/internal_replay_verification.json
             artifacts/alpha_history.json
+            artifacts/cross_dataset_scan.json
 
       - name: Upload canonical report
         uses: actions/upload-artifact@v6
