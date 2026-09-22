@@ -2047,7 +2047,6 @@ jobs:
             artifacts/environment_fingerprint.json
             artifacts/external_witness.json
             artifacts/provenance_chain.json
-            artifacts/release_manifest.json
 
       - name: Upload canonical report
         uses: actions/upload-artifact@v6
