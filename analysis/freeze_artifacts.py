@@ -8,6 +8,7 @@ EXCLUDED = {
     "artifact_closure.json",
     "release_manifest.json",
     "temporal_sovereignty.json",
+    "reproducibility_stamp.json",
     "final_state_lock.json"
 }
 
