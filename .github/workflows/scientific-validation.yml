@@ -2131,6 +2131,13 @@ jobs:
           echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
           echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
           echo "NUMEXPR_NUM_THREADS=1" >> $GITHUB_ENV
+
+      - name: Install locked Python dependencies for final provenance verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-lock.txt
           
       - uses: actions/download-artifact@v6
         with:
