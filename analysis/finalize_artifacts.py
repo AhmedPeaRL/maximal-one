@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import os
 import subprocess
 
@@ -17,20 +16,36 @@ PRE_EXTERNAL_STAGES = [
 ]
 
 FINAL_STAGES = PRE_EXTERNAL_STAGES + [
-    "analysis/witness_lock.py",
+    # The final canonical report is already sealed by the workflow
+    # before FINALIZE_PHASE=final begins.
 
-    # The reproducibility stamp must be finalized
-    # BEFORE the release manifest hashes artifacts.
+    # Rebuild the reproducibility manifest AFTER the final
+    # canonical_report.json bytes are fixed.
+    "analysis/build_reproducibility_manifest.py",
+
+    # The reproducibility stamp must also be generated from the
+    # same final canonical report bytes before release sealing.
     "analysis/reproducibility_stamp_guard.py",
 
+    # Bind the authoritative witness only after all upstream
+    # scientific/reproducibility artifacts are final.
+    "analysis/witness_lock.py",
+
+    # Freeze the final scientific artifact set.
     "analysis/freeze_artifacts.py",
 
-    # The release manifest is built only after every
-    # artifact included in it has reached its final bytes.
+    # Build the release manifest only after every artifact that
+    # belongs to that manifest has reached final bytes.
     "analysis/release_manifest_builder.py",
+
+    # Verify that no artifact included in the release manifest
+    # changed after sealing.
     "analysis/release_manifest_guard.py",
 
+    # These artifacts are generated after release-manifest sealing
+    # and therefore are intentionally outside that manifest.
     "analysis/temporal_sovereignty_guard.py",
+
     "analysis/final_state_lock.py",
 ]
 
