@@ -1221,7 +1221,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "update deterministic artifacts"
+          git commit -m "update deterministic artifacts [skip ci]"
 
           for i in 1 2 3
           do
@@ -2027,19 +2027,20 @@ jobs:
         with:
           name: final-provenance-closure
           path: |
+            artifacts/canonical_report.json
+            artifacts/report.hash
+            artifacts/report_hash_manifest.json
             artifacts/external_replay_verification.json
             artifacts/adversarial_control.json
+            artifacts/reproducibility_manifest.json
             artifacts/witness_lock.json
             artifacts/artifact_closure.json
             artifacts/release_manifest.json
             artifacts/reproducibility_stamp.json
             artifacts/temporal_sovereignty.json
             artifacts/final_state_lock.json
-            artifacts/report_hash_manifest.json
-            artifacts/canonical_report.lock
             artifacts/full_replay_consistency.json
             artifacts/internal_replay_verification.json
-          if-no-files-found: error
 
       - name: Upload canonical report
         uses: actions/upload-artifact@v6
@@ -2171,6 +2172,15 @@ jobs:
           test -f artifacts/final_state_lock.json
 
           echo "✅ Final provenance evidence inputs are present"
+
+      - name: Verify final provenance closure cryptographically
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python analysis/verify_final_provenance_closure.py
+
+          echo "✅ FINAL PROVENANCE CLOSURE CRYPTOGRAPHICALLY VERIFIED"
 
       - name: Enforce Scientific Proof Contract
         shell: bash
@@ -3654,6 +3664,30 @@ jobs:
     - name: External Reproduction (non-blocking)
       run: python analysis/external_reproduction.py || echo "External reproduction degraded"
 
+    - name: Download final provenance closure
+      if: >
+        success() &&
+        github.event_name != 'pull_request'
+      uses: actions/download-artifact@v6
+      with:
+        name: final-provenance-closure
+        path: artifacts/final_provenance_closure
+
+    - name: Verify downloaded final provenance closure
+      if: >
+        success() &&
+        github.event_name != 'pull_request'
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        test -f artifacts/final_provenance_closure/final_state_lock.json
+        test -f artifacts/final_provenance_closure/witness_lock.json
+        test -f artifacts/final_provenance_closure/external_replay_verification.json
+        test -f artifacts/final_provenance_closure/adversarial_control.json
+
+        echo "✅ Final provenance closure downloaded"
+
     - name: Persist authoritative verification artifacts
       if: >
           success() &&
@@ -3764,6 +3798,17 @@ jobs:
 
             mkdir -p data/verification
 
+            echo "=== PERSIST FINAL PROVENANCE CLOSURE ==="
+
+            mkdir -p \
+              data/verification/final_provenance_closure
+
+            cp -a \
+              artifacts/final_provenance_closure/. \
+              data/verification/final_provenance_closure/
+
+            echo "Final provenance closure persisted."
+
             for source in "${ALLOWLIST[@]}"; do
               if [ -f "$STAGING_DIR/$source" ]; then
                 cp \
@@ -3817,6 +3862,7 @@ jobs:
               )
           PY
 
+            git add data/verification/final_provenance_closure
             git add data/verification
 
             if git diff --cached --quiet; then
