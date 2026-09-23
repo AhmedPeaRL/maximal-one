@@ -1057,11 +1057,11 @@ def main():
                 # The artifact is not trusted unless it explicitly
                 # declares the required independent method.
 
-                if (
-                    verification_method
-                    !=
-                    "independent_clean_environment_rerun"
-                ):
+                VALID_REPLAY_METHODS = {
+                    "fresh_git_clone_exact_commit_clean_input_rebuild",
+                }
+
+                if verification_method not in VALID_REPLAY_METHODS:
                     external_replay_verified = False
                     fingerprint_match = False
 
