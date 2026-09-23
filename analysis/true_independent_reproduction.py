@@ -247,10 +247,12 @@ def compare():
                 cwd=external_repo,
                 check=True,
             )
-        else:
-            print(
-                "⚠️ GITHUB_SHA unavailable; "
-                "using cloned repository HEAD."
+            
+        if not target:
+            raise RuntimeError(
+                "GITHUB_SHA is required for independent "
+                "reproduction. Refusing to reproduce an "
+                "unspecified repository state."
             )
 
         external_raw = run_pipeline(
@@ -381,7 +383,28 @@ def compare():
                 ),
 
             "scientific_role":
-                "independent_reproducibility_gate",
+                "independent_clean_checkout_reproducibility_gate",
+
+            "reproduction_scope":
+                "fresh_public_repository_checkout_same_runner",
+
+            "independent_code_checkout":
+                True,
+
+            "independent_execution_environment":
+                False,
+
+            "external_laboratory_replication":
+                False,
+
+            "verification_method":
+                "fresh_git_clone_exact_commit_clean_input_rebuild",
+
+            "source_commit":
+                target,
+
+            "runner_independence":
+                "same_workflow_runner",
 
             "canonical_input_preparation":
                 "scripts/prepare_canonical_inputs.py",
