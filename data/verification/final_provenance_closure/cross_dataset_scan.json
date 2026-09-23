@@ -1,35 +1,31 @@
 [
   {
-    "alpha": 2.59490616,
-    "dataset": "real-data/co2_atmospheric.csv"
+    "alpha": 1.15978022,
+    "dataset": "real-data/cosmic_rays.csv"
   },
   {
-    "alpha": NaN,
-    "dataset": "real-data/white_noise.csv"
+    "alpha": 1.34609028,
+    "dataset": "real-data/solar_wind_speed_clean.csv"
   },
   {
     "alpha": NaN,
     "dataset": "real-data/random_walk.csv"
   },
   {
-    "alpha": 1.34609028,
-    "dataset": "real-data/solar_wind_speed.csv"
+    "alpha": 0.28380746,
+    "dataset": "real-data/shuffled_sunspots.csv"
+  },
+  {
+    "alpha": NaN,
+    "dataset": "real-data/white_noise.csv"
   },
   {
     "alpha": 0.34061937,
     "dataset": "real-data/earthquake_magnitude_clean.csv"
   },
   {
-    "alpha": 1.15978022,
-    "dataset": "real-data/cosmic_rays.csv"
-  },
-  {
     "alpha": 2.59490616,
     "dataset": "real-data/co2_atmospheric_clean.csv"
-  },
-  {
-    "alpha": 0.28380746,
-    "dataset": "real-data/shuffled_sunspots.csv"
   },
   {
     "alpha": 0.32279338,
@@ -37,10 +33,14 @@
   },
   {
     "alpha": 1.34609028,
-    "dataset": "real-data/solar_wind_speed_clean.csv"
+    "dataset": "real-data/solar_wind_speed.csv"
   },
   {
     "alpha": 1.15978022,
     "dataset": "real-data/cosmic_rays_clean.csv"
+  },
+  {
+    "alpha": 2.59490616,
+    "dataset": "real-data/co2_atmospheric.csv"
   }
 ]
