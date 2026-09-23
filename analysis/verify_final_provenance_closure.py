@@ -158,8 +158,12 @@ def verify_external_replay() -> None:
 
     require(
         replay.get("scientific_role")
-        == "independent_reproducibility_gate",
-        "external replay role is invalid",
+        ==
+        "independent_clean_checkout_reproducibility_gate",
+        (
+            "replay role is not the required "
+            "independent clean-checkout reproducibility role"
+        ),
     )
 
 def verify_adversarial_control() -> None:
@@ -503,10 +507,10 @@ def main() -> None:
         "Canonical report integrity: VERIFIED"
     )
     print(
-        "Independent replay: VERIFIED"
+        "Independent clean-checkout reproduction: VERIFIED"
     )
     print(
-        "Fingerprint equality: VERIFIED"
+        "Independent clean-checkout fingerprint equality: VERIFIED"
     )
     print(
         "Adversarial control: VERIFIED"
