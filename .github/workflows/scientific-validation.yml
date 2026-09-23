@@ -4002,27 +4002,41 @@ jobs:
           git remote remove origin || true
           git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
         
-      - name: Pre-sweep sanity check (self-healing)
+      - name: Require scientific state
+        shell: bash
         run: |
-          if [ ! -f data/latest_state.json ]; then
-            echo "⚠️ Missing state → generating fallback"
+          set -euo pipefail
 
-            mkdir -p data
-
-            echo '{
-              "timestamp": 0,
-              "status": "fallback",
-              "coherence": 0
-             }' > data/latest_state.json
-           fi
-
-      - name: Run multi-seed sweep
-        run: |
-          if [ ! -d experiments ]; then
-            echo "experiments folder missing → creating fallback"
-            mkdir -p experiments
+          if [ ! -s data/latest_state.json ]; then
+            echo "❌ Required scientific state is missing."
+            echo "❌ No fallback state may be generated in validation."
+            exit 1
           fi
 
+          echo "✅ Required scientific state exists."
+
+      - name: Require experiment suite
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test -d experiments
+          test -f experiments/multi_seed_sweep.py
+          test -f experiments/power_analysis.py
+          test -f experiments/fbm_comparison.py
+          test -f experiments/model_comparison.py
+          test -f experiments/hurst_dfa.py
+          test -f experiments/multi_seed_lorenz96.py
+          test -f experiments/null_ensemble.py
+          test -f experiments/effect_size.py
+          test -f experiments/lyapunov_estimation.py
+
+          echo "✅ Required experiment suite exists."
+
+      - name: Run multi-seed sweep
+        shell: bash
+        run: |
+          set -euo pipefail
           cd experiments
           python multi_seed_sweep.py
 
@@ -4034,93 +4048,78 @@ jobs:
           fi
 
       - name: Run power analysis
+        shell: bash
         run: |
-          if [ ! -d experiments ]; then
-            echo "experiments folder missing → creating fallback"
-            mkdir -p experiments
-          fi
+          set -euo pipefail
 
           cd experiments
           mkdir -p ../data
           python power_analysis.py > ../data/power_result.txt
 
       - name: Run FBM comparison
+        shell: bash
         run: |
-          if [ ! -d experiments ]; then
-            echo "experiments folder missing → creating fallback"
-            mkdir -p experiments
-          fi
+          set -euo pipefail
 
           cd experiments
           mkdir -p ../data
           python fbm_comparison.py > ../data/fbm_comparison.txt
 
       - name: Run Bayesian model comparison
+        shell: bash
         run: |
-          if [ ! -d experiments ]; then
-            echo "experiments folder missing → creating fallback"
-            mkdir -p experiments
-          fi
+          set -euo pipefail
 
           cd experiments
           mkdir -p ../data
           python model_comparison.py > ../data/model_comparison.txt
 
       - name: Run Hurst & Multi-Seed Lorenz96 analysis
+        shell: bash
         run: |
-          if [ ! -d experiments ]; then
-            echo "experiments folder missing → creating fallback"
-            mkdir -p experiments
-          fi
+          set -euo pipefail
 
           cd experiments
           mkdir -p ../data
           python hurst_dfa.py > ../data/hurst.txt
           python multi_seed_lorenz96.py > ../data/multi_seed_lorenz96.txt
-
+          
       - name: Run Null Ensemble Test
+        shell: bash
         run: |
-          if [ ! -d experiments ]; then
-            echo "experiments folder missing → creating fallback"
-            mkdir -p experiments
-          fi
+          set -euo pipefail
 
           cd experiments
           mkdir -p ../data
           python null_ensemble.py > ../data/null_test.txt
-
+        
       - name: Update Power Badge
+        shell: bash
         run: |
-          if [ ! -d experiments ]; then
-            echo "experiments folder missing → creating fallback"
-            mkdir -p experiments
-          fi
+          set -euo pipefail
 
           cd experiments
+          mkdir -p ../data
           python update_badge.py
-
+          
       - name: Compute Effect Size
+        shell: bash
         run: |
-          if [ ! -d experiments ]; then
-            echo "experiments folder missing → creating fallback"
-            mkdir -p experiments
-          fi
+          set -euo pipefail
 
           cd experiments
           mkdir -p ../data
           python effect_size.py > ../data/effect_size.txt
 
       - name: Run Lyapunov Analysis
+        shell: bash
         run: |
-          if [ ! -d experiments ]; then
-            echo "experiments folder missing → creating fallback"
-            mkdir -p experiments
-          fi
+          set -euo pipefail
 
           cd experiments
           mkdir -p ../data
           python lyapunov_estimation.py > ../data/lyapunov.txt
-
+          
       - name: Strict Lyapunov Scan
         run: |
           python analysis/lyapunov_strict_scan.py
