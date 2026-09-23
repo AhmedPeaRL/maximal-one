@@ -2077,6 +2077,13 @@ jobs:
       - name: Independent verification layer
         run: python analysis/independent_verifier.py
 
+      - name: Upload independent verification artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: independent-verification
+          path: public/independent_verification.json
+          if-no-files-found: error
+
       - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: pip-freeze
@@ -2170,6 +2177,11 @@ jobs:
         with:
           name: final-provenance-closure
           path: artifacts
+
+      - uses: actions/download-artifact@v6
+        with:
+          name: independent-verification
+          path: public
 
       - name: Verify final provenance evidence inputs
         shell: bash
@@ -2593,9 +2605,14 @@ jobs:
         run: |
           set -euo pipefail
 
-          test -f artifacts/canonical_report.json
-          test -f artifacts/report.hash
-          test -f public/independent_verification.json
+          test -s artifacts/canonical_report.json
+          test -s artifacts/report.hash
+          test -s public/independent_verification.json
+
+          echo "=== INDEPENDENT VERIFICATION ARTIFACT ==="
+          cat public/independent_verification.json
+          echo
+          echo "=== END INDEPENDENT VERIFICATION ARTIFACT ==="
 
           python - <<'PY'
           import json
@@ -3736,6 +3753,7 @@ jobs:
             "artifacts/external_replay_verification.json"
             "artifacts/adversarial_control.json"
             "artifacts/dataset_provenance.json"
+            "public/independent_verification.json"
           )
 
           FOUND_ARTIFACT=false
@@ -3825,16 +3843,94 @@ jobs:
 
             for source in "${ALLOWLIST[@]}"; do
               if [ -f "$STAGING_DIR/$source" ]; then
-                cp \
-                  "$STAGING_DIR/$source" \
-                  "data/verification/$(basename "$source")"
 
-                echo "Persisting: $source"
+                case "$source" in
+
+                  public/independent_verification.json)
+                    mkdir -p public
+
+                    cp \
+                      "$STAGING_DIR/$source" \
+                      "public/independent_verification.json"
+
+                    echo "Persisting public verification surface: $source"
+                    ;;
+
+                  *)
+                    cp \
+                      "$STAGING_DIR/$source" \
+                      "data/verification/$(basename "$source")"
+
+                    echo "Persisting verification artifact: $source"
+                    ;;
+
+                esac
+
               fi
             done
 
-            echo "=== WRITE PERSISTENCE PROVENANCE ==="
+            echo "=== VERIFY AUTHORITATIVE PUBLIC VERIFICATION ==="
 
+            test -s public/independent_verification.json
+
+            python - <<'PY'
+            import json
+            from pathlib import Path
+
+            path = Path("public/independent_verification.json")
+
+            data = json.loads(
+                path.read_text(encoding="utf-8")
+            )
+
+            required = [
+                "integrity",
+                "strict_contract",
+                "adaptive_thresholds",
+                "scientific_claim_decision",
+            ]
+
+            missing = [
+                key
+                for key in required
+                if key not in data
+            ]
+
+            if missing:
+                raise SystemExit(
+                    "❌ Public independent verification is incomplete: "
+                    + ", ".join(missing)
+                )
+
+            print(
+                "✅ Public independent verification artifact "
+                "is structurally valid."
+            )
+
+            print(
+                "Evidence completion:",
+                data["strict_contract"].get(
+                    "evidence_completion_passed"
+                )
+            )
+
+            print(
+                "Support ready:",
+                data["strict_contract"].get(
+                    "support_ready"
+                )
+            )
+
+            print(
+                "Claim promotion:",
+                data["scientific_claim_decision"].get(
+                    "made_here"
+                )
+            )
+            PY
+
+            echo "=== WRITE PERSISTENCE PROVENANCE ==="
+            
             python - <<'PY'
           import json
           import os
@@ -3878,6 +3974,7 @@ jobs:
 
             git add data/verification/final_provenance_closure
             git add data/verification
+            git add public/independent_verification.json
 
             if git diff --cached --quiet; then
               echo "No authoritative persistence changes."
