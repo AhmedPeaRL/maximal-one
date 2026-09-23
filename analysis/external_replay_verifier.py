@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import hashlib
 import json
 import platform
@@ -32,7 +33,7 @@ def sha256_file(path: Path) -> str:
             b"",
         ):
             h.update(chunk)
-            
+
     return h.hexdigest()
 
 def main():
@@ -44,16 +45,7 @@ def main():
     before = load(ARTIFACT)
 
     original_alpha = float(
-        before[
-            "spectral_profile"
-        ][
-            "estimated_alpha"
-        ]
-    )
-
-    print(
-        "Original canonical alpha:",
-        original_alpha
+        before["spectral_profile"]["estimated_alpha"]
     )
 
     tmpdir = Path(
@@ -77,8 +69,7 @@ def main():
         )
 
         reproduced_path = (
-            tmpdir
-            / "canonical_report.json"
+            tmpdir / "canonical_report.json"
         )
 
         if not reproduced_path.exists():
@@ -91,25 +82,19 @@ def main():
         )
 
         reproduced_alpha = float(
-            reproduced[
-                "spectral_profile"
-            ][
-                "estimated_alpha"
-            ]
+            reproduced["spectral_profile"]["estimated_alpha"]
         )
 
         delta = abs(
-            original_alpha
-            -
-            reproduced_alpha
+            original_alpha - reproduced_alpha
         )
 
-        original_hash = (
-            sha256_file(ARTIFACT)
+        original_hash = sha256_file(
+            ARTIFACT
         )
 
-        reproduced_hash = (
-            sha256_file(reproduced_path)
+        reproduced_hash = sha256_file(
+            reproduced_path
         )
 
         report = {
@@ -120,6 +105,9 @@ def main():
                 False,
 
             "fingerprint_match":
+                False,
+
+            "structure_match":
                 False,
 
             "original_alpha":
@@ -140,6 +128,7 @@ def main():
             "environment": {
                 "python":
                     platform.python_version(),
+
                 "platform":
                     platform.platform(),
             },
@@ -150,41 +139,35 @@ def main():
             "scientific_role":
                 "diagnostic_only",
 
+            "status":
+                "verified"
+                if delta <= 1e-8
+                else "failed",
+
             "interpretation":
                 (
-                    "This rerun verifies deterministic "
-                    "repeatability within the current "
-                    "execution environment. It does not "
-                    "constitute independent external "
-                    "reproducibility."
+                    "This artifact verifies repeatability "
+                    "within the current execution environment. "
+                    "It is not an independent clean-checkout "
+                    "reproduction and is not external replication."
                 ),
         }
 
         OUTPUT.parent.mkdir(
             parents=True,
-            exist_ok=True
+            exist_ok=True,
         )
 
         with OUTPUT.open(
             "w",
-            encoding="utf-8"
+            encoding="utf-8",
         ) as f:
             json.dump(
                 report,
                 f,
                 indent=2,
-                sort_keys=True
+                sort_keys=True,
             )
-
-        print(
-            "Internal rerun alpha:",
-            reproduced_alpha
-        )
-
-        print(
-            "Internal rerun delta:",
-            delta
-        )
 
         if delta > 1e-8:
             raise SystemExit(
@@ -196,13 +179,14 @@ def main():
         )
 
         print(
-            "ℹ️ This is not an independent external replay."
+            "ℹ️ Diagnostic only: "
+            "not an independent clean-checkout reproduction."
         )
 
     finally:
         shutil.rmtree(
             tmpdir,
-            ignore_errors=True
+            ignore_errors=True,
         )
 
 if __name__ == "__main__":
