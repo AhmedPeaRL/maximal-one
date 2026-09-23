@@ -65,18 +65,24 @@ def verify_report_integrity() -> dict:
 
 def read_external_replay_status(report: dict) -> dict:
     """
-    Read independent reproducibility evidence from the
-    dedicated external attestation artifact.
-
-    The canonical report is intentionally generated before
-    the external replay artifact exists.
-    Therefore the report
-    must NOT be used as the authoritative source for this
-    evidence-completion layer.
-
-    The canonical report remains the immutable measurement
-    snapshot; the external replay artifact is the independent
+    Read the canonical independent clean-checkout
     reproducibility attestation.
+
+    This artifact proves only:
+      - fresh public repository checkout
+      - exact workflow commit
+      - canonical input reconstruction
+      - independent canonical rerun
+      - normalized full-report comparison
+      - fingerprint equality
+
+    It does NOT prove:
+      - external laboratory replication
+      - independent execution environment
+      - mechanism
+      - universality
+      - HCM causation
+      - scientific claim promotion
     """
 
     path = Path(
@@ -88,11 +94,12 @@ def read_external_replay_status(report: dict) -> dict:
             "available": False,
             "independent_rerun_verified": False,
             "fingerprint_verified": False,
-            "verification_method":
-                None,
+            "structure_match": False,
+            "verification_method": None,
+            "scientific_role": None,
             "status": "not_available",
-            "source":
-                "artifacts/external_replay_verification.json",
+            "available_and_verified": False,
+            "source": str(path),
         }
 
     try:
@@ -122,16 +129,12 @@ def read_external_replay_status(report: dict) -> dict:
             is True
         )
 
-        verification_method = (
-            data.get(
-                "comparison_method"
-            )
+        verification_method = data.get(
+            "comparison_method"
         )
 
-        scientific_role = (
-            data.get(
-                "scientific_role"
-            )
+        scientific_role = data.get(
+            "scientific_role"
         )
 
         valid_method = (
@@ -143,7 +146,7 @@ def read_external_replay_status(report: dict) -> dict:
         valid_role = (
             scientific_role
             ==
-            "independent_reproducibility_gate"
+            "independent_clean_checkout_reproducibility_gate"
         )
 
         verified = bool(
@@ -157,43 +160,37 @@ def read_external_replay_status(report: dict) -> dict:
 
         return {
             "available": True,
-            "independent_rerun_verified":
-                bool(
-                    independent_rerun_verified
-                    and
-                    structure_match
-                    and
-                    valid_method
-                    and
-                    valid_role
-                    and
-                    data.get("status") == "verified"
-                ),
-            "fingerprint_verified":
-                bool(
-                    fingerprint_verified
-                    and
-                    structure_match
-                    and
-                    valid_method
-                    and
-                    valid_role
-                    and
-                    data.get("status") == "verified"
-                ),
-            "structure_match":
-                structure_match,
+
+            "independent_rerun_verified": bool(
+                independent_rerun_verified
+                and structure_match
+                and valid_method
+                and valid_role
+                and data.get("status") == "verified"
+            ),
+
+            "fingerprint_verified": bool(
+                fingerprint_verified
+                and structure_match
+                and valid_method
+                and valid_role
+                and data.get("status") == "verified"
+            ),
+
+            "structure_match": structure_match,
+
             "verification_method":
                 verification_method,
+
             "scientific_role":
                 scientific_role,
+
             "status":
-                data.get(
-                    "status",
-                    "unknown",
-                ),
+                data.get("status", "unknown"),
+
             "available_and_verified":
                 verified,
+
             "source":
                 str(path),
         }
@@ -210,7 +207,7 @@ def read_external_replay_status(report: dict) -> dict:
             "available_and_verified": False,
             "source": str(path),
             "error": str(exc),
-        }
+        }        
 
 def read_adversarial_status() -> dict:
     path = Path("artifacts/adversarial_control.json")
