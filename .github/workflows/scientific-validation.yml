@@ -3781,6 +3781,186 @@ jobs:
 
         echo "✅ Final provenance closure downloaded"
 
+    - name: Download authoritative independent verification
+      if: >
+        success() &&
+        github.event_name != 'pull_request'
+      uses: actions/download-artifact@v6
+      with:
+        name: independent-verification
+        path: public
+
+    - name: Verify authoritative workflow artifacts
+      if: >
+        success() &&
+        github.event_name != 'pull_request'
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        echo "=== VERIFY AUTHORITATIVE WORKFLOW ARTIFACTS ==="
+
+        test -s artifacts/final_provenance_closure/canonical_report.json
+        test -s artifacts/final_provenance_closure/report.hash
+        test -s artifacts/final_provenance_closure/external_replay_verification.json
+        test -s artifacts/final_provenance_closure/adversarial_control.json
+        test -s artifacts/final_provenance_closure/dataset_provenance.json
+        test -s public/independent_verification.json
+
+        echo "Canonical report:"
+        ls -lh artifacts/final_provenance_closure/canonical_report.json
+
+        echo "Report hash:"
+        cat artifacts/final_provenance_closure/report.hash
+
+        echo
+        echo "External replay:"
+        python - <<'PY'
+        import json
+        from pathlib import Path
+
+        path = Path(
+            "artifacts/final_provenance_closure/"
+            "external_replay_verification.json"
+        )
+
+        data = json.loads(
+            path.read_text(encoding="utf-8")
+        )
+
+        required = [
+            "independent_replay_verified",
+            "fingerprint_match",
+            "structure_match",
+            "status",
+            "source_commit",
+        ]
+
+        missing = [
+            key
+            for key in required
+            if key not in data
+        ]
+
+        if missing:
+            raise SystemExit(
+                "❌ External replay artifact missing: "
+                + ", ".join(missing)
+            )
+
+        if data["source_commit"] != "${{ github.sha }}":
+            raise SystemExit(
+                "❌ External replay source commit does not "
+                "match workflow source commit"
+            )
+
+        if data["independent_replay_verified"] is not True:
+            raise SystemExit(
+                "❌ External replay is not verified"
+            )
+
+        if data["fingerprint_match"] is not True:
+            raise SystemExit(
+                "❌ External replay fingerprint does not match"
+            )
+
+        if data["structure_match"] is not True:
+            raise SystemExit(
+                "❌ External replay structure does not match"
+            )
+
+        if data["status"] != "verified":
+            raise SystemExit(
+                "❌ External replay status is not verified"
+            )
+
+        print(
+            "✅ Authoritative external replay artifact verified"
+        )
+        print(
+            "Source commit:",
+            data["source_commit"]
+        )
+        print(
+            "Independent replay:",
+            data["independent_replay_verified"]
+        )
+        print(
+            "Fingerprint match:",
+            data["fingerprint_match"]
+        )
+        print(
+            "Structure match:",
+            data["structure_match"]
+        )
+        PY
+
+        echo
+        echo "Public independent verification:"
+        python - <<'PY'
+        import json
+        from pathlib import Path
+
+        path = Path(
+            "public/independent_verification.json"
+        )
+
+        data = json.loads(
+            path.read_text(encoding="utf-8")
+        )
+
+        required = [
+            "integrity",
+            "strict_contract",
+            "adaptive_thresholds",
+            "scientific_claim_decision",
+        ]
+
+        missing = [
+            key
+            for key in required
+            if key not in data
+        ]
+
+        if missing:
+            raise SystemExit(
+                "❌ Public verification missing: "
+                + ", ".join(missing)
+            )
+
+        if data["integrity"]["passed"] is not True:
+            raise SystemExit(
+                "❌ Public verification integrity failed"
+            )
+
+        print(
+            "✅ Public independent verification artifact verified"
+        )
+
+        print(
+            "Evidence completion:",
+            data["strict_contract"].get(
+                "evidence_completion_passed"
+            )
+        )
+
+        print(
+            "Support ready:",
+            data["strict_contract"].get(
+                "support_ready"
+            )
+        )
+
+        print(
+            "Claim promotion:",
+            data["scientific_claim_decision"].get(
+                "made_here"
+            )
+        )
+        PY
+
+        echo "=== AUTHORITATIVE WORKFLOW ARTIFACTS VERIFIED ==="
+
     - name: Persist authoritative verification artifacts
       if: >
           success() &&
@@ -3810,11 +3990,11 @@ jobs:
           STAGING_DIR="$(mktemp -d)"
 
           ALLOWLIST=(
-            "artifacts/canonical_report.json"
-            "artifacts/report.hash"
-            "artifacts/external_replay_verification.json"
-            "artifacts/adversarial_control.json"
-            "artifacts/dataset_provenance.json"
+            "artifacts/final_provenance_closure/canonical_report.json"
+            "artifacts/final_provenance_closure/report.hash"
+            "artifacts/final_provenance_closure/external_replay_verification.json"
+            "artifacts/final_provenance_closure/adversarial_control.json"
+            "artifacts/final_provenance_closure/dataset_provenance.json"
             "public/independent_verification.json"
           )
 
@@ -3829,10 +4009,11 @@ jobs:
                 "$source" \
                 "$STAGING_DIR/$source"
 
-              echo "Staged: $source"
+              echo "Staged authoritative artifact: $source"
               FOUND_ARTIFACT=true
             else
-              echo "Not present: $source"
+              echo "❌ Authoritative artifact missing: $source"
+              exit 1
             fi
           done
 
@@ -3843,14 +4024,60 @@ jobs:
 
           REPORT_HASH=""
 
-          if [ -f "$STAGING_DIR/artifacts/report.hash" ]; then
+          if [
+            -f
+            "$STAGING_DIR/artifacts/final_provenance_closure/report.hash"
+          ]; then
             REPORT_HASH="$(
-              cat "$STAGING_DIR/artifacts/report.hash"
+              cat \
+                "$STAGING_DIR/artifacts/final_provenance_closure/report.hash"
             )"
+          fi
+
+          if [ -z "$REPORT_HASH" ]; then
+            echo "❌ Authoritative report hash is missing."
+            exit 1
           fi
 
           export SOURCE_SHA
           export REPORT_HASH
+
+          echo "=== VERIFY CANONICAL REPORT HASH ==="
+
+          CALCULATED_REPORT_HASH="$(
+            sha256sum \
+              "$STAGING_DIR/artifacts/final_provenance_closure/canonical_report.json" \
+              | cut -d " " -f1
+          )"
+
+          if [
+            "$CALCULATED_REPORT_HASH"
+            !=
+            "$REPORT_HASH"
+          ]; then
+            echo "❌ Canonical report hash mismatch."
+            echo "Stored:"
+            echo "$REPORT_HASH"
+            echo "Calculated:"
+            echo "$CALCULATED_REPORT_HASH"
+            exit 1
+          fi
+
+          echo "✅ Canonical report hash verified."
+
+          export REPORT_HASH
+
+          echo "=== REMOVE STALE WORKSPACE ARTIFACTS ==="
+
+          rm -f \
+            artifacts/canonical_report.json \
+            artifacts/report.hash \
+            artifacts/external_replay_verification.json \
+            artifacts/adversarial_control.json \
+            artifacts/dataset_provenance.json \
+            public/independent_verification.json
+
+          echo "Stale workspace copies removed."
 
           echo "=== AUTHORITATIVE PERSISTENCE LOOP ==="
 
@@ -3904,31 +4131,36 @@ jobs:
             echo "Final provenance closure persisted."
 
             for source in "${ALLOWLIST[@]}"; do
-              if [ -f "$STAGING_DIR/$source" ]; then
 
-                case "$source" in
-
-                  public/independent_verification.json)
-                    mkdir -p public
-
-                    cp \
-                      "$STAGING_DIR/$source" \
-                      "public/independent_verification.json"
-
-                    echo "Persisting public verification surface: $source"
-                    ;;
-
-                  *)
-                    cp \
-                      "$STAGING_DIR/$source" \
-                      "data/verification/$(basename "$source")"
-
-                    echo "Persisting verification artifact: $source"
-                    ;;
-
-                esac
-
+              if [ ! -f "$STAGING_DIR/$source" ]; then
+                echo "❌ Staged authoritative artifact disappeared: $source"
+                exit 1
               fi
+
+              case "$source" in
+
+                public/independent_verification.json)
+                  mkdir -p public
+
+                  cp \
+                    "$STAGING_DIR/$source" \
+                    "public/independent_verification.json"
+
+                  echo \
+                    "Persisting public verification surface: $source"
+                  ;;
+
+                *)
+                  cp \
+                    "$STAGING_DIR/$source" \
+                    "data/verification/$(basename "$source")"
+
+                  echo \
+                    "Persisting verification artifact: $source"
+                  ;;
+
+              esac
+
             done
 
             echo "=== VERIFY AUTHORITATIVE PUBLIC VERIFICATION ==="
@@ -4033,6 +4265,139 @@ jobs:
                   sort_keys=True
               )
           PY
+
+            echo "=== FINAL AUTHORITATIVE PERSISTENCE CHECK ==="
+
+            test -s \
+              data/verification/canonical_report.json
+
+            test -s \
+              data/verification/report.hash
+
+            test -s \
+              data/verification/external_replay_verification.json
+
+            test -s \
+              data/verification/adversarial_control.json
+
+            test -s \
+              data/verification/dataset_provenance.json
+
+            test -s \
+              public/independent_verification.json
+
+            python - <<'PY'
+            import hashlib
+            import json
+            from pathlib import Path
+
+            report_path = Path(
+                "data/verification/canonical_report.json"
+            )
+
+            hash_path = Path(
+                "data/verification/report.hash"
+            )
+
+            replay_path = Path(
+                "data/verification/"
+                "external_replay_verification.json"
+            )
+
+            verification_path = Path(
+                "public/independent_verification.json"
+            )
+
+            calculated = hashlib.sha256(
+                report_path.read_bytes()
+            ).hexdigest()
+
+            stored = hash_path.read_text(
+                encoding="utf-8"
+            ).strip()
+
+            if calculated != stored:
+                raise SystemExit(
+                    "❌ Persisted canonical report hash mismatch"
+                )
+
+            replay = json.loads(
+                replay_path.read_text(
+                    encoding="utf-8"
+                )
+            )
+
+            if replay["source_commit"] != "${{ github.sha }}":
+                raise SystemExit(
+                    "❌ Persisted replay source commit mismatch"
+                )
+
+            if replay["independent_replay_verified"] is not True:
+                raise SystemExit(
+                    "❌ Persisted replay verification is not true"
+                )
+
+            if replay["fingerprint_match"] is not True:
+                raise SystemExit(
+                    "❌ Persisted replay fingerprint is not true"
+                )
+
+            verification = json.loads(
+                verification_path.read_text(
+                    encoding="utf-8"
+                )
+            )
+
+            if verification["integrity"]["passed"] is not True:
+                raise SystemExit(
+                    "❌ Persisted public verification integrity failed"
+                )
+
+            print(
+                "========================================"
+            )
+            print(
+                "AUTHORITATIVE PERSISTENCE CHECK: PASS"
+            )
+            print(
+                "========================================"
+            )
+
+            print(
+                "Canonical report hash: VERIFIED"
+            )
+
+            print(
+                "Replay source commit:",
+                replay["source_commit"]
+            )
+
+            print(
+                "Independent replay: VERIFIED"
+            )
+
+            print(
+                "Fingerprint: MATCH"
+            )
+
+            print(
+                "Public verification integrity: VERIFIED"
+            )
+
+            print(
+                "Evidence completion:",
+                verification["strict_contract"].get(
+                    "evidence_completion_passed"
+                )
+            )
+
+            print(
+                "Scientific claim status:",
+                verification["scientific_claim_decision"].get(
+                    "status"
+                )
+            )
+            PY
 
             git add data/verification/final_provenance_closure
             git add data/verification
