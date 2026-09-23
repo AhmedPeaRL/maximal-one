@@ -1,0 +1,66 @@
+{
+  "protocol_id": "HCM-SPH-CONFIRMATORY-V1",
+  "version": "1.0",
+  "status": "future_confirmatory_protocol",
+  "effective_for_new_runs_only": true,
+
+  "hypothesis": {
+    "name": "Constrained Spectral Persistence Hypothesis",
+    "primary_question": "Does the predefined primary real-world time series exhibit a spectral persistence statistic distinguishable from the predefined stochastic null under the predefined estimator and frequency band?"
+  },
+
+  "primary_dataset": {
+    "path": "real-data/sunspots_global_extended.csv",
+    "selection_rule": "fixed_before_confirmatory_run",
+    "replacement_after_results": false
+  },
+
+  "primary_endpoint": {
+    "name": "canonical_primary_alpha",
+    "estimator": "Welch_PSD",
+    "frequency_band": [
+      0.01,
+      0.05
+    ],
+    "direction": "greater_than_null",
+    "fixed_before_run": true
+  },
+
+  "primary_null": {
+    "status": "must_be_formally_specified_before_confirmatory_execution",
+    "exchangeability_permutation_is_secondary_only": true,
+    "phase_randomized_surrogate_is_secondary_diagnostic_only": true,
+    "reason": "Phase-randomized surrogates preserve the observed Fourier amplitude spectrum and therefore are not a direct null for the existence of the observed spectral slope."
+  },
+
+  "secondary_diagnostics": [
+    "FFT_Welch_agreement",
+    "multi_scale_behavior",
+    "half_full_discrepancy",
+    "phase_surrogate_behavior",
+    "perturbation_stability",
+    "cross_domain_replication",
+    "predictive_validation"
+  ],
+
+  "multiplicity_policy": {
+    "primary_endpoint_count": 1,
+    "secondary_results_are_exploratory": true,
+    "no_posthoc_reclassification": true,
+    "familywise_or_fdr_correction": "must_be_predeclared if multiple confirmatory hypotheses are introduced"
+  },
+
+  "replication_policy": {
+    "independent_clean_checkout_reproduction": true,
+    "same_runner": true,
+    "external_laboratory_replication_required_for_external_replication_claim": true
+  },
+
+  "interpretation_policy": {
+    "p_value_does_not_establish_mechanism": true,
+    "p_value_does_not_establish_hcm_causation": true,
+    "p_value_does_not_establish_universality": true,
+    "spectral_persistence_is_not_itself_novel": true,
+    "predictive_superiority_requires_out_of_sample_evidence": true
+  }
+}
