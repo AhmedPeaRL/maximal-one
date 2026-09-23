@@ -4024,17 +4024,14 @@ jobs:
 
           REPORT_HASH=""
 
-          if [
-            -f
-            "$STAGING_DIR/artifacts/final_provenance_closure/report.hash"
-          ]; then
+          if [[ -f "$STAGING_DIR/artifacts/final_provenance_closure/report.hash" ]]; then
             REPORT_HASH="$(
               cat \
                 "$STAGING_DIR/artifacts/final_provenance_closure/report.hash"
             )"
           fi
 
-          if [ -z "$REPORT_HASH" ]; then
+          if [[ -z "$REPORT_HASH" ]]; then
             echo "❌ Authoritative report hash is missing."
             exit 1
           fi
@@ -4050,11 +4047,7 @@ jobs:
               | cut -d " " -f1
           )"
 
-          if [
-            "$CALCULATED_REPORT_HASH"
-            !=
-            "$REPORT_HASH"
-          ]; then
+          if [[ "$CALCULATED_REPORT_HASH" != "$REPORT_HASH" ]]; then
             echo "❌ Canonical report hash mismatch."
             echo "Stored:"
             echo "$REPORT_HASH"
@@ -4104,8 +4097,8 @@ jobs:
             echo "Current remote main:"
             echo "$REMOTE_SHA"
 
-            if [ "$(git rev-parse HEAD)" != "$SOURCE_SHA" ] &&
-               [ "$attempt" = "1" ]; then
+            if [[ "$(git rev-parse HEAD)" != "$SOURCE_SHA" &&
+              "$attempt" == "1" ]]; then
               echo "❌ Local HEAD is not the workflow source commit."
               echo "Scientific persistence aborted."
               exit 1
@@ -4224,47 +4217,47 @@ jobs:
             PY
 
             echo "=== WRITE PERSISTENCE PROVENANCE ==="
-            
+
             python - <<'PY'
-          import json
-          import os
-          import time
+            import json
+            import os
+            import time
 
-          path = "data/verification/persistence_provenance.json"
+            path = "data/verification/persistence_provenance.json"
 
-          source_sha = os.environ["SOURCE_SHA"]
-          remote_sha = os.environ["REMOTE_SHA"]
-          report_hash = os.environ.get("REPORT_HASH", "")
+            source_sha = os.environ["SOURCE_SHA"]
+            remote_sha = os.environ["REMOTE_SHA"]
+            report_hash = os.environ.get("REPORT_HASH", "")
 
-          provenance = {
-              "schema": "hcm.authoritative_persistence_provenance.v1",
-              "source_commit": source_sha,
-              "persistence_parent": remote_sha,
-              "report_hash": report_hash,
-              "generated_at_unix": time.time(),
-              "history_policy": {
-                  "rebase_used": False,
-                  "force_push_used": False,
-                  "remote_history_overwritten": False
-              },
-              "epistemic_policy": {
-                  "persistence_does_not_promote_scientific_claim": True,
-                  "artifact_source_commit_is_explicit": True
-              }
-          }
+            provenance = {
+                "schema": "hcm.authoritative_persistence_provenance.v1",
+                "source_commit": source_sha,
+                "persistence_parent": remote_sha,
+                "report_hash": report_hash,
+                "generated_at_unix": time.time(),
+                "history_policy": {
+                    "rebase_used": False,
+                    "force_push_used": False,
+                    "remote_history_overwritten": False
+                },
+                "epistemic_policy": {
+                    "persistence_does_not_promote_scientific_claim": True,
+                    "artifact_source_commit_is_explicit": True
+                }
+            }
 
-          with open(
-              path,
-              "w",
-              encoding="utf-8"
-          ) as f:
-              json.dump(
-                  provenance,
-                  f,
-                  indent=2,
-                  sort_keys=True
-              )
-          PY
+            with open(
+                path,
+                "w",
+                encoding="utf-8"
+            ) as f:
+                json.dump(
+                    provenance,
+                    f,
+                    indent=2,
+                    sort_keys=True
+                )
+            PY
 
             echo "=== FINAL AUTHORITATIVE PERSISTENCE CHECK ==="
 
