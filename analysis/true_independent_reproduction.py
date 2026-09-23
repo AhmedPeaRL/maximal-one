@@ -82,7 +82,7 @@ def load_report(path):
     ) as f:
         return f.read()
 
-def prepare_canonical_inputs(path):
+def prepare_canonical_inputs(path, env):
     print(
         "Preparing deterministic canonical inputs..."
     )
@@ -94,6 +94,7 @@ def prepare_canonical_inputs(path):
         ],
         cwd=path,
         check=True,
+        env=env,
     )
 
 def run_pipeline(path):
@@ -115,7 +116,10 @@ def run_pipeline(path):
         "BLIS_NUM_THREADS": "1",
     })
 
-    prepare_canonical_inputs(path)
+    prepare_canonical_inputs(
+        path,
+        env,
+    )
 
     subprocess.run(
         [
