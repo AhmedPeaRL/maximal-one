@@ -212,6 +212,13 @@ def main() -> None:
                 else "not_verified"
             ),
 
+        "reproducibility_scope": {
+            "code_checkout": "independent",
+            "execution_environment": "same_runner",
+            "laboratory_independence": False,
+            "external_replication": False,
+        },
+
         "interpretation":
             (
                 "The canonical scientific report is "
