@@ -91,7 +91,7 @@ def main():
     )
 
     # ---------------------------------------------------------
-    # TRUE independent reproduction artifact schema
+    # Independent clean-checkout reproduction artifact schema
     # ---------------------------------------------------------
 
     required = {
@@ -143,7 +143,7 @@ def main():
         replay["status"] == "verified",
         "reproduction artifact status is not verified",
     )
-
+    
     # ---------------------------------------------------------
     # Fingerprint validation
     # ---------------------------------------------------------
@@ -211,11 +211,54 @@ def main():
     require(
         replay["scientific_role"]
         ==
-        "independent_reproducibility_gate",
+        "independent_clean_checkout_reproducibility_gate",
         (
             "scientific_role must explicitly identify "
-            "the independent reproducibility gate"
+            "the independent clean-checkout reproducibility gate"
         ),
+    )
+
+    require(
+        replay.get("reproduction_scope")
+        ==
+        "fresh_public_repository_checkout_same_runner",
+        (
+            "reproduction scope must explicitly identify "
+            "fresh public repository checkout on the same runner"
+        ),
+    )
+
+    require(
+        replay.get("independent_code_checkout")
+        is True,
+        "independent code checkout is not verified",
+    )
+
+    require(
+        replay.get("independent_execution_environment")
+        is False,
+        (
+            "execution-environment independence must not "
+            "be falsely claimed"
+        ),
+    )
+
+    require(
+        replay.get("external_laboratory_replication")
+        is False,
+        (
+            "external laboratory replication must not "
+            "be falsely claimed"
+        ),
+    )
+
+    require(
+        isinstance(
+            replay.get("source_commit"),
+            str,
+        )
+        and len(replay["source_commit"]) == 40,
+        "source_commit must be a full Git commit SHA",
     )
 
     require(
@@ -248,7 +291,7 @@ def main():
     # ---------------------------------------------------------
 
     print(
-        "EXTERNAL REPLAY VERIFIED"
+        "INDEPENDENT CLEAN-CHECKOUT REPRODUCTION VERIFIED"
     )
 
     print(
