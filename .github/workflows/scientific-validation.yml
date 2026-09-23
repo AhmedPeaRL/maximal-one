@@ -1741,6 +1741,68 @@ jobs:
 
           python analysis/true_independent_reproduction.py
 
+      - name: Freeze TRUE Independent Replay Evidence
+        shell: bash
+        run: |
+           set -euo pipefail
+
+           test -s artifacts/external_replay_verification.json
+
+           python - <<'PY'
+           import json
+           from pathlib import Path
+
+           path = Path(
+               "artifacts/external_replay_verification.json"
+           )
+
+           data = json.loads(
+               path.read_text(encoding="utf-8")
+           )
+
+           required = {
+               "independent_replay_verified": True,
+               "fingerprint_match": True,
+               "structure_match": True,
+               "status": "verified",
+               "comparison_method":
+                   "normalized_full_canonical_report",
+               "normalization_precision": 8,
+               "scientific_role":
+                   "independent_clean_checkout_reproducibility_gate",
+           }
+
+           for key, expected in required.items():
+              actual = data.get(key)
+
+              if actual != expected:
+                  raise SystemExit(
+                      "❌ TRUE replay artifact mutated or "
+                      f"invalid: {key}={actual!r}; "
+                      f"expected={expected!r}"
+                  )
+
+           print(
+               "✅ TRUE independent replay artifact is "
+               "verified and schema-consistent."
+           )
+
+           print(
+               "Local fingerprint:",
+               data["local_fingerprint"],
+           )
+
+           print(
+               "External fingerprint:",
+               data["external_fingerprint"],
+           )
+
+           print(
+               "Fingerprint match:",
+               data["fingerprint_match"],
+           )
+           PY
+
       - name: Validate TRUE Independent Reproduction Evidence (HARD)
         run: |
           python scripts/validate_external_replay.py
