@@ -4172,291 +4172,291 @@ jobs:
           echo "=== VERIFY AUTHORITATIVE PUBLIC VERIFICATION ==="
 
           test -s public/independent_verification.json
-
-        python - <<'PY'
-        import json
-        from pathlib import Path
-
-        path = Path("public/independent_verification.json")
-
-        data = json.loads(
-            path.read_text(encoding="utf-8")
-        )
-
-        required = [
-            "integrity",
-            "strict_contract",
-            "adaptive_thresholds",
-            "scientific_claim_decision",
-        ]
-
-        missing = [
-            key
-            for key in required
-            if key not in data
-        ]
-
-        if missing:
-            raise SystemExit(
-                "❌ Public independent verification is incomplete: "
-                + ", ".join(missing)
-            )
-
-        print(
-            "✅ Public independent verification artifact "
-            "is structurally valid."
-        )
-
-        print(
-            "Evidence completion:",
-            data["strict_contract"].get(
-                "evidence_completion_passed"
-            )
-        )
-
-        print(
-            "Support ready:",
-            data["strict_contract"].get(
-                "support_ready"
-            )
-        )
-
-        print(
-            "Claim promotion:",
-            data["scientific_claim_decision"].get(
-                "made_here"
-            )
-        )
-        PY
-
-          echo "=== WRITE PERSISTENCE PROVENANCE ==="
-
-        python - <<'PY'
-        import json
-        import os
-        import time
-
-        path = "data/verification/persistence_provenance.json"
-
-        source_sha = os.environ["SOURCE_SHA"]
-        remote_sha = os.environ["REMOTE_SHA"]
-        report_hash = os.environ["REPORT_HASH"]
-
-        provenance = {
-            "schema": "hcm.authoritative_persistence_provenance.v2",
-            "source_commit": source_sha,
-            "persistence_parent": remote_sha,
-            "report_hash": report_hash,
-            "generated_at_unix": time.time(),
-
-            "history_policy": {
-                "rebase_used": False,
-                "force_with_lease_used": True,
-                "non_fast_forward_override_used": False,
-                "remote_history_overwritten": False
-            },
-
-            "epistemic_policy": {
-                "persistence_does_not_promote_scientific_claim": True,
-                "artifact_source_commit_is_explicit": True
-            }
-        }
-
-        with open(
-            path,
-            "w",
-            encoding="utf-8"
-        ) as f:
-            json.dump(
-                provenance,
-                f,
-                indent=2,
-                sort_keys=True
-            )
-         PY
-
-          echo "=== FINAL AUTHORITATIVE PERSISTENCE CHECK ==="
-
-          test -s \
-            data/verification/canonical_report.json
-
-          test -s \
-            data/verification/report.hash
-
-          test -s \
-            data/verification/external_replay_verification.json
-
-          test -s \
-            data/verification/adversarial_control.json
-
-          test -s \
-            data/verification/dataset_provenance.json
-
-          test -s \
-            public/independent_verification.json
-
+          
           python - <<'PY'
-          import hashlib
           import json
-          import os
           from pathlib import Path
 
-          report_path = Path(
-              "data/verification/canonical_report.json"
+          path = Path("public/independent_verification.json")
+
+          data = json.loads(
+              path.read_text(encoding="utf-8")
           )
 
-          hash_path = Path(
-              "data/verification/report.hash"
-          )
+          required = [
+              "integrity",
+              "strict_contract",
+              "adaptive_thresholds",
+              "scientific_claim_decision",
+          ]
 
-          replay_path = Path(
-              "data/verification/external_replay_verification.json"
-          )
+          missing = [
+              key
+              for key in required
+              if key not in data
+          ]
 
-          verification_path = Path(
-              "public/independent_verification.json"
-          )
-
-          source_sha = os.environ["SOURCE_SHA"]
-
-          calculated = hashlib.sha256(
-              report_path.read_bytes()
-          ).hexdigest()
-
-          stored = hash_path.read_text(
-              encoding="utf-8"
-          ).strip()
-
-          if calculated != stored:
+          if missing:
               raise SystemExit(
-                  "❌ Persisted canonical report hash mismatch"
+                  "❌ Public independent verification is incomplete: "
+                  + ", ".join(missing)
               )
-
-          replay = json.loads(
-              replay_path.read_text(
-                  encoding="utf-8"
-              )
-          )
-
-          if replay.get("source_commit") != source_sha:
-              raise SystemExit(
-                  "❌ Persisted replay source commit mismatch: "
-                  + str(replay.get("source_commit"))
-                  + " != "
-                  + source_sha
-              )
-
-          if replay.get("independent_replay_verified") is not True:
-              raise SystemExit(
-                  "❌ Persisted replay verification is not true"
-              )
-
-          if replay.get("fingerprint_match") is not True:
-              raise SystemExit(
-                  "❌ Persisted replay fingerprint is not true"
-              )
-
-          if replay.get("structure_match") is not True:
-              raise SystemExit(
-                  "❌ Persisted replay structure match is not true"
-              )
-
-          if replay.get("comparison_method") != (
-              "normalized_full_canonical_report"
-          ):
-              raise SystemExit(
-                  "❌ Unexpected replay comparison method"
-              )
-
-          verification = json.loads(
-              verification_path.read_text(
-                  encoding="utf-8"
-              )
-          )
-
-          if verification["integrity"]["passed"] is not True:
-              raise SystemExit(
-                  "❌ Persisted public verification integrity failed"
-              )
-
-          print("========================================")
-          print("AUTHORITATIVE PERSISTENCE CHECK: PASS")
-          print("========================================")
-
-          print("Canonical report hash: VERIFIED")
 
           print(
-              "Replay source commit:",
-              replay["source_commit"]
+              "✅ Public independent verification artifact "
+              "is structurally valid."
           )
-
-          print(
-              "Clean-checkout reproducibility replay: VERIFIED"
-          )
-
-          print("Fingerprint: MATCH")
-          print("Structure: MATCH")
-          print("Public verification integrity: VERIFIED")
 
           print(
               "Evidence completion:",
-              verification["strict_contract"].get(
+              data["strict_contract"].get(
                   "evidence_completion_passed"
               )
           )
 
           print(
-              "Scientific claim status:",
-              verification["scientific_claim_decision"].get(
-                  "status"
+              "Support ready:",
+              data["strict_contract"].get(
+                  "support_ready"
+              )
+          )
+
+          print(
+              "Claim promotion:",
+              data["scientific_claim_decision"].get(
+                  "made_here"
               )
           )
           PY
 
-          git add \
-            data/verification/final_provenance_closure
+          echo "=== WRITE PERSISTENCE PROVENANCE ==="
 
-          git add \
-            data/verification
+          python - <<'PY'
+          import json
+          import os
+          import time
 
-          git add \
-            public/independent_verification.json
+          path = "data/verification/persistence_provenance.json"
 
-          if git diff --cached --quiet; then
-            echo "No authoritative persistence changes."
-            SUCCESS=true
-            break
-          fi
+          source_sha = os.environ["SOURCE_SHA"]
+          remote_sha = os.environ["REMOTE_SHA"]
+          report_hash = os.environ["REPORT_HASH"]
 
-          echo "=== COMMIT ==="
+          provenance = {
+              "schema": "hcm.authoritative_persistence_provenance.v2",
+              "source_commit": source_sha,
+              "persistence_parent": remote_sha,
+              "report_hash": report_hash,
+              "generated_at_unix": time.time(),
 
-          git commit \
-            -m "Persist scientific verification artifacts [skip ci]"
+              "history_policy": {
+                  "rebase_used": False,
+                  "force_with_lease_used": True,
+                  "non_fast_forward_override_used": False,
+                  "remote_history_overwritten": False
+              },
 
-          echo "=== LEASED FAST-FORWARD PUSH ==="
+              "epistemic_policy": {
+                  "persistence_does_not_promote_scientific_claim": True,
+                  "artifact_source_commit_is_explicit": True
+              }
+          }
 
-          if git push \
-            --force-with-lease="refs/heads/main:$REMOTE_SHA" \
-            origin \
-            HEAD:main
-          then
-            echo "✅ Authoritative persistence completed."
-            SUCCESS=true
-            break
-          fi
+          with open(
+              path,
+              "w",
+              encoding="utf-8"
+          ) as f:
+              json.dump(
+                  provenance,
+                  f,
+                  indent=2,
+                  sort_keys=True
+              )
+           PY
 
-          echo "⚠️ Remote main advanced during persistence."
-          echo "No rebase will be performed."
-          echo "Refreshing remote and retrying."
+           echo "=== FINAL AUTHORITATIVE PERSISTENCE CHECK ==="
 
-          sleep 2
-        done
+           test -s \
+             data/verification/canonical_report.json
 
-        if [[ "$SUCCESS" != true ]]; then
-          echo "❌ Authoritative persistence could not obtain a stable main tip."
-          echo "No force push or silent rebase was performed."
-          exit 1
-        fi
+           test -s \
+             data/verification/report.hash
+
+           test -s \
+             data/verification/external_replay_verification.json
+
+           test -s \
+             data/verification/adversarial_control.json
+
+           test -s \
+             data/verification/dataset_provenance.json
+
+           test -s \
+             public/independent_verification.json
+
+           python - <<'PY'
+           import hashlib
+           import json
+           import os
+           from pathlib import Path
+
+           report_path = Path(
+               "data/verification/canonical_report.json"
+           )
+
+           hash_path = Path(
+               "data/verification/report.hash"
+           )
+
+           replay_path = Path(
+               "data/verification/external_replay_verification.json"
+           )
+
+           verification_path = Path(
+               "public/independent_verification.json"
+           )
+
+           source_sha = os.environ["SOURCE_SHA"]
+
+           calculated = hashlib.sha256(
+               report_path.read_bytes()
+           ).hexdigest()
+
+           stored = hash_path.read_text(
+               encoding="utf-8"
+           ).strip()
+
+           if calculated != stored:
+               raise SystemExit(
+                   "❌ Persisted canonical report hash mismatch"
+               )
+
+           replay = json.loads(
+               replay_path.read_text(
+                   encoding="utf-8"
+               )
+           )
+
+           if replay.get("source_commit") != source_sha:
+               raise SystemExit(
+                   "❌ Persisted replay source commit mismatch: "
+                   + str(replay.get("source_commit"))
+                   + " != "
+                   + source_sha
+               )
+
+           if replay.get("independent_replay_verified") is not True:
+               raise SystemExit(
+                   "❌ Persisted replay verification is not true"
+               )
+
+           if replay.get("fingerprint_match") is not True:
+               raise SystemExit(
+                   "❌ Persisted replay fingerprint is not true"
+               )
+
+           if replay.get("structure_match") is not True:
+               raise SystemExit(
+                   "❌ Persisted replay structure match is not true"
+               )
+
+           if replay.get("comparison_method") != (
+               "normalized_full_canonical_report"
+           ):
+               raise SystemExit(
+                   "❌ Unexpected replay comparison method"
+               )
+
+           verification = json.loads(
+               verification_path.read_text(
+                   encoding="utf-8"
+               )
+           )
+
+           if verification["integrity"]["passed"] is not True:
+               raise SystemExit(
+                   "❌ Persisted public verification integrity failed"
+               )
+
+           print("========================================")
+           print("AUTHORITATIVE PERSISTENCE CHECK: PASS")
+           print("========================================")
+
+           print("Canonical report hash: VERIFIED")
+
+           print(
+               "Replay source commit:",
+               replay["source_commit"]
+           )
+
+           print(
+               "Clean-checkout reproducibility replay: VERIFIED"
+           )
+
+           print("Fingerprint: MATCH")
+           print("Structure: MATCH")
+           print("Public verification integrity: VERIFIED")
+
+           print(
+               "Evidence completion:",
+               verification["strict_contract"].get(
+                   "evidence_completion_passed"
+               )
+           )
+
+           print(
+               "Scientific claim status:",
+               verification["scientific_claim_decision"].get(
+                   "status"
+               )
+           )
+           PY
+
+           git add \
+             data/verification/final_provenance_closure
+
+           git add \
+             data/verification
+
+           git add \
+             public/independent_verification.json
+
+           if git diff --cached --quiet; then
+             echo "No authoritative persistence changes."
+             SUCCESS=true
+             break
+           fi
+
+           echo "=== COMMIT ==="
+
+           git commit \
+             -m "Persist scientific verification artifacts [skip ci]"
+
+           echo "=== LEASED FAST-FORWARD PUSH ==="
+
+           if git push \
+             --force-with-lease="refs/heads/main:$REMOTE_SHA" \
+             origin \
+             HEAD:main
+           then
+             echo "✅ Authoritative persistence completed."
+             SUCCESS=true
+             break
+           fi
+
+           echo "⚠️ Remote main advanced during persistence."
+           echo "No rebase will be performed."
+           echo "Refreshing remote and retrying."
+
+           sleep 2
+         done
+
+         if [[ "$SUCCESS" != true ]]; then
+           echo "❌ Authoritative persistence could not obtain a stable main tip."
+           echo "No force push or silent rebase was performed."
+           exit 1
+         fi
         
   stability-check:
     runs-on: ubuntu-24.04
