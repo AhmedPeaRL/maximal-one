@@ -4687,22 +4687,93 @@ jobs:
 
           echo "✅ origin fully restored and linked"
 
-      - name: Commit dataset if changed
+      - name: Synchronize with current main before persistence
         run: |
+          set -euo pipefail
+
           git config user.name "github-actions"
           git config user.email "actions@github.com"
 
-          git fetch origin main || true
-          git reset --soft origin/main || true
+          git fetch origin main
 
-          git add -A data
+          git reset --hard origin/main
+
+          git clean -fd
+
+          echo "Synchronized to:"
+          git rev-parse HEAD
+
+      - name: Commit multi-seed outputs only
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+
+          ALLOWED_FILES=(
+            "data/multi_seed_results.csv"
+            "data/power_result.txt"
+            "data/fbm_comparison.txt"
+            "data/model_comparison.txt"
+            "data/hurst.txt"
+            "data/null_test.txt"
+            "data/effect_size.txt"
+            "data/lyapunov.txt"
+            "experiments/artifacts/lorenz96.json"
+            "README.md"
+          )
+
+          git add -- \
+            data/multi_seed_results.csv \
+            data/power_result.txt \
+            data/fbm_comparison.txt \
+            data/model_comparison.txt \
+            data/hurst.txt \
+            data/null_test.txt \
+            data/effect_size.txt \
+            data/lyapunov.txt \
+            experiments/artifacts/lorenz96.json \
+            README.md
+
+          echo "=== STAGED FILES ==="
+          git diff --cached --name-status
+
+          FORBIDDEN_PATHS=(
+            "data/verification/"
+            "data/external/"
+            "data/verification/final_provenance_closure/"
+            "public/independent_verification.json"
+            "artifacts/"
+            "data/experiment_history.json"
+          )
+
+          STAGED_FILES="$(git diff --cached --name-only)"
+
+          echo "=== PROVENANCE SAFETY CHECK ==="
+
+          while IFS= read -r path; do
+            [ -z "$path" ] && continue
+
+            for forbidden in "${FORBIDDEN_PATHS[@]}"; do
+              if [[ "$path" == "$forbidden"* ]]; then
+                echo "❌ Forbidden provenance path staged:"
+                echo "   $path"
+                echo "   Protected prefix: $forbidden"
+                exit 1
+              fi
+            done
+          done <<< "$STAGED_FILES"
+
+          echo "✅ Provenance safety check passed."
 
           if git diff --cached --quiet; then
-            echo "No dataset changes."
+            echo "No multi-seed changes to commit."
             exit 0
           fi
 
-          sleep 3
-
           git commit -m "Automated multi-seed sweep update"
+
+          echo "=== FINAL COMMIT ==="
+          git show --stat --oneline HEAD
+
           git push origin HEAD:main
