@@ -205,6 +205,11 @@ def main() -> None:
                 "scientific_role"
             ),
 
+        "verification_scope":
+            replay.get(
+                "verification_scope"
+            ),
+
         "reproducibility_status":
             (
                 "verified"
@@ -213,10 +218,29 @@ def main() -> None:
             ),
 
         "reproducibility_scope": {
-            "code_checkout": "independent",
-            "execution_environment": "same_runner",
-            "laboratory_independence": False,
-            "external_replication": False,
+            "code_checkout":
+                "fresh_public_checkout",
+
+            "repository_state":
+                "exact_workflow_commit",
+
+            "execution_environment":
+                "same_runner",
+
+            "input_reconstruction":
+                "canonical_deterministic_rebuild",
+
+            "implementation_independence":
+                False,
+
+            "laboratory_independence":
+                False,
+
+            "external_scientific_replication":
+                False,
+
+            "scope":
+                "computational_reproducibility_only",
         },
 
         "interpretation":
