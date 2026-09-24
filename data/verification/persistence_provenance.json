@@ -3,14 +3,15 @@
     "artifact_source_commit_is_explicit": true,
     "persistence_does_not_promote_scientific_claim": true
   },
-  "generated_at_unix": 1790130431.5114362,
+  "generated_at_unix": 1790214999.8225102,
   "history_policy": {
-    "force_push_used": false,
+    "force_with_lease_used": true,
+    "non_fast_forward_override_used": false,
     "rebase_used": false,
     "remote_history_overwritten": false
   },
-  "persistence_parent": "f8924366699a856b06f01a01145cd88285c619d5",
+  "persistence_parent": "fba22dd96d218b74879dbfa6e6154041776410c8",
   "report_hash": "0066066b650468fd2c882bbb5bf792f282a0586b4fe8cfafdfccd254c18ea423",
-  "schema": "hcm.authoritative_persistence_provenance.v1",
-  "source_commit": "7da4a06191ea990e0d8812dd8f8ea4d4726297ef"
+  "schema": "hcm.authoritative_persistence_provenance.v2",
+  "source_commit": "5e669d75631ab8e5c929a9c012d5d3c9bbb07db0"
 }
