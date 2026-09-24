@@ -360,7 +360,13 @@ def compare():
         )
 
         artifact = {
+            # Backward-compatible field retained for the existing CI contract.
+            # Its meaning is explicitly limited to clean-checkout
+            # computational reproducibility.
             "independent_replay_verified":
+                independent_replay_verified,
+
+            "clean_checkout_reproducibility_verified":
                 independent_replay_verified,
 
             "fingerprint_match":
@@ -387,7 +393,7 @@ def compare():
                 ),
 
             "scientific_role":
-                "independent_clean_checkout_reproducibility_gate",
+                "clean_checkout_computational_reproducibility_gate",
 
             "reproduction_scope":
                 "fresh_public_repository_checkout_same_runner",
@@ -401,8 +407,14 @@ def compare():
             "external_laboratory_replication":
                 False,
 
+            "independent_implementation_replication":
+                False,
+
+            "independent_scientific_replication":
+                False,
+
             "verification_method":
-                "fresh_git_clone_exact_commit_clean_input_rebuild",
+                "fresh_public_git_clone_exact_commit_clean_input_rebuild",
 
             "source_commit":
                 target,
@@ -441,12 +453,12 @@ def compare():
 
         if not independent_replay_verified:
             print(
-                "❌ INDEPENDENT REPRODUCTION FAILED"
+                "❌ CLEAN-CHECKOUT COMPUTATIONAL REPRODUCIBILITY FAILED"
             )
             return False
 
         print(
-            "✅ INDEPENDENT REPRODUCTION VERIFIED"
+            "✅ CLEAN-CHECKOUT COMPUTATIONAL REPRODUCIBILITY VERIFIED"
         )
 
         return True
