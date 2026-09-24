@@ -54,11 +54,15 @@ result = {
     "improvement": float(improvement),
     "p_value": float(p),
     "n_seeds": len(seeds),
-    "system": "lorenz96",
+    "system": "synthetic_seed_sweep",
+    "scientific_role": "diagnostic_only",
+    "independent_real_domain_evidence": False,
+    "lorenz96_validation": False,
+    "claim_support_eligible": False,
     "status": "generated"
 }
 
-with open("artifacts/lorenz96.json", "w") as f:
+with open("artifacts/synthetic_seed_sweep.json", "w") as f:
     json.dump(result, f, indent=2)
 
 print(result)
