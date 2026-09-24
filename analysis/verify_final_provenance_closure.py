@@ -159,10 +159,38 @@ def verify_external_replay() -> None:
     require(
         replay.get("scientific_role")
         ==
-        "independent_clean_checkout_reproducibility_gate",
+        "clean_checkout_computational_reproducibility_gate",
         (
             "replay role is not the required "
-            "independent clean-checkout reproducibility role"
+            "clean-checkout computational reproducibility role"
+        ),
+    )
+
+    require(
+        replay.get("verification_scope")
+        ==
+        "computational_reproducibility_only",
+        (
+            "replay verification scope must explicitly "
+            "be limited to computational reproducibility"
+        ),
+    )
+
+    require(
+        replay.get("independent_implementation_replication")
+        is False,
+        (
+            "independent implementation replication "
+            "must not be claimed"
+        ),
+    )
+
+    require(
+        replay.get("independent_scientific_replication")
+        is False,
+        (
+            "independent scientific replication "
+            "must not be claimed"
         ),
     )
 
@@ -507,10 +535,10 @@ def main() -> None:
         "Canonical report integrity: VERIFIED"
     )
     print(
-        "Independent clean-checkout reproduction: VERIFIED"
+        "Clean-checkout computational reproducibility: VERIFIED"
     )
     print(
-        "Independent clean-checkout fingerprint equality: VERIFIED"
+        "Clean-checkout fingerprint equality: VERIFIED"
     )
     print(
         "Adversarial control: VERIFIED"
