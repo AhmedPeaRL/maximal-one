@@ -1769,7 +1769,7 @@ jobs:
                    "normalized_full_canonical_report",
                "normalization_precision": 8,
                "scientific_role":
-                   "independent_clean_checkout_reproducibility_gate",
+                   "clean_checkout_computational_reproducibility_gate",
            }
 
            for key, expected in required.items():
