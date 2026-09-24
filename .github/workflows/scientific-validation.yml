@@ -4509,7 +4509,12 @@ jobs:
         run: python stability/eigen_drift_check.py
   
   sweep-plus:
-    if: github.event_name == 'repository_dispatch' 
+    if: >-
+      github.event_name == 'repository_dispatch'
+      &&
+      github.event.action == 'external_dispatch'
+      &&
+      github.event.client_payload.approved_experimental_sweep == true
     runs-on: ubuntu-24.04
     needs: stability-check
 
@@ -4569,7 +4574,6 @@ jobs:
           test -f experiments/fbm_comparison.py
           test -f experiments/model_comparison.py
           test -f experiments/hurst_dfa.py
-          test -f experiments/multi_seed_lorenz96.py
           test -f experiments/null_ensemble.py
           test -f experiments/effect_size.py
           test -f experiments/lyapunov_estimation.py
@@ -4617,7 +4621,7 @@ jobs:
           mkdir -p ../data
           python model_comparison.py > ../data/model_comparison.txt
 
-      - name: Run Hurst & Multi-Seed Lorenz96 analysis
+      - name: Run Hurst analysis
         shell: bash
         run: |
           set -euo pipefail
@@ -4625,7 +4629,6 @@ jobs:
           cd experiments
           mkdir -p ../data
           python hurst_dfa.py > ../data/hurst.txt
-          python multi_seed_lorenz96.py > ../data/multi_seed_lorenz96.txt
           
       - name: Run Null Ensemble Test
         shell: bash
@@ -4698,10 +4701,11 @@ jobs:
 
           git reset --hard origin/main
 
-          git clean -fd
-
           echo "Synchronized to:"
           git rev-parse HEAD
+
+          echo "Untracked generated outputs are intentionally preserved."
+          git status --short
 
       - name: Commit multi-seed outputs only
         run: |
@@ -4723,6 +4727,31 @@ jobs:
             "README.md"
           )
 
+          REQUIRED_OUTPUTS=(
+            "data/multi_seed_results.csv"
+            "data/power_result.txt"
+            "data/fbm_comparison.txt"
+            "data/model_comparison.txt"
+            "data/hurst.txt"
+            "data/null_test.txt"
+            "data/effect_size.txt"
+            "data/lyapunov.txt"
+          )
+
+          echo "=== VERIFY GENERATED OUTPUTS ==="
+
+          for path in "${REQUIRED_OUTPUTS[@]}"; do
+            if [[ ! -s "$path" ]]; then
+              echo "❌ Required generated output is missing or empty:"
+              echo "   $path"
+              exit 1
+            fi
+
+            echo "✅ $path"
+          done
+
+          echo "=== STAGE ALLOWED FILES ==="
+
           git add -- \
             data/multi_seed_results.csv \
             data/power_result.txt \
@@ -4732,7 +4761,6 @@ jobs:
             data/null_test.txt \
             data/effect_size.txt \
             data/lyapunov.txt \
-            experiments/artifacts/lorenz96.json \
             README.md
 
           echo "=== STAGED FILES ==="
