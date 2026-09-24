@@ -649,6 +649,29 @@ def build_external_record():
                 "promote the scientific claim.",
         },
 
+        "scientific_interpretation": {
+            "claim_promotion":
+                False,
+
+            "claim_status":
+                "under_investigation",
+
+            "support_ready_means":
+                "all_declared_contract_and_evidence_completion_layers_are_present",
+
+            "support_ready_does_not_mean":
+                "scientific_claim_established",
+
+            "clean_checkout_reproducibility":
+                True,
+
+            "independent_scientific_replication":
+                False,
+
+            "external_laboratory_replication":
+                False,
+        },
+
         "integrity":
             integrity,
 
