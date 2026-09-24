@@ -251,7 +251,28 @@ def compare():
                 cwd=external_repo,
                 check=True,
             )
-            
+
+            actual_head = subprocess.check_output(
+                [
+                    "git",
+                    "rev-parse",
+                    "HEAD",
+                ],
+                cwd=external_repo,
+                text=True,
+            ).strip()
+
+            if actual_head != target:
+                raise RuntimeError(
+                    "Fresh checkout HEAD does not match "
+                    "the required GITHUB_SHA."
+                )
+
+            print(
+                "Verified exact checkout commit:",
+                actual_head,
+            )
+
         if not target:
             raise RuntimeError(
                 "GITHUB_SHA is required for independent "
@@ -421,6 +442,15 @@ def compare():
 
             "runner_independence":
                 "same_workflow_runner",
+
+            "verification_scope":
+                "computational_reproducibility_only",
+
+            "independent_implementation_replication":
+                False,
+
+            "independent_scientific_replication":
+                False,
 
             "canonical_input_preparation":
                 "scripts/prepare_canonical_inputs.py",
