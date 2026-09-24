@@ -211,10 +211,10 @@ def main():
     require(
         replay["scientific_role"]
         ==
-        "independent_clean_checkout_reproducibility_gate",
+        "clean_checkout_computational_reproducibility_gate",
         (
             "scientific_role must explicitly identify "
-            "the independent clean-checkout reproducibility gate"
+            "the clean-checkout computational reproducibility gate"
         ),
     )
 
@@ -249,6 +249,34 @@ def main():
         (
             "external laboratory replication must not "
             "be falsely claimed"
+        ),
+    )
+
+    require(
+        replay.get("independent_implementation_replication")
+        is False,
+        (
+            "independent implementation replication must "
+            "not be falsely claimed"
+        ),
+    )
+
+    require(
+        replay.get("independent_scientific_replication")
+        is False,
+        (
+            "independent scientific replication must "
+            "not be falsely claimed"
+        ),
+    )
+
+    require(
+        replay.get("verification_scope")
+        ==
+        "computational_reproducibility_only",
+        (
+            "verification scope must explicitly limit "
+            "the result to computational reproducibility"
         ),
     )
 
@@ -291,11 +319,11 @@ def main():
     # ---------------------------------------------------------
 
     print(
-        "INDEPENDENT CLEAN-CHECKOUT REPRODUCTION VERIFIED"
+        "CLEAN-CHECKOUT COMPUTATIONAL REPRODUCIBILITY VERIFIED"
     )
 
     print(
-        "Independent rerun: TRUE"
+        "Clean-checkout rerun: TRUE"
     )
 
     print(
@@ -317,7 +345,7 @@ def main():
     )
 
     print(
-        "Independent fingerprint:",
+        "Clean-checkout fingerprint:",
         external_fingerprint,
     )
 
@@ -337,7 +365,7 @@ def main():
     )
 
     print(
-        "Independent external replay gate PASSED."
+        "Clean-checkout computational reproducibility gate PASSED."
     )
 
 if __name__ == "__main__":
