@@ -135,13 +135,22 @@
   "reproducibility": {
     "perturbation_stability": {
       "status": "diagnostic_only",
-      "does_not_establish_independent_rerun_reproducibility": true
+      "does_not_establish_clean_checkout_reproducibility": true
     },
-    "independent_rerun": {
-      "required_for_final_reproducibility_claim": true
+    "clean_checkout_computational_reproducibility": {
+      "required_for_final_reproducibility_claim": true,
+      "scope": "same_runner_fresh_public_checkout_exact_commit"
     },
     "fingerprint_match": {
       "required_for_final_reproducibility_claim": true
+    },
+    "independent_implementation_replication": {
+      "required": false,
+      "status": "not_demonstrated"
+    },
+    "independent_laboratory_replication": {
+      "required": false,
+      "status": "not_demonstrated"
     }
   },
 
@@ -151,9 +160,12 @@
   },
 
   "externality": {
-    "independent_replay_required": true,
-    "fingerprint_match_required": true
-  },
+    "clean_checkout_computational_reproducibility_required": true,
+    "fingerprint_match_required": true,
+    "independent_implementation_replication_required": false,
+    "independent_laboratory_replication_required": false,
+    "external_scientific_replication_required": false
+  }
 
   "epistemic_status": {
     "current_status": "under_investigation",
