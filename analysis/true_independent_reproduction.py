@@ -435,7 +435,7 @@ def compare():
                 False,
 
             "verification_method":
-                "fresh_public_git_clone_exact_commit_clean_input_rebuild",
+                "fresh_git_clone_exact_commit_clean_input_rebuild",
 
             "source_commit":
                 target,
@@ -445,12 +445,6 @@ def compare():
 
             "verification_scope":
                 "computational_reproducibility_only",
-
-            "independent_implementation_replication":
-                False,
-
-            "independent_scientific_replication":
-                False,
 
             "canonical_input_preparation":
                 "scripts/prepare_canonical_inputs.py",
