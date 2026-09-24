@@ -146,7 +146,13 @@ def read_external_replay_status(report: dict) -> dict:
         valid_role = (
             scientific_role
             ==
-            "independent_clean_checkout_reproducibility_gate"
+            "clean_checkout_computational_reproducibility_gate"
+        )
+
+        valid_scope = (
+            data.get("verification_scope")
+            ==
+            "computational_reproducibility_only"
         )
 
         verified = bool(
@@ -155,8 +161,9 @@ def read_external_replay_status(report: dict) -> dict:
             and structure_match
             and valid_method
             and valid_role
+            and valid_scope
             and data.get("status") == "verified"
-        )
+                )
 
         return {
             "available": True,
@@ -166,6 +173,7 @@ def read_external_replay_status(report: dict) -> dict:
                 and structure_match
                 and valid_method
                 and valid_role
+                and valid_scope
                 and data.get("status") == "verified"
             ),
 
@@ -174,6 +182,7 @@ def read_external_replay_status(report: dict) -> dict:
                 and structure_match
                 and valid_method
                 and valid_role
+                and valid_scope
                 and data.get("status") == "verified"
             ),
 
@@ -184,6 +193,11 @@ def read_external_replay_status(report: dict) -> dict:
 
             "scientific_role":
                 scientific_role,
+
+            "verification_scope":
+                data.get(
+                    "verification_scope"
+                ),
 
             "status":
                 data.get("status", "unknown"),
