@@ -36,7 +36,7 @@
       "cross_domain_validation",
       "adversarial_filtering",
       "independent_null_testing",
-      "external_reproduction"
+      "clean_checkout_computational_reproduction"
     ],
     "primary_estimator": "Welch_PSD",
     "independent_validator": "FFT_periodogram",
@@ -176,7 +176,7 @@
       "scale_stability",
       "internal_alpha_consistency",
       "bootstrap_consistency",
-      "independent_rerun_reproducibility",
+      "clean_checkout_computational_reproducibility",
       "fingerprint_match",
       "adversarial_control"
     ]
