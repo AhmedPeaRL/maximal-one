@@ -206,24 +206,19 @@ def estimate_alpha(
     if available_bins < CANONICAL_MIN_BINS:
         return np.nan
 
-    noverlap = int(
-        nperseg
-        * CANONICAL_NOVERLAP_FRACTION
-    )
-
-    nfft = nperseg
+    noverlap = nperseg // 2
 
     freqs, psd = welch(
         series,
         nperseg=nperseg,
         noverlap=noverlap,
-        nfft=nfft,
+        nfft=nperseg,
         window=CANONICAL_WINDOW,
         detrend=CANONICAL_DETREND,
         scaling=CANONICAL_SCALING,
-        return_onesided=CANONICAL_RETURN_ONESIDED,
+        return_onesided=True,
         axis=-1,
-        average=CANONICAL_AVERAGE,
+        average="mean",
     )
 
     mask = (
