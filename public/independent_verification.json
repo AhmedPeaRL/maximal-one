@@ -21,10 +21,10 @@
     "universality_inferred": false
   },
   "integrity": {
-    "calculated_hash": "0066066b650468fd2c882bbb5bf792f282a0586b4fe8cfafdfccd254c18ea423",
+    "calculated_hash": "78ca96a4c1089b4e7576c7cd04e0022e5d2ae120c2699216544435cb91e94220",
     "hash_source": "artifacts/report.hash",
     "passed": true,
-    "stored_hash": "0066066b650468fd2c882bbb5bf792f282a0586b4fe8cfafdfccd254c18ea423"
+    "stored_hash": "78ca96a4c1089b4e7576c7cd04e0022e5d2ae120c2699216544435cb91e94220"
   },
   "scientific_claim_decision": {
     "made_here": false,
@@ -113,9 +113,9 @@
     "measured": {
       "alpha": 2.525347,
       "bootstrap_center_discrepancy_sigma": 0.051119,
-      "cross_domain_std": 0.66074,
+      "cross_domain_std": 0.717563,
       "cross_method_delta": 0.10195,
-      "independent_real_domains": 3,
+      "independent_real_domains": 2,
       "p_value": 0.0002,
       "scale_dispersion": 0.205825,
       "sigma": 0.251399
@@ -124,6 +124,6 @@
     "scope": "empirical_contract_only",
     "support_ready": true
   },
-  "timestamp": 1790296181.0307505,
+  "timestamp": 1790304450.5446138,
   "verification_role": "contract_and_evidence_completion_verification"
 }
