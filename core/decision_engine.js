@@ -5,16 +5,17 @@ export function decisionEngine({
   drift
 }) {
   return {
-    action: "OBSERVE",
-    asset: null,
-    alpha,
-    sigma,
-    confidence,
-    drift,
+    action: "HOLD",
+    asset: "EGX30",
+    confidence: null,
+    risk: {
+      max_position: 0,
+      stop_loss: null,
+      take_profit: null
+    },
     epistemic_policy: {
-      market_execution_enabled: false,
-      trading_authorization: false,
-      scientific_output_authorizes_financial_action: false
+      scientific_outputs_are_not_trading_authorization: true,
+      execution_disabled: true
     }
   };
 }
