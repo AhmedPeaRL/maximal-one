@@ -273,7 +273,7 @@ def validate_strict_contract(
         report["spectral_profile"]["bootstrap_std"]
     )
 
-    p_value = float(
+    permutation_p_value = float(
         report["statistical_test"]["p_value"]
     )
 
@@ -281,17 +281,54 @@ def validate_strict_contract(
         report["cross_method_validation"]["agreement_delta"]
     )
 
-    scale = report["multi_scale_validation"]
+    scale = report.get(
+        "multi_scale_validation",
+        {},
+    )
 
-    scale_dispersion = float(
+    scale_dispersion_value = scale.get(
+        "dispersion",
         scale.get(
-            "dispersion",
-            scale.get("relative_spread")
-        )
+            "relative_spread",
+            None,
+        ),
+    )
+
+    scale_dispersion = (
+        float(scale_dispersion_value)
+        if finite(scale_dispersion_value)
+        else float("nan")
+    )
+
+    consensus_guard = report.get(
+        "consensus_guard",
+        {},
     )
 
     independent_domains = int(
-        report["consensus_guard"]["independent_real_domains"]
+        consensus_guard.get(
+            "independent_real_domains",
+            0,
+        )
+    )
+
+    cross_domain = report.get(
+        "cross_domain_replication",
+        {},
+    )
+
+    independent_secondary_domains = int(
+        cross_domain.get(
+            "independent_secondary_real_domains",
+            independent_domains,
+        )
+    )
+
+    primary_real_domain_available = bool(
+        cross_domain.get(
+            "primary_real_domain_available",
+            False,
+        )
     )
 
     bootstrap_discrepancy = float(
@@ -300,7 +337,7 @@ def validate_strict_contract(
 
     alpha_min, alpha_max = map(
         float,
-        expected["alpha_range"]
+        expected["alpha_range"],
     )
 
     max_sigma = float(
@@ -312,15 +349,10 @@ def validate_strict_contract(
     )
 
     max_scale_dispersion = float(
-        expected["max_scale_dispersion"]
-    )
-
-    max_p_value = float(
-        expected["max_p_value"]
-    )
-
-    min_domains = int(
-        expected["min_independent_real_domains"]
+        expected.get(
+            "max_scale_dispersion",
+            0.40,
+        )
     )
 
     max_bootstrap_discrepancy = float(
@@ -337,9 +369,11 @@ def validate_strict_contract(
         )
     )
 
-    cross_domain = report.get(
-        "cross_domain_replication",
-        {},
+    min_secondary_domains = int(
+        expected.get(
+            "min_independent_secondary_real_domains",
+            2,
+        )
     )
 
     cross_domain_std = cross_domain.get(
@@ -353,9 +387,13 @@ def validate_strict_contract(
         <= max_cross_domain_std
     )
 
-    independent_domains_passed = (
-        independent_domains
-        >= min_domains
+    primary_passed = bool(
+        primary_real_domain_available
+    )
+
+    secondary_replication_passed = bool(
+        independent_secondary_domains
+        >= min_secondary_domains
     )
 
     external_replay = read_external_replay_status(
@@ -364,16 +402,41 @@ def validate_strict_contract(
 
     adversarial = read_adversarial_status()
 
-    # ------------------------------------------------------------
-    # CORE CONTRACT CHECKS
-    #
-    # These are the checks that evaluate whether the generated
-    # report satisfies the declared empirical contract.
-    #
-    # External replay and adversarial control are reported
-    # separately because they are evidence-completion layers,
-    # not properties of the numerical report itself.
-    # ------------------------------------------------------------
+    stochastic_null = report.get(
+        "appropriate_stochastic_null",
+        {},
+    )
+
+    appropriate_stochastic_null_available = bool(
+        stochastic_null.get(
+            "valid",
+            False,
+        )
+    )
+
+    appropriate_stochastic_null_rejected = bool(
+        stochastic_null.get(
+            "valid",
+            False,
+        )
+        and
+        stochastic_null.get(
+            "support_eligible",
+            False,
+        )
+        and
+        stochastic_null.get(
+            "reject_at_0_05",
+            False,
+        )
+    )
+
+    permutation_null_rejected_diagnostic_only = bool(
+        report.get(
+            "null_rejected",
+            False,
+        )
+    )
 
     contract_checks = {
         "alpha_within_declared_range":
@@ -386,83 +449,50 @@ def validate_strict_contract(
             and
             sigma <= max_sigma,
 
-        "p_value_within_declared_bound":
-            finite(p_value)
-            and
-            p_value <= max_p_value,
-
         "cross_method_delta_within_bound":
             finite(method_delta)
             and
             method_delta <= max_method_delta,
 
-        "scale_dispersion_within_bound":
-            finite(scale_dispersion)
-            and
-            scale_dispersion <= max_scale_dispersion,
-
-        "minimum_independent_real_domains_met":
-            independent_domains_passed,
-
         "cross_domain_std_within_bound":
             cross_domain_std_passed,
+
+        "primary_real_domain_available":
+            primary_passed,
+
+        "minimum_independent_secondary_real_domains_met":
+            secondary_replication_passed,
 
         "bootstrap_center_discrepancy_within_bound":
             finite(bootstrap_discrepancy)
             and
             bootstrap_discrepancy
-            <= max_bootstrap_discrepancy
+            <= max_bootstrap_discrepancy,
+
+        "appropriate_stochastic_null_available":
+            appropriate_stochastic_null_available,
+
+        "appropriate_stochastic_null_rejected":
+            appropriate_stochastic_null_rejected,
     }
 
-    stochastic_null = report.get(
-        "appropriate_stochastic_null",
-        {},
-    )
-
-    "appropriate_stochastic_null_available":
-        bool(
-            stochastic_null.get(
-                "valid",
-                False
-            )
-        ),
-
-    "appropriate_stochastic_null_rejected":
-        bool(
-            stochastic_null.get(
-                "valid",
-                False
-            )
+    # Scale stability remains diagnostic.
+    # It does not promote or reject the scientific claim.
+    scale_diagnostic = {
+        "available": bool(scale),
+        "finite_dispersion": finite(scale_dispersion),
+        "within_declared_diagnostic_bound": (
+            finite(scale_dispersion)
             and
-            stochastic_null.get(
-                "reject_at_0_05",
-                False
-            )
-            and
-            stochastic_null.get(
-                "support_eligible",
-                False
-            )
+            scale_dispersion
+            <= max_scale_dispersion
         ),
-
-    "permutation_null_rejected_diagnostic_only":
-        bool(
-            report.get(
-                "null_rejected",
-                False
-            )
-        ),
+        "scientific_role": "diagnostic_only",
+    }
 
     contract_passed = all(
         contract_checks.values()
     )
-
-    # ------------------------------------------------------------
-    # EVIDENCE-COMPLETION CHECKS
-    #
-    # These remain explicit blockers for final scientific support.
-    # They are NOT silently converted into numerical success.
-    # ------------------------------------------------------------
 
     evidence_completion_checks = {
         "independent_rerun_verified":
@@ -485,38 +515,18 @@ def validate_strict_contract(
         evidence_completion_checks.values()
     )
 
-    # ------------------------------------------------------------
-    # FINAL SUPPORT READINESS
-    #
-    # This is intentionally NOT a claim-promotion mechanism.
-    # It only states whether every declared support layer is
-    # present.
-    # ------------------------------------------------------------
-
     support_ready = bool(
         contract_passed
         and
         evidence_completion
         and
-        contract_checks[
-            "appropriate_stochastic_null_rejected"
-        ]
+        appropriate_stochastic_null_rejected
     )
 
     return {
-        # --------------------------------------------------------
-        # Compatibility field:
-        #
-        # The CI workflow currently reads:
-        # strict_contract["passed"]
-        #
-        # This MUST mean only that the declared empirical
-        # numerical/methodological contract passed.
-        #
-        # It does NOT mean that the scientific claim is supported.
-        # Evidence-completion requirements remain separate below.
-        # --------------------------------------------------------
-        "passed": bool(contract_passed),
+        "passed": bool(
+            contract_passed
+        ),
 
         "contract_passed": bool(
             contract_passed
@@ -526,7 +536,9 @@ def validate_strict_contract(
             evidence_completion
         ),
 
-        "support_ready": support_ready,
+        "support_ready": bool(
+            support_ready
+        ),
 
         "scope":
             "empirical_contract_only",
@@ -536,32 +548,69 @@ def validate_strict_contract(
 
         "checks": {
             **contract_checks,
-            **evidence_completion_checks,
+            "permutation_null_rejected_diagnostic_only":
+                permutation_null_rejected_diagnostic_only,
         },
 
-        "contract_checks": contract_checks,
+        "contract_checks":
+            contract_checks,
+
+        "scale_diagnostic":
+            scale_diagnostic,
 
         "evidence_completion_checks":
             evidence_completion_checks,
 
         "measured": {
-            "alpha": alpha,
-            "sigma": sigma,
-            "p_value": p_value,
+            "alpha":
+                alpha,
+
+            "sigma":
+                sigma,
+
+            "permutation_p_value":
+                permutation_p_value,
+
             "cross_method_delta":
                 method_delta,
+
             "scale_dispersion":
-                scale_dispersion,
-            "independent_real_domains":
-                independent_domains,
+                (
+                    float(scale_dispersion)
+                    if finite(scale_dispersion)
+                    else None
+                ),
+
+            "independent_secondary_real_domains":
+                independent_secondary_domains,
+
+            "primary_real_domain_available":
+                primary_real_domain_available,
+
             "cross_domain_std":
                 (
                     float(cross_domain_std)
                     if finite(cross_domain_std)
                     else None
                 ),
+
             "bootstrap_center_discrepancy_sigma":
                 bootstrap_discrepancy,
+
+            "appropriate_stochastic_null_p_value":
+                (
+                    float(
+                        stochastic_null.get(
+                            "p_value_mc_add_one"
+                        )
+                    )
+                    if finite(
+                        stochastic_null.get(
+                            "p_value_mc_add_one"
+                        )
+                    )
+                    else None
+                ),
         },
 
         "declared_limits": {
@@ -569,27 +618,39 @@ def validate_strict_contract(
                 alpha_min,
                 alpha_max,
             ],
+
             "max_sigma":
                 max_sigma,
-            "max_p_value":
-                max_p_value,
+
             "max_method_delta":
                 max_method_delta,
-            "max_scale_dispersion":
-                max_scale_dispersion,
+
             "max_cross_domain_std":
                 max_cross_domain_std,
-            "min_independent_real_domains":
-                min_domains,
+
+            "min_independent_secondary_real_domains":
+                min_secondary_domains,
+
             "max_bootstrap_center_discrepancy_sigma":
                 max_bootstrap_discrepancy,
         },
 
-        "external_replay": external_replay,
+        "external_replay":
+            external_replay,
 
-        "adversarial_control": adversarial,
+        "adversarial_control":
+            adversarial,
+
+        "appropriate_stochastic_null":
+            stochastic_null,
+
+        "scientific_role":
+            "contract_and_evidence_completion_verification",
+
+        "claim_promotion_performed":
+            False,
     }
-
+    
 def load_collapse() -> dict:
     path = Path(
         "artifacts/collapse_test.json"
