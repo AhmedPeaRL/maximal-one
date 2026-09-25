@@ -423,16 +423,27 @@ def main():
 
         primary_real = [
             item
-            for item in counted
-            if item.get("role") == "primary_real"
+            for item in datasets
+            if (
+                item.get("role") == "primary_real"
+                and item.get("independent") is True
+                and item.get("valid") is True
+            )
+        ]
+
+        secondary_real = [
+            item
+            for item in datasets
+            if (
+                item.get("role") == "independent_real"
+                and item.get("independent") is True
+                and item.get("valid") is True
+            )
         ]
 
         require(
             len(primary_real) == 1,
-            (
-                "consensus artifact must contain exactly "
-                "one valid primary_real dataset"
-            ),
+            "consensus artifact must contain exactly one valid primary_real dataset",
         )
 
         consensus_primary_alpha = finite_float(
@@ -481,16 +492,17 @@ def main():
 
         declared_min = int(
             expected.get(
-                "min_independent_real_domains",
+                "min_independent_secondary_real_domains",
                 2,
             )
         )
 
         require(
-            len(counted) >= declared_min,
+            len(secondary_real) >= declared_min,
             (
                 "insufficient genuinely independent "
-                f"real domains: {len(counted)} < "
+                "secondary real domains: "
+                f"{len(secondary_real)} < "
                 f"{declared_min}"
             ),
         )
