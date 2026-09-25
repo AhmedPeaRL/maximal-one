@@ -1,76 +1,46 @@
+from __future__ import annotations
+
 import json
-import os
-import time
+from pathlib import Path
 
-OUTPUT_PATH = "data/market_signal.json"
-
-def load_signal():
-    try:
-        with open(
-            "artifacts/canonical_report.json",
-            encoding="utf-8",
-        ) as f:
-            report = json.load(f)
-
-        return {
-            "alpha": report["spectral_profile"]["estimated_alpha"],
-            "sigma": report["spectral_profile"]["bootstrap_std"],
-        }
-
-    except Exception:
-        return None
-
-def decide(signal):
-    if signal is None:
-        return {
-            "action": "observe",
-            "reason": "scientific_signal_unavailable",
-        }
-
+def build_market_bridge(*args, **kwargs):
     return {
         "action": "observe",
         "reason": (
-            "Market execution is disabled. "
-            "Scientific spectral output is not a "
-            "trading authorization."
+            "market execution disabled; "
+            "scientific outputs are not trading authorization"
         ),
+        "execution_enabled": False,
+        "scientific_authorization": False,
     }
 
 def main():
-    signal = load_signal()
+    result = build_market_bridge()
 
-    decision = decide(signal)
-
-    payload = {
-        "timestamp": time.time(),
-        "signal": signal,
-        "decision": decision,
-        "epistemic_policy": {
-            "market_execution_enabled": False,
-            "trading_authorization": False,
-            "scientific_output_authorizes_financial_action": False,
-        },
-    }
-
-    os.makedirs(
-        "data",
+    Path(
+        "artifacts"
+    ).mkdir(
+        parents=True,
         exist_ok=True,
     )
 
     with open(
-        OUTPUT_PATH,
+        "artifacts/market_bridge_status.json",
         "w",
         encoding="utf-8",
     ) as f:
         json.dump(
-            payload,
+            result,
             f,
             indent=2,
+            sort_keys=True,
         )
 
     print(
-        "Market bridge remains observation-only:",
-        decision,
+        json.dumps(
+            result,
+            indent=2,
+        )
     )
 
 if __name__ == "__main__":
