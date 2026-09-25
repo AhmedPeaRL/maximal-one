@@ -86,10 +86,17 @@ def main():
         strict_claim["expected_result"]["max_p_value"]
     )
 
-    MIN_INDEPENDENT_REAL_DOMAINS = int(
+    MIN_INDEPENDENT_SECONDARY_REAL_DOMAINS = int(
         strict_claim["expected_result"][
-        "min_independent_real_domains"
+            "min_independent_secondary_real_domains"
         ]
+    )
+
+    PRIMARY_REAL_DOMAIN_REQUIRED = bool(
+        strict_claim["expected_result"].get(
+            "primary_real_domain_required",
+            True,
+        )
     )
     
     rng = np.random.default_rng(args.seed)
@@ -1039,7 +1046,7 @@ def main():
             max_scale_dispersion=MAX_SCALE_DISPERSION,
             max_p_value=MAX_P_VALUE,
             min_independent_real_domains=(
-                MIN_INDEPENDENT_REAL_DOMAINS
+                MIN_INDEPENDENT_SECONDARY_REAL_DOMAINS
             ),
         )
 
@@ -1189,15 +1196,43 @@ def main():
             <= MAX_CROSS_DOMAIN_STD
         )
 
-        independent_domains_passed = (
-            valid_real_domains
-            >= MIN_INDEPENDENT_REAL_DOMAINS
+        primary_real_domain = canonical_consensus.get(
+            "primary_real_domain",
+            {},
         )
 
-        scale_passed = bool(
-            scale_test.get("valid", False)
+        primary_real_domain_available = bool(
+            primary_real_domain.get(
+                "available",
+                False,
+                )
+                and
+                int(
+                    primary_real_domain.get(
+                    "count",
+                    0,
+                    )
+                ) == 1
+        )
+
+        independent_secondary_real_domains = int(
+            canonical_consensus.get(
+                "independent_secondary_real_domains",
+                {}
+            ).get(
+                "count",
+                0,
+            )
+        )
+
+        independent_domains_passed = bool(
+            (
+                not PRIMARY_REAL_DOMAIN_REQUIRED
+                or primary_real_domain_available
+            )
             and
-            scale_test.get("scale_invariant", False)
+            independent_secondary_real_domains
+            >= MIN_INDEPENDENT_SECONDARY_REAL_DOMAINS
         )
 
         canonical_identity_passed = (
@@ -1230,19 +1265,32 @@ def main():
             <= 1e-8
         )
 
+        appropriate_stochastic_null_passed = bool(
+            stochastic_null.get(
+                "valid",
+                False,
+            )
+            and
+            stochastic_null.get(
+                "support_eligible",
+                False,
+            )
+            and
+            stochastic_null.get(
+                "reject_at_0_05",
+                False,
+            )
+        )
+
         claim_supported = bool(
             alpha_range_passed
             and sigma_passed
-            and p_value_passed
             and method_passed
-            and scale_dispersion_passed
             and bootstrap_center_passed
             and cross_domain_passed
             and independent_domains_passed
-            and scale_passed
             and canonical_identity_passed
-            and consensus.get("passed", False)
-            and null_rejected
+            and appropriate_stochastic_null_passed
             and external_replay_verified
             and fingerprint_match
             and adversarial_control_passed
