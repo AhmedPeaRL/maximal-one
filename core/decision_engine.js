@@ -1,20 +1,20 @@
-export function decisionEngine({ alpha, sigma, confidence, drift }) {
-  let action = "HOLD";
-
-  if (confidence > 0.8 && drift < 0.15) {
-    action = "BUY";
-  } else if (confidence < 0.25 && drift > 0.6) {
-    action = "SELL";
-  }
-
+export function decisionEngine({
+  alpha,
+  sigma,
+  confidence,
+  drift
+}) {
   return {
-    action,
-    asset: "EGX30",
+    action: "OBSERVE",
+    asset: null,
+    alpha,
+    sigma,
     confidence,
-    risk: {
-      max_position: 0.05,   // 5%
-      stop_loss: 0.02,      // 2%
-      take_profit: 0.04     // 4%
+    drift,
+    epistemic_policy: {
+      market_execution_enabled: false,
+      trading_authorization: false,
+      scientific_output_authorizes_financial_action: false
     }
   };
 }
