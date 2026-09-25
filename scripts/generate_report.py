@@ -1470,7 +1470,18 @@ def main():
                 )
             },
             "cross_domain_replication": {
-                "valid_real_domains": int(valid_real_domains),
+                "primary_real_domain_available": bool(
+                    primary_real_domain_available
+                ),
+                "independent_secondary_real_domains": int(
+                    independent_secondary_real_domains
+                ),
+                "minimum_required_secondary": int(
+                    MIN_INDEPENDENT_SECONDARY_REAL_DOMAINS
+                ),
+                "valid_real_domains_total": int(
+                    valid_real_domains
+                ),
                 "real_domain_std": (
                     float(real_domain_std)
                     if real_domain_std is not None
@@ -1489,15 +1500,15 @@ def main():
             },
             "scientific_interpretation": {
                 "null_rejected": bool(null_rejected),
-                "appropriate_stochastic_null_rejected":
-                    bool(
-                        stochastic_null_rejected
-                    ),
-
+                "appropriate_stochastic_null_rejected": bool(
+                    stochastic_null_rejected
+                ),
+                "permutation_null_is_primary": False,
                 "permutation_null_rejected":
                     bool(
                         null_rejected
                     ),
+                "permutation_null_role": "diagnostic_only",
                 "evidence_strength": (
                     "strong_for_specified_spectral_hypothesis"
                     if claim_supported
