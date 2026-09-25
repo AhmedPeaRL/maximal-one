@@ -1,99 +1,37 @@
-import json
-import numpy as np
-import pandas as pd
+from __future__ import annotations
 
-from analysis.numerical_spectral_verification import (
-    estimate_alpha
+import subprocess
+import sys
+from pathlib import Path
+
+CANONICAL_SCRIPT = Path(
+    "scripts/canonical_consensus.py"
 )
 
-DATASETS = [
-    "real-data/sunspots_full.csv",
-    "real-data/sunspots_global_extended.csv",
-    "real-data/white_noise.csv",
-    "real-data/random_walk.csv",
-    "real-data/shuffled_sunspots.csv"
-]
-
-VALID_COLUMNS = ["value", "Sunspots"]
-
-alphas = []
-
-report = []
-
-for path in DATASETS:
-
-    try:
-
-        df = pd.read_csv(path)
-
-        col = None
-
-        for c in VALID_COLUMNS:
-            if c in df.columns:
-                col = c
-                break
-
-        if col is None:
-            raise ValueError(
-                f"No valid column in {path}"
-            )
-
-        series = (
-            df[col]
-            .astype(np.float64)
-            .values
+def main() -> None:
+    if not CANONICAL_SCRIPT.exists():
+        raise SystemExit(
+            "Canonical consensus authority is missing: "
+            f"{CANONICAL_SCRIPT}"
         )
 
-        if len(series) < 256:
-            series = np.pad(series, (0, 256-len(series)), mode='wrap')
-
-        alpha = estimate_alpha(series)
-
-        if not np.isfinite(alpha):
-            alpha = -1.0
-
-        report.append({
-            "dataset": path,
-            "alpha": float(alpha)
-        })
-
-        if alpha > 0:
-            alphas.append(alpha)
-
-    except Exception as e:
-
-        report.append({
-            "dataset": path,
-            "alpha": -1.0,
-            "error": str(e)
-        })
-
-if len(alphas) < 2:
-    raise SystemExit(
-        "❌ insufficient valid domains"
+    print(
+        "Canonical consensus guard delegates exclusively "
+        "to scripts/canonical_consensus.py"
     )
 
-dispersion = float(np.std(alphas))
-
-summary = {
-    "alphas": report,
-    "cross_domain_std": dispersion,
-    "valid_domains": len(alphas)
-}
-
-with open(
-    "artifacts/canonical_consensus.json",
-    "w"
-) as f:
-    json.dump(summary, f, indent=2)
-
-print(json.dumps(summary, indent=2))
-
-if dispersion > 1.8:
-    raise SystemExit(
-        "❌ cross-domain dispersion too high"
+    subprocess.run(
+        [
+            sys.executable,
+            str(CANONICAL_SCRIPT),
+        ],
+        check=True,
     )
 
-print(
-    "✅ canonical consensus holds"
-)
+    print(
+        "Canonical consensus guard completed without "
+        "maintaining a competing scientific definition."
+    )
+
+if __name__ == "__main__":
+    main()
