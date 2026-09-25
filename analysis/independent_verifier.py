@@ -411,17 +411,47 @@ def validate_strict_contract(
             finite(bootstrap_discrepancy)
             and
             bootstrap_discrepancy
-            <= max_bootstrap_discrepancy,
-
-        "scale_validation_passed":
-            bool(scale.get("valid", False)),
-
-        "scale_invariance_passed":
-            bool(scale.get("scale_invariant", False)),
-
-        "null_rejected":
-            bool(report.get("null_rejected", False)),
+            <= max_bootstrap_discrepancy
     }
+
+    stochastic_null = report.get(
+        "appropriate_stochastic_null",
+        {},
+    )
+
+    "appropriate_stochastic_null_available":
+        bool(
+            stochastic_null.get(
+                "valid",
+                False
+            )
+        ),
+
+    "appropriate_stochastic_null_rejected":
+        bool(
+            stochastic_null.get(
+                "valid",
+                False
+            )
+            and
+            stochastic_null.get(
+                "reject_at_0_05",
+                False
+            )
+            and
+            stochastic_null.get(
+                "support_eligible",
+                False
+            )
+        ),
+
+    "permutation_null_rejected_diagnostic_only":
+        bool(
+            report.get(
+                "null_rejected",
+                False
+            )
+        ),
 
     contract_passed = all(
         contract_checks.values()
@@ -467,6 +497,10 @@ def validate_strict_contract(
         contract_passed
         and
         evidence_completion
+        and
+        contract_checks[
+            "appropriate_stochastic_null_rejected"
+        ]
     )
 
     return {
