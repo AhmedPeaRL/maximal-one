@@ -47,6 +47,10 @@ CANONICAL_MIN_BINS = 20
 CANONICAL_WINDOW = "hann"
 CANONICAL_DETREND = "linear"
 CANONICAL_SCALING = "density"
+CANONICAL_NOVERLAP_FRACTION = 0.5
+CANONICAL_NFFT_MODE = "nperseg"
+CANONICAL_AVERAGE = "mean"
+CANONICAL_RETURN_ONESIDED = True
 
 def f(x):
     return float(
@@ -202,12 +206,24 @@ def estimate_alpha(
     if available_bins < CANONICAL_MIN_BINS:
         return np.nan
 
+    noverlap = int(
+        nperseg
+        * CANONICAL_NOVERLAP_FRACTION
+    )
+
+    nfft = nperseg
+
     freqs, psd = welch(
         series,
         nperseg=nperseg,
+        noverlap=noverlap,
+        nfft=nfft,
         window=CANONICAL_WINDOW,
         detrend=CANONICAL_DETREND,
         scaling=CANONICAL_SCALING,
+        return_onesided=CANONICAL_RETURN_ONESIDED,
+        axis=-1,
+        average=CANONICAL_AVERAGE,
     )
 
     mask = (
