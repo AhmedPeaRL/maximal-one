@@ -66,6 +66,17 @@
     }
   },
 
+  "welch_protocol": {
+    "nperseg": 1024,
+    "window": "hann",
+    "detrend": "linear",
+    "scaling": "density",
+    "noverlap_fraction": 0.5,
+    "nfft": "nperseg",
+    "return_onesided": true,
+    "average": "mean"
+  }
+
   "expected_result": {
     "alpha_range": [
       0.05,
