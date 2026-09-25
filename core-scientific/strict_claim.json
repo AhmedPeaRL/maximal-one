@@ -19,15 +19,17 @@
 
   "dataset": {
     "primary": "sunspots_full.csv",
+    "primary_real_domain_required": true,
     "secondary_required": true,
     "independent_real_domain_required": true,
+    "min_independent_secondary_real_domains": 2,
     "adversarial_rejection_required": true,
     "cross_domain_required": true,
     "derived_data_excluded_from_replication_count": true,
     "shuffle_controls_excluded_from_replication_count": true,
     "null_controls_excluded_from_replication_count": true
-  },
-
+  }
+  
   "method": {
     "pipeline": [
       "dataset_preprocessor",
@@ -81,6 +83,7 @@
     "max_internal_alpha_disagreement": 0.30,
     "max_bootstrap_center_discrepancy_sigma": 2.5,
     "max_p_value": 0.05,
+    "min_independent_secondary_real_domains": 2,
     "min_independent_real_domains": 2,
     "scale1_must_equal_canonical": true
   },
