@@ -1003,85 +1003,55 @@ def main():
             ),
         )
 
-        #============================================================
-        # EXTERNAL REPLAY IS AN EXTERNAL CI ATTESTATION
-        # ===========================================================
+        # ============================================================
+        # EXTERNAL REPLAY IS NOT AN INPUT TO THE CANONICAL REPORT
+        # ============================================================
         #
-        # The canonical scientific pipeline must NEVER manufacture
-        # its own independent replay evidence.
+        # The canonical scientific report MUST be generated solely
+        # from the declared empirical pipeline and canonical inputs.
         #
-        # An external replay is accepted only when a separately
-        # executed clean environment has produced an explicit
-        # attestation artifact.
+        # It must never read a previously generated replay artifact,
+        # because that would allow a prior verification result to
+        # influence the report that is subsequently reproduced.
         #
-        # Internal deterministic reruns are diagnostic only.
+        # External clean-checkout reproducibility is evaluated later
+        # by analysis/true_independent_reproduction.py and consumed
+        # separately by analysis/independent_verifier.py.
+        #
+        # Therefore:
+        #
+        #   canonical pipeline
+        #          |
+        #          v
+        #   canonical_report.json
+        #          |
+        #          +----> independent clean-checkout reproduction
+        #                         |
+        #                         v
+        #                 external replay attestation
+        #
+        # There is deliberately NO reverse arrow.
         # ============================================================
 
         external_replay_verified = False
         fingerprint_match = False
 
-        external_replay_path = Path(
-            "artifacts/external_replay_verification.json"
-        )
+        # IMPORTANT:
 
-        if external_replay_path.exists():
-            try:
-                with external_replay_path.open(
-                    "r",
-                    encoding="utf-8",
-                ) as f:
-                    external_replay = json.load(f)
+        # Do not load artifacts/external_replay_verification.json here.
 
-                external_replay_verified = (
-                    external_replay.get(
-                        "independent_replay_verified",
-                        False,
-                    )
-                    is True
-                )
-
-                fingerprint_match = (
-                    external_replay.get(
-                        "fingerprint_match",
-                        False,
-                    )
-                    is True
-                )
-
-                verification_method = (
-                    external_replay.get(
-                        "verification_method"
-                    )
-                )
-
-                # The artifact is not trusted unless it explicitly
-                # declares the required independent method.
-
-                VALID_REPLAY_METHODS = {
-                    "fresh_git_clone_exact_commit_clean_input_rebuild",
-                }
-
-                if verification_method not in VALID_REPLAY_METHODS:
-                    external_replay_verified = False
-                    fingerprint_match = False
-
-            except Exception:
-                external_replay_verified = False
-                fingerprint_match = False
-
-        else:
-            print(
-                "ℹ️ No external replay attestation available."
-            )
+        # Any future implementation that reads prior replay evidence
+        # inside canonical report generation violates the provenance
+        # direction of the scientific pipeline.
 
         print(
-            "External replay verified:",
-            external_replay_verified
+            "ℹ️ External replay attestation is intentionally "
+            "excluded from canonical report generation."
         )
 
         print(
-            "External fingerprint match:",
-            fingerprint_match
+            "ℹ️ Reproducibility evidence is evaluated "
+            "by the independent verification layer."
         )
 
         adversarial_control_path = Path(
