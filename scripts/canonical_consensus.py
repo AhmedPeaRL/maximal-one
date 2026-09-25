@@ -132,21 +132,26 @@ def main():
         for spec in DATASETS
     ]
 
-    real_results = [
+    primary_results = [
         r
         for r in results
         if (
-            r["independent"]
+            r["role"] == "primary_real"
             and r["valid"]
-            and r["role"]
-            in {
-                "primary_real",
-                "independent_real",
-            }
         )
     ]
 
-    excluded_real_domains = [
+    secondary_real_results = [
+        r
+        for r in results
+        if (
+            r["role"] == "independent_real"
+            and r["independent"]
+            and r["valid"]
+        )
+    ]
+
+    excluded_secondary_real_domains = [
         {
             "dataset": r["dataset"],
             "name": r["name"],
@@ -159,110 +164,112 @@ def main():
             ),
             "reason": r.get(
                 "error",
-                "excluded from independent real-domain replication",
+                "excluded from independent secondary-domain replication",
             ),
         }
         for r in results
         if (
-            r["independent"]
-            and r["role"]
-            in {
-                "primary_real",
-                "independent_real",
-            }
+            r["role"] == "independent_real"
+            and r["independent"]
             and not r["valid"]
         )
     ]
 
-    null_results = [
-        r
-        for r in results
-        if (
-            r["role"].startswith("null_")
-            and r["valid"]
-        )
-    ]
-
-    real_alphas = np.asarray(
+    primary_alphas = np.asarray(
         [
             r["alpha"]
-            for r in real_results
+            for r in primary_results
         ],
         dtype=np.float64,
     )
 
-    null_alphas = np.asarray(
+    secondary_real_alphas = np.asarray(
         [
             r["alpha"]
-            for r in null_results
+            for r in secondary_real_results
         ],
         dtype=np.float64,
     )
 
-    independent_real_domains = (
-        len(real_alphas)
+    primary_available = (
+        len(primary_alphas) >= 1
     )
 
-    if independent_real_domains >= 2:
-        real_domain_std = float(
-            np.std(real_alphas)
+    independent_secondary_domains = (
+        len(secondary_real_alphas)
+    )
+
+    if independent_secondary_domains >= 2:
+        secondary_domain_std = float(
+            np.std(secondary_real_alphas)
         )
-        real_domain_median = float(
-            np.median(real_alphas)
+        secondary_domain_median = float(
+            np.median(secondary_real_alphas)
         )
     else:
-        real_domain_std = None
-        real_domain_median = None
+        secondary_domain_std = None
+        secondary_domain_median = None
 
     summary = {
         "status": "evaluated",
+
         "datasets": results,
-        "valid_real_domains": int(
-            independent_real_domains
+
+        "primary_real_domain": {
+            "available": bool(
+                primary_available
+            ),
+            "count": int(
+                len(primary_alphas)
+            ),
+            "alphas": [
+                float(x)
+                for x in primary_alphas
+            ],
+        },
+
+        "independent_secondary_real_domains": {
+            "count": int(
+                independent_secondary_domains
+            ),
+            "alphas": [
+                float(x)
+                for x in secondary_real_alphas
+            ],
+            "median": (
+                secondary_domain_median
+            ),
+            "std": (
+                secondary_domain_std
+            ),
+        },
+
+        "excluded_secondary_real_domains": (
+            excluded_secondary_real_domains
         ),
-        "real_domain_alphas": [
-            float(x)
-            for x in real_alphas
-        ],
-        "real_domain_median": (
-            real_domain_median
+
+        "excluded_secondary_real_domain_count": int(
+            len(excluded_secondary_real_domains)
         ),
-        "real_domain_std": (
-            real_domain_std
-        ),
-        "excluded_real_domains": (
-            excluded_real_domains
-        ),
-        "excluded_real_domain_count": int(
-            len(excluded_real_domains)
-        ),
-        "valid_null_controls": int(
-            len(null_alphas)
-        ),
-        "null_control_std": (
-            float(np.std(null_alphas))
-            if len(null_alphas) >= 2
-            else None
-        ),
-        "real_domain_consensus": bool(
-            independent_real_domains >= 2
-        ),
-        "null_controls_available": bool(
-            len(null_alphas) >= 1
-        ),
+
         "independent_real_replication_required": True,
+
         "independent_real_replication_complete": bool(
-            independent_real_domains >= 2
+            primary_available
+            and
+            independent_secondary_domains >= 2
         ),
+
         "interpretation": (
-            "Only genuinely independent real datasets "
-            "count toward cross-domain replication. "
-            "Derived, shuffled, synthetic, and null "
-            "datasets do not count. "
-            "Independent real datasets that fail the "
-            "canonical alpha measurement are explicitly "
-            "listed in excluded_real_domains and are not "
-            "silently substituted or repaired."
+            "The primary real dataset is evaluated separately "
+            "from independent secondary real domains. "
+            "Only genuinely independent secondary real datasets "
+            "count toward replication of the primary result. "
+            "Derived, shuffled, synthetic, and null datasets "
+            "do not count. Independent secondary real datasets "
+            "that fail the canonical alpha measurement are "
+            "explicitly listed and are not silently substituted "
+            "or repaired."
         ),
     }
     
