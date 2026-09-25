@@ -412,11 +412,17 @@ def main():
         from analysis.predictive_validation import (
             evaluate_prediction
         )
+        from analysis.appropriate_stochastic_null import (
+            parametric_short_memory_null,
+        )
 
         falsification_rng = np.random.default_rng(args.seed + 101)
         direction_gap = temporal_direction_test(series)
         bootstrap_rng = np.random.default_rng(args.seed + 202)
         stats_rng = np.random.default_rng(args.seed + 303)
+        stochastic_null_rng = np.random.default_rng(
+            args.seed + 707
+        )
         
         # ✅ minimal preprocessing only
         series = series.astype(np.float64)
@@ -682,6 +688,40 @@ def main():
         if stats["p_value"] > 0.05:
             print(
                 "⚠️ Null hypothesis not rejected"
+            )
+
+        stochastic_null = parametric_short_memory_null(
+            series,
+            alpha,
+            stochastic_null_rng,
+            trials=int(
+                strict_claim[
+                    "stochastic_null_protocol"
+                ]["bootstrap_trials"]
+            ),
+        )
+
+        stochastic_null_rejected = bool(
+            stochastic_null.get("valid", False)
+            and
+            stochastic_null.get(
+                "reject_at_0_05",
+                False
+            )
+        )
+
+        if stochastic_null_rejected:
+            print(
+                "✅ Appropriate stochastic "
+                "short-memory null rejected."
+            )
+        else:
+            print(
+                "⚠️ Appropriate stochastic "
+                "short-memory null NOT rejected."
+            )
+            print(
+                "ℹ️ Scientific support remains closed."
             )
 
         from analysis.independent_validation import compare_methods
@@ -1367,6 +1407,8 @@ def main():
             },
             "separation_test": sep,
             "null_rejected": null_rejected,
+            "appropriate_stochastic_null":
+                stochastic_null,
             "multi_scale_validation": scale_test,
             "perturbation_stability": cross_seed,
             "cross_method_validation": {
@@ -1399,6 +1441,15 @@ def main():
             },
             "scientific_interpretation": {
                 "null_rejected": bool(null_rejected),
+                "appropriate_stochastic_null_rejected":
+                    bool(
+                        stochastic_null_rejected
+                    ),
+
+                "permutation_null_rejected":
+                    bool(
+                        null_rejected
+                    ),
                 "evidence_strength": (
                     "strong_for_specified_spectral_hypothesis"
                     if claim_supported
