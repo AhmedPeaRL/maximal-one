@@ -27,13 +27,12 @@ for s in seeds:
 baseline = np.array(baseline)
 model = np.array(model)
 
-# 👇 ده المفتاح
-spectral_exponent = baseline - model
+score_difference = baseline - model
 
 df = pd.DataFrame({
     "baseline": baseline,
     "model": model,
-    "spectral_exponent": spectral_exponent
+    "score_difference": score_difference
 })
 
 output_path = "../data/multi_seed_results.csv"
@@ -54,7 +53,7 @@ result = {
     "improvement": float(improvement),
     "p_value": float(p),
     "n_seeds": len(seeds),
-    "system": "synthetic_seed_sweep",
+    "system": "synthetic_score_sweep",
     "scientific_role": "diagnostic_only",
     "independent_real_domain_evidence": False,
     "lorenz96_validation": False,
