@@ -1,0 +1,19 @@
+{
+  "delta": 0.0,
+  "environment": {
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "python": "3.11.15"
+  },
+  "fingerprint_match": false,
+  "independent_replay_verified": false,
+  "interpretation": "This artifact verifies repeatability within the current execution environment. It is not an independent clean-checkout reproduction and is not external replication.",
+  "original_alpha": 2.525347,
+  "original_report_sha256": "613e92a21cfdf155dd7753c4339fc3078bb9ac404c077808771c1ec78a403142",
+  "replay_type": "internal_same_environment_rerun",
+  "reproduced_alpha": 2.525347,
+  "reproduced_report_sha256": "6d2a69770cae2112dc3f9c395b259f58999ce07fff63b775bec2438c9dd5550d",
+  "scientific_role": "diagnostic_only",
+  "status": "verified",
+  "structure_match": false,
+  "verification_method": "same_environment_internal_rerun"
+}
