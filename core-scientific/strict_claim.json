@@ -95,8 +95,29 @@
     "max_bootstrap_center_discrepancy_sigma": 2.5,
     "max_p_value": 0.05,
     "min_independent_secondary_real_domains": 2,
-    "min_independent_real_domains": 2,
+    "primary_real_domain_required": true,
     "scale1_must_equal_canonical": true
+  },
+
+  "stochastic_null_protocol": {
+    "status": "prospective_repair_after_observation",
+    "scientific_role": "primary_stochastic_null_gate",
+    "null_family": "stationary_gaussian_AR_p",
+    "order_selection": {
+      "criterion": "AIC",
+      "min_order": 1,
+      "max_order": 20,
+      "trend": "constant",
+      "stationarity_required": true
+    },
+    "bootstrap_trials": 1000,
+    "minimum_valid_surrogates": 200,
+    "burn_in": 1000,
+    "p_value_rule": "(exceedances + 1) / (valid_surrogates + 1)",
+    "endpoint": "canonical_primary_alpha",
+    "refit_order_on_each_surrogate": true,
+    "support_requires_rejection": true,
+    "permutation_null_is_primary": false
   },
 
   "scale_validation": {
@@ -187,12 +208,18 @@
       "null_rejection",
       "independent_real_domain_replication",
       "cross_method_agreement",
-      "scale_stability",
       "internal_alpha_consistency",
       "bootstrap_consistency",
       "clean_checkout_computational_reproducibility",
       "fingerprint_match",
       "adversarial_control"
+    ],
+    "diagnostic_only": [
+      "permutation_null_rejection",
+      "scale_stability",
+      "phase_surrogate_separation",
+      "prediction_regime_transition",
+      "evidence_score"
     ]
   }
 }
