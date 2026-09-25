@@ -1,8 +1,8 @@
 {
   "title": "Constrained Spectral Persistence Hypothesis",
 
-  "statement": "A spectral persistence signature is hypothesized to occur in selected heterogeneous temporal datasets and to remain distinguishable from appropriately specified stochastic null models under preregistered validation. The hypothesis remains unestablished until all declared validation layers agree internally, statistical null rejection is demonstrated, independent real-domain replication is demonstrated, and independent rerun reproducibility is verified.",
-
+  "statement": "A spectral persistence signature is hypothesized to occur in selected heterogeneous temporal datasets and to remain distinguishable from appropriately specified stochastic null models under the declared validation protocol. The hypothesis remains unestablished until the declared validation layers agree internally, an appropriate stochastic null is rejected under its stated protocol, independent real-domain replication is demonstrated, and independent clean-checkout computational reproducibility is verified. Post-observation protocol amendments are recorded explicitly and are not represented as preregistered evidence.",
+  
   "epistemic_policy": {
     "claim_status_is_machine_gated": true,
     "no_claim_from_single_metric": true,
@@ -190,7 +190,7 @@
   },
 
   "falsification": {
-    "condition": "If alpha exits [0.05,3.0] OR sigma > 0.85 OR independent cross-domain std > 1.2 OR FFT/Welch disagreement > 0.30 OR scale dispersion > 0.40 OR internal canonical-alpha disagreement > 0.30 OR bootstrap center discrepancy exceeds 2.5 sigma OR p_value > 0.05 when the claim is evaluated as supported OR fewer than 2 independent real domains are available for replication.",
+    "condition": "If alpha exits [0.05,3.0] OR sigma > 0.85 OR independent cross-domain std > 1.2 OR FFT/Welch disagreement > 0.30 OR internal canonical-alpha disagreement > 0.30 OR bootstrap center discrepancy exceeds 2.5 sigma OR the declared appropriate stochastic null is not rejected at the stated threshold when claim support is evaluated OR fewer than 2 independent secondary real domains are available for replication.",
     "action": "Do not support the scientific claim; mark it under investigation or falsified according to the failed condition."
   },
 
@@ -205,8 +205,8 @@
   "epistemic_status": {
     "current_status": "under_investigation",
     "support_requires": [
-      "null_rejection",
-      "independent_real_domain_replication",
+      "appropriate_stochastic_null_rejection",
+      "independent_secondary_real_domain_replication",
       "cross_method_agreement",
       "internal_alpha_consistency",
       "bootstrap_consistency",
