@@ -1,0 +1,13 @@
+{
+  "fft_alpha": -0.01815705,
+  "input_role": "derived_adversarial_probe",
+  "interpretation": "Adversarial probe did not satisfy the predefined mimic condition.",
+  "method_delta": 0.7623116600000001,
+  "passed": true,
+  "persistence_score": 0.0740487617827542,
+  "role": "adversarial_control",
+  "scientific_claim_authority": false,
+  "seed": 42,
+  "spectral_mimic_detected": false,
+  "welch_alpha": 0.74415461
+}
