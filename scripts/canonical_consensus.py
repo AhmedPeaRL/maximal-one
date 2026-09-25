@@ -252,6 +252,20 @@ def main():
             len(excluded_secondary_real_domains)
         ),
 
+        # Canonical summary fields consumed by downstream report/validator.
+        # Only valid, genuinely independent secondary real domains count.
+        "valid_real_domains": int(
+            independent_secondary_domains
+        ),
+
+        "real_domain_std": (
+            secondary_domain_std
+        ),
+
+        "excluded_real_domains": (
+            excluded_secondary_real_domains
+        ),
+
         "independent_real_replication_required": True,
 
         "independent_real_replication_complete": bool(
@@ -294,7 +308,7 @@ def main():
         )
     )
 
-    if independent_real_domains < 2:
+    if independent_secondary_domains < 2:
         print(
             "⚠️ Independent real-domain replication incomplete."
         )
@@ -306,20 +320,15 @@ def main():
             "✅ Independent real-domain replication available."
         )
 
-    if excluded_real_domains:
+    if excluded_secondary_real_domains:
         print(
             "ℹ️ Excluded independent real domains:"
         )
-        for item in excluded_real_domains:
+        for item in excluded_secondary_real_domains:
             print(
                 f"   - {item['name']}: "
                 f"{item['reason']}"
             )
-
-    if len(null_alphas) == 0:
-        print(
-            "⚠️ No valid null controls available."
-        )
 
     print(
         "✅ canonical consensus evaluated"
