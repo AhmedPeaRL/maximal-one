@@ -530,6 +530,10 @@ def validate_strict_contract(
             contract_passed
         ),
 
+        "support_ready": bool(
+            support_ready
+        ),
+
         "scientific_support_ready": bool(
             support_ready
         ),
@@ -746,6 +750,11 @@ def build_external_record():
             ),
 
             "support_ready":
+                bool(
+                    contract["support_ready"]
+                ),
+
+            "scientific_support_ready":
                 bool(
                     contract["support_ready"]
                 ),
