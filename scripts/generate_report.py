@@ -1489,7 +1489,7 @@ def main():
                     else None
                 ),
                 "minimum_required": int(
-                    MIN_INDEPENDENT_REAL_DOMAINS
+                    MIN_INDEPENDENT_SECONDARY_REAL_DOMAINS
                 ),
                 "maximum_allowed_std": float(
                     MAX_CROSS_DOMAIN_STD
