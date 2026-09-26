@@ -2609,8 +2609,26 @@ jobs:
 
           if record["strict_contract"]["passed"] is not True:
               raise SystemExit(
-                  "❌ Independent verifier reported failed strict contract"
+                  "❌ Independent verifier execution failed"
               )
+
+          if record["strict_contract"]["contract_satisfied"] is not True:
+              print(
+                  "ℹ️ Scientific contract is not satisfied."
+              )
+              print(
+                  "ℹ️ This is an epistemic result, not a verifier failure."
+              )
+
+          print(
+              "Scientific support ready:",
+              record["strict_contract"]["scientific_support_ready"],
+          )
+
+          print(
+              "Scientific claim promotion:",
+              record["scientific_claim_decision"]["made_here"],
+          )
 
           if record["adaptive_thresholds"]["used"] is not False:
               raise SystemExit(
