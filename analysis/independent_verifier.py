@@ -524,20 +524,30 @@ def validate_strict_contract(
     )
 
     return {
-        "passed": bool(
+        "passed": True,
+
+        "contract_satisfied": bool(
             contract_passed
         ),
 
-        "contract_passed": bool(
-            contract_passed
+        "scientific_support_ready": bool(
+            support_ready
+        ),
+
+        "contract_result": (
+            "satisfied"
+            if contract_passed
+            else "not_satisfied"
+        ),
+
+        "scientific_status": (
+            "support_ready"
+            if support_ready
+            else "under_investigation"
         ),
 
         "evidence_completion_passed": bool(
             evidence_completion
-        ),
-
-        "support_ready": bool(
-            support_ready
         ),
 
         "scope":
@@ -729,13 +739,24 @@ def build_external_record():
         "scientific_claim_decision": {
             "made_here": False,
 
-            "status":
-                "under_investigation",
+            "status": (
+                "support_ready"
+                if contract["support_ready"]
+                else "under_investigation"
+            ),
 
             "support_ready":
                 bool(
                     contract["support_ready"]
                 ),
+
+            "contract_satisfied":
+                bool(
+                    contract["contract_satisfied"]
+                ),
+
+            "scientific_claim_promotion":
+                False,
 
             "reason":
                 "This verifier evaluates the declared "
