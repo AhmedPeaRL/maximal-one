@@ -878,8 +878,8 @@ if __name__ == "__main__":
     )
 
     print(
-        "Empirical contract passed:",
-        contract["contract_passed"],
+        "Empirical contract satisfied:",
+        contract["contract_satisfied"],
     )
 
     print(
