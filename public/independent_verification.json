@@ -21,10 +21,10 @@
     "universality_inferred": false
   },
   "integrity": {
-    "calculated_hash": "c64d16f39b747d83954218fc20b6fdfc1063750c34268f52763fca0670b6b88b",
+    "calculated_hash": "e4792920b30d50e453546e0c5730739192fe38f4645bf0ee1cfcaf1cece28ca1",
     "hash_source": "artifacts/report.hash",
     "passed": true,
-    "stored_hash": "c64d16f39b747d83954218fc20b6fdfc1063750c34268f52763fca0670b6b88b"
+    "stored_hash": "e4792920b30d50e453546e0c5730739192fe38f4645bf0ee1cfcaf1cece28ca1"
   },
   "scientific_claim_decision": {
     "contract_satisfied": false,
@@ -63,6 +63,14 @@
       "null_samples": 1000,
       "null_std": 0.235076,
       "observed_alpha": 2.525347,
+      "order_selection_diagnostic": {
+        "alpha_estimation_failures": 0,
+        "interpretation": "The AIC order-selection procedure is reported for transparency. Reaching the declared maximum order does not reject the null and does not by itself invalidate the test, but indicates that null-model flexibility should be audited.",
+        "refit_failures": 0,
+        "scientific_role": "diagnostic_only",
+        "selected_at_boundary": true,
+        "surrogate_boundary_fraction": 0.965
+      },
       "p_value_mc_add_one": 0.999001,
       "permutation_null_is_primary": false,
       "reject_at_0_05": false,
@@ -162,6 +170,6 @@
     "scope": "empirical_contract_only",
     "support_ready": false
   },
-  "timestamp": 1790483143.1061475,
+  "timestamp": 1790485719.107328,
   "verification_role": "contract_and_evidence_completion_verification"
 }
