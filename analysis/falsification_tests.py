@@ -9,6 +9,16 @@ def validate(
     boot_mean,
     boot_std
 ):
+    """
+    Fixed bootstrap-center consistency diagnostic.
+
+    The threshold is declared by the scientific contract and
+    must not adapt to the observed result.
+
+    This function does not establish the scientific claim.
+    """
+
+    MAX_BOOTSTRAP_CENTER_DISCREPANCY_SIGMA = 2.5
 
     if (
         not np.isfinite(alpha)
@@ -16,36 +26,45 @@ def validate(
         not np.isfinite(boot_mean)
         or
         not np.isfinite(boot_std)
+        or
+        boot_std < 0
     ):
         return {
-            "passed": False
+            "passed": False,
+            "valid": False,
+            "reason": "invalid_bootstrap_inputs",
+            "z_score": None,
+            "threshold": (
+                MAX_BOOTSTRAP_CENTER_DISCREPANCY_SIGMA
+            ),
+            "adaptive_threshold": False,
+            "scientific_role":
+                "estimator_consistency_validation",
         }
 
     z = abs(
-        alpha - boot_mean
-    ) / (
-        boot_std + 1e-12
-    )
-
-    adaptive_limit = max(
-        4.0,
-        1.5 * np.log1p(
-            abs(boot_mean) / (
-                boot_std + 1e-12
-            )
-        )
+        float(alpha) - float(boot_mean)
+    ) / max(
+        float(boot_std),
+        1e-12,
     )
 
     return {
         "passed": bool(
-            z < adaptive_limit
+            z <=
+            MAX_BOOTSTRAP_CENTER_DISCREPANCY_SIGMA
         ),
+        "valid": True,
+        "reason": None,
         "z_score": float(
             round(z, 8)
         ),
-        "threshold": float(
-            round(adaptive_limit, 8)
-        )
+        "threshold": (
+            MAX_BOOTSTRAP_CENTER_DISCREPANCY_SIGMA
+        ),
+        "adaptive_threshold": False,
+        "scientific_role":
+            "estimator_consistency_validation",
     }
     
 def phase_surrogate_guard(
