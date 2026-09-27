@@ -1,0 +1,77 @@
+name: Scientific Claim Promotion Gate
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  claim-promotion:
+    name: Claim Promotion Gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout exact repository state
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.15"
+
+      - name: Enforce deterministic environment
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "PYTHONHASHSEED=42" >> "$GITHUB_ENV"
+          echo "OMP_NUM_THREADS=1" >> "$GITHUB_ENV"
+          echo "MKL_NUM_THREADS=1" >> "$GITHUB_ENV"
+          echo "OPENBLAS_NUM_THREADS=1" >> "$GITHUB_ENV"
+          echo "NUMEXPR_NUM_THREADS=1" >> "$GITHUB_ENV"
+
+      - name: Install locked dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python -m pip install --upgrade pip
+          python -m pip install \
+            --require-hashes \
+            -r requirements-lock.txt
+
+      - name: Verify canonical report exists
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test -f artifacts/canonical_report.json
+
+      - name: Evaluate scientific contract
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          node core-scientific/evaluate_scientific_contract.cjs
+
+      - name: Enforce claim promotion gate
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Attempting scientific claim promotion."
+
+          node core-scientific/enforce_strict.cjs
+
+          echo
+          echo "============================================"
+          echo "SCIENTIFIC CLAIM PROMOTION GATE PASSED"
+          echo "============================================"
+          echo
+          echo "This does not imply causality, universality,"
+          echo "consciousness, HCM validity, or market advantage."
