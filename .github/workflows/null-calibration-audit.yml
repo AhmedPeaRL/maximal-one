@@ -1,0 +1,82 @@
+name: Null Calibration Audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  null-calibration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.15"
+
+      - name: Deterministic environment
+        run: |
+          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
+          echo "PYTHONHASHSEED=90210" >> "$GITHUB_ENV"
+          echo "OMP_NUM_THREADS=1" >> "$GITHUB_ENV"
+          echo "MKL_NUM_THREADS=1" >> "$GITHUB_ENV"
+          echo "OPENBLAS_NUM_THREADS=1" >> "$GITHUB_ENV"
+          echo "NUMEXPR_NUM_THREADS=1" >> "$GITHUB_ENV"
+
+      - name: Install locked dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r requirements-lock.txt
+
+      - name: Run null calibration audit
+        run: |
+          python analysis/null_calibration_audit.py
+
+      - name: Verify diagnostic-only artifact
+        run: |
+          test -f artifacts/null_calibration_audit.json
+
+          python - <<'PY'
+          import json
+
+          path = "artifacts/null_calibration_audit.json"
+
+          with open(path, encoding="utf-8") as f:
+              data = json.load(f)
+
+          if data.get("scientific_role") != "diagnostic_only":
+              raise SystemExit(
+                  "❌ Null calibration audit is not marked diagnostic_only"
+              )
+
+          if data.get("claim_support") is not False:
+              raise SystemExit(
+                  "❌ Null calibration audit must never support claim promotion"
+              )
+
+          for result in data.get("results", []):
+              if result.get("claim_support") is not False:
+                  raise SystemExit(
+                      "❌ A null-calibration case is incorrectly claim-supporting"
+                  )
+
+          print(
+              "✅ Null calibration artifact is explicitly diagnostic-only"
+          )
+          PY
+
+      - name: Upload audit
+        uses: actions/upload-artifact@v6
+        with:
+          name: null-calibration-audit
+          path: artifacts/null_calibration_audit.json
+          if-no-files-found: error
