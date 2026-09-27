@@ -102,7 +102,6 @@
   "stochastic_null_protocol": {
     "status": "prospective_repair_after_observation",
     "scientific_role": "primary_stochastic_null_gate",
-    "null_hypothesis": "Under the declared fitted stationary Gaussian AR(p) short-memory data-generating procedure, with p selected by AIC over 1..20 and refit on each surrogate, the canonical primary spectral exponent is not greater than the corresponding null distribution under the stated upper-tail endpoint test.",
     "null_family": "stationary_gaussian_AR_p",
     "alternative": {
       "direction": "greater_than_null",
