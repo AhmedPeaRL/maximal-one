@@ -1454,7 +1454,9 @@ def main():
                 "diagnostics": separation_diagnostics,
             },
             "separation_test": sep,
-            "null_rejected": null_rejected,
+            "permutation_null_rejected_diagnostic_only": bool(
+                null_rejected
+            ),
             "appropriate_stochastic_null":
                 stochastic_null,
             "multi_scale_validation": scale_test,
@@ -1499,7 +1501,9 @@ def main():
                 ),
             },
             "scientific_interpretation": {
-                "null_rejected": bool(null_rejected),
+                "permutation_null_rejected_diagnostic_only": bool(
+                    null_rejected
+                ),
                 "appropriate_stochastic_null_rejected": bool(
                     stochastic_null_rejected
                 ),
