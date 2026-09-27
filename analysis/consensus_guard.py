@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import numpy as np
 
 DEFAULT_MAX_METHOD_DELTA = 0.30
@@ -21,22 +22,24 @@ def consensus_check(
     ),
 ):
     """
-    Conservative scientific consensus gate.
+    Diagnostic consistency guard.
 
-    The gate evaluates evidence; it does not manufacture evidence.
+    This function evaluates cross-method agreement,
+    scale diagnostics, permutation-null diagnostics,
+    and the availability of independent real domains.
 
-    Thresholds are explicit inputs so that the canonical scientific
-    specification can remain the single source of truth.
+    It does NOT establish the scientific claim.
 
-    Important distinctions:
+    In particular:
 
-    - Reproducibility is not inferred from statistical significance.
-    - Null rejection is necessary but not sufficient.
-    - Cross-method agreement is necessary.
-    - Scale stability is necessary.
-    - Independent real-domain replication is required.
-    - evidence_score remains diagnostic and cannot override a
-      failed scientific gate.
+    - permutation-null rejection is diagnostic only;
+    - scale stability is diagnostic only;
+    - evidence_score is diagnostic only;
+    - this guard is not authoritative for scientific
+      claim promotion;
+    - the authoritative scientific support decision
+      belongs to the strict claim contract and its
+      declared primary stochastic null.
     """
 
     diagnostics = []
@@ -57,6 +60,7 @@ def consensus_check(
         min_independent_real_domains = int(
             min_independent_real_domains
         )
+
     except (
         TypeError,
         ValueError,
@@ -64,6 +68,10 @@ def consensus_check(
         return {
             "passed": False,
             "status": "invalid_configuration",
+            "scientific_claim_authority": False,
+            "scientific_role": (
+                "diagnostic_consistency_guard"
+            ),
             "diagnostics": [
                 "invalid_consensus_configuration"
             ],
@@ -72,6 +80,10 @@ def consensus_check(
                 independent_real_domains
             ),
             "null_rejected": False,
+            "null_rejection_role": (
+                "diagnostic_only"
+            ),
+            "evidence_score_diagnostic_only": True,
         }
 
     if not (
@@ -105,8 +117,7 @@ def consensus_check(
 
     if not (
         np.isfinite(alpha_fft)
-        and
-        np.isfinite(alpha_welch)
+        and np.isfinite(alpha_welch)
     ):
         diagnostics.append(
             "invalid_alpha"
@@ -114,8 +125,7 @@ def consensus_check(
 
     if (
         np.isfinite(alpha_fft)
-        and
-        np.isfinite(alpha_welch)
+        and np.isfinite(alpha_welch)
     ):
         delta = abs(
             float(alpha_fft)
@@ -140,6 +150,7 @@ def consensus_check(
         diagnostics.append(
             "invalid_scale_dispersion"
         )
+
     elif (
         np.isfinite(max_scale_dispersion)
         and
@@ -153,13 +164,14 @@ def consensus_check(
         diagnostics.append(
             "invalid_p_value"
         )
+
     elif (
         np.isfinite(max_p_value)
         and
         p_value > max_p_value
     ):
         diagnostics.append(
-            "null_not_rejected"
+            "null_not_rejected_diagnostic"
         )
 
     if (
@@ -177,11 +189,11 @@ def consensus_check(
 
     if passed:
         status = (
-            "consensus_validated"
+            "diagnostic_consistency_validated"
         )
 
     elif (
-        "null_not_rejected"
+        "null_not_rejected_diagnostic"
         in diagnostics
         or
         "independent_real_replication_missing"
@@ -218,6 +230,11 @@ def consensus_check(
 
         "status": status,
 
+        "scientific_claim_authority": False,
+
+        "scientific_role":
+            "diagnostic_consistency_guard",
+
         "diagnostics": diagnostics,
 
         "agreement_delta": (
@@ -249,6 +266,9 @@ def consensus_check(
             p_value <= max_p_value
         ),
 
+        "null_rejection_role":
+            "diagnostic_only",
+
         "evidence_score_diagnostic_only":
             True,
 
@@ -259,3 +279,8 @@ def consensus_check(
                 else None
             ),
     }
+
+if __name__ == "__main__":
+    print(
+        "consensus_guard.py loaded successfully"
+    )
