@@ -321,7 +321,16 @@ def main():
     # ============================================================
     # 7. Scale dispersion
     #
-    # This remains a secondary diagnostic.
+    # Scale stability is explicitly diagnostic-only in
+    # strict_claim.json.
+    #
+    # Therefore:
+    #
+    # - scale=1 identity remains a hard computational
+    #   consistency requirement above;
+    #
+    # - overall scale dispersion is recorded but does NOT
+    #   become a claim-support gate.
     # ============================================================
 
     scale_dispersion = scale.get(
@@ -333,23 +342,9 @@ def main():
     )
 
     if finite(scale_dispersion):
-
-        max_scale_dispersion = float(
-            expected.get(
-                "max_scale_dispersion",
-                0.40,
-            )
-        )
-
-        require(
-            float(scale_dispersion)
-            <= max_scale_dispersion,
-            (
-                "scale dispersion exceeds "
-                "declared threshold: "
-                f"{float(scale_dispersion):.8f} > "
-                f"{max_scale_dispersion:.8f}"
-            ),
+        print(
+            "   scale dispersion (diagnostic only): "
+            f"{float(scale_dispersion):.8f}"
         )
 
     # ============================================================
