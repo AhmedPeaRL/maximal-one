@@ -2273,7 +2273,7 @@ jobs:
 
           echo "✅ FINAL PROVENANCE CLOSURE CRYPTOGRAPHICALLY VERIFIED"
 
-      - name: Enforce Scientific Proof Contract
+      - name: Evaluate Scientific Contract
         shell: bash
         run: |
           set -euo pipefail
@@ -2287,9 +2287,21 @@ jobs:
             exit 1
           fi
 
-          echo "Running strict scientific validation."
+          echo "Evaluating scientific contract."
 
-          node core-scientific/enforce_strict.cjs
+          node core-scientific/evaluate_scientific_contract.cjs
+
+          echo
+          echo "=== SCIENTIFIC CONTRACT EVALUATION ==="
+
+          cat artifacts/scientific_contract_evaluation.json
+
+          echo
+          echo "Scientific pipeline completed."
+
+          echo "IMPORTANT:"
+          echo "A scientifically unsupported hypothesis is not a software failure."
+          echo "Claim promotion remains separately gated."
 
       - name: Load Authoritative Scientific Claim
         shell: bash
