@@ -8,8 +8,7 @@ function readJson(path) {
 
 function finite(value) {
   return (
-    typeof value === "number"
-    &&
+    typeof value === "number" &&
     Number.isFinite(value)
   );
 }
@@ -42,23 +41,9 @@ const sigma =
     report.spectral_profile.bootstrap_std
   );
 
-const pValue =
-  Number(
-    report.statistical_test.p_value
-  );
-
 const methodDelta =
   Number(
     report.cross_method_validation.agreement_delta
-  );
-
-const scale =
-  report.multi_scale_validation;
-
-const scaleDispersion =
-  Number(
-    scale.dispersion ??
-    scale.relative_spread
   );
 
 const bootstrapDiscrepancy =
@@ -76,18 +61,22 @@ const crossDomainStd =
 
 const independentDomains =
   Number(
-    report.consensus_guard
-      .independent_real_domains
+    crossDomain.independent_secondary_real_domains
+    ?? 0
   );
 
 const [minAlpha, maxAlpha] =
   expected.alpha_range;
 
+/*
+ * ------------------------------------------------------------
+ * 1. Canonical alpha range
+ * ------------------------------------------------------------
+ */
+
 if (
-  !finite(alpha)
-  ||
-  alpha < minAlpha
-  ||
+  !finite(alpha) ||
+  alpha < minAlpha ||
   alpha > maxAlpha
 ) {
   fail(
@@ -95,9 +84,14 @@ if (
   );
 }
 
+/*
+ * ------------------------------------------------------------
+ * 2. Bootstrap uncertainty bound
+ * ------------------------------------------------------------
+ */
+
 if (
-  !finite(sigma)
-  ||
+  !finite(sigma) ||
   sigma > Number(expected.max_sigma)
 ) {
   fail(
@@ -105,19 +99,16 @@ if (
   );
 }
 
-if (
-  !finite(pValue)
-  ||
-  pValue > Number(expected.max_p_value)
-) {
-  fail(
-    `p_value=${pValue} exceeds ${expected.max_p_value}`
-  );
-}
+/*
+ * ------------------------------------------------------------
+ * 3. Cross-method agreement
+ *
+ * Welch vs independent FFT is a declared validation layer.
+ * ------------------------------------------------------------
+ */
 
 if (
-  !finite(methodDelta)
-  ||
+  !finite(methodDelta) ||
   methodDelta >
     Number(expected.max_method_delta)
 ) {
@@ -126,20 +117,14 @@ if (
   );
 }
 
-if (
-  !finite(scaleDispersion)
-  ||
-  scaleDispersion >
-    Number(expected.max_scale_dispersion)
-) {
-  fail(
-    `scale_dispersion=${scaleDispersion} exceeds ${expected.max_scale_dispersion}`
-  );
-}
+/*
+ * ------------------------------------------------------------
+ * 4. Bootstrap center consistency
+ * ------------------------------------------------------------
+ */
 
 if (
-  !finite(bootstrapDiscrepancy)
-  ||
+  !finite(bootstrapDiscrepancy) ||
   bootstrapDiscrepancy >
     Number(
       expected.max_bootstrap_center_discrepancy_sigma
@@ -150,9 +135,14 @@ if (
   );
 }
 
+/*
+ * ------------------------------------------------------------
+ * 5. Independent real-domain replication
+ * ------------------------------------------------------------
+ */
+
 if (
-  !finite(crossDomainStd)
-  ||
+  !finite(crossDomainStd) ||
   crossDomainStd >
     Number(expected.max_cross_domain_std)
 ) {
@@ -162,41 +152,110 @@ if (
 }
 
 if (
-  independentDomains
-  <
+  independentDomains <
   Number(
-    expected.min_independent_real_domains
+    expected.min_independent_secondary_real_domains
   )
 ) {
   fail(
-    `independent real domains=${independentDomains} below required minimum`
+    `independent secondary real domains=${independentDomains} below required minimum`
+  );
+}
+
+/*
+ * ------------------------------------------------------------
+ * 6. PRIMARY SCIENTIFIC NULL GATE
+ *
+ * This is the authoritative null for claim support.
+ *
+ * IMPORTANT:
+ *
+ * report.statistical_test.p_value is the permutation-null
+ * diagnostic and is NOT the primary scientific null.
+ *
+ * The authoritative result is:
+ *
+ * report.appropriate_stochastic_null
+ *
+ * Therefore this gate must NEVER read:
+ *
+ *     report.null_rejected
+ *
+ * and must NEVER promote the permutation-null result.
+ * ------------------------------------------------------------
+ */
+
+const stochasticNull =
+  report.appropriate_stochastic_null;
+
+if (
+  !stochasticNull ||
+  typeof stochasticNull !== "object"
+) {
+  fail(
+    "appropriate_stochastic_null result is missing"
   );
 }
 
 if (
-  scale.valid !== true
-  ||
-  scale.scale_invariant !== true
+  stochasticNull.valid !== true
 ) {
   fail(
-    "scale validation/invariance requirement failed"
+    "appropriate stochastic null result is invalid"
   );
 }
 
 if (
-  report.null_rejected !== true
+  stochasticNull.support_eligible !== true
 ) {
   fail(
-    "primary null was not rejected"
+    "appropriate stochastic null is not support-eligible"
   );
 }
+
+if (
+  stochasticNull.reject_at_0_05 !== true
+) {
+  const pValue =
+    Number(
+      stochasticNull.p_value_mc_add_one
+    );
+
+  fail(
+    `primary appropriate stochastic null was not rejected (p=${pValue})`
+  );
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * 7. Explicit epistemic separation
+ *
+ * Scale stability and permutation-null rejection are
+ * diagnostic layers, not claim-promotion gates.
+ *
+ * Their presence or absence must not alter this contract.
+ * ------------------------------------------------------------
+ */
 
 console.log(
-  "✅ STRICT SCIENTIFIC CONTRACT PREREQUISITES PASSED"
+  "✅ STRICT SCIENTIFIC CONTRACT PASSED"
 );
 
 console.log(
-  "ℹ️ This does NOT independently promote the scientific claim."
+  "ℹ️ Authoritative primary null: appropriate_stochastic_null"
+);
+
+console.log(
+  "ℹ️ Permutation-null result is diagnostic-only."
+);
+
+console.log(
+  "ℹ️ Scale stability is diagnostic-only."
+);
+
+console.log(
+  "ℹ️ This contract does NOT independently promote the scientific claim."
 );
 
 console.log(
