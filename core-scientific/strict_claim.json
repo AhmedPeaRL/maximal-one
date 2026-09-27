@@ -103,6 +103,12 @@
     "status": "prospective_repair_after_observation",
     "scientific_role": "primary_stochastic_null_gate",
     "null_family": "stationary_gaussian_AR_p",
+    "alternative": {
+      "direction": "greater_than_null",
+      "endpoint": "canonical_primary_alpha",
+      "tail": "upper",
+      "interpretation": "The hypothesized persistence signature is operationalized as an elevated canonical spectral exponent relative to the declared short-memory null. A lower-than-null alpha is not treated as support."
+    },
     "order_selection": {
       "criterion": "AIC",
       "min_order": 1,
@@ -150,10 +156,11 @@
 
   "bootstrap_validation": {
     "center_discrepancy": {
-      "status": "diagnostic_only",
+      "status": "required_validation",
       "max_allowed_sigma_units": 2.5,
       "failure_policy": "claim_support_blocked",
-      "does_not_establish_estimator_bias": true
+      "does_not_establish_estimator_bias": true,
+      "scientific_role": "estimator_consistency_validation"
     }
   },
 
