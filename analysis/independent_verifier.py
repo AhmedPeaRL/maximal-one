@@ -433,7 +433,7 @@ def validate_strict_contract(
 
     permutation_null_rejected_diagnostic_only = bool(
         report.get(
-            "null_rejected",
+            "permutation_null_rejected_diagnostic_only",
             False,
         )
     )
