@@ -1,0 +1,37 @@
+{
+  "real-data/random_walk.csv": {
+    "columns": [
+      "value"
+    ],
+    "rows": 1024,
+    "sha256": "337a01de25b6cea9983c7d14bd17f009c6c973f148a9db6c1805ed2a03b04c81"
+  },
+  "real-data/shuffled_sunspots.csv": {
+    "columns": [
+      "value"
+    ],
+    "rows": 3327,
+    "sha256": "0401665bd5f90fd3d86880de543eb693975b22bd2f48c42f8931ff44fcb2ea19"
+  },
+  "real-data/sunspots_full.csv": {
+    "columns": [
+      "1749;01;1749.042;  96.7; -1.0;   -1;1"
+    ],
+    "rows": 3327,
+    "sha256": "d8a3346019a4c21f6ccc4d260642eef363262c5650acc54fd71a6d1605f60022"
+  },
+  "real-data/sunspots_global_extended.csv": {
+    "columns": [
+      "Sunspots"
+    ],
+    "rows": 3327,
+    "sha256": "d994e94084a5a576fe2a4fa5ce483ab1026296723c5aef92e9b4ef9b10822523"
+  },
+  "real-data/white_noise.csv": {
+    "columns": [
+      "value"
+    ],
+    "rows": 1024,
+    "sha256": "efb1376cbb72be79e22886d0d4a0a6869d38ed626190a30780cc677ac92acf17"
+  }
+}
