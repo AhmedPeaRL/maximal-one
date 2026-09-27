@@ -186,9 +186,10 @@ def parametric_short_memory_null(
 
     null_alphas = []
     selected_orders = []
+    refit_failures = 0
+    alpha_failures = 0
 
     for _ in range(trials):
-
         surrogate = _simulate_from_fit(
             fitted,
             len(x),
@@ -201,12 +202,16 @@ def parametric_short_memory_null(
                     surrogate
                 )
             )
+        except Exception:
+            refit_failures += 1
+            continue
 
+        try:
             alpha = estimate_alpha(
                 surrogate
             )
-
         except Exception:
+            alpha_failures += 1
             continue
 
         if np.isfinite(alpha):
@@ -241,6 +246,22 @@ def parametric_short_memory_null(
                 int(selected_order),
             "max_order":
                 int(MAX_AR_ORDER),
+            "order_selection_diagnostic": {
+                "selected_at_boundary":
+                    bool(
+                        selected_order
+                        ==
+                        MAX_AR_ORDER
+                    ),
+                "surrogate_boundary_fraction":
+                    None,
+                "refit_failures":
+                    int(refit_failures),
+                "alpha_estimation_failures":
+                    int(alpha_failures),
+                "scientific_role":
+                    "diagnostic_only"
+            },
             "trials_requested":
                 int(trials),
             "null_samples":
@@ -339,6 +360,37 @@ def parametric_short_memory_null(
                     selected_orders
                 )
             ),
+        "order_selection_diagnostic": {
+            "selected_at_boundary":
+                bool(
+                    selected_order
+                    ==
+                    MAX_AR_ORDER
+                ),
+            "surrogate_boundary_fraction":
+                float(
+                    np.mean(
+                        np.asarray(
+                            selected_orders
+                        )
+                        ==
+                        MAX_AR_ORDER
+                    )
+                ),
+            "refit_failures":
+                int(refit_failures),
+            "alpha_estimation_failures":
+                int(alpha_failures),
+            "scientific_role":
+                "diagnostic_only",
+            "interpretation":
+                "The AIC order-selection procedure "
+                "is reported for transparency. Reaching "
+                "the declared maximum order does not "
+                "reject the null and does not by itself "
+                "invalidate the test, but indicates that "
+                "null-model flexibility should be audited."
+        },
         "reject_at_0_05":
             bool(
                 p_value <= 0.05
