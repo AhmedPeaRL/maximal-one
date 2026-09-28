@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import json
 import math
 from pathlib import Path
@@ -380,7 +381,7 @@ def main():
         )
 
     # ============================================================
-    # 9. Consensus artifact
+    # 9A. Consensus artifact
     # ============================================================
 
     if CONSENSUS_PATH.exists():
@@ -503,6 +504,148 @@ def main():
         )
 
     # ============================================================
+    # 9B. PRIMARY STOCHASTIC-NULL SEMANTIC INTEGRITY
+    #
+    # The canonical report must describe the same scientific
+    # endpoint that the executable null procedure actually tests.
+    #
+    # This is an internal semantic-consistency gate.
+    # It does NOT require the null to be rejected.
+    # ============================================================
+
+    stochastic_null = report.get(
+        "appropriate_stochastic_null",
+        {},
+    )
+
+    require(
+        isinstance(
+            stochastic_null,
+            dict,
+        ),
+        (
+            "appropriate_stochastic_null must be "
+            "a JSON object"
+        ),
+    )
+
+    require(
+        stochastic_null.get(
+            "scientific_role"
+        )
+        == "primary_stochastic_null_gate",
+        (
+            "appropriate_stochastic_null does not "
+            "declare the primary stochastic-null role"
+        ),
+    )
+
+    require(
+        stochastic_null.get(
+            "null_model"
+        )
+        == "stationary_gaussian_ar_p_aic",
+        (
+            "unexpected primary stochastic-null model: "
+            f"{stochastic_null.get('null_model')}"
+        ),
+    )
+
+    require(
+        stochastic_null.get(
+            "test_endpoint"
+        )
+        == "canonical_primary_alpha",
+        (
+            "primary stochastic-null endpoint must be "
+            "canonical_primary_alpha"
+        ),
+    )
+
+    require(
+        stochastic_null.get(
+            "alternative"
+        )
+        == "greater_than_null",
+        (
+            "primary stochastic-null alternative must be "
+            "greater_than_null"
+        ),
+    )
+
+    require(
+        stochastic_null.get(
+            "tail"
+        )
+        == "upper",
+        (
+            "primary stochastic-null tail must be upper"
+        ),
+    )
+
+    require(
+        stochastic_null.get(
+            "permutation_null_is_primary"
+        )
+        is False,
+        (
+            "permutation null is not allowed to become "
+            "the primary scientific null"
+        ),
+    )
+
+    stochastic_p = stochastic_null.get(
+        "p_value_mc_add_one"
+    )
+
+    finite_float(
+        stochastic_p,
+        (
+            "appropriate_stochastic_null."
+            "p_value_mc_add_one"
+        ),
+    )
+
+    stochastic_observed_alpha = finite_float(
+        stochastic_null.get(
+            "observed_alpha"
+        ),
+        (
+            "appropriate_stochastic_null."
+            "observed_alpha"
+        ),
+    )
+
+    stochastic_alpha_delta = exact_delta(
+        canonical_alpha,
+        stochastic_observed_alpha,
+    )
+
+    require(
+        stochastic_alpha_delta
+        <= same_estimator_tol,
+        (
+            "primary stochastic-null observed alpha "
+            "does not equal canonical alpha: "
+            f"delta={stochastic_alpha_delta:.12f}"
+        ),
+    )
+
+    print(
+        "   primary stochastic-null p-value: "
+        f"{float(stochastic_p):.8f}"
+    )
+
+    print(
+        "   primary stochastic-null endpoint: "
+        "canonical_primary_alpha"
+    )
+
+    print(
+        "   permutation null remains diagnostic-only"
+    )
+
+    # ============================================================
     # 10. Claim-support gate
     #
     # Internal consistency is NOT external replication.
@@ -572,6 +715,11 @@ def main():
     print(
         f"   statistical identity delta: "
         f"{statistical_delta:.12f}"
+    )
+
+    print(
+        f"   stochastic-null observed-alpha identity delta: "
+        f"{stochastic_alpha_delta:.12f}"
     )
 
     print(
