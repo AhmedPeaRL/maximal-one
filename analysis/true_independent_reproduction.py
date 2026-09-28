@@ -104,6 +104,12 @@ def run_pipeline(path):
 
     env = os.environ.copy()
 
+    env["PYTHONPATH"] = (
+        path
+        + os.pathsep
+        + env.get("PYTHONPATH", "")
+    )
+
     env.update({
         "PYTHONHASHSEED": "42",
         "OMP_NUM_THREADS": "1",
