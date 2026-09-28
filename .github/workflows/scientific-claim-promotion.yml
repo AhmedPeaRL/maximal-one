@@ -10,7 +10,7 @@ jobs:
   claim-promotion:
     name: Claim Promotion Gate
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     steps:
       - name: Checkout exact repository state
@@ -41,16 +41,28 @@ jobs:
           set -euo pipefail
 
           python -m pip install --upgrade pip
+
           python -m pip install \
             --require-hashes \
             -r requirements-lock.txt
 
-      - name: Verify canonical report exists
+      - name: Regenerate canonical report from this exact checkout
         shell: bash
         run: |
           set -euo pipefail
 
-          test -f artifacts/canonical_report.json
+          python scripts/prepare_canonical_inputs.py
+
+          python scripts/generate_report.py \
+            --seed 42 \
+            --canonical
+
+      - name: Validate canonical report internal consistency
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python scripts/validate_canonical_report.py
 
       - name: Evaluate scientific contract
         shell: bash
@@ -59,19 +71,61 @@ jobs:
 
           node core-scientific/evaluate_scientific_contract.cjs
 
-      - name: Enforce claim promotion gate
+      - name: Run clean-checkout computational reproduction
         shell: bash
         run: |
           set -euo pipefail
 
-          echo "Attempting scientific claim promotion."
+          python analysis/true_independent_reproduction.py
+
+      - name: Validate external replay evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python scripts/validate_external_replay.py
+
+      - name: Verify adversarial control evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test -f artifacts/adversarial_control.json
+
+          python - <<'PY'
+          import json
+
+          path = "artifacts/adversarial_control.json"
+
+          with open(path, encoding="utf-8") as f:
+              data = json.load(f)
+
+          if data.get("passed") is not True:
+              raise SystemExit(
+                  "❌ Adversarial control did not pass."
+              )
+
+          print(
+              "✅ Adversarial control evidence passed."
+          )
+          PY
+
+      - name: Enforce scientific claim promotion
+        shell: bash
+        run: |
+          set -euo pipefail
 
           node core-scientific/enforce_strict.cjs
 
+      - name: Promotion summary
+        shell: bash
+        run: |
           echo
           echo "============================================"
           echo "SCIENTIFIC CLAIM PROMOTION GATE PASSED"
           echo "============================================"
           echo
-          echo "This does not imply causality, universality,"
+          echo "This means only that every declared"
+          echo "machine-gated promotion condition passed."
+          echo "It does not imply causality, universality,"
           echo "consciousness, HCM validity, or market advantage."
