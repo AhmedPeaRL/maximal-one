@@ -13,6 +13,7 @@ jobs:
     timeout-minutes: 30
 
     steps:
+
       - name: Checkout exact repository state
         uses: actions/checkout@v5
         with:
@@ -24,18 +25,32 @@ jobs:
         with:
           python-version: "3.11.15"
 
+      - name: Setup Node
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        with:
+          node-version: 18.20.8
+          cache: npm
+
       - name: Enforce deterministic environment
         shell: bash
         run: |
           set -euo pipefail
 
           echo "PYTHONHASHSEED=42" >> "$GITHUB_ENV"
+
           echo "OMP_NUM_THREADS=1" >> "$GITHUB_ENV"
           echo "MKL_NUM_THREADS=1" >> "$GITHUB_ENV"
           echo "OPENBLAS_NUM_THREADS=1" >> "$GITHUB_ENV"
           echo "NUMEXPR_NUM_THREADS=1" >> "$GITHUB_ENV"
 
-      - name: Install locked dependencies
+          echo "MKL_DYNAMIC=FALSE" >> "$GITHUB_ENV"
+          echo "OMP_DYNAMIC=FALSE" >> "$GITHUB_ENV"
+          echo "VECLIB_MAXIMUM_THREADS=1" >> "$GITHUB_ENV"
+          echo "BLIS_NUM_THREADS=1" >> "$GITHUB_ENV"
+
+          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
+
+      - name: Install locked Python dependencies
         shell: bash
         run: |
           set -euo pipefail
@@ -45,6 +60,18 @@ jobs:
           python -m pip install \
             --require-hashes \
             -r requirements-lock.txt
+
+      - name: Verify repository commit identity
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          actual_head="$(git rev-parse HEAD)"
+
+          test "$actual_head" = "$GITHUB_SHA"
+
+          echo "Verified workflow commit:"
+          echo "$actual_head"
 
       - name: Regenerate canonical report from this exact checkout
         shell: bash
@@ -71,12 +98,25 @@ jobs:
 
           node core-scientific/evaluate_scientific_contract.cjs
 
+      - name: Generate adversarial control evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python analysis/adversarial_control.py
+
+          test -s \
+            artifacts/adversarial_control.json
+
       - name: Run clean-checkout computational reproduction
         shell: bash
         run: |
           set -euo pipefail
 
           python analysis/true_independent_reproduction.py
+
+          test -s \
+            artifacts/external_replay_verification.json
 
       - name: Validate external replay evidence
         shell: bash
@@ -85,30 +125,12 @@ jobs:
 
           python scripts/validate_external_replay.py
 
-      - name: Verify adversarial control evidence
+      - name: Re-evaluate promotion prerequisites
         shell: bash
         run: |
           set -euo pipefail
 
-          test -f artifacts/adversarial_control.json
-
-          python - <<'PY'
-          import json
-
-          path = "artifacts/adversarial_control.json"
-
-          with open(path, encoding="utf-8") as f:
-              data = json.load(f)
-
-          if data.get("passed") is not True:
-              raise SystemExit(
-                  "❌ Adversarial control did not pass."
-              )
-
-          print(
-              "✅ Adversarial control evidence passed."
-          )
-          PY
+          node core-scientific/evaluate_scientific_contract.cjs
 
       - name: Enforce scientific claim promotion
         shell: bash
@@ -125,7 +147,9 @@ jobs:
           echo "SCIENTIFIC CLAIM PROMOTION GATE PASSED"
           echo "============================================"
           echo
-          echo "This means only that every declared"
-          echo "machine-gated promotion condition passed."
-          echo "It does not imply causality, universality,"
-          echo "consciousness, HCM validity, or market advantage."
+          echo "Only declared machine-gated promotion"
+          echo "conditions passed."
+          echo
+          echo "This does not establish causality,"
+          echo "universality, consciousness,"
+          echo "HCM validity, or market advantage."
