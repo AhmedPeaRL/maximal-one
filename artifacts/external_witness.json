@@ -1,0 +1,25 @@
+{
+  "length": 3650,
+  "mean": 11.177753424657535,
+  "metadata": {
+    "alpha_sigma": 0.11362921053024037,
+    "alpha_test": -0.03658947000000001,
+    "alpha_train": 0.16449167,
+    "drift": 0.20108114000000002,
+    "minimum_test_length": 640,
+    "minimum_test_windows": 2,
+    "minimum_train_length": 768,
+    "minimum_train_windows": 3,
+    "relative": 0.574517542857143,
+    "stride": 128,
+    "test_windows": 2,
+    "tolerance": 0.28407302632560094,
+    "train_ratio": 0.8,
+    "train_windows": 19,
+    "validator_reason": "adaptive_pass",
+    "window": 512
+  },
+  "source": "external_blind_test",
+  "std": 4.071279075310806,
+  "type": "structured"
+}
