@@ -364,7 +364,7 @@ const result = {
       null
   },
 
-  promotion_prerequisites,
+  promotionPrerequisites,
 
   external_replay_artifact_present:
     replayExists,
