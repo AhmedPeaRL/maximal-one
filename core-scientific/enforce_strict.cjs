@@ -15,12 +15,12 @@ function finite(value) {
 
 function fail(message) {
   console.error(
-    `❌ STRICT CLAIM PROMOTION FAILURE: ${message}`
+    `❌ CLAIM PROMOTION BLOCKED: ${message}`
   );
   process.exit(1);
 }
 
-function require(condition, message) {
+function assert(condition, message) {
   if (!condition) {
     fail(message);
   }
@@ -42,30 +42,14 @@ const REPLAY_PATH =
 const ADVERSARIAL_PATH =
   "artifacts/adversarial_control.json";
 
-require(
+assert(
   exists(REPORT_PATH),
   `missing ${REPORT_PATH}`
 );
 
-require(
+assert(
   exists(CLAIM_PATH),
   `missing ${CLAIM_PATH}`
-);
-
-require(
-  exists(REPLAY_PATH),
-  (
-    "missing external reproducibility evidence: " +
-    REPLAY_PATH
-  )
-);
-
-require(
-  exists(ADVERSARIAL_PATH),
-  (
-    "missing adversarial control evidence: " +
-    ADVERSARIAL_PATH
-  )
 );
 
 const report = readJson(
@@ -76,18 +60,10 @@ const claim = readJson(
   CLAIM_PATH
 );
 
-const replay = readJson(
-  REPLAY_PATH
-);
-
-const adversarial = readJson(
-  ADVERSARIAL_PATH
-);
-
 const expected =
   claim.expected_result;
 
-require(
+assert(
   expected &&
   typeof expected === "object",
   "strict_claim.expected_result is missing"
@@ -107,12 +83,12 @@ const alpha =
 const [minAlpha, maxAlpha] =
   expected.alpha_range;
 
-require(
+assert(
   finite(alpha),
   `canonical alpha is not finite: ${alpha}`
 );
 
-require(
+assert(
   alpha >= Number(minAlpha) &&
   alpha <= Number(maxAlpha),
   (
@@ -132,14 +108,13 @@ const sigma =
     report?.spectral_profile?.bootstrap_std
   );
 
-require(
+assert(
   finite(sigma),
   `bootstrap sigma is not finite: ${sigma}`
 );
 
-require(
-  sigma <=
-    Number(expected.max_sigma),
+assert(
+  sigma <= Number(expected.max_sigma),
   (
     `bootstrap sigma=${sigma} exceeds ` +
     `${expected.max_sigma}`
@@ -154,15 +129,16 @@ require(
 
 const methodDelta =
   Number(
-    report?.cross_method_validation?.agreement_delta
+    report?.cross_method_validation
+      ?.agreement_delta
   );
 
-require(
+assert(
   finite(methodDelta),
   "cross-method delta is not finite"
 );
 
-require(
+assert(
   methodDelta <=
     Number(expected.max_method_delta),
   (
@@ -179,15 +155,16 @@ require(
 
 const bootstrapDiscrepancy =
   Number(
-    report?.bootstrap_center_discrepancy?.std_units
+    report?.bootstrap_center_discrepancy
+      ?.std_units
   );
 
-require(
+assert(
   finite(bootstrapDiscrepancy),
   "bootstrap center discrepancy is not finite"
 );
 
-require(
+assert(
   bootstrapDiscrepancy <=
     Number(
       expected.max_bootstrap_center_discrepancy_sigma
@@ -211,16 +188,17 @@ const crossDomainStd =
 
 const independentDomains =
   Number(
-    crossDomain.independent_secondary_real_domains
-    ?? 0
+    crossDomain
+      .independent_secondary_real_domains
+      ?? 0
   );
 
-require(
+assert(
   finite(crossDomainStd),
   "cross-domain standard deviation is not finite"
 );
 
-require(
+assert(
   crossDomainStd <=
     Number(expected.max_cross_domain_std),
   (
@@ -229,10 +207,11 @@ require(
   )
 );
 
-require(
+assert(
   independentDomains >=
     Number(
-      expected.min_independent_secondary_real_domains
+      expected
+        .min_independent_secondary_real_domains
     ),
   (
     `independent secondary domains=${independentDomains} ` +
@@ -246,79 +225,84 @@ require(
  *
  * This is the authoritative scientific support gate.
  *
- * Non-rejection is not a pipeline error.
- * It is a reason that claim promotion is blocked.
+ * Non-rejection is not a software defect.
+ * It blocks scientific claim promotion.
  * ------------------------------------------------------------
  */
 
 const stochasticNull =
   report?.appropriate_stochastic_null;
 
-require(
+assert(
   stochasticNull &&
   typeof stochasticNull === "object",
   "appropriate_stochastic_null is missing"
 );
 
-require(
+assert(
   stochasticNull.valid === true,
   "primary stochastic null result is invalid"
 );
 
-require(
+assert(
   stochasticNull.support_eligible === true,
   "primary stochastic null is not support-eligible"
 );
 
-require(
+assert(
   stochasticNull.scientific_role ===
     "primary_stochastic_null_gate",
   "primary stochastic null has incorrect scientific role"
 );
 
-require(
+assert(
   stochasticNull.null_model ===
     "stationary_gaussian_ar_p_aic",
   "unexpected primary stochastic null model"
 );
 
-require(
+assert(
   stochasticNull.test_endpoint ===
     "canonical_primary_alpha",
   "primary stochastic null endpoint mismatch"
 );
 
-require(
+assert(
   stochasticNull.alternative ===
     "greater_than_null",
   "primary stochastic null alternative mismatch"
 );
 
-require(
+assert(
   stochasticNull.tail === "upper",
   "primary stochastic null tail mismatch"
 );
 
-require(
+assert(
   stochasticNull.permutation_null_is_primary ===
     false,
   "permutation null cannot be primary"
 );
 
-const stochasticNullPValue =
+const pValue =
   Number(
     stochasticNull.p_value_mc_add_one
   );
 
-require(
-  finite(stochasticNullPValue),
+assert(
+  finite(pValue),
   "primary stochastic null p-value is not finite"
 );
 
-const stochasticNullRejected =
-  stochasticNull.reject_at_0_05 === true;
+/*
+ * IMPORTANT:
+ * The current scientific state is expected to stop here.
+ * That is correct.
+ */
 
-if (!stochasticNullRejected) {
+if (
+  stochasticNull.reject_at_0_05 !== true
+) {
   console.error(
     "❌ CLAIM PROMOTION BLOCKED"
   );
@@ -328,7 +312,7 @@ if (!stochasticNullRejected) {
   );
 
   console.error(
-    `Primary stochastic-null p-value: ${stochasticNullPValue}`
+    `Primary stochastic-null p-value: ${pValue}`
   );
 
   console.error(
@@ -342,43 +326,44 @@ if (!stochasticNullRejected) {
  * ------------------------------------------------------------
  * 7. CLEAN-CHECKOUT COMPUTATIONAL REPRODUCIBILITY
  * ------------------------------------------------------------
- *
- * This evidence is intentionally external to canonical
- * report generation.
- *
- * Canonical generation must not consume prior replay evidence.
- * The promotion gate may consume the independently produced
- * replay artifact.
- * ------------------------------------------------------------
  */
 
-require(
+assert(
+  exists(REPLAY_PATH),
+  `missing ${REPLAY_PATH}`
+);
+
+const replay =
+  readJson(REPLAY_PATH);
+
+assert(
   replay &&
   typeof replay === "object",
   "external replay artifact is invalid"
 );
 
-require(
-  replay.clean_checkout_reproducibility_verified === true,
+assert(
+  replay.clean_checkout_reproducibility_verified
+    === true,
   "clean-checkout computational reproducibility is not verified"
 );
 
-require(
+assert(
   replay.fingerprint_match === true,
   "clean-checkout fingerprint does not match"
 );
 
-require(
+assert(
   replay.structure_match === true,
   "clean-checkout report structure does not match"
 );
 
-require(
+assert(
   replay.status === "verified",
   "external replay verification status is not verified"
 );
 
-require(
+assert(
   typeof replay.source_commit === "string" &&
   /^[0-9a-f]{40}$/i.test(
     replay.source_commit
@@ -386,14 +371,13 @@ require(
   "external replay source_commit is not a valid full commit SHA"
 );
 
-if (process.env.GITHUB_SHA) {
-  require(
-    replay.source_commit ===
-      process.env.GITHUB_SHA,
-    (
-      "external replay source_commit does not "
-      + "match GITHUB_SHA"
-    )
+if (
+  process.env.GITHUB_SHA
+) {
+  assert(
+    replay.source_commit.toLowerCase() ===
+      process.env.GITHUB_SHA.toLowerCase(),
+    "external replay source_commit does not match GITHUB_SHA"
   );
 }
 
@@ -403,30 +387,32 @@ if (process.env.GITHUB_SHA) {
  * ------------------------------------------------------------
  */
 
-require(
+assert(
+  exists(ADVERSARIAL_PATH),
+  `missing ${ADVERSARIAL_PATH}`
+);
+
+const adversarial =
+  readJson(ADVERSARIAL_PATH);
+
+assert(
   adversarial &&
   typeof adversarial === "object",
   "adversarial control artifact is invalid"
 );
 
-require(
+assert(
   adversarial.passed === true,
   "adversarial control did not pass"
 );
 
 /*
  * ------------------------------------------------------------
- * 9. DIAGNOSTIC-ONLY SEPARATION
- * ------------------------------------------------------------
- *
- * These must never rescue a failed primary null.
- * At this point the primary null has already passed.
- * They are still explicitly excluded from the promotion
- * decision itself.
+ * 9. EXPLICIT EPISTEMIC SEPARATION
  * ------------------------------------------------------------
  */
 
-require(
+assert(
   report?.scientific_interpretation
     ?.permutation_null_is_primary === false,
   "permutation null must remain diagnostic-only"
@@ -455,7 +441,7 @@ console.log(
 );
 
 console.log(
-  `primary stochastic-null p-value: ${stochasticNullPValue}`
+  `primary stochastic-null p-value: ${pValue}`
 );
 
 console.log(
