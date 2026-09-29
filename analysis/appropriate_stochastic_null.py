@@ -515,6 +515,15 @@ def parametric_short_memory_null(
                     ==
                     MAX_AR_ORDER
                 ),
+            
+            "boundary_warning":
+                (
+                    "AIC selected the maximum declared AR order. "
+                    "This is a model-capacity diagnostic and does not "
+                    "constitute evidence against or for the scientific claim."
+                    if selected_order == MAX_AR_ORDER
+                    else None
+                ),
 
             "surrogate_boundary_fraction":
                 float(
