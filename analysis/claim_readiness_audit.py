@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-
 import numpy as np
 import pandas as pd
 from scipy.signal import periodogram
@@ -30,7 +29,6 @@ def finite(value):
         isinstance(value, (int, float, np.number))
         and np.isfinite(float(value))
     )
-
 
 def safe_float(value):
     if finite(value):
@@ -340,7 +338,6 @@ def domain_eligibility_audit():
     return results
 
 def main():
-
     primary = load_primary()
 
     alpha = alpha_summary(
@@ -366,9 +363,83 @@ def main():
 
     domains = domain_eligibility_audit()
 
+    null_calibration_path = Path(
+        "artifacts/null_calibration_gate.json"
+    )
+
+    replication_gate_path = Path(
+        "artifacts/independent_domain_replication_gate.json"
+    )
+
+    replay_path = Path(
+        "artifacts/external_replay_verification.json"
+    )
+
+    null_calibration = (
+        json.loads(
+            null_calibration_path.read_text(
+                encoding="utf-8"
+            )
+        )
+        if null_calibration_path.exists()
+        else None
+    )
+
+    replication_gate = (
+        json.loads(
+            replication_gate_path.read_text(
+                encoding="utf-8"
+            )
+        )
+        if replication_gate_path.exists()
+        else None
+    )
+
+    replay = (
+        json.loads(
+            replay_path.read_text(
+                encoding="utf-8"
+            )
+        )
+        if replay_path.exists()
+        else None
+    )
+    
+    claim_readiness = {
+        "scientific_claim_supported": False,
+
+        "primary_stochastic_null_rejected": False,
+
+        "primary_null_calibrated": (
+            null_calibration is not None
+            and null_calibration.get(
+                "status"
+            ) == "CALIBRATION_NOT_REJECTED"
+        ),
+
+        "independent_domain_replication_established": (
+            replication_gate is not None
+            and replication_gate.get(
+                "status"
+            ) == "REPLICATION_ESTABLISHED"
+        ),
+
+        "computational_reproducibility_verified": (
+            replay is not None
+            and replay.get(
+                "computational_reproducibility_verified"
+            ) is True
+        ),
+
+        "scientific_replication_verified": False,
+
+        "promotion_allowed": False,
+    }
+
     report = {
         "status": "diagnostic_only",
         "scientific_claim_authority": False,
+        "claim_readiness": claim_readiness,
         "seed": SEED,
 
         "primary": {
