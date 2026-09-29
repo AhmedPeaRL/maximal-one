@@ -15,6 +15,8 @@ The system performs:
 - Cross-run reproducibility validation
 - Artifact persistence for auditability
 
+---
+
 ## Scientific Position
 
 This system is considered incomplete until independently reproduced outside its original execution environment.
@@ -35,6 +37,8 @@ If structure persists across:
 
 then further investigation is justified.
 
+---
+
 ## No Ontological Claims
 
 This repository does not claim:
@@ -44,6 +48,8 @@ This repository does not claim:
 - fundamental reinterpretation of cloud systems
 
 It only tests measurable statistical deviation from white noise.
+
+---
 
 ## Observational Insight Layer (Non-Claiming)
 
@@ -63,13 +69,14 @@ beyond known artifacts?
 This repository does not answer this question.
 It only makes it unavoidable.
 
+---
+
 ## Core Principle
 
-Reproducibility > Interpretation
-Data > Narrative
-Falsifiability > Desire
+- Reproducibility > Interpretation
+- Data > Narrative
+- Falsifiability > Desire
 
----
 
 New Theorem – Finite Spectral Upper Bound
 
@@ -107,6 +114,8 @@ All experiments are under:
 
     /experiments/
 
+---
+
 ## Baseline Comparison
 
 All spectral results are compared against:
@@ -117,11 +126,15 @@ All spectral results are compared against:
 
 This ensures deviations are not misinterpreted as structure.
 
+---
+
 ## Power Test Result
 
 Latest statistical test output is stored under:
 
     data/power_result.txt
+
+---
 
 ## Current Status
 
@@ -140,9 +153,50 @@ Open questions:
 - Independent third-party reproduction required
 - Additional datasets required
 
+---
+
+## Current Scientific Status
+
+The current implementation does not establish the
+Constrained Spectral Persistence Hypothesis.
+
+The canonical primary dataset produces a spectral
+exponent of approximately 2.525 under the declared
+Welch estimator.
+
+A permutation null is rejected, but permutation-null
+separation is explicitly diagnostic and is not the
+authoritative scientific endpoint.
+
+The declared primary stochastic short-memory null
+is not rejected. The current Monte Carlo p-value is
+approximately 0.999.
+
+In addition, the AR-order selection procedure reaches
+the declared maximum order, indicating that the current
+finite-order stochastic-null specification requires
+further calibration.
+
+Therefore the scientific claim remains:
+
+UNDER INVESTIGATION.
+
+Clean-checkout computational reproducibility has been
+demonstrated for the declared computational pipeline.
+This is not independent scientific replication,
+independent laboratory replication, or causal evidence.
+
+No current result establishes HCM causation,
+consciousness, universality, predictive market advantage,
+or mechanism.
+
+---
+
 ## Research Position
 
 See: core-scientific/research_position.md
+
+---
 
 ## External Reproducibility (Critical Requirement)
 
@@ -155,6 +209,8 @@ This system is NOT considered scientifically valid until:
 See:
 
 /external/REPRODUCE.md
+
+---
 
 ## Execution
 
