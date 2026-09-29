@@ -1,8 +1,13 @@
 {
   "system": "HCM-MARKET-BRIDGE",
-  "status": "active",
+  "status": "archived_disabled",
   "execution_mode": "manual-assisted",
   "supported_platform": "Thndr",
+
+  "scientific_claim_authority": false,
+  "promotion_authority": false,
+  "execution_enabled": false,
+  "research_role": "non_scientific_experimental_archive",
 
   "signal": {
     "asset": "EGX30",
@@ -23,5 +28,5 @@
     "HOLD": "لا إجراء"
   },
 
-  "note": "This interface converts HCM decisions into human-executable financial actions via Thndr."
+  "note": "Historical experimental market interface retained for provenance only. It is not a scientific output, does not constitute financial advice, and is excluded from HCM scientific claim promotion."
 }
