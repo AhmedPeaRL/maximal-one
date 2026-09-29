@@ -2,6 +2,23 @@ import numpy as np
 import pandas as pd
 from scipy.stats import ttest_ind
 
+"""
+SCIENTIFIC ROLE: SYNTHETIC / METHODOLOGICAL ONLY.
+
+This experiment does not provide empirical evidence
+for the HCM spectral-persistence hypothesis.
+
+Its outputs MUST NOT be used as:
+- effect-size evidence for real data,
+- independent replication,
+- statistical significance for the primary claim,
+- evidence of prediction,
+- evidence of causality,
+- evidence of HCM validity.
+
+Any zero-variance or degenerate comparison is invalid.
+"""
+
 def generate_random_walk(n):
     steps = np.random.normal(0, 1, n)
     return np.cumsum(steps)
