@@ -1,6 +1,10 @@
 {
-  "decision": "BUY",
-  "confidence": 0.71,
+  "status": "ARCHIVED_NON_SCIENTIFIC_EXPERIMENTAL",
+  "scientific_claim_authority": false,
+  "promotion_authority": false,
+  "execution_enabled": false,
+  "decision": null,
+  "confidence": null,
   "simulated_return": null,
-  "status": "paper_only"
+  "note": "Historical market experiment retained for provenance only. It is excluded from all scientific claim, replication, null-testing, and promotion pipelines."
 }
