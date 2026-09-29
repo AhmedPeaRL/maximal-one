@@ -396,6 +396,21 @@ def compare():
             "clean_checkout_reproducibility_verified":
                 independent_replay_verified,
 
+            "computational_reproducibility_verified":
+                independent_replay_verified,
+
+            "scientific_replication_verified":
+                False,
+
+            "environment_independence":
+                False,
+
+            "laboratory_independence":
+                False,
+
+            "implementation_independence":
+                False,
+
             "fingerprint_match":
                 fingerprint_match,
 
