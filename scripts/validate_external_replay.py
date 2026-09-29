@@ -97,6 +97,11 @@ def main():
 
     required = {
         "independent_replay_verified",
+        "computational_reproducibility_verified",
+        "scientific_replication_verified",
+        "environment_independence",
+        "laboratory_independence",
+        "implementation_independence",
         "fingerprint_match",
         "structure_match",
         "local_fingerprint",
@@ -268,6 +273,48 @@ def main():
         (
             "independent scientific replication must "
             "not be falsely claimed"
+        ),
+    )
+
+    require(
+        replay.get("computational_reproducibility_verified")
+        is True,
+        (
+            "computational reproducibility must be "
+            "explicitly verified"
+        ),
+    )
+
+    require(
+        replay.get("scientific_replication_verified")
+        is False,
+        (
+            "scientific replication must not be claimed "
+            "by a clean-checkout rerun"
+        ),
+    )
+
+    require(
+        replay.get("environment_independence")
+        is False,
+        (
+            "environment independence must not be falsely claimed"
+        ),
+    )
+
+    require(
+        replay.get("laboratory_independence")
+        is False,
+        (
+            "laboratory independence must not be falsely claimed"
+        ),
+    )
+
+    require(
+        replay.get("implementation_independence")
+        is False,
+        (
+            "implementation independence must not be falsely claimed"
         ),
     )
 
