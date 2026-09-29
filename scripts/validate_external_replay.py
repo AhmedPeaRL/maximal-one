@@ -1,6 +1,7 @@
 from __future__ import annotations
 import hashlib
 import json
+import os
 import math
 from pathlib import Path
 
@@ -288,6 +289,21 @@ def main():
         and len(replay["source_commit"]) == 40,
         "source_commit must be a full Git commit SHA",
     )
+
+    workflow_commit = os.environ.get(
+        "GITHUB_SHA"
+    )
+
+    if workflow_commit:
+        require(
+            replay["source_commit"].lower()
+            ==
+            workflow_commit.lower(),
+            (
+                "source_commit does not match "
+                "the exact workflow checkout commit"
+            ),
+        )
 
     require(
         replay["canonical_input_preparation"]
