@@ -100,8 +100,10 @@
   },
 
   "stochastic_null_protocol": {
-    "status": "prospective_repair_after_observation",
+    "status": "post_observation_protocol_amendment_not_confirmatory",
     "scientific_role": "primary_stochastic_null_gate",
+    "claim_promotion_allowed_only_after_fresh_prospective_validation": true,
+    "current_dataset_is_not_preregistered_confirmation": true,
     "null_family": "stationary_gaussian_AR_p",
     "alternative": {
       "direction": "greater_than_null",
