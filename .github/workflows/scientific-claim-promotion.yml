@@ -101,6 +101,26 @@ jobs:
           test -s \
             artifacts/claim_readiness_audit.json
 
+      - name: Run null calibration gate
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python analysis/null_calibration_gate.py
+
+          test -s \
+            artifacts/null_calibration_gate.json
+
+      - name: Run independent domain replication gate
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python analysis/independent_domain_replication_gate.py
+
+          test -s \
+            artifacts/independent_domain_replication_gate.json
+
       - name: Upload claim readiness audit
         uses: actions/upload-artifact@v4
         with:
