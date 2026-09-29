@@ -1,6 +1,23 @@
 import pandas as pd
 import numpy as np
 
+"""
+SCIENTIFIC ROLE: SYNTHETIC / METHODOLOGICAL ONLY.
+
+This experiment does not provide empirical evidence
+for the HCM spectral-persistence hypothesis.
+
+Its outputs MUST NOT be used as:
+- effect-size evidence for real data,
+- independent replication,
+- statistical significance for the primary claim,
+- evidence of prediction,
+- evidence of causality,
+- evidence of HCM validity.
+
+Any zero-variance or degenerate comparison is invalid.
+"""
+
 df = pd.read_csv("../data/multi_seed_results.csv")
 
 real = df["spectral_exponent"].values
