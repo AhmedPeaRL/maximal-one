@@ -73,6 +73,22 @@ if (
   );
 }
 
+const nullCalibrationPath =
+  "artifacts/null_calibration_gate.json";
+
+const replicationGatePath =
+  "artifacts/independent_domain_replication_gate.json";
+
+const nullCalibration =
+  fs.existsSync(nullCalibrationPath)
+    ? readJson(nullCalibrationPath)
+    : null;
+
+const replicationGate =
+  fs.existsSync(replicationGatePath)
+    ? readJson(replicationGatePath)
+    : null;
+
 const expected =
   claim.expected_result;
 
@@ -192,6 +208,16 @@ const checks = {
     stochasticNull.reject_at_0_05 === true
 };
 
+checks.null_calibration =
+  nullCalibration !== null &&
+  nullCalibration.status ===
+    "CALIBRATION_NOT_REJECTED";
+
+checks.independent_domain_replication =
+  replicationGate !== null &&
+  replicationGate.status ===
+    "REPLICATION_ESTABLISHED";
+
 const structuralChecksPassed =
   checks.alpha_range &&
   checks.sigma &&
@@ -200,7 +226,9 @@ const structuralChecksPassed =
   checks.cross_domain_replication &&
   checks.independent_secondary_domains &&
   checks.stochastic_null_valid &&
-  checks.stochastic_null_support_eligible;
+  checks.stochastic_null_support_eligible &&
+  checks.null_calibration &&
+  checks.independent_domain_replication;
 
 const scientificClaimSupported =
   structuralChecksPassed &&
