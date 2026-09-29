@@ -4,6 +4,23 @@ import json
 import pandas as pd
 from scipy import stats
 
+"""
+SCIENTIFIC ROLE: SYNTHETIC / METHODOLOGICAL ONLY.
+
+This experiment does not provide empirical evidence
+for the HCM spectral-persistence hypothesis.
+
+Its outputs MUST NOT be used as:
+- effect-size evidence for real data,
+- independent replication,
+- statistical significance for the primary claim,
+- evidence of prediction,
+- evidence of causality,
+- evidence of HCM validity.
+
+Any zero-variance or degenerate comparison is invalid.
+"""
+
 def run_baseline(seed):
     rng = np.random.default_rng(seed)
     return rng.normal(0.5, 0.05)
