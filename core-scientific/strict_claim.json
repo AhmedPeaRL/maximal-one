@@ -23,6 +23,20 @@
     "secondary_required": true,
     "independent_real_domain_required": true,
     "min_independent_secondary_real_domains": 2,
+    
+    "independent_replication": {
+      "required": true,
+      "minimum_domains": 2,
+      "measurement_validity_is_not_replication": true,
+      "same_endpoint_required": true,
+      "same_null_family_required": true,
+      "same_direction_required": true,
+      "domain_level_null_rejection_required": true,
+      "derived_domains_excluded": true,
+      "null_domains_excluded": true,
+      "synthetic_domains_excluded": true
+    },
+    
     "adversarial_rejection_required": true,
     "cross_domain_required": true,
     "derived_data_excluded_from_replication_count": true,
@@ -40,6 +54,7 @@
       "independent_null_testing",
       "clean_checkout_computational_reproduction"
     ],
+    
     "primary_estimator": "Welch_PSD",
     "independent_validator": "FFT_periodogram",
     "seed": 42,
@@ -57,6 +72,7 @@
     "frequency_band_provenance_required": true,
     "estimator_provenance_required": true,
     "normalization_provenance_required": true,
+    
     "frequency_resolution": {
       "minimum_frequency_bins": 20,
       "protocol_status": "canonical",
@@ -86,6 +102,7 @@
       0.6,
       2.2
     ],
+    
     "max_cross_domain_std": 1.2,
     "max_sigma": 0.85,
     "max_method_delta": 0.30,
@@ -100,17 +117,22 @@
   },
 
   "stochastic_null_protocol": {
+    "protocol_version": "v2_exploratory",
     "status": "post_observation_protocol_amendment_not_confirmatory",
+    "fresh_validation_required": true,
+    "preregistered_confirmation": false,
     "scientific_role": "primary_stochastic_null_gate",
     "claim_promotion_allowed_only_after_fresh_prospective_validation": true,
     "current_dataset_is_not_preregistered_confirmation": true,
     "null_family": "stationary_gaussian_AR_p",
+  
     "alternative": {
       "direction": "greater_than_null",
       "endpoint": "canonical_primary_alpha",
       "tail": "upper",
       "interpretation": "The hypothesized persistence signature is operationalized as an elevated canonical spectral exponent relative to the declared short-memory null. A lower-than-null alpha is not treated as support."
     },
+   
     "order_selection": {
       "criterion": "AIC",
       "min_order": 1,
@@ -118,6 +140,7 @@
       "trend": "constant",
       "stationarity_required": true
     },
+   
     "bootstrap_trials": 1000,
     "minimum_valid_surrogates": 200,
     "burn_in": 1000,
@@ -139,12 +162,14 @@
       0.01,
       0.05
     ],
+   
     "comparison_basis": "same_original_frequency_band_mapped_into_each_temporally_aggregated_series",
     "synthetic_padding_allowed": false,
 
     "protocol_amendment": {
       "status": "explicit_amendment_required",
       "reason": "The previous upper bound 0.25 cannot be mapped to scale 8 without exceeding the Nyquist limit. The canonical implementation therefore uses 0.01-0.05 so that the mapped upper frequency remains below Nyquist at every declared scale.",
+     
       "amended_from": [
         0.01,
         0.25
@@ -181,17 +206,28 @@
       "status": "diagnostic_only",
       "does_not_establish_clean_checkout_reproducibility": true
     },
+
+    "semantic_scope": {
+      "clean_checkout_is_computational_reproducibility": true,
+      "clean_checkout_is_not_scientific_replication": true,
+      "clean_checkout_is_not_laboratory_replication": true,
+      "clean_checkout_is_not_independent_implementation_replication": true
+    },
+  
     "clean_checkout_computational_reproducibility": {
       "required_for_final_reproducibility_claim": true,
       "scope": "same_runner_fresh_public_checkout_exact_commit"
     },
+  
     "fingerprint_match": {
       "required_for_final_reproducibility_claim": true
     },
+ 
     "independent_implementation_replication": {
       "required": false,
       "status": "not_demonstrated"
     },
+ 
     "independent_laboratory_replication": {
       "required": false,
       "status": "not_demonstrated"
@@ -208,11 +244,14 @@
     "fingerprint_match_required": true,
     "independent_implementation_replication_required": false,
     "independent_laboratory_replication_required": false,
-    "external_scientific_replication_required": false
+    "external_scientific_replication_required": false,
+    "scientific_replication_required_for_claim": true,
+    "laboratory_replication_required_for_nobel_level_external_validation": true
   },
 
   "epistemic_status": {
     "current_status": "under_investigation",
+    
     "support_requires": [
       "appropriate_stochastic_null_rejection",
       "independent_secondary_real_domain_replication",
@@ -223,6 +262,7 @@
       "fingerprint_match",
       "adversarial_control"
     ],
+   
     "diagnostic_only": [
       "permutation_null_rejection",
       "scale_stability",
