@@ -268,7 +268,7 @@ def main():
 
         "independent_real_replication_required": True,
 
-        "independent_real_replication_complete": bool(
+        "independent_real_domain_evaluation_complete": bool(
             primary_available
             and
             independent_secondary_domains >= 2
@@ -277,8 +277,18 @@ def main():
         "interpretation": (
             "The primary real dataset is evaluated separately "
             "from independent secondary real domains. "
+          
+            "This field records measurement-domain availability only. "
+    
+            "It does not establish scientific replication. "
+    
+            "Scientific replication requires domain-level rejection "
+            "of the same declared primary stochastic null using the "
+            "same endpoint, direction, tail, and null family. "
+   
             "Only genuinely independent secondary real datasets "
-            "count toward replication of the primary result. "
+            "are eligible for that later replication gate. "
+           
             "Derived, shuffled, synthetic, and null datasets "
             "do not count. Independent secondary real datasets "
             "that fail the canonical alpha measurement are "
