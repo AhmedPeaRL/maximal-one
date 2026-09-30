@@ -128,13 +128,6 @@ jobs:
           test -s \
             artifacts/adversarial_control.json
 
-      - name: Upload final claim readiness audit
-        uses: actions/upload-artifact@v4
-        with:
-          name: claim-readiness-audit
-          path: artifacts/claim_readiness_audit.json
-          if-no-files-found: error
-
       - name: Run clean-checkout computational reproduction
         shell: bash
         run: |
@@ -161,6 +154,13 @@ jobs:
 
           test -s \
             artifacts/claim_readiness_audit.json
+
+      - name: Upload final claim readiness audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: claim-readiness-audit
+          path: artifacts/claim_readiness_audit.json
+          if-no-files-found: error
 
       - name: Re-evaluate promotion prerequisites
         shell: bash
