@@ -47,5 +47,6 @@ Any document claiming a single α without regime context is INVALID.
 
 ## Status
 
-- Null regime: proven
+- Null regime: reference regime used for model comparison;
+not a universal empirical theorem.
 - Attractor regime: empirically strong, requires formal proof
