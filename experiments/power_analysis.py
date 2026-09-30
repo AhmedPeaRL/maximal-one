@@ -24,8 +24,12 @@ def main():
     path = "../data/multi_seed_results.csv"
 
     if not os.path.exists(path):
-        print("⚠️ Missing multi_seed_results.csv → generating fallback")
-
+        raise SystemExit(
+            "SCIENTIFIC EXECUTION BLOCKED: "
+            "required methodological dataset is missing. "
+            "No synthetic fallback is permitted."
+        )
+       
         data = {
             "baseline": np.random.normal(1.0, 0.2, 100),
             "model": np.random.normal(1.05, 0.2, 100)
