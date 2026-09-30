@@ -462,13 +462,16 @@ jobs:
 
           complete = bool(
               report.get(
-                  "independent_real_replication_complete",
+                  "independent_real_domain_evaluation_complete",
                   False
               )
           )
 
           print("Valid independent real domains:", valid_domains)
-          print("Replication complete:", complete)
+          print(
+              "Independent real-domain evaluation complete:",
+              complete
+          )
 
           if valid_domains < 2:
               raise SystemExit(
