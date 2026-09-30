@@ -25,30 +25,35 @@ def main():
 
     if not os.path.exists(path):
         raise SystemExit(
-            "SCIENTIFIC EXECUTION BLOCKED: "
-            "required methodological dataset is missing. "
-            "No synthetic fallback is permitted."
+            "SCIENTIFIC INTEGRITY STOP: "
+            "required methodological dataset "
+            "data/multi_seed_results.csv is missing. "
+            "Synthetic fallback generation is forbidden."
         )
-       
-        data = {
-            "baseline": np.random.normal(1.0, 0.2, 100),
-            "model": np.random.normal(1.05, 0.2, 100)
-        }
-
-        df = pd.DataFrame(data)
-        os.makedirs("../data", exist_ok=True)
-        df.to_csv(path, index=False)
 
     try:
         df = pd.read_csv(path)
-    except (FileNotFoundError, pd.errors.EmptyDataError):
-        df = pd.DataFrame()
+    except (
+        FileNotFoundError,
+        pd.errors.EmptyDataError,
+    ) as exc:
+        raise SystemExit(
+            "SCIENTIFIC INTEGRITY STOP: "
+            "required methodological dataset could not be read."
+        ) from exc
 
-    if df.empty or "spectral_exponent" not in df.columns:
-        print("⚠️ Invalid or missing dataset → regenerating spectral_exponent fallback")
-        df = pd.DataFrame({
-            "spectral_exponent": np.random.normal(1.0, 0.1, 200)
-        })
+    if df.empty:
+        raise SystemExit(
+            "SCIENTIFIC INTEGRITY STOP: "
+            "required methodological dataset is empty."
+        )
+
+    if "spectral_exponent" not in df.columns:
+        raise SystemExit(
+            "SCIENTIFIC INTEGRITY STOP: "
+            "required column 'spectral_exponent' is missing. "
+            "No synthetic fallback is permitted."
+        )
 
     # نستخدم spectral_exponent بدلاً من mu_boot
     alphas = df["spectral_exponent"].values
