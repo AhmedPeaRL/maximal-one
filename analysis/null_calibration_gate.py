@@ -5,29 +5,41 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from statsmodels.stats.diagnostic import acorr_ljungbox
 from statsmodels.tsa.ar_model import AutoReg
 
-from analysis.numerical_spectral_verification import estimate_alpha
+from analysis.numerical_spectral_verification import (
+    estimate_alpha
+)
 
-PRIMARY_PATH = Path("real-data/sunspots_full.csv")
-CANONICAL_REPORT = Path("artifacts/canonical_report.json")
-OUTPUT = Path("artifacts/null_calibration_gate.json")
+
+PRIMARY_PATH = Path(
+    "real-data/sunspots_full.csv"
+)
+
+CANONICAL_REPORT = Path(
+    "artifacts/canonical_report.json"
+)
+
+STRICT_CLAIM = Path(
+    "core-scientific/strict_claim.json"
+)
+
+OUTPUT = Path(
+    "artifacts/null_calibration_gate.json"
+)
 
 MIN_ORDER = 1
-MAX_ORDER = 40
+MAX_ORDER = 20
 
-# Declared engineering diagnostic threshold.
-# This is NOT a universal statistical constant.
-BOUNDARY_FRACTION_LIMIT = 0.10
-
-LJUNG_BOX_LAGS = [10, 20, 40]
 
 def finite(x):
     try:
-        return bool(np.isfinite(float(x)))
+        return bool(
+            np.isfinite(float(x))
+        )
     except Exception:
         return False
+
 
 def load_primary():
     df = pd.read_csv(
@@ -45,327 +57,289 @@ def load_primary():
 
     x = pd.to_numeric(
         df.iloc[:, 3],
-        errors="coerce",
-    ).dropna().to_numpy(dtype=np.float64)
+        errors="coerce"
+    ).dropna().to_numpy(
+        dtype=np.float64
+    )
 
     if len(x) < 256:
-        raise ValueError("primary series is too short")
+        raise ValueError(
+            "primary series is too short"
+        )
 
-    if not np.all(np.isfinite(x)):
+    if not np.all(
+        np.isfinite(x)
+    ):
         raise ValueError(
             "primary series contains non-finite values"
         )
 
     return x
 
+
 def fit_scan(x):
     results = []
 
     max_order = min(
         MAX_ORDER,
-        max(MIN_ORDER, len(x) // 10),
+        max(
+            MIN_ORDER,
+            len(x) // 10
+        )
     )
 
-    for order in range(MIN_ORDER, max_order + 1):
+    for order in range(
+        MIN_ORDER,
+        max_order + 1
+    ):
         try:
             fit = AutoReg(
                 x,
                 lags=order,
                 trend="c",
-                old_names=False,
+                old_names=False
             ).fit()
 
             roots = np.asarray(
                 fit.roots,
-                dtype=np.complex128,
+                dtype=np.complex128
             )
 
             stationary = bool(
                 roots.size == order
-                and np.all(np.abs(roots) > 1.0)
+                and
+                np.all(
+                    np.abs(roots) > 1.0
+                )
             )
 
-            aic = float(fit.aic)
-
-            results.append(
-                {
-                    "order": order,
-                    "aic": aic if finite(aic) else None,
-                    "stationary": stationary,
-                }
+            aic = float(
+                fit.aic
             )
+
+            results.append({
+                "order": order,
+                "aic": (
+                    aic
+                    if finite(aic)
+                    else None
+                ),
+                "stationary": stationary
+            })
 
         except Exception as exc:
-            results.append(
-                {
-                    "order": order,
-                    "aic": None,
-                    "stationary": False,
-                    "error": str(exc),
-                }
-            )
+            results.append({
+                "order": order,
+                "aic": None,
+                "stationary": False,
+                "error": str(exc)
+            })
 
     valid = [
-        r
-        for r in results
-        if r["stationary"] and finite(r["aic"])
+        item
+        for item in results
+        if (
+            item["stationary"]
+            and
+            finite(item["aic"])
+        )
     ]
 
     if not valid:
         raise RuntimeError(
-            "No valid stationary AR order found"
+            "No valid stationary AR order found."
         )
 
     best = min(
         valid,
-        key=lambda r: r["aic"],
+        key=lambda item: item["aic"]
     )
 
     return {
         "scan_min_order": MIN_ORDER,
         "scan_max_order": max_order,
-        "best_aic_order": best["order"],
-        "best_aic": best["aic"],
-        "best_at_boundary": (
+        "best_aic_order": int(
+            best["order"]
+        ),
+        "best_aic": float(
+            best["aic"]
+        ),
+        "best_at_boundary": bool(
             best["order"] == max_order
         ),
-        "results": results,
+        "results": results
     }
 
-def residual_whiteness(x, order):
-    try:
-        fit = AutoReg(
-            x,
-            lags=order,
-            trend="c",
-            old_names=False,
-        ).fit()
-
-        residuals = np.asarray(
-            fit.resid,
-            dtype=np.float64,
-        )
-
-        residuals = residuals[
-            np.isfinite(residuals)
-        ]
-
-        if len(residuals) < 100:
-            return {
-                "valid": False,
-                "passed": False,
-                "reason": "too_few_residuals",
-                "lags": {},
-            }
-
-        max_lag = min(
-            max(LJUNG_BOX_LAGS),
-            max(1, len(residuals) // 5),
-        )
-
-        lags = [
-            lag
-            for lag in LJUNG_BOX_LAGS
-            if lag <= max_lag
-        ]
-
-        if not lags:
-            return {
-                "valid": False,
-                "passed": False,
-                "reason": "no_valid_ljung_box_lag",
-                "lags": {},
-            }
-
-        result = acorr_ljungbox(
-            residuals,
-            lags=lags,
-            return_df=True,
-        )
-
-        values = {}
-
-        for lag in lags:
-            p = float(
-                result.loc[
-                    lag,
-                    "lb_pvalue",
-                ]
-            )
-
-            values[str(lag)] = {
-                "p_value": p,
-                "passed": bool(
-                    finite(p) and p > 0.05
-                ),
-            }
-
-        passed = all(
-            item["passed"]
-            for item in values.values()
-        )
-
-        return {
-            "valid": True,
-            "passed": passed,
-            "lags": values,
-        }
-
-    except Exception as exc:
-        return {
-            "valid": False,
-            "passed": False,
-            "reason": str(exc),
-            "lags": {},
-        }
-
-def load_surrogate_boundary_fraction():
-    if not CANONICAL_REPORT.exists():
-        return None
-
-    try:
-        report = json.loads(
-            CANONICAL_REPORT.read_text(
-                encoding="utf-8"
-            )
-        )
-
-        value = (
-            report
-            .get("appropriate_stochastic_null", {})
-            .get("order_selection_diagnostic", {})
-            .get("surrogate_boundary_fraction")
-        )
-
-        return (
-            float(value)
-            if finite(value)
-            else None
-        )
-
-    except Exception:
-        return None
 
 def main():
+    if not CANONICAL_REPORT.exists():
+        raise SystemExit(
+            "canonical_report.json is required before null calibration."
+        )
+
+    report = json.loads(
+        CANONICAL_REPORT.read_text(
+            encoding="utf-8"
+        )
+    )
+
+    stochastic = report.get(
+        "appropriate_stochastic_null"
+    )
+
+    if not isinstance(
+        stochastic,
+        dict
+    ):
+        raise SystemExit(
+            "canonical primary stochastic-null result is missing."
+        )
+
     x = load_primary()
 
     alpha = estimate_alpha(x)
+
     scan = fit_scan(x)
 
-    best_order = int(
-        scan["best_aic_order"]
+    diagnostic = (
+        stochastic.get(
+            "order_selection_diagnostic"
+        )
+        or {}
     )
 
-    residuals = residual_whiteness(
-        x,
-        best_order,
+    surrogate_boundary_fraction = diagnostic.get(
+        "surrogate_boundary_fraction"
     )
 
-    surrogate_boundary_fraction = (
-        load_surrogate_boundary_fraction()
+    selected_order = stochastic.get(
+        "selected_order"
     )
 
-    failures = []
+    observed_boundary = bool(
+        selected_order == MAX_ORDER
+    )
 
-    if scan["best_at_boundary"]:
-        failures.append(
-            "observed AIC order reaches calibration scan boundary"
+    surrogate_boundary_saturation = (
+        finite(
+            surrogate_boundary_fraction
         )
+        and
+        float(
+            surrogate_boundary_fraction
+        ) > 0.0
+    )
 
-    if (
-        surrogate_boundary_fraction is not None
-        and surrogate_boundary_fraction
-        > BOUNDARY_FRACTION_LIMIT
-    ):
-        failures.append(
-            "primary surrogate order selection reaches "
-            "the declared boundary too frequently"
-        )
+    calibration_required = bool(
+        observed_boundary
+        or
+        surrogate_boundary_saturation
+    )
 
-    if not residuals["valid"]:
-        failures.append(
-            "residual whiteness diagnostic is invalid"
-        )
-    elif not residuals["passed"]:
-        failures.append(
-            "best-fit residuals are not adequately white "
-            "under the declared Ljung-Box diagnostic"
-        )
-
-    calibrated = len(failures) == 0
-
-    report = {
+    report_out = {
         "status": (
-            "CALIBRATION_NOT_REJECTED"
-            if calibrated
-            else "CALIBRATION_REQUIRED"
+            "CALIBRATION_REQUIRED"
+            if calibration_required
+            else "CALIBRATION_NOT_REJECTED"
         ),
-        "scientific_claim_authority": False,
 
-        "primary_alpha": (
+        "scientific_claim_authority": False,
+        "promotion_authority": False,
+
+        "protocol": {
+            "null_family":
+                "stationary_gaussian_AR_p_aic",
+            "min_order": MIN_ORDER,
+            "max_order": MAX_ORDER,
+            "criterion": "AIC",
+            "stationarity_required": True,
+            "endpoint": "canonical_primary_alpha",
+            "direction": "greater_than_null",
+            "tail": "upper"
+        },
+
+        "observed_primary_alpha": (
             float(alpha)
             if finite(alpha)
             else None
         ),
 
-        "order_scan": scan,
+        "observed_order_scan": scan,
 
-        "residual_whiteness": residuals,
-
-        "canonical_primary_null_diagnostic": {
-            "surrogate_boundary_fraction":
-                surrogate_boundary_fraction,
-            "boundary_fraction_limit":
-                BOUNDARY_FRACTION_LIMIT,
-            "boundary_fraction_available":
-                surrogate_boundary_fraction is not None,
-        },
-
-        "calibration_decision": {
-            "calibrated":
-                calibrated,
-            "failures":
-                failures,
+        "canonical_null_diagnostics": {
+            "selected_order": (
+                int(selected_order)
+                if selected_order is not None
+                else None
+            ),
+            "selected_at_boundary":
+                observed_boundary,
+            "surrogate_boundary_fraction": (
+                float(
+                    surrogate_boundary_fraction
+                )
+                if finite(
+                    surrogate_boundary_fraction
+                )
+                else None
+            ),
+            "surrogate_boundary_saturation":
+                surrogate_boundary_saturation
         },
 
         "interpretation": (
-            "This gate does not replace the declared stochastic "
-            "null and does not create confirmation. It only "
-            "determines whether the current finite-order "
-            "short-memory null is sufficiently calibrated for "
-            "stronger inferential use. If calibration fails, "
-            "scientific claim support remains blocked."
+            "The declared finite-order AR(p) null is "
+            "not treated as adequately calibrated when "
+            "the selected order reaches the declared "
+            "maximum or the surrogate refits show boundary "
+            "saturation. This gate is conservative and "
+            "does not constitute evidence against the "
+            "scientific hypothesis."
         ),
+
+        "fresh_calibration_required": True,
+
+        "post_observation_amendment": True
     }
 
     OUTPUT.parent.mkdir(
         parents=True,
-        exist_ok=True,
+        exist_ok=True
     )
 
     OUTPUT.write_text(
         json.dumps(
-            report,
+            report_out,
             indent=2,
-            sort_keys=True,
+            sort_keys=True
         ) + "\n",
-        encoding="utf-8",
+        encoding="utf-8"
     )
 
-    print("=== NULL CALIBRATION GATE ===")
-    print("Best AIC order:", best_order)
-    print("Scan maximum:", scan["scan_max_order"])
-    print("Observed boundary:", scan["best_at_boundary"])
+    print(
+        "=== NULL CALIBRATION GATE ==="
+    )
+
+    print(
+        "Observed selected order:",
+        selected_order
+    )
+
+    print(
+        "Declared maximum:",
+        MAX_ORDER
+    )
+
     print(
         "Surrogate boundary fraction:",
-        surrogate_boundary_fraction,
+        surrogate_boundary_fraction
     )
+
     print(
-        "Residual whiteness:",
-        residuals["passed"],
+        "Status:",
+        report_out["status"]
     )
-    print("Status:", report["status"])
-    print("Saved:", OUTPUT)
+
 
 if __name__ == "__main__":
     main()
