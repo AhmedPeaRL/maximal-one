@@ -7,18 +7,19 @@ np.random.seed(0)
 """
 SCIENTIFIC ROLE: SYNTHETIC / METHODOLOGICAL ONLY.
 
-This experiment does not provide empirical evidence
-for the HCM spectral-persistence hypothesis.
+This file is NOT a Lorenz-96 implementation.
 
-Its outputs MUST NOT be used as:
-- effect-size evidence for real data,
+It compares two deliberately shifted synthetic Gaussian
+generators. The known mean shift is part of the data-generating
+design.
+
+It MUST NOT be interpreted as:
+- Lorenz-96 evidence,
+- HCM evidence,
+- empirical evidence,
 - independent replication,
-- statistical significance for the primary claim,
-- evidence of prediction,
-- evidence of causality,
-- evidence of HCM validity.
-
-Any zero-variance or degenerate comparison is invalid.
+- predictive evidence,
+- causal evidence.
 """
 
 def baseline(seed):
