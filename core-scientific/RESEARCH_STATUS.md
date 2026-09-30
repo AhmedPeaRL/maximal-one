@@ -1,152 +1,175 @@
-Current Research Status
+# Current Research Status
 
-Status
+---
+
+## Status
 
 UNDER INVESTIGATION
 
-The current repository contains a substantially reproducible computational
-pipeline for investigating the Constrained Spectral Persistence Hypothesis.
+The project currently provides a reproducible computational framework
+for measuring spectral structure and testing a declared stochastic
+null model.
 
-The present evidence does not establish the hypothesis.
+The current canonical real-data result does not establish the
+central scientific hypothesis.
 
-Current Canonical Observation
+---
 
-The primary real dataset contains 3328 observations.
+## Current Canonical Result
 
-The canonical Welch estimate is:
+Primary dataset:
 
-"alpha = 2.525347"
+"sunspots_full.csv"
 
-The independent FFT estimate is:
+Sample size:
 
-"alpha = 2.423397"
+"3328"
 
-Their difference is:
+Welch alpha:
+
+"2.525347"
+
+FFT alpha:
+
+"2.423397"
+
+Method difference:
 
 "0.101950"
 
-This supports estimator-level numerical agreement, not scientific claim
-support.
+---
 
-Primary Inferential Result
+## Primary Inferential Result
 
-The authoritative stochastic null is a stationary Gaussian AR(p) family
-with AIC selection over orders 1 through 20.
+The declared primary stochastic null is a stationary Gaussian AR(p)
+family with AIC order selection over p = 1..20.
 
-Current Monte Carlo result:
+Current result:
 
 "p = 0.999001"
 
-"reject = false"
+with:
 
-The primary stochastic null therefore remains un-rejected.
+"reject_at_0_05 = false"
 
-This is the controlling scientific result for the current claim.
+Therefore the primary stochastic null remains un-rejected.
 
-Null Calibration
+This result has scientific claim authority.
 
-The surrogate AR-order selection reaches the declared boundary at a high
-rate:
+The current permutation-null result does not.
 
-"boundary fraction = 0.965"
+---
 
-The current null family therefore requires further calibration before
-stronger inferential interpretation.
+## Null Calibration Constraint
 
-This warning is not evidence for the hypothesis.
+The current surrogate boundary-selection fraction is:
 
-It is a warning about the adequacy and capacity of the currently declared
-finite-order null specification.
+"96.5%"
 
-Independent Domain Replication
+This indicates that the declared finite AR-order range reaches its
+capacity frequently.
 
-Two independent real datasets currently produce valid spectral estimates.
+The project therefore requires additional null-capacity calibration
+before stronger conclusions about model adequacy can be made.
 
-However:
+The calibration process must not be optimized against the observed
+scientific result.
 
-"independent-domain replication = 0 / 2"
+---
 
-A valid measurement is not replication.
+## Independent Domains
 
-Replication requires independent rejection of the same primary stochastic null
-using the same endpoint, direction, tail, and null family.
+Two secondary real domains currently provide finite canonical
+measurements in the current validation state.
 
-Diagnostic Evidence
+This establishes measurement availability.
 
-The repository contains several useful diagnostics, including:
+It does not establish scientific replication.
 
-- permutation-null testing
-- scale stability
+Scientific replication requires domain-level rejection of the same
+primary stochastic null using the same endpoint, direction, tail,
+and null family.
+
+---
+
+## Estimator Calibration
+
+The existing calibration covers alpha targets near:
+
+"0, 1, 2"
+
+while the current primary estimate is:
+
+"2.525347"
+
+Therefore the estimator's behavior at the upper end of the current
+observed range requires additional characterization.
+
+This calibration is methodological evidence only.
+
+---
+
+## Diagnostic Evidence
+
+The project currently contains several diagnostic layers, including:
+
+- permutation-null separation
+- multi-scale analysis
 - perturbation stability
 - cross-method agreement
-- separation diagnostics
-- predictive train/test diagnostics
+- predictive validation
 - adversarial controls
 
-These remain explicitly separated from scientific claim authority.
+These layers are not interchangeable with primary null rejection.
 
-In particular, the permutation result:
+---
 
-"p = 0.0002"
+## Reproducibility
 
-cannot override the primary stochastic-null result:
+Clean-checkout computational replay is maintained as a separate
+concept from scientific replication.
 
-"p = 0.999001"
+Cryptographic agreement can establish computational reproducibility
+of a declared execution path.
 
-Computational Reproducibility
+It cannot by itself establish that the scientific hypothesis is true.
 
-The clean-checkout computational reproduction currently succeeds with
-matching fingerprint and report structure.
+---
 
-This establishes reproducibility of the computational pipeline within its
-declared scope.
+## Engineering Integrity
 
-It is not equivalent to independent scientific replication.
+The market interface is currently disabled and explicitly marked
+non-scientific.
 
-Scientific Boundary
+Scientific claim authority is separated from diagnostic evidence.
 
-The current research does not establish:
+The repository also contains legacy and exploratory experiments that
+must remain outside the claim-promotion path unless independently
+validated.
 
-- consciousness
-- HCM causation
-- NeuroEnergetic Field existence
-- universal law
-- novel physics
-- causal mechanism
-- universal applicability
-- predictive market advantage
+---
 
-Research Principle
+## Theory Boundary
 
-The system must preserve the ability to produce a negative result.
+Historical values such as alpha* approximately 1.809 must not be
+described as established empirical invariants by the current
+canonical real-data pipeline.
 
-A failed scientific gate is not a software defect merely because it prevents
-promotion.
+They may remain as historical working hypotheses from prior
+computational experiments.
 
-The purpose of the gate is to prevent unsupported promotion.
+---
 
-Immediate Research Objective
+## Next Phase
 
-The next objective is not commercialization, market execution, additional
-witness accumulation, or increasing the number of automation workflows.
+The next phase is methodological rather than promotional:
 
-The next objective is:
+1. complete estimator-range calibration;
+2. perform null-capacity and model-adequacy auditing;
+3. declare the future primary null prospectively;
+4. conduct a fresh confirmation run;
+5. perform independent real-domain replication;
+6. preserve all failed outcomes;
+7. only then reconsider claim promotion.
 
-to determine whether the observed spectral result survives a scientifically
-justified and prospectively declared null-model calibration and independent
-domain replication protocol.
-
-No protocol parameter should be changed solely because the current result
-fails to support the hypothesis.
-
-Current Research Conclusion
-
-The project has demonstrated meaningful computational infrastructure for
-reproducible falsification-oriented experimentation.
-
-The scientific hypothesis remains:
-
-UNDER INVESTIGATION
-
-The correct next move is stronger external falsifiability, not stronger
-internal rhetoric.
+The system must remain capable of falsifying its own hypothesis.
