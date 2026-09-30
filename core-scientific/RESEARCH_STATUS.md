@@ -4,157 +4,149 @@ Status
 
 UNDER INVESTIGATION
 
-The current canonical pipeline detects a measurable spectral structure in
-the selected real dataset.
+The current repository contains a substantially reproducible computational
+pipeline for investigating the Constrained Spectral Persistence Hypothesis.
 
-The present evidence is insufficient to establish the
-Constrained Spectral Persistence Hypothesis.
-
----
+The present evidence does not establish the hypothesis.
 
 Current Canonical Observation
 
-Primary dataset:
+The primary real dataset contains 3328 observations.
 
-"real-data/sunspots_full.csv"
-
-Primary Welch estimate:
+The canonical Welch estimate is:
 
 "alpha = 2.525347"
 
-Independent FFT estimate:
+The independent FFT estimate is:
 
 "alpha = 2.423397"
 
-Welch/FFT disagreement:
+Their difference is:
 
 "0.101950"
 
-Current declared maximum:
-
-"0.30"
-
-The cross-method numerical consistency condition therefore passes.
-
----
+This supports estimator-level numerical agreement, not scientific claim
+support.
 
 Primary Inferential Result
 
-The declared primary stochastic null is a stationary Gaussian AR(p)
-family with AIC order selection over orders 1 through 20.
+The authoritative stochastic null is a stationary Gaussian AR(p) family
+with AIC selection over orders 1 through 20.
 
-Current primary result:
+Current Monte Carlo result:
 
 "p = 0.999001"
 
-"reject_at_0_05 = false"
+"reject = false"
 
-Therefore:
+The primary stochastic null therefore remains un-rejected.
 
-The primary stochastic null is not rejected.
+This is the controlling scientific result for the current claim.
 
-This is the principal reason the scientific claim remains under
-investigation.
+Null Calibration
 
-The permutation null is explicitly diagnostic-only and cannot override
-this result.
+The surrogate AR-order selection reaches the declared boundary at a high
+rate:
 
----
+"boundary fraction = 0.965"
 
-Null Model Adequacy Warning
+The current null family therefore requires further calibration before
+stronger inferential interpretation.
 
-The surrogate AR fitting reaches the maximum declared order in
-approximately 96.5% of surrogate refits.
+This warning is not evidence for the hypothesis.
 
-This is a model-capacity warning.
+It is a warning about the adequacy and capacity of the currently declared
+finite-order null specification.
 
-It does not support the HCM hypothesis.
+Independent Domain Replication
 
-It indicates that additional calibration of the declared null family is
-required before stronger inference is justified.
+Two independent real datasets currently produce valid spectral estimates.
 
-The null protocol must not be modified merely to produce statistical
-significance.
+However:
 
----
+"independent-domain replication = 0 / 2"
 
-Independent Domains
+A valid measurement is not replication.
 
-Two secondary real domains currently provide finite canonical spectral
-measurements:
+Replication requires independent rejection of the same primary stochastic null
+using the same endpoint, direction, tail, and null family.
 
-- CO2
-- cosmic rays
+Diagnostic Evidence
 
-However, measurement validity is not equivalent to scientific replication.
+The repository contains several useful diagnostics, including:
 
-Independent replication requires domain-level rejection of the same
-primary stochastic null under the same endpoint, direction, tail, and null
-family.
+- permutation-null testing
+- scale stability
+- perturbation stability
+- cross-method agreement
+- separation diagnostics
+- predictive train/test diagnostics
+- adversarial controls
 
-The dedicated replication gate is authoritative for this condition.
+These remain explicitly separated from scientific claim authority.
 
----
+In particular, the permutation result:
 
-Predictive Diagnostic
+"p = 0.0002"
 
-Current train/test result:
+cannot override the primary stochastic-null result:
 
-- training alpha = "2.565617"
-- test alpha = "1.123020"
-- absolute difference = "1.442597"
-- structural match = "false"
+"p = 0.999001"
 
-The current result therefore does not establish stable out-of-sample
-prediction of the proposed spectral signature.
+Computational Reproducibility
 
----
+The clean-checkout computational reproduction currently succeeds with
+matching fingerprint and report structure.
 
-Reproducibility
+This establishes reproducibility of the computational pipeline within its
+declared scope.
 
-The project distinguishes:
+It is not equivalent to independent scientific replication.
 
-Computational reproducibility
+Scientific Boundary
 
-from:
+The current research does not establish:
 
-Independent scientific replication
-
-A clean checkout executing the same code at the same commit does not by
-itself constitute independent scientific replication.
-
-This distinction is preserved by the epistemic contract.
-
----
-
-Current Interpretation
-
-The current evidence supports continued investigation of the observed
-spectral structure.
-
-It does not currently establish:
-
-- a universal spectral invariant
-- causal mechanism
 - consciousness
 - HCM causation
+- NeuroEnergetic Field existence
+- universal law
 - novel physics
+- causal mechanism
+- universal applicability
 - predictive market advantage
 
----
+Research Principle
 
-Research Direction
+The system must preserve the ability to produce a negative result.
 
-The next scientific objective is to determine whether the observed result
-survives appropriately calibrated null models and independent prospective
-validation.
+A failed scientific gate is not a software defect merely because it prevents
+promotion.
 
-No threshold should be relaxed solely to obtain a passing result.
+The purpose of the gate is to prevent unsupported promotion.
 
-No dataset should be selected or excluded solely because its result is
-favorable.
+Immediate Research Objective
 
-No diagnostic statistic should be promoted to primary evidence merely
-because it produces a smaller p-value.
+The next objective is not commercialization, market execution, additional
+witness accumulation, or increasing the number of automation workflows.
 
-The correct direction is stronger falsification and independent replication.
+The next objective is:
+
+to determine whether the observed spectral result survives a scientifically
+justified and prospectively declared null-model calibration and independent
+domain replication protocol.
+
+No protocol parameter should be changed solely because the current result
+fails to support the hypothesis.
+
+Current Research Conclusion
+
+The project has demonstrated meaningful computational infrastructure for
+reproducible falsification-oriented experimentation.
+
+The scientific hypothesis remains:
+
+UNDER INVESTIGATION
+
+The correct next move is stronger external falsifiability, not stronger
+internal rhetoric.
