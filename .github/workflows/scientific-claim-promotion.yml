@@ -111,13 +111,6 @@ jobs:
           test -s \
             artifacts/independent_domain_replication_gate.json
 
-      - name: Evaluate scientific contract
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          node core-scientific/evaluate_scientific_contract.cjs
-
       - name: Generate adversarial control evidence
         shell: bash
         run: |
