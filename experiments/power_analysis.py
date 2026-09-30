@@ -26,33 +26,21 @@ def main():
     if not os.path.exists(path):
         raise SystemExit(
             "SCIENTIFIC INTEGRITY STOP: "
-            "required methodological dataset "
-            "data/multi_seed_results.csv is missing. "
+            "required dataset is missing. "
             "Synthetic fallback generation is forbidden."
         )
-
-    try:
-        df = pd.read_csv(path)
-    except (
-        FileNotFoundError,
-        pd.errors.EmptyDataError,
-    ) as exc:
-        raise SystemExit(
-            "SCIENTIFIC INTEGRITY STOP: "
-            "required methodological dataset could not be read."
-        ) from exc
 
     if df.empty:
         raise SystemExit(
             "SCIENTIFIC INTEGRITY STOP: "
-            "required methodological dataset is empty."
+            "required dataset is empty."
         )
 
     if "spectral_exponent" not in df.columns:
         raise SystemExit(
             "SCIENTIFIC INTEGRITY STOP: "
-            "required column 'spectral_exponent' is missing. "
-            "No synthetic fallback is permitted."
+            "required spectral_exponent column is missing. "
+            "Synthetic fallback generation is forbidden."
         )
 
     # نستخدم spectral_exponent بدلاً من mu_boot
