@@ -405,126 +405,131 @@ def main():
         else None
     )
     
-    primary_report = {
-        "valid": False,
-        "support_eligible": False,
-        "rejected": False,
-    }
-
     canonical_report_path = Path(
         "artifacts/canonical_report.json"
     )
 
-    if canonical_report_path.exists():
-        try:
-            canonical_report = json.loads(
-                canonical_report_path.read_text(
-                    encoding="utf-8"
-                )
+    adversarial_path = Path(
+        "artifacts/adversarial_control.json"
+    )
+
+    canonical_report = (
+        json.loads(
+            canonical_report_path.read_text(
+                encoding="utf-8"
             )
+        )
+        if canonical_report_path.exists()
+        else None
+    )
 
-            primary_null = canonical_report.get(
-                "appropriate_stochastic_null",
-                {}
+    adversarial = (
+        json.loads(
+            adversarial_path.read_text(
+                encoding="utf-8"
             )
+        )
+        if adversarial_path.exists()
+        else None
+    )
 
-            primary_report = {
-                "valid": (
-                    primary_null.get("valid") is True
-                ),
-                "support_eligible": (
-                    primary_null.get(
-                        "support_eligible"
-                    ) is True
-                ),
-                "rejected": (
-                    primary_null.get(
-                        "reject_at_0_05"
-                    ) is True
-                ),
-            }
+    primary_null = (
+        (canonical_report or {})
+        .get("appropriate_stochastic_null")
+        or {}
+    )
 
-        except Exception:
-            primary_report = {
-                "valid": False,
-                "support_eligible": False,
-                "rejected": False,
-            }
+    primary_null_valid = (
+        primary_null.get("valid") is True
+        and
+        primary_null.get("support_eligible") is True
+        and
+        primary_null.get("scientific_role")
+        == "primary_stochastic_null_gate"
+    )
+
+    primary_null_rejected = (
+        primary_null.get("reject_at_0_05") is True
+    )
 
     primary_null_calibrated = (
         null_calibration is not None
-        and null_calibration.get(
-            "status"
-        ) == "CALIBRATION_NOT_REJECTED"
+        and
+        null_calibration.get("status")
+        == "CALIBRATION_NOT_REJECTED"
     )
 
-    independent_domain_replication_established = (
+    independent_domain_replication = (
         replication_gate is not None
-        and replication_gate.get(
-            "status"
-        ) == "REPLICATION_ESTABLISHED"
+        and
+        replication_gate.get("status")
+        == "REPLICATION_ESTABLISHED"
     )
 
-    computational_reproducibility_verified = (
+    computational_reproducibility = (
         replay is not None
-        and replay.get(
+        and
+        replay.get(
             "computational_reproducibility_verified"
         ) is True
-        and replay.get(
+        and
+        replay.get(
             "fingerprint_match"
         ) is True
-        and replay.get(
+        and
+        replay.get(
             "structure_match"
         ) is True
+        and
+        replay.get(
+            "status"
+        ) == "verified"
     )
 
-    scientific_replication_verified = (
-        independent_domain_replication_established
+    adversarial_control_passed = (
+        adversarial is not None
+        and
+        adversarial.get("passed") is True
     )
 
-    promotion_allowed = bool(
-        primary_report["rejected"]
-        and primary_null_calibrated
-        and independent_domain_replication_established
-        and computational_reproducibility_verified
+    promotion_allowed = all(
+        [
+            primary_null_valid,
+            primary_null_rejected,
+            primary_null_calibrated,
+            independent_domain_replication,
+            computational_reproducibility,
+            adversarial_control_passed,
+        ]
     )
 
     claim_readiness = {
-        "scientific_claim_supported": bool(
-            promotion_allowed
-        ),
+        "scientific_claim_supported":
+            bool(promotion_allowed),
 
-        "primary_stochastic_null_rejected": bool(
-            primary_report["rejected"]
-        ),
+        "primary_stochastic_null_rejected":
+            bool(primary_null_rejected),
 
-        "primary_stochastic_null_valid": bool(
-            primary_report["valid"]
-        ),
+        "primary_null_valid":
+            bool(primary_null_valid),
 
-        "primary_stochastic_null_support_eligible": bool(
-            primary_report["support_eligible"]
-        ),
+        "primary_null_calibrated":
+            bool(primary_null_calibrated),
 
-        "primary_null_calibrated": bool(
-            primary_null_calibrated
-        ),
+        "independent_domain_replication_established":
+            bool(independent_domain_replication),
 
-        "independent_domain_replication_established": bool(
-            independent_domain_replication_established
-        ),
+        "computational_reproducibility_verified":
+            bool(computational_reproducibility),
 
-        "computational_reproducibility_verified": bool(
-            computational_reproducibility_verified
-        ),
+        "adversarial_control_passed":
+            bool(adversarial_control_passed),
 
-        "scientific_replication_verified": bool(
-            scientific_replication_verified
-        ),
+        "scientific_replication_verified":
+            bool(independent_domain_replication),
 
-        "promotion_allowed": bool(
-            promotion_allowed
-        ),
+        "promotion_allowed":
+            bool(promotion_allowed),
     }
 
     report = {
