@@ -16,7 +16,12 @@ If the system is spectrally self-consistent,
 
 The system also exhibits a distinct attractor regime:
 
-α_star ≈ 1.809 (empirical invariant)
+α_star ≈ 1.809 is a historical working target reported
+in earlier computational experiments. 
+
+It is not established
+as an empirical invariant by the current canonical real-data
+validation pipeline.
 
 ---
 
