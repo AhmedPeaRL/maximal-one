@@ -1,95 +1,293 @@
-# Claim Status
+Scientific Claim Status
 
-## Current Status
+Current Status
 
-**UNDER INVESTIGATION**
+UNDER INVESTIGATION
 
-The canonical deterministic run detects a reproducible spectral structure
-under the specified measurement pipeline.
+The current canonical pipeline does not support promotion of the
+Constrained Spectral Persistence Hypothesis.
 
-This observation does **not** establish the broader HCM claim.
+The primary stochastic null has not been rejected under the declared
+canonical protocol.
 
-## Current Canonical Findings
+No claim of mechanism, universality, consciousness, HCM causation,
+novel physics, or market advantage is established by the current result.
 
-The current canonical report records:
+---
 
-- Primary Welch spectral exponent:
-  `alpha = 1.05519917`
-- Independent FFT-periodogram estimate:
-  `alpha = 1.32745909`
-- Cross-method agreement delta:
-  `0.27225992`
-- Permutation-null p-value:
-  `0.0002`
-- Valid independent real domains:
-  `3`
-- Independent real-domain replication:
-  `complete`
-- Scale-invariance gate:
-  `FAILED`
-- Perturbation stability:
-  `PASSED`
-- Independent external reproduction:
-  `REQUIRED`
+Canonical Primary Result
 
-## Critical Limitation
+The current canonical primary dataset is:
 
-The current result is **not accepted as a fully supported scientific claim**
-because the canonical scale-invariance criterion is not satisfied.
+"real-data/sunspots_full.csv"
 
-Observed scale instability:
+Primary estimator:
 
-- maximum pairwise alpha difference:
-  `1.462487`
-- relative scale spread:
-  `0.786982`
+"Welch_PSD"
 
-These exceed the preregistered limits:
+Canonical frequency band:
 
-- maximum pairwise difference:
-  `0.50`
-- maximum relative spread:
-  `0.40`
+"0.01 - 0.05"
 
-Therefore the consensus gate remains:
+Canonical Welch configuration:
 
-INCONCLUSIVE
+- nperseg = 1024
+- window = hann
+- detrend = linear
+- scaling = density
+- noverlap = 0.5
+- nfft = nperseg
+- seed = 42
 
-## Statistical Interpretation
+Current canonical spectral exponent:
 
-The permutation test rejects the specified exchangeability null:
+"alpha = 2.525347"
 
-temporal ordering carries no additional spectral persistence
+Independent numerical validation:
 
-This rejection is limited to that null model.
+"FFT alpha = 2.423397"
 
-It does not establish:
+Welch/FFT absolute disagreement:
 
-• causality
+"0.101950"
 
-• consciousness
+Declared maximum:
 
-• a physical field
+"0.30"
 
-• HCM correctness
+Therefore the current cross-method numerical consistency condition is
+satisfied.
 
-• universality
+---
 
-• novel physics
+Primary Stochastic Null
 
-## Reproducibility Interpretation
+The authoritative primary null is:
 
-The current cross-seed test is a:
-PERTURBATION STABILITY TEST
+"stationary_gaussian_AR_p_aic"
 
-It is not equivalent to independent rerun reproducibility.
+with:
 
-Independent external reproduction remains required.
+- AIC order selection
+- AR order range 1-20
+- stationarity required
+- Gaussian innovations
+- refitting for each surrogate
+- upper-tail test
+- endpoint = canonical primary alpha
+- 1000 requested surrogate trials
 
-## Discovery Claim
+Current result:
+
+"observed alpha = 2.525347"
+
+"null mean = 3.197386"
+
+"null q05 = 2.816685"
+
+"null q95 = 3.584700"
+
+"p = 0.999001"
+
+"reject at alpha = 0.05 = false"
+
+Therefore:
+
+PRIMARY STOCHASTIC NULL NOT REJECTED
+
+This blocks scientific claim support under the current protocol.
+
+The permutation null result is not the primary inferential result.
+
+---
+
+Null Calibration Warning
+
+The current AR surrogate generation selected the maximum declared
+order in approximately:
+
+"96.5%"
+
+of surrogate refits.
+
+This is a model-capacity diagnostic.
+
+It does not constitute evidence for the hypothesis.
+
+It indicates that the finite-order AR null requires additional calibration
+before stronger model-adequacy conclusions are made.
+
+No change to the AR order range is permitted solely to obtain a favorable
+scientific result.
+
+Any protocol amendment must be explicitly documented and prospectively
+validated.
+
+---
+
+Independent Real-Domain Replication
+
+The current canonical measurement layer identifies two valid independent
+secondary real domains:
+
+- CO2
+- cosmic rays
+
+However, valid measurement is not equivalent to scientific replication.
+
+Scientific replication requires each declared independent domain to reject
+the same primary stochastic null using the same:
+
+- endpoint
+- null family
+- direction
+- tail
+
+The authoritative replication gate must therefore report:
+
+"REPLICATION_ESTABLISHED"
+
+before independent-domain replication is considered established.
+
+The current canonical report's cross-domain measurement diagnostic must not
+be interpreted as scientific replication by itself.
+
+---
+
+Multi-Scale Diagnostics
+
+Current canonical scale diagnostics:
+
+- pairwise delta = "0.482583"
+- maximum permitted pairwise delta = "0.50"
+- dispersion = "0.205825"
+- maximum permitted dispersion = "0.40"
+
+These values are within the currently declared diagnostic thresholds.
+
+This does not establish the scientific hypothesis.
+
+Scale stability is explicitly classified as diagnostic in the epistemic policy.
+
+---
+
+Perturbation Stability
+
+The current deterministic seeded perturbation test reports:
+
+"std(alpha) = 0.019463"
+
+This demonstrates stability under the specified perturbations.
+
+It is not independent scientific replication.
+
+It is not equivalent to independent implementation replication,
+laboratory replication, or external scientific replication.
+
+---
+
+Predictive Validation
+
+The current train/test diagnostic reports:
+
+"train alpha = 2.565617"
+
+"test alpha = 1.123020"
+
+"alpha delta = 1.442597"
+
+"structural_match = false"
+
+Therefore the current predictive diagnostic does not provide support for
+a stable out-of-sample spectral signature.
+
+No predictive claim is promoted from this result.
+
+---
+
+Reproducibility Boundary
+
+Clean-checkout replay is classified as:
+
+computational reproducibility
+
+It is not, by itself:
+
+- scientific replication
+- independent implementation replication
+- laboratory replication
+
+The current promotion protocol requires the declared clean-checkout
+reproducibility conditions before final claim promotion.
+
+---
+
+Diagnostic-Only Evidence
+
+The following must not override the primary stochastic null:
+
+- permutation-null rejection
+- separation diagnostics
+- evidence score
+- scale stability
+- perturbation stability
+- prediction regime transition
+- internal consistency
+- descriptive spectral structure
+
+In particular:
+
+"permutation p = 0.0002"
+
+is diagnostic only under the current epistemic contract.
+
+It must not be presented as the primary scientific significance result.
+
+---
+
+Theoretical Alpha Values
+
+Theoretical documents currently contain historical or working values near:
+
+"alpha* ≈ 1.809"
+
+These values must not be presented as the current empirical canonical
+measurement.
+
+Their provenance must be resolved before they are described as an
+empirical invariant.
+
+The current canonical empirical measurement is:
+
+"alpha = 2.525347"
+
+Any theoretical value must be explicitly identified as theoretical,
+historical, model-specific, or otherwise separately sourced.
+
+---
+
+Scientific Claim
+
+Current state:
 
 NOT ESTABLISHED
 
-## Scientific Confidence
+The correct next action is further falsifiable validation, not threshold
+relaxation and not result optimization.
 
-No global confidence label is assigned while the scale-invariance criterion remains unresolved.
+---
+
+Epistemic Boundary
+
+The current evidence does not establish:
+
+- consciousness
+- HCM causation
+- a physical field
+- universality
+- a universal law
+- novel physics
+- market advantage
+- predictive superiority
+
+These remain hypotheses requiring independent empirical validation.
