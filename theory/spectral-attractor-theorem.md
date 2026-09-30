@@ -14,7 +14,7 @@ We observe empirically:
 2. Var[α(s)] remains bounded and small
 3. α* ≈ 1.8 across large seed ensembles (N ≥ 5000)
 
-### Theorem-like Claim (Working Hypothesis)
+### Working Hypothesis — Not a Theorem
 
 If the generating kernel K(θ) induces a bounded non-linear feedback map 
 with finite memory and state contraction in expectation,
@@ -61,3 +61,13 @@ The claim fails if any of the following occur:
 ---
 
 This remains a working mathematical hypothesis pending formal proof.
+
+The historical value α* ≈ 1.8093 is not established by
+the current canonical real-data result.
+
+The current canonical
+estimate is α = 2.525347, and the declared primary stochastic
+null has not been rejected.
+
+Therefore no empirical attractor
+invariant is claimed here.
