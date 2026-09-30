@@ -1,5 +1,5 @@
 ![Power Test](https://img.shields.io/badge/power-unknown-lightgrey)
-![Multi Seed Sweep](https://github.com/AhmedPeaRL/maximal-one/actions/workflows/multi-seed-sweep.yml/badge.svg)
+![Scientific Claim Promotion Gate](https://github.com/AhmedPeaRL/maximal-one/actions/workflows/scientific-claim-promotion.yml/badge.svg)
 
 # maximal-one
 
