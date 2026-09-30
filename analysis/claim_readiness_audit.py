@@ -405,35 +405,126 @@ def main():
         else None
     )
     
+    primary_report = {
+        "valid": False,
+        "support_eligible": False,
+        "rejected": False,
+    }
+
+    canonical_report_path = Path(
+        "artifacts/canonical_report.json"
+    )
+
+    if canonical_report_path.exists():
+        try:
+            canonical_report = json.loads(
+                canonical_report_path.read_text(
+                    encoding="utf-8"
+                )
+            )
+
+            primary_null = canonical_report.get(
+                "appropriate_stochastic_null",
+                {}
+            )
+
+            primary_report = {
+                "valid": (
+                    primary_null.get("valid") is True
+                ),
+                "support_eligible": (
+                    primary_null.get(
+                        "support_eligible"
+                    ) is True
+                ),
+                "rejected": (
+                    primary_null.get(
+                        "reject_at_0_05"
+                    ) is True
+                ),
+            }
+
+        except Exception:
+            primary_report = {
+                "valid": False,
+                "support_eligible": False,
+                "rejected": False,
+            }
+
+    primary_null_calibrated = (
+        null_calibration is not None
+        and null_calibration.get(
+            "status"
+        ) == "CALIBRATION_NOT_REJECTED"
+    )
+
+    independent_domain_replication_established = (
+        replication_gate is not None
+        and replication_gate.get(
+            "status"
+        ) == "REPLICATION_ESTABLISHED"
+    )
+
+    computational_reproducibility_verified = (
+        replay is not None
+        and replay.get(
+            "computational_reproducibility_verified"
+        ) is True
+        and replay.get(
+            "fingerprint_match"
+        ) is True
+        and replay.get(
+            "structure_match"
+        ) is True
+    )
+
+    scientific_replication_verified = (
+        independent_domain_replication_established
+    )
+
+    promotion_allowed = bool(
+        primary_report["rejected"]
+        and primary_null_calibrated
+        and independent_domain_replication_established
+        and computational_reproducibility_verified
+    )
+
     claim_readiness = {
-        "scientific_claim_supported": False,
-
-        "primary_stochastic_null_rejected": False,
-
-        "primary_null_calibrated": (
-            null_calibration is not None
-            and null_calibration.get(
-                "status"
-            ) == "CALIBRATION_NOT_REJECTED"
+        "scientific_claim_supported": bool(
+            promotion_allowed
         ),
 
-        "independent_domain_replication_established": (
-            replication_gate is not None
-            and replication_gate.get(
-                "status"
-            ) == "REPLICATION_ESTABLISHED"
+        "primary_stochastic_null_rejected": bool(
+            primary_report["rejected"]
         ),
 
-        "computational_reproducibility_verified": (
-            replay is not None
-            and replay.get(
-                "computational_reproducibility_verified"
-            ) is True
+        "primary_stochastic_null_valid": bool(
+            primary_report["valid"]
         ),
 
-        "scientific_replication_verified": False,
+        "primary_stochastic_null_support_eligible": bool(
+            primary_report["support_eligible"]
+        ),
 
-        "promotion_allowed": False,
+        "primary_null_calibrated": bool(
+            primary_null_calibrated
+        ),
+
+        "independent_domain_replication_established": bool(
+            independent_domain_replication_established
+        ),
+
+        "computational_reproducibility_verified": bool(
+            computational_reproducibility_verified
+        ),
+
+        "scientific_replication_verified": bool(
+            scientific_replication_verified
+        ),
+
+        "promotion_allowed": bool(
+            promotion_allowed
+        ),
     }
 
     report = {
