@@ -91,16 +91,6 @@ jobs:
 
           python scripts/validate_canonical_report.py
 
-      - name: Run claim readiness audit
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          python analysis/claim_readiness_audit.py
-
-          test -s \
-            artifacts/claim_readiness_audit.json
-
       - name: Run null calibration gate
         shell: bash
         run: |
@@ -121,13 +111,6 @@ jobs:
           test -s \
             artifacts/independent_domain_replication_gate.json
 
-      - name: Upload claim readiness audit
-        uses: actions/upload-artifact@v4
-        with:
-          name: claim-readiness-audit
-          path: artifacts/claim_readiness_audit.json
-          if-no-files-found: error
-
       - name: Evaluate scientific contract
         shell: bash
         run: |
@@ -145,6 +128,13 @@ jobs:
           test -s \
             artifacts/adversarial_control.json
 
+      - name: Upload final claim readiness audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: claim-readiness-audit
+          path: artifacts/claim_readiness_audit.json
+          if-no-files-found: error
+
       - name: Run clean-checkout computational reproduction
         shell: bash
         run: |
@@ -161,6 +151,16 @@ jobs:
           set -euo pipefail
 
           python scripts/validate_external_replay.py
+
+      - name: Generate final claim readiness audit
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python analysis/claim_readiness_audit.py
+
+          test -s \
+            artifacts/claim_readiness_audit.json
 
       - name: Re-evaluate promotion prerequisites
         shell: bash
