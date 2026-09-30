@@ -3,84 +3,172 @@
 
 # maximal-one
 
-maximal-one is a reproducible experimental framework for testing the hypothesis:
+"maximal-one" is a reproducible computational research framework for
+investigating the Constrained Spectral Persistence Hypothesis.
 
-> H0: Deterministic static cloud deployments exhibit no intrinsic periodic structure beyond known computational artifacts.
+The current hypothesis asks whether a spectral persistence signature can
+remain distinguishable from an appropriately specified stochastic null model
+under a declared validation protocol.
 
-The system performs:
+The repository is explicitly falsification-oriented.
 
-- Controlled metric acquisition
-- Spectral analysis
-- Statistical significance testing
-- Cross-run reproducibility validation
-- Artifact persistence for auditability
-
----
-
-## Scientific Position
-
-This system is considered incomplete until independently reproduced outside its original execution environment.
-
-This repository does NOT assume emergent structure.
-
-It attempts to falsify the null hypothesis using reproducible computation.
-
-If no statistically significant structure survives artifact elimination,
-the null hypothesis stands.
-
-If structure persists across:
-
-- device environments
-- independent runs
-- bootstrap randomization
-- artifact removal controls
-
-then further investigation is justified.
+A scientific claim is not promoted because a spectral pattern is visually
+interesting, because a diagnostic statistic is significant, or because
+multiple internal checks agree.
 
 ---
 
-## No Ontological Claims
+## Current Scientific Position
 
-This repository does not claim:
+The current canonical result remains:
 
-- metaphysical emergence
-- hidden universal structure
-- fundamental reinterpretation of cloud systems
+UNDER INVESTIGATION
 
-It only tests measurable statistical deviation from white noise.
+The primary real dataset is:
+
+"real-data/sunspots_full.csv"
+
+with:
+
+"N = 3328"
+
+The canonical Welch spectral exponent is approximately:
+
+"alpha = 2.525347"
+
+The authoritative primary stochastic null is a stationary Gaussian AR(p)
+surrogate family with AIC order selection over orders 1 through 20.
+
+The current primary Monte Carlo result is:
+
+"p = 0.999001"
+
+Therefore the primary stochastic null is not rejected.
+
+Scientific claim promotion is consequently blocked.
 
 ---
 
-## Observational Insight Layer (Non-Claiming)
+## Diagnostic Versus Inferential Evidence
 
-While no ontological claim is made,
-the persistence of spectral structure under:
+The repository contains several secondary diagnostics.
 
-- falsification
-- bootstrap
-- cross-method agreement
+These include:
 
-raises a non-trivial question:
+- permutation-null analysis
+- scale analysis
+- perturbation stability
+- cross-method comparison
+- separation diagnostics
+- predictive diagnostics
+- adversarial controls
 
-> Are deterministic computational environments
-capable of generating statistically persistent structure
-beyond known artifacts?
+These diagnostics are deliberately separated from scientific claim
+authority.
 
-This repository does not answer this question.
-It only makes it unavoidable.
+In particular, the current permutation result:
+
+"p = 0.0002"
+
+is diagnostic-only and does not replace the primary stochastic-null result.
+
+---
+
+## Null Calibration Status
+
+The current primary AR surrogate analysis reports a high boundary-selection
+fraction:
+
+"0.965"
+
+This indicates that the declared finite AR order range requires additional
+calibration before stronger model-adequacy conclusions are drawn.
+
+The calibration warning is not interpreted as evidence for the hypothesis.
+
+---
+
+## Independent Replication
+
+Two independent real domains currently have valid measurements.
+
+However, measurement validity is not replication.
+
+The authoritative replication gate requires independent domain-level rejection
+of the same primary stochastic null under the same endpoint, direction, tail,
+and null family.
+
+The current replication result is:
+
+"0 / 2"
+
+Therefore independent scientific replication is not established.
+
+---
+
+## Computational Reproducibility
+
+The repository currently supports clean-checkout computational reproduction
+with matching report structure and fingerprint under the declared environment.
+
+This does not constitute:
+
+- independent scientific replication
+- independent implementation replication
+- laboratory replication
+- causal evidence
+- mechanism
+- universality
+
+---
+
+## Epistemic Boundary
+
+The repository does not currently establish:
+
+- consciousness
+- HCM causation
+- NeuroEnergetic Field existence
+- universal law
+- novel physics
+- causal mechanism
+- universal applicability
+- market advantage
+
+These remain hypotheses requiring independent empirical testing.
 
 ---
 
 ## Core Principle
 
-- Reproducibility > Interpretation
-- Data > Narrative
-- Falsifiability > Desire
+- Reproducibility > interpretation
+- Data > narrative
+- Falsifiability > desire
+- Negative results remain valid results
+- Diagnostic evidence must never silently become claim evidence
 
+The system is designed to preserve the possibility that the hypothesis is
+wrong.
 
-New Theorem – Finite Spectral Upper Bound
+---
 
-See core-scientific/finite_spectral_bound.md.
+## External Reproduction
+
+The project should be considered scientifically incomplete until independent
+researchers can reproduce or falsify the relevant result outside the original
+execution environment.
+
+External reproduction is therefore a research objective, not a promotional
+badge.
+
+---
+
+## Scientific Status
+
+UNDER INVESTIGATION
+
+No current workflow should promote the hypothesis while the authoritative
+primary stochastic-null gate remains un-rejected.
 
 ---
 
