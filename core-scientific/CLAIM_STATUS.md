@@ -1,22 +1,23 @@
-Claim Status
+# Claim Status
 
-Current Status
+---
+
+## Current Status
 
 UNDER INVESTIGATION
 
-The current canonical pipeline does not support promotion of the
-Constrained Spectral Persistence Hypothesis.
+The current canonical validation pipeline does not support promotion
+of the Constrained Spectral Persistence Hypothesis.
 
-The machine-gated scientific claim remains closed because the declared
-primary stochastic null has not been rejected.
+---
 
-Canonical Primary Result
+## Canonical Primary Measurement
 
 Primary dataset:
 
 "real-data/sunspots_full.csv"
 
-Canonical sample size:
+Sample size:
 
 "N = 3328"
 
@@ -28,181 +29,156 @@ Independent FFT-periodogram estimate:
 
 "alpha = 2.423397"
 
-Welch/FFT agreement:
+Absolute method difference:
 
-"delta = 0.101950"
+"0.101950"
 
-The cross-method agreement is within the declared numerical validation
-threshold.
+The cross-method agreement is a measurement-consistency result.
+It is not independent scientific replication.
 
-Primary Stochastic Null
+---
 
-The declared primary stochastic null is:
+## Primary Stochastic Null
+
+The current exploratory primary stochastic null is:
 
 "stationary_gaussian_AR_p_aic"
 
 with:
 
-- AIC order selection from 1 through 20
-- stationary Gaussian AR(p) surrogate generation
-- refitting of the selected order for each surrogate
-- canonical primary alpha as the endpoint
-- upper-tail "greater_than_null" testing
-- 1000 valid surrogate trials
-- add-one Monte Carlo p-value
+- AIC order selection
+- order range 1..20
+- stationary fitted models
+- Gaussian innovations
+- refitting for every surrogate
+- canonical primary alpha as endpoint
+- upper-tail direction
 
-Current result:
+Current canonical result:
 
-"observed alpha = 2.525347"
+- valid surrogates: 1000
+- observed alpha: 2.525347
+- null mean: 3.197386
+- null SD: 0.235076
+- null q05: 2.816685
+- null q95: 3.584700
+- exceedances: 999
+- Monte Carlo p-value: 0.999001
+- rejection at 0.05: false
 
-"null mean = 3.197386"
+Therefore:
 
-"null q05 = 2.816685"
+The primary stochastic null is not rejected.
 
-"null q95 = 3.584700"
+---
 
-"exceedances = 999 / 1000"
+## Null Capacity Diagnostic
 
-"p = 0.999001"
+The surrogate AR-order boundary fraction is:
 
-"reject_at_0_05 = false"
+"0.965"
 
-Therefore the primary stochastic null is not rejected.
+That means 96.5% of surrogate refits select the maximum
+declared order of 20.
 
-Scientific claim promotion is correctly blocked.
+This is treated as a model-capacity/calibration warning.
 
-Null Calibration Warning
+It is not evidence for the scientific claim.
 
-The current surrogate ensemble reports:
+A larger order range must not be selected merely because it
+produces a preferred p-value. Any amended null protocol must be
+declared before a fresh confirmation run.
 
-"surrogate_boundary_fraction = 0.965"
+---
 
-and the selected observed order reaches:
+## Secondary Diagnostics
 
-"order = 20"
-
-the declared maximum.
-
-This does not constitute evidence for or against the scientific hypothesis.
-
-It indicates that the declared finite AR order range requires additional
-model-capacity calibration before stronger inferential conclusions are
-drawn from this null family.
-
-The calibration warning must not be resolved by changing the protocol solely
-to obtain claim support.
-
-Secondary Statistical Diagnostics
-
-The permutation null reports:
+Permutation-null result:
 
 "p = 0.0002"
 
-This result is explicitly diagnostic-only.
+Role:
 
-It is evidence against the specified exchangeability/permutation null only.
-It is not the authoritative primary stochastic-null result and cannot
-override the primary AR-null result.
+DIAGNOSTIC ONLY
 
-The separation diagnostic reports:
+It is not the primary stochastic null and has no claim-promotion
+authority.
 
-"z = 11.743516"
+The current scale diagnostic satisfies its declared numerical
+thresholds, but scale stability alone cannot establish the claim.
 
-This is also diagnostic-only and is not independent evidence for the
-scientific claim.
+The current predictive validation has:
 
-Multi-Scale Diagnostic
+"structural_match = false"
 
-The current canonical multi-scale diagnostic reports:
+and is therefore diagnostic only.
 
-"pairwise delta = 0.482583"
+---
 
-"relative dispersion = 0.205825"
+## Independent Real-Domain Replication
 
-The declared diagnostic criterion is satisfied in the current run.
+The project requires at least two independent real secondary
+domains.
 
-This does not establish the scientific claim.
+Measurement validity is explicitly different from scientific
+replication.
 
-Independent Real-Domain Replication
+Scientific replication requires each domain to reject the same
+declared primary stochastic null using the same endpoint,
+direction, tail, and null family.
 
-Two independent real domains currently have valid alpha measurements:
+That condition is not currently established.
 
-- CO2 atmospheric data
-- Cosmic-ray data
+---
 
-Their valid measurements do not by themselves establish replication.
+## Reproducibility Boundary
 
-The authoritative replication gate requires each domain to reject the same
-declared primary stochastic null using the same endpoint, direction, tail,
-and null family.
+Clean-checkout replay is computational reproducibility.
 
-Current result:
+It is not:
 
-"Passed = 0 / 2"
-
-Therefore independent scientific replication is NOT ESTABLISHED.
-
-Derived datasets, shuffled datasets, synthetic datasets, and null controls
-do not count as independent replication.
-
-Computational Reproducibility
-
-The clean-checkout computational reproduction currently verifies:
-
-- exact checkout
-- canonical report structure match
-- fingerprint match
-- canonical alpha agreement
-
-This establishes computational reproducibility of the declared pipeline.
-
-It does not establish:
-
-- independent scientific replication
+- scientific replication
 - independent implementation replication
 - laboratory replication
-- causality
-- mechanism
-- universality
 
-Prediction
+---
 
-The current train/test diagnostic does not establish predictive validity.
-
-Current structural match:
-
-"false"
-
-Therefore it must remain diagnostic.
-
-Epistemic Boundary
+## Epistemic Boundary
 
 The current evidence does not establish:
 
 - HCM causation
 - consciousness
-- NeuroEnergetic Field existence
-- a universal law
+- a physical field
+- universality
 - novel physics
-- mechanism
-- universal cross-domain behavior
 - market advantage
-- trading validity
+- predictive superiority
 
-These remain hypotheses requiring independent empirical tests.
+---
 
-Required Next Scientific Steps
+## Next Scientific Objective
 
-1. Complete a justified calibration of the primary stochastic-null family.
-2. Declare the confirmatory null protocol before a fresh validation run.
-3. Declare independent replication domains before evaluating their results.
-4. Require domain-level rejection of the same primary null for replication.
-5. Preserve the current negative primary result rather than tuning the protocol
-   around it.
-6. Obtain independent reproduction outside the original execution environment.
-7. Preserve all negative and positive controls as first-class artifacts.
+The next objective is not to force promotion.
 
-No threshold should be changed solely to convert the current state into PASS.
-No diagnostic statistic may be promoted into primary evidence.
+The next objective is to:
 
-Current scientific status: UNDER INVESTIGATION.
+1. characterize estimator behavior over the relevant alpha range;
+2. audit the capacity and adequacy of the primary stochastic-null family;
+3. declare a fixed prospective null protocol;
+4. perform fresh validation under that protocol;
+5. require independent domain-level null rejection;
+6. preserve the current result if the hypothesis fails.
+
+No threshold, tail, endpoint, or null family should be changed solely
+to obtain a favorable result.
+
+---
+
+## Scientific Decision Rule
+
+Until all machine-gated prerequisites are satisfied:
+
+CLAIM = NOT ESTABLISHED
+
+The system must remain capable of producing a negative result.
