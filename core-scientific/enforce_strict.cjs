@@ -324,6 +324,68 @@ if (
 
 /*
  * ------------------------------------------------------------
+ * 6B. INDEPENDENT DOMAIN REPLICATION GATE
+ *
+ * Measurement validity is not replication.
+ * The authoritative replication artifact must establish
+ * domain-level rejection of the same declared primary null.
+ * ------------------------------------------------------------
+ */
+
+const REPLICATION_GATE_PATH =
+  "artifacts/independent_domain_replication_gate.json";
+
+const NULL_CALIBRATION_PATH =
+  "artifacts/null_calibration_gate.json";
+
+assert(
+  exists(REPLICATION_GATE_PATH),
+  `missing ${REPLICATION_GATE_PATH}`
+);
+
+assert(
+  exists(NULL_CALIBRATION_PATH),
+  `missing ${NULL_CALIBRATION_PATH}`
+);
+
+const replicationGate =
+  readJson(REPLICATION_GATE_PATH);
+
+const nullCalibration =
+  readJson(NULL_CALIBRATION_PATH);
+
+assert(
+  replicationGate &&
+  typeof replicationGate === "object",
+  "independent domain replication gate is invalid"
+);
+
+assert(
+  replicationGate.status ===
+    "REPLICATION_ESTABLISHED",
+  (
+    "independent real-domain replication "
+    + "has not been established"
+  )
+);
+
+assert(
+  nullCalibration &&
+  typeof nullCalibration === "object",
+  "null calibration gate is invalid"
+);
+
+assert(
+  nullCalibration.status ===
+    "CALIBRATION_NOT_REJECTED",
+  (
+    "primary stochastic-null calibration "
+    + "is not sufficient for promotion"
+  )
+);
+
+/*
+ * ------------------------------------------------------------
  * 7. CLEAN-CHECKOUT COMPUTATIONAL REPRODUCIBILITY
  * ------------------------------------------------------------
  */
