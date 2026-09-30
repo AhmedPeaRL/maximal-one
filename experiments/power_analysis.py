@@ -50,7 +50,23 @@ def main():
     alphas = df["spectral_exponent"].values
 
     mean_alpha = np.mean(alphas)
-    std_alpha = np.std(alphas, ddof=1)
+    
+    if not np.all(np.isfinite(alphas)):
+        raise SystemExit(
+            "ERROR: non-finite observations; "
+            "power/effect analysis aborted."
+        )
+
+    std_alpha = np.std(
+        alphas,
+        ddof=1,
+    )
+
+    if not np.isfinite(std_alpha) or std_alpha <= 1e-12:
+        raise SystemExit(
+            "ERROR: zero or near-zero variance; "
+            "power/effect-size result is invalid."
+        )
 
     # اختبار مقابل H0: alpha = 1 (random walk theoretical slope)
     t_stat, p_value = stats.ttest_1samp(alphas, 1.0)
