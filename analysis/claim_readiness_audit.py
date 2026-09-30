@@ -21,7 +21,7 @@ PRIMARY_PATH = Path(
 
 SEED = 42
 
-ORDER_SCAN_MAX = 40
+DIAGNOSTIC_ORDER_SCAN_MAX = 40
 LJUNG_BOX_LAGS = [10, 20, 40]
 
 def finite(value):
@@ -93,7 +93,7 @@ def order_scan(series):
     results = []
 
     max_order = min(
-        ORDER_SCAN_MAX,
+        DIAGNOSTIC_ORDER_SCAN_MAX,
         max(1, len(series) // 10),
     )
 
@@ -167,6 +167,11 @@ def order_scan(series):
         "best_aic_order": best["order"],
         "best_aic": best["aic"],
         "best_at_scan_boundary": (
+            best["order"] == max_order
+        ),
+        "scientific_role": "diagnostic_only",
+        "not_primary_null_protocol": True,
+        "calibration_signal": (
             best["order"] == max_order
         ),
         "results": results,
