@@ -1617,7 +1617,6 @@ jobs:
       - name: HCM Alignment Guard + Node Suite
         run: |
           node analysis/alignment_guard.js
-          node core/market_exporter.js
           npm run verify
           npm run stability
           npm run attractor
@@ -3699,9 +3698,6 @@ jobs:
     - name: Causal Feedback Engine
       run: python analysis/causal_feedback_engine.py
 
-    - name: Export market artifact
-      run: python scripts/export_market_artifact.py
-
     - name: Decision lineage tracking
       run: python analysis/decision_lineage.py
 
@@ -3717,14 +3713,6 @@ jobs:
     - name: Continuity guard
       run: python analysis/continuity_guard.py
 
-    - name: Market Decision Engine
-      run: python analysis/market_decision_engine.py
-
-    - name: Reality → Market Bridge
-      run: python analysis/reality_to_market_bridge.py
-
-    - name: Forced Market Collision
-      run: python analysis/forced_market_collision.py
 
     # =========================
     # 7) PERSISTENCE
@@ -3880,15 +3868,6 @@ jobs:
 
         print("Truth surface aligned to measured evidence and epistemic status.")
         PY
-
-    - name: Extract market signal
-      run: python analysis/signal_extractor.py
-
-    - name: Market Harness Decision
-      run: python analysis/market_harness.py
-
-    - name: Execute Market Action
-      run: python scripts/market_executor.py
 
     - name: External Irreducible Judge
       run: python analysis/external_judge_bridge.py
