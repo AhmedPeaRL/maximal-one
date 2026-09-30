@@ -1,5 +1,15 @@
 // deterministic trade simulation (NO randomness)
 
+/*
+ * ARCHIVED / DISABLED EXPERIMENTAL MARKET BRIDGE
+ *
+ * This module is NOT part of the scientific claim pipeline.
+ * It does not establish prediction, profitability, causality,
+ * HCM validity, or scientific evidence.
+ *
+ * Live execution is disabled.
+ */
+
 function deterministicHash(str) {
   let hash = 0;
 
