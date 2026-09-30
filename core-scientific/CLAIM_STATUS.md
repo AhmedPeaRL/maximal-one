@@ -1,4 +1,4 @@
-Scientific Claim Status
+Claim Status
 
 Current Status
 
@@ -7,75 +7,49 @@ UNDER INVESTIGATION
 The current canonical pipeline does not support promotion of the
 Constrained Spectral Persistence Hypothesis.
 
-The primary stochastic null has not been rejected under the declared
-canonical protocol.
-
-No claim of mechanism, universality, consciousness, HCM causation,
-novel physics, or market advantage is established by the current result.
-
----
+The machine-gated scientific claim remains closed because the declared
+primary stochastic null has not been rejected.
 
 Canonical Primary Result
 
-The current canonical primary dataset is:
+Primary dataset:
 
 "real-data/sunspots_full.csv"
 
-Primary estimator:
+Canonical sample size:
 
-"Welch_PSD"
+"N = 3328"
 
-Canonical frequency band:
-
-"0.01 - 0.05"
-
-Canonical Welch configuration:
-
-- nperseg = 1024
-- window = hann
-- detrend = linear
-- scaling = density
-- noverlap = 0.5
-- nfft = nperseg
-- seed = 42
-
-Current canonical spectral exponent:
+Canonical Welch spectral exponent:
 
 "alpha = 2.525347"
 
-Independent numerical validation:
+Independent FFT-periodogram estimate:
 
-"FFT alpha = 2.423397"
+"alpha = 2.423397"
 
-Welch/FFT absolute disagreement:
+Welch/FFT agreement:
 
-"0.101950"
+"delta = 0.101950"
 
-Declared maximum:
-
-"0.30"
-
-Therefore the current cross-method numerical consistency condition is
-satisfied.
-
----
+The cross-method agreement is within the declared numerical validation
+threshold.
 
 Primary Stochastic Null
 
-The authoritative primary null is:
+The declared primary stochastic null is:
 
 "stationary_gaussian_AR_p_aic"
 
 with:
 
-- AIC order selection
-- AR order range 1-20
-- stationarity required
-- Gaussian innovations
-- refitting for each surrogate
-- upper-tail test
-- endpoint = canonical primary alpha
-- 1000 requested surrogate trials
+- AIC order selection from 1 through 20
+- stationary Gaussian AR(p) surrogate generation
+- refitting of the selected order for each surrogate
+- canonical primary alpha as the endpoint
+- upper-tail "greater_than_null" testing
+- 1000 valid surrogate trials
+- add-one Monte Carlo p-value
 
 Current result:
 
@@ -87,207 +61,148 @@ Current result:
 
 "null q95 = 3.584700"
 
+"exceedances = 999 / 1000"
+
 "p = 0.999001"
 
-"reject at alpha = 0.05 = false"
+"reject_at_0_05 = false"
 
-Therefore:
+Therefore the primary stochastic null is not rejected.
 
-PRIMARY STOCHASTIC NULL NOT REJECTED
-
-This blocks scientific claim support under the current protocol.
-
-The permutation null result is not the primary inferential result.
-
----
+Scientific claim promotion is correctly blocked.
 
 Null Calibration Warning
 
-The current AR surrogate generation selected the maximum declared
-order in approximately:
+The current surrogate ensemble reports:
 
-"96.5%"
+"surrogate_boundary_fraction = 0.965"
 
-of surrogate refits.
+and the selected observed order reaches:
 
-This is a model-capacity diagnostic.
+"order = 20"
 
-It does not constitute evidence for the hypothesis.
+the declared maximum.
 
-It indicates that the finite-order AR null requires additional calibration
-before stronger model-adequacy conclusions are made.
+This does not constitute evidence for or against the scientific hypothesis.
 
-No change to the AR order range is permitted solely to obtain a favorable
-scientific result.
+It indicates that the declared finite AR order range requires additional
+model-capacity calibration before stronger inferential conclusions are
+drawn from this null family.
 
-Any protocol amendment must be explicitly documented and prospectively
-validated.
+The calibration warning must not be resolved by changing the protocol solely
+to obtain claim support.
 
----
+Secondary Statistical Diagnostics
+
+The permutation null reports:
+
+"p = 0.0002"
+
+This result is explicitly diagnostic-only.
+
+It is evidence against the specified exchangeability/permutation null only.
+It is not the authoritative primary stochastic-null result and cannot
+override the primary AR-null result.
+
+The separation diagnostic reports:
+
+"z = 11.743516"
+
+This is also diagnostic-only and is not independent evidence for the
+scientific claim.
+
+Multi-Scale Diagnostic
+
+The current canonical multi-scale diagnostic reports:
+
+"pairwise delta = 0.482583"
+
+"relative dispersion = 0.205825"
+
+The declared diagnostic criterion is satisfied in the current run.
+
+This does not establish the scientific claim.
 
 Independent Real-Domain Replication
 
-The current canonical measurement layer identifies two valid independent
-secondary real domains:
+Two independent real domains currently have valid alpha measurements:
 
-- CO2
-- cosmic rays
+- CO2 atmospheric data
+- Cosmic-ray data
 
-However, valid measurement is not equivalent to scientific replication.
+Their valid measurements do not by themselves establish replication.
 
-Scientific replication requires each declared independent domain to reject
-the same primary stochastic null using the same:
+The authoritative replication gate requires each domain to reject the same
+declared primary stochastic null using the same endpoint, direction, tail,
+and null family.
 
-- endpoint
-- null family
-- direction
-- tail
+Current result:
 
-The authoritative replication gate must therefore report:
+"Passed = 0 / 2"
 
-"REPLICATION_ESTABLISHED"
+Therefore independent scientific replication is NOT ESTABLISHED.
 
-before independent-domain replication is considered established.
+Derived datasets, shuffled datasets, synthetic datasets, and null controls
+do not count as independent replication.
 
-The current canonical report's cross-domain measurement diagnostic must not
-be interpreted as scientific replication by itself.
+Computational Reproducibility
 
----
+The clean-checkout computational reproduction currently verifies:
 
-Multi-Scale Diagnostics
+- exact checkout
+- canonical report structure match
+- fingerprint match
+- canonical alpha agreement
 
-Current canonical scale diagnostics:
+This establishes computational reproducibility of the declared pipeline.
 
-- pairwise delta = "0.482583"
-- maximum permitted pairwise delta = "0.50"
-- dispersion = "0.205825"
-- maximum permitted dispersion = "0.40"
+It does not establish:
 
-These values are within the currently declared diagnostic thresholds.
-
-This does not establish the scientific hypothesis.
-
-Scale stability is explicitly classified as diagnostic in the epistemic policy.
-
----
-
-Perturbation Stability
-
-The current deterministic seeded perturbation test reports:
-
-"std(alpha) = 0.019463"
-
-This demonstrates stability under the specified perturbations.
-
-It is not independent scientific replication.
-
-It is not equivalent to independent implementation replication,
-laboratory replication, or external scientific replication.
-
----
-
-Predictive Validation
-
-The current train/test diagnostic reports:
-
-"train alpha = 2.565617"
-
-"test alpha = 1.123020"
-
-"alpha delta = 1.442597"
-
-"structural_match = false"
-
-Therefore the current predictive diagnostic does not provide support for
-a stable out-of-sample spectral signature.
-
-No predictive claim is promoted from this result.
-
----
-
-Reproducibility Boundary
-
-Clean-checkout replay is classified as:
-
-computational reproducibility
-
-It is not, by itself:
-
-- scientific replication
+- independent scientific replication
 - independent implementation replication
 - laboratory replication
+- causality
+- mechanism
+- universality
 
-The current promotion protocol requires the declared clean-checkout
-reproducibility conditions before final claim promotion.
+Prediction
 
----
+The current train/test diagnostic does not establish predictive validity.
 
-Diagnostic-Only Evidence
+Current structural match:
 
-The following must not override the primary stochastic null:
+"false"
 
-- permutation-null rejection
-- separation diagnostics
-- evidence score
-- scale stability
-- perturbation stability
-- prediction regime transition
-- internal consistency
-- descriptive spectral structure
-
-In particular:
-
-"permutation p = 0.0002"
-
-is diagnostic only under the current epistemic contract.
-
-It must not be presented as the primary scientific significance result.
-
----
-
-Theoretical Alpha Values
-
-Theoretical documents currently contain historical or working values near:
-
-"alpha* ≈ 1.809"
-
-These values must not be presented as the current empirical canonical
-measurement.
-
-Their provenance must be resolved before they are described as an
-empirical invariant.
-
-The current canonical empirical measurement is:
-
-"alpha = 2.525347"
-
-Any theoretical value must be explicitly identified as theoretical,
-historical, model-specific, or otherwise separately sourced.
-
----
-
-Scientific Claim
-
-Current state:
-
-NOT ESTABLISHED
-
-The correct next action is further falsifiable validation, not threshold
-relaxation and not result optimization.
-
----
+Therefore it must remain diagnostic.
 
 Epistemic Boundary
 
 The current evidence does not establish:
 
-- consciousness
 - HCM causation
-- a physical field
-- universality
+- consciousness
+- NeuroEnergetic Field existence
 - a universal law
 - novel physics
+- mechanism
+- universal cross-domain behavior
 - market advantage
-- predictive superiority
+- trading validity
 
-These remain hypotheses requiring independent empirical validation.
+These remain hypotheses requiring independent empirical tests.
+
+Required Next Scientific Steps
+
+1. Complete a justified calibration of the primary stochastic-null family.
+2. Declare the confirmatory null protocol before a fresh validation run.
+3. Declare independent replication domains before evaluating their results.
+4. Require domain-level rejection of the same primary null for replication.
+5. Preserve the current negative primary result rather than tuning the protocol
+   around it.
+6. Obtain independent reproduction outside the original execution environment.
+7. Preserve all negative and positive controls as first-class artifacts.
+
+No threshold should be changed solely to convert the current state into PASS.
+No diagnostic statistic may be promoted into primary evidence.
+
+Current scientific status: UNDER INVESTIGATION.
