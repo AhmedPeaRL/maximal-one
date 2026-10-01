@@ -52,22 +52,19 @@ The claim fails if any of the following occur:
 
 ## Experimental Status
 
-- N = 5000 seeds
-- α* ≈ 1.8093
-- Bootstrap stable
-- Null ensemble deviation small but consistent
-- Cohen's d > 1
+The values reported in earlier seed-based experiments are retained as
+historical computational observations.
 
----
+They are not part of the current canonical real-data claim.
 
-This remains a working mathematical hypothesis pending formal proof.
+The historical working target was approximately:
 
-The historical value α* ≈ 1.8093 is not established by
-the current canonical real-data result.
+α* ≈ 1.8093
 
-The current canonical
-estimate is α = 2.525347, and the declared primary stochastic
-null has not been rejected.
+The current canonical real-data estimate is:
 
-Therefore no empirical attractor
-invariant is claimed here.
+α = 2.525347
+
+The current declared primary stochastic null has not been rejected.
+
+Therefore no empirical attractor invariant is currently claimed.
