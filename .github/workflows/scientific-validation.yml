@@ -594,6 +594,10 @@ jobs:
 
           echo "✅ Null-order capacity audit recorded"
 
+          set -euo pipefail
+
+          python analysis/estimator_sensitivity_audit.py
+
           python - <<'PY'
           import json, sys
           import numpy as np
