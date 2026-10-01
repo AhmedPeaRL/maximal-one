@@ -91,6 +91,16 @@ jobs:
 
           python scripts/validate_canonical_report.py
 
+      - name: Run estimator sensitivity audit
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python analysis/estimator_sensitivity_audit.py
+
+          test -s \
+            artifacts/estimator_sensitivity_audit.json
+
       - name: Run null calibration gate
         shell: bash
         run: |
