@@ -169,13 +169,6 @@ jobs:
 
           python scripts/validate_external_replay.py
 
-      - name: Upload validate external replay evidence
-        uses: actions/upload-artifact@v4
-        with:
-          name: validate-external-replay
-          path: artifacts/validate_external_replay.json
-          if-no-files-found: error
-
       - name: Generate final claim readiness audit
         shell: bash
         run: |
