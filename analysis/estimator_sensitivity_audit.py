@@ -5,59 +5,41 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-
-from analysis.numerical_spectral_verification import (
-    estimate_alpha,
-)
+from scipy.signal import welch
 
 
-PRIMARY_PATH = Path(
-    "real-data/sunspots_full.csv"
-)
+DATASET = Path("real-data/sunspots_full.csv")
+OUTPUT = Path("artifacts/estimator_sensitivity_audit.json")
 
-OUTPUT = Path(
-    "artifacts/estimator_sensitivity_audit.json"
-)
-
-SEED = 20261001
+CANONICAL_BAND = (0.01, 0.05)
+CANONICAL_NPERSEG = 1024
+MIN_BINS = 20
 
 BANDS = [
-    {
-        "name": "canonical",
-        "freq_min": 0.01,
-        "freq_max": 0.05,
-    },
-    {
-        "name": "wider_low",
-        "freq_min": 0.005,
-        "freq_max": 0.05,
-    },
-    {
-        "name": "narrow_low",
-        "freq_min": 0.01,
-        "freq_max": 0.03,
-    },
-    {
-        "name": "wider",
-        "freq_min": 0.01,
-        "freq_max": 0.10,
-    },
-    {
-        "name": "mid",
-        "freq_min": 0.02,
-        "freq_max": 0.10,
-    },
-    {
-        "name": "higher",
-        "freq_min": 0.05,
-        "freq_max": 0.20,
-    },
+    (0.005, 0.05),
+    (0.01, 0.03),
+    (0.01, 0.05),
+    (0.01, 0.10),
+    (0.02, 0.10),
+    (0.05, 0.20),
+]
+
+NPERSEGS = [
+    256,
+    512,
+    1024,
+    2048,
 ]
 
 
-def load_primary():
+def load_sunspots() -> np.ndarray:
+    if not DATASET.exists():
+        raise FileNotFoundError(
+            f"Missing canonical dataset: {DATASET}"
+        )
+
     df = pd.read_csv(
-        PRIMARY_PATH,
+        DATASET,
         sep=";",
         header=None,
         engine="python",
@@ -65,283 +47,269 @@ def load_primary():
     )
 
     if df.shape[1] < 4:
-        raise SystemExit(
-            "Estimator sensitivity audit: "
-            "primary dataset has fewer than four columns."
+        raise ValueError(
+            "sunspots_full.csv must contain the canonical "
+            "sunspot signal in column 3."
         )
 
-    x = pd.to_numeric(
+    values = pd.to_numeric(
         df.iloc[:, 3],
         errors="coerce",
     ).dropna().to_numpy(
         dtype=np.float64
     )
 
-    if len(x) < 256:
-        raise SystemExit(
-            "Estimator sensitivity audit: "
-            "primary series is too short."
+    if len(values) < 128:
+        raise ValueError(
+            "Canonical dataset is too short."
         )
 
-    if not np.all(np.isfinite(x)):
-        raise SystemExit(
-            "Estimator sensitivity audit: "
-            "primary series contains non-finite values."
+    if not np.all(np.isfinite(values)):
+        raise ValueError(
+            "Canonical dataset contains non-finite values."
         )
 
-    return x
+    return (
+        values - np.mean(values)
+    ) / np.std(values)
 
 
-def estimate_with_band(
-    x,
-    freq_min,
-    freq_max,
+def estimate_alpha(
+    series: np.ndarray,
+    freq_min: float,
+    freq_max: float,
+    requested_nperseg: int,
 ):
-    return estimate_alpha(
-        x,
-        freq_min=freq_min,
-        freq_max=freq_max,
+    effective_nperseg = min(
+        requested_nperseg,
+        len(series),
     )
 
-
-def half_series_sensitivity(
-    x,
-    freq_min,
-    freq_max,
-):
-    half = x[: len(x) // 2]
-
-    full_alpha = estimate_with_band(
-        x,
-        freq_min,
-        freq_max,
-    )
-
-    half_alpha = estimate_with_band(
-        half,
-        freq_min,
-        freq_max,
-    )
-
-    if not (
-        np.isfinite(full_alpha)
-        and np.isfinite(half_alpha)
-    ):
+    if effective_nperseg < 128:
         return {
-            "full_alpha": None,
-            "half_alpha": None,
-            "absolute_difference": None,
+            "valid": False,
+            "reason": "effective_nperseg_below_128",
         }
 
+    freqs = np.fft.rfftfreq(
+        effective_nperseg
+    )
+
+    available_bins = int(
+        np.sum(
+            (freqs > freq_min)
+            &
+            (freqs < freq_max)
+        )
+    )
+
+    if available_bins < MIN_BINS:
+        return {
+            "valid": False,
+            "reason": "fewer_than_minimum_frequency_bins",
+            "available_bins": available_bins,
+            "effective_nperseg": effective_nperseg,
+        }
+
+    noverlap = effective_nperseg // 2
+
+    freqs, psd = welch(
+        series,
+        nperseg=effective_nperseg,
+        noverlap=noverlap,
+        nfft=effective_nperseg,
+        window="hann",
+        detrend="linear",
+        scaling="density",
+        return_onesided=True,
+        average="mean",
+    )
+
+    mask = (
+        (freqs > freq_min)
+        &
+        (freqs < freq_max)
+        &
+        np.isfinite(freqs)
+        &
+        np.isfinite(psd)
+        &
+        (psd > 0)
+    )
+
+    selected_freqs = freqs[mask]
+    selected_psd = psd[mask]
+
+    if len(selected_freqs) < MIN_BINS:
+        return {
+            "valid": False,
+            "reason": "fewer_than_minimum_finite_bins",
+            "available_bins": int(len(selected_freqs)),
+            "effective_nperseg": effective_nperseg,
+        }
+
+    log_f = np.log(selected_freqs)
+    log_psd = np.log(selected_psd)
+
+    slope = float(
+        np.polyfit(
+            log_f,
+            log_psd,
+            1,
+        )[0]
+    )
+
+    alpha = float(-slope)
+
+    peak_index = int(
+        np.argmax(selected_psd)
+    )
+
+    peak_frequency = float(
+        selected_freqs[peak_index]
+    )
+
+    median_psd = float(
+        np.median(selected_psd)
+    )
+
+    peak_to_median = (
+        float(selected_psd[peak_index])
+        / median_psd
+        if median_psd > 0
+        else None
+    )
+
     return {
-        "full_alpha": float(full_alpha),
-        "half_alpha": float(half_alpha),
-        "absolute_difference": float(
-            abs(
-                float(full_alpha)
-                -
-                float(half_alpha)
-            )
+        "valid": bool(np.isfinite(alpha)),
+        "alpha": alpha,
+        "available_bins": int(
+            len(selected_freqs)
         ),
+        "effective_nperseg": int(
+            effective_nperseg
+        ),
+        "peak_frequency": peak_frequency,
+        "peak_to_median_psd": peak_to_median,
     }
 
 
 def main():
+    series = load_sunspots()
 
-    x = load_primary()
+    records = []
 
-    results = []
+    for freq_min, freq_max in BANDS:
+        for nperseg in NPERSEGS:
 
-    canonical_alpha = None
+            result = estimate_alpha(
+                series,
+                freq_min,
+                freq_max,
+                nperseg,
+            )
 
-    for item in BANDS:
+            record = {
+                "frequency_band": [
+                    float(freq_min),
+                    float(freq_max),
+                ],
+                "requested_nperseg": int(
+                    nperseg
+                ),
+                **result,
+            }
 
-        sensitivity = half_series_sensitivity(
-            x,
-            item["freq_min"],
-            item["freq_max"],
-        )
+            record["is_canonical"] = (
+                freq_min == CANONICAL_BAND[0]
+                and
+                freq_max == CANONICAL_BAND[1]
+                and
+                nperseg == CANONICAL_NPERSEG
+            )
 
-        alpha = sensitivity["full_alpha"]
+            records.append(record)
 
-        if item["name"] == "canonical":
-            canonical_alpha = alpha
+    canonical = next(
+        r
+        for r in records
+        if r["is_canonical"]
+    )
 
-        results.append({
-            "name": item["name"],
-            "freq_min": item["freq_min"],
-            "freq_max": item["freq_max"],
-            "alpha": alpha,
-            "half_series": sensitivity,
-        })
-
-    nperseg_sensitivity = []
-
-    # This section intentionally uses scipy directly.
-    # It does not modify the canonical estimator.
-    from scipy.signal import welch
-
-    x0 = x - np.mean(x)
-    std = np.std(x0)
-
-    if std <= 1e-12:
-        raise SystemExit(
-            "Estimator sensitivity audit: "
-            "primary variance is degenerate."
-        )
-
-    x0 = x0 / std
-
-    for nperseg in [256, 512, 1024, 2048]:
-
-        effective = min(
-            int(nperseg),
-            len(x0),
-        )
-
-        if effective < 128:
-            nperseg_sensitivity.append({
-                "requested_nperseg": int(nperseg),
-                "effective_nperseg": int(effective),
-                "alpha": None,
-                "status": "too_short",
-            })
-            continue
-
-        freqs, psd = welch(
-            x0,
-            nperseg=effective,
-            noverlap=effective // 2,
-            nfft=effective,
-            window="hann",
-            detrend="linear",
-            scaling="density",
-            return_onesided=True,
-            average="mean",
-        )
-
-        mask = (
-            (freqs > 0.01)
-            &
-            (freqs < 0.05)
-            &
-            np.isfinite(freqs)
-            &
-            np.isfinite(psd)
-            &
-            (psd > 0)
-        )
-
-        selected_f = freqs[mask]
-        selected_psd = psd[mask]
-
-        if len(selected_f) < 20:
-            nperseg_sensitivity.append({
-                "requested_nperseg": int(nperseg),
-                "effective_nperseg": int(effective),
-                "alpha": None,
-                "frequency_bins": int(len(selected_f)),
-                "status": "insufficient_frequency_bins",
-            })
-            continue
-
-        coeffs = np.polyfit(
-            np.log(selected_f),
-            np.log(selected_psd),
-            1,
-        )
-
-        alpha = float(-coeffs[0])
-
-        nperseg_sensitivity.append({
-            "requested_nperseg": int(nperseg),
-            "effective_nperseg": int(effective),
-            "alpha": alpha,
-            "frequency_bins": int(len(selected_f)),
-            "status": "valid",
-        })
-
-    valid_band_alphas = [
-        item["alpha"]
-        for item in results
-        if item["alpha"] is not None
+    valid_alphas = [
+        r["alpha"]
+        for r in records
+        if r.get("valid")
+        and np.isfinite(r.get("alpha", np.nan))
     ]
 
-    band_range = None
-
-    if valid_band_alphas:
-        band_range = float(
-            max(valid_band_alphas)
-            -
-            min(valid_band_alphas)
-        )
-
-    valid_segment_alphas = [
-        item["alpha"]
-        for item in nperseg_sensitivity
-        if item["alpha"] is not None
-    ]
-
-    segment_range = None
-
-    if valid_segment_alphas:
-        segment_range = float(
-            max(valid_segment_alphas)
-            -
-            min(valid_segment_alphas)
-        )
-
-    report = {
+    output = {
         "status": "DIAGNOSTIC_ONLY",
-
         "scientific_claim_authority": False,
+        "promotion_authority": False,
 
-        "claim_support": False,
+        "purpose": (
+            "Prospective methodological sensitivity audit of "
+            "the spectral exponent estimator. This audit does "
+            "not modify the canonical endpoint and does not "
+            "constitute scientific claim evidence."
+        ),
 
-        "protocol": {
-            "primary_dataset": str(
-                PRIMARY_PATH
+        "canonical_protocol": {
+            "frequency_band": list(
+                CANONICAL_BAND
             ),
-            "seed": SEED,
-            "canonical_frequency_band": [
-                0.01,
-                0.05,
+            "nperseg": CANONICAL_NPERSEG,
+            "minimum_frequency_bins": MIN_BINS,
+            "alpha": canonical.get("alpha"),
+        },
+
+        "sensitivity_grid": {
+            "bands": [
+                list(x)
+                for x in BANDS
             ],
-            "canonical_nperseg": 1024,
-            "purpose": (
-                "Quantify estimator sensitivity without "
-                "changing the canonical estimator or "
-                "selecting a preferred result post hoc."
+            "npersegs": NPERSEGS,
+        },
+
+        "results": records,
+
+        "summary": {
+            "valid_configurations": len(
+                valid_alphas
+            ),
+            "minimum_alpha": (
+                float(min(valid_alphas))
+                if valid_alphas
+                else None
+            ),
+            "maximum_alpha": (
+                float(max(valid_alphas))
+                if valid_alphas
+                else None
+            ),
+            "alpha_range": (
+                float(max(valid_alphas)
+                      - min(valid_alphas))
+                if valid_alphas
+                else None
             ),
         },
 
-        "canonical_alpha": canonical_alpha,
+        "interpretation": (
+            "Estimator sensitivity is reported rather than "
+            "corrected away. A materially different result "
+            "under a reasonable alternative band or segmentation "
+            "must be treated as methodological sensitivity. "
+            "No favorable configuration may replace the canonical "
+            "endpoint after observing the data."
+        ),
 
-        "frequency_band_sensitivity": {
-            "results": results,
-            "alpha_range": band_range,
-        },
-
-        "nperseg_sensitivity": {
-            "results": nperseg_sensitivity,
-            "alpha_range": segment_range,
-        },
-
-        "interpretation": {
-            "canonical_result_is_not_replaced": True,
-            "posthoc_parameter_selection_prohibited": True,
-            "posthoc_alpha_correction_prohibited": True,
-            "sensitivity_is_not_replication": True,
-            "sensitivity_is_not_null_rejection": True,
-            "sensitivity_is_not_claim_support": True,
-        },
-
-        "next_protocol_requirement": (
-            "Any confirmatory estimator settings must be "
-            "declared before fresh confirmation data are "
-            "analyzed. The present audit is post-observation "
-            "and cannot be represented as preregistered "
-            "confirmation."
+        "prospective_rule": (
+            "Any future change to the estimator, frequency band, "
+            "segmentation rule, or endpoint requires an explicit "
+            "protocol revision before fresh confirmation data are "
+            "used for claim promotion."
         ),
     }
 
@@ -352,7 +320,7 @@ def main():
 
     OUTPUT.write_text(
         json.dumps(
-            report,
+            output,
             indent=2,
             sort_keys=True,
         )
@@ -361,10 +329,14 @@ def main():
     )
 
     print(
-        json.dumps(
-            report,
-            indent=2,
-        )
+        "Estimator sensitivity audit completed."
+    )
+    print(
+        "Status: DIAGNOSTIC_ONLY"
+    )
+    print(
+        "Canonical alpha:",
+        canonical.get("alpha"),
     )
 
 
