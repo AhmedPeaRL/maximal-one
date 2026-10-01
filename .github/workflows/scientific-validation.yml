@@ -598,6 +598,11 @@ jobs:
 
           python analysis/estimator_sensitivity_audit.py
 
+          test -s \
+            artifacts/estimator_sensitivity_audit.json
+
+          echo "✅ Estimator sensitivity audition"
+
           python - <<'PY'
           import json, sys
           import numpy as np
