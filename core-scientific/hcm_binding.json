@@ -1,8 +1,21 @@
 {
+  "status": "CONCEPTUAL_ONLY_NOT_SCIENTIFIC_EVIDENCE",
+  "scientific_claim_authority": false,
+  "promotion_authority": false,
+
   "mapping": {
     "N": "spectral_structure_consistency",
     "E": "cross_runtime_determinism",
     "S": "semantic_stability_of_outputs"
   },
-  "claim": "alpha emergence reflects partial coherence across N, E, S domains"
+
+  "interpretation": {
+    "N": "A conceptual HCM label for consistency observed in the spectral-analysis layer.",
+    "E": "A conceptual HCM label for deterministic agreement across declared computational runtimes.",
+    "S": "A conceptual HCM label for stability of declared output semantics."
+  },
+
+  "claim": null,
+
+  "epistemic_boundary": "This mapping is part of the HCM conceptual vocabulary only. It does not establish that spectral alpha emergence reflects partial coherence across N, E, or S, and it has no authority over scientific claim promotion."
 }
