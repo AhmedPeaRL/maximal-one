@@ -1,19 +1,30 @@
 # Legacy Protocol Notice
 
-## Status
+This file records a historical HCM validation protocol.
 
-ARCHIVED — NOT THE CURRENT CLAIM-PROMOTION PROTOCOL
+It is not the current scientific claim protocol.
 
-This file records an earlier HCM validation protocol.
+It has:
 
-It is retained for historical provenance only.
+- no scientific claim authority,
+- no promotion authority,
+- no authority to define the current primary endpoint,
+- no authority to define the current stochastic null,
+- no authority to establish replication.
 
-It does not define the current scientific claim.
+The current machine-gated scientific claim is defined by:
 
-The current claim and its machine-gated epistemic conditions are defined by:
+- `/core-scientific/strict_claim.json`
+- `/core-scientific/CLAIM_STATUS.md`
+- `/core-scientific/RESEARCH_STATUS.md`
+- `/paper/preprint_v1.md`
 
-"core-scientific/strict_claim.json"
+The current claim is the:
 
-The current canonical computational validation is defined by the active GitHub Actions workflows and their referenced analysis modules.
+**Constrained Spectral Persistence Hypothesis**
 
-Historical criteria in this document must not be interpreted as current evidence, current thresholds, or current confirmation requirements.
+Historical protocols are retained for provenance and must not be silently treated as active confirmation protocols.
+
+Any future confirmatory protocol must be explicitly versioned and declared prospectively before confirmation data are analyzed.
+
+No historical protocol may override a failing current scientific gate.
