@@ -41,6 +41,7 @@
       "scientific_role": "measurement_validity_only",
       "minimum_frequency_bins": 20,
       "minimum_series_length": 256,
+      "replication_minimum_series_length": 1024,
       "canonical_nperseg": 1024,
       "short_series_are_not_replication_evidence": true,
       "nonfinite_alpha_excludes_domain_from_replication": true,
