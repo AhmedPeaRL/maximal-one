@@ -1,6 +1,22 @@
 import json
 import pathlib
 
+"""
+ARCHIVED NON-EVIDENCE.
+
+This file is retained only for historical provenance.
+
+It MUST NOT be imported, executed, or used by:
+- scientific claim promotion,
+- scientific contract evaluation,
+- reproducibility gates,
+- replication gates,
+- publication artifacts.
+
+The heuristic confidence assignment in this legacy file
+is not a valid inferential procedure.
+"""
+
 ART = pathlib.Path("artifacts")
 
 p = ART / "lorenz96.json"
