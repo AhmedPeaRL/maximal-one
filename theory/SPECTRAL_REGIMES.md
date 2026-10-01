@@ -1,52 +1,93 @@
 # Spectral Regimes Separation — HCM System
 
-## Definition
+## Purpose
 
-The system exhibits **dual spectral regimes**:
+This document records a historical computational framing of spectral regimes.
 
-### 1. Null Regime (Baseline)
-- α_null ≈ 0.5
-- Represents stochastic / Brownian-like behavior
-- Observed under:
-  - bootstrap resampling
-  - null models (FBM, shuffled signals)
+It is not a statement of an established physical invariant.
 
-### 2. Attractor Regime (Emergent)
-- α_star ≈ 1.809
-- Represents structured invariant emergence
-- Observed under:
-  - multi-seed deterministic runs
-  - universality experiments
-  - invariant extraction pipelines
+---
 
-## Core Claim
+## Reference Regime
 
-The system does NOT claim a single α.
+Earlier experiments used approximately:
 
-Instead:
+α_null ≈ 0.5
 
-    α = {
-        0.5      → null regime
-        1.809    → attractor regime
-    }
+as a reference scale for stochastic or Brownian-like behavior.
 
-## Scientific Interpretation
+This value is a methodological reference and must not be treated as a universal empirical constant.
 
-The transition:
+---
 
-    α: 0.5 → 1.8
+## Historical Attractor Target
 
-is interpreted as:
+Earlier computational experiments reported a working target near:
 
-> emergence of cross-system invariant structure
-> beyond stochastic baseline
+α_star ≈ 1.809
 
-## Critical Note
+This value is retained only as a historical computational target.
 
-Any document claiming a single α without regime context is INVALID.
+It is not the current canonical real-data estimate.
 
-## Status
+It is not established as an empirical invariant.
 
-- Null regime: reference regime used for model comparison;
-not a universal empirical theorem.
-- Attractor regime: empirically strong, requires formal proof
+It is not established as a physical constant.
+
+It is not sufficient evidence for HCM validity.
+
+---
+
+## Current Canonical Real-Data Result
+
+The current canonical real-data analysis reports:
+
+α = 2.525347
+
+for the declared primary sunspot dataset and canonical Welch estimator.
+
+The current declared primary stochastic null is a stationary Gaussian AR(p) family with AIC order selection over p = 1..20.
+
+The current primary null result is:
+
+p = 0.999001
+
+Therefore the primary stochastic null is not rejected.
+
+---
+
+## Current Interpretation
+
+The project currently does not claim that:
+
+α = 0.5
+
+is a universal null invariant.
+
+The project currently does not claim that:
+
+α = 1.809
+
+is a universal attractor invariant.
+
+The project currently does not claim that:
+
+α = 2.525347
+
+is a universal invariant.
+
+All three values belong to different methodological contexts and must not be conflated.
+
+---
+
+## Epistemic Status
+
+Current status:
+
+UNDER INVESTIGATION
+
+The historical spectral-regime framework remains a hypothesis-generating structure.
+
+Promotion requires a prospectively specified stochastic-null protocol, independent real-domain replication, adversarial validation, and clean-checkout computational reproducibility.
+
+No regime value is promoted to a universal physical or HCM invariant by this document.
