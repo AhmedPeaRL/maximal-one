@@ -30,6 +30,14 @@ def main():
             "Synthetic fallback generation is forbidden."
         )
 
+    try:
+        df = pd.read_csv(path)
+    except Exception as exc:
+        raise SystemExit(
+            "SCIENTIFIC INTEGRITY STOP: "
+            f"required dataset could not be read: {exc}"
+        )
+
     if df.empty:
         raise SystemExit(
             "SCIENTIFIC INTEGRITY STOP: "
@@ -43,15 +51,28 @@ def main():
             "Synthetic fallback generation is forbidden."
         )
 
-    # نستخدم spectral_exponent بدلاً من mu_boot
-    alphas = df["spectral_exponent"].values
+    alphas = (
+        pd.to_numeric(
+            df["spectral_exponent"],
+            errors="coerce",
+        )
+        .to_numpy(
+            dtype=float
+        )
+    )
 
-    mean_alpha = np.mean(alphas)
-    
-    if not np.all(np.isfinite(alphas)):
+    if not np.all(
+        np.isfinite(alphas)
+    ):
         raise SystemExit(
-            "ERROR: non-finite observations; "
-            "power/effect analysis aborted."
+            "SCIENTIFIC INTEGRITY STOP: "
+            "non-finite spectral_exponent values."
+        )
+
+    if len(alphas) < 2:
+        raise SystemExit(
+            "SCIENTIFIC INTEGRITY STOP: "
+            "insufficient observations."
         )
 
     std_alpha = np.std(
@@ -59,24 +80,64 @@ def main():
         ddof=1,
     )
 
-    if not np.isfinite(std_alpha) or std_alpha <= 1e-12:
+    if not np.isfinite(
+        std_alpha
+    ) or std_alpha <= 1e-12:
         raise SystemExit(
-            "ERROR: zero or near-zero variance; "
-            "power/effect-size result is invalid."
+            "SCIENTIFIC INTEGRITY STOP: "
+            "zero or near-zero variance."
         )
 
-    # اختبار مقابل H0: alpha = 1 (random walk theoretical slope)
-    t_stat, p_value = stats.ttest_1samp(alphas, 1.0)
+    mean_alpha = np.mean(
+        alphas
+    )
 
-    # حساب Cohen's d
-    effect_size = (mean_alpha - 1.0) / std_alpha
+    # This is a methodological diagnostic only.
+    # It is NOT the current primary HCM hypothesis test.
+    t_stat, p_value = (
+        stats.ttest_1samp(
+            alphas,
+            1.0,
+        )
+    )
 
-    print("=== Power Analysis ===")
-    print("Mean spectral exponent:", mean_alpha)
-    print("Std:", std_alpha)
-    print("t-statistic:", t_stat)
-    print("p-value:", p_value)
-    print("Effect size (Cohen's d):", effect_size)
+    effect_size = (
+        mean_alpha - 1.0
+    ) / std_alpha
 
-if __name__ == "__main__":
-    main()
+    print(
+        "=== Methodological Power Diagnostic ==="
+    )
+
+    print(
+        "Mean spectral exponent:",
+        mean_alpha,
+    )
+
+    print(
+        "Std:",
+        std_alpha,
+    )
+
+    print(
+        "t-statistic:",
+        t_stat,
+    )
+
+    print(
+        "p-value:",
+        p_value,
+    )
+
+    print(
+        "Effect size:",
+        effect_size,
+    )
+
+    print(
+        "SCIENTIFIC ROLE: diagnostic-only"
+    )
+
+    print(
+        "PRIMARY CLAIM AUTHORITY: false"
+    )
