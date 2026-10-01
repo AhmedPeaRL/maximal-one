@@ -1,0 +1,129 @@
+{
+  "canonical_alpha": 2.52534673,
+  "claim_support": false,
+  "frequency_band_sensitivity": {
+    "alpha_range": 2.72130469,
+    "results": [
+      {
+        "alpha": 2.52534673,
+        "freq_max": 0.05,
+        "freq_min": 0.01,
+        "half_series": {
+          "absolute_difference": 1.11342819,
+          "full_alpha": 2.52534673,
+          "half_alpha": 3.63877492
+        },
+        "name": "canonical"
+      },
+      {
+        "alpha": 2.94495028,
+        "freq_max": 0.05,
+        "freq_min": 0.005,
+        "half_series": {
+          "absolute_difference": 0.7082219300000001,
+          "full_alpha": 2.94495028,
+          "half_alpha": 3.65317221
+        },
+        "name": "wider_low"
+      },
+      {
+        "alpha": 3.20998764,
+        "freq_max": 0.03,
+        "freq_min": 0.01,
+        "half_series": {
+          "absolute_difference": 0.06039665999999988,
+          "full_alpha": 3.20998764,
+          "half_alpha": 3.14959098
+        },
+        "name": "narrow_low"
+      },
+      {
+        "alpha": 1.21774956,
+        "freq_max": 0.1,
+        "freq_min": 0.01,
+        "half_series": {
+          "absolute_difference": 0.2263774500000002,
+          "full_alpha": 1.21774956,
+          "half_alpha": 1.44412701
+        },
+        "name": "wider"
+      },
+      {
+        "alpha": 0.48868295,
+        "freq_max": 0.1,
+        "freq_min": 0.02,
+        "half_series": {
+          "absolute_difference": 0.037946250000000015,
+          "full_alpha": 0.48868295,
+          "half_alpha": 0.4507367
+        },
+        "name": "mid"
+      },
+      {
+        "alpha": 0.6790175,
+        "freq_max": 0.2,
+        "freq_min": 0.05,
+        "half_series": {
+          "absolute_difference": 0.25140372000000005,
+          "full_alpha": 0.6790175,
+          "half_alpha": 0.42761378
+        },
+        "name": "higher"
+      }
+    ]
+  },
+  "interpretation": {
+    "canonical_result_is_not_replaced": true,
+    "posthoc_alpha_correction_prohibited": true,
+    "posthoc_parameter_selection_prohibited": true,
+    "sensitivity_is_not_claim_support": true,
+    "sensitivity_is_not_null_rejection": true,
+    "sensitivity_is_not_replication": true
+  },
+  "next_protocol_requirement": "Any confirmatory estimator settings must be declared before fresh confirmation data are analyzed. The present audit is post-observation and cannot be represented as preregistered confirmation.",
+  "nperseg_sensitivity": {
+    "alpha_range": 0.027697920911577523,
+    "results": [
+      {
+        "alpha": null,
+        "effective_nperseg": 256,
+        "frequency_bins": 10,
+        "requested_nperseg": 256,
+        "status": "insufficient_frequency_bins"
+      },
+      {
+        "alpha": 2.5204631914017233,
+        "effective_nperseg": 512,
+        "frequency_bins": 20,
+        "requested_nperseg": 512,
+        "status": "valid"
+      },
+      {
+        "alpha": 2.5253467281062454,
+        "effective_nperseg": 1024,
+        "frequency_bins": 41,
+        "requested_nperseg": 1024,
+        "status": "valid"
+      },
+      {
+        "alpha": 2.497648807194668,
+        "effective_nperseg": 2048,
+        "frequency_bins": 82,
+        "requested_nperseg": 2048,
+        "status": "valid"
+      }
+    ]
+  },
+  "protocol": {
+    "canonical_frequency_band": [
+      0.01,
+      0.05
+    ],
+    "canonical_nperseg": 1024,
+    "primary_dataset": "real-data/sunspots_full.csv",
+    "purpose": "Quantify estimator sensitivity without changing the canonical estimator or selecting a preferred result post hoc.",
+    "seed": 20261001
+  },
+  "scientific_claim_authority": false,
+  "status": "DIAGNOSTIC_ONLY"
+}
