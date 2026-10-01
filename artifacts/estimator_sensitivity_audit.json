@@ -1,0 +1,387 @@
+{
+  "canonical_protocol": {
+    "alpha": 2.525346728106244,
+    "frequency_band": [
+      0.01,
+      0.05
+    ],
+    "minimum_frequency_bins": 20,
+    "nperseg": 1024
+  },
+  "interpretation": "Estimator sensitivity is reported rather than corrected away. A materially different result under a reasonable alternative band or segmentation must be treated as methodological sensitivity. No favorable configuration may replace the canonical endpoint after observing the data.",
+  "promotion_authority": false,
+  "prospective_rule": "Any future change to the estimator, frequency band, segmentation rule, or endpoint requires an explicit protocol revision before fresh confirmation data are used for claim promotion.",
+  "purpose": "Prospective methodological sensitivity audit of the spectral exponent estimator. This audit does not modify the canonical endpoint and does not constitute scientific claim evidence.",
+  "results": [
+    {
+      "available_bins": 11,
+      "effective_nperseg": 256,
+      "frequency_band": [
+        0.005,
+        0.05
+      ],
+      "is_canonical": false,
+      "reason": "fewer_than_minimum_frequency_bins",
+      "requested_nperseg": 256,
+      "valid": false
+    },
+    {
+      "alpha": 2.9975577004212757,
+      "available_bins": 23,
+      "effective_nperseg": 512,
+      "frequency_band": [
+        0.005,
+        0.05
+      ],
+      "is_canonical": false,
+      "peak_frequency": 0.0078125,
+      "peak_to_median_psd": 227.5239552272157,
+      "requested_nperseg": 512,
+      "valid": true
+    },
+    {
+      "alpha": 2.9449502815677002,
+      "available_bins": 46,
+      "effective_nperseg": 1024,
+      "frequency_band": [
+        0.005,
+        0.05
+      ],
+      "is_canonical": false,
+      "peak_frequency": 0.0078125,
+      "peak_to_median_psd": 379.40348773878696,
+      "requested_nperseg": 1024,
+      "valid": true
+    },
+    {
+      "alpha": 2.8281546710906973,
+      "available_bins": 92,
+      "effective_nperseg": 2048,
+      "frequency_band": [
+        0.005,
+        0.05
+      ],
+      "is_canonical": false,
+      "peak_frequency": 0.0078125,
+      "peak_to_median_psd": 571.2100645175391,
+      "requested_nperseg": 2048,
+      "valid": true
+    },
+    {
+      "available_bins": 5,
+      "effective_nperseg": 256,
+      "frequency_band": [
+        0.01,
+        0.03
+      ],
+      "is_canonical": false,
+      "reason": "fewer_than_minimum_frequency_bins",
+      "requested_nperseg": 256,
+      "valid": false
+    },
+    {
+      "available_bins": 10,
+      "effective_nperseg": 512,
+      "frequency_band": [
+        0.01,
+        0.03
+      ],
+      "is_canonical": false,
+      "reason": "fewer_than_minimum_frequency_bins",
+      "requested_nperseg": 512,
+      "valid": false
+    },
+    {
+      "alpha": 3.2099876421651277,
+      "available_bins": 20,
+      "effective_nperseg": 1024,
+      "frequency_band": [
+        0.01,
+        0.03
+      ],
+      "is_canonical": false,
+      "peak_frequency": 0.0107421875,
+      "peak_to_median_psd": 13.66019269145049,
+      "requested_nperseg": 1024,
+      "valid": true
+    },
+    {
+      "alpha": 3.103426766420225,
+      "available_bins": 41,
+      "effective_nperseg": 2048,
+      "frequency_band": [
+        0.01,
+        0.03
+      ],
+      "is_canonical": false,
+      "peak_frequency": 0.01025390625,
+      "peak_to_median_psd": 20.65584237783877,
+      "requested_nperseg": 2048,
+      "valid": true
+    },
+    {
+      "available_bins": 10,
+      "effective_nperseg": 256,
+      "frequency_band": [
+        0.01,
+        0.05
+      ],
+      "is_canonical": false,
+      "reason": "fewer_than_minimum_frequency_bins",
+      "requested_nperseg": 256,
+      "valid": false
+    },
+    {
+      "alpha": 2.5204631914017224,
+      "available_bins": 20,
+      "effective_nperseg": 512,
+      "frequency_band": [
+        0.01,
+        0.05
+      ],
+      "is_canonical": false,
+      "peak_frequency": 0.01171875,
+      "peak_to_median_psd": 19.222630816710392,
+      "requested_nperseg": 512,
+      "valid": true
+    },
+    {
+      "alpha": 2.525346728106244,
+      "available_bins": 41,
+      "effective_nperseg": 1024,
+      "frequency_band": [
+        0.01,
+        0.05
+      ],
+      "is_canonical": true,
+      "peak_frequency": 0.0107421875,
+      "peak_to_median_psd": 35.23715390072227,
+      "requested_nperseg": 1024,
+      "valid": true
+    },
+    {
+      "alpha": 2.497648807194668,
+      "available_bins": 82,
+      "effective_nperseg": 2048,
+      "frequency_band": [
+        0.01,
+        0.05
+      ],
+      "is_canonical": false,
+      "peak_frequency": 0.01025390625,
+      "peak_to_median_psd": 53.73249060495162,
+      "requested_nperseg": 2048,
+      "valid": true
+    },
+    {
+      "alpha": 1.3674035644364262,
+      "available_bins": 23,
+      "effective_nperseg": 256,
+      "frequency_band": [
+        0.01,
+        0.1
+      ],
+      "is_canonical": false,
+      "peak_frequency": 0.01171875,
+      "peak_to_median_psd": 53.06789218793641,
+      "requested_nperseg": 256,
+      "valid": true
+    },
+    {
+      "alpha": 1.1488758832375543,
+      "available_bins": 46,
+      "effective_nperseg": 512,
+      "frequency_band": [
+        0.01,
+        0.1
+      ],
+      "is_canonical": false,
+      "peak_frequency": 0.01171875,
+      "peak_to_median_psd": 25.296618214674197,
+      "requested_nperseg": 512,
+      "valid": true
+    },
+    {
+      "alpha": 1.2177495603144142,
+      "available_bins": 92,
+      "effective_nperseg": 1024,
+      "frequency_band": [
+        0.01,
+        0.1
+      ],
+      "is_canonical": false,
+      "peak_frequency": 0.0107421875,
+      "peak_to_median_psd": 50.802159601852665,
+      "requested_nperseg": 1024,
+      "valid": true
+    },
+    {
+      "alpha": 1.0773164254039802,
+      "available_bins": 184,
+      "effective_nperseg": 2048,
+      "frequency_band": [
+        0.01,
+        0.1
+      ],
+      "is_canonical": false,
+      "peak_frequency": 0.01025390625,
+      "peak_to_median_psd": 54.98998023885216,
+      "requested_nperseg": 2048,
+      "valid": true
+    },
+    {
+      "alpha": 0.3295225624814958,
+      "available_bins": 20,
+      "effective_nperseg": 256,
+      "frequency_band": [
+        0.02,
+        0.1
+      ],
+      "is_canonical": false,
+      "peak_frequency": 0.0234375,
+      "peak_to_median_psd": 2.1878837282790684,
+      "requested_nperseg": 256,
+      "valid": true
+    },
+    {
+      "alpha": 0.3770644336633947,
+      "available_bins": 41,
+      "effective_nperseg": 512,
+      "frequency_band": [
+        0.02,
+        0.1
+      ],
+      "is_canonical": false,
+      "peak_frequency": 0.021484375,
+      "peak_to_median_psd": 2.555151963119197,
+      "requested_nperseg": 512,
+      "valid": true
+    },
+    {
+      "alpha": 0.48868295316203847,
+      "available_bins": 82,
+      "effective_nperseg": 1024,
+      "frequency_band": [
+        0.02,
+        0.1
+      ],
+      "is_canonical": false,
+      "peak_frequency": 0.0205078125,
+      "peak_to_median_psd": 4.476750971140959,
+      "requested_nperseg": 1024,
+      "valid": true
+    },
+    {
+      "alpha": 0.42149182039420624,
+      "available_bins": 164,
+      "effective_nperseg": 2048,
+      "frequency_band": [
+        0.02,
+        0.1
+      ],
+      "is_canonical": false,
+      "peak_frequency": 0.0205078125,
+      "peak_to_median_psd": 6.6284072489092605,
+      "requested_nperseg": 2048,
+      "valid": true
+    },
+    {
+      "alpha": 0.6214576404710983,
+      "available_bins": 39,
+      "effective_nperseg": 256,
+      "frequency_band": [
+        0.05,
+        0.2
+      ],
+      "is_canonical": false,
+      "peak_frequency": 0.078125,
+      "peak_to_median_psd": 1.8605561083249242,
+      "requested_nperseg": 256,
+      "valid": true
+    },
+    {
+      "alpha": 0.5912799581708665,
+      "available_bins": 77,
+      "effective_nperseg": 512,
+      "frequency_band": [
+        0.05,
+        0.2
+      ],
+      "is_canonical": false,
+      "peak_frequency": 0.09375,
+      "peak_to_median_psd": 2.276353123524309,
+      "requested_nperseg": 512,
+      "valid": true
+    },
+    {
+      "alpha": 0.6790174982827375,
+      "available_bins": 153,
+      "effective_nperseg": 1024,
+      "frequency_band": [
+        0.05,
+        0.2
+      ],
+      "is_canonical": false,
+      "peak_frequency": 0.078125,
+      "peak_to_median_psd": 2.5876093456580573,
+      "requested_nperseg": 1024,
+      "valid": true
+    },
+    {
+      "alpha": 0.8042420608714717,
+      "available_bins": 307,
+      "effective_nperseg": 2048,
+      "frequency_band": [
+        0.05,
+        0.2
+      ],
+      "is_canonical": false,
+      "peak_frequency": 0.09521484375,
+      "peak_to_median_psd": 4.11830043802537,
+      "requested_nperseg": 2048,
+      "valid": true
+    }
+  ],
+  "scientific_claim_authority": false,
+  "sensitivity_grid": {
+    "bands": [
+      [
+        0.005,
+        0.05
+      ],
+      [
+        0.01,
+        0.03
+      ],
+      [
+        0.01,
+        0.05
+      ],
+      [
+        0.01,
+        0.1
+      ],
+      [
+        0.02,
+        0.1
+      ],
+      [
+        0.05,
+        0.2
+      ]
+    ],
+    "npersegs": [
+      256,
+      512,
+      1024,
+      2048
+    ]
+  },
+  "status": "DIAGNOSTIC_ONLY",
+  "summary": {
+    "alpha_range": 2.8804650796836317,
+    "maximum_alpha": 3.2099876421651277,
+    "minimum_alpha": 0.3295225624814958,
+    "valid_configurations": 20
+  }
+}
