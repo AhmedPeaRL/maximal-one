@@ -101,6 +101,13 @@ jobs:
           test -s \
             artifacts/estimator_sensitivity_audit.json
 
+      - name: Upload estimator sensitivity audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: estimator-sensitivity-audit
+          path: artifacts/estimator_sensitivity_audit.json
+          if-no-files-found: error
+
       - name: Run null calibration gate
         shell: bash
         run: |
@@ -111,6 +118,13 @@ jobs:
           test -s \
             artifacts/null_calibration_gate.json
 
+      - name: Upload run null calibration gate
+        uses: actions/upload-artifact@v4
+        with:
+          name: null-calibration-gate
+          path: artifacts/null_calibration_gate.json
+          if-no-files-found: error
+
       - name: Run independent domain replication gate
         shell: bash
         run: |
@@ -120,6 +134,13 @@ jobs:
 
           test -s \
             artifacts/independent_domain_replication_gate.json
+
+      - name: Upload run independent domain replication gate
+        uses: actions/upload-artifact@v4
+        with:
+          name: independent-domain-replication-gate
+          path: artifacts/independent_domain_replication_gate.json
+          if-no-files-found: error
 
       - name: Generate adversarial control evidence
         shell: bash
@@ -147,6 +168,13 @@ jobs:
           set -euo pipefail
 
           python scripts/validate_external_replay.py
+
+      - name: Upload validate external replay evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: validate-external-replay
+          path: artifacts/validate_external_replay.json
+          if-no-files-found: error
 
       - name: Generate final claim readiness audit
         shell: bash
