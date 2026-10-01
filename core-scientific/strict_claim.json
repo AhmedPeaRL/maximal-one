@@ -36,6 +36,18 @@
       "null_domains_excluded": true,
       "synthetic_domains_excluded": true
     },
+
+    "eligibility_policy": {
+      "scientific_role": "measurement_validity_only",
+      "minimum_frequency_bins": 20,
+      "minimum_series_length": 256,
+      "canonical_nperseg": 1024,
+      "short_series_are_not_replication_evidence": true,
+      "nonfinite_alpha_excludes_domain_from_replication": true,
+      "adaptive_nperseg_does_not_override_frequency_bin_validity": true,
+      "ineligible_domains_must_be_reported": true,
+      "eligibility_cannot_be_changed_after_observing_domain_result": true
+    },
     
     "adversarial_rejection_required": true,
     "cross_domain_required": true,
