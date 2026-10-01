@@ -1,79 +1,42 @@
-# HCM Scientific Protocol v1.0
+# Legacy HCM Protocol Notice
 
-## Objective
+## Status
 
-To test whether the Hybrid Consciousness Model (HCM) demonstrates
-structural predictive superiority over established nonlinear baselines
-in chaotic dynamical systems.
+LEGACY / NON-AUTHORITATIVE
 
----
+This file records a historical HCM protocol concerning predictive performance on chaotic dynamical systems, including Lorenz-system benchmarks.
 
-## Target Phenomenon
+It is preserved for historical provenance.
 
-Primary benchmark:
-Lorenz chaotic attractor (sigma=10, rho=28, beta=8/3)
+It is NOT the current scientific claim protocol for the repository.
 
-Secondary benchmarks:
-- Real-world chaotic time series (if provided)
-- Fractional Brownian Motion (control)
-- Null ensemble (randomized baseline)
+It has:
 
----
+- no scientific claim authority,
+- no promotion authority,
+- no authority over the Constrained Spectral Persistence Hypothesis,
+- no authority to redefine the current primary endpoint,
+- no authority to redefine the current stochastic null,
+- no authority to establish scientific replication.
 
-## Baselines
+The current machine-gated scientific claim is defined by:
 
-1. AR(p) linear predictor
-2. Moving average smoothing
-3. Ridge regression on delay embedding
-4. Local linear phase space model
+- `/core-scientific/strict_claim.json`
+- `/core-scientific/CLAIM_STATUS.md`
+- `/core-scientific/RESEARCH_STATUS.md`
+- `/paper/preprint_v1.md`
 
-All baselines must be deterministic and reproducible.
+The historical predictive-superiority protocol must not be interpreted as evidence that HCM has demonstrated predictive superiority.
 
----
+Any future confirmatory study of chaotic prediction must use a separately versioned prospective protocol with:
 
-## Core Metrics
+1. predeclared datasets,
+2. predeclared baselines,
+3. predeclared endpoints,
+4. predeclared evaluation horizons,
+5. predeclared statistical procedures,
+6. independent test data,
+7. explicit failure criteria,
+8. no post-observation threshold relaxation.
 
-1. Mean Squared Error (short horizon)
-2. Lyapunov exponent deviation
-3. Attractor topology similarity
-4. Spectral alpha stability
-5. Cross-version deterministic consensus
-
----
-
-## Breakthrough Criterion
-
-HCM must satisfy at least TWO of the following:
-
-- ≥ 5% relative predictive gain over strongest nonlinear baseline
-- ≤ 2% deviation in estimated largest Lyapunov exponent
-- Preservation of attractor topology within bounded Hausdorff error
-- Statistically significant improvement across ≥ 10 independent seeds
-
-If not achieved, the protocol fails without narrative override.
-
----
-
-## Reproducibility Requirements
-
-- Fixed seed = 42
-- Canonical JSON hashing
-- Cross-Node deterministic consensus
-- Pinned Python scientific stack
-- Environment fingerprint embedded in artifacts
-
----
-
-## Integrity Clause
-
-No manual override of failing gates.
-No metric redefinition post hoc.
-No baseline weakening.
-No threshold relaxation without protocol revision.
-
-Protocol revisions require version increment.
-
----
-
-Protocol Version: 1.0
-Status: Active
+Historical protocol preservation is provenance, not scientific confirmation.
