@@ -489,6 +489,7 @@ jobs:
           PY
 
       - name: Run canonical experiment ONLY
+        shell: bash
         run: |
           python scripts/generate_report.py --seed 42 --canonical
 
