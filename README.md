@@ -184,25 +184,6 @@ from formal scientific claim structure.
 
 ---
 
-## Experimental Assault Layer
-
-The repository now includes:
-
-- Multi-seed sweep experiment (50 seeds)
-- Public CSV dataset export
-- Statistical power analysis against α = 1/2
-- Replication assault stress test
-
-All outputs are stored in:
-
-    /data/
-
-All experiments are under:
-
-    /experiments/
-
----
-
 ## Baseline Comparison
 
 All spectral results are compared against:
@@ -233,23 +214,19 @@ used as a substitute for calibration of the primary stochastic null.
 
 This repository does not claim evidence of consciousness.
 
-The current computational pipeline demonstrates several reproducibility
-and measurement-consistency properties, but these do not establish the
-Constrained Spectral Persistence Hypothesis.
+The current canonical measurement is:
 
-Current status:
+- Welch spectral exponent: approximately 2.525347
+- Primary stochastic null: not rejected
+- Primary Monte Carlo p-value: approximately 0.999001
+- Independent scientific replication: not established
+- Clean-checkout computational reproducibility: distinct from scientific replication
 
-- canonical spectral measurement reproduced within the declared pipeline;
-- Welch/FFT measurement agreement is documented;
-- seeded perturbation stability is documented;
-- clean-checkout computational reproducibility is treated separately
-  from scientific replication;
-- the primary stochastic null is not rejected;
-- independent scientific replication is not established.
+The current result is therefore:
 
-The scientific claim therefore remains:
+UNDER INVESTIGATION
 
-UNDER INVESTIGATION.
+Secondary diagnostics must not be promoted to primary scientific evidence.
 
 ---
 
