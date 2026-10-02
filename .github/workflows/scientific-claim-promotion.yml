@@ -84,6 +84,12 @@ jobs:
             --seed 42 \
             --canonical
 
+      - name: Verify report identity semantics
+        shell: bash
+        run: |
+          set -euo pipefail
+          python analysis/verify_report_identity.py
+
       - name: Validate canonical report internal consistency
         shell: bash
         run: |
