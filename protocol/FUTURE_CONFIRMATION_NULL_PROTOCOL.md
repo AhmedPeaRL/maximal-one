@@ -86,7 +86,7 @@ A confirmatory result must be evaluated on data that were not used to select the
 
 The confirmation dataset must have its provenance recorded before evaluation.
 
---+
+---
 
 ## Replication
 
