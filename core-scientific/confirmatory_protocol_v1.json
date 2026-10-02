@@ -1,18 +1,35 @@
 {
-  "protocol_id": "HCM-SPH-CONFIRMATORY-V1",
+  "protocol_id": "CSPH-CONFIRMATORY-V1",
   "version": "1.0",
-  "status": "future_confirmatory_protocol",
-  "effective_for_new_runs_only": true,
+  "status": "FUTURE_PROTOCOL_FRAMEWORK_NOT_YET_EXECUTABLE",
+  "scientific_claim_authority": false,
+  "promotion_authority": false,
+
+  "purpose": "Define the prospective requirements for a future confirmatory test without treating the current exploratory result as confirmation.",
+
+  "current_canonical_result_is_excluded": true,
 
   "hypothesis": {
     "name": "Constrained Spectral Persistence Hypothesis",
-    "primary_question": "Does the predefined primary real-world time series exhibit a spectral persistence statistic distinguishable from the predefined stochastic null under the predefined estimator and frequency band?"
+    "question": "Does a predeclared spectral persistence statistic in eligible real-world temporal data remain distinguishable from an independently specified stochastic null under a fixed estimator and analysis protocol?"
   },
 
-  "primary_dataset": {
-    "path": "real-data/sunspots_global_extended.csv",
-    "selection_rule": "fixed_before_confirmatory_run",
-    "replacement_after_results": false
+  "current_result_boundary": {
+    "current_primary_dataset": "real-data/sunspots_full.csv",
+    "current_canonical_alpha": 2.525347,
+    "current_primary_null": "stationary_gaussian_AR_p_aic",
+    "current_primary_p_value": 0.999001,
+    "current_primary_null_rejected": false,
+    "current_status": "under_investigation",
+    "current_result_is_not_confirmation": true
+  },
+
+  "future_primary_dataset": {
+    "selection_rule": "Must identify an exact versioned file before confirmation analysis begins.",
+    "file_must_exist_in_repository": true,
+    "sha256_must_be_recorded_before_analysis": true,
+    "replacement_after_observing_results": false,
+    "reuse_of_current_analyzed_result_as_confirmation": false
   },
 
   "primary_endpoint": {
@@ -22,45 +39,103 @@
       0.01,
       0.05
     ],
+    "nperseg": 1024,
+    "window": "hann",
+    "detrend": "linear",
+    "scaling": "density",
+    "noverlap_fraction": 0.5,
+    "nfft": "nperseg",
+    "average": "mean",
     "direction": "greater_than_null",
-    "fixed_before_run": true
+    "tail": "upper",
+    "must_be_frozen_before_confirmation": true
+  },
+
+  "estimator_policy": {
+    "sensitivity_audit_required_before_confirmation": true,
+    "favorable_configuration_selection_after_observation_forbidden": true,
+    "endpoint_changes_require_new_protocol_version": true,
+    "frequency_band_changes_require_new_protocol_version": true,
+    "segmentation_changes_require_new_protocol_version": true
   },
 
   "primary_null": {
-    "status": "must_be_formally_specified_before_confirmatory_execution",
-    "exchangeability_permutation_is_secondary_only": true,
-    "phase_randomized_surrogate_is_secondary_diagnostic_only": true,
-    "reason": "Phase-randomized surrogates preserve the observed Fourier amplitude spectrum and therefore are not a direct null for the existence of the observed spectral slope."
+    "status": "NOT_YET_SELECTED",
+    "selection_must_precede_confirmation": true,
+    "selection_must_not_use_confirmation_endpoint_results": true,
+    "selection_must_be_documented": true,
+    "selection_must_include_model_adequacy_criteria": true,
+    "selection_must_include_type_I_error_calibration": true,
+    "selection_must_include_boundary_behavior_analysis": true,
+    "selection_must_define_parameter_estimation_procedure": true,
+    "selection_must_define_surrogate_generation": true,
+    "selection_must_define_refitting_policy": true,
+    "selection_must_define_failure_conditions": true,
+    "current_ar_p20_protocol_is_exploratory_only": true
   },
 
-  "secondary_diagnostics": [
-    "FFT_Welch_agreement",
-    "multi_scale_behavior",
-    "half_full_discrepancy",
-    "phase_surrogate_behavior",
-    "perturbation_stability",
-    "cross_domain_replication",
-    "predictive_validation"
-  ],
+  "null_selection_constraints": {
+    "post_observation_null_selection_forbidden": true,
+    "post_observation_order_expansion_for_favorable_p_value_forbidden": true,
+    "post_observation_tail_switch_forbidden": true,
+    "post_observation_endpoint_switch_forbidden": true,
+    "post_observation_band_switch_forbidden": true,
+    "primary_permutation_null_forbidden_without_new_protocol_version": true
+  },
 
-  "multiplicity_policy": {
+  "calibration": {
+    "required_before_confirmation": true,
+    "type_I_error_target": 0.05,
+    "calibration_data_must_be_generated_under_predeclared_nulls": true,
+    "calibration_results_do_not_establish_the_scientific_claim": true,
+    "calibration_failure_blocks_confirmation": true
+  },
+
+  "replication": {
+    "minimum_independent_real_domains": 2,
+    "same_endpoint_required": true,
+    "same_primary_null_required": true,
+    "same_direction_required": true,
+    "same_tail_required": true,
+    "domain_level_null_rejection_required": true,
+    "measurement_validity_is_not_replication": true,
+    "derived_domains_excluded": true,
+    "synthetic_domains_excluded": true,
+    "null_controls_excluded": true
+  },
+
+  "reproducibility": {
+    "clean_checkout_required": true,
+    "exact_commit_required": true,
+    "fingerprint_match_required": true,
+    "computational_reproducibility_is_not_scientific_replication": true,
+    "independent_implementation_replication_is_distinct": true,
+    "laboratory_replication_is_distinct": true
+  },
+
+  "multiplicity": {
     "primary_endpoint_count": 1,
-    "secondary_results_are_exploratory": true,
-    "no_posthoc_reclassification": true,
-    "familywise_or_fdr_correction": "must_be_predeclared if multiple confirmatory hypotheses are introduced"
-  },
-
-  "replication_policy": {
-    "independent_clean_checkout_reproduction": true,
-    "same_runner": true,
-    "external_laboratory_replication_required_for_external_replication_claim": true
+    "secondary_diagnostics_are_exploratory": true,
+    "additional_confirmatory_endpoints_require_new_protocol_version": true,
+    "multiple_testing_procedure_must_be_predeclared": true
   },
 
   "interpretation_policy": {
     "p_value_does_not_establish_mechanism": true,
     "p_value_does_not_establish_hcm_causation": true,
+    "p_value_does_not_establish_consciousness": true,
     "p_value_does_not_establish_universality": true,
-    "spectral_persistence_is_not_itself_novel": true,
-    "predictive_superiority_requires_out_of_sample_evidence": true
+    "p_value_does_not_establish_novel_physics": true,
+    "p_value_does_not_establish_market_advantage": true
+  },
+
+  "promotion_rule": {
+    "current_result_cannot_promote_claim": true,
+    "fresh_confirmation_required": true,
+    "primary_null_rejection_required": true,
+    "independent_domain_replication_required": true,
+    "computational_reproducibility_required": true,
+    "adversarial_control_required": true,
+    "all_declared_failure_conditions_must_be_satisfied": true
   }
 }
