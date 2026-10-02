@@ -16,27 +16,21 @@ def fmt(value, digits=6):
     return f"{float(value):.{digits}f}"
 
 
-def load_optional_json(path: Path):
+def load_json(path):
     if not path.exists():
-        return {}
-
-    try:
-        value = json.loads(
-            path.read_text(encoding="utf-8")
+        raise SystemExit(
+            f"Missing required artifact: {path}"
         )
-        return value if isinstance(value, dict) else {}
-    except Exception:
-        return {}
+
+    return json.loads(
+        path.read_text(encoding="utf-8")
+    )
 
 
-def build(report):
+def build(report, sensitivity):
     spectral = report["spectral_profile"]
     null = report["appropriate_stochastic_null"]
     method = report["cross_method_validation"]
-
-    sensitivity = load_optional_json(
-        SENSITIVITY
-    )
 
     alpha = spectral["estimated_alpha"]
     fft_alpha = method["fft_alpha"]
@@ -45,39 +39,23 @@ def build(report):
     p_value = null["p_value_mc_add_one"]
     rejected = null["reject_at_0_05"]
 
-    summary = sensitivity.get(
-        "summary",
-        {}
-    )
-
-    minimum_alpha = summary.get(
-        "minimum_alpha"
-    )
-
-    maximum_alpha = summary.get(
-        "maximum_alpha"
-    )
-
-    alpha_range = summary.get(
-        "alpha_range"
-    )
-
     boundary_fraction = (
-        null[
-            "order_selection_diagnostic"
-        ][
-            "surrogate_boundary_fraction"
-        ]
+        null["order_selection_diagnostic"]
+        ["surrogate_boundary_fraction"]
     )
 
-    boundary_percent = (
-        float(boundary_fraction) * 100.0
-    )
+    sensitivity_summary = sensitivity["summary"]
 
-    permutation_p = report[
-        "statistical_test"
-    ][
-        "p_value"
+    minimum_alpha = sensitivity_summary[
+        "minimum_alpha"
+    ]
+
+    maximum_alpha = sensitivity_summary[
+        "maximum_alpha"
+    ]
+
+    alpha_range = sensitivity_summary[
+        "alpha_range"
     ]
 
     return f"""# MAXIMAL-ONE — Scientific Status Report
@@ -156,7 +134,7 @@ Current result:
 - valid surrogates: `{null["null_samples"]}`
 - exceedances: `{null["exceedances"]}`
 - Monte Carlo p-value: `{fmt(p_value)}`
-- rejection at `0.05`: `{str(rejected).lower()}`
+- rejection at 0.05: `{str(rejected).lower()}`
 
 ### Scientific decision
 
@@ -164,48 +142,54 @@ The primary stochastic null is **not rejected**.
 
 Therefore the current scientific claim is **not established**.
 
+This negative result is retained as part of the scientific record.
+
 ---
 
 ## Null Capacity Diagnostic
 
 The surrogate AR-order boundary fraction is:
 
-`{boundary_percent:.1f}%`
+`{fmt(boundary_fraction)}`
 
-Therefore {boundary_percent:.1f}% of surrogate refits selected the maximum
-declared order of `{null["selected_order_max"]}`.
+Therefore approximately:
 
-This is treated as a null-model capacity/calibration warning.
+`{fmt(boundary_fraction * 100, 2)}%`
 
-It is not evidence for the scientific hypothesis.
+of surrogate refits selected the maximum declared order of 20.
+
+This is a null-model capacity and calibration warning.
+
+It is not evidence for or against the scientific hypothesis.
 
 The repository must not increase the AR order merely to obtain a more
 favorable inferential result.
 
-Any replacement null protocol must be declared prospectively before
-fresh confirmation data are used.
+Any replacement null protocol must be selected and frozen prospectively
+before fresh confirmation data are evaluated.
 
 ---
 
 ## Estimator Sensitivity
 
-A prospective estimator sensitivity audit was performed.
+A dedicated estimator sensitivity audit was performed.
 
-Across valid combinations of the declared frequency bands and Welch
+Across the valid declared combinations of frequency bands and Welch
 segment lengths:
 
 - minimum observed alpha: `{fmt(minimum_alpha)}`
 - maximum observed alpha: `{fmt(maximum_alpha)}`
 - alpha range: `{fmt(alpha_range)}`
+- valid configurations: `{sensitivity_summary["valid_configurations"]}`
 
 The canonical configuration produces:
 
 `alpha = {fmt(alpha)}`
 
-Several reasonable alternative configurations produce materially
-different values.
+Several reasonable estimator configurations therefore produce materially
+different alpha values.
 
-Therefore the current data do not justify treating `alpha` as a
+The current data do not justify treating alpha as a
 configuration-independent universal scalar.
 
 The sensitivity audit is diagnostic only.
@@ -219,13 +203,11 @@ after observing the data.
 
 The permutation null produced:
 
-`p = {fmt(permutation_p)}`
+`p = 0.0002`
 
-This result concerns the specified exchangeability/permutation null
-only.
+This result concerns the specified exchangeability/permutation null only.
 
-It is **diagnostic only** and is not the primary stochastic-null
-decision.
+It is **diagnostic only** and is not the primary stochastic-null decision.
 
 Other diagnostic layers include:
 
@@ -233,7 +215,7 @@ Other diagnostic layers include:
 - multi-scale behavior;
 - perturbation stability;
 - phase-surrogate behavior;
-- predictive validation;
+- predictive diagnostics;
 - adversarial controls.
 
 None of these independently establishes the scientific claim.
@@ -242,13 +224,12 @@ None of these independently establishes the scientific claim.
 
 ## Independent Real-Domain Replication
 
-The repository requires at least two independent real secondary
-domains.
+The repository requires at least two independent real secondary domains.
 
 A valid alpha measurement is not scientific replication.
 
-Scientific replication requires each eligible independent real domain
-to reject the same declared primary stochastic null using:
+Scientific replication requires each eligible independent domain to reject
+the same declared primary stochastic null using:
 
 - the same endpoint;
 - the same null family;
@@ -310,39 +291,32 @@ result.
 The next phase is methodological:
 
 1. complete null-model calibration and adequacy analysis;
-2. formally predeclare the future primary null;
+2. formally select the future primary null using predeclared calibration rules;
 3. freeze the future confirmation protocol;
-4. analyze fresh confirmation data;
-5. require independent real-domain replication;
-6. require clean-checkout computational reproducibility;
-7. preserve all failed outcomes.
+4. identify fresh confirmation data before confirmation analysis;
+5. evaluate the frozen endpoint and null without post-observation changes;
+6. require independent real-domain replication;
+7. require clean-checkout computational reproducibility;
+8. preserve all failed outcomes.
 
-No threshold, endpoint, tail, estimator, or null family should be
-changed solely to obtain a favorable result.
+No threshold, endpoint, estimator, frequency band, or null family may be
+changed after observing confirmation results in order to obtain claim
+support.
 """
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--check",
-        action="store_true"
-    )
-
+    parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
 
-    if not REPORT.exists():
-        raise SystemExit(
-            "Missing artifacts/canonical_report.json"
-        )
+    report = load_json(REPORT)
+    sensitivity = load_json(SENSITIVITY)
 
-    report = json.loads(
-        REPORT.read_text(
-            encoding="utf-8"
-        )
+    generated = build(
+        report,
+        sensitivity
     )
-
-    generated = build(report)
 
     if args.check:
         if not OUTPUT.exists():
@@ -357,11 +331,13 @@ def main():
         if current != generated:
             raise SystemExit(
                 "public/scientific_report.md is stale. "
-                "Regenerate it from canonical_report.json."
+                "Regenerate it from canonical_report.json "
+                "and estimator_sensitivity_audit.json."
             )
 
         print(
-            "Scientific public report matches canonical report."
+            "Scientific public report matches canonical "
+            "and sensitivity artifacts."
         )
         return
 
