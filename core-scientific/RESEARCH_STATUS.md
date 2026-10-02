@@ -1,7 +1,5 @@
 # Current Research Status
 
----
-
 ## Status
 
 UNDER INVESTIGATION
@@ -94,18 +92,31 @@ and null family.
 
 ## Estimator Calibration
 
-The existing calibration covers alpha targets near:
+The current estimator calibration includes target spectral exponents
+near:
 
-"0, 1, 2"
+- `0.0`
+- `1.0`
+- `2.0`
+- `2.5`
+- `3.0`
 
-while the current primary estimate is:
+The current canonical real-data estimate is:
 
-"2.525347"
+`2.525347`
 
-Therefore the estimator's behavior at the upper end of the current
-observed range requires additional characterization.
+Therefore the calibration now covers the neighborhood of the current
+observed estimate.
 
 This calibration is methodological evidence only.
+
+It does not establish the scientific claim.
+
+A separate sensitivity audit demonstrates that the estimated alpha
+varies materially across reasonable frequency-band choices.
+
+Therefore estimator configuration must remain fixed prospectively for
+any future confirmation analysis.
 
 ---
 
