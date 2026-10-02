@@ -119,6 +119,7 @@ jobs:
         run: |
           set -euo pipefail
 
+          python scripts/generate_public_scientific_report.py
           python scripts/generate_public_scientific_report.py --check
 
       - name: Run null calibration gate
