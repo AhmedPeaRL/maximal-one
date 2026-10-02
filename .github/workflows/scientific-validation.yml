@@ -1839,65 +1839,90 @@ jobs:
       - name: Anti Self Reference Guard
         run: python analysis/anti_self_reference_guard.py
 
-      - name: Build irreducible truth
+      - name: Build epistemic status artifact
+        shell: bash
         run: |
+          set -euo pipefail
+
           python - <<'PY'
-          import json, time, os
-          import hashlib
+          import json
+          from pathlib import Path
 
-          with open("artifacts/canonical_report.json", "rb") as f:
-              data = f.read()
+          report = json.loads(
+              Path(
+                  "artifacts/canonical_report.json"
+              ).read_text(
+                  encoding="utf-8"
+              )
+          )
 
-          h = hashlib.sha256(data).hexdigest()
+          null_result = report[
+              "appropriate_stochastic_null"
+          ]
 
-          with open("artifacts/report.hash", "w") as f:
-              f.write(h)
-
-          print("✅ report.hash generated:", h)
-
-          report = json.load(open("artifacts/canonical_report.json"))
-
-          alpha = report["spectral_profile"]["estimated_alpha"]
-          sigma = report["spectral_profile"]["bootstrap_std"]
-
-          truth = {
+          payload = {
               "system": "maximal-one",
-              "timestamp": time.time(),
-              "core_claim": {
-                  "statement": "A persistent spectral structure (alpha) emerges across independent real-world chaotic datasets under deterministic processing.",
-                  "measured_alpha": alpha,
-                  "bootstrap_sigma": sigma
-              },
-              "prediction": {
-                  "next_alpha_expected": alpha,
-                  "window": "next_run",
-                  "basis": "diagnostic_continuity_only",
-                  "not_a_probability": True
-              },
-              "falsification": {
-                  "condition": "If alpha collapses to noise or becomes unstable across independent runs, the model is falsified.",
-                  "status": "active"
-              },
-              "reproducibility": {
-                  "deterministic": True,
-                  "cross_runtime_consensus": True
-              },
-              "integrity": {
-                  "report_hash": open("artifacts/report.hash").read().strip()
-              }
+              "artifact_type":
+                  "epistemic_status",
+              "scientific_claim_authority":
+                  False,
+              "promotion_authority":
+                  False,
+              "claim_name":
+                  "Constrained Spectral Persistence Hypothesis",
+              "status":
+                  "UNDER_INVESTIGATION",
+              "canonical_alpha":
+                  report[
+                      "spectral_profile"
+                  ][
+                      "estimated_alpha"
+                  ],
+              "primary_stochastic_null":
+                  null_result[
+                      "null_model"
+                  ],
+              "primary_stochastic_null_p_value":
+                  null_result[
+                      "p_value_mc_add_one"
+                  ],
+              "primary_stochastic_null_rejected":
+                  null_result[
+                      "reject_at_0_05"
+                  ],
+              "scientific_decision":
+                  "CLAIM_NOT_ESTABLISHED",
+              "interpretation": (
+                  "The current canonical pipeline "
+                  "does not establish the scientific "
+                  "claim. This artifact records status "
+                  "and provenance only."
+              ),
+              "hcm_causation_established":
+                  False,
+              "universality_established":
+                  False,
+              "predictive_superiority_established":
+                  False,
+              "market_advantage_established":
+                  False
           }
 
-          os.makedirs("public", exist_ok=True)
+          Path("public").mkdir(
+              parents=True,
+              exist_ok=True
+          )
 
-          with open("artifacts/report.hash") as h:
-              report_hash = h.read().strip()
-
-          truth["integrity"]["report_hash"] = report_hash
-
-          with open("public/irreducible_truth.json", "w") as f:
-              json.dump(truth, f, indent=2)
-
-          print("Irreducible truth generated")
+          Path(
+              "public/irreducible_truth.json"
+          ).write_text(
+              json.dumps(
+                  payload,
+                  indent=2,
+                  sort_keys=True
+              ) + "\n",
+              encoding="utf-8"
+          )
           PY
 
       - name: Inject environment fingerprint
