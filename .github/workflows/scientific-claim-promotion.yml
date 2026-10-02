@@ -108,6 +108,13 @@ jobs:
           path: artifacts/estimator_sensitivity_audit.json
           if-no-files-found: error
 
+      - name: Verify public scientific report is canonical
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python scripts/generate_public_scientific_report.py --check
+
       - name: Run null calibration gate
         shell: bash
         run: |
