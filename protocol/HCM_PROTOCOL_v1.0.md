@@ -1,62 +1,38 @@
-# HCM Scientific Protocol v1.0
+# Legacy HCM Scientific Protocol v1.0
 
-Status: Locked Reference Protocol
-Version: 1.0.0
-Date: 2026
+## Status
 
----
+**LEGACY / NON-AUTHORITATIVE**
 
-## Objective
+This document preserves a historical HCM validation protocol.
 
-Establish a deterministic, reproducible, falsifiable validation standard for the Hybrid Consciousness Model (HCM).
+It is retained for provenance.
 
-This protocol defines the minimum required tests that must pass for any claim of HCM superiority.
+It is not the current scientific claim protocol.
 
----
+It has:
 
-## Core Requirements
+- no scientific claim authority;
+- no promotion authority;
+- no authority to define the current primary endpoint;
+- no authority to define the current stochastic null;
+- no authority to establish replication;
+- no authority to establish HCM causation;
+- no authority to establish predictive superiority.
 
-1. Deterministic kernel reproducibility
-2. Cross-version Node consensus
-3. Spectral alpha stability
-4. Lorenz-96 superiority
-5. Topology preservation under chaos
-6. Adversarial robustness
-7. Real-world predictive gain > baseline
-8. Independent bootstrap alpha confidence > 95%
+The current scientific claim is the:
 
----
+**Constrained Spectral Persistence Hypothesis**
 
-## Observable Definition
+The authoritative current files are:
 
-Primary observable:
+- `/core-scientific/strict_claim.json`
+- `/core-scientific/CLAIM_STATUS.md`
+- `/core-scientific/RESEARCH_STATUS.md`
+- `/paper/preprint_v1.md`
+- `/core-scientific/confirmatory_protocol_v1.json`
 
-Ψ(t) = spectral_entropy(t) * adaptive_attractor_strength(t)
+Historical protocol preservation is provenance, not confirmation.
 
-Properties:
-- Bounded
-- Non-linear
-- Invariant under phase rotation
-- Topology-preserving under chaotic forcing
-
----
-
-## Falsification Condition
-
-HCM is falsified if:
-
-- Predictive gain ≤ baseline in ≥ 2 real chaotic datasets
-OR
-- Alpha bootstrap CI crosses baseline entropy regime
-OR
-- Topology preservation error > ε = 0.05
-
----
-
-## Lock Condition
-
-Any modification to protocol requires:
-
-- Version increment
-- Hash change documentation
-- CI validation freeze
+No historical threshold, estimator, benchmark, or falsification rule
+may override a failing current scientific gate.
