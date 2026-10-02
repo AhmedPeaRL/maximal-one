@@ -6,6 +6,7 @@ from pathlib import Path
 
 
 REPORT = Path("artifacts/canonical_report.json")
+SENSITIVITY = Path("artifacts/estimator_sensitivity_audit.json")
 OUTPUT = Path("public/scientific_report.md")
 
 
@@ -15,19 +16,69 @@ def fmt(value, digits=6):
     return f"{float(value):.{digits}f}"
 
 
+def load_optional_json(path: Path):
+    if not path.exists():
+        return {}
+
+    try:
+        value = json.loads(
+            path.read_text(encoding="utf-8")
+        )
+        return value if isinstance(value, dict) else {}
+    except Exception:
+        return {}
+
+
 def build(report):
     spectral = report["spectral_profile"]
     null = report["appropriate_stochastic_null"]
     method = report["cross_method_validation"]
-    calibration = report.get("estimator_sensitivity_audit", {})
+
+    sensitivity = load_optional_json(
+        SENSITIVITY
+    )
 
     alpha = spectral["estimated_alpha"]
-    sigma = spectral["bootstrap_std"]
     fft_alpha = method["fft_alpha"]
     delta = method["agreement_delta"]
 
     p_value = null["p_value_mc_add_one"]
     rejected = null["reject_at_0_05"]
+
+    summary = sensitivity.get(
+        "summary",
+        {}
+    )
+
+    minimum_alpha = summary.get(
+        "minimum_alpha"
+    )
+
+    maximum_alpha = summary.get(
+        "maximum_alpha"
+    )
+
+    alpha_range = summary.get(
+        "alpha_range"
+    )
+
+    boundary_fraction = (
+        null[
+            "order_selection_diagnostic"
+        ][
+            "surrogate_boundary_fraction"
+        ]
+    )
+
+    boundary_percent = (
+        float(boundary_fraction) * 100.0
+    )
+
+    permutation_p = report[
+        "statistical_test"
+    ][
+        "p_value"
+    ]
 
     return f"""# MAXIMAL-ONE — Scientific Status Report
 
@@ -87,6 +138,16 @@ The current exploratory primary stochastic null is:
 
 `{null["null_model"]}`
 
+with:
+
+- stationary fitted AR models;
+- AIC order selection;
+- order range `1..20`;
+- Gaussian innovations;
+- refitting for each surrogate;
+- canonical primary alpha as the endpoint;
+- upper-tail alternative.
+
 Current result:
 
 - observed alpha: `{fmt(null["observed_alpha"])}`
@@ -95,7 +156,7 @@ Current result:
 - valid surrogates: `{null["null_samples"]}`
 - exceedances: `{null["exceedances"]}`
 - Monte Carlo p-value: `{fmt(p_value)}`
-- rejection at 0.05: `{str(rejected).lower()}`
+- rejection at `0.05`: `{str(rejected).lower()}`
 
 ### Scientific decision
 
@@ -109,11 +170,17 @@ Therefore the current scientific claim is **not established**.
 
 The surrogate AR-order boundary fraction is:
 
-`{fmt(null["order_selection_diagnostic"]["surrogate_boundary_fraction"])}`
+`{boundary_percent:.1f}%`
 
-This is a null-model capacity/calibration warning.
+Therefore {boundary_percent:.1f}% of surrogate refits selected the maximum
+declared order of `{null["selected_order_max"]}`.
+
+This is treated as a null-model capacity/calibration warning.
 
 It is not evidence for the scientific hypothesis.
+
+The repository must not increase the AR order merely to obtain a more
+favorable inferential result.
 
 Any replacement null protocol must be declared prospectively before
 fresh confirmation data are used.
@@ -122,7 +189,26 @@ fresh confirmation data are used.
 
 ## Estimator Sensitivity
 
-The estimator sensitivity audit is diagnostic only.
+A prospective estimator sensitivity audit was performed.
+
+Across valid combinations of the declared frequency bands and Welch
+segment lengths:
+
+- minimum observed alpha: `{fmt(minimum_alpha)}`
+- maximum observed alpha: `{fmt(maximum_alpha)}`
+- alpha range: `{fmt(alpha_range)}`
+
+The canonical configuration produces:
+
+`alpha = {fmt(alpha)}`
+
+Several reasonable alternative configurations produce materially
+different values.
+
+Therefore the current data do not justify treating `alpha` as a
+configuration-independent universal scalar.
+
+The sensitivity audit is diagnostic only.
 
 No favorable estimator configuration may replace the canonical endpoint
 after observing the data.
@@ -131,18 +217,44 @@ after observing the data.
 
 ## Secondary Diagnostics
 
-The permutation null result and other secondary diagnostics are not
-primary claim-promotion evidence.
+The permutation null produced:
+
+`p = {fmt(permutation_p)}`
+
+This result concerns the specified exchangeability/permutation null
+only.
+
+It is **diagnostic only** and is not the primary stochastic-null
+decision.
+
+Other diagnostic layers include:
+
+- cross-method agreement;
+- multi-scale behavior;
+- perturbation stability;
+- phase-surrogate behavior;
+- predictive validation;
+- adversarial controls.
+
+None of these independently establishes the scientific claim.
 
 ---
 
 ## Independent Real-Domain Replication
 
+The repository requires at least two independent real secondary
+domains.
+
 A valid alpha measurement is not scientific replication.
 
-Scientific replication requires eligible independent real domains to
-reject the same declared primary stochastic null using the same
-endpoint, null family, direction, and tail.
+Scientific replication requires each eligible independent real domain
+to reject the same declared primary stochastic null using:
+
+- the same endpoint;
+- the same null family;
+- the same direction;
+- the same tail;
+- the same scientific decision rule.
 
 That condition is not currently established.
 
@@ -150,34 +262,73 @@ That condition is not currently established.
 
 ## Computational Reproducibility
 
-Clean-checkout replay establishes computational reproducibility of
-the declared execution path.
+Clean-checkout replay establishes computational reproducibility of the
+declared execution path.
 
-It does not establish scientific replication or truth of the
-scientific hypothesis.
+It does not establish:
+
+- scientific replication;
+- independent implementation replication;
+- laboratory replication;
+- truth of the scientific hypothesis.
 
 ---
 
 ## HCM Interpretation Boundary
 
-The current canonical result does not establish HCM causation,
-consciousness, universality, mechanism, novel physics, predictive
-superiority, or market advantage.
+The current canonical spectral result does not establish:
+
+- HCM causation;
+- consciousness;
+- a physical field;
+- universality;
+- novel physics;
+- predictive superiority;
+- market advantage;
+- mechanism.
+
+HCM-related interpretations remain conceptual hypotheses outside the
+current empirical claim authority.
 
 ---
 
 ## Scientific Decision
 
+The current machine-gated decision is:
+
 `CLAIM = NOT ESTABLISHED`
+
+This is an intended scientific outcome.
 
 The system must remain capable of producing and preserving a negative
 result.
+
+---
+
+## Next Scientific Phase
+
+The next phase is methodological:
+
+1. complete null-model calibration and adequacy analysis;
+2. formally predeclare the future primary null;
+3. freeze the future confirmation protocol;
+4. analyze fresh confirmation data;
+5. require independent real-domain replication;
+6. require clean-checkout computational reproducibility;
+7. preserve all failed outcomes.
+
+No threshold, endpoint, tail, estimator, or null family should be
+changed solely to obtain a favorable result.
 """
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--check", action="store_true")
+    parser.add_argument(
+        "--check",
+        action="store_true"
+    )
+
     args = parser.parse_args()
 
     if not REPORT.exists():
@@ -186,7 +337,9 @@ def main():
         )
 
     report = json.loads(
-        REPORT.read_text(encoding="utf-8")
+        REPORT.read_text(
+            encoding="utf-8"
+        )
     )
 
     generated = build(report)
