@@ -1,57 +1,49 @@
-# Hybrid Consciousness Model:
-## Statistical Structural Validation via Multi-Seed Spectral Analysis
+# Legacy HCM Statistical Validation Study
 
-### Abstract
+## Status
 
-We test whether the HCM generative process produces statistically distinguishable spectral structure compared to:
+**LEGACY / NON-AUTHORITATIVE**
 
-1. Gaussian Random Walk (Null)
-2. Fractional Brownian Motion
-3. Alternative parametric baselines
+This document preserves an earlier exploratory HCM statistical study.
 
-Across 50 independent seeds, we compute:
+It is not the current scientific claim protocol.
 
-- Spectral exponent
-- Hurst exponent (DFA)
-- Bayesian model evidence
-- Statistical power
-- Null ensemble t-tests
+The reported multi-seed and model-comparison results are historical
+computational experiments and must not be interpreted as confirmation
+of the current Constrained Spectral Persistence Hypothesis.
 
-### Hypothesis
+They do not establish:
 
-H1:
-The HCM spectral exponent distribution differs significantly from null and FBM baselines.
+- HCM causation;
+- consciousness;
+- universality;
+- a physical mechanism;
+- predictive superiority;
+- novel physics;
+- market advantage.
 
-H0:
-No statistically significant difference exists.
+The current canonical scientific status is defined by:
 
-### Methods
+- `/core-scientific/strict_claim.json`
+- `/core-scientific/CLAIM_STATUS.md`
+- `/core-scientific/RESEARCH_STATUS.md`
+- `/paper/preprint_v1.md`
 
-All experiments are reproducible via:
-`.github/workflows/multi-seed-sweep.yml`
+Current canonical result:
 
-Data:
-`/data/`
+`alpha = 2.525347`
 
-### Falsification Criteria
+Current primary stochastic-null result:
 
-The model fails if:
+`p = 0.999001`
 
-- p-value > 0.05 (null ensemble)
-- Bayes factor < 3 consistently
-- Power < 0.8
-- Hurst ≈ 0.5 across seeds
+Current primary null decision:
 
-### Results
+`NOT REJECTED`
 
-See:
-- power_result.txt
-- null_test.txt
-- fbm_comparison.txt
-- model_comparison.txt
-- hurst.txt
+Current scientific status:
 
-### Conclusion
+`UNDER INVESTIGATION`
 
-This preprint presents infrastructure-level validation.
-Scientific validity depends strictly on statistical outcome, not philosophical framing.
+Historical results remain available for provenance and future
+re-analysis under separately declared protocols.
