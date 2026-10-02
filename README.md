@@ -1,4 +1,3 @@
-![Power Test](https://img.shields.io/badge/power-unknown-lightgrey)
 ![Scientific Claim Promotion Gate](https://github.com/AhmedPeaRL/maximal-one/actions/workflows/scientific-claim-promotion.yml/badge.svg)
 
 # maximal-one
@@ -216,11 +215,17 @@ This ensures deviations are not misinterpreted as structure.
 
 ---
 
-## Power Test Result
+## Power Analysis
 
-Latest statistical test output is stored under:
+No current power value is presented as evidence for the scientific
+claim.
 
-    data/power_result.txt
+Future power analysis must be tied to the final prospectively declared
+primary endpoint, null family, effect definition, sample structure, and
+type-I-error procedure.
+
+A power calculation against an unrelated diagnostic null must not be
+used as a substitute for calibration of the primary stochastic null.
 
 ---
 
@@ -228,18 +233,23 @@ Latest statistical test output is stored under:
 
 This repository does not claim evidence of consciousness.
 
-Current validated result:
+The current computational pipeline demonstrates several reproducibility
+and measurement-consistency properties, but these do not establish the
+Constrained Spectral Persistence Hypothesis.
 
-- Reproducible spectral persistence
-- Cross-method agreement
-- Cross-seed stability
-- Deterministic replay
+Current status:
 
-Open questions:
+- canonical spectral measurement reproduced within the declared pipeline;
+- Welch/FFT measurement agreement is documented;
+- seeded perturbation stability is documented;
+- clean-checkout computational reproducibility is treated separately
+  from scientific replication;
+- the primary stochastic null is not rejected;
+- independent scientific replication is not established.
 
-- Statistical significance remains weak
-- Independent third-party reproduction required
-- Additional datasets required
+The scientific claim therefore remains:
+
+UNDER INVESTIGATION.
 
 ---
 
