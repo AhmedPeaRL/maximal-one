@@ -1,93 +1,39 @@
-# Spectral Regimes Separation — HCM System
+# Historical Spectral Regimes — Non-Authoritative
 
-## Purpose
+## Status
 
-This document records a historical computational framing of spectral regimes.
+**HISTORICAL WORKING MODEL**
 
-It is not a statement of an established physical invariant.
+This document records an earlier exploratory HCM spectral-regime
+hypothesis.
 
----
+The historical values:
 
-## Reference Regime
+- null regime approximately `0.5`
+- historical attractor target approximately `1.809`
 
-Earlier experiments used approximately:
+are not established empirical invariants of the current canonical
+real-data pipeline.
 
-α_null ≈ 0.5
+The current canonical real-data measurement is:
 
-as a reference scale for stochastic or Brownian-like behavior.
+`alpha = 2.525347`
 
-This value is a methodological reference and must not be treated as a universal empirical constant.
+The current primary stochastic null is not rejected:
 
----
+`p = 0.999001`
 
-## Historical Attractor Target
+Therefore no empirical attractor regime is currently established.
 
-Earlier computational experiments reported a working target near:
+The historical values may be retained as hypotheses for future,
+separately specified experiments.
 
-α_star ≈ 1.809
+They have:
 
-This value is retained only as a historical computational target.
+- no scientific claim authority;
+- no promotion authority;
+- no authority over the current CSP hypothesis;
+- no authority to redefine the current canonical endpoint.
 
-It is not the current canonical real-data estimate.
-
-It is not established as an empirical invariant.
-
-It is not established as a physical constant.
-
-It is not sufficient evidence for HCM validity.
-
----
-
-## Current Canonical Real-Data Result
-
-The current canonical real-data analysis reports:
-
-α = 2.525347
-
-for the declared primary sunspot dataset and canonical Welch estimator.
-
-The current declared primary stochastic null is a stationary Gaussian AR(p) family with AIC order selection over p = 1..20.
-
-The current primary null result is:
-
-p = 0.999001
-
-Therefore the primary stochastic null is not rejected.
-
----
-
-## Current Interpretation
-
-The project currently does not claim that:
-
-α = 0.5
-
-is a universal null invariant.
-
-The project currently does not claim that:
-
-α = 1.809
-
-is a universal attractor invariant.
-
-The project currently does not claim that:
-
-α = 2.525347
-
-is a universal invariant.
-
-All three values belong to different methodological contexts and must not be conflated.
-
----
-
-## Epistemic Status
-
-Current status:
-
-UNDER INVESTIGATION
-
-The historical spectral-regime framework remains a hypothesis-generating structure.
-
-Promotion requires a prospectively specified stochastic-null protocol, independent real-domain replication, adversarial validation, and clean-checkout computational reproducibility.
-
-No regime value is promoted to a universal physical or HCM invariant by this document.
+Any future test of a spectral regime must be prospectively specified
+and independently falsifiable.
