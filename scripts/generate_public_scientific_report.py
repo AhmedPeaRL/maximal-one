@@ -11,7 +11,14 @@ SENSITIVITY = Path("artifacts/estimator_sensitivity_audit.json")
 OUTPUT = Path("public/scientific_report.md")
 
 
-EXPECTED_SENSITIVITY_SCHEMA = "1.0"
+EXPECTED_SENSITIVITY_SCHEMA = "1.1"
+
+SERIALIZATION_DECIMALS = 6
+
+SERIALIZATION_TOLERANCE = (
+    0.5
+    * 10 ** (-SERIALIZATION_DECIMALS)
+)
 
 
 def fmt(value, digits=6):
@@ -116,17 +123,133 @@ def validate_sensitivity_artifact(
     if (
         report_alpha is None
         or sensitivity_alpha is None
-        or not math.isclose(
-            float(report_alpha),
-            float(sensitivity_alpha),
-            rel_tol=0.0,
-            abs_tol=1e-8,
+    ):
+        raise SystemExit(
+            "Estimator sensitivity artifact is invalid: "
+            "canonical alpha is missing."
         )
+
+    try:
+        report_alpha = float(
+            report_alpha
+        )
+
+        sensitivity_alpha = float(
+            sensitivity_alpha
+        )
+    except (
+        TypeError,
+        ValueError,
+    ) as exc:
+        raise SystemExit(
+            "Estimator sensitivity artifact canonical alpha "
+            "is not numeric."
+        ) from exc
+
+    if not (
+        math.isfinite(report_alpha)
+        and math.isfinite(sensitivity_alpha)
     ):
         raise SystemExit(
             "Estimator sensitivity artifact canonical alpha "
-            "does not match canonical_report.json."
+            "contains a non-finite value."
         )
+
+    alpha_delta = abs(
+        report_alpha
+        - sensitivity_alpha
+    )
+
+    if alpha_delta > SERIALIZATION_TOLERANCE:
+        raise SystemExit(
+            "Estimator sensitivity artifact canonical alpha "
+            "does not match canonical_report.json within "
+            "the declared serialization tolerance: "
+            f"delta={alpha_delta:.12g}, "
+            f"allowed={SERIALIZATION_TOLERANCE:.12g}."
+        )
+
+    canonical_serialization_decimals = (
+        canonical_protocol.get(
+            "serialization_decimals"
+        )
+    )
+
+    if (
+        canonical_serialization_decimals is not None
+        and int(
+            canonical_serialization_decimals
+        ) != SERIALIZATION_DECIMALS
+    ):
+        raise SystemExit(
+            "Estimator sensitivity artifact serialization precision "
+            "does not match the public report contract."
+        )
+
+    canonical_serialization_tolerance = (
+        canonical_protocol.get(
+            "serialization_tolerance"
+        )
+    )
+
+    if (
+        canonical_serialization_tolerance is not None
+        and not math.isclose(
+            float(
+                canonical_serialization_tolerance
+            ),
+            SERIALIZATION_TOLERANCE,
+            rel_tol=0.0,
+            abs_tol=1e-15,
+        )
+    ):
+        raise SystemExit(
+            "Estimator sensitivity artifact serialization tolerance "
+            "does not match the public report contract."
+        )
+
+    recomputed_alpha = canonical_protocol.get(
+        "recomputed_alpha"
+    )
+
+    if recomputed_alpha is not None:
+        try:
+            recomputed_alpha = float(
+                recomputed_alpha
+            )
+        except (
+            TypeError,
+            ValueError,
+        ) as exc:
+            raise SystemExit(
+                "Estimator sensitivity artifact "
+                "recomputed_alpha is not numeric."
+            ) from exc
+
+        if not math.isfinite(
+            recomputed_alpha
+        ):
+            raise SystemExit(
+                "Estimator sensitivity artifact "
+                "recomputed_alpha is non-finite."
+            )
+
+        recomputed_delta = abs(
+            recomputed_alpha
+            - report_alpha
+        )
+
+        if (
+            recomputed_delta
+            > SERIALIZATION_TOLERANCE
+        ):
+            raise SystemExit(
+                "Estimator sensitivity recomputed alpha "
+                "does not reproduce canonical_report.json "
+                "within serialization tolerance: "
+                f"delta={recomputed_delta:.12g}, "
+                f"allowed={SERIALIZATION_TOLERANCE:.12g}."
+            )
 
     report_band = (
         spectral
@@ -153,6 +276,15 @@ def validate_sensitivity_artifact(
     sensitivity_nperseg = canonical_protocol.get(
         "nperseg"
     )
+
+    if (
+        report_nperseg is None
+        or sensitivity_nperseg is None
+    ):
+        raise SystemExit(
+            "Estimator sensitivity artifact nperseg "
+            "is missing."
+        )
 
     if int(report_nperseg) != int(
         sensitivity_nperseg
