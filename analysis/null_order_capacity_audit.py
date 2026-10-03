@@ -26,6 +26,17 @@ LJUNG_BOX_LAGS = [
     40,
 ]
 
+HASH_DECIMAL_PLACES = 10
+
+
+def canonical_float(value):
+    return float(
+        np.round(
+            float(value),
+            HASH_DECIMAL_PLACES,
+        )
+    )
+
 
 def load_primary():
     df = pd.read_csv(
@@ -161,10 +172,10 @@ def residual_diagnostics(
         row = lb.loc[lag]
 
         output[str(lag)] = {
-            "statistic": float(
+            "statistic": canonical_float(
                 row["lb_stat"]
             ),
-            "p_value": float(
+            "p_value": canonical_float(
                 row["lb_pvalue"]
             ),
         }
@@ -205,19 +216,19 @@ def main():
                     max_order
                 ),
 
-            "aic":
-                float(fit.aic),
-
-            "bic":
-                float(fit.bic),
+            "aic": canonical_float(
+                fit.aic
+            ),
+            "bic": canonical_float(
+                fit.bic
+            ),
 
             "stationary":
                 True,
 
-            "residual_std":
-                float(
-                    np.std(residuals)
-                ),
+            "residual_std": canonical_float(
+                np.std(residuals)
+            ),
 
             "ljung_box":
                 residual_diagnostics(
