@@ -1465,6 +1465,12 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+      - name: Witness governance integrity guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          python analysis/witness_governance_guard.py
+
   external-collision:
     runs-on: ubuntu-24.04
     needs: ingest-witness
