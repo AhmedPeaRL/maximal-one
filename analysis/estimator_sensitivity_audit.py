@@ -28,6 +28,7 @@ NPERSEGS = [
     2048,
 ]
 
+EXPECTED_ALPHA_RANGE = [0.05, 3.0]
 CANONICAL_BAND = [0.01, 0.05]
 CANONICAL_NPERSEG = 1024
 MIN_BINS = 20
@@ -169,6 +170,13 @@ def main():
             and item.get("alpha") is not None
             and np.isfinite(float(item["alpha"]))
         )
+
+    alpha_in_declared_range = bool(
+        result.get("valid") is True
+        and EXPECTED_ALPHA_RANGE[0]
+        <= float(result["alpha"])
+        <= EXPECTED_ALPHA_RANGE[1]
+    )
 
     valid_alphas = [
         float(item["alpha"])
