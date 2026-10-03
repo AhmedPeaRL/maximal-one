@@ -148,8 +148,9 @@ def run_case(
     observed_alphas = []
     fitted_orders = []
     surrogate_orders = []
+    outer_failures = []
 
-    for _ in range(
+    for outer_index in range(
         OUTER_REPLICATES
     ):
         series = generate_ar_process(
@@ -165,52 +166,85 @@ def run_case(
         if not np.isfinite(
             observed_alpha
         ):
+            outer_failures.append({
+                "outer_index": outer_index,
+                "reason": "nonfinite_observed_alpha",
+            })
             continue
 
-        selected_order, fitted = (
-            _stationary_fit(series)
-        )
+        try:
+            selected_order, fitted = (
+                _stationary_fit(series)
+            )
+        except Exception as exc:
+            outer_failures.append({
+                "outer_index": outer_index,
+                "reason": "observed_fit_failure",
+                "error": str(exc),
+            })
+            continue
 
         fitted_orders.append(
             int(selected_order)
         )
 
         null_alphas = []
+        surrogate_failure_count = 0
 
-        for _ in range(
+        for surrogate_index in range(
             INNER_SURROGATES
         ):
-            surrogate = _simulate_from_fit(
-                fitted,
-                len(series),
-                rng,
-            )
-
             try:
+                surrogate = _simulate_from_fit(
+                    fitted,
+                    len(series),
+                    rng,
+                )
+
                 refit_order, _ = (
                     _stationary_fit(
                         surrogate
                     )
                 )
+
+                alpha = estimate_alpha(
+                    surrogate
+                )
+
+                if not np.isfinite(alpha):
+                    surrogate_failure_count += 1
+                    continue
+
+                null_alphas.append(
+                    float(alpha)
+                )
+
+                surrogate_orders.append(
+                    int(refit_order)
+                )
+
             except Exception:
-                continue
-
-            alpha = estimate_alpha(
-                surrogate
-            )
-
-            if not np.isfinite(alpha):
-                continue
-
-            null_alphas.append(
-                float(alpha)
-            )
-
-            surrogate_orders.append(
-                int(refit_order)
-            )
+                surrogate_failure_count += 1
 
         if len(null_alphas) < MIN_VALID_SURROGATES:
+            outer_failures.append({
+                "outer_index": outer_index,
+                "reason": (
+                    "insufficient_valid_surrogates"
+                ),
+                "valid_surrogates": int(
+                    len(null_alphas)
+                ),
+                "requested_surrogates": int(
+                    INNER_SURROGATES
+                ),
+                "minimum_valid_surrogates": int(
+                    MIN_VALID_SURROGATES
+                ),
+                "surrogate_failures": int(
+                    surrogate_failure_count
+                ),
+            })
             continue
 
         null = np.asarray(
@@ -232,6 +266,9 @@ def run_case(
 
         observed_alphas.append(
             {
+                "outer_index": int(
+                    outer_index
+                ),
                 "alpha": float(
                     observed_alpha
                 ),
@@ -241,6 +278,9 @@ def run_case(
                 "valid_surrogates": int(
                     len(null)
                 ),
+                "surrogate_failures": int(
+                    surrogate_failure_count
+                ),
             }
         )
 
@@ -249,119 +289,76 @@ def run_case(
         for item in observed_alphas
     ]
 
-    p_summary = summarize_p_values(
-        p_values
-    )
-
     rejection_rate = (
         float(
             np.mean(
                 np.asarray(p_values)
-                <= ALPHA_THRESHOLD
+                <= 0.05
             )
         )
         if p_values
         else None
     )
 
+    requested = int(
+        OUTER_REPLICATES
+    )
+
+    valid = int(
+        len(observed_alphas)
+    )
+
+    failed = int(
+        len(outer_failures)
+    )
+
+    failure_rate = (
+        float(failed / requested)
+        if requested
+        else None
+    )
+
     return {
         "case": name,
-
         "phi": list(
             map(float, phi)
         ),
-
         "outer_replicates_requested":
-            OUTER_REPLICATES,
-
+            requested,
         "outer_replicates_valid":
-            len(observed_alphas),
-
+            valid,
+        "outer_replicates_failed":
+            failed,
+        "outer_replicate_failure_rate":
+            failure_rate,
         "inner_surrogates_requested":
-            INNER_SURROGATES,
-
+            int(INNER_SURROGATES),
         "minimum_valid_surrogates":
-            MIN_VALID_SURROGATES,
-
-        "alpha_threshold":
-            ALPHA_THRESHOLD,
-
+            int(MIN_VALID_SURROGATES),
         "observed_results":
             observed_alphas,
-
-        "p_value_summary":
-            p_summary,
-
+        "outer_failures":
+            outer_failures,
         "rejection_rate_at_0_05":
             rejection_rate,
-
-        "calibration_dataset":
-            "synthetic_declared_ar_dgp",
-
-        "null_family":
-            "stationary_gaussian_AR_p",
-
-        "selection_rule":
-            "AIC_1_to_20",
-
-        "boundary_rate":
-            (
-                float(
-                    np.mean(
-                        np.asarray(
-                            surrogate_orders
-                        )
-                        == 20
-                    )
-                )
-                if surrogate_orders
-                else None
-            ),
-
-        "outer_replicates_failed":
-            (
-                OUTER_REPLICATES
-                - len(observed_alphas)
-            ),
-
-        "outer_replicate_failure_rate":
-            (
-                float(
-                    (
-                        OUTER_REPLICATES
-                        - len(observed_alphas)
-                    )
-                    / OUTER_REPLICATES
-                )
-            ),
-
         "fitted_order_summary":
             summarize_orders(
                 fitted_orders
             ),
-
         "surrogate_order_summary":
             summarize_orders(
                 surrogate_orders
             ),
-
         "scientific_role":
             "null_calibration_audit_only",
-
         "claim_support":
             False,
-
-        "decision":
-            "CALIBRATION_REQUIRES_REVIEW",
-
         "interpretation":
-            (
-                "This audit evaluates calibration behavior "
-                "of the declared stochastic-null procedure "
-                "on data generated from known stationary "
-                "AR processes. It does not establish or "
-                "refute the scientific claim."
-            ),
+            "This audit evaluates calibration behavior "
+            "of the declared stochastic-null procedure "
+            "on data generated from known stationary "
+            "AR processes. It does not establish or "
+            "refute the scientific claim.",
     }
 
 def main():
