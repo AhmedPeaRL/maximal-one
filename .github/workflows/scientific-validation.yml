@@ -490,6 +490,11 @@ jobs:
           )
           PY
 
+      - name: Protocol reference integrity guard
+        run: |
+          set -euo pipefail
+          python analysis/protocol_reference_guard.py
+
       - name: Run canonical experiment ONLY
         shell: bash
         run: |
@@ -1015,10 +1020,6 @@ jobs:
       - name: Cross-domain band guard
         run: |
           python analysis/cross_domain_band_guard.py
-
-      - name: Preferred Band Guard
-        run: |
-          python analysis/preferred_band_guard.py
 
       - name: Theoretical consistency guard
         run: |
