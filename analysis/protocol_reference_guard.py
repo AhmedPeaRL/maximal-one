@@ -25,14 +25,10 @@ def fail(message: str) -> None:
 
 def main() -> None:
     if not STRICT_CLAIM_PATH.exists():
-        fail(
-            f"missing {STRICT_CLAIM_PATH}"
-        )
+        fail(f"missing {STRICT_CLAIM_PATH}")
 
     if not WORKFLOW_PATH.exists():
-        fail(
-            f"missing {WORKFLOW_PATH}"
-        )
+        fail(f"missing {WORKFLOW_PATH}")
 
     claim = json.loads(
         STRICT_CLAIM_PATH.read_text(
