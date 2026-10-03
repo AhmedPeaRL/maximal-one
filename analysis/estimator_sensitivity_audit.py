@@ -151,9 +151,47 @@ def main():
         if item["canonical_configuration"]
     )
 
+    canonical_alpha = canonical.get("alpha")
+
+    if (
+        canonical.get("finite") is not True
+        or canonical_alpha is None
+        or not np.isfinite(float(canonical_alpha))
+    ):
+        raise SystemExit(
+            "Canonical estimator configuration did not produce "
+            "a finite alpha."
+        )
+
+    for item in results:
+        item["valid"] = bool(
+            item.get("finite") is True
+            and item.get("alpha") is not None
+            and np.isfinite(float(item["alpha"]))
+        )
+
+    valid_alphas = [
+        float(item["alpha"])
+        for item in results
+        if item.get("valid") is True
+    ]
+
+    if not valid_alphas:
+        raise SystemExit(
+            "Estimator sensitivity audit produced no valid "
+            "alpha configurations."
+        )
+
+    minimum_alpha = min(valid_alphas)
+    maximum_alpha = max(valid_alphas)
+
     payload = {
+        "schema_version": "1.0",
+
         "status": "DIAGNOSTIC_ONLY",
+
         "scientific_claim_authority": False,
+
         "promotion_authority": False,
 
         "dataset": {
@@ -161,16 +199,28 @@ def main():
             "length": int(len(series)),
         },
 
-        "canonical": {
+        "canonical_protocol": {
             "nperseg": CANONICAL_NPERSEG,
             "frequency_band": CANONICAL_BAND,
-            "alpha": canonical.get("alpha"),
-            "frequency_bins": canonical.get(
-                "frequency_bins"
-            ),
+            "alpha": float(canonical_alpha),
+            "minimum_frequency_bins": MIN_BINS,
         },
 
-        "sensitivity": results,
+        "sensitivity_grid": {
+            "frequency_bands": BANDS,
+            "npersegs": NPERSEGS,
+        },
+
+        "results": results,
+
+        "summary": {
+            "minimum_alpha": minimum_alpha,
+            "maximum_alpha": maximum_alpha,
+            "alpha_range": (
+                maximum_alpha - minimum_alpha
+            ),
+            "valid_configurations": len(valid_alphas),
+        },
 
         "interpretation": (
             "This audit evaluates sensitivity of the spectral "
@@ -183,6 +233,20 @@ def main():
         ),
 
         "prospective_change_required": True,
+
+        "prospective_rule": (
+            "Any future change to the estimator, frequency band, "
+            "segmentation rule, or endpoint requires an explicit "
+            "protocol revision before fresh confirmation data are "
+            "used for claim promotion."
+        ),
+
+        "purpose": (
+            "Prospective methodological sensitivity audit of the "
+            "spectral exponent estimator. This audit does not "
+            "modify the canonical endpoint and does not constitute "
+            "scientific claim evidence."
+        ),
     }
 
     OUTPUT.parent.mkdir(
@@ -195,13 +259,33 @@ def main():
             payload,
             indent=2,
             sort_keys=True,
-        ),
+        ) + "\n",
         encoding="utf-8",
     )
 
     print(
         "Estimator sensitivity audit written to",
         OUTPUT,
+    )
+
+    print(
+        "Valid configurations:",
+        len(valid_alphas),
+    )
+
+    print(
+        "Minimum alpha:",
+        minimum_alpha,
+    )
+
+    print(
+        "Maximum alpha:",
+        maximum_alpha,
+    )
+
+    print(
+        "Alpha range:",
+        maximum_alpha - minimum_alpha,
     )
 
 
