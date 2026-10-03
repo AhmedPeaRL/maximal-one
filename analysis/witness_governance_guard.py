@@ -12,11 +12,22 @@ GOVERNANCE_PATH = Path(
 )
 
 
-FORBIDDEN_WORKFLOW_PATTERNS = (
+# These patterns specifically identify witness persistence
+# into the Git repository tree.
+#
+# Generic git commit/push operations are intentionally NOT
+# forbidden because the scientific-validation workflow also
+# contains legitimate persistence operations unrelated to
+# CI witness ingestion.
+
+FORBIDDEN_WITNESS_PERSISTENCE_PATTERNS = (
     "git add data/external/",
+    "git add data/external",
+    "data/external/witness_",
+    "data/external/witness-",
+    "git commit -m \"External witness ingestion\"",
+    "git commit -m 'External witness ingestion'",
     "External witness ingestion",
-    "git push",
-    "git commit",
 )
 
 
@@ -42,12 +53,12 @@ def main() -> None:
         encoding="utf-8"
     )
 
-    for pattern in FORBIDDEN_WORKFLOW_PATTERNS:
+    for pattern in FORBIDDEN_WITNESS_PERSISTENCE_PATTERNS:
         if pattern in workflow:
             fail(
                 "scientific-validation.yml still "
-                f"contains forbidden witness-persistence "
-                f"pattern: {pattern}"
+                "contains a forbidden witness-repository "
+                f"persistence pattern: {pattern}"
             )
 
     required_statements = (
