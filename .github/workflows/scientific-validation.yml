@@ -495,6 +495,77 @@ jobs:
           set -euo pipefail
           python analysis/protocol_reference_guard.py
 
+      - name: Dataset eligibility gate
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python analysis/dataset_eligibility_gate.py
+
+          test -s \
+            artifacts/dataset_eligibility_gate.json
+
+      - name: Upload dataset eligibility artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dataset-eligibility-gate
+          path: artifacts/dataset_eligibility_gate.json
+          if-no-files-found: error
+
+      - name: Enforce dataset eligibility contract
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python - <<'PY'
+          import json
+
+          path = "artifacts/dataset_eligibility_gate.json"
+
+          with open(path, encoding="utf-8") as f:
+              data = json.load(f)
+
+          required = int(
+              data["minimum_replication_domains"]
+          )
+
+          available = int(
+              data["eligible_replication_domain_count"]
+          )
+
+          print(
+              f"Eligible replication domains: "
+              f"{available}/{required}"
+          )
+
+          if available < required:
+              raise SystemExit(
+                  "❌ Dataset replication eligibility "
+                  "is insufficient."
+              )
+
+          print(
+              "✅ Dataset eligibility contract satisfied."
+          )
+          PY
+
+      - name: Permutation determinism audit
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python analysis/permutation_determinism_audit.py
+
+          test -s \
+            artifacts/permutation_determinism_audit.json
+
+      - name: Upload permutation determinism artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: permutation-determinism-audit
+          path: artifacts/permutation_determinism_audit.json
+          if-no-files-found: error
+
       - name: Run canonical experiment ONLY
         shell: bash
         run: |
@@ -1193,6 +1264,12 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Witness repository growth guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          python analysis/witness_repository_guard.py
+
       - name: Enforce deterministic env
         run: |
           echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
@@ -1248,17 +1325,29 @@ jobs:
 
           echo "✅ No real tokens detected"
 
-      - name: Store external witness
+      - name: Stage witness as run-local artifact
+        shell: bash
         run: |
-          mkdir -p data/external
+          set -euo pipefail
+
+          mkdir -p artifacts/witness_ingestion
 
           RAW='${{ toJson(github.event.client_payload) }}'
 
           if [ "$RAW" = "null" ] || [ -z "$RAW" ]; then
-            echo '{"_empty": true, "timestamp": "'$(date -Iseconds)'"}' > data/external/witness_$(date +%s).json
+            echo '{"_empty": true}' \
+              > artifacts/witness_ingestion/payload.json
           else
-            echo "$RAW" > data/external/witness_$(date +%s).json
+            echo "$RAW" \
+              > artifacts/witness_ingestion/payload.json
           fi
+
+          sha256sum \
+            artifacts/witness_ingestion/payload.json \
+            > artifacts/witness_ingestion/payload.sha256
+
+          echo "Witness staged locally only."
+          echo "No witness file will be written to data/external/."
 
       - name: Validate witness payload
         run: |
@@ -1368,109 +1457,13 @@ jobs:
           console.log("Witness hash:", hash);
           NODE
 
-      - name: Ensure remote origin (FIXED PROPERLY)
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          set -e
-
-          echo "Resetting origin safely..."
-
-          git remote remove origin || true
-
-          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
-
-          git fetch origin main || true
-
-          git checkout main || git checkout -b main
-
-          git branch --set-upstream-to=origin/main main || true
-
-          echo "✅ origin fully restored and linked"
-          
-      - name: Safe authenticated push (FIXED)
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          set -euo pipefail
-
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-
-          echo "=== STAGE EXTERNAL WITNESS ==="
-
-          WITNESS_STAGE="$(mktemp -d)"
-
-          mkdir -p "$WITNESS_STAGE/data/external"
-
-          cp -a \
-            data/external/. \
-            "$WITNESS_STAGE/data/external/"
-
-          echo "=== WITNESS PERSISTENCE LOOP ==="
-
-          SUCCESS=false
-
-          for attempt in 1 2 3 4 5
-          do
-            echo "----------------------------------------"
-            echo "Witness persistence attempt: $attempt"
-            echo "----------------------------------------"
-
-            git fetch origin main
-
-            REMOTE_SHA="$(git rev-parse origin/main)"
-
-            echo "Current remote main:"
-            echo "$REMOTE_SHA"
-
-            git reset --hard "$REMOTE_SHA"
-
-            mkdir -p data/external
-
-            cp -a \
-              "$WITNESS_STAGE/data/external/." \
-              data/external/
-
-            git add data/external/
-
-            if git diff --cached --quiet; then
-              echo "No new witness → skipping push"
-              SUCCESS=true
-              break
-            fi
-
-            git commit \
-              -m "External witness ingestion"
-
-            python analysis/push_guard.py
-
-            if git push \
-              --force-with-lease="refs/heads/main:$REMOTE_SHA" \
-              origin \
-              HEAD:main
-            then
-              echo "✅ External witness push succeeded."
-              SUCCESS=true
-              break
-            fi
-
-            echo "⚠️ Remote advanced during witness persistence."
-            echo "No rebase will be performed."
-            echo "Retrying from the new remote tip."
-
-            sleep 2
-          done
-
-          if [ "$SUCCESS" != true ]; then
-            echo "❌ External witness persistence failed safely."
-            echo "No force push and no silent rebase were performed."
-            exit 1
-          fi
-          
-      - name: Append to witness chain
-        run: |
-          python analysis/witness_chain.py "$(cat payload.json)"
+      - name: Upload witness as run artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: witness-run-${{ github.run_id }}
+          path: artifacts/witness_ingestion/
+          if-no-files-found: error
+          retention-days: 30
 
   external-collision:
     runs-on: ubuntu-24.04
