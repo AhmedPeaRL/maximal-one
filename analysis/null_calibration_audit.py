@@ -377,47 +377,40 @@ def main():
             )
         )
 
+    required_outer_replicates = int(
+        OUTER_REPLICATES
+    )
+
+    calibration_review_required = any(
+        result.get(
+            "outer_replicates_valid",
+            0
+        ) < required_outer_replicates
+        for result in results
+    )
+
     output = {
-        "audit":
-            "stationary_ar_null_calibration",
-
-        "protocol_version":
-            "1.1",
-
-        "seed":
-            AUDIT_SEED,
-
-        "max_ar_order":
-            20,
-
-        "outer_replicates":
-            OUTER_REPLICATES,
-
-        "inner_surrogates":
+        "audit": "stationary_ar_null_calibration",
+        "seed": AUDIT_SEED,
+        "outer_replicates_requested":
+            required_outer_replicates,
+        "inner_surrogates_requested":
             INNER_SURROGATES,
-
-        "alpha_threshold":
-            ALPHA_THRESHOLD,
-
-        "results":
-            results,
-
+        "minimum_valid_surrogates":
+            MIN_VALID_SURROGATES,
+        "results": results,
+        "calibration_review_required":
+            calibration_review_required,
         "scientific_role":
             "diagnostic_only",
-
         "claim_support":
             False,
-
-        "promotion_authority":
-            False,
-
         "interpretation":
             (
                 "Calibration diagnostics only. "
-                "No result from this audit may promote "
-                "the scientific claim. Calibration failure "
-                "blocks use of the tested procedure for "
-                "future confirmation but does not falsify "
+                "Any failed outer replicate is explicitly "
+                "reported. Insufficient valid outer replicates "
+                "block confirmation use but do not falsify "
                 "the scientific hypothesis."
             ),
     }
