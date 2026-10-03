@@ -1,0 +1,17 @@
+{
+  "epistemic_policy": {
+    "artifact_source_commit_is_explicit": true,
+    "persistence_does_not_promote_scientific_claim": true
+  },
+  "generated_at_unix": 1791008139.5449114,
+  "history_policy": {
+    "force_with_lease_used": true,
+    "non_fast_forward_override_used": false,
+    "rebase_used": false,
+    "remote_history_overwritten": false
+  },
+  "persistence_parent": "16d241a7a23f46b4de16ddb7808bf3cf642633a0",
+  "report_hash": "d066441f59dc85915db87d0c84fd8d95ccc5a23311c730e8dbf9d6ea06de1766",
+  "schema": "hcm.authoritative_persistence_provenance.v2",
+  "source_commit": "a6cb68b9b7910b4d64d50b08584905b85958bd49"
+}
