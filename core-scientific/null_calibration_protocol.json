@@ -33,25 +33,32 @@
       "name": "stationary_gaussian_ar_p",
       "selection": "AIC",
       "short_memory": true,
-      "role": "candidate_primary"
-    },
+      "role": "currently_implemented_calibration_candidate",
+      "implemented": true
+    }
+  ],
+
+  "future_candidate_null_families":[
     {
       "name": "stationary_gaussian_ar_p",
       "selection": "BIC",
       "short_memory": true,
-      "role": "candidate"
+      "role": "future_candidate",
+      "implemented": false
     },
     {
       "name": "IAAFT",
       "distribution_preserving": true,
-      "role": "candidate"
+      "role": "future_candidate",
+      "implemented": false
     },
     {
       "name": "ARFIMA",
       "long_memory": true,
-      "role": "candidate"
+      "role": "future_candidate",
+      "implemented": false
     }
-  ],
+  ]
 
   "calibration_data_generating_processes": [
     {
