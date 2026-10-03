@@ -2,12 +2,16 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 
 
 REPORT = Path("artifacts/canonical_report.json")
 SENSITIVITY = Path("artifacts/estimator_sensitivity_audit.json")
 OUTPUT = Path("public/scientific_report.md")
+
+
+EXPECTED_SENSITIVITY_SCHEMA = "1.0"
 
 
 def fmt(value, digits=6):
@@ -22,12 +26,201 @@ def load_json(path):
             f"Missing required artifact: {path}"
         )
 
-    return json.loads(
-        path.read_text(encoding="utf-8")
+    try:
+        return json.loads(
+            path.read_text(encoding="utf-8")
+        )
+    except json.JSONDecodeError as exc:
+        raise SystemExit(
+            f"Invalid JSON artifact: {path}: {exc}"
+        )
+
+
+def validate_sensitivity_artifact(
+    report,
+    sensitivity,
+):
+    schema_version = sensitivity.get(
+        "schema_version"
     )
+
+    if schema_version != EXPECTED_SENSITIVITY_SCHEMA:
+        raise SystemExit(
+            "Unsupported estimator sensitivity artifact schema. "
+            f"Expected schema_version={EXPECTED_SENSITIVITY_SCHEMA}, "
+            f"got {schema_version!r}."
+        )
+
+    summary = sensitivity.get("summary")
+
+    if not isinstance(summary, dict):
+        raise SystemExit(
+            "Estimator sensitivity artifact is invalid: "
+            "missing summary."
+        )
+
+    required_summary = (
+        "minimum_alpha",
+        "maximum_alpha",
+        "alpha_range",
+        "valid_configurations",
+    )
+
+    missing = [
+        key
+        for key in required_summary
+        if key not in summary
+    ]
+
+    if missing:
+        raise SystemExit(
+            "Estimator sensitivity artifact is invalid: "
+            "missing summary fields: "
+            + ", ".join(missing)
+        )
+
+    canonical_protocol = sensitivity.get(
+        "canonical_protocol"
+    )
+
+    if not isinstance(
+        canonical_protocol,
+        dict
+    ):
+        raise SystemExit(
+            "Estimator sensitivity artifact is invalid: "
+            "missing canonical_protocol."
+        )
+
+    spectral = report.get(
+        "spectral_profile"
+    )
+
+    if not isinstance(
+        spectral,
+        dict
+    ):
+        raise SystemExit(
+            "Canonical report is invalid: "
+            "missing spectral_profile."
+        )
+
+    report_alpha = spectral.get(
+        "estimated_alpha"
+    )
+
+    sensitivity_alpha = canonical_protocol.get(
+        "alpha"
+    )
+
+    if (
+        report_alpha is None
+        or sensitivity_alpha is None
+        or not math.isclose(
+            float(report_alpha),
+            float(sensitivity_alpha),
+            rel_tol=0.0,
+            abs_tol=1e-9,
+        )
+    ):
+        raise SystemExit(
+            "Estimator sensitivity artifact canonical alpha "
+            "does not match canonical_report.json."
+        )
+
+    report_band = (
+        spectral
+        .get("alpha_provenance", {})
+        .get("frequency_band")
+    )
+
+    sensitivity_band = canonical_protocol.get(
+        "frequency_band"
+    )
+
+    if report_band != sensitivity_band:
+        raise SystemExit(
+            "Estimator sensitivity artifact frequency band "
+            "does not match canonical_report.json."
+        )
+
+    report_nperseg = (
+        spectral
+        .get("alpha_provenance", {})
+        .get("nperseg")
+    )
+
+    sensitivity_nperseg = canonical_protocol.get(
+        "nperseg"
+    )
+
+    if int(report_nperseg) != int(
+        sensitivity_nperseg
+    ):
+        raise SystemExit(
+            "Estimator sensitivity artifact nperseg "
+            "does not match canonical_report.json."
+        )
+
+    valid_configurations = int(
+        summary["valid_configurations"]
+    )
+
+    if valid_configurations < 1:
+        raise SystemExit(
+            "Estimator sensitivity artifact reports "
+            "zero valid configurations."
+        )
+
+    minimum_alpha = float(
+        summary["minimum_alpha"]
+    )
+
+    maximum_alpha = float(
+        summary["maximum_alpha"]
+    )
+
+    alpha_range = float(
+        summary["alpha_range"]
+    )
+
+    if not all(
+        math.isfinite(value)
+        for value in (
+            minimum_alpha,
+            maximum_alpha,
+            alpha_range,
+        )
+    ):
+        raise SystemExit(
+            "Estimator sensitivity summary contains "
+            "non-finite values."
+        )
+
+    if minimum_alpha > maximum_alpha:
+        raise SystemExit(
+            "Estimator sensitivity summary is inconsistent: "
+            "minimum_alpha > maximum_alpha."
+        )
+
+    if not math.isclose(
+        alpha_range,
+        maximum_alpha - minimum_alpha,
+        rel_tol=0.0,
+        abs_tol=1e-9,
+    ):
+        raise SystemExit(
+            "Estimator sensitivity summary is inconsistent: "
+            "alpha_range does not equal maximum_alpha - minimum_alpha."
+        )
 
 
 def build(report, sensitivity):
+    validate_sensitivity_artifact(
+        report,
+        sensitivity,
+    )
+
     spectral = report["spectral_profile"]
     null = report["appropriate_stochastic_null"]
     method = report["cross_method_validation"]
@@ -307,7 +500,10 @@ support.
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--check", action="store_true")
+    parser.add_argument(
+        "--check",
+        action="store_true",
+    )
     args = parser.parse_args()
 
     report = load_json(REPORT)
@@ -315,7 +511,7 @@ def main():
 
     generated = build(
         report,
-        sensitivity
+        sensitivity,
     )
 
     if args.check:
@@ -343,12 +539,12 @@ def main():
 
     OUTPUT.parent.mkdir(
         parents=True,
-        exist_ok=True
+        exist_ok=True,
     )
 
     OUTPUT.write_text(
         generated,
-        encoding="utf-8"
+        encoding="utf-8",
     )
 
     print(
