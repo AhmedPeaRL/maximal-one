@@ -1,12 +1,10 @@
 import numpy as np
 
-def block_shuffle(series, block_size=50):
-    """
-    Stronger null model:
-    breaks long-range correlations
-    but keeps local structure
-    """
-
+def block_shuffle(
+    series,
+    rng,
+    block_size=None,
+):
     n = len(series)
 
     blocks = [
