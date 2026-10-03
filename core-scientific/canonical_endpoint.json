@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+
+  "endpoint_name": "canonical_primary_alpha",
+
+  "estimator": {
+    "name": "Welch_PSD",
+    "window": "hann",
+    "detrend": "linear",
+    "scaling": "density",
+    "noverlap_fraction": 0.5,
+    "nperseg": 1024,
+    "nfft": 1024,
+    "average": "mean",
+    "return_onesided": true
+  },
+
+  "frequency_band": [
+    0.01,
+    0.05
+  ],
+
+  "dataset": {
+    "path": "real-data/sunspots_full.csv",
+    "sha256_required": true
+  },
+
+  "seed": 42,
+
+  "posthoc_selection_forbidden": true,
+
+  "change_requires": [
+    "protocol_version_increment",
+    "fresh_confirmation_data",
+    "prospective_protocol_record"
+  ]
+}
