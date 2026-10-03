@@ -244,6 +244,16 @@ def main():
         frequency_band[1]
     )
 
+    primary_dataset_name = str(
+        claim.get(
+            "dataset",
+            {},
+        ).get(
+            "primary",
+            "sunspots_full.csv",
+        )
+    )
+
     required_replication_domains = int(
         claim.get(
             "dataset",
@@ -261,8 +271,17 @@ def main():
 
     for name, path in DATASETS.items():
 
-        # Derived/extended sunspot data is not counted as an
-        # independent real-domain replication dataset.
+        # The primary dataset can never count as a
+        # secondary independent replication domain.
+        primary = (
+            name == "sunspots"
+            or path.endswith(
+                primary_dataset_name
+            )
+        )
+
+        # Derived/extended data also cannot count as
+        # independent replication.
         derived = name in {
             "extended",
         }
@@ -275,11 +294,21 @@ def main():
             freq_max=freq_max,
         )
 
+        item["primary_domain"] = bool(
+            primary
+        )
+
         item["derived_domain"] = bool(
             derived
         )
 
-        if derived:
+        if primary:
+            item["eligible_for_replication"] = False
+            item["replication_exclusion_reason"] = (
+                "primary_domain_excluded_from_secondary_replication_count"
+            )
+
+        elif derived:
             item["eligible_for_replication"] = False
             item["replication_exclusion_reason"] = (
                 "derived_or_related_domain_excluded"
@@ -295,6 +324,10 @@ def main():
                 "eligible_for_replication"
             )
             is True
+            and item.get(
+                "primary_domain"
+            )
+            is False
             and item.get(
                 "derived_domain"
             )
