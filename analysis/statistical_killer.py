@@ -72,9 +72,12 @@ def main():
 
     real_alpha = estimate_alpha(series)
 
+    DIAGNOSTIC_SEED = 42
+
     null_alphas = build_null_distribution(
         series,
-        n=500
+        n=500,
+        seed=DIAGNOSTIC_SEED,
     )
 
     null_alphas = np.asarray(
@@ -123,6 +126,12 @@ def main():
         "evidence_role": "diagnostic_only",
         "protocol_role": "non_primary_diagnostic",
         "not_the_canonical_primary_null": True,
+
+        "seed": DIAGNOSTIC_SEED,
+        "reproducibility": {
+            "deterministic_for_fixed_seed": True,
+            "scope": "diagnostic_only",
+        },
 
         "real_alpha": float(real_alpha),
         "null_mean": null_mean,
