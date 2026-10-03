@@ -210,7 +210,7 @@ def run_case(
                 int(refit_order)
             )
 
-        if len(null_alphas) < 50:
+        if len(null_alphas) < MIN_VALID_SURROGATES:
             continue
 
         null = np.asarray(
@@ -294,6 +294,46 @@ def run_case(
 
         "rejection_rate_at_0_05":
             rejection_rate,
+
+        "calibration_dataset":
+            "synthetic_declared_ar_dgp",
+
+        "null_family":
+            "stationary_gaussian_AR_p",
+
+        "selection_rule":
+            "AIC_1_to_20",
+
+        "boundary_rate":
+            (
+                float(
+                    np.mean(
+                        np.asarray(
+                            surrogate_orders
+                        )
+                        == 20
+                    )
+                )
+                if surrogate_orders
+                else None
+            ),
+
+        "outer_replicates_failed":
+            (
+                OUTER_REPLICATES
+                - len(observed_alphas)
+            ),
+
+        "outer_replicate_failure_rate":
+            (
+                float(
+                    (
+                        OUTER_REPLICATES
+                        - len(observed_alphas)
+                    )
+                    / OUTER_REPLICATES
+                )
+            ),
 
         "fitted_order_summary":
             summarize_orders(
