@@ -1,0 +1,95 @@
+{
+  "claim_support": false,
+  "important_boundary": "This audit must not be used to choose an AR order or null family after observing a desired inferential outcome. Any new confirmatory order range must be declared before fresh validation data are analyzed.",
+  "interpretation": "AIC remains at the declared boundary through the entire 20/40/60 capacity audit. The finite AR short-memory null is therefore not sufficiently capacity-resolved for stronger confirmatory inference. A new null protocol must be prospectively declared before confirmation.",
+  "post_observation": true,
+  "primary": {
+    "dataset": "real-data/sunspots_full.csv",
+    "rows": 3328
+  },
+  "protocol": {
+    "criterion": "AIC",
+    "order_caps": [
+      20,
+      40,
+      60
+    ],
+    "primary_null_unchanged": true,
+    "purpose": "null_model_capacity_audit",
+    "stationarity_required": true,
+    "trend": "constant"
+  },
+  "results": [
+    {
+      "aic": 30528.333871269908,
+      "bic": 30662.624050505066,
+      "declared_max_order": 20,
+      "ljung_box": {
+        "10": {
+          "p_value": 0.9821098538810992,
+          "statistic": 2.9704970871924767
+        },
+        "20": {
+          "p_value": 0.9011210955447445,
+          "statistic": 12.413177817420568
+        },
+        "40": {
+          "p_value": 0.03715848738781127,
+          "statistic": 57.33042368235087
+        }
+      },
+      "residual_std": 24.257596523361425,
+      "selected_aic_order": 20,
+      "selected_at_boundary": true,
+      "stationary": true
+    },
+    {
+      "aic": 30308.561404313492,
+      "bic": 30564.67886407289,
+      "declared_max_order": 40,
+      "ljung_box": {
+        "10": {
+          "p_value": 0.9999999999927344,
+          "statistic": 0.03092004520877858
+        },
+        "20": {
+          "p_value": 1.0,
+          "statistic": 0.12846981117687245
+        },
+        "40": {
+          "p_value": 1.0,
+          "statistic": 0.7036555925476787
+        }
+      },
+      "residual_std": 23.980809215377047,
+      "selected_aic_order": 40,
+      "selected_at_boundary": true,
+      "stationary": true
+    },
+    {
+      "aic": 30154.192573584613,
+      "bic": 30531.892447855367,
+      "declared_max_order": 60,
+      "ljung_box": {
+        "10": {
+          "p_value": 0.9999999999998905,
+          "statistic": 0.013342818134147503
+        },
+        "20": {
+          "p_value": 1.0,
+          "statistic": 0.04233960982038658
+        },
+        "40": {
+          "p_value": 1.0,
+          "statistic": 0.5974866300179125
+        }
+      },
+      "residual_std": 23.942237866458477,
+      "selected_aic_order": 60,
+      "selected_at_boundary": true,
+      "stationary": true
+    }
+  ],
+  "scientific_claim_authority": false,
+  "status": "DIAGNOSTIC_ONLY"
+}
