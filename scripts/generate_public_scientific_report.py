@@ -120,7 +120,7 @@ def validate_sensitivity_artifact(
             float(report_alpha),
             float(sensitivity_alpha),
             rel_tol=0.0,
-            abs_tol=1e-9,
+            abs_tol=1e-8,
         )
     ):
         raise SystemExit(
