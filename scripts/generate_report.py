@@ -38,7 +38,7 @@ def generate_series(rng, n=1024):
 
     return x
 
-def stable_float(x, digits=6):
+def stable_float(x, digits=8):
     return float(round(x, digits))
 
 def main():
