@@ -139,6 +139,77 @@ jobs:
           path: artifacts/null_calibration_gate.json
           if-no-files-found: error
 
+      - name: Dataset eligibility gate
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python analysis/dataset_eligibility_gate.py
+
+          test -s \
+            artifacts/dataset_eligibility_gate.json
+
+      - name: Upload dataset eligibility artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dataset-eligibility-gate
+          path: artifacts/dataset_eligibility_gate.json
+          if-no-files-found: error
+
+      - name: Enforce dataset eligibility contract
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python - <<'PY'
+          import json
+
+          path = "artifacts/dataset_eligibility_gate.json"
+
+          with open(path, encoding="utf-8") as f:
+              data = json.load(f)
+
+          required = int(
+              data["minimum_replication_domains"]
+          )
+
+          available = int(
+              data["eligible_replication_domain_count"]
+          )
+
+          print(
+              f"Eligible replication domains: "
+              f"{available}/{required}"
+          )
+
+          if available < required:
+              raise SystemExit(
+                  "❌ Dataset replication eligibility "
+                  "is insufficient."
+              )
+
+          print(
+              "✅ Dataset eligibility contract satisfied."
+          )
+          PY
+
+      - name: Permutation determinism audit
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python analysis/permutation_determinism_audit.py
+
+          test -s \
+            artifacts/permutation_determinism_audit.json
+
+      - name: Upload permutation determinism artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: permutation-determinism-audit
+          path: artifacts/permutation_determinism_audit.json
+          if-no-files-found: error
+
       - name: Run independent domain replication gate
         shell: bash
         run: |
