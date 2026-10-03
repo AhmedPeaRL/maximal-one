@@ -286,10 +286,28 @@ def main():
     )
 
     print(
-        "Passed:",
+        "Independent real-domain measurements available:",
+        sum(
+            1
+            for item in domains
+            if item.get("measurement_valid") is True
+        )
+    )
+
+    print(
+        "Independent scientific replications established:",
         passed,
         "/",
         MIN_REQUIRED
+    )
+
+    print(
+        "Measurement availability is not scientific replication."
+    )
+
+    print(
+        "Replication requires domain-level rejection of "
+        "the same declared primary stochastic null."
     )
 
     print(
