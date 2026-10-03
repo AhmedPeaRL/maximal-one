@@ -73,6 +73,13 @@ jobs:
           echo "Verified workflow commit:"
           echo "$actual_head"
 
+      - name: Validate repository JSON integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python analysis/json_integrity_guard.py
+
       - name: Regenerate canonical report from this exact checkout
         shell: bash
         run: |
