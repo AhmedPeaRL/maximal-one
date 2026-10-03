@@ -1,0 +1,55 @@
+{
+  "protocol_version": "1.0",
+  "status": "CALIBRATION_ONLY",
+  "scientific_claim_authority": false,
+  "promotion_authority": false,
+
+  "purpose": "Prospective calibration of candidate stochastic null families before any future confirmation analysis.",
+
+  "confirmation_data_must_not_be_used_for_null_selection": true,
+
+  "candidate_null_families": [
+    {
+      "name": "stationary_gaussian_ar_p",
+      "selection": "BIC",
+      "short_memory": true
+    },
+    {
+      "name": "stationary_gaussian_ar_p",
+      "selection": "AIC",
+      "short_memory": true
+    },
+    {
+      "name": "IAAFT",
+      "short_memory": false,
+      "distribution_preserving": true
+    },
+    {
+      "name": "ARFIMA",
+      "long_memory": true
+    }
+  ],
+
+  "selection_rules": {
+    "must_be_declared_before_confirmation": true,
+    "must_not_use_confirmation_alpha": true,
+    "must_not_select_by_smallest_p_value": true,
+    "must_not_select_by_favorable_claim_outcome": true,
+    "adequacy_metrics_must_be_predeclared": true
+  },
+
+  "required_outputs": [
+    "null_family",
+    "selection_rule",
+    "calibration_dataset",
+    "seed",
+    "trial_count",
+    "failure_rate",
+    "boundary_rate",
+    "distributional_diagnostics",
+    "spectral_diagnostics",
+    "decision_rule"
+  ],
+
+  "promotion_rule": "No calibrated null family becomes confirmatory merely because it produces a favorable result."
+}
