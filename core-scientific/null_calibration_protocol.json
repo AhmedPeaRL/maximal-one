@@ -4,29 +4,11 @@
   "scientific_claim_authority": false,
   "promotion_authority": false,
 
-  "purpose": "Prospective calibration of candidate stochastic null families before any future confirmation analysis.",
+  "purpose": "Prospective calibration of the declared primary stochastic null procedure before any confirmatory use.",
 
-  "confirmation_data_must_not_be_used_for_null_selection": true,
-  "primary_confirmation_dataset": "real-data/sunspots_full.csv",
-  "primary_confirmation_dataset_must_not_be_used_for_calibration": true,
-
-  "calibration_data_policy": {
-    "must_be_distinct_from_confirmation_data": true,
-    "must_not_be_derived_from_confirmation_data": true,
-    "must_not_use_confirmation_alpha": true,
-    "must_not_use_confirmation_p_value": true,
-    "must_not_use_confirmation_outcome_for_selection": true,
-    "data_generating_processes_must_be_declared_before_execution": true,
-    "seed_must_be_declared_before_execution": true
-  },
-
-  "calibration_objectives": {
-    "type_i_error_control": true,
-    "p_value_calibration": true,
-    "surrogate_validity": true,
-    "order_selection_boundary_behavior": true,
-    "finite_failure_rate": true
-  },
+  "confirmation_data_excluded": [
+    "real-data/sunspots_full.csv"
+  ],
 
   "candidate_null_families": [
     {
@@ -38,7 +20,7 @@
     }
   ],
 
-  "future_candidate_null_families":[
+  "future_candidate_null_families": [
     {
       "name": "stationary_gaussian_ar_p",
       "selection": "BIC",
@@ -60,88 +42,69 @@
     }
   ],
 
-  "calibration_data_generating_processes": [
+  "data_generating_processes": [
     {
-      "name": "AR1_phi_0_7",
-      "family": "stationary_gaussian_ar",
-      "parameters": {
-        "phi": [0.7]
-      }
+      "name": "ar1_phi_0_7",
+      "phi": [0.7]
     },
     {
-      "name": "AR2_phi_0_5_0_2",
-      "family": "stationary_gaussian_ar",
-      "parameters": {
-        "phi": [0.5, 0.2]
-      }
+      "name": "ar2_phi_0_5_0_2",
+      "phi": [0.5, 0.2]
     }
   ],
 
-  "calibration_sample_length": 3328,
+  "sample_length": 3328,
 
-  "calibration_replicates": {
-    "outer_replicates": 50,
-    "inner_surrogates": 200,
-    "minimum_valid_surrogates": 200
-  },
+  "outer_replicates": 50,
 
-  "declared_seed": 90210,
+  "inner_surrogates": 200,
 
-  "primary_endpoint": {
-    "name": "canonical_primary_alpha",
-    "estimator": "Welch_PSD",
-    "frequency_band": [0.01, 0.05],
-    "nperseg": 1024
-  },
+  "minimum_valid_surrogates": 200,
 
-  "calibration_metrics": [
-    "empirical_rejection_rate_at_0_05",
+  "seed": 90210,
+
+  "burn_in": 2000,
+
+  "decision_threshold": 0.05,
+
+  "endpoint": "canonical_primary_alpha",
+
+  "direction": "greater_than_null",
+
+  "tail": "upper",
+
+  "metrics": [
+    "empirical_rejection_rate",
     "p_value_quantiles",
     "surrogate_boundary_fraction",
     "observed_fit_boundary_fraction",
-    "surrogate_alpha_failure_rate",
-    "refit_failure_rate"
+    "alpha_failure_rate",
+    "refit_failure_rate",
+    "outer_replicate_failure_rate"
   ],
 
-  "selection_rules": {
-    "must_be_declared_before_confirmation": true,
-    "must_not_use_confirmation_alpha": true,
-    "must_not_use_confirmation_p_value": true,
-    "must_not_select_by_smallest_p_value": true,
-    "must_not_select_by_favorable_claim_outcome": true,
-    "must_not_select_after_observing_confirmation_result": true,
-    "adequacy_metrics_must_be_predeclared": true
+  "selection_policy": {
+    "selection_is_declared_before_confirmation": true,
+    "confirmation_data_must_not_select_null_family": true,
+    "smallest_observed_p_value_must_not_select_null_family": true,
+    "favorable_observation_must_not_select_null_family": true,
+    "post_observation_null_selection_is_not_confirmatory": true
   },
 
-  "decision_policy": {
-    "calibration_failure_blocks_confirmation_use": true,
-    "calibration_failure_does_not_falsify_the_scientific_hypothesis": true,
-    "calibration_failure_does_not_authorize_switching_to_a_favorable_null": true,
-    "candidate_nulls_must_be_compared_by_predeclared_adequacy_metrics": true,
-    "no_candidate_is_promoted_solely_from_a_favorable_confirmation_result": true
+  "failure_policy": {
+    "insufficient_valid_outer_replicates": "BLOCK_CONFIRMATION_USE",
+    "surrogate_failure": "REPORT_AND_REVIEW",
+    "boundary_saturation": "REQUIRE_MODEL_CAPACITY_REVIEW",
+    "calibration_failure_does_not_falsify_hypothesis": true,
+    "calibration_failure_does_not_authorize_favorable_null": true
   },
 
-  "required_outputs": [
-    "protocol_version",
-    "calibration_dataset",
-    "data_generating_process",
-    "seed",
-    "outer_replicates",
-    "inner_surrogates",
-    "null_family",
-    "selection_rule",
-    "empirical_rejection_rate",
-    "p_value_quantiles",
-    "boundary_rate",
-    "failure_rate",
-    "decision"
-  ],
+  "promotion_policy": {
+    "calibration_alone_cannot_establish_claim": true,
+    "calibration_cannot_count_as_real_domain_replication": true,
+    "null_family_cannot_become_confirmatory_only_because_it_favors_observation": true,
+    "fresh_prospective_validation_required": true
+  },
 
-  "promotion_rule": "No calibrated null family becomes confirmatory merely because it produces a favorable result on the existing observation.",
-
-  "scientific_role": "calibration_only",
-
-  "claim_support": false,
-
-  "final_statement": "Calibration establishes properties of the null-testing procedure under declared calibration processes. It does not establish the spectral persistence hypothesis and does not count as independent scientific replication."
+  "final_epistemic_statement": "This calibration protocol evaluates whether the declared stochastic-null procedure behaves as intended under known stationary short-memory data-generating processes. It does not establish the spectral persistence hypothesis."
 }
