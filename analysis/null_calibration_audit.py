@@ -381,12 +381,81 @@ def main():
         OUTER_REPLICATES
     )
 
-    calibration_review_required = any(
-        result.get(
-            "outer_replicates_valid",
-            0
-        ) < required_outer_replicates
-        for result in results
+    BOUNDARY_FRACTION_REVIEW_THRESHOLD = 0.50
+
+    review_reasons = []
+
+    for result in results:
+        valid_outer = int(
+            result.get(
+                "outer_replicates_valid",
+                0
+            )
+        )
+
+        if valid_outer < required_outer_replicates:
+            review_reasons.append(
+                {
+                    "case": result.get("case"),
+                    "reason": "insufficient_valid_outer_replicates",
+                    "outer_replicates_valid": valid_outer,
+                    "outer_replicates_required":
+                    required_outer_replicates,
+                }
+            )
+
+        fitted_boundary = (
+            result.get(
+                "fitted_order_summary",
+                {}
+            ).get(
+                "boundary_fraction"
+            )
+        )
+
+        surrogate_boundary = (
+            result.get(
+                "surrogate_order_summary",
+                {}
+            ).get(
+                "boundary_fraction"
+            )
+        )
+
+        if (
+            fitted_boundary is not None
+            and float(fitted_boundary)
+            >= BOUNDARY_FRACTION_REVIEW_THRESHOLD
+        ):
+            review_reasons.append(
+                {
+                    "case": result.get("case"),
+                    "reason": "observed_fit_boundary_fraction_exceeds_review_threshold",
+                    "boundary_fraction":
+                        float(fitted_boundary),
+                    "threshold":
+                        BOUNDARY_FRACTION_REVIEW_THRESHOLD,
+                }
+            )
+
+        if (
+            surrogate_boundary is not None
+            and float(surrogate_boundary)
+            >= BOUNDARY_FRACTION_REVIEW_THRESHOLD
+        ):
+            review_reasons.append(
+                {
+                    "case": result.get("case"),
+                    "reason": "surrogate_boundary_fraction_exceeds_review_threshold",
+                    "boundary_fraction":
+                        float(surrogate_boundary),
+                    "threshold":
+                        BOUNDARY_FRACTION_REVIEW_THRESHOLD,
+                }
+            )
+
+    calibration_review_required = bool(
+        review_reasons
     )
 
     output = {
@@ -401,6 +470,27 @@ def main():
         "results": results,
         "calibration_review_required":
             calibration_review_required,
+
+        "model_capacity_review": {
+            "boundary_fraction_threshold":
+                BOUNDARY_FRACTION_REVIEW_THRESHOLD,
+            "review_triggered":
+                bool(calibration_review_required),
+            "review_reasons":
+                review_reasons,
+            "scientific_role":
+                "diagnostic_only",
+            "claim_support":
+                False,
+            "interpretation":
+                (
+                    "A high boundary fraction indicates that the declared "
+                    "AR order range may be capacity-limited. This triggers "
+                    "model-capacity review but does not itself establish "
+                    "or falsify the scientific hypothesis."
+                ),
+        },
+        
         "scientific_role":
             "diagnostic_only",
         "claim_support":
