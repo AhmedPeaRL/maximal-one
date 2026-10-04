@@ -7,17 +7,21 @@ import numpy as np
 
 from analysis.load_real_datasets import (
     DATASETS,
-    load_series
+    load_series,
 )
 
 from analysis.numerical_spectral_verification import (
-    estimate_alpha
+    estimate_alpha,
 )
 
 from analysis.appropriate_stochastic_null import (
-    parametric_short_memory_null
+    parametric_short_memory_null,
 )
 
+
+CLAIM_PATH = Path(
+    "core-scientific/strict_claim.json"
+)
 
 OUTPUT = Path(
     "artifacts/independent_domain_replication_gate.json"
@@ -25,19 +29,74 @@ OUTPUT = Path(
 
 REQUIRED_DOMAINS = [
     "co2",
-    "cosmic_rays"
+    "cosmic_rays",
 ]
 
-MIN_REQUIRED = 2
 TRIALS = 1000
 BASE_SEED = 42000
-REPLICATION_MIN_SERIES_LENGTH = 1024
+
+
+def load_replication_policy():
+    if not CLAIM_PATH.exists():
+        raise SystemExit(
+            f"Missing strict claim specification: {CLAIM_PATH}"
+        )
+
+    claim = json.loads(
+        CLAIM_PATH.read_text(
+            encoding="utf-8"
+        )
+    )
+
+    dataset = claim.get(
+        "dataset",
+        {},
+    )
+
+    replication = dataset.get(
+        "independent_replication",
+        {},
+    )
+
+    eligibility = dataset.get(
+        "eligibility_policy",
+        {},
+    )
+
+    return {
+        "minimum_domains": int(
+            replication.get(
+                "minimum_domains",
+                2,
+            )
+        ),
+        "measurement_minimum_length": int(
+            eligibility.get(
+                "minimum_series_length",
+                256,
+            )
+        ),
+        "replication_minimum_length": int(
+            eligibility.get(
+                "replication_minimum_series_length",
+                1024,
+            )
+        ),
+        "canonical_nperseg": int(
+            eligibility.get(
+                "canonical_nperseg",
+                1024,
+            )
+        ),
+    }
 
 
 def finite(x):
     try:
         return bool(
-            np.isfinite(float(x))
+            np.isfinite(
+                float(x)
+            )
         )
     except Exception:
         return False
@@ -45,16 +104,39 @@ def finite(x):
 
 def evaluate_domain(
     name,
-    seed
+    seed,
+    policy,
 ):
     path = DATASETS[name]
 
+    rows = 0
+
     try:
-        x = load_series(path)
+        x = load_series(
+            path
+        )
 
-        rows = int(len(x))
+        rows = int(
+            len(x)
+        )
 
-        if rows < REPLICATION_MIN_SERIES_LENGTH:
+        if rows < policy["measurement_minimum_length"]:
+            return {
+                "name": name,
+                "path": path,
+                "rows": rows,
+                "measurement_valid": False,
+                "replication_eligible": False,
+                "scientific_replication": False,
+                "replication_status":
+                    "INVALID_MEASUREMENT",
+                "reason": (
+                    "Series is shorter than the declared "
+                    "measurement minimum."
+                ),
+            }
+
+        if rows < policy["replication_minimum_length"]:
             return {
                 "name": name,
                 "path": path,
@@ -65,24 +147,29 @@ def evaluate_domain(
                 "replication_status":
                     "INELIGIBLE_REPLICATION_DOMAIN",
                 "reason": (
-                    "Measurement is available, but the series is "
-                    "shorter than the declared replication minimum "
-                    "of 1024 observations."
+                    "Measurement is available, but the series "
+                    "is shorter than the declared replication "
+                    "minimum. Adaptive nperseg does not override "
+                    "replication eligibility."
                 ),
             }
 
-        alpha = estimate_alpha(x)
+        alpha = estimate_alpha(
+            x
+        )
 
         if not finite(alpha):
             return {
                 "name": name,
                 "path": path,
+                "rows": rows,
                 "measurement_valid": False,
+                "replication_eligible": False,
                 "scientific_replication": False,
                 "replication_status":
                     "INVALID_MEASUREMENT",
                 "reason":
-                    "canonical alpha is not finite"
+                    "canonical alpha is not finite",
             }
 
         rng = np.random.default_rng(
@@ -94,7 +181,7 @@ def evaluate_domain(
                 x,
                 float(alpha),
                 rng,
-                trials=TRIALS
+                trials=TRIALS,
             )
         )
 
@@ -132,7 +219,8 @@ def evaluate_domain(
         null_rejected = bool(
             null_result.get(
                 "reject_at_0_05"
-            ) is True
+            )
+            is True
         )
 
         replication = bool(
@@ -140,11 +228,13 @@ def evaluate_domain(
             and
             null_result.get(
                 "valid"
-            ) is True
+            )
+            is True
             and
             null_result.get(
                 "support_eligible"
-            ) is True
+            )
+            is True
             and
             null_rejected
         )
@@ -152,9 +242,11 @@ def evaluate_domain(
         return {
             "name": name,
             "path": path,
-            "rows": int(len(x)),
+            "rows": rows,
             "alpha": float(alpha),
+
             "measurement_valid": True,
+            "replication_eligible": True,
 
             "same_endpoint": bool(
                 null_result.get(
@@ -200,7 +292,8 @@ def evaluate_domain(
                 else "REPLICATION_NOT_ESTABLISHED"
             ),
 
-            "null_result": null_result,
+            "null_result":
+                null_result,
 
             "reason": (
                 "Independent replication requires "
@@ -208,7 +301,7 @@ def evaluate_domain(
                 "declared primary stochastic null "
                 "using the same endpoint, direction, "
                 "tail, and null family."
-            )
+            ),
         }
 
     except Exception as exc:
@@ -216,16 +309,23 @@ def evaluate_domain(
             "name": name,
             "path": path,
             "rows": rows,
-            "measurement_valid": True,
-            "replication_eligible": True,
+            "measurement_valid": False,
+            "replication_eligible": False,
             "scientific_replication": False,
             "replication_status":
                 "INVALID_MEASUREMENT",
-            "reason": str(exc)
+            "reason": str(exc),
         }
 
 
 def main():
+
+    policy = load_replication_policy()
+
+    required_domains = int(
+        policy["minimum_domains"]
+    )
+
     domains = []
 
     for index, name in enumerate(
@@ -234,7 +334,8 @@ def main():
         domains.append(
             evaluate_domain(
                 name,
-                BASE_SEED + index
+                BASE_SEED + index,
+                policy,
             )
         )
 
@@ -249,7 +350,7 @@ def main():
 
     status = (
         "REPLICATION_ESTABLISHED"
-        if passed >= MIN_REQUIRED
+        if passed >= required_domains
         else "REPLICATION_NOT_ESTABLISHED"
     )
 
@@ -260,7 +361,7 @@ def main():
         "promotion_authority": False,
 
         "minimum_required":
-            MIN_REQUIRED,
+            required_domains,
 
         "passed_independent_domains":
             passed,
@@ -275,32 +376,46 @@ def main():
             "tail":
                 "upper",
             "trials":
-                TRIALS
+                TRIALS,
         },
 
-        "domains": domains,
+        "eligibility_policy": {
+            "measurement_minimum_series_length":
+                policy["measurement_minimum_length"],
+            "replication_minimum_series_length":
+                policy["replication_minimum_length"],
+            "canonical_nperseg":
+                policy["canonical_nperseg"],
+            "measurement_validity_is_not_replication":
+                True,
+        },
+
+        "domains":
+            domains,
 
         "interpretation": (
             "A valid alpha measurement is not "
-            "scientific replication. Each independent "
-            "real domain must independently reject the "
-            "same declared primary stochastic null "
-            "under the same endpoint and direction."
-        )
+            "scientific replication. A replication-eligible "
+            "domain is also not scientific replication until "
+            "that domain independently rejects the same "
+            "declared primary stochastic null under the "
+            "same endpoint, direction, tail, and null family."
+        ),
     }
 
     OUTPUT.parent.mkdir(
         parents=True,
-        exist_ok=True
+        exist_ok=True,
     )
 
     OUTPUT.write_text(
         json.dumps(
             report,
             indent=2,
-            sort_keys=True
-        ) + "\n",
-        encoding="utf-8"
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
     )
 
     print(
@@ -308,33 +423,47 @@ def main():
     )
 
     print(
-        "Independent real-domain measurements available:",
+        "Measurement-valid independent domains:",
         sum(
             1
             for item in domains
-            if item.get("measurement_valid") is True
-        )
+            if item.get(
+                "measurement_valid"
+            )
+                is True
+        ),
     )
 
     print(
-        "Independent scientific replications established:",
+        "Replication-eligible independent domains:",
+        sum(
+            1
+            for item in domains
+            if item.get(
+                "replication_eligible"
+            )
+                is True
+        ),
+    )
+
+    print(
+        "Scientific replications established:",
         passed,
         "/",
-        MIN_REQUIRED
+        required_domains,
     )
 
     print(
-        "Measurement availability is not scientific replication."
+        "Measurement eligibility is not scientific replication."
     )
 
     print(
-        "Replication requires domain-level rejection of "
-        "the same declared primary stochastic null."
+        "Replication eligibility is not scientific replication."
     )
 
     print(
         "Status:",
-        status
+        status,
     )
 
 
