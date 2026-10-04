@@ -317,11 +317,22 @@ def validate_strict_contract(
         {},
     )
 
-    independent_secondary_domains = int(
+    measurement_valid_secondary_domains = int(
         cross_domain.get(
-            "independent_secondary_real_domains",
+            "measurement_valid_secondary_real_domains",
+            0,
+        )
+    )
+
+    replication_eligible_secondary_domains = int(
+        cross_domain.get(
+            "replication_eligible_secondary_real_domains",
             independent_domains,
         )
+    )
+
+    independent_secondary_domains = (
+        replication_eligible_secondary_domains
     )
 
     primary_real_domain_available = bool(
@@ -597,6 +608,12 @@ def validate_strict_contract(
 
             "independent_secondary_real_domains":
                 independent_secondary_domains,
+
+            "measurement_valid_secondary_domains":
+                measurement_valid_secondary_domains,
+
+            "replication_eligible_secondary_domains":
+                replication_eligible_secondary_domains,
 
             "primary_real_domain_available":
                 primary_real_domain_available,
