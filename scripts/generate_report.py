@@ -1225,12 +1225,25 @@ def main():
                 ) == 1
         )
 
-        independent_secondary_real_domains = int(
+        measurement_valid_secondary_domains = int(
             canonical_consensus.get(
                 "independent_secondary_real_domains",
                 {}
             ).get(
-                "count",
+                "measurement_valid_count",
+                canonical_consensus.get(
+                    "measurement_valid_real_domains",
+                    canonical_consensus.get(
+                        "valid_real_domains",
+                        0,
+                    ),
+                ),
+            )
+        )
+
+        replication_eligible_real_domains = int(
+            canonical_consensus.get(
+                "replication_eligible_real_domains",
                 0,
             )
         )
@@ -1241,7 +1254,7 @@ def main():
                 or primary_real_domain_available
             )
             and
-            independent_secondary_real_domains
+            replication_eligible_real_domains
             >= MIN_INDEPENDENT_SECONDARY_REAL_DOMAINS
         )
 
@@ -1486,7 +1499,7 @@ def main():
                     primary_real_domain_available
                 ),
                 "measurement_valid_secondary_real_domains": int(
-                    measurement_valid_real_domains
+                    measurement_valid_secondary_domains
                 ),
                 "replication_eligible_secondary_real_domains": int(
                     replication_eligible_real_domains
