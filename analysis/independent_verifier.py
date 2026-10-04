@@ -305,13 +305,6 @@ def validate_strict_contract(
         {},
     )
 
-    independent_domains = int(
-        consensus_guard.get(
-            "independent_real_domains",
-            0,
-        )
-    )
-
     cross_domain = report.get(
         "cross_domain_replication",
         {},
@@ -327,10 +320,16 @@ def validate_strict_contract(
     replication_eligible_secondary_domains = int(
         cross_domain.get(
             "replication_eligible_secondary_real_domains",
-            independent_domains,
+            0,
         )
     )
 
+    # Fail closed:
+    # absence of the canonical replication-eligibility
+    # field means zero replication-eligible domains.
+    #
+    # Measurement validity must never be silently promoted
+    # to replication eligibility.
     independent_secondary_domains = (
         replication_eligible_secondary_domains
     )
