@@ -71,6 +71,24 @@ In particular, the current permutation result:
 
 is diagnostic-only and does not replace the primary stochastic-null result.
 
+
+### Why two different p-values appear
+
+The repository reports two statistically distinct null procedures.
+
+The permutation-null result (p ≈ 0.0002) is diagnostic only. It tests
+exchangeability of temporal ordering and is not the authoritative
+scientific endpoint.
+
+The primary scientific endpoint uses the declared fitted stationary
+Gaussian AR(p) null with AIC order selection and surrogate refitting.
+For the current canonical dataset, this test gives p ≈ 0.999001 and
+does not reject the null.
+
+These values are therefore not contradictory: they answer different
+null-model questions. The primary stochastic null controls scientific
+claim support; the permutation result remains diagnostic only.
+
 ---
 
 ## Null Calibration Status
@@ -289,8 +307,27 @@ See:
 
 ## Execution
 
-```bash
-pip install -r requirements.txt
-python master_experiment.py
+The canonical scientific pipeline must be run through the declared
+canonical-report workflow, not through the legacy `master_experiment.py`
+script.
 
-All outputs are deterministic under controlled seeds and constrained environments, subject to reproducibility limits of underlying infrastructure.
+The resulting report is subject to the repository's scientific gates, including:
+
+- JSON integrity validation
+- canonical report identity and consistency checks
+- estimator sensitivity validation
+- primary stochastic-null testing
+- dataset eligibility validation
+- independent-domain replication requirements
+- adversarial controls
+- clean-checkout computational reproducibility checks
+
+master_experiment.py is retained as legacy experimental code and is not the authoritative scientific execution path.
+
+No output from the legacy experiment should be interpreted as evidence for the current scientific claim.
+
+For the canonical primary report:
+
+```bash
+python scripts/prepare_canonical_inputs.py
+python scripts/generate_report.py --seed 42 --canonical
