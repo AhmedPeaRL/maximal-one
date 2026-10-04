@@ -39,8 +39,19 @@ def _stationary_fit(series):
 
     max_order = min(
         MAX_AR_ORDER,
-        max(MIN_AR_ORDER, len(x) // 10),
+        max(
+            MIN_AR_ORDER,
+            len(x) // 10,
+        ),
     )
+
+    # IMPORTANT:
+    # Every candidate order must be evaluated on the same
+    # effective observations. Without a fixed hold_back,
+    # AutoReg uses a different number of observations for
+    # different lag orders, making information-criterion
+    # comparisons across orders non-comparable.
+    hold_back = int(max_order)
 
     for order in range(
         MIN_AR_ORDER,
@@ -52,6 +63,7 @@ def _stationary_fit(series):
                 lags=order,
                 trend="c",
                 old_names=False,
+                hold_back=hold_back,
             ).fit()
         except Exception:
             continue
