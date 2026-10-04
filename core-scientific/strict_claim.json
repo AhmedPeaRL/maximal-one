@@ -57,7 +57,6 @@
       "estimator_minimum_is_not_replication_minimum": true,
       "estimator_minimum_reason":
         "With the canonical 0.01-0.05 frequency band and a minimum requirement of 20 strictly interior frequency bins, the shortest series that can satisfy the canonical estimator is 512 samples. This is an implementation-validity constraint, not an evidence-strength criterion.",
-      
       "nonfinite_alpha_excludes_domain_from_replication": true,
       "adaptive_nperseg_does_not_override_frequency_bin_validity": true,
       "ineligible_domains_must_be_reported": true,
@@ -154,7 +153,7 @@
       "tail": "upper",
       "interpretation": "The hypothesized persistence signature is operationalized as an elevated canonical spectral exponent relative to the declared short-memory null. A lower-than-null alpha is not treated as support."
     },
-   
+
     "order_selection": {
       "criterion": "AIC",
       "min_order": 1,
@@ -163,21 +162,46 @@
       "stationarity_required": true
     },
 
+    "capacity_review_gate": {
+      "status": "blocked",
+      "reason": "Declared AIC order-selection capacity is boundary-saturated in diagnostic calibration.",
+      "current_primary_result_usable_for_claim_promotion": false,
+      "fresh_primary_reanalysis_required_after_protocol_change": true,
+      "fresh_null_calibration_required_after_protocol_change": true,
+      "historical_results_must_not_be_reused_as_confirmatory_evidence": true
+    }
+
     "model_capacity_review": {
-      "status": "post_observation_protocol_amendment",
+      "status": "review_required_capacity_limit_detected",
       "preregistered_confirmation": false,
       "boundary_fraction_threshold": 0.50,
+   
       "review_applies_to": [
         "observed_fit",
         "surrogate_refits"
       ],
+     
       "review_trigger": "boundary_fraction >= boundary_fraction_threshold",
       "failure_policy": "fresh_model_capacity_review_required",
       "scientific_role": "diagnostic_only",
       "does_not_support_claim": true,
       "does_not_falsify_claim_by_itself": true,
-      "claim_promotion_blocked_until_review": true
-    },
+      "claim_promotion_blocked_until_review": true,
+    
+      "current_review_result": {
+        "status": "triggered",
+        "aic_boundary_fraction_ar1": 0.94,
+        "aic_boundary_fraction_ar2": 0.94,
+        "calibration_observed_boundary_fraction_ar1": 0.98,
+        "calibration_surrogate_boundary_fraction_ar1": 0.9429,
+        "calibration_observed_boundary_fraction_ar2": 1.0,
+        "calibration_surrogate_boundary_fraction_ar2": 0.9348,
+        "decision": "do_not_promote_claim",
+        "fresh_validation_required": true
+      },
+     
+      "null_criterion_change_allowed_without_fresh_validation": false
+    }
    
     "bootstrap_trials": 1000,
     "minimum_valid_surrogates": 200,
