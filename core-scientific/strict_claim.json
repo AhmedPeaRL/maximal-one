@@ -169,7 +169,7 @@
       "fresh_primary_reanalysis_required_after_protocol_change": true,
       "fresh_null_calibration_required_after_protocol_change": true,
       "historical_results_must_not_be_reused_as_confirmatory_evidence": true
-    }
+    },
 
     "model_capacity_review": {
       "status": "review_required_capacity_limit_detected",
@@ -201,7 +201,7 @@
       },
      
       "null_criterion_change_allowed_without_fresh_validation": false
-    }
+    },
    
     "bootstrap_trials": 1000,
     "minimum_valid_surrogates": 200,
