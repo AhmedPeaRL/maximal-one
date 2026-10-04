@@ -186,10 +186,10 @@ const crossDomainStd =
     crossDomain.real_domain_std
   );
 
-const independentDomains =
+const replicationEligibleDomains =
   Number(
     crossDomain
-      .independent_secondary_real_domains
+      .replication_eligible_secondary_real_domains
       ?? 0
   );
 
@@ -208,13 +208,14 @@ assert(
 );
 
 assert(
-  independentDomains >=
+  replicationEligibleDomains >=
     Number(
       expected
         .min_independent_secondary_real_domains
     ),
   (
-    `independent secondary domains=${independentDomains} ` +
+    `replication-eligible independent secondary domains=` +
+    `${replicationEligibleDomains} ` +
     "below declared minimum"
   )
 );
