@@ -41,6 +41,129 @@ jobs:
         run: |
           python analysis/null_calibration_audit.py
 
+      - name: Verify diagnostic-only calibration contract
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python - <<'PY'
+          import json
+
+          path = "artifacts/null_calibration_audit.json"
+
+          with open(path, encoding="utf-8") as f:
+              data = json.load(f)
+
+          if data.get("scientific_role") != "diagnostic_only":
+              raise SystemExit(
+                  "❌ Null calibration audit must be diagnostic_only."
+              )
+
+          if data.get("claim_support") is not False:
+              raise SystemExit(
+                  "❌ Null calibration audit must never support claim promotion."
+              )
+
+          if data.get("seed") != 90210:
+              raise SystemExit(
+                  "❌ Unexpected calibration audit seed."
+              )
+
+          if data.get("outer_replicates_requested") != 50:
+              raise SystemExit(
+                  "❌ Calibration requires 50 outer replicates."
+              )
+
+          if data.get("inner_surrogates_requested") != 200:
+              raise SystemExit(
+                  "❌ Calibration requires 200 requested inner surrogates."
+              )
+
+          if data.get("minimum_valid_surrogates") != 200:
+              raise SystemExit(
+                  "❌ Calibration requires 200 minimum valid surrogates."
+              )
+
+          expected_cases = {
+              "ar1_phi_0_7",
+              "ar2_phi_0_5_0_2",
+          }
+
+          results = data.get("results", [])
+
+          actual_cases = {
+              item.get("case")
+              for item in results
+          }
+
+          if actual_cases != expected_cases:
+              raise SystemExit(
+                  "❌ Unexpected calibration cases: "
+                  f"{actual_cases}"
+              )
+
+          for item in results:
+              if item.get("claim_support") is not False:
+                  raise SystemExit(
+                      "❌ Calibration case is claim-supporting."
+                  )
+
+              if item.get("outer_replicates_requested") != 50:
+                  raise SystemExit(
+                      "❌ Calibration case does not contain 50 outer replicates."
+                  )
+
+              if item.get("inner_surrogates_requested") != 200:
+                  raise SystemExit(
+                      "❌ Calibration case does not contain 200 inner surrogates."
+                  )
+
+              if item.get("minimum_valid_surrogates") != 200:
+                  raise SystemExit(
+                      "❌ Calibration case does not require 200 valid surrogates."
+                  )
+
+          review = data.get(
+              "model_capacity_review",
+              {}
+          )
+
+          if review.get(
+              "scientific_role"
+          ) != "diagnostic_only":
+              raise SystemExit(
+                  "❌ Model-capacity review must remain diagnostic-only."
+              )
+
+          threshold = review.get(
+              "boundary_fraction_threshold"
+          )
+
+          if threshold != 0.50:
+              raise SystemExit(
+                  "❌ Unexpected boundary review threshold."
+              )
+
+          print(
+              "✅ Null calibration diagnostic contract verified."
+          )
+
+          print(
+              "50 outer × 200 requested inner × "
+              "200 minimum valid; diagnostic-only."
+          )
+
+          print(
+              "Model-capacity review threshold:",
+              threshold
+          )
+
+          print(
+              "Review required:",
+              review.get("review_triggered")
+          )
+          PY
+
       - name: Verify diagnostic-only artifact
         run: |
           test -f artifacts/null_calibration_audit.json
