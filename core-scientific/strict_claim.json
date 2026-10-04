@@ -148,6 +148,22 @@
       "trend": "constant",
       "stationarity_required": true
     },
+
+    "model_capacity_review": {
+      "status": "post_observation_protocol_amendment",
+      "preregistered_confirmation": false,
+      "boundary_fraction_threshold": 0.50,
+      "review_applies_to": [
+        "observed_fit",
+        "surrogate_refits"
+      ],
+      "review_trigger": "boundary_fraction >= boundary_fraction_threshold",
+      "failure_policy": "fresh_model_capacity_review_required",
+      "scientific_role": "diagnostic_only",
+      "does_not_support_claim": true,
+      "does_not_falsify_claim_by_itself": true,
+      "claim_promotion_blocked_until_review": true
+    },
    
     "bootstrap_trials": 1000,
     "minimum_valid_surrogates": 200,
