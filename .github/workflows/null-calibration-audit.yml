@@ -38,8 +38,14 @@ jobs:
           python -m pip install --require-hashes -r requirements-lock.txt
 
       - name: Run null calibration audit
+        shell: bash
         run: |
+          set -euo pipefail
+
           python analysis/null_calibration_audit.py
+
+          test -s \
+            artifacts/null_calibration_audit.json
 
       - name: Verify diagnostic-only calibration contract
         shell: bash
