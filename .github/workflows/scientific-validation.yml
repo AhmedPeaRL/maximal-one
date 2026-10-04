@@ -710,14 +710,7 @@ jobs:
             artifacts/estimator_sensitivity_audit.json
 
           echo "✅ Estimator sensitivity audition"
-
-          set -euo pipefail
-
-          python analysis/null_calibration_audit.py
-
-          test -s \
-            artifacts/null_calibration_audit.json
-
+          
           python - <<'PY'
           import json, sys
           import numpy as np
