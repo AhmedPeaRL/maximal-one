@@ -446,47 +446,98 @@ jobs:
               run_test()
           PY
 
-      - name: Evaluate canonical independent real-domain replication
+      - name: Evaluate canonical independent real-domain replication eligibility
         run: |
           python scripts/canonical_consensus.py
 
           python - <<'PY'
           import json
 
-          path = "artifacts/canonical_consensus.json"
+          CONSENSUS_PATH = "artifacts/canonical_consensus.json"
+          CLAIM_PATH = "core-scientific/strict_claim.json"
 
-          with open(path, "r", encoding="utf-8") as f:
+          with open(CONSENSUS_PATH, "r", encoding="utf-8") as f:
               report = json.load(f)
 
-          valid_domains = int(
-              report.get("valid_real_domains", 0)
+          with open(CLAIM_PATH, "r", encoding="utf-8") as f:
+              claim = json.load(f)
+
+          required_domains = int(
+              claim["dataset"]["independent_replication"]["minimum_domains"]
+          )
+
+          measurement_valid_domains = int(
+              report.get(
+                  "measurement_valid_real_domains",
+                  0,
+              )
+          )
+
+          replication_eligible_domains = int(
+              report.get(
+                  "replication_eligible_real_domains",
+                  0,
+              )
           )
 
           complete = bool(
               report.get(
                   "independent_real_domain_evaluation_complete",
-                  False
+                  False,
               )
           )
 
-          print("Valid independent real domains:", valid_domains)
-          print(
-              "Independent real-domain evaluation complete:",
-              complete
+          scientific_replication_established = bool(
+              report.get(
+                  "scientific_replication_established",
+                  False,
+              )
           )
 
-          if valid_domains < 2:
+          print(
+              "Measurement-valid independent real domains:",
+              measurement_valid_domains,
+          )
+
+          print(
+              "Replication-eligible independent real domains:",
+              replication_eligible_domains,
+          )
+
+          print(
+              "Required independent replication domains:",
+              required_domains,
+          )
+
+          print(
+              "Scientific replication established by this artifact:",
+              scientific_replication_established,
+          )
+
+          print(
+              "Independent real-domain evaluation complete:",
+              complete,
+          )
+
+          if replication_eligible_domains < required_domains:
               raise SystemExit(
-                  "❌ Independent real-domain replication incomplete"
+                  "❌ Independent real-domain replication eligibility incomplete: "
+                  f"{replication_eligible_domains}/{required_domains} "
+                  "replication-eligible independent real domains available."
               )
 
           if not complete:
               raise SystemExit(
-                  "❌ Canonical replication gate incomplete"
+                  "❌ Canonical independent real-domain eligibility gate incomplete."
               )
 
           print(
-              "✅ Canonical independent real-domain replication verified"
+              "✅ Canonical independent real-domain replication eligibility verified."
+          )
+
+          print(
+              "ℹ️ Eligibility is not scientific replication; "
+              "domain-level null rejection remains required."
           )
           PY
 
