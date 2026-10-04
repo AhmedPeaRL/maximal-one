@@ -32,3 +32,9 @@ artifacts/final_state.lock
 
 # Artifacts runtime noise
 artifacts/archive/
+
+# CI-generated scientific artifacts
+artifacts/
+
+# CI-generated verification material
+data/verification/
