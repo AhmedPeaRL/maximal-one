@@ -1,0 +1,97 @@
+name: Model Capacity Sweep
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capacity-sweep:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.15"
+
+      - name: Deterministic environment
+        run: |
+          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
+          echo "PYTHONHASHSEED=90210" >> "$GITHUB_ENV"
+          echo "OMP_NUM_THREADS=1" >> "$GITHUB_ENV"
+          echo "MKL_NUM_THREADS=1" >> "$GITHUB_ENV"
+          echo "OPENBLAS_NUM_THREADS=1" >> "$GITHUB_ENV"
+          echo "NUMEXPR_NUM_THREADS=1" >> "$GITHUB_ENV"
+
+      - name: Install locked dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r requirements-lock.txt
+
+      - name: Run capacity sweep
+        run: |
+          python analysis/model_capacity_sweep.py
+
+      - name: Verify artifact
+        run: |
+          set -euo pipefail
+          test -s artifacts/model_capacity_sweep.json
+
+          python - <<'PY'
+          import json
+
+          path = "artifacts/model_capacity_sweep.json"
+
+          with open(path, encoding="utf-8") as f:
+              data = json.load(f)
+
+          if data.get("scientific_role") != "diagnostic_only":
+              raise SystemExit(
+                  "❌ Capacity sweep must be diagnostic_only."
+              )
+
+          if data.get("claim_support") is not False:
+              raise SystemExit(
+                  "❌ Capacity sweep must never support claim promotion."
+              )
+
+          if data.get("preregistered_confirmation") is not False:
+              raise SystemExit(
+                  "❌ Capacity sweep is post-observation."
+              )
+
+          expected = {
+              "ar1_phi_0_7",
+              "ar2_phi_0_5_0_2",
+          }
+
+          actual = {
+              item.get("case")
+              for item in data.get("cases", [])
+          }
+
+          if actual != expected:
+              raise SystemExit(
+                  f"❌ Unexpected cases: {actual}"
+              )
+
+          print(
+              "✅ Model-capacity sweep contract verified."
+          )
+          PY
+
+      - name: Upload sweep
+        uses: actions/upload-artifact@v6
+        with:
+          name: model-capacity-sweep
+          path: artifacts/model_capacity_sweep.json
+          if-no-files-found: error
