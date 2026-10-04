@@ -23,6 +23,14 @@
     "secondary_required": true,
     "independent_real_domain_required": true,
     "min_independent_secondary_real_domains": 2,
+
+    "eligibility_protocol_amendment": {
+      "status": "explicit_post_observation_amendment",
+      "preregistered_confirmation": false,
+      "reason":
+        "The implementation already enforced the 20-bin canonical frequency-resolution requirement. The amendment makes the implied 512-sample estimator minimum explicit rather than leaving the 256-sample measurement floor to imply estimator validity.",
+      "claim_promotion_blocked_until_fresh_validation": true
+    },
     
     "independent_replication": {
       "required": true,
@@ -41,9 +49,15 @@
       "scientific_role": "measurement_validity_only",
       "minimum_frequency_bins": 20,
       "minimum_series_length": 256,
+      "estimator_minimum_series_length": 512,
       "replication_minimum_series_length": 1024,
       "canonical_nperseg": 1024,
       "short_series_are_not_replication_evidence": true,
+      "measurement_minimum_is_not_estimator_minimum": true,
+      "estimator_minimum_is_not_replication_minimum": true,
+      "estimator_minimum_reason":
+        "With the canonical 0.01-0.05 frequency band and a minimum requirement of 20 strictly interior frequency bins, the shortest series that can satisfy the canonical estimator is 512 samples. This is an implementation-validity constraint, not an evidence-strength criterion.",
+      
       "nonfinite_alpha_excludes_domain_from_replication": true,
       "adaptive_nperseg_does_not_override_frequency_bin_validity": true,
       "ineligible_domains_must_be_reported": true,
