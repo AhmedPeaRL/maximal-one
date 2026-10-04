@@ -1,0 +1,103 @@
+name: Model Capacity Diagnostic
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  model-capacity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.15"
+
+      - name: Deterministic environment
+        run: |
+          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
+          echo "PYTHONHASHSEED=90210" >> "$GITHUB_ENV"
+          echo "OMP_NUM_THREADS=1" >> "$GITHUB_ENV"
+          echo "MKL_NUM_THREADS=1" >> "$GITHUB_ENV"
+          echo "OPENBLAS_NUM_THREADS=1" >> "$GITHUB_ENV"
+          echo "NUMEXPR_NUM_THREADS=1" >> "$GITHUB_ENV"
+
+      - name: Install locked dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r requirements-lock.txt
+
+      - name: Run model-capacity diagnostic
+        run: |
+          python analysis/model_capacity_diagnostic.py
+
+      - name: Verify diagnostic contract
+        run: |
+          set -euo pipefail
+
+          test -s artifacts/model_capacity_diagnostic.json
+
+          python - <<'PY'
+          import json
+
+          path = "artifacts/model_capacity_diagnostic.json"
+
+          with open(path, encoding="utf-8") as f:
+              data = json.load(f)
+
+          if data.get("scientific_role") != "diagnostic_only":
+              raise SystemExit(
+                  "❌ Model-capacity diagnostic is not diagnostic-only."
+              )
+
+          if data.get("claim_support") is not False:
+              raise SystemExit(
+                  "❌ Model-capacity diagnostic must never support claim promotion."
+              )
+
+          if data.get("does_not_change_primary_null") is not True:
+              raise SystemExit(
+                  "❌ Diagnostic must not silently change the primary null."
+              )
+
+          if data.get("preregistered_confirmation") is not False:
+              raise SystemExit(
+                  "❌ Diagnostic is post-observation and must not be represented as preregistered."
+              )
+
+          expected_cases = {
+              "ar1_phi_0_7",
+              "ar2_phi_0_5_0_2",
+          }
+
+          actual_cases = {
+              item.get("case")
+              for item in data.get("results", [])
+          }
+
+          if actual_cases != expected_cases:
+              raise SystemExit(
+                  f"❌ Unexpected diagnostic cases: {actual_cases}"
+              )
+
+          print(
+              "✅ Model-capacity diagnostic contract verified."
+          )
+          PY
+
+      - name: Upload diagnostic
+        uses: actions/upload-artifact@v6
+        with:
+          name: model-capacity-diagnostic
+          path: artifacts/model_capacity_diagnostic.json
+          if-no-files-found: error
