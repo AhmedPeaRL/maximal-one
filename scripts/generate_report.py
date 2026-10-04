@@ -1028,9 +1028,19 @@ def main():
         ) as f:
             canonical_consensus = json.load(f)
 
-        valid_real_domains = int(
+        measurement_valid_real_domains = int(
             canonical_consensus.get(
-                "valid_real_domains",
+                "measurement_valid_real_domains",
+                canonical_consensus.get(
+                    "valid_real_domains",
+                    0
+                )
+            )
+        )
+
+        replication_eligible_real_domains = int(
+            canonical_consensus.get(
+                "replication_eligible_real_domains",
                 0
             )
         )
@@ -1041,7 +1051,7 @@ def main():
             stats["p_value"],
             scale_dispersion,
             fusion["evidence_score"],
-            independent_real_domains=valid_real_domains,
+            independent_real_domains=replication_eligible_real_domains,
             max_method_delta=MAX_METHOD_DELTA,
             max_scale_dispersion=MAX_SCALE_DISPERSION,
             max_p_value=MAX_P_VALUE,
@@ -1475,29 +1485,28 @@ def main():
                 "primary_real_domain_available": bool(
                     primary_real_domain_available
                 ),
-                "independent_secondary_real_domains": int(
-                    independent_secondary_real_domains
+                "measurement_valid_secondary_real_domains": int(
+                    measurement_valid_real_domains
+                ),
+                "replication_eligible_secondary_real_domains": int(
+                    replication_eligible_real_domains
                 ),
                 "minimum_required_secondary": int(
                     MIN_INDEPENDENT_SECONDARY_REAL_DOMAINS
                 ),
-                "valid_real_domains_total": int(
-                    valid_real_domains
-                ),
+                "measurement_validity_is_not_replication": True,
+                "domain_level_null_rejection_required": True,
+                "scientific_replication_established_here": False,
+                "scientific_replication_requires_independent_domain_null_rejection": True,
                 "real_domain_std": (
                     float(real_domain_std)
                     if real_domain_std is not None
                     and np.isfinite(real_domain_std)
                     else None
                 ),
-                "minimum_required": int(
-                    MIN_INDEPENDENT_SECONDARY_REAL_DOMAINS
-                ),
-                "maximum_allowed_std": float(
-                    MAX_CROSS_DOMAIN_STD
-                ),
                 "passed": bool(
-                    cross_domain_passed
+                    replication_eligible_real_domains
+                    >= MIN_INDEPENDENT_SECONDARY_REAL_DOMAINS
                 ),
             },
             "scientific_interpretation": {
