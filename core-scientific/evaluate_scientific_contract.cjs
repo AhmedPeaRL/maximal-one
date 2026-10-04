@@ -134,10 +134,17 @@ const crossDomainStd =
     crossDomain.real_domain_std
   );
 
-const independentDomains =
+const measurementValidSecondaryDomains =
   Number(
     crossDomain
-      .independent_secondary_real_domains
+      .measurement_valid_secondary_real_domains
+      ?? 0
+  );
+
+const replicationEligibleSecondaryDomains =
+  Number(
+    crossDomain
+      .replication_eligible_secondary_real_domains
       ?? 0
   );
 
@@ -192,7 +199,7 @@ const checks = {
       ),
 
   independent_secondary_domains:
-    independentDomains >=
+    replicationEligibleSecondaryDomains >=
       Number(
         expected
           .min_independent_secondary_real_domains
@@ -420,8 +427,14 @@ const result = {
       ? crossDomainStd
       : null,
 
+  measurement_valid_secondary_domains:
+    measurementValidSecondaryDomains,
+
+  replication_eligible_secondary_domains:
+    replicationEligibleSecondaryDomains,
+
   independent_secondary_domains:
-    independentDomains,
+    replicationEligibleSecondaryDomains,
 
   interpretation:
     scientificClaimSupported
