@@ -87,6 +87,7 @@ def inspect_aic_path(series):
                 lags=order,
                 trend="c",
                 old_names=False,
+                hold_back=max_order,
             ).fit()
         except Exception as exc:
             candidates.append({
@@ -129,6 +130,8 @@ def inspect_aic_path(series):
                 if np.isfinite(fit.hqic)
                 else None
             ),
+            "hold_back": int(max_order),
+            "effective_nobs": int(fit.nobs),
         })
 
     valid = [
@@ -170,6 +173,15 @@ def inspect_aic_path(series):
     )
 
     return {
+        "comparison_protocol": {
+            "criterion": "AIC",
+            "same_effective_observations": True,
+            "hold_back": int(max_order),
+            "reason": (
+                "All candidate AR orders are compared on the "
+                "same effective observations."
+            ),
+        },
         "selected_aic": int(
             selected_aic["order"]
         ),
@@ -275,6 +287,10 @@ def main():
     ]
 
     output = {
+        "protocol_revision": "ar_order_comparison_holdback_v1",
+        "post_observation_repair": True,
+        "confirmatory": False,
+        "historical_boundary_result_invalidated_for_comparison": True,
         "audit": "ar_model_capacity_diagnostic",
         "seed": SEED,
         "scientific_role": "diagnostic_only",
