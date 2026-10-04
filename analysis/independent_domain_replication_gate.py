@@ -31,6 +31,7 @@ REQUIRED_DOMAINS = [
 MIN_REQUIRED = 2
 TRIALS = 1000
 BASE_SEED = 42000
+REPLICATION_MIN_SERIES_LENGTH = 1024
 
 
 def finite(x):
@@ -50,6 +51,25 @@ def evaluate_domain(
 
     try:
         x = load_series(path)
+
+        rows = int(len(x))
+
+        if rows < REPLICATION_MIN_SERIES_LENGTH:
+            return {
+                "name": name,
+                "path": path,
+                "rows": rows,
+                "measurement_valid": True,
+                "replication_eligible": False,
+                "scientific_replication": False,
+                "replication_status":
+                    "INELIGIBLE_REPLICATION_DOMAIN",
+                "reason": (
+                    "Measurement is available, but the series is "
+                    "shorter than the declared replication minimum "
+                    "of 1024 observations."
+                ),
+            }
 
         alpha = estimate_alpha(x)
 
@@ -195,7 +215,9 @@ def evaluate_domain(
         return {
             "name": name,
             "path": path,
-            "measurement_valid": False,
+            "rows": rows,
+            "measurement_valid": True,
+            "replication_eligible": True,
             "scientific_replication": False,
             "replication_status":
                 "INVALID_MEASUREMENT",
