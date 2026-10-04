@@ -37,6 +37,12 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install --require-hashes -r requirements-lock.txt
 
+      - name: Verify AR order-comparison integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python analysis/verify_ar_order_comparison.py
+          
       - name: Run model-capacity diagnostic
         run: |
           python analysis/model_capacity_diagnostic.py
