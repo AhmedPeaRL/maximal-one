@@ -200,6 +200,13 @@ jobs:
           )
           PY
 
+      - name: Verify unresolved model-capacity gate
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python analysis/verify_null_calibration_status.py
+
       - name: Verify diagnostic-only artifact
         run: |
           test -f artifacts/null_calibration_audit.json
