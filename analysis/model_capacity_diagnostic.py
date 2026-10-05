@@ -322,21 +322,91 @@ def main():
         for name, phi in AR_CASES.items()
     ]
 
+    BOUNDARY_FRACTION_REVIEW_THRESHOLD = 0.50
+
+    review_reasons = []
+
+    for result in results:
+        boundary = result.get(
+            "boundary_fraction",
+            {}
+        )
+
+        for criterion, fraction in boundary.items():
+            if fraction is None:
+                continue
+
+            fraction = float(fraction)
+
+            if fraction >= BOUNDARY_FRACTION_REVIEW_THRESHOLD:
+                review_reasons.append(
+                    {
+                        "case": result.get("case"),
+                        "criterion": criterion,
+                        "reason": (
+                            "boundary_fraction_exceeds_review_threshold"
+                        ),
+                        "boundary_fraction": fraction,
+                        "threshold": (
+                            BOUNDARY_FRACTION_REVIEW_THRESHOLD
+                        ),
+                    }
+                )
+
+    review_triggered = bool(
+        review_reasons
+    )
+
     output = {
         "audit": "ar_model_capacity_diagnostic",
+
         "protocol_revision": (
             "ar_order_comparison_holdback_v1"
         ),
+
         "seed": SEED,
+
         "scientific_role": "diagnostic_only",
         "claim_support": False,
+
         "post_observation": True,
         "preregistered_confirmation": False,
+
         "does_not_change_primary_null": True,
         "does_not_support_claim": True,
         "does_not_falsify_claim": True,
-        "historical_boundary_result_invalidated_for_comparison": True,
-        "results": results,
+
+        "historical_boundary_result_invalidated_for_comparison":
+            True,
+
+        "model_capacity_review": {
+            "boundary_fraction_threshold":
+                BOUNDARY_FRACTION_REVIEW_THRESHOLD,
+
+            "review_triggered":
+                review_triggered,
+
+            "review_reasons":
+                review_reasons,
+
+            "scientific_role":
+                "diagnostic_only",
+
+            "claim_support":
+                False,
+
+            "interpretation": (
+                "A boundary fraction at or above the declared "
+                "threshold indicates that the tested AR order "
+                "range may be capacity-limited under the "
+                "declared calibration cases. This is a "
+                "diagnostic warning only and does not establish "
+                "or falsify the scientific hypothesis."
+            ),
+        },
+
+        "results":
+            results,
     }
 
     path = Path(
@@ -359,6 +429,21 @@ def main():
 
     print(
         f"Model-capacity diagnostic written: {path}"
+    )
+
+    print(
+        "Boundary-saturation review triggered:",
+        review_triggered
+    )
+
+    print(
+        "Boundary-fraction threshold:",
+        BOUNDARY_FRACTION_REVIEW_THRESHOLD
+    )
+
+    print(
+        "Review reasons:",
+        len(review_reasons)
     )
 
 
