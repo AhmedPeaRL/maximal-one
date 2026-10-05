@@ -69,10 +69,10 @@ are evaluated on the same input series under explicitly declared seeds.
 
 This diagnostic path has:
 
-- scientific_claim_authority: false
-- promotion_authority: false
-- evidence_role: diagnostic_only
-- protocol_role: non_primary_diagnostic
+- scientific_claim_authority: `false`
+- promotion_authority: `false`
+- evidence_role: `diagnostic_only`
+- protocol_role: `non_primary_diagnostic`
 
 It MUST NOT override:
 
@@ -137,3 +137,55 @@ diagnostic result without provenance indicating:
 The diagnostic null path is an observational and engineering diagnostic.
 It is not the canonical inferential null and has no authority to promote
 the scientific claim.
+
+---
+
+## 2026-10-05 — Primary Null Capacity Audit
+
+### Trigger
+
+The repaired primary-domain capacity audit was executed using:
+
+`analysis.load_real_datasets.load_series`
+
+with:
+
+- seed = `90210`;
+- AR order range = `1..20`;
+- fixed comparison hold-back = `20`;
+- 1000 requested surrogate refits;
+- 200 minimum valid surrogate refits.
+
+### Result
+
+- observed selected order = `20`;
+- maximum declared order = `20`;
+- valid surrogate refits = `1000`;
+- valid surrogate alpha estimates = `1000`;
+- surrogate boundary fraction = `0.937`;
+- capacity review = `TRIGGERED`.
+
+### Scientific Role
+
+The result is:
+
+`diagnostic_only`
+
+It does not support or falsify the scientific hypothesis.
+
+### Decision
+
+The existing primary stochastic-null result is not promoted.
+
+A formal null adequacy review is required before future confirmatory inference.
+
+No replacement null model is selected by p-value preference.
+
+No AR order expansion is treated as confirmatory evidence.
+
+### Confirmation Policy
+
+A future confirmatory null must be scientifically justified,
+explicitly documented, and frozen before confirmatory inference.
+
+Historical exploratory results remain historical.
