@@ -34,7 +34,8 @@ for the primary dataset was approximately:
 
 `alpha = 2.525347`
 
-- The historical pre-repair primary stochastic-null analysis reported
+- The historical pre-repair primary stochastic-null analysis reported:
+
 `p = 0.999001`.
 
 This value is retained only for provenance.
@@ -103,8 +104,11 @@ scientific endpoint.
 
 - The primary scientific endpoint uses the declared fitted stationary
 Gaussian AR(p) null with AIC order selection and surrogate refitting.
-The historical pre-repair primary stochastic-null analysis reported
-`p = 0.999001`.
+The historical pre-repair primary stochastic-null analysis
+reported `p = 0.999001`.
+
+This value is historical, non-confirmatory, and must not be
+used as the current primary-null decision.
 
 - These values are therefore not contradictory: they answer different
 null-model questions. The primary stochastic null controls scientific
@@ -273,9 +277,12 @@ This repository does not claim evidence of consciousness.
 The current canonical measurement is:
 
 - Welch spectral exponent: approximately `2.525347`
-- Primary stochastic null: not rejected
-- The historical pre-repair primary stochastic-null analysis reported
-`p = 0.999001`.
+- The historical pre-repair primary stochastic-null analysis
+reported `p = 0.999001`.
+
+This value is historical, non-confirmatory, and must not be
+used as the current primary-null decision.
+
 - Independent scientific replication: not established
 - Clean-checkout computational reproducibility: distinct from scientific replication
 
@@ -300,12 +307,14 @@ Welch estimator.
 separation is explicitly diagnostic and is not the
 authoritative scientific endpoint.
 
-- The declared primary stochastic short-memory null
-is not rejected.
-The historical pre-repair primary stochastic-null analysis reported
-`p = 0.999001`.
+- The current repaired implementation has not yet produced
+a valid fresh confirmatory decision for the primary stochastic
+short-memory null.
 
-This value is retained only for provenance.
+The historical pre-repair result is retained only for provenance
+and is not treated as current inferential evidence.
+
+Therefore the scientific claim remains blocked.
 
 - In addition, the AR-order selection procedure reaches
 the declared maximum order, indicating that the current
