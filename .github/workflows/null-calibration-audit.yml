@@ -134,16 +134,65 @@ jobs:
                   "❌ Unexpected model-capacity review threshold."
               )
 
-          if review.get("review_triggered") is not True:
+          review_triggered = review.get(
+              "review_triggered"
+          )
+
+          if review_triggered not in (
+              True,
+              False,
+          ):
               raise SystemExit(
-                  "❌ Boundary-saturation review must be triggered "
-                  "for the current calibration result."
+                  "❌ Model-capacity review must explicitly "
+                  "declare review_triggered as true or false."
+          )
+
+          threshold = review.get(
+              "boundary_fraction_threshold"
+          )
+
+          if threshold != 0.50:
+              raise SystemExit(
+                  "❌ Unexpected model-capacity review threshold."
               )
 
           reasons = review.get(
               "review_reasons",
               []
           )
+
+          if review_triggered and not reasons:
+              raise SystemExit(
+                  "❌ Review is marked triggered but no "
+                  "review reasons exist."
+              )
+
+          if not review_triggered and reasons:
+              raise SystemExit(
+                  "❌ Review is marked not triggered but "
+                  "review reasons are present."
+              )
+
+          print(
+              "Model-capacity review triggered:",
+              review_triggered
+          )
+
+          print(
+              "Boundary-saturation review reasons:",
+              len(reasons)
+          )
+
+          if review_triggered:
+              print(
+                  "⚠️ Boundary saturation remains after "
+                  "fixed-hold-back repair."
+              )
+          else:
+              print(
+                  "✅ Boundary saturation review is not "
+                  "triggered after fixed-hold-back repair."
+              )
 
           if not reasons:
               raise SystemExit(
