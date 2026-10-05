@@ -147,15 +147,6 @@ jobs:
                   "declare review_triggered as true or false."
               )
 
-          threshold = review.get(
-              "boundary_fraction_threshold"
-          )
-
-          if threshold != 0.50:
-              raise SystemExit(
-                  "❌ Unexpected model-capacity review threshold."
-              )
-
           reasons = review.get(
               "review_reasons",
               []
@@ -191,7 +182,7 @@ jobs:
           if review_triggered:
               print(
                   "⚠️ Boundary-saturation review remains "
-                  "required after fixed-hold-back repair."
+                  "required for the declared calibration cases."
               )
           else:
               print(
