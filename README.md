@@ -218,7 +218,7 @@ badge.
 
 ## Scientific Status
 
-UNDER INVESTIGATION
+`UNDER INVESTIGATION`
 
 No current workflow should promote the hypothesis while the authoritative
 primary stochastic-null gate remains un-rejected.
@@ -278,7 +278,7 @@ The current canonical measurement is:
 
 The current result is therefore:
 
-UNDER INVESTIGATION
+`UNDER INVESTIGATION`
 
 Secondary diagnostics must not be promoted to primary scientific evidence.
 
@@ -308,7 +308,7 @@ further calibration.
 
 Therefore the scientific claim remains:
 
-UNDER INVESTIGATION.
+`UNDER INVESTIGATION`.
 
 Clean-checkout computational reproducibility has been
 demonstrated for the declared computational pipeline.
