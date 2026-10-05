@@ -171,6 +171,12 @@
     "measured": {
       "alpha": 2.525347,
       "appropriate_stochastic_null_p_value": 0.999001,
+      "historical_status": {
+        "classification": "historical_exploratory_result",
+        "confirmatory_reuse_allowed": false,
+        "superseded_by_primary_capacity_review": true,
+        "superseded_reason": "The repaired primary-domain capacity audit found boundary saturation at the maximum declared AR order. The historical exploratory p-value is therefore not eligible for confirmatory claim promotion."
+      },
       "bootstrap_center_discrepancy_sigma": 0.051119,
       "cross_domain_std": 0.717563,
       "cross_method_delta": 0.10195,
