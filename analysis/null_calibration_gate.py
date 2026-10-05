@@ -7,6 +7,10 @@ import numpy as np
 import pandas as pd
 from statsmodels.tsa.ar_model import AutoReg
 
+from analysis.appropriate_stochastic_null import (
+    COMPARISON_HOLD_BACK,
+)
+
 from analysis.numerical_spectral_verification import (
     estimate_alpha
 )
@@ -97,7 +101,8 @@ def fit_scan(x):
                 x,
                 lags=order,
                 trend="c",
-                old_names=False
+                hold_back=COMPARISON_HOLD_BACK,
+                old_names=False,
             ).fit()
 
             roots = np.asarray(
@@ -124,6 +129,10 @@ def fit_scan(x):
                     if finite(aic)
                     else None
                 ),
+                "hold_back": COMPARISON_HOLD_BACK,
+                "effective_nobs": int(
+                    fit.nobs
+                ),
                 "stationary": stationary
             })
 
@@ -148,6 +157,18 @@ def fit_scan(x):
     if not valid:
         raise RuntimeError(
             "No valid stationary AR order found."
+        )
+
+    effective_nobs = {
+        item["effective_nobs"]
+        for item in results
+        if item.get("aic") is not None
+    }
+
+    if len(effective_nobs) != 1:
+        raise RuntimeError(
+            "Null calibration AR candidates were not "
+            "compared using identical effective observations."
         )
 
     best = min(
@@ -252,6 +273,9 @@ def main():
             "min_order": MIN_ORDER,
             "max_order": MAX_ORDER,
             "criterion": "AIC",
+            "comparison_hold_back": COMPARISON_HOLD_BACK,
+            "same_effective_observations_required": True,
+            "protocol_revision": "ar_order_comparison_holdback_v1",
             "stationarity_required": True,
             "endpoint": "canonical_primary_alpha",
             "direction": "greater_than_null",
