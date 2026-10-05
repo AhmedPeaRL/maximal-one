@@ -159,7 +159,12 @@
       "min_order": 1,
       "max_order": 20,
       "trend": "constant",
-      "stationarity_required": true
+      "stationarity_required": true,
+      "comparison_hold_back": "max_candidate_order",
+      "same_effective_observations_required": true,
+      "post_observation_repair": true,
+      "repair_revision": "ar_order_comparison_holdback_v1",
+      "repair_reason": "Candidate AR orders must be compared on identical effective observations so that order-dependent sample-size changes do not affect information-criterion comparison."
     },
 
     "capacity_review_gate": {
@@ -175,6 +180,10 @@
       "status": "review_required_capacity_limit_detected",
       "preregistered_confirmation": false,
       "boundary_fraction_threshold": 0.50,
+      "historical_boundary_results_superseded": true,
+      "fresh_reanalysis_required": true,
+      "claim_promotion_blocked_until_fixed_holdback_reanalysis": true,
+      "comparison_repair": "ar_order_comparison_holdback_v1",
    
       "review_applies_to": [
         "observed_fit",
@@ -189,15 +198,12 @@
       "claim_promotion_blocked_until_review": true,
     
       "current_review_result": {
-        "status": "triggered",
-        "aic_boundary_fraction_ar1": 0.94,
-        "aic_boundary_fraction_ar2": 0.94,
-        "calibration_observed_boundary_fraction_ar1": 0.98,
-        "calibration_surrogate_boundary_fraction_ar1": 0.9429,
-        "calibration_observed_boundary_fraction_ar2": 1.0,
-        "calibration_surrogate_boundary_fraction_ar2": 0.9348,
-        "decision": "do_not_promote_claim",
-        "fresh_validation_required": true
+        "status": "superseded_pending_reanalysis",
+        "source_artifact": "artifacts/model_capacity_diagnostic.json",
+        "confirmatory": false,
+        "historical_result_must_not_be_used_for_claim_promotion": true,
+        "reason": "A fixed-hold-back repair is required before interpreting AR-order boundary saturation.",
+        "required_reanalysis_revision": "ar_order_comparison_holdback_v1"
       },
      
       "null_criterion_change_allowed_without_fresh_validation": false
