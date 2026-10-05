@@ -8,9 +8,12 @@ import numpy as np
 from analysis.appropriate_stochastic_null import (
     MAX_AR_ORDER,
     COMPARISON_HOLD_BACK,
-    _as_series,
     _simulate_from_fit,
     _stationary_fit,
+)
+
+from analysis.load_real_datasets import (
+    load_series,
 )
 
 from analysis.numerical_spectral_verification import (
@@ -20,6 +23,7 @@ from analysis.numerical_spectral_verification import (
 
 SEED = 90210
 SURROGATES = 1000
+MIN_VALID_SURROGATES = 200
 BOUNDARY_THRESHOLD = 0.50
 
 DATASET = Path(
@@ -31,26 +35,21 @@ OUTPUT = Path(
 )
 
 
-def load_series(path: Path) -> np.ndarray:
-    data = np.loadtxt(
-        path,
-        delimiter=",",
-        skiprows=1,
-    )
-
-    if data.ndim == 1:
-        series = data
-    else:
-        series = data[:, -1]
-
-    return _as_series(series)
-
-
 def main() -> None:
+    if COMPARISON_HOLD_BACK != MAX_AR_ORDER:
+        raise SystemExit(
+            "❌ Primary-null capacity audit requires "
+            "fixed hold-back equal to max candidate order."
+        )
+
     rng = np.random.default_rng(
         SEED
     )
 
+    # IMPORTANT:
+    # Use the repository's canonical dataset loader.
+    # This preserves the declared sunspot signal column
+    # and normalization semantics.
     x = load_series(
         DATASET
     )
@@ -63,8 +62,8 @@ def main() -> None:
         _stationary_fit(x)
     )
 
-    selected_orders = []
-    surrogate_alphas = []
+    selected_orders: list[int] = []
+    surrogate_alphas: list[float] = []
 
     refit_failures = 0
     alpha_failures = 0
@@ -79,7 +78,7 @@ def main() -> None:
         )
 
         try:
-            refit_order, _ = (
+            refit_order, refit = (
                 _stationary_fit(
                     surrogate
                 )
@@ -87,6 +86,12 @@ def main() -> None:
         except Exception:
             refit_failures += 1
             continue
+
+        # Count successful AR refits independently
+        # of the spectral-alpha calculation.
+        selected_orders.append(
+            int(refit_order)
+        )
 
         try:
             alpha = float(
@@ -104,31 +109,24 @@ def main() -> None:
             alpha_failures += 1
             continue
 
-        selected_orders.append(
-            int(refit_order)
-        )
-
         surrogate_alphas.append(
             alpha
         )
 
-    valid = len(
+    valid_refits = len(
         selected_orders
     )
 
-    if valid == 0:
+    if valid_refits < MIN_VALID_SURROGATES:
         raise SystemExit(
-            "❌ No valid surrogate refits."
+            "❌ Fewer than "
+            f"{MIN_VALID_SURROGATES} valid surrogate "
+            "AR refits are available."
         )
 
     orders = np.asarray(
         selected_orders,
         dtype=np.int64,
-    )
-
-    alphas = np.asarray(
-        surrogate_alphas,
-        dtype=np.float64,
     )
 
     boundary_count = int(
@@ -138,12 +136,7 @@ def main() -> None:
     )
 
     boundary_fraction = float(
-        boundary_count / valid
-    )
-
-    review_triggered = bool(
-        boundary_fraction
-        >= BOUNDARY_THRESHOLD
+        boundary_count / valid_refits
     )
 
     review_reasons = []
@@ -164,7 +157,10 @@ def main() -> None:
             }
         )
 
-    if review_triggered:
+    if (
+        boundary_fraction
+        >= BOUNDARY_THRESHOLD
+    ):
         review_reasons.append(
             {
                 "scope": "surrogate_refits",
@@ -177,6 +173,80 @@ def main() -> None:
             }
         )
 
+    review_triggered = bool(
+        review_reasons
+    )
+
+    alpha_array = np.asarray(
+        surrogate_alphas,
+        dtype=np.float64,
+    )
+
+    if len(alpha_array) > 0:
+        surrogate_alpha_summary = {
+            "valid_alpha_estimates":
+                int(len(alpha_array)),
+            "mean":
+                float(
+                    np.mean(
+                        alpha_array
+                    )
+                ),
+            "std":
+                float(
+                    np.std(
+                        alpha_array,
+                        ddof=1,
+                    )
+                )
+                if len(alpha_array) > 1
+                else 0.0,
+            "median":
+                float(
+                    np.median(
+                        alpha_array
+                    )
+                ),
+            "minimum":
+                float(
+                    np.min(
+                        alpha_array
+                    )
+                ),
+            "maximum":
+                float(
+                    np.max(
+                        alpha_array
+                    )
+                ),
+        }
+    else:
+        surrogate_alpha_summary = {
+            "valid_alpha_estimates": 0,
+            "mean": None,
+            "std": None,
+            "median": None,
+            "minimum": None,
+            "maximum": None,
+        }
+
+    unique_orders, order_counts = (
+        np.unique(
+            orders,
+            return_counts=True,
+        )
+    )
+
+    order_distribution = {
+        str(int(order)):
+            int(count)
+        for order, count
+        in zip(
+            unique_orders,
+            order_counts,
+        )
+    }
+
     output = {
         "audit":
             "primary_sunspot_null_capacity_audit",
@@ -187,14 +257,20 @@ def main() -> None:
         "sample_size":
             int(len(x)),
 
+        "loader":
+            "analysis.load_real_datasets.load_series",
+
         "seed":
             SEED,
 
         "surrogates_requested":
             SURROGATES,
 
+        "minimum_valid_surrogate_refits":
+            MIN_VALID_SURROGATES,
+
         "valid_surrogate_refits":
-            valid,
+            valid_refits,
 
         "protocol_revision":
             "ar_order_comparison_holdback_v1",
@@ -229,45 +305,17 @@ def main() -> None:
         "boundary_fraction_threshold":
             BOUNDARY_THRESHOLD,
 
+        "order_distribution":
+            order_distribution,
+
         "review_triggered":
             review_triggered,
 
         "review_reasons":
             review_reasons,
 
-        "surrogate_alpha_summary": {
-            "mean":
-                float(
-                    np.mean(
-                        alphas
-                    )
-                ),
-            "std":
-                float(
-                    np.std(
-                        alphas,
-                        ddof=1,
-                    )
-                ),
-            "median":
-                float(
-                    np.median(
-                        alphas
-                    )
-                ),
-            "minimum":
-                float(
-                    np.min(
-                        alphas
-                    )
-                ),
-            "maximum":
-                float(
-                    np.max(
-                        alphas
-                    )
-                ),
-        },
+        "surrogate_alpha_summary":
+            surrogate_alpha_summary,
 
         "failures": {
             "refit_failures":
@@ -296,15 +344,17 @@ def main() -> None:
 
         "interpretation":
             (
-                "This audit evaluates capacity behavior of the "
-                "declared primary sunspot AR(p) null using the "
-                "same fixed-hold-back implementation as the "
-                "primary stochastic-null procedure. It is "
-                "diagnostic-only. A boundary warning does not "
-                "establish or falsify the scientific hypothesis. "
-                "Passing calibration on known AR processes does "
-                "not establish adequacy of the primary sunspot "
-                "null."
+                "This audit evaluates the capacity behavior "
+                "of the declared primary sunspot AR(p) null "
+                "using the same fixed-hold-back implementation "
+                "as the primary stochastic-null procedure. "
+                "It is diagnostic-only. A boundary warning "
+                "does not establish or falsify the scientific "
+                "hypothesis. Passing known-process AR calibration "
+                "does not establish adequacy of the primary "
+                "sunspot stochastic null. Any future null-family "
+                "change requires a separately justified and "
+                "prospectively declared validation protocol."
             ),
     }
 
@@ -350,7 +400,12 @@ def main() -> None:
 
     print(
         "Valid surrogate refits:",
-        valid,
+        valid_refits,
+    )
+
+    print(
+        "Valid surrogate alpha estimates:",
+        len(alpha_array),
     )
 
 
