@@ -15,23 +15,23 @@ of the Constrained Spectral Persistence Hypothesis.
 
 Primary dataset:
 
-"real-data/sunspots_full.csv"
+`"real-data/sunspots_full.csv"`
 
 Sample size:
 
-"N = 3328"
+`"N = 3328"`
 
 Canonical Welch spectral exponent:
 
-"alpha = 2.525347"
+`"alpha = 2.525347"`
 
 Independent FFT-periodogram estimate:
 
-"alpha = 2.423397"
+`"alpha = 2.423397"`
 
 Absolute method difference:
 
-"0.101950"
+`"0.101950"`
 
 The cross-method agreement is a measurement-consistency result.
 It is not independent scientific replication.
@@ -42,12 +42,12 @@ It is not independent scientific replication.
 
 The current exploratory primary stochastic null is:
 
-"stationary_gaussian_AR_p_aic"
+`"stationary_gaussian_AR_p_aic"`
 
 with:
 
 - AIC order selection
-- order range 1..20
+- order range `1..20`
 - stationary fitted models
 - Gaussian innovations
 - refitting for every surrogate
@@ -56,15 +56,17 @@ with:
 
 Current canonical result:
 
-- valid surrogates: 1000
-- observed alpha: 2.525347
-- null mean: 3.197386
-- null SD: 0.235076
-- null q05: 2.816685
-- null q95: 3.584700
-- exceedances: 999
-- Monte Carlo p-value: 0.999001
-- rejection at 0.05: false
+- valid surrogates: `1000`
+- observed alpha: `2.525347`
+- null mean: `3.197386`
+- null SD: `0.235076`
+- null q05: `2.816685`
+- null q95: `3.584700`
+- exceedances: `999`
+- Historical exploratory Monte Carlo p-value: `0.999001`
+- Status: superseded for confirmatory inference after the repaired
+  primary-domain capacity audit.
+- rejection at `0.05: false`
 
 Therefore:
 
@@ -74,12 +76,20 @@ The primary stochastic null is not rejected.
 
 ## Null Capacity Diagnostic
 
-The surrogate AR-order boundary fraction is:
+Historical exploratory surrogate boundary fraction:
 
-"0.965"
+`0.965`
 
-That means 96.5% of surrogate refits select the maximum
-declared order of 20.
+Status:
+
+`SUPERSEDED FOR CONFIRMATORY INFERENCE`
+
+The repaired primary-domain capacity audit subsequently measured a
+surrogate boundary fraction of:
+
+`0.937`
+
+using 1000 valid surrogate refits.
 
 This is treated as a model-capacity/calibration warning.
 
@@ -95,11 +105,11 @@ declared before a fresh confirmation run.
 
 Permutation-null result:
 
-"p = 0.0002"
+`"p = 0.0002"`
 
 Role:
 
-DIAGNOSTIC ONLY
+`DIAGNOSTIC ONLY`
 
 It is not the primary stochastic null and has no claim-promotion
 authority.
@@ -109,7 +119,7 @@ thresholds, but scale stability alone cannot establish the claim.
 
 The current predictive validation has:
 
-"structural_match = false"
+`"structural_match = false"`
 
 and is therefore diagnostic only.
 
@@ -179,6 +189,6 @@ to obtain a favorable result.
 
 Until all machine-gated prerequisites are satisfied:
 
-CLAIM = NOT ESTABLISHED
+`CLAIM = NOT ESTABLISHED`
 
 The system must remain capable of producing a negative result.
