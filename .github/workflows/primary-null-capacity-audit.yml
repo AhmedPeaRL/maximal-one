@@ -243,3 +243,7 @@ jobs:
           name: primary-null-capacity-audit
           path: artifacts/primary_null_capacity_audit.json
           if-no-files-found: error
+
+      - name: Verify primary capacity artifact
+        run: |
+          python analysis/verify_primary_null_capacity_status.py
