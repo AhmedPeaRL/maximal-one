@@ -2,7 +2,7 @@
 
 # maximal-one
 
-"maximal-one" is a reproducible computational research framework for
+`"maximal-one"` is a reproducible computational research framework for
 investigating the Constrained Spectral Persistence Hypothesis.
 
 The current hypothesis asks whether a spectral persistence signature can
@@ -19,32 +19,51 @@ multiple internal checks agree.
 
 ## Current Scientific Position
 
-The current canonical result remains:
-
-UNDER INVESTIGATION
+The repository remains UNDER INVESTIGATION.
 
 The primary real dataset is:
 
-"real-data/sunspots_full.csv"
+`real-data/sunspots_full.csv`
 
 with:
 
-"N = 3328"
+`N = 3328`
 
-The canonical Welch spectral exponent is approximately:
+The canonical Welch spectral exponent historically measured
+for the primary dataset was approximately:
 
-"alpha = 2.525347"
+`alpha = 2.525347`
 
-The authoritative primary stochastic null is a stationary Gaussian AR(p)
-surrogate family with AIC order selection over orders 1 through 20.
+The historical pre-repair primary stochastic-null analysis
+reported:
 
-The current primary Monte Carlo result is:
+`p = 0.999001`
 
-"p = 0.999001"
+That result is retained only as a historical record.
 
-Therefore the primary stochastic null is not rejected.
+It is NOT a current confirmatory result.
 
-Scientific claim promotion is consequently blocked.
+The AR order-comparison protocol was subsequently repaired
+under:
+
+`ar_order_comparison_holdback_v1`
+
+using a fixed:
+
+`hold_back = 20`
+
+for all candidate AR orders.
+
+The post-observation repair is explicitly non-preregistered
+and therefore does not constitute confirmatory evidence.
+
+A fresh primary reanalysis and fresh null calibration are
+required before any scientific interpretation of the repaired
+procedure.
+
+The scientific claim remains blocked.
+
+No historical pre-repair p-value may be used to promote the claim.
 
 ---
 
@@ -67,7 +86,7 @@ authority.
 
 In particular, the current permutation result:
 
-"p = 0.0002"
+`"p = 0.0002"`
 
 is diagnostic-only and does not replace the primary stochastic-null result.
 
@@ -76,13 +95,13 @@ is diagnostic-only and does not replace the primary stochastic-null result.
 
 The repository reports two statistically distinct null procedures.
 
-The permutation-null result (p ≈ 0.0002) is diagnostic only. It tests
+The permutation-null result `(p ≈ 0.0002)` is diagnostic only. It tests
 exchangeability of temporal ordering and is not the authoritative
 scientific endpoint.
 
 The primary scientific endpoint uses the declared fitted stationary
 Gaussian AR(p) null with AIC order selection and surrogate refitting.
-For the current canonical dataset, this test gives p ≈ 0.999001 and
+For the current canonical dataset, this test gives `p ≈ 0.999001` and
 does not reject the null.
 
 These values are therefore not contradictory: they answer different
@@ -93,15 +112,32 @@ claim support; the permutation result remains diagnostic only.
 
 ## Null Calibration Status
 
-The current primary AR surrogate analysis reports a high boundary-selection
-fraction:
+The AR order-selection procedure is under active model-capacity
+review.
 
-"0.965"
+The historical pre-repair boundary-selection result is
+superseded and must not be reused as confirmatory evidence.
 
-This indicates that the declared finite AR order range requires additional
-calibration before stronger model-adequacy conclusions are drawn.
+The repository now uses the declared repair:
 
-The calibration warning is not interpreted as evidence for the hypothesis.
+`ar_order_comparison_holdback_v1`
+
+with:
+
+`hold_back = 20`
+
+for candidate-order comparison.
+
+The calibration audit of known stationary AR processes is
+diagnostic-only. Passing those calibration cases does not by
+itself establish that the fitted primary sunspot null is
+adequate.
+
+The primary sunspot null therefore remains subject to a separate
+fresh capacity audit.
+
+No capacity diagnostic is permitted to establish or falsify
+the scientific hypothesis by itself.
 
 ---
 
@@ -117,7 +153,7 @@ and null family.
 
 The current replication result is:
 
-"0 / 2"
+`"0 / 2"`
 
 Therefore independent scientific replication is not established.
 
@@ -206,8 +242,8 @@ from formal scientific claim structure.
 
 All spectral results are compared against:
 
-- White noise (α ≈ 0.5)
-- Fractional Brownian Motion (H = 0.5–0.9)
+- White noise `(α ≈ 0.5)`
+- Fractional Brownian Motion `(H = 0.5–0.9)`
 - AR(1) processes
 
 This ensures deviations are not misinterpreted as structure.
@@ -221,7 +257,7 @@ claim.
 
 Future power analysis must be tied to the final prospectively declared
 primary endpoint, null family, effect definition, sample structure, and
-type-I-error procedure.
+`type-I-error` procedure.
 
 A power calculation against an unrelated diagnostic null must not be
 used as a substitute for calibration of the primary stochastic null.
@@ -234,9 +270,9 @@ This repository does not claim evidence of consciousness.
 
 The current canonical measurement is:
 
-- Welch spectral exponent: approximately 2.525347
+- Welch spectral exponent: approximately `2.525347`
 - Primary stochastic null: not rejected
-- Primary Monte Carlo p-value: approximately 0.999001
+- Primary Monte Carlo p-value: approximately `0.999001`
 - Independent scientific replication: not established
 - Clean-checkout computational reproducibility: distinct from scientific replication
 
@@ -254,7 +290,7 @@ The current implementation does not establish the
 Constrained Spectral Persistence Hypothesis.
 
 The canonical primary dataset produces a spectral
-exponent of approximately 2.525 under the declared
+exponent of approximately `2.525` under the declared
 Welch estimator.
 
 A permutation null is rejected, but permutation-null
@@ -263,7 +299,7 @@ authoritative scientific endpoint.
 
 The declared primary stochastic short-memory null
 is not rejected. The current Monte Carlo p-value is
-approximately 0.999.
+approximately `0.999`.
 
 In addition, the AR-order selection procedure reaches
 the declared maximum order, indicating that the current
@@ -287,7 +323,7 @@ or mechanism.
 
 ## Research Position
 
-See: core-scientific/research_position.md
+See: `core-scientific/research_position.md`
 
 ---
 
@@ -301,7 +337,7 @@ This system is NOT considered scientifically valid until:
 
 See:
 
-/external/REPRODUCE.md
+`/external/REPRODUCE.md`
 
 ---
 
