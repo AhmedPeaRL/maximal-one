@@ -168,8 +168,8 @@
     },
 
     "capacity_review_gate": {
-      "status": "blocked",
-      "reason": "Declared AIC order-selection capacity is boundary-saturated in diagnostic calibration.",
+      "status": "pending_primary_domain_audit",
+      "reason": "The known-process calibration audit does not establish adequacy of the primary sunspot null. A separate primary-domain capacity audit is required using the repaired fixed-hold-back implementation.",
       "current_primary_result_usable_for_claim_promotion": false,
       "fresh_primary_reanalysis_required_after_protocol_change": true,
       "fresh_null_calibration_required_after_protocol_change": true,
@@ -177,35 +177,23 @@
     },
 
     "model_capacity_review": {
-      "status": "review_required_capacity_limit_detected",
+      "status": "pending_primary_domain_audit",
       "preregistered_confirmation": false,
       "boundary_fraction_threshold": 0.50,
       "historical_boundary_results_superseded": true,
       "fresh_reanalysis_required": true,
-      "claim_promotion_blocked_until_fixed_holdback_reanalysis": true,
+      "claim_promotion_blocked_until_primary_capacity_audit": true,
       "comparison_repair": "ar_order_comparison_holdback_v1",
-   
       "review_applies_to": [
         "observed_fit",
         "surrogate_refits"
       ],
-     
       "review_trigger": "boundary_fraction >= boundary_fraction_threshold",
       "failure_policy": "fresh_model_capacity_review_required",
       "scientific_role": "diagnostic_only",
       "does_not_support_claim": true,
       "does_not_falsify_claim_by_itself": true,
       "claim_promotion_blocked_until_review": true,
-    
-      "current_review_result": {
-        "status": "superseded_pending_reanalysis",
-        "source_artifact": "artifacts/model_capacity_diagnostic.json",
-        "confirmatory": false,
-        "historical_result_must_not_be_used_for_claim_promotion": true,
-        "reason": "A fixed-hold-back repair is required before interpreting AR-order boundary saturation.",
-        "required_reanalysis_revision": "ar_order_comparison_holdback_v1"
-      },
-     
       "null_criterion_change_allowed_without_fresh_validation": false
     },
    
