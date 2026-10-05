@@ -21,7 +21,7 @@ multiple internal checks agree.
 
 The repository remains UNDER INVESTIGATION.
 
-The primary real dataset is:
+- The primary real dataset is:
 
 `real-data/sunspots_full.csv`
 
@@ -29,21 +29,23 @@ with:
 
 `N = 3328`
 
-The canonical Welch spectral exponent historically measured
+- The canonical Welch spectral exponent historically measured
 for the primary dataset was approximately:
 
 `alpha = 2.525347`
 
-The historical pre-repair primary stochastic-null analysis
-reported:
+- The historical pre-repair primary stochastic-null analysis reported
+`p = 0.999001`.
 
-`p = 0.999001`
+This value is retained only for provenance.
 
-That result is retained only as a historical record.
+It is not a current confirmatory result and must not be used for
+scientific claim promotion.
 
-It is NOT a current confirmatory result.
+The repaired protocol requires a fresh primary reanalysis before a
+new p-value can acquire confirmatory status.
 
-The AR order-comparison protocol was subsequently repaired
+- The AR order-comparison protocol was subsequently repaired
 under:
 
 `ar_order_comparison_holdback_v1`
@@ -54,16 +56,16 @@ using a fixed:
 
 for all candidate AR orders.
 
-The post-observation repair is explicitly non-preregistered
+- The post-observation repair is explicitly non-preregistered
 and therefore does not constitute confirmatory evidence.
 
-A fresh primary reanalysis and fresh null calibration are
+- A fresh primary reanalysis and fresh null calibration are
 required before any scientific interpretation of the repaired
 procedure.
 
-The scientific claim remains blocked.
+- The scientific claim remains blocked.
 
-No historical pre-repair p-value may be used to promote the claim.
+- No historical pre-repair p-value may be used to promote the claim.
 
 ---
 
@@ -93,18 +95,18 @@ is diagnostic-only and does not replace the primary stochastic-null result.
 
 ### Why two different p-values appear
 
-The repository reports two statistically distinct null procedures.
+- The repository reports two statistically distinct null procedures.
 
-The permutation-null result `(p ≈ 0.0002)` is diagnostic only. It tests
+- The permutation-null result `(p ≈ 0.0002)` is diagnostic only. It tests
 exchangeability of temporal ordering and is not the authoritative
 scientific endpoint.
 
-The primary scientific endpoint uses the declared fitted stationary
+- The primary scientific endpoint uses the declared fitted stationary
 Gaussian AR(p) null with AIC order selection and surrogate refitting.
-For the current canonical dataset, this test gives `p ≈ 0.999001` and
-does not reject the null.
+The historical pre-repair primary stochastic-null analysis reported
+`p = 0.999001`.
 
-These values are therefore not contradictory: they answer different
+- These values are therefore not contradictory: they answer different
 null-model questions. The primary stochastic null controls scientific
 claim support; the permutation result remains diagnostic only.
 
@@ -272,7 +274,8 @@ The current canonical measurement is:
 
 - Welch spectral exponent: approximately `2.525347`
 - Primary stochastic null: not rejected
-- Primary Monte Carlo p-value: approximately `0.999001`
+- The historical pre-repair primary stochastic-null analysis reported
+`p = 0.999001`.
 - Independent scientific replication: not established
 - Clean-checkout computational reproducibility: distinct from scientific replication
 
@@ -286,36 +289,39 @@ Secondary diagnostics must not be promoted to primary scientific evidence.
 
 ## Current Scientific Status
 
-The current implementation does not establish the
+- The current implementation does not establish the
 Constrained Spectral Persistence Hypothesis.
 
-The canonical primary dataset produces a spectral
+- The canonical primary dataset produces a spectral
 exponent of approximately `2.525` under the declared
 Welch estimator.
 
-A permutation null is rejected, but permutation-null
+- A permutation null is rejected, but permutation-null
 separation is explicitly diagnostic and is not the
 authoritative scientific endpoint.
 
-The declared primary stochastic short-memory null
-is not rejected. The current Monte Carlo p-value is
-approximately `0.999`.
+- The declared primary stochastic short-memory null
+is not rejected.
+The historical pre-repair primary stochastic-null analysis reported
+`p = 0.999001`.
 
-In addition, the AR-order selection procedure reaches
+This value is retained only for provenance.
+
+- In addition, the AR-order selection procedure reaches
 the declared maximum order, indicating that the current
 finite-order stochastic-null specification requires
 further calibration.
 
-Therefore the scientific claim remains:
+- Therefore the scientific claim remains:
 
 `UNDER INVESTIGATION`.
 
-Clean-checkout computational reproducibility has been
+- Clean-checkout computational reproducibility has been
 demonstrated for the declared computational pipeline.
 This is not independent scientific replication,
 independent laboratory replication, or causal evidence.
 
-No current result establishes HCM causation,
+- No current result establishes HCM causation,
 consciousness, universality, predictive market advantage,
 or mechanism.
 
