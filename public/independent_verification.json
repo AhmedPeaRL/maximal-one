@@ -73,6 +73,13 @@
         "selected_at_boundary": true,
         "surrogate_boundary_fraction": 0.965
       },
+      "historical_status": {
+        "status": "superseded_for_confirmatory_inference",
+        "reason": "A repaired primary-domain capacity audit subsequently detected boundary saturation under the declared AR order range.",
+        "historical_p_value": 0.999001,
+        "historical_boundary_fraction": 0.965,
+        "confirmatory_reuse_allowed": false
+      },
       "p_value_mc_add_one": 0.999001,
       "permutation_null_is_primary": false,
       "reject_at_0_05": false,
@@ -173,6 +180,18 @@
       "scale_dispersion": 0.205825,
       "sigma": 0.251399
     },
+    "primary_capacity_audit": {
+      "status": "review_triggered",
+      "scientific_role": "diagnostic_only",
+      "claim_support": false,
+      "observed_selected_order": 20,
+      "maximum_declared_order": 20,
+      "surrogate_boundary_fraction": 0.937,
+      "valid_surrogate_refits": 1000,
+      "valid_surrogate_alpha_estimates": 1000,
+      "boundary_fraction_threshold": 0.50,
+      "protocol_revision": "ar_order_comparison_holdback_v1"
+    }
     "passed": true,
     "scale_diagnostic": {
       "available": true,
