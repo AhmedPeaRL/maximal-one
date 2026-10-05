@@ -8,6 +8,7 @@ import numpy as np
 from analysis.appropriate_stochastic_null import (
     MAX_AR_ORDER,
     MIN_AR_ORDER,
+    COMPARISON_HOLD_BACK,
     _stationary_fit,
 )
 
@@ -38,16 +39,24 @@ def generate_ar_process(
 
     order = len(phi)
 
-    total = int(n) + int(burn_in)
+    total = (
+        int(n)
+        + int(burn_in)
+    )
 
-    innovations = rng.standard_normal(total)
+    innovations = rng.standard_normal(
+        total
+    )
 
     x = np.zeros(
         total,
         dtype=np.float64,
     )
 
-    for i in range(order, total):
+    for i in range(
+        order,
+        total,
+    ):
         x[i] = (
             np.dot(
                 phi,
@@ -86,14 +95,15 @@ def inspect_aic_path(series):
                 x,
                 lags=order,
                 trend="c",
+                hold_back=COMPARISON_HOLD_BACK,
                 old_names=False,
-                hold_back=max_order,
             ).fit()
         except Exception as exc:
             candidates.append({
                 "order": order,
                 "fit_valid": False,
                 "reason": str(exc),
+                "hold_back": COMPARISON_HOLD_BACK,
             })
             continue
 
@@ -109,7 +119,17 @@ def inspect_aic_path(series):
             )
         )
 
-        aic = float(fit.aic)
+        aic = float(
+            fit.aic
+        )
+
+        bic = float(
+            fit.bic
+        )
+
+        hqic = float(
+            fit.hqic
+        )
 
         candidates.append({
             "order": int(order),
@@ -121,17 +141,19 @@ def inspect_aic_path(series):
                 else None
             ),
             "bic": (
-                float(fit.bic)
-                if np.isfinite(fit.bic)
+                bic
+                if np.isfinite(bic)
                 else None
             ),
             "hqic": (
-                float(fit.hqic)
-                if np.isfinite(fit.hqic)
+                hqic
+                if np.isfinite(hqic)
                 else None
             ),
-            "hold_back": int(max_order),
-            "effective_nobs": int(fit.nobs),
+            "hold_back": COMPARISON_HOLD_BACK,
+            "effective_nobs": int(
+                fit.nobs
+            ),
         })
 
     valid = [
@@ -147,6 +169,18 @@ def inspect_aic_path(series):
     if not valid:
         raise RuntimeError(
             "No valid stationary AR candidate."
+        )
+
+    nobs_values = {
+        item["effective_nobs"]
+        for item in candidates
+        if item.get("fit_valid") is True
+    }
+
+    if len(nobs_values) != 1:
+        raise RuntimeError(
+            "AR candidates were not compared using "
+            "identical effective observations."
         )
 
     selected_aic = min(
@@ -173,15 +207,6 @@ def inspect_aic_path(series):
     )
 
     return {
-        "comparison_protocol": {
-            "criterion": "AIC",
-            "same_effective_observations": True,
-            "hold_back": int(max_order),
-            "reason": (
-                "All candidate AR orders are compared on the "
-                "same effective observations."
-            ),
-        },
         "selected_aic": int(
             selected_aic["order"]
         ),
@@ -191,11 +216,19 @@ def inspect_aic_path(series):
         "selected_hqic": int(
             selected_hqic["order"]
         ),
+        "hold_back": COMPARISON_HOLD_BACK,
+        "effective_nobs": next(
+            iter(nobs_values)
+        ),
         "aic_path": candidates,
     }
 
 
-def run_case(name, phi, rng):
+def run_case(
+    name,
+    phi,
+    rng,
+):
     records = []
 
     for index in range(
@@ -247,12 +280,15 @@ def run_case(name, phi, rng):
         "outer_replicates": OUTER_REPLICATES,
         "max_ar_order": MAX_AR_ORDER,
         "min_ar_order": MIN_AR_ORDER,
+        "comparison_hold_back": COMPARISON_HOLD_BACK,
         "current_protocol": {
             "criterion": "AIC",
             "max_order": MAX_AR_ORDER,
             "min_order": MIN_AR_ORDER,
             "trend": "constant",
             "stationarity_required": True,
+            "hold_back": COMPARISON_HOLD_BACK,
+            "same_effective_observations_required": True,
         },
         "boundary_fraction": {
             "aic": fraction(
@@ -287,11 +323,10 @@ def main():
     ]
 
     output = {
-        "protocol_revision": "ar_order_comparison_holdback_v1",
-        "post_observation_repair": True,
-        "confirmatory": False,
-        "historical_boundary_result_invalidated_for_comparison": True,
         "audit": "ar_model_capacity_diagnostic",
+        "protocol_revision": (
+            "ar_order_comparison_holdback_v1"
+        ),
         "seed": SEED,
         "scientific_role": "diagnostic_only",
         "claim_support": False,
@@ -300,6 +335,7 @@ def main():
         "does_not_change_primary_null": True,
         "does_not_support_claim": True,
         "does_not_falsify_claim": True,
+        "historical_boundary_result_invalidated_for_comparison": True,
         "results": results,
     }
 
