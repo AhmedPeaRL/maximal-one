@@ -1,0 +1,235 @@
+name: Primary Null Capacity Audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  primary-null-capacity-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.15"
+
+      - name: Deterministic environment
+        run: |
+          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
+          echo "PYTHONHASHSEED=90210" >> "$GITHUB_ENV"
+          echo "OMP_NUM_THREADS=1" >> "$GITHUB_ENV"
+          echo "MKL_NUM_THREADS=1" >> "$GITHUB_ENV"
+          echo "OPENBLAS_NUM_THREADS=1" >> "$GITHUB_ENV"
+          echo "NUMEXPR_NUM_THREADS=1" >> "$GITHUB_ENV"
+
+      - name: Install locked dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --require-hashes -r requirements-lock.txt
+
+      - name: Verify AR comparison integrity
+        run: |
+          python - <<'PY'
+          from analysis.appropriate_stochastic_null import (
+              MAX_AR_ORDER,
+              COMPARISON_HOLD_BACK,
+          )
+
+          if COMPARISON_HOLD_BACK != MAX_AR_ORDER:
+              raise SystemExit(
+                  "❌ Primary-null audit requires "
+                  "fixed hold-back equal to max candidate order."
+              )
+
+          print(
+              "✅ AR order-comparison integrity verified."
+          )
+
+          print(
+              "max_order=",
+              MAX_AR_ORDER,
+          )
+
+          print(
+              "hold_back=",
+              COMPARISON_HOLD_BACK,
+          )
+          PY
+
+      - name: Run primary-null capacity audit
+        run: |
+          python analysis/primary_null_capacity_audit.py
+
+      - name: Verify diagnostic-only contract
+        run: |
+          set -euo pipefail
+
+          test -s \
+            artifacts/primary_null_capacity_audit.json
+
+          python - <<'PY'
+          import json
+
+          path = (
+              "artifacts/"
+              "primary_null_capacity_audit.json"
+          )
+
+          with open(
+              path,
+              encoding="utf-8",
+          ) as f:
+              data = json.load(f)
+
+          if data.get(
+              "scientific_role"
+          ) != "diagnostic_only":
+              raise SystemExit(
+                  "❌ Primary-null capacity audit "
+                  "must be diagnostic_only."
+              )
+
+          if data.get(
+              "claim_support"
+          ) is not False:
+              raise SystemExit(
+                  "❌ Primary-null capacity audit "
+                  "must never support claim promotion."
+              )
+
+          if data.get(
+              "preregistered_confirmation"
+          ) is not False:
+              raise SystemExit(
+                  "❌ Post-observation capacity audit "
+                  "cannot be preregistered confirmation."
+              )
+
+          if data.get(
+              "protocol_revision"
+          ) != (
+              "ar_order_comparison_holdback_v1"
+          ):
+              raise SystemExit(
+                  "❌ Unexpected protocol revision."
+              )
+
+          if data.get(
+              "comparison_hold_back"
+          ) != data.get(
+              "max_order"
+          ):
+              raise SystemExit(
+                  "❌ Hold-back must equal max candidate order."
+              )
+
+          if data.get(
+              "does_not_change_primary_null"
+          ) is not True:
+              raise SystemExit(
+                  "❌ Audit must not change primary null."
+              )
+
+          if data.get(
+              "does_not_support_claim"
+          ) is not True:
+              raise SystemExit(
+                  "❌ Audit must never support the claim."
+              )
+
+          if data.get(
+              "does_not_falsify_claim"
+          ) is not True:
+              raise SystemExit(
+                  "❌ Audit must never falsify the claim by itself."
+              )
+
+          threshold = data.get(
+              "boundary_fraction_threshold"
+          )
+
+          if threshold != 0.50:
+              raise SystemExit(
+                  "❌ Unexpected boundary threshold."
+              )
+
+          review = data.get(
+              "review_triggered"
+          )
+
+          if review not in (
+              True,
+              False,
+          ):
+              raise SystemExit(
+                  "❌ review_triggered must be boolean."
+              )
+
+          reasons = data.get(
+              "review_reasons",
+              [],
+          )
+
+          if not isinstance(
+              reasons,
+              list,
+          ):
+              raise SystemExit(
+                  "❌ review_reasons must be a list."
+              )
+
+          if review and not reasons:
+              raise SystemExit(
+                  "❌ Triggered review requires reasons."
+              )
+
+          if not review and reasons:
+              raise SystemExit(
+                  "❌ Non-triggered review cannot contain reasons."
+              )
+
+          if data.get(
+              "valid_surrogate_refits",
+              0,
+          ) < 200:
+              raise SystemExit(
+                  "❌ Fewer than 200 valid surrogate "
+                  "refits are available."
+              )
+
+          print(
+              "✅ Primary-null capacity audit contract verified."
+          )
+
+          print(
+              "Observed selected order:",
+              data["observed_selected_order"],
+          )
+
+          print(
+              "Surrogate boundary fraction:",
+              data["surrogate_boundary_fraction"],
+          )
+
+          print(
+              "Review triggered:",
+              review,
+          )
+          PY
+
+      - name: Upload primary-null capacity audit
+        uses: actions/upload-artifact@v6
+        with:
+          name: primary-null-capacity-audit
+          path: artifacts/primary_null_capacity_audit.json
+          if-no-files-found: error
