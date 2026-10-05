@@ -1,89 +1,115 @@
 from __future__ import annotations
 
 import numpy as np
-
 from statsmodels.tsa.ar_model import AutoReg
 
 
 SEED = 90210
 N = 3328
 MAX_ORDER = 20
+HOLD_BACK = MAX_ORDER
 
 
 def generate_ar1(
     n: int,
-    phi: float,
-    seed: int,
-    burn_in: int = 2000,
+    rng: np.random.Generator,
 ) -> np.ndarray:
-    rng = np.random.default_rng(seed)
-
+    burn_in = 2000
     total = n + burn_in
-    innovations = rng.standard_normal(total)
 
-    x = np.zeros(total, dtype=np.float64)
+    x = np.zeros(
+        total,
+        dtype=np.float64,
+    )
 
-    for i in range(1, total):
-        x[i] = phi * x[i - 1] + innovations[i]
+    noise = rng.standard_normal(
+        total
+    )
+
+    for i in range(
+        1,
+        total,
+    ):
+        x[i] = (
+            0.7 * x[i - 1]
+            + noise[i]
+        )
 
     return x[burn_in:]
 
 
 def main() -> None:
-    x = generate_ar1(
-        n=N,
-        phi=0.7,
-        seed=SEED,
+    rng = np.random.default_rng(
+        SEED
     )
 
-    fits = []
+    series = generate_ar1(
+        N,
+        rng,
+    )
 
-    for order in range(1, MAX_ORDER + 1):
+    expected_nobs = (
+        N - HOLD_BACK
+    )
+
+    observed_nobs = set()
+
+    for order in range(
+        1,
+        MAX_ORDER + 1,
+    ):
         fit = AutoReg(
-            x,
+            series,
             lags=order,
             trend="c",
+            hold_back=HOLD_BACK,
             old_names=False,
-            hold_back=MAX_ORDER,
         ).fit()
 
-        fits.append(fit)
-
-    effective_nobs = {
-        int(fit.nobs)
-        for fit in fits
-    }
-
-    if len(effective_nobs) != 1:
-        raise SystemExit(
-            "FAIL: AR candidates do not use the same effective observations."
+        nobs = int(
+            fit.nobs
         )
 
-    expected_nobs = N - MAX_ORDER
+        if nobs != expected_nobs:
+            raise SystemExit(
+                "❌ Effective observation count mismatch: "
+                f"order={order}, nobs={nobs}, "
+                f"expected={expected_nobs}"
+            )
 
-    if effective_nobs != {expected_nobs}:
-        raise SystemExit(
-            "FAIL: unexpected effective observation count: "
-            f"{effective_nobs}; expected {expected_nobs}."
+        if not np.isfinite(
+            float(fit.aic)
+        ):
+            raise SystemExit(
+                f"❌ Non-finite AIC at order {order}."
+            )
+
+        observed_nobs.add(
+            nobs
         )
 
-    aic_values = [
-        float(fit.aic)
-        for fit in fits
-    ]
-
-    if not all(np.isfinite(aic) for aic in aic_values):
+    if observed_nobs != {
+        expected_nobs
+    }:
         raise SystemExit(
-            "FAIL: non-finite AIC encountered."
+            "❌ Candidate AR models do not share "
+            "the same effective observation count."
         )
 
     print(
-        "PASS: all AR candidate orders use the same "
-        f"effective observations ({expected_nobs})."
+        "✅ AR order-comparison integrity verified."
     )
 
     print(
-        "PASS: AIC comparison is performed with fixed hold_back."
+        f"   max_order={MAX_ORDER}"
+    )
+
+    print(
+        f"   hold_back={HOLD_BACK}"
+    )
+
+    print(
+        f"   effective_nobs={expected_nobs}"
     )
 
 
