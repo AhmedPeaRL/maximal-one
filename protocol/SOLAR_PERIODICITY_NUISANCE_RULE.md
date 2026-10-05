@@ -37,7 +37,7 @@ Before fresh confirmation, the protocol must characterize:
 
 1. the frequency of the dominant known periodic component;
 2. its harmonics;
-3. spectral leakage into the canonical 0.01-0.05 band;
+3. spectral leakage into the canonical `0.01-0.05 band`;
 4. the effect of the declared detrending procedure;
 5. the effect of the declared temporal aggregation;
 6. whether the proposed short-memory null preserves or inadequately
