@@ -119,6 +119,66 @@ jobs:
                   f"❌ Unexpected diagnostic cases: {actual_cases}"
               )
 
+          review = data.get(
+              "model_capacity_review",
+              {}
+          )
+
+          triggered = review.get(
+              "review_triggered"
+          )
+
+          if triggered not in (True, False):
+              raise SystemExit(
+                  "❌ model_capacity_review.review_triggered "
+                  "must be explicitly boolean."
+              )
+
+          threshold = review.get(
+              "boundary_fraction_threshold"
+          )
+
+          if threshold != 0.50:
+              raise SystemExit(
+                  "❌ Unexpected boundary-fraction threshold."
+              )
+
+          reasons = review.get(
+              "review_reasons",
+              []
+          )
+
+          if triggered and not reasons:
+              raise SystemExit(
+                  "❌ Review triggered without reasons."
+              )
+
+          if not triggered and reasons:
+              raise SystemExit(
+                  "❌ Review not triggered but reasons are present."
+              )
+
+          print(
+              "Boundary-saturation review triggered:",
+              triggered
+          )
+
+          print(
+              "Boundary-fraction threshold:",
+              threshold
+          )
+
+          if triggered:
+              print(
+                  "⚠️ Fixed-hold-back repair did not remove "
+                  "the declared capacity warning."
+              )
+          else:
+              print(
+                  "✅ Fixed-hold-back repair passes the "
+                  "model-capacity boundary review."
+              )
+
           print(
               "✅ Model-capacity diagnostic contract verified."
           )
