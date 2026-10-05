@@ -168,34 +168,39 @@
     },
 
     "capacity_review_gate": {
-      "status": "pending_primary_domain_audit",
-      "reason": "The known-process calibration audit does not establish adequacy of the primary sunspot null. A separate primary-domain capacity audit is required using the repaired fixed-hold-back implementation.",
+      "status": "triggered_primary_domain_capacity_review",
+      "reason": "The repaired primary-domain audit found boundary saturation: 937 of 1000 valid surrogate refits selected the maximum declared AR order of 20. This is a diagnostic model-capacity warning and does not establish, reject, or falsify the scientific hypothesis.",
       "current_primary_result_usable_for_claim_promotion": false,
       "fresh_primary_reanalysis_required_after_protocol_change": true,
-      "fresh_null_calibration_required_after_protocol_change": true,
-      "historical_results_must_not_be_reused_as_confirmatory_evidence": true
+      "fresh_null_validation_required_before_confirmatory_inference": true,
+      "historical_results_must_not_be_reused_as_confirmatory_evidence": true,
+      "audit_reference": "artifacts/primary_null_capacity_audit.json"
     },
 
     "model_capacity_review": {
-      "status": "pending_primary_domain_audit",
+      "status": "review_required_primary_domain_boundary_saturation",
       "preregistered_confirmation": false,
       "boundary_fraction_threshold": 0.50,
+      "observed_selected_order": 20,
+      "maximum_declared_order": 20,
+      "surrogate_boundary_fraction": 0.937,
+      "valid_surrogate_refits": 1000,
+      "valid_surrogate_alpha_estimates": 1000,
       "historical_boundary_results_superseded": true,
       "fresh_reanalysis_required": true,
-      "claim_promotion_blocked_until_primary_capacity_audit": true,
+      "claim_promotion_blocked_until_review": true,
       "comparison_repair": "ar_order_comparison_holdback_v1",
       "review_applies_to": [
         "observed_fit",
         "surrogate_refits"
       ],
       "review_trigger": "boundary_fraction >= boundary_fraction_threshold",
-      "failure_policy": "fresh_model_capacity_review_required",
+      "failure_policy": "formal_null_adequacy_review_required",
       "scientific_role": "diagnostic_only",
       "does_not_support_claim": true,
       "does_not_falsify_claim_by_itself": true,
-      "claim_promotion_blocked_until_review": true,
       "null_criterion_change_allowed_without_fresh_validation": false
-    },
+    }
    
     "bootstrap_trials": 1000,
     "minimum_valid_surrogates": 200,
