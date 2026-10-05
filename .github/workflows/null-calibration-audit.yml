@@ -145,7 +145,7 @@ jobs:
               raise SystemExit(
                   "❌ Model-capacity review must explicitly "
                   "declare review_triggered as true or false."
-          )
+              )
 
           threshold = review.get(
               "boundary_fraction_threshold"
@@ -160,6 +160,11 @@ jobs:
               "review_reasons",
               []
           )
+
+          if not isinstance(reasons, list):
+              raise SystemExit(
+                  "❌ review_reasons must be a list."
+              )
 
           if review_triggered and not reasons:
               raise SystemExit(
@@ -185,22 +190,16 @@ jobs:
 
           if review_triggered:
               print(
-                  "⚠️ Boundary saturation remains after "
-                  "fixed-hold-back repair."
+                  "⚠️ Boundary-saturation review remains "
+                  "required after fixed-hold-back repair."
               )
           else:
               print(
-                  "✅ Boundary saturation review is not "
-                  "triggered after fixed-hold-back repair."
-              )
-
-          if not reasons:
-              raise SystemExit(
-                  "❌ Review is marked triggered but no review reasons exist."
+                  "✅ Boundary-saturation review is not "
+                  "triggered for the declared calibration cases."
               )
 
           for item in results:
-
               if item.get(
                   "outer_replicates_requested"
               ) != 50:
