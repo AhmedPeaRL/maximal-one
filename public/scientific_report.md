@@ -50,31 +50,60 @@ result. It is not independent scientific replication.
 
 ---
 
-## Primary Stochastic Null
+## Historical Primary Stochastic-Null Result
 
-The current exploratory primary stochastic null is:
+A pre-repair exploratory analysis reported:
 
-`stationary_gaussian_AR_p_aic`
+- observed canonical alpha: `2.525347`
+- surrogate boundary fraction: approximately `0.965`
+- Monte Carlo p-value: approximately `0.999001`
 
-with:
+These values belong to the historical pre-repair protocol.
 
-- stationary fitted AR models;
-- AIC order selection;
-- order range `1..20`;
-- Gaussian innovations;
-- refitting for each surrogate;
-- canonical primary alpha as the endpoint;
-- upper-tail alternative.
+They are retained for provenance only.
 
-Current result:
+They are not current confirmatory evidence.
 
-- observed alpha: `2.525347`
-- null mean: `3.197386`
-- null standard deviation: `0.235076`
-- valid surrogates: `1000`
-- exceedances: `999`
-- Monte Carlo p-value: `0.999001`
-- rejection at `0.05`: `false`
+The AR order-comparison procedure was subsequently repaired under:
+
+`ar_order_comparison_holdback_v1`
+
+using:
+
+`hold_back = max_candidate_order = 20`
+
+for identical effective observations across candidate orders.
+
+The repair was made after observation and is explicitly classified as
+non-preregistered.
+
+Therefore the historical p-value and historical boundary fraction must
+not be reused for claim promotion.
+
+---
+
+## Current Primary-Null Status
+
+A fresh primary reanalysis is required after the protocol repair.
+
+A separate primary-null capacity audit is also required to determine
+whether the declared finite-order AR(p) family is adequately calibrated
+for the primary sunspot process.
+
+Known-process AR calibration is diagnostic only.
+
+Passing AR(1)/AR(2) calibration does not establish adequacy of the
+primary sunspot stochastic null.
+
+Until the fresh primary reanalysis and capacity assessment are complete:
+
+`CLAIM = NOT ESTABLISHED`
+
+and the scientific claim remains:
+
+`UNDER INVESTIGATION`.
+
+---
 
 ### Scientific decision
 
