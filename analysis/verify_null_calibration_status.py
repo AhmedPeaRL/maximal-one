@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+CALIBRATION_REVIEW_IS_DIAGNOSTIC_ONLY = True
+PRIMARY_NULL_CAPACITY_AUDIT_REQUIRED = True
 
 PATH = Path("artifacts/null_calibration_audit.json")
 
@@ -50,6 +52,33 @@ def main() -> None:
             raise SystemExit(
                 "❌ Calibration result incorrectly supports claim promotion."
             )
+
+    if calibration_data.get(
+        "scientific_role"
+    ) != "diagnostic_only":
+        raise SystemExit(
+            "❌ Calibration artifact must remain diagnostic-only."
+        )
+
+    if calibration_data.get(
+        "claim_support"
+    ) is not False:
+        raise SystemExit(
+            "❌ Calibration artifact must never support claim promotion."
+        )
+
+    print(
+        "✅ Calibration result is diagnostic-only."
+    )
+
+    print(
+        "ℹ️ Passing AR(1)/AR(2) calibration does not establish "
+        "adequacy of the primary sunspot stochastic null."
+    )
+
+    print(
+        "ℹ️ Primary-null capacity audit remains required."
+    )
 
     print(
         "✅ Null calibration remains diagnostic-only."
