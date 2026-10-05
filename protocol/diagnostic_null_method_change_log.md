@@ -106,10 +106,15 @@ If attribution becomes scientifically relevant, perform a controlled
 comparison containing:
 
 A. previous implementation;
+
 B. current implementation;
+
 C. identical input data;
+
 D. identical declared seed;
+
 E. identical number of diagnostic surrogates;
+
 F. separately recorded phase-randomization and block-shuffle components.
 
 No comparison result may be used as claim-supporting evidence.
