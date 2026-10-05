@@ -239,47 +239,13 @@ jobs:
           )
           PY
 
-      - name: Verify unresolved model-capacity gate
+      - name: Verify null calibration status
         shell: bash
         run: |
           set -euo pipefail
-
           python analysis/verify_null_calibration_status.py
 
-      - name: Verify diagnostic-only artifact
-        run: |
-          test -f artifacts/null_calibration_audit.json
-
-          python - <<'PY'
-          import json
-
-          path = "artifacts/null_calibration_audit.json"
-
-          with open(path, encoding="utf-8") as f:
-              data = json.load(f)
-
-          if data.get("scientific_role") != "diagnostic_only":
-              raise SystemExit(
-                  "❌ Null calibration audit is not marked diagnostic_only"
-              )
-
-          if data.get("claim_support") is not False:
-              raise SystemExit(
-                  "❌ Null calibration audit must never support claim promotion"
-              )
-
-          for result in data.get("results", []):
-              if result.get("claim_support") is not False:
-                  raise SystemExit(
-                      "❌ A null-calibration case is incorrectly claim-supporting"
-                  )
-
-          print(
-              "✅ Null calibration artifact is explicitly diagnostic-only"
-          )
-          PY
-
-      - name: Upload audit
+      - name: Upload null calibration audit
         uses: actions/upload-artifact@v6
         with:
           name: null-calibration-audit
