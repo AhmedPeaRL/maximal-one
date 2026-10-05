@@ -125,6 +125,16 @@ jobs:
               )
 
           if data.get(
+              "loader"
+          ) != (
+              "analysis.load_real_datasets.load_series"
+          ):
+              raise SystemExit(
+                  "❌ Primary-null capacity audit must use "
+                  "the canonical repository dataset loader."
+              )
+
+          if data.get(
               "comparison_hold_back"
           ) != data.get(
               "max_order"
