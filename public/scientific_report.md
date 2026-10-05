@@ -103,13 +103,22 @@ and the scientific claim remains:
 
 `UNDER INVESTIGATION`.
 
----
-
 ### Scientific decision
 
-The primary stochastic null is **not rejected**.
+No current confirmatory decision is available for the primary stochastic null.
 
-Therefore the current scientific claim is **not established**.
+The previously reported primary-null result belongs to the
+pre-repair protocol and is retained only for provenance.
+
+It must not be interpreted as the current inferential outcome.
+
+Therefore:
+
+`CLAIM = NOT ESTABLISHED`
+
+and the scientific claim remains:
+
+`UNDER INVESTIGATION`.
 
 ---
 
