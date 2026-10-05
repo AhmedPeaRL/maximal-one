@@ -10,6 +10,10 @@ MIN_AR_ORDER = 1
 BURN_IN = 1000
 MIN_VALID_SURROGATES = 200
 
+# AR candidate models must use identical effective observations
+# during information-criterion comparison.
+COMPARISON_HOLD_BACK = MAX_AR_ORDER
+
 def _as_series(series):
     x = np.asarray(
         series,
@@ -45,13 +49,16 @@ def _stationary_fit(series):
         ),
     )
 
-    # IMPORTANT:
-    # Every candidate order must be evaluated on the same
-    # effective observations. Without a fixed hold_back,
-    # AutoReg uses a different number of observations for
-    # different lag orders, making information-criterion
-    # comparisons across orders non-comparable.
-    hold_back = int(max_order)
+    hold_back = min(
+        COMPARISON_HOLD_BACK,
+        len(x) - MIN_AR_ORDER - 1,
+    )
+
+    if hold_back < max_order:
+        raise ValueError(
+            "Series is too short for the declared "
+            "fixed-hold-back AR comparison."
+        )
 
     for order in range(
         MIN_AR_ORDER,
@@ -62,8 +69,8 @@ def _stationary_fit(series):
                 x,
                 lags=order,
                 trend="c",
-                old_names=False,
                 hold_back=hold_back,
+                old_names=False,
             ).fit()
         except Exception:
             continue
@@ -75,11 +82,15 @@ def _stationary_fit(series):
 
         if (
             roots.size != order
-            or not np.all(np.abs(roots) > 1.0)
+            or not np.all(
+                np.abs(roots) > 1.0
+            )
         ):
             continue
 
-        if not np.isfinite(float(fit.aic)):
+        if not np.isfinite(
+            float(fit.aic)
+        ):
             continue
 
         candidates.append(
@@ -93,6 +104,17 @@ def _stationary_fit(series):
     if not candidates:
         raise RuntimeError(
             "no stationary AR(p) candidate could be fitted"
+        )
+
+    effective_nobs = {
+        int(item[2].nobs)
+        for item in candidates
+    }
+
+    if len(effective_nobs) != 1:
+        raise RuntimeError(
+            "AR candidates were not compared using "
+            "identical effective observations."
         )
 
     _, order, fit = min(
