@@ -1,0 +1,60 @@
+{
+  "title": "Primary Stochastic Null Capacity Review",
+  "scientific_role": "diagnostic_only",
+  "claim_support": false,
+  "preregistered_confirmation": false,
+
+  "dataset": {
+    "primary": "real-data/sunspots_full.csv",
+    "n": 3328,
+    "loader": "analysis.load_real_datasets.load_series"
+  },
+
+  "protocol": {
+    "revision": "ar_order_comparison_holdback_v1",
+    "null_family": "stationary_gaussian_AR_p",
+    "selection_criterion": "AIC",
+    "minimum_order": 1,
+    "maximum_order": 20,
+    "comparison_hold_back": 20,
+    "same_effective_observations_required": true,
+    "refit_order_on_each_surrogate": true
+  },
+
+  "audit": {
+    "seed": 90210,
+    "requested_surrogates": 1000,
+    "minimum_valid_surrogates": 200,
+    "valid_surrogate_refits": 1000,
+    "valid_surrogate_alpha_estimates": 1000,
+    "observed_selected_order": 20,
+    "maximum_declared_order": 20,
+    "surrogate_boundary_fraction": 0.937,
+    "boundary_fraction_threshold": 0.50,
+    "review_triggered": true
+  },
+
+  "interpretation": {
+    "status": "capacity_review_required",
+    "meaning": "The declared AR order range is boundary-saturated for the primary-domain surrogate refits.",
+    "does_not_establish_claim": true,
+    "does_not_reject_claim": true,
+    "does_not_falsify_claim": true,
+    "does_not_select_a_replacement_null": true,
+    "does_not_permit_post_observation_null_selection_for_confirmation": true
+  },
+
+  "required_next_action": {
+    "action": "formal_null_adequacy_review",
+    "claim_promotion_blocked": true,
+    "fresh_confirmatory_validation_required": true,
+    "protocol_must_be_frozen_before_confirmation": true
+  },
+
+  "historical_results": {
+    "status": "superseded_for_confirmatory_use",
+    "historical_p_value": 0.999001,
+    "historical_boundary_fraction": 0.965,
+    "historical_results_are_not_confirmatory_evidence": true
+  }
+}
