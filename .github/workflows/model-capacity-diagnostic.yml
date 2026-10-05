@@ -81,6 +81,29 @@ jobs:
                   "❌ Diagnostic is post-observation and must not be represented as preregistered."
               )
 
+          if data.get("protocol_revision") != (
+              "ar_order_comparison_holdback_v1"
+          ):
+              raise SystemExit(
+                  "❌ Unexpected AR order-comparison protocol revision."
+              )
+
+          if data.get(
+              "historical_boundary_result_invalidated_for_comparison"
+          ) is not True:
+              raise SystemExit(
+                  "❌ Historical boundary results must be invalidated "
+                  "until the fixed-hold-back repair is evaluated."
+              )
+
+          for result in data.get("results", []):
+              for record in result.get("records", []):
+                  if record.get("hold_back") != 20:
+                      raise SystemExit(
+                          "❌ AR diagnostic record does not use "
+                          "the declared fixed hold-back."
+                      )
+
           expected_cases = {
               "ar1_phi_0_7",
               "ar2_phi_0_5_0_2",
