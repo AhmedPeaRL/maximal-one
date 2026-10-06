@@ -380,5 +380,4 @@ No output from the legacy experiment should be interpreted as evidence for the c
 For the canonical primary report:
 
 ```bash
-python scripts/prepare_canonical_inputs.py
-python scripts/generate_report.py --seed 42 --canonical
+python -m scripts.generate_report --seed 42 --canonical
