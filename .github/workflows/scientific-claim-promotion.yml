@@ -96,9 +96,7 @@ jobs:
 
           python scripts/prepare_canonical_inputs.py
 
-          python scripts/generate_report.py \
-            --seed 42 \
-            --canonical
+          python -m scripts.generate_report --seed 42 --canonical
 
       - name: Verify report identity semantics
         shell: bash
