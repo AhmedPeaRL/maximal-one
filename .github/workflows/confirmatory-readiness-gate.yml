@@ -83,11 +83,11 @@ jobs:
         run: |
           set -euo pipefail
 
-          python analysis/solar_periodicity_nuisance_audit.py
+          python -m analysis.solar_periodicity_nuisance_audit
 
       - name: Verify Solar Periodicity Nuisance Audit
         shell: bash
         run: |
           set -euo pipefail
 
-          python analysis/verify_solar_periodicity_nuisance_audit.py
+          python -m analysis.verify_solar_periodicity_nuisance_audit
