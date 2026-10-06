@@ -36,6 +36,26 @@ jobs:
           echo "MKL_DYNAMIC=FALSE" >> "$GITHUB_ENV"
           echo "OMP_DYNAMIC=FALSE" >> "$GITHUB_ENV"
 
+      - name: Install locked Python dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python -m pip install --upgrade pip pip-tools
+          pip-compile \
+            --output-file=requirements.txt \
+            requirements.in
+
+          pip-compile \
+            --generate-hashes \
+            --output-file=requirements-lock.txt \
+            requirements.in
+
+          python -m pip install \
+            --require-hashes \
+            --dry-run \
+            -r requirements-lock.txt
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
