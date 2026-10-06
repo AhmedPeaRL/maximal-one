@@ -9,8 +9,6 @@ RUN npm install -g npm@10
 COPY package*.json ./
 RUN npm install --omit=dev
 
-COPY requirements.txt ./
-
 COPY requirements-lock.txt ./
 
 RUN python -m pip install --upgrade pip==24.0 \
