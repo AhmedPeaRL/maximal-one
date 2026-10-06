@@ -94,7 +94,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          python scripts/prepare_canonical_inputs.py
+          python -m scripts.prepare_canonical_inputs
 
           python -m scripts.generate_report --seed 42 --canonical
 
