@@ -341,7 +341,7 @@ def parametric_short_memory_null(
                 False,
 
             "null_model":
-                protocol_id(),
+                model_id(),
 
             "null_protocol_id": protocol_id(),
 
@@ -413,7 +413,7 @@ def parametric_short_memory_null(
             True,
 
         "null_model":
-            protocol_id(),
+            model_id(),
 
         "null_protocol_id": protocol_id(),
 
