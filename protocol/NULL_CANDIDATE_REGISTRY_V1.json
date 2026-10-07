@@ -1,0 +1,113 @@
+{
+  "protocol": "NULL_CANDIDATE_REGISTRY_V1",
+  "status": "EXPLORATORY_CANDIDATE_EVALUATION",
+  "scientific_role": "null_adequacy_selection_only",
+
+  "claim_authority": false,
+  "promotion_authority": false,
+  "preregistered_confirmation": false,
+
+  "purpose": [
+    "Evaluate candidate null families before future confirmatory inference.",
+    "Separate model adequacy from scientific endpoint inference.",
+    "Prevent post-observation selection of a null because it produces a favorable p-value.",
+    "Evaluate whether known nuisance temporal structure is represented appropriately."
+  ],
+
+  "selection_prohibitions": [
+    "Do not select the candidate with the smallest p-value.",
+    "Do not select the candidate that rejects the hypothesis.",
+    "Do not change the endpoint after candidate evaluation.",
+    "Do not change the frequency band after candidate evaluation.",
+    "Do not use confirmation outcomes to select the null.",
+    "Do not treat exploratory candidate results as confirmatory evidence."
+  ],
+
+  "candidate_families": [
+    {
+      "id": "ar_aic_1_20",
+      "family": "stationary_gaussian_AR_p",
+      "selection_criterion": "AIC",
+      "min_order": 1,
+      "max_order": 20,
+      "trend": "constant",
+      "stationarity_required": true,
+      "role": "historical_current_primary_null",
+      "confirmatory_eligible": false,
+      "reason": "Current implementation is capacity-saturated and remains exploratory."
+    },
+    {
+      "id": "ar_bic_1_20",
+      "family": "stationary_gaussian_AR_p",
+      "selection_criterion": "BIC",
+      "min_order": 1,
+      "max_order": 20,
+      "trend": "constant",
+      "stationarity_required": true,
+      "role": "exploratory_competing_short_memory_null",
+      "confirmatory_eligible": false
+    },
+    {
+      "id": "arma_bic_bounded",
+      "family": "stationary_gaussian_ARMA_p_q",
+      "selection_criterion": "BIC",
+      "candidate_p": [1, 2, 3, 4, 5],
+      "candidate_q": [0, 1, 2, 3, 4, 5],
+      "trend": "constant",
+      "stationarity_required": true,
+      "invertibility_required": true,
+      "role": "exploratory_competing_short_memory_null",
+      "confirmatory_eligible": false
+    },
+    {
+      "id": "solar_harmonic_plus_stochastic_residual",
+      "family": "fixed_solar_harmonic_nuisance_plus_stochastic_residual",
+      "reference_period_months": 132,
+      "harmonics": [1, 2, 3, 4, 5, 6, 7, 8],
+      "harmonic_selection_after_observation": false,
+      "role": "exploratory_solar_nuisance_control",
+      "confirmatory_eligible": false,
+      "reason": "The current 132-month reference was introduced post-observation and is not preregistered."
+    }
+  ],
+
+  "adequacy_dimensions": [
+    "residual_autocorrelation",
+    "residual_partial_autocorrelation",
+    "stationarity",
+    "parameter_stability",
+    "finite_sample_calibration",
+    "surrogate_validity",
+    "model_selection_stability",
+    "boundary_saturation",
+    "effective_sample_size_preservation",
+    "nuisance_structure_preservation"
+  ],
+
+  "inference_separation": {
+    "adequacy_selection_must_be_independent_of_confirmation_endpoint": true,
+    "p_value_must_not_select_model": true,
+    "confirmation_data_must_not_select_model": true,
+    "candidate_comparison_is_exploratory": true
+  },
+
+  "future_confirmation_requirements": {
+    "selected_null_must_be_frozen": true,
+    "selection_rule_must_be_frozen": true,
+    "endpoint_must_be_frozen": true,
+    "tail_must_be_frozen": true,
+    "frequency_band_must_be_frozen": true,
+    "surrogate_generator_must_be_frozen": true,
+    "replication_domains_must_be_frozen": true,
+    "fresh_validation_required": true
+  },
+
+  "failure_policy": {
+    "no_candidate_passes_adequacy": "CONFIRMATORY_INFERENCE_UNAVAILABLE",
+    "candidate_failure_does_not_falsify_HCM": true,
+    "null_rejection_does_not_establish_HCM_causation": true,
+    "null_rejection_does_not_establish_consciousness": true,
+    "null_rejection_does_not_establish_universality": true,
+    "null_rejection_does_not_establish_new_physics": true
+  }
+}
