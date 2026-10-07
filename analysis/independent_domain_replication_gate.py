@@ -18,6 +18,10 @@ from analysis.appropriate_stochastic_null import (
     parametric_short_memory_null,
 )
 
+from analysis.null_protocol import (
+    load_null_protocol,
+)
+
 
 CLAIM_PATH = Path(
     "core-scientific/strict_claim.json"
@@ -73,6 +77,8 @@ def load_replication_policy():
         {},
     )
 
+    null_protocol = load_null_protocol()
+
     return {
         "minimum_domains": int(
             replication.get(
@@ -108,6 +114,31 @@ def load_replication_policy():
                 1024,
             )
         ),
+
+        "null_protocol_id":
+            null_protocol[
+                "protocol_id"
+            ],
+
+        "null_family":
+            null_protocol[
+                "null_family"
+            ],
+
+        "null_endpoint":
+            null_protocol[
+                "endpoint"
+            ],
+
+        "null_direction":
+            null_protocol[
+                "direction"
+            ],
+
+        "null_tail":
+            null_protocol[
+                "tail"
+            ],
     }
 
 
@@ -257,7 +288,9 @@ def evaluate_domain(
                 "null_model"
             )
             ==
-            "stationary_gaussian_ar_p_aic"
+            policy[
+                "null_protocol_id"
+            ]
 
             and
 
@@ -265,7 +298,9 @@ def evaluate_domain(
                 "test_endpoint"
             )
             ==
-            "canonical_primary_alpha"
+            policy[
+                "null_endpoint"
+            ]
 
             and
 
@@ -273,7 +308,9 @@ def evaluate_domain(
                 "alternative"
             )
             ==
-            "greater_than_null"
+            policy[
+                "null_direction"
+            ]
 
             and
 
@@ -281,7 +318,9 @@ def evaluate_domain(
                 "tail"
             )
             ==
-            "upper"
+            policy[
+                "null_tail"
+            ]
 
             and
 
@@ -357,7 +396,9 @@ def evaluate_domain(
                         "null_model"
                     )
                     ==
-                    "stationary_gaussian_ar_p_aic"
+                    policy[
+                        "null_protocol_id"
+                    ]
                 ),
 
             "same_direction":
@@ -544,17 +585,30 @@ def main():
 
         "required_protocol": {
 
-            "null_model":
-                "stationary_gaussian_ar_p_aic",
+            "protocol_id":
+                policy[
+                    "null_protocol_id"
+                ],
+
+            "null_family":
+                policy[
+                    "null_family"
+                ],
 
             "endpoint":
-                "canonical_primary_alpha",
+                policy[
+                    "null_endpoint"
+                ],
 
             "alternative":
-                "greater_than_null",
+                policy[
+                    "null_direction"
+                ],
 
             "tail":
-                "upper",
+                policy[
+                    "null_tail"
+                ],
 
             "trials":
                 TRIALS,
