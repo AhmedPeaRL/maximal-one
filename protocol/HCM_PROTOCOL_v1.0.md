@@ -2,7 +2,7 @@
 
 ## Status
 
-**LEGACY / NON-AUTHORITATIVE**
+`**LEGACY / NON-AUTHORITATIVE**`
 
 This document preserves a historical HCM validation protocol.
 
