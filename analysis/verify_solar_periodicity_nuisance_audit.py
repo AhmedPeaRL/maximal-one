@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import json
 from pathlib import Path
 
@@ -10,7 +8,9 @@ PATH = Path(
 
 
 def fail(message):
-    raise SystemExit(f"❌ {message}")
+    raise SystemExit(
+        f"❌ {message}"
+    )
 
 
 def main():
@@ -19,22 +19,43 @@ def main():
             "Solar periodicity nuisance audit is missing."
         )
 
-    with PATH.open(encoding="utf-8") as f:
+    with PATH.open(
+        encoding="utf-8"
+    ) as f:
         data = json.load(f)
 
-    if data.get("scientific_role") != "diagnostic_only":
+    if data.get(
+        "scientific_role"
+    ) != "diagnostic_only":
         fail(
-            "Solar nuisance audit must remain diagnostic-only."
+            "Solar nuisance audit must remain "
+            "diagnostic-only."
         )
 
-    if data.get("claim_support_eligible") is not False:
+    if data.get(
+        "claim_support_eligible"
+    ) is not False:
         fail(
-            "Solar nuisance audit must not support the claim."
+            "Solar nuisance audit must not "
+            "support the claim."
         )
 
-    if data.get("confirmatory_use") is not False:
+    if data.get(
+        "confirmatory_use"
+    ) is not False:
         fail(
-            "Solar nuisance audit must not be confirmatory evidence."
+            "Solar nuisance audit must not "
+            "be confirmatory evidence."
+        )
+
+    if data.get(
+        "loader"
+    ) != (
+        "analysis.load_real_datasets.load_series"
+    ):
+        fail(
+            "Solar nuisance audit must use "
+            "the canonical repository loader."
         )
 
     policy = data.get(
@@ -42,18 +63,29 @@ def main():
         {},
     )
 
-    required = [
+    required_true = [
         "no_endpoint_optimization",
         "no_band_selection",
         "no_posthoc_claim",
         "nuisance_treatment_requires_preconfirmation_rule",
+        "current_result_does_not_support_or_falsify_claim",
+        "loader_must_match_canonical_repository_loader",
     ]
 
-    for key in required:
+    for key in required_true:
         if policy.get(key) is not True:
             fail(
                 f"Required epistemic policy missing: {key}"
             )
+
+    if data.get(
+        "sample_count",
+        0,
+    ) < 512:
+        fail(
+            "Solar nuisance audit sample count "
+            "is below estimator minimum."
+        )
 
     harmonics = data.get(
         "harmonic_assessment",
@@ -66,12 +98,15 @@ def main():
         )
 
     if not any(
-        item.get("inside_canonical_band") is True
+        item.get(
+            "inside_canonical_band"
+        ) is True
         for item in harmonics
     ):
         fail(
-            "Audit must explicitly assess whether "
-            "solar harmonics enter the canonical band."
+            "Audit must explicitly assess "
+            "solar harmonics entering the "
+            "canonical band."
         )
 
     print(
