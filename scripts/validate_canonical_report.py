@@ -80,6 +80,47 @@ def main():
     ) as f:
         claim = json.load(f)
 
+    null_protocol = claim.get(
+        "stochastic_null_protocol",
+        {}
+    )
+
+    expected_null_model_id = (
+        null_protocol.get(
+            "model_id"
+        )
+    )
+
+    expected_null_protocol_id = (
+        null_protocol.get(
+            "protocol_id"
+        )
+    )
+
+    require(
+        isinstance(
+            expected_null_model_id,
+            str,
+        )
+        and expected_null_model_id.strip(),
+        (
+            "strict_claim.stochastic_null_protocol."
+            "model_id is missing or invalid"
+        ),
+    )
+
+    require(
+        isinstance(
+            expected_null_protocol_id,
+            str,
+        )
+        and expected_null_protocol_id.strip(),
+        (
+            "strict_claim.stochastic_null_protocol."
+            "protocol_id is missing or invalid"
+        ),
+    )
+
     expected = claim.get(
         "expected_result",
         {},
@@ -544,10 +585,23 @@ def main():
         stochastic_null.get(
             "null_model"
         )
-        == "stationary_gaussian_ar_p_aic",
+        == expected_null_model_id,
         (
             "unexpected primary stochastic-null model: "
-            f"{stochastic_null.get('null_model')}"
+            f"expected={expected_null_model_id}, "
+            f"observed={stochastic_null.get('null_model')}"
+        ),
+    )
+
+    require(
+        stochastic_null.get(
+            "null_protocol_id"
+        )
+        == expected_null_protocol_id,
+        (
+            "primary stochastic-null protocol mismatch: "
+            f"expected={expected_null_protocol_id}, "
+            f"observed={stochastic_null.get('null_protocol_id')}"
         ),
     )
 
