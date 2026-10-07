@@ -78,6 +78,15 @@ assert(
   "strict_claim.stochastic_null_protocol.protocol_id is missing"
 );
 
+const expectedNullModelId =
+  nullProtocol.model_id;
+
+assert(
+  typeof expectedNullModelId === "string" &&
+  expectedNullModelId.length > 0,
+  "strict_claim.stochastic_null_protocol.model_id is missing"
+);
+
 const expected =
   claim.expected_result;
 
@@ -276,11 +285,21 @@ assert(
 
 assert(
   stochasticNull.null_model ===
+    expectedNullModelId,
+  (
+    "primary stochastic null model mismatch: " +
+    `expected=${expectedNullModelId}, ` +
+    `observed=${stochasticNull.null_model}`
+  )
+);
+
+assert(
+  stochasticNull.null_protocol_id ===
     expectedNullProtocolId,
   (
     "primary stochastic null protocol mismatch: " +
     `expected=${expectedNullProtocolId}, ` +
-    `observed=${stochasticNull.null_model}`
+    `observed=${stochasticNull.null_protocol_id}`
   )
 );
 
