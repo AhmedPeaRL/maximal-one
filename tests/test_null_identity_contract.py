@@ -56,6 +56,60 @@ def test_null_identity_contract():
     ].strip()
 
 
+def test_null_result_identity():
+    import numpy as np
+
+    from analysis.appropriate_stochastic_null import (
+        parametric_short_memory_null,
+    )
+
+    protocol = load_null_protocol()
+
+    rng = np.random.default_rng(
+        42
+    )
+
+    x = (
+        np.sin(
+            np.arange(600)
+            / 20.0
+        )
+        +
+        rng.normal(
+            0.0,
+            0.1,
+            600,
+        )
+    )
+
+    result = (
+        parametric_short_memory_null(
+            x,
+            0.5,
+            rng,
+            trials=200,
+        )
+    )
+
+    assert result[
+        "null_model"
+    ] == protocol[
+        "model_id"
+    ]
+
+    assert result[
+        "null_protocol_id"
+    ] == protocol[
+        "protocol_id"
+    ]
+
+    assert result[
+        "null_model"
+    ] != result[
+        "null_protocol_id"
+    ]
+
+
 if __name__ == "__main__":
     test_null_model_and_protocol_are_distinct()
     test_null_identity_contract()
