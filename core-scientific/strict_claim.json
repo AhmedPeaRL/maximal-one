@@ -140,6 +140,7 @@
   "stochastic_null_protocol": {
     "protocol_version": "v2_exploratory",
     "protocol_id": "stationary_gaussian_ar_p_aic_v2_exploratory",
+    "model_id": "stationary_gaussian_ar_p_aic",
     "status": "post_observation_protocol_amendment_not_confirmatory",
     "fresh_validation_required": true,
     "preregistered_confirmation": false,
@@ -147,6 +148,14 @@
     "claim_promotion_allowed_only_after_fresh_prospective_validation": true,
     "current_dataset_is_not_preregistered_confirmation": true,
     "null_family": "stationary_gaussian_AR_p",
+
+    "confirmatory_status": {
+      "status": "not_frozen",
+      "reason": "The current AR(p) family exhibits boundary saturation in primary-domain surrogate refits and has not passed the declared null-adequacy review.",
+      "confirmatory_null_frozen": false,
+      "claim_promotion_allowed": false,
+      "fresh_prospective_validation_required": true
+    },
   
     "alternative": {
       "direction": "greater_than_null",
