@@ -5,6 +5,10 @@ from statsmodels.tsa.ar_model import AutoReg
 
 from analysis.numerical_spectral_verification import estimate_alpha
 
+from analysis.null_protocol import (
+    protocol_id,
+)
+
 MAX_AR_ORDER = 20
 MIN_AR_ORDER = 1
 BURN_IN = 1000
@@ -336,7 +340,7 @@ def parametric_short_memory_null(
                 False,
 
             "null_model":
-                "stationary_gaussian_ar_p_aic",
+                protocol_id(),
 
             "test_endpoint":
                 "canonical_primary_alpha",
@@ -406,7 +410,7 @@ def parametric_short_memory_null(
             True,
 
         "null_model":
-            "stationary_gaussian_ar_p_aic",
+            protocol_id(),
 
         "null_hypothesis":
             "under the declared fitted stationary "
