@@ -137,6 +137,23 @@ jobs:
 
           python scripts/validate_canonical_report.py
 
+      - name: Run Solar Periodicity Nuisance Audit
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python -m analysis.solar_periodicity_nuisance_audit
+
+          test -s \
+            artifacts/solar_periodicity_nuisance_audit.json
+
+      - name: Verify Solar Periodicity Nuisance Audit
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python -m analysis.verify_solar_periodicity_nuisance_audit
+
       - name: Run estimator sensitivity audit
         shell: bash
         run: |
