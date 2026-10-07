@@ -7,6 +7,10 @@ on:
       - "core-scientific/strict_claim.json"
       - "protocol/FUTURE_NULL_FREEZE_RULE.md"
       - "analysis/verify_confirmatory_readiness.py"
+      - "protocol/SOLAR_PERIODICITY_NUISANCE_FREEZE.md"
+      - "protocol/SOLAR_PERIODICITY_NUISANCE_RULE.md"
+      - "analysis/solar_periodicity_nuisance_audit.py"
+      - "analysis/verify_solar_periodicity_nuisance_audit.py"
       - ".github/workflows/confirmatory-readiness-gate.yml"
 
   pull_request:
@@ -14,6 +18,10 @@ on:
       - "core-scientific/strict_claim.json"
       - "protocol/FUTURE_NULL_FREEZE_RULE.md"
       - "analysis/verify_confirmatory_readiness.py"
+      - "protocol/SOLAR_PERIODICITY_NUISANCE_FREEZE.md"
+      - "protocol/SOLAR_PERIODICITY_NUISANCE_RULE.md"
+      - "analysis/solar_periodicity_nuisance_audit.py"
+      - "analysis/verify_solar_periodicity_nuisance_audit.py"
       - ".github/workflows/confirmatory-readiness-gate.yml"
 
 jobs:
