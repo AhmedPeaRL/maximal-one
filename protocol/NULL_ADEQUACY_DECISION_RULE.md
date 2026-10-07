@@ -13,11 +13,11 @@ It does not select a null model by p-value preference.
 
 The primary-domain capacity audit reported:
 
-- maximum declared AR order: 20;
-- observed selected order: 20;
-- valid surrogate refits: 1000;
-- surrogate boundary fraction: 0.937;
-- capacity threshold: 0.50.
+- maximum declared AR order: `20`;
+- observed selected order: `20`;
+- valid surrogate refits: `1000`;
+- surrogate boundary fraction: `0.937`;
+- capacity threshold: `0.50`.
 
 Therefore:
 
@@ -29,11 +29,11 @@ Therefore:
 
 The future null must not be selected using:
 
-"choose the model that produces the smallest p-value."
+`"choose the model that produces the smallest p-value."`
 
 The future null must not be selected using:
 
-"choose the model that rejects the hypothesis."
+`"choose the model that rejects the hypothesis."`
 
 The future null must not be selected by inspecting the primary
 confirmatory outcome and then changing the null specification.
