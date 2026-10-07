@@ -36,30 +36,55 @@ jobs:
           echo "MKL_DYNAMIC=FALSE" >> "$GITHUB_ENV"
           echo "OMP_DYNAMIC=FALSE" >> "$GITHUB_ENV"
 
-      - name: Install locked Python dependencies
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.15"
+
+      - name: Install immutable locked Python dependencies
         shell: bash
         run: |
           set -euo pipefail
 
-          python -m pip install --upgrade pip pip-tools
-          pip-compile \
-            --output-file=requirements.txt \
-            requirements.in
-
-          pip-compile \
-            --generate-hashes \
-            --output-file=requirements-lock.txt \
-            requirements.in
+          python --version
+          python -m pip --version
 
           python -m pip install \
             --require-hashes \
-            --dry-run \
             -r requirements-lock.txt
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+          python - <<'PY'
+          import numpy
+          import scipy
+          import pandas
+          import statsmodels
+
+          expected = {
+              "numpy": "1.26.4",
+              "scipy": "1.11.4",
+              "pandas": "2.2.2",
+              "statsmodels": "0.14.1",
+          }
+
+          actual = {
+              "numpy": numpy.__version__,
+              "scipy": scipy.__version__,
+              "pandas": pandas.__version__,
+              "statsmodels": statsmodels.__version__,
+          }
+
+          for name, version in actual.items():
+              print(f"{name}=={version}")
+
+          for name, required in expected.items():
+              if actual[name] != required:
+                  raise SystemExit(
+                      f"❌ {name} version mismatch: "
+                      f"expected {required}, got {actual[name]}"
+                  )
+
+          print("✅ Immutable scientific environment verified.")
+          PY
 
       - name: Verify confirmatory-readiness lock
         shell: bash
