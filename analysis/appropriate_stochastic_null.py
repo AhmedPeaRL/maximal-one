@@ -6,6 +6,7 @@ from statsmodels.tsa.ar_model import AutoReg
 from analysis.numerical_spectral_verification import estimate_alpha
 
 from analysis.null_protocol import (
+    model_id,
     protocol_id,
 )
 
@@ -342,6 +343,8 @@ def parametric_short_memory_null(
             "null_model":
                 protocol_id(),
 
+            "null_protocol_id": protocol_id(),
+
             "test_endpoint":
                 "canonical_primary_alpha",
 
@@ -411,6 +414,8 @@ def parametric_short_memory_null(
 
         "null_model":
             protocol_id(),
+
+        "null_protocol_id": protocol_id(),
 
         "null_hypothesis":
             "under the declared fitted stationary "
