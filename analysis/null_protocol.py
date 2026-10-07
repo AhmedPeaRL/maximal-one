@@ -35,6 +35,11 @@ def load_null_protocol():
         "null_family"
     )
 
+    model_id = protocol.get(
+        "model_id",
+        "stationary_gaussian_ar_p_aic",
+    )
+
     alternative = protocol.get(
         "alternative",
         {}
@@ -60,6 +65,16 @@ def load_null_protocol():
 
         raise SystemExit(
             "strict_claim.stochastic_null_protocol.protocol_id "
+            "is missing or invalid"
+        )
+
+    if not isinstance(
+        model_id,
+        str
+    ) or not model_id.strip():
+
+        raise SystemExit(
+            "strict_claim.stochastic_null_protocol.model_id "
             "is missing or invalid"
         )
 
@@ -105,6 +120,7 @@ def load_null_protocol():
 
     return {
         "protocol_id": protocol_id,
+        "model_id": model_id,
         "null_family": null_family,
         "endpoint": endpoint,
         "direction": direction,
@@ -116,6 +132,13 @@ def protocol_id():
 
     return load_null_protocol()[
         "protocol_id"
+    ]
+
+
+def model_id():
+
+    return load_null_protocol()[
+        "model_id"
     ]
 
 
@@ -149,11 +172,9 @@ def tail():
 
 if __name__ == "__main__":
 
-    policy = load_null_protocol()
-
     print(
         json.dumps(
-            policy,
+            load_null_protocol(),
             indent=2,
             sort_keys=True,
         )
