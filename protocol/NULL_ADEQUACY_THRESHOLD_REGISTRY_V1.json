@@ -1,0 +1,99 @@
+{
+  "protocol": "NULL_ADEQUACY_THRESHOLD_REGISTRY_V1",
+  "status": "NOT_FROZEN",
+  "scientific_role": "null_adequacy_selection_only",
+
+  "claim_authority": false,
+  "promotion_authority": false,
+  "preregistered_confirmation": false,
+
+  "purpose": [
+    "Define adequacy criteria before future confirmatory null selection.",
+    "Prevent post-observation threshold tuning.",
+    "Separate model adequacy from scientific endpoint inference."
+  ],
+
+  "required_dimensions": {
+    "residual_autocorrelation": {
+      "required": true,
+      "threshold_frozen": false
+    },
+
+    "residual_partial_autocorrelation": {
+      "required": true,
+      "threshold_frozen": false
+    },
+
+    "stationarity": {
+      "required": true,
+      "threshold_frozen": false
+    },
+
+    "parameter_stability": {
+      "required": true,
+      "threshold_frozen": false
+    },
+
+    "finite_sample_calibration": {
+      "required": true,
+      "threshold_frozen": false
+    },
+
+    "surrogate_validity": {
+      "required": true,
+      "threshold_frozen": false
+    },
+
+    "model_selection_stability": {
+      "required": true,
+      "threshold_frozen": false
+    },
+
+    "boundary_saturation": {
+      "required": true,
+      "threshold_frozen": false
+    },
+
+    "effective_sample_size_preservation": {
+      "required": true,
+      "threshold_frozen": false
+    },
+
+    "nuisance_structure_preservation": {
+      "required": true,
+      "threshold_frozen": false
+    }
+  },
+
+  "selection_rules": {
+    "p_value_must_not_select_model": true,
+    "confirmation_outcome_must_not_select_model": true,
+    "smallest_p_value_must_not_select_model": true,
+    "largest_p_value_must_not_select_model": true,
+    "favorable_alpha_must_not_select_model": true,
+    "unfavorable_domain_must_not_select_model": true
+  },
+
+  "confirmation_prerequisites": {
+    "calibration_dataset_frozen": false,
+    "candidate_family_frozen": false,
+    "adequacy_thresholds_frozen": false,
+    "nuisance_treatment_frozen": false,
+    "surrogate_generator_frozen": false,
+    "replication_registry_frozen": false,
+    "fresh_primary_validation_required": true
+  },
+
+  "current_decision": {
+    "confirmatory_null_available": false,
+    "claim_promotion_allowed": false,
+    "reason": "No null candidate has yet passed a prospectively frozen adequacy protocol."
+  },
+
+  "failure_policy": {
+    "no_candidate_passes": "CONFIRMATORY_INFERENCE_UNAVAILABLE",
+    "threshold_change_after_confirmation_data": "FORBIDDEN",
+    "null_change_after_confirmation_data": "FORBIDDEN",
+    "endpoint_change_after_confirmation_data": "FORBIDDEN"
+  }
+}
