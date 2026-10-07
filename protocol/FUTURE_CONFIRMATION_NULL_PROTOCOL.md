@@ -2,7 +2,7 @@
 
 ## Status
 
-PROSPECTIVE METHODOLOGICAL PROTOCOL
+`PROSPECTIVE METHODOLOGICAL PROTOCOL`
 
 This document defines requirements for any future confirmatory validation of the Constrained Spectral Persistence Hypothesis.
 
@@ -14,7 +14,7 @@ The current canonical result remains under investigation.
 
 ## Current Null Limitation
 
-The current exploratory primary stochastic null uses a stationary Gaussian AR(p) family with AIC order selection over p = 1..20.
+The current exploratory primary stochastic null uses a stationary Gaussian AR(p) family with AIC order selection over `p = 1..20`.
 
 In the current canonical run, 96.5% of surrogate fits select the maximum declared order.
 
