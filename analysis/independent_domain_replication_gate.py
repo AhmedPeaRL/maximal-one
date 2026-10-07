@@ -50,7 +50,7 @@ EXCLUDED_DOMAIN_NAMES = (
 
 
 def load_replication_policy():
-
+    
     if not CLAIM_PATH.exists():
         raise SystemExit(
             f"Missing strict claim specification: {CLAIM_PATH}"
@@ -118,6 +118,11 @@ def load_replication_policy():
         "null_protocol_id":
             null_protocol[
                 "protocol_id"
+            ],
+
+        "null_model_id":
+            null_protocol[
+                "model_id"
             ],
 
         "null_family":
@@ -283,9 +288,19 @@ def evaluate_domain(
         )
 
         protocol_match = bool(
-
+            
             null_result.get(
                 "null_model"
+            )
+            ==
+            policy[
+                "null_model_id"
+            ]
+
+            and
+
+            null_result.get(
+                "null_protocol_id"
             )
             ==
             policy[
@@ -588,6 +603,11 @@ def main():
             "protocol_id":
                 policy[
                     "null_protocol_id"
+                ],
+
+            "model_id":
+                policy[
+                    "null_model_id"
                 ],
 
             "null_family":
