@@ -1,6 +1,7 @@
 name: Confirmatory Readiness Gate
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - "core-scientific/strict_claim.json"
