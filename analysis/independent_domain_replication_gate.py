@@ -405,10 +405,40 @@ def evaluate_domain(
                     "canonical_primary_alpha"
                 ),
 
+            "same_null_model":
+                bool(
+                    null_result.get(
+                        "null_model"
+                    )
+                    ==
+                    policy[
+                        "null_model_id"
+                    ]
+                ),
+
+            "same_null_protocol":
+                bool(
+                    null_result.get(
+                        "null_protocol_id"
+                    )
+                    ==
+                    policy[
+                        "null_protocol_id"
+                    ]
+                ),
+
             "same_null_family":
                 bool(
                     null_result.get(
                         "null_model"
+                    )
+                    ==
+                    policy[
+                        "null_model_id"
+                    ]
+                    and
+                    null_result.get(
+                        "null_protocol_id"
                     )
                     ==
                     policy[
