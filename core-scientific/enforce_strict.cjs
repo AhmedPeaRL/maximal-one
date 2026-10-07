@@ -60,6 +60,24 @@ const claim = readJson(
   CLAIM_PATH
 );
 
+const nullProtocol =
+  claim?.stochastic_null_protocol;
+
+assert(
+  nullProtocol &&
+  typeof nullProtocol === "object",
+  "strict_claim.stochastic_null_protocol is missing"
+);
+
+const expectedNullProtocolId =
+  nullProtocol.protocol_id;
+
+assert(
+  typeof expectedNullProtocolId === "string" &&
+  expectedNullProtocolId.length > 0,
+  "strict_claim.stochastic_null_protocol.protocol_id is missing"
+);
+
 const expected =
   claim.expected_result;
 
@@ -258,8 +276,12 @@ assert(
 
 assert(
   stochasticNull.null_model ===
-    "stationary_gaussian_ar_p_aic",
-  "unexpected primary stochastic null model"
+    expectedNullProtocolId,
+  (
+    "primary stochastic null protocol mismatch: " +
+    `expected=${expectedNullProtocolId}, ` +
+    `observed=${stochasticNull.null_model}`
+  )
 );
 
 assert(
