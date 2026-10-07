@@ -2,7 +2,7 @@
 
 ## Status
 
-DIAGNOSTIC_ONLY
+`DIAGNOSTIC_ONLY`
 
 This document records a methodological change in the non-primary diagnostic
 null path. It does not establish, strengthen, weaken, or promote the
