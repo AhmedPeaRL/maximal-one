@@ -210,6 +210,12 @@ jobs:
           path: artifacts/null_calibration_gate.json
           if-no-files-found: error
 
+      - name: Verify replication inventory consistency
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m analysis.verify_replication_inventory
+
       - name: Dataset eligibility gate
         shell: bash
         run: |
