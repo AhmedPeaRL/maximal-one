@@ -34,15 +34,15 @@ DATASETS = [
         "derived_from": None,
     },
     {
-        "name": "airline_passengers",
+        "name": "passengers",
         "path": "real-data/airline_passengers.csv",
         "role": "independent_real",
         "independent": True,
         "derived_from": None,
     },
     {
-        "name": "passengers",
-        "path": "real-data/airline_passengers.csv",
+        "name": "cosmic_rays",
+        "path": "real-data/cosmic_rays_clean.csv",
         "role": "independent_real",
         "independent": True,
         "derived_from": None,
@@ -61,7 +61,6 @@ DATASETS = [
         "independent": True,
         "derived_from": None,
     },
-
     {
         "name": "sunspots_global_extended",
         "path": "real-data/sunspots_global_extended.csv",
@@ -69,7 +68,6 @@ DATASETS = [
         "independent": False,
         "derived_from": "real-data/sunspots_full.csv",
     },
-
     {
         "name": "white_noise",
         "path": "real-data/white_noise.csv",
@@ -134,36 +132,57 @@ def load_eligibility_policy() -> dict:
         )
 
     claim = json.loads(
-        CLAIM_PATH.read_text(
-            encoding="utf-8"
-        )
+        CLAIM_PATH.read_text(encoding="utf-8")
     )
 
     dataset_policy = (
-        claim
-        .get("dataset", {})
+        claim.get("dataset", {})
         .get("eligibility_policy", {})
     )
 
+    frequency_band = (
+        claim.get("scale_validation", {})
+        .get("base_frequency_band", [0.01, 0.05])
+    )
+
+    if (
+        not isinstance(frequency_band, list)
+        or len(frequency_band) != 2
+    ):
+        raise SystemExit(
+            "Invalid canonical frequency band in strict_claim.json"
+        )
+
+    freq_min = float(frequency_band[0])
+    freq_max = float(frequency_band[1])
+
+    if not (0.0 < freq_min < freq_max < 0.5):
+        raise SystemExit(
+            "Invalid canonical frequency band bounds."
+        )
+
     return {
         "minimum_series_length": int(
+            dataset_policy.get("minimum_series_length", 256)
+        ),
+        "estimator_minimum_series_length": int(
             dataset_policy.get(
-                "minimum_series_length",
-                256,
+                "estimator_minimum_series_length", 512
             )
         ),
         "replication_minimum_series_length": int(
             dataset_policy.get(
-                "replication_minimum_series_length",
-                1024,
+                "replication_minimum_series_length", 1024
             )
+        ),
+        "minimum_frequency_bins": int(
+            dataset_policy.get("minimum_frequency_bins", 20)
         ),
         "canonical_nperseg": int(
-            dataset_policy.get(
-                "canonical_nperseg",
-                1024,
-            )
+            dataset_policy.get("canonical_nperseg", 1024)
         ),
+        "freq_min": freq_min,
+        "freq_max": freq_max,
     }
 
 
@@ -171,78 +190,80 @@ def evaluate_dataset(
     spec: dict,
     policy: dict,
 ) -> dict:
-
     entry = {
         "dataset": spec["path"],
         "name": spec["name"],
         "role": spec["role"],
-        "independent": bool(
-            spec["independent"]
-        ),
+        "independent": bool(spec["independent"]),
         "derived_from": spec["derived_from"],
-
-        # Legacy measurement-validity field.
         "valid": False,
-
-        # Explicit semantic fields.
         "measurement_valid": False,
         "replication_eligible": False,
-
         "rows": 0,
         "alpha": None,
     }
 
     try:
-        series = load_series(
-            spec["path"]
-        )
-
-        rows = int(
-            len(series)
-        )
-
+        series = load_series(spec["path"])
+        rows = int(len(series))
         entry["rows"] = rows
 
-        alpha = estimate_alpha(
-            series
-        )
-
-        if not np.isfinite(alpha):
-            raise ValueError(
-                "alpha is not finite"
-            )
-
-        entry["alpha"] = float(
-            alpha
-        )
-
-        # Measurement validity means that the canonical
-        # alpha measurement is available and finite.
-        entry["measurement_valid"] = bool(
-            rows
-            >=
-            policy["minimum_series_length"]
-        )
-
-        # Preserve the historical "valid" field only
-        # as a measurement-validity compatibility alias.
-        entry["valid"] = bool(
-            entry["measurement_valid"]
-        )
-
-        if not entry["measurement_valid"]:
+        if rows < policy["minimum_series_length"]:
             entry["replication_exclusion_reason"] = (
                 "series_length_below_measurement_minimum"
             )
-
             return entry
 
-        # Replication eligibility is a dataset-level
-        # protocol property, not a claim of replication.
+        if rows < policy["estimator_minimum_series_length"]:
+            entry["replication_exclusion_reason"] = (
+                "series_length_below_estimator_minimum"
+            )
+            return entry
+
+        nperseg = min(
+            policy["canonical_nperseg"],
+            rows,
+        )
+
+        frequencies = np.fft.rfftfreq(nperseg)
+
+        available_bins = int(
+            np.sum(
+                (frequencies > policy["freq_min"])
+                & (frequencies < policy["freq_max"])
+            )
+        )
+
+        entry["frequency_bins"] = available_bins
+        entry["minimum_frequency_bins"] = (
+            policy["minimum_frequency_bins"]
+        )
+
+        if available_bins < policy["minimum_frequency_bins"]:
+            entry["replication_exclusion_reason"] = (
+                "insufficient_frequency_bins"
+            )
+            return entry
+
+        alpha = estimate_alpha(
+            series,
+            freq_min=policy["freq_min"],
+            freq_max=policy["freq_max"],
+        )
+
+        if not np.isfinite(alpha):
+            entry["replication_exclusion_reason"] = (
+                "nonfinite_alpha"
+            )
+            return entry
+
+        entry["alpha"] = float(alpha)
+
+        entry["measurement_valid"] = True
+        entry["valid"] = True
+
         entry["replication_eligible"] = bool(
-            rows
-            >=
-            policy["replication_minimum_series_length"]
+            rows >= policy["replication_minimum_series_length"]
         )
 
         if not entry["replication_eligible"]:
@@ -253,14 +274,10 @@ def evaluate_dataset(
         return entry
 
     except Exception as exc:
-        entry["error"] = str(
-            exc
-        )
-
+        entry["error"] = str(exc)
         entry["measurement_valid"] = False
         entry["replication_eligible"] = False
         entry["valid"] = False
-
         return entry
 
 
