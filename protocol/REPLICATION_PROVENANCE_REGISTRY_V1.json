@@ -29,6 +29,27 @@
       "reason": "Current file contains values but does not encode sufficient sampling metadata to establish temporal cadence from the file alone."
     },
 
+    "passengers": {
+      "path": "real-data/airline_passengers.csv",
+      "status": "INELIGIBLE_FOR_REPLICATION",
+      "replication_eligible": false,
+      "reason": "The current series has 144 rows, below the declared estimator minimum of 512 and replication minimum of 1024."
+    },
+
+    "temperature": {
+      "path": "real-data/temperature_global.csv",
+      "status": "INELIGIBLE_FOR_REPLICATION",
+      "replication_eligible": false,
+      "reason": "The current series has 146 rows, below the declared estimator minimum of 512 and replication minimum of 1024."
+    },
+
+    "sp500": {
+      "path": "real-data/sp500.csv",
+      "status": "INELIGIBLE_FOR_REPLICATION",
+      "replication_eligible": false,
+      "reason": "The current series has 252 rows, below the declared estimator minimum of 512 and replication minimum of 1024."
+    }
+
     "earthquake_magnitude": {
       "path": "real-data/earthquake_magnitude_clean.csv",
       "status": "PENDING_SAMPLING_SEMANTICS_REVIEW",
