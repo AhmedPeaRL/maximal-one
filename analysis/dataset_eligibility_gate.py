@@ -35,6 +35,18 @@ REQUIRED_PROVENANCE_FIELDS = (
     "known_shared_nuisance_with_primary",
 )
 
+def provenance_value_present(value):
+    """Reject missing provenance values without rejecting explicit False."""
+    if value is None:
+        return False
+
+    if isinstance(value, str):
+        return bool(value.strip())
+
+    if isinstance(value, (list, dict)):
+        return bool(value)
+
+    return True
 
 def frequency_bin_count(
     nperseg: int,
@@ -353,12 +365,45 @@ def main():
             }
         )
 
+        provenance_metadata_complete = bool(
+            provenance is not None
+            and all(
+                provenance_value_present(
+                    provenance.get(field)
+                )
+                for field in REQUIRED_PROVENANCE_FIELDS
+            )
+        )
+
         provenance_eligible = bool(
             provenance is not None
-            and provenance.get(
-                "replication_eligible"
-            ) is True
+            and provenance.get("path") == path
+            and provenance.get("replication_eligible") is True
+            and provenance_metadata_complete
         )
+
+        item["provenance_metadata_complete"] = (
+            provenance_metadata_complete
+        )
+
+        if provenance is None:
+            item["provenance_exclusion_reason"] = (
+                "missing_provenance_registry_entry"
+            )
+        elif provenance.get("path") != path:
+            item["provenance_exclusion_reason"] = (
+                "provenance_path_mismatch"
+            )
+        elif not provenance_metadata_complete:
+            item["provenance_exclusion_reason"] = (
+                "incomplete_provenance_metadata"
+            )
+        elif provenance.get("replication_eligible") is not True:
+            item["provenance_exclusion_reason"] = (
+                "provenance_not_approved_for_replication"
+            )
+        else:
+            item["provenance_exclusion_reason"] = None
 
         item["provenance_replication_eligible"] = (
             provenance_eligible
