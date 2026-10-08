@@ -139,15 +139,29 @@ def verify_freeze_lock(registry):
             "Freeze commit is not an ancestor of "
             "the current confirmation run."
         )
-
-    frozen_registry_bytes = subprocess.check_output(
-        [
-            "git",
-            "show",
-            f"{freeze_commit}:{REGISTRY_PATH.as_posix()}",
-        ],
-        stderr=subprocess.STDOUT,
-    )
+    
+    try:
+        frozen_registry_bytes = subprocess.check_output(
+            [
+                "git",
+                "show",
+                f"{freeze_commit}:{REGISTRY_PATH.as_posix()}",
+            ],
+            text=False,
+            stderr=subprocess.PIPE,
+        )
+    except subprocess.CalledProcessError as exc:
+        detail = (
+            exc.stderr.decode("utf-8", errors="replace").strip()
+            if exc.stderr
+            else "Git could not retrieve the registry at that commit."
+        )
+        fail(
+            "Cannot verify the frozen registry at "
+            f"commit {freeze_commit}. Check that the commit exists "
+            "and contains "
+            f"{REGISTRY_PATH.as_posix()}. Details: {detail}"
+        )
 
     frozen_commit_hash = hashlib.sha256(
         frozen_registry_bytes
