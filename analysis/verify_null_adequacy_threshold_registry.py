@@ -147,7 +147,6 @@ def verify_freeze_lock(registry):
                 "show",
                 f"{freeze_commit}:{REGISTRY_PATH.as_posix()}",
             ],
-            text=False,
             stderr=subprocess.PIPE,
         )
     except subprocess.CalledProcessError as exc:
