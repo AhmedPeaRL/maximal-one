@@ -63,6 +63,7 @@ def main() -> None:
         fail("registry candidates must be an object")
 
     failures = []
+    eligible_count = 0
 
     for name, candidate in candidates.items():
 
@@ -76,6 +77,8 @@ def main() -> None:
             "replication_eligible"
         ) is not True:
             continue
+
+        eligible_count += 1
 
         provenance_file = (
             PROVENANCE_DIR
@@ -189,8 +192,20 @@ def main() -> None:
             1
         )
 
+    if eligible_count == 0:
+        print(
+            "PROVENANCE GATE: NO APPROVED CANDIDATES VERIFIED"
+        )
+        print(
+            "No provenance approval was established; "
+            "replication remains blocked."
+        )
+        return
+
+    print("PROVENANCE GATE: PASS")
     print(
-        "PROVENANCE GATE: PASS"
+        f"Approved candidate provenance records verified: "
+        f"{eligible_count}"
     )
 
 
