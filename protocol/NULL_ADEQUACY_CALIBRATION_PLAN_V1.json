@@ -1,0 +1,64 @@
+{
+  "protocol": "NULL_ADEQUACY_CALIBRATION_PLAN_V1",
+  "status": "DESIGN_ONLY",
+  "scientific_role": "prospective_null_adequacy_calibration",
+
+  "primary_confirmation_dataset_excluded": true,
+  "primary_confirmation_outcome_must_not_influence_thresholds": true,
+
+  "calibration_dataset": {
+    "identifier": null,
+    "source_identifier": null,
+    "source_url_or_citation": null,
+    "physical_domain": null,
+    "observation_variable": null,
+    "sampling_cadence": null,
+    "sampling_regularness": null,
+    "observation_window": null,
+    "preprocessing_policy": null,
+    "frozen_before_confirmation": false
+  },
+
+  "candidate_null_family": {
+    "family_identifier": "stationary_gaussian_AR_p",
+    "model_selection_rule": "AIC",
+    "minimum_order": 1,
+    "maximum_order": 20,
+    "same_effective_observations_required": true,
+    "selection_rule_frozen": false
+  },
+
+  "adequacy_dimensions": [
+    "residual_autocorrelation",
+    "residual_partial_autocorrelation",
+    "stationarity",
+    "parameter_stability",
+    "finite_sample_calibration",
+    "surrogate_validity",
+    "model_selection_stability",
+    "boundary_saturation",
+    "effective_sample_size_preservation",
+    "nuisance_structure_preservation"
+  ],
+
+  "threshold_selection": {
+    "method": null,
+    "familywise_error_control": null,
+    "operating_characteristic_target": null,
+    "calibration_resampling_count": null,
+    "thresholds_frozen_before_confirmation": false
+  },
+
+  "selection_prohibitions": {
+    "primary_alpha_must_not_select_threshold": true,
+    "primary_p_value_must_not_select_threshold": true,
+    "confirmation_outcome_must_not_select_threshold": true,
+    "favorable_domain_must_not_select_threshold": true,
+    "unfavorable_domain_must_not_be_removed": true
+  },
+
+  "promotion": {
+    "confirmatory_null_available": false,
+    "claim_promotion_allowed": false
+  }
+}
