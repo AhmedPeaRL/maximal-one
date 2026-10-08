@@ -49,6 +49,23 @@ EXCLUDED_DOMAIN_NAMES = (
 )
 
 
+def load_provenance_registry():
+    path = Path(
+        "protocol/REPLICATION_PROVENANCE_REGISTRY_V1.json"
+    )
+
+    if not path.is_file():
+        raise SystemExit(
+            f"Missing provenance registry: {path}"
+        )
+
+    return json.loads(
+        path.read_text(
+            encoding="utf-8"
+        )
+    )
+
+
 def load_replication_policy():
     
     if not CLAIM_PATH.exists():
@@ -172,6 +189,45 @@ def candidate_domain_names():
         names.append(name)
 
     return names
+
+    candidate = registered_candidates.get(
+        name
+    )
+
+    if not isinstance(candidate, dict):
+        domains.append(
+            {
+                "name": name,
+                "path": DATASETS[name],
+                "replication_eligible": False,
+                "scientific_replication": False,
+                "replication_status":
+                    "PROVENANCE_NOT_REGISTERED",
+                "reason":
+                    "Dataset is absent from the replication provenance registry.",
+            }
+        )
+        continue
+
+    if candidate.get(
+        "replication_eligible"
+    ) is not True:
+        domains.append(
+            {
+                "name": name,
+                "path": DATASETS[name],
+                "replication_eligible": False,
+                "scientific_replication": False,
+                "replication_status":
+                    "PROVENANCE_NOT_APPROVED",
+                "reason":
+                    candidate.get(
+                        "reason",
+                        "Dataset is not approved for replication."
+                    ),
+            }
+        )
+        continue
 
 
 def evaluate_domain(
@@ -527,6 +583,17 @@ def evaluate_domain(
 def main():
 
     policy = load_replication_policy()
+
+    provenance_registry = (
+        load_provenance_registry()
+    )
+
+    registered_candidates = (
+        provenance_registry.get(
+            "candidates",
+            {}
+        )
+    )
 
     required_domains = int(
         policy[
