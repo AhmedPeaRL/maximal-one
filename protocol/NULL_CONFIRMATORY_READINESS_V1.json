@@ -1,0 +1,45 @@
+{
+  "protocol": "NULL_CONFIRMATORY_READINESS_V1",
+
+  "status": "NOT_READY",
+
+  "scientific_role": "confirmatory_null_readiness",
+
+  "promotion_authority": false,
+
+  "required_reviews": [
+    "residual_autocorrelation",
+    "residual_partial_autocorrelation",
+    "stationarity",
+    "parameter_stability",
+    "finite_sample_calibration",
+    "surrogate_validity",
+    "model_selection_stability",
+    "boundary_saturation",
+    "effective_sample_size_preservation",
+    "nuisance_structure_preservation"
+  ],
+
+  "hard_rules": {
+    "boundary_saturation_must_not_be_ignored": true,
+    "model_capacity_must_be_declared_before_confirmation": true,
+    "p_value_must_not_select_model": true,
+    "confirmation_outcome_must_not_select_model": true,
+    "favorable_alpha_must_not_select_model": true,
+    "null_family_change_requires_fresh_validation": true,
+    "null_threshold_change_requires_fresh_validation": true
+  },
+
+  "current_observed_state": {
+    "boundary_fraction": 0.937,
+    "boundary_fraction_threshold": 0.50,
+    "capacity_review_required": true,
+    "confirmatory_null_frozen": false,
+    "fresh_validation_required": true
+  },
+
+  "decision": {
+    "confirmatory_inference_available": false,
+    "claim_promotion_allowed": false
+  }
+}
