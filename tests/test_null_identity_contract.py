@@ -113,6 +113,9 @@ def test_null_result_identity():
 if __name__ == "__main__":
     test_null_model_and_protocol_are_distinct()
     test_null_identity_contract()
+    test_null_result_identity()
+
     print(
-        "✅ Null identity contract passed."
+        "✅ Null identity contract passed:"
+        " model_id, protocol_id, and generated-result identity."
     )
