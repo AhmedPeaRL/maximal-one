@@ -137,6 +137,13 @@ jobs:
 
           python scripts/validate_canonical_report.py
 
+      - name: Verify stochastic null identity contract
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python tests/test_null_identity_contract.py
+
       - name: Run Solar Periodicity Nuisance Audit
         shell: bash
         run: |
@@ -178,6 +185,13 @@ jobs:
 
           python scripts/generate_public_scientific_report.py
           python scripts/generate_public_scientific_report.py --check
+
+      - name: Verify null adequacy threshold registry
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python analysis/verify_null_adequacy_threshold_registry.py
 
       - name: Run null calibration gate
         shell: bash
