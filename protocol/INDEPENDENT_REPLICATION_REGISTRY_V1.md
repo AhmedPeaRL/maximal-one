@@ -34,18 +34,23 @@ declared stochastic null using:
 
 Dataset:
 
-`real-data/cosmic_rays_clean.csv`
+`"real-data/cosmic_rays_clean.csv"`
 
 Scientific domain:
 
-Cosmic-ray temporal measurements.
+Cosmic-ray measurements; the exact source, observation variable, sampling cadence, timestamp semantics, and preprocessing history must be verified from the original source and data-construction record.
 
 Current status:
 
-`CANDIDATE`
+`"PENDING_PROVENANCE_REVIEW"`
 
-It is currently replication-eligible by series length, but scientific
-replication has not been established.
+The file currently contains 3,698 numeric observations. Its length is sufficient to satisfy the declared 1,024-sample length condition, but length alone does not establish replication eligibility.
+
+The current provenance registry does not approve this dataset for replication. The source identifier, source citation, temporal sampling semantics, observation window, missingness policy, preprocessing policy, and shared-nuisance assessment must be documented and reviewed before eligibility can be reconsidered.
+
+No provenance fields may be filled from inference based solely on the numeric values. The dataset must remain excluded from the replication count until its provenance is verified and the required eligibility checks pass.
+
+Scientific replication has not been established.
 
 ---
 
