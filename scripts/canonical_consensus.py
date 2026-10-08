@@ -93,6 +93,39 @@ DATASETS = [
     },
 ]
 
+PROVENANCE_PATH = Path(
+    "protocol/REPLICATION_PROVENANCE_REGISTRY_V1.json"
+)
+
+REQUIRED_PROVENANCE_FIELDS = (
+    "source_identifier",
+    "source_url_or_citation",
+    "physical_domain",
+    "observation_variable",
+    "sampling_cadence",
+    "sampling_regularness",
+    "timestamp_presence",
+    "time_order",
+    "observation_window",
+    "missingness_policy",
+    "preprocessing_policy",
+    "known_shared_nuisance_with_primary",
+)
+
+
+def provenance_value_present(value):
+    """Accept explicit False where meaningful, but reject missing values."""
+    if value is None:
+        return False
+
+    if isinstance(value, str):
+        return bool(value.strip())
+
+    if isinstance(value, (list, dict)):
+        return bool(value)
+
+    return True
+
 
 def load_eligibility_policy() -> dict:
     if not CLAIM_PATH.exists():
@@ -242,6 +275,89 @@ def main():
         )
         for spec in DATASETS
     ]
+  
+    if not PROVENANCE_PATH.exists():
+        raise SystemExit(
+            f"Missing replication provenance registry: "
+            f"{PROVENANCE_PATH}"
+        )
+
+    provenance_registry = json.loads(
+        PROVENANCE_PATH.read_text(encoding="utf-8")
+    )
+
+    if provenance_registry.get("protocol") != (
+        "REPLICATION_PROVENANCE_REGISTRY_V1"
+    ):
+        raise SystemExit(
+            "Unexpected replication provenance registry protocol."
+        )
+
+    candidates = provenance_registry.get("candidates", {})
+
+    for result in results:
+        # Preserve the original computational eligibility for auditing.
+        structural_eligible = (
+            result.get("replication_eligible") is True
+        )
+        result["structural_replication_eligible"] = (
+            structural_eligible
+        )
+
+        candidate = candidates.get(result["name"])
+        missing_fields = []
+
+        if candidate is not None:
+            missing_fields = [
+                field
+                for field in REQUIRED_PROVENANCE_FIELDS
+                if not provenance_value_present(
+                    candidate.get(field)
+                )
+            ]
+
+        provenance_eligible = bool(
+            candidate is not None
+            and candidate.get("path") == result["dataset"]
+            and candidate.get("replication_eligible") is True
+            and not missing_fields
+        )
+
+        result["provenance_replication_eligible"] = (
+            provenance_eligible
+        )
+        result["provenance_missing_fields"] = missing_fields
+
+        independent_real_domain = bool(
+            result.get("role") == "independent_real"
+            and result.get("independent") is True
+            and result.get("derived_from") is None
+        )
+
+        final_eligible = bool(
+            structural_eligible
+            and independent_real_domain
+            and provenance_eligible
+        )
+
+        result["replication_eligible"] = final_eligible
+
+        if not final_eligible:
+            if not independent_real_domain:
+                reason = "not_an_independent_real_domain"
+            elif candidate is None:
+                reason = "missing_provenance_registry_entry"
+            elif candidate.get("path") != result["dataset"]:
+                reason = "provenance_path_mismatch"
+            elif missing_fields:
+                reason = "incomplete_provenance_metadata"
+            elif candidate.get("replication_eligible") is not True:
+                reason = "provenance_not_approved_for_replication"
+            else:
+                reason = "structural_replication_eligibility_failed"
+
+            result["replication_exclusion_reason"] = reason
+            
 
     primary_results = [
         r
