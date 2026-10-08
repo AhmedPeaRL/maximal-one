@@ -140,6 +140,30 @@ def verify_freeze_lock(registry):
             "the current confirmation run."
         )
 
+    frozen_registry_bytes = subprocess.check_output(
+        [
+            "git",
+            "show",
+            f"{freeze_commit}:{REGISTRY_PATH.as_posix()}",
+        ],
+        stderr=subprocess.STDOUT,
+    )
+
+    frozen_commit_hash = hashlib.sha256(
+        frozen_registry_bytes
+    ).hexdigest()
+
+    if frozen_commit_hash != registry_sha256:
+        fail(
+            "The registry contents at freeze_commit do not "
+            "match the registry_sha256 recorded in the freeze lock."
+        )
+
+    if frozen_commit_hash != actual_hash:
+        fail(
+            "The registry changed after the declared freeze commit."
+        )
+
     print(
         "✅ Null adequacy freeze provenance verified."
     )
@@ -296,6 +320,49 @@ def main():
                 f"Frozen threshold is not finite: "
                 f"{name}"
             )
+
+        bounds = item.get("allowed_bounds")
+
+        if not isinstance(bounds, dict):
+            fail(
+                f"Frozen threshold requires allowed_bounds: {name}"
+            )
+
+        lower = bounds.get("minimum")
+        upper = bounds.get("maximum")
+
+        for label, value in (
+            ("minimum", lower),
+            ("maximum", upper),
+        ):
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+                or not math.isfinite(float(value))
+            ):
+                fail(
+                    f"Invalid allowed_bounds.{label}: {name}"
+                )
+
+        if float(lower) > float(upper):
+            fail(f"Reversed allowed_bounds: {name}")
+
+        if not float(lower) <= float(threshold) <= float(upper):
+            fail(
+                f"Threshold falls outside declared bounds: {name}"
+            )
+
+        for field in (
+            "metric_definition",
+            "units",
+            "calibration_rationale",
+            "calibration_reference",
+        ):
+            value = item.get(field)
+            if not isinstance(value, str) or not value.strip():
+                fail(
+                    f"Frozen threshold requires {field}: {name}"
+        )
 
     verify_freeze_lock(
         registry
