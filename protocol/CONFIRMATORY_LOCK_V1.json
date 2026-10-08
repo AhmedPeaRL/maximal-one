@@ -1,0 +1,58 @@
+{
+  "protocol": "CONFIRMATORY_LOCK_V1",
+  "status": "LOCKED_PENDING_FRESH_CONFIRMATION",
+
+  "scientific_role": "confirmatory_protocol_boundary",
+
+  "claim_authority": false,
+  "promotion_authority": false,
+
+  "purpose": [
+    "Prevent exploratory validation from being represented as confirmatory evidence.",
+    "Require explicit prospective freezing before fresh confirmation.",
+    "Prevent post-observation protocol repair from silently becoming confirmation."
+  ],
+
+  "required_frozen_components": [
+    "primary_endpoint",
+    "alternative_direction",
+    "tail",
+    "frequency_band",
+    "estimator",
+    "normalization",
+    "null_family",
+    "null_model_selection_rule",
+    "null_adequacy_thresholds",
+    "surrogate_generator",
+    "replication_domain_registry",
+    "minimum_replication_domains"
+  ],
+
+  "current_state": {
+    "null_family_frozen": false,
+    "null_selection_rule_frozen": false,
+    "null_adequacy_thresholds_frozen": false,
+    "surrogate_generator_frozen": false,
+    "replication_registry_frozen": false,
+    "fresh_confirmatory_validation_completed": false
+  },
+
+  "promotion_allowed": false,
+
+  "promotion_block_reasons": [
+    "confirmatory_null_not_frozen",
+    "null_adequacy_thresholds_not_frozen",
+    "replication_registry_not_frozen",
+    "fresh_confirmatory_validation_not_completed"
+  ],
+
+  "forbidden_actions": [
+    "select_null_from_confirmation_p_value",
+    "select_null_from_favorable_alpha",
+    "change_endpoint_after_confirmation_data",
+    "change_tail_after_confirmation_data",
+    "change_frequency_band_after_confirmation_data",
+    "change_replication_threshold_after_confirmation_data",
+    "retroactively_promote_exploratory_results"
+  ]
+}
