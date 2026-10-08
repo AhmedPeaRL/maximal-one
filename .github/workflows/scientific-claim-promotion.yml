@@ -240,34 +240,77 @@ jobs:
 
           python - <<'PY'
           import json
+          from pathlib import Path
 
-          path = "artifacts/dataset_eligibility_gate.json"
+          path = Path("artifacts/dataset_eligibility_gate.json")
 
-          with open(path, encoding="utf-8") as f:
-              data = json.load(f)
-
-          required = int(
-              data["minimum_replication_domains"]
-          )
-
-          available = int(
-              data["eligible_replication_domain_count"]
-          )
-
-          print(
-              f"Eligible replication domains: "
-              f"{available}/{required}"
-          )
-
-          if available < required:
+          if not path.is_file():
               raise SystemExit(
-                  "❌ Dataset replication eligibility "
-                  "is insufficient."
+                  "ERROR: Dataset eligibility artifact is missing."
               )
 
-          print(
-              "✅ Dataset eligibility contract satisfied."
-          )
+          with path.open(encoding="utf-8") as f:
+              data = json.load(f)
+
+          required = int(data["minimum_replication_domains"])
+          available = int(data["eligible_replication_domain_count"])
+          domains = data.get("domains", [])
+
+          print("=== REPLICATION ELIGIBILITY DIAGNOSTICS ===")
+          print(f"Eligible independent replication domains: {available}/{required}")
+          print(f"Gate status: {data.get('status', 'UNKNOWN')}")
+
+          for item in domains:
+              name = item.get("name", "UNKNOWN")
+              rows = item.get("series_length", item.get("rows", "UNKNOWN"))
+              measurement = item.get(
+                  "eligible_for_measurement",
+                  item.get("measurement_valid", False),
+              )
+              replication = item.get(
+                  "eligible_for_replication",
+                  item.get("replication_eligible", False),
+              )
+              provenance = item.get(
+                  "provenance_replication_eligible",
+                  False,
+              )
+
+              reasons = []
+
+              for key in (
+                  "reason",
+                  "replication_exclusion_reason",
+                  "provenance_exclusion_reason",
+              ):
+                  value = item.get(key)
+                  if isinstance(value, str) and value:
+                      reasons.append(value)
+
+              review = item.get("provenance_review", {})
+              if isinstance(review, dict):
+                  review_reason = review.get("reason")
+                  if isinstance(review_reason, str) and review_reason:
+                      reasons.append(review_reason)
+
+              print(
+                  f"- {name}: rows={rows}; "
+                  f"measurement={measurement}; "
+                  f"replication={replication}; "
+                  f"provenance={provenance}"
+              )
+
+              for reason in dict.fromkeys(reasons):
+                  print(f"    reason: {reason}")
+
+          if available < required:
+              print(
+                  "BLOCKED: scientific replication eligibility "
+                  "has not been established."
+              )
+              raise SystemExit(1)
+
+          print("Dataset eligibility contract satisfied.")
           PY
 
       - name: Permutation determinism audit
