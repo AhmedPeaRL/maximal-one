@@ -41,8 +41,8 @@ DATASETS = [
         "derived_from": None,
     },
     {
-        "name": "cosmic_rays",
-        "path": "real-data/cosmic_rays_clean.csv",
+        "name": "passengers",
+        "path": "real-data/airline_passengers.csv",
         "role": "independent_real",
         "independent": True,
         "derived_from": None,
@@ -342,21 +342,51 @@ def main():
 
         result["replication_eligible"] = final_eligible
 
-        if not final_eligible:
-            if not independent_real_domain:
-                reason = "not_an_independent_real_domain"
-            elif candidate is None:
-                reason = "missing_provenance_registry_entry"
-            elif candidate.get("path") != result["dataset"]:
-                reason = "provenance_path_mismatch"
-            elif missing_fields:
-                reason = "incomplete_provenance_metadata"
-            elif candidate.get("replication_eligible") is not True:
-                reason = "provenance_not_approved_for_replication"
-            else:
-                reason = "structural_replication_eligibility_failed"
+        exclusion_reasons = []
 
-            result["replication_exclusion_reason"] = reason
+        if not independent_real_domain:
+            exclusion_reasons.append(
+                "not_an_independent_real_domain"
+            )
+
+        if not structural_eligible:
+            exclusion_reasons.append(
+                result.get(
+                    "replication_exclusion_reason",
+                    "structural_replication_eligibility_failed",
+                )
+            )
+
+        if candidate is None:
+            exclusion_reasons.append(
+                "missing_provenance_registry_entry"
+            )
+        else:
+            if candidate.get("path") != result["dataset"]:
+                exclusion_reasons.append(
+                    "provenance_path_mismatch"
+                )
+
+            if missing_fields:
+                exclusion_reasons.append(
+                    "incomplete_provenance_metadata"
+                )
+
+            if candidate.get("replication_eligible") is not True:
+                exclusion_reasons.append(
+                    "provenance_not_approved_for_replication"
+                )
+
+        # Preserve every known exclusion cause for auditability.
+        result["replication_exclusion_reasons"] = (
+            exclusion_reasons
+        )
+
+        result["replication_exclusion_reason"] = (
+            exclusion_reasons[0]
+            if exclusion_reasons
+            else None
+        )
             
 
     primary_results = [
