@@ -1,0 +1,48 @@
+{
+  "dataset": "cosmic_rays",
+  "path": "real-data/cosmic_rays_clean.csv",
+
+  "provenance_status": "PENDING_SOURCE_VERIFICATION",
+
+  "source": {
+    "source_identifier": null,
+    "source_url_or_citation": null,
+    "retrieval_date": null,
+    "original_filename": null,
+    "original_checksum_sha256": null
+  },
+
+  "observation": {
+    "physical_domain": null,
+    "observation_variable": null,
+    "sampling_cadence": null,
+    "sampling_regularness": null,
+    "timestamp_presence": null,
+    "time_order": null,
+    "observation_window": null
+  },
+
+  "data_handling": {
+    "missingness_policy": null,
+    "preprocessing_policy": null,
+    "normalization_policy": "repository_canonical_normalization"
+  },
+
+  "independence": {
+    "known_shared_nuisance_with_primary": null,
+    "independence_review_status": "PENDING"
+  },
+
+  "eligibility": {
+    "minimum_rows": 1024,
+    "observed_rows": 3698,
+    "measurement_valid": true,
+    "replication_eligible": false
+  },
+
+  "review": {
+    "review_status": "NOT_APPROVED",
+    "approved_for_replication": false,
+    "approval_basis": null
+  }
+}
