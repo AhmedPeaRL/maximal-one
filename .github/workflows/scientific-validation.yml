@@ -83,6 +83,7 @@ jobs:
           set -euo pipefail
           
           python --version
+          python -m compileall -q analysis scripts core tests
           python -m pip install --require-hashes -r requirements-lock.txt
           
       - name: Prepare canonical derived inputs (MANDATORY)
