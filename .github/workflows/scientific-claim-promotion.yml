@@ -330,6 +330,14 @@ jobs:
           path: artifacts/permutation_determinism_audit.json
           if-no-files-found: error
 
+      - name: Verify confirmatory protocol readiness
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python analysis/verify_replication_provenance.py
+          python analysis/verify_confirmatory_readiness.py 
+
       - name: Run independent domain replication gate
         shell: bash
         run: |
