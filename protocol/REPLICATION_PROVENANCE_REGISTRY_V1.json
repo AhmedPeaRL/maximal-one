@@ -1,0 +1,68 @@
+{
+  "protocol": "REPLICATION_PROVENANCE_REGISTRY_V1",
+  "status": "PRE_CONFIRMATORY_REVIEW",
+  "scientific_role": "replication_eligibility_only",
+
+  "claim_authority": false,
+  "promotion_authority": false,
+
+  "required_metadata": [
+    "source_identifier",
+    "source_url_or_citation",
+    "physical_domain",
+    "observation_variable",
+    "sampling_cadence",
+    "sampling_regularness",
+    "timestamp_presence",
+    "time_order",
+    "observation_window",
+    "missingness_policy",
+    "preprocessing_policy",
+    "known_shared_nuisance_with_primary"
+  ],
+
+  "candidates": {
+    "cosmic_rays": {
+      "path": "real-data/cosmic_rays_clean.csv",
+      "status": "PENDING_PROVENANCE_REVIEW",
+      "replication_eligible": false,
+      "reason": "Current file contains values but does not encode sufficient sampling metadata to establish temporal cadence from the file alone."
+    },
+
+    "earthquake_magnitude": {
+      "path": "real-data/earthquake_magnitude_clean.csv",
+      "status": "PENDING_SAMPLING_SEMANTICS_REVIEW",
+      "replication_eligible": false,
+      "reason": "Event catalog timestamps are irregular; current spectral pipeline assumes an ordered regularly sampled temporal series."
+    },
+
+    "solar_wind_speed": {
+      "path": "real-data/solar_wind_speed_clean.csv",
+      "status": "PENDING_PROVENANCE_REVIEW",
+      "replication_eligible": false,
+      "reason": "Current file does not encode sufficient cadence metadata and the physical domain may share solar-cycle nuisance structure with the primary domain."
+    },
+
+    "co2": {
+      "path": "real-data/co2_atmospheric_clean.csv",
+      "status": "INELIGIBLE_FOR_REPLICATION",
+      "replication_eligible": false,
+      "reason": "Series length is below the declared replication minimum."
+    }
+  },
+
+  "selection_rule": {
+    "eligibility_must_be_determined_before_endpoint_observation": true,
+    "alpha_must_not_determine_eligibility": true,
+    "unfavorable_domains_must_not_be_excluded_after_observation": true,
+    "derived_domains_do_not_count": true,
+    "synthetic_domains_do_not_count": true,
+    "null_domains_do_not_count": true
+  },
+
+  "current_decision": {
+    "independent_secondary_replication_domains_confirmed": 0,
+    "minimum_required": 2,
+    "claim_promotion_allowed": false
+  }
+}
