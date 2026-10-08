@@ -190,45 +190,6 @@ def candidate_domain_names():
 
     return names
 
-    candidate = registered_candidates.get(
-        name
-    )
-
-    if not isinstance(candidate, dict):
-        domains.append(
-            {
-                "name": name,
-                "path": DATASETS[name],
-                "replication_eligible": False,
-                "scientific_replication": False,
-                "replication_status":
-                    "PROVENANCE_NOT_REGISTERED",
-                "reason":
-                    "Dataset is absent from the replication provenance registry.",
-            }
-        )
-        continue
-
-    if candidate.get(
-        "replication_eligible"
-    ) is not True:
-        domains.append(
-            {
-                "name": name,
-                "path": DATASETS[name],
-                "replication_eligible": False,
-                "scientific_replication": False,
-                "replication_status":
-                    "PROVENANCE_NOT_APPROVED",
-                "reason":
-                    candidate.get(
-                        "reason",
-                        "Dataset is not approved for replication."
-                    ),
-            }
-        )
-        continue
-
 
 def evaluate_domain(
     name,
@@ -606,10 +567,60 @@ def main():
     )
 
     domains = []
+    
+    for index, name in enumerate(candidate_names):
+        candidate = registered_candidates.get(name)
 
-    for index, name in enumerate(
-        candidate_names
-    ):
+        # Establish provenance eligibility before inspecting
+        # the scientific endpoint.
+        if (
+            not isinstance(candidate, dict)
+            or candidate.get("replication_eligible") is not True
+        ):
+            try:
+                rows = int(len(load_series(DATASETS[name])))
+                load_error = None
+            except Exception as exc:
+                rows = 0
+                load_error = str(exc)
+
+            measurement_valid = (
+                rows >= policy["measurement_minimum_length"]
+            )
+            estimator_valid = (
+                rows >= policy["estimator_minimum_length"]
+            )
+
+            if not isinstance(candidate, dict):
+                status = "PROVENANCE_NOT_REGISTERED"
+                reason = (
+                    "Dataset is absent from the replication provenance registry."
+                )
+            else:
+                status = "PROVENANCE_NOT_APPROVED"
+                reason = candidate.get(
+                    "reason",
+                    "Dataset is not approved for replication.",
+                )
+
+            item = {
+                "name": name,
+                "path": DATASETS[name],
+                "rows": rows,
+                "measurement_valid": measurement_valid,
+                "estimator_valid": estimator_valid,
+                "replication_eligible": False,
+                "scientific_replication": False,
+                "replication_status": status,
+                "provenance_replication_eligible": False,
+                "reason": reason,
+            }
+
+            if load_error is not None:
+                item["load_error"] = load_error
+
+            domains.append(item)
+            continue
 
         domains.append(
             evaluate_domain(
