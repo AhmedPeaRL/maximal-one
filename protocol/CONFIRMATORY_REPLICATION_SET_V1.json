@@ -1,0 +1,34 @@
+{
+  "protocol": "CONFIRMATORY_REPLICATION_SET_V1",
+
+  "status": "NOT_FROZEN",
+
+  "selection_rule": {
+    "selection_must_precede_endpoint_observation": true,
+    "selection_by_alpha_forbidden": true,
+    "selection_by_p_value_forbidden": true,
+    "selection_by_favorable_result_forbidden": true
+  },
+
+  "primary": {
+    "name": "sunspots",
+    "path": "real-data/sunspots_full.csv"
+  },
+
+  "secondary": [
+    {
+      "name": "cosmic_rays",
+      "path": "real-data/cosmic_rays_clean.csv",
+      "status": "PENDING_PROVENANCE"
+    },
+    {
+      "name": "solar_wind_speed",
+      "path": "real-data/solar_wind_speed_clean.csv",
+      "status": "PENDING_PROVENANCE"
+    }
+  ],
+
+  "minimum_required_secondary_domains": 2,
+
+  "promotion_allowed": false
+}
