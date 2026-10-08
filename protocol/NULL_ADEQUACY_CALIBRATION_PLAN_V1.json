@@ -20,13 +20,33 @@
   },
 
   "candidate_null_family": {
+    "status": "EXPLORATORY_CANDIDATE_ONLY",
     "family_identifier": "stationary_gaussian_AR_p",
     "model_selection_rule": "AIC",
     "minimum_order": 1,
     "maximum_order": 20,
     "same_effective_observations_required": true,
-    "selection_rule_frozen": false
-  },
+    "selection_rule_frozen": false,
+    
+    "known_adequacy_warning": {
+      "warning": "Historical surrogate refits frequently selected the maximum permitted AR order.",
+      "boundary_saturation_requires_review": true,
+      "historical_results_confirmatory": false
+    },
+  
+    "calibration_objective": [
+      "Evaluate whether this candidate reproduces the declared short-memory nuisance structure.",
+      "Measure boundary saturation and model-selection instability on independent calibration data.",
+      "Determine whether the candidate is adequate, needs a prospectively justified revision, or must be rejected as a confirmatory null."
+    ],
+  
+    "selection_prohibitions": {
+      "primary_alpha_must_not_select_model": true,
+      "primary_p_value_must_not_select_model": true,
+      "most_favorable_confirmation_result_must_not_select_model": true,
+      "candidate_must_not_be_accepted_merely_because_it_is_already_implemented": true
+    }
+  }
 
   "adequacy_dimensions": [
     "residual_autocorrelation",
