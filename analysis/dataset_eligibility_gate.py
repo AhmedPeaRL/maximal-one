@@ -16,6 +16,24 @@ from analysis.numerical_spectral_verification import (
 
 CLAIM_PATH = Path("core-scientific/strict_claim.json")
 OUTPUT_PATH = Path("artifacts/dataset_eligibility_gate.json")
+PROVENANCE_PATH = Path(
+    "protocol/REPLICATION_PROVENANCE_REGISTRY_V1.json"
+)
+
+REQUIRED_PROVENANCE_FIELDS = (
+    "source_identifier",
+    "source_url_or_citation",
+    "physical_domain",
+    "observation_variable",
+    "sampling_cadence",
+    "sampling_regularness",
+    "timestamp_presence",
+    "time_order",
+    "observation_window",
+    "missingness_policy",
+    "preprocessing_policy",
+    "known_shared_nuisance_with_primary",
+)
 
 
 def frequency_bin_count(
@@ -207,6 +225,30 @@ def main():
         )
     )
 
+    if not PROVENANCE_PATH.exists():
+        raise SystemExit(
+            f"Missing replication provenance registry: "
+            f"{PROVENANCE_PATH}"
+        )
+
+    provenance_registry = json.loads(
+        PROVENANCE_PATH.read_text(
+            encoding="utf-8"
+        )
+    )
+
+    if provenance_registry.get(
+        "protocol"
+    ) != "REPLICATION_PROVENANCE_REGISTRY_V1":
+        raise SystemExit(
+            "❌ Unexpected replication provenance registry protocol."
+        )
+
+    provenance_candidates = provenance_registry.get(
+        "candidates",
+        {}
+    )
+
     dataset_policy = claim.get(
         "dataset",
         {},
@@ -294,6 +336,45 @@ def main():
             freq_max=freq_max,
         )
 
+        provenance = provenance_candidates.get(
+            name
+        )
+
+        item["provenance_review"] = (
+            provenance
+            if provenance is not None
+            else {
+                "status": "MISSING",
+                "replication_eligible": False,
+                "reason": (
+                    "Dataset is absent from the "
+                    "replication provenance registry."
+                ),
+            }
+        )
+
+        provenance_eligible = bool(
+            provenance is not None
+            and provenance.get(
+                "replication_eligible"
+            ) is True
+        )
+
+        item["provenance_replication_eligible"] = (
+            provenance_eligible
+        )
+
+        if (
+            item.get("eligible_for_replication")
+            is True
+            and not provenance_eligible
+        ):
+            item["eligible_for_replication"] = False
+            item["replication_exclusion_reason"] = (
+                "dataset_passed_structural_eligibility_but_failed_"
+                "replication_provenance_eligibility"
+            )
+
         item["primary_domain"] = bool(
             primary
         )
@@ -325,13 +406,17 @@ def main():
             )
             is True
             and item.get(
+                "provenance_replication_eligible"
+            )
+            is True
+            and item.get(
                 "primary_domain"
             )
             is False
             and item.get(
                 "derived_domain"
             )
-            is False
+              is False
         )
     ]
 
