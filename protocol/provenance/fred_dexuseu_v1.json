@@ -1,0 +1,51 @@
+{
+  "dataset": "fred_dexuseu",
+  "path": "real-data/fred_dexuseu.csv",
+  "provenance_status": "CANDIDATE_NOT_YET_AUDITED",
+
+  "source": {
+    "source_identifier": "FRED:DEXUSEU",
+    "source_url_or_citation": "https://fred.stlouisfed.org/series/DEXUSEU",
+    "source_publisher": "Federal Reserve Board; distributed through FRED",
+    "retrieval_date": null,
+    "original_filename": null,
+    "original_checksum_sha256": null
+  },
+
+  "observation": {
+    "physical_domain": "Foreign-exchange market",
+    "observation_variable": "Published daily USD-per-EUR exchange rate",
+    "sampling_cadence": "Published daily observations on the source's reporting calendar",
+    "sampling_regularness": "BUSINESS_DAY_CALENDAR_REQUIRES_AUDIT",
+    "timestamp_presence": "REQUIRED_NOT_YET_VERIFIED",
+    "time_order": "NOT_YET_AUDITED",
+    "observation_window": null,
+    "units": "USD per EUR"
+  },
+
+  "data_handling": {
+    "missingness_policy": "Do not synthesize weekend, holiday, or missing-session observations. Record missing dates and the declared calendar convention.",
+    "preprocessing_policy": "Preserve the downloaded source snapshot unchanged. Any parsed or transformed file must be generated reproducibly and separately.",
+    "normalization_policy": "Apply the repository's declared analysis normalization only after source and timestamp integrity checks pass."
+  },
+
+  "independence": {
+    "known_shared_nuisance_with_primary": "PENDING_REVIEW: financial-market dynamics and calendar effects must be documented; independence from the primary sunspot domain is not assumed solely from the dataset name.",
+    "independence_review_status": "PENDING"
+  },
+
+  "eligibility": {
+    "minimum_rows": 1024,
+    "observed_rows": null,
+    "measurement_valid": false,
+    "replication_eligible": false
+  },
+
+  "review": {
+    "review_status": "NOT_APPROVED",
+    "approved_for_replication": false,
+    "approval_basis": null
+  },
+
+  "interpretation": "Candidate provenance record only. No dataset has been downloaded, checksum-verified, time-audited, approved, or analyzed by this record."
+}
