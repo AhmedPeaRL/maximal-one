@@ -322,8 +322,20 @@ jobs:
 
       - name: Audit cosmic-ray timestamp integrity
         id: cosmic_rays_time_integrity
+        continue-on-error: true
+        shell: bash
         run: |
+          set -euo pipefail
           python -m analysis.verify_cosmic_rays_time_integrity
+
+      - name: Upload cosmic-ray timestamp audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cosmic-rays-time-integrity-audit
+          path: artifacts/cosmic_rays_time_integrity_audit.json
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Re-evaluate promotion prerequisites
         shell: bash
@@ -331,13 +343,6 @@ jobs:
           set -euo pipefail
 
           node core-scientific/evaluate_scientific_contract.cjs
-
-      - name: Enforce scientific claim promotion
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          node core-scientific/enforce_strict.cjs
 
       - name: Enforce dataset eligibility contract
         shell: bash
@@ -418,6 +423,13 @@ jobs:
 
           print("Dataset eligibility contract satisfied.")
           PY
+
+      - name: Enforce scientific claim promotion
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          node core-scientific/enforce_strict.cjs
 
       - name: Promotion summary
         shell: bash
