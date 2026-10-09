@@ -7,7 +7,9 @@
   }
 
   window.TimeProbe = { sample };
-  
+
+})();
+
 (function () {
 
   function probe() {
