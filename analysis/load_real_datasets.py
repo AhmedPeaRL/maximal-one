@@ -1,10 +1,13 @@
 from __future__ import annotations
+
 from pathlib import Path
 import numpy as np
 import pandas as pd
 
 DATASETS = {
     "sunspots": "real-data/sunspots_full.csv",
+    "hadcet_monthly": "real-data/hadcet_monthly.csv",
+    "fred_indpro": "real-data/fred_indpro_monthly.csv",
     "co2": "real-data/co2_atmospheric_clean.csv",
     "passengers": "real-data/airline_passengers.csv",
     "cosmic_rays": "real-data/cosmic_rays_clean.csv",
