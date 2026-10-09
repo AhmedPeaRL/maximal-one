@@ -320,6 +320,11 @@ jobs:
           path: artifacts/claim_readiness_audit.json
           if-no-files-found: error
 
+      - name: Audit cosmic-ray timestamp integrity
+        id: cosmic_rays_time_integrity
+        run: |
+          python -m analysis.verify_cosmic_rays_time_integrity
+
       - name: Re-evaluate promotion prerequisites
         shell: bash
         run: |
