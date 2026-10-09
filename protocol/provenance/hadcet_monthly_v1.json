@@ -1,0 +1,44 @@
+{
+  "dataset": "hadcet_monthly",
+  "path": "real-data/hadcet_monthly.csv",
+  "provenance_status": "CANDIDATE_PENDING_SOURCE_SNAPSHOT_AND_REVIEW",
+  "source": {
+    "source_identifier": "HadCET monthly mean temperature",
+    "source_url_or_citation": "https://www.metoffice.gov.uk/hadobs/hadcet/data/meantemp_monthly_totals.txt",
+    "source_publisher": "UK Met Office Hadley Centre",
+    "retrieval_date": null,
+    "original_filename": "hadcet_meantemp_monthly_totals.txt",
+    "original_checksum_sha256": null
+  },
+  "observation": {
+    "physical_domain": "Meteorology and climate observations",
+    "observation_variable": "Monthly mean Central England temperature",
+    "sampling_cadence": "Monthly",
+    "sampling_regularness": "REQUIRES_MONTHLY_CONTIGUITY_AUDIT",
+    "timestamp_presence": "Date column required in parsed analysis file",
+    "time_order": "REQUIRES_AUDIT",
+    "observation_window": null,
+    "units": "degrees Celsius"
+  },
+  "data_handling": {
+    "missingness_policy": "Do not impute missing months. Preserve and report any missing source values or gaps.",
+    "preprocessing_policy": "Preserve the exact raw source snapshot and its SHA-256. Generate the date,value analysis file deterministically from that snapshot; do not modify the raw file.",
+    "normalization_policy": "Use repository normalization only after the raw snapshot, monthly cadence, missingness, and eligibility checks pass."
+  },
+  "independence": {
+    "known_shared_nuisance_with_primary": "PENDING_REVIEW: solar forcing and other climate drivers must be assessed; different dataset names do not establish independence.",
+    "independence_review_status": "PENDING"
+  },
+  "eligibility": {
+    "minimum_rows": 1024,
+    "observed_rows": null,
+    "measurement_valid": false,
+    "replication_eligible": false
+  },
+  "review": {
+    "review_status": "NOT_APPROVED",
+    "approved_for_replication": false,
+    "approval_basis": null
+  },
+  "interpretation": "Candidate record only. Acquisition, checksum verification, time-integrity audit, independence review, null adequacy, and prospective replication remain pending."
+}
