@@ -122,20 +122,8 @@ jobs:
           set -euo pipefail
 
           python -m scripts.prepare_canonical_inputs
-
           python -m scripts.generate_report --seed 42 --canonical
-
-      - name: Verify report identity semantics
-        shell: bash
-        run: |
-          set -euo pipefail
           python analysis/verify_report_identity.py
-
-      - name: Validate canonical report internal consistency
-        shell: bash
-        run: |
-          set -euo pipefail
-
           python scripts/validate_canonical_report.py
 
       - name: Verify stochastic null identity contract
@@ -154,11 +142,6 @@ jobs:
 
           test -s \
             artifacts/solar_periodicity_nuisance_audit.json
-
-      - name: Verify Solar Periodicity Nuisance Audit
-        shell: bash
-        run: |
-          set -euo pipefail
 
           python -m analysis.verify_solar_periodicity_nuisance_audit
 
@@ -217,15 +200,58 @@ jobs:
           set -euo pipefail
           python -m analysis.verify_replication_inventory
 
-      - name: Audit secondary monthly data integrity
+      - name: Audit committed secondary monthly data integrity
         id: secondary_monthly_integrity
         continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
-          python analysis/calibrate_null_type1.py
-          python analysis/acquire_secondary_domain_snapshots.py
-          python analysis/audit_secondary_monthly_domains.py
+          manifest="real-data/source-snapshots/secondary_source_manifest_v1.json"
+          hadcet="real-data/hadcet_monthly.csv"
+          indpro="real-data/fred_indpro_monthly.csv"
+
+          if [[ ! -s "$manifest" || ! -s "$hadcet" || ! -s "$indpro" ]]; then
+            python - <<'PY'
+          import json
+          from pathlib import Path
+
+          required = [
+              "real-data/source-snapshots/secondary_source_manifest_v1.json",
+              "real-data/hadcet_monthly.csv",
+              "real-data/fred_indpro_monthly.csv",
+          ]
+          missing = [p for p in required if not Path(p).is_file() or Path(p).stat().st_size == 0]
+          datasets = {
+              name: {
+                  "name": name,
+                  "time_integrity_passed": False,
+                  "replication_eligible": False,
+                  "provenance_approved": False,
+                  "claim_support": False,
+                  "status": "BLOCKED_MISSING_COMMITTED_SOURCE_SNAPSHOT",
+                  "failure_reasons": ["required_source_snapshot_or_parsed_file_missing"],
+              }
+              for name in ("hadcet_monthly", "fred_indpro")
+          }
+          report = {
+              "protocol": "SECONDARY_MONTHLY_DATA_INTEGRITY_AUDIT_V1",
+              "status": "BLOCKED",
+              "missing_files": missing,
+              "datasets": datasets,
+              "claim_authority": False,
+              "promotion_authority": False,
+              "interpretation": "No network download is performed by claim-promotion. Commit raw snapshots, manifest, and parsed CSVs after acquisition before rerunning this gate.",
+          }
+          Path("artifacts").mkdir(parents=True, exist_ok=True)
+          Path("artifacts/secondary_data_integrity_audit.json").write_text(
+              json.dumps(report, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(report, indent=2))
+          PY
+          else
+            python analysis/audit_secondary_monthly_domains.py
+          fi
 
       - name: Upload secondary monthly integrity audit
         if: always()
