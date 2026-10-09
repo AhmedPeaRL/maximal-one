@@ -217,6 +217,25 @@ jobs:
           set -euo pipefail
           python -m analysis.verify_replication_inventory
 
+      - name: Audit secondary monthly data integrity
+        id: secondary_monthly_integrity
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          python analysis/calibrate_null_type1.py
+          python analysis/acquire_secondary_domain_snapshots.py
+          python analysis/audit_secondary_monthly_domains.py
+
+      - name: Upload secondary monthly integrity audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: secondary-monthly-integrity-audit
+          path: artifacts/secondary_data_integrity_audit.json
+          if-no-files-found: warn
+          retention-days: 90
+
       - name: Dataset eligibility gate
         shell: bash
         run: |
