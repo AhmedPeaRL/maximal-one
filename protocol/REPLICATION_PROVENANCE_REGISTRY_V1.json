@@ -22,6 +22,44 @@
   ],
 
   "candidates": {
+    "hadcet_monthly": {
+      "path": "real-data/hadcet_monthly.csv",
+      "status": "CANDIDATE_PENDING_SOURCE_SNAPSHOT_AND_REVIEW",
+      "replication_eligible": false,
+      "source_identifier": "HadCET monthly mean temperature",
+      "source_url_or_citation": "https://www.metoffice.gov.uk/hadobs/hadcet/data/meantemp_monthly_totals.txt",
+      "physical_domain": "Meteorology and climate observations",
+      "observation_variable": "Monthly mean Central England temperature",
+      "sampling_cadence": "Monthly",
+      "sampling_regularness": "REQUIRES_MONTHLY_CONTIGUITY_AUDIT",
+      "timestamp_presence": "Date column required in parsed analysis file",
+      "time_order": "REQUIRES_AUDIT",
+      "observation_window": null,
+      "missingness_policy": "Do not impute missing months; preserve and report gaps.",
+      "preprocessing_policy": "Preserve raw snapshot and checksum; generate analysis CSV deterministically.",
+      "known_shared_nuisance_with_primary": "PENDING_REVIEW: assess solar forcing and climate drivers.",
+      "reason": "Candidate only. No provenance approval, independence approval, or replication authority."
+    },
+    
+    "fred_indpro": {
+      "path": "real-data/fred_indpro_monthly.csv",
+      "status": "CANDIDATE_PENDING_SOURCE_SNAPSHOT_AND_REVIEW",
+      "replication_eligible": false,
+      "source_identifier": "FRED:INDPRO",
+      "source_url_or_citation": "https://fred.stlouisfed.org/series/INDPRO",
+      "physical_domain": "Industrial production and economic activity",
+      "observation_variable": "Industrial Production: Total Index",
+      "sampling_cadence": "Monthly calendar observations",
+      "sampling_regularness": "REQUIRES_MONTHLY_CONTIGUITY_AUDIT",
+      "timestamp_presence": "Date column required in parsed analysis file",
+      "time_order": "REQUIRES_AUDIT",
+      "observation_window": null,
+      "missingness_policy": "Do not impute missing months; preserve and report gaps.",
+      "preprocessing_policy": "Preserve raw snapshot and checksum; generate analysis CSV deterministically.",
+      "known_shared_nuisance_with_primary": "PENDING_REVIEW: assess industrial, energy, policy, climate, and potential solar-related covariation.",
+      "reason": "Candidate only. No provenance approval, independence approval, or replication authority."
+    },
+    
     "cosmic_rays": {
       "path": "real-data/cosmic_rays_clean.csv",
       "status": "INELIGIBLE_PENDING_TIMESTAMP_AND_PROVENANCE_AUDIT",
