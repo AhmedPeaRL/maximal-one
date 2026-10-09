@@ -1,0 +1,49 @@
+name: Acquire Secondary Data Snapshots
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  acquire-and-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact repository state
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.15"
+
+      - name: Preserve raw snapshots and create parsed monthly files
+        shell: bash
+        run: |
+          set -euo pipefail
+          python --version
+          python analysis/acquire_secondary_domain_snapshots.py
+
+      - name: Audit source hashes and monthly time integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python analysis/audit_secondary_monthly_domains.py
+          test -s artifacts/secondary_data_integrity_audit.json
+
+      - name: Upload source snapshots, parsed files, manifest, and audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: secondary-source-snapshots-${{ github.run_id }}
+          path: |
+            real-data/source-snapshots/**
+            real-data/hadcet_monthly.csv
+            real-data/fred_indpro_monthly.csv
+            artifacts/secondary_data_integrity_audit.json
+          if-no-files-found: warn
+          retention-days: 30
