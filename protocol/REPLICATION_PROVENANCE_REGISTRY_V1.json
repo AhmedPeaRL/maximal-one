@@ -24,9 +24,9 @@
   "candidates": {
     "cosmic_rays": {
       "path": "real-data/cosmic_rays_clean.csv",
-      "status": "PENDING_PROVENANCE_REVIEW",
+      "status": "INELIGIBLE_PENDING_TIMESTAMP_AND_PROVENANCE_AUDIT",
       "replication_eligible": false,
-      "reason": "Current file contains values but does not encode sufficient sampling metadata to establish temporal cadence from the file alone."
+      "reason": "The raw companion file contains timestamps, but the pipeline input drops them. The raw observations must pass a timestamp-aware cadence and gap audit, source provenance must be verified against the actual downloaded file, and shared solar-cycle nuisance structure must be assessed before any replication eligibility review. No claim-promotion authority is granted."
     },
 
     "passengers": {
