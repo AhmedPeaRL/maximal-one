@@ -1,0 +1,65 @@
+name: Null Type-I Calibration (Synthetic Scenarios)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  calibrate:
+    name: ${{ matrix.scenario }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - scenario: gaussian_ar1_phi_0_4
+            seed: 20261009
+          - scenario: gaussian_ar2_phi_0_45_minus_0_10
+            seed: 20261010
+          - scenario: gaussian_ar5_low_order_coefficients
+            seed: 20261011
+          - scenario: gaussian_ar10_low_order_coefficients
+            seed: 20261012
+
+    steps:
+      - name: Checkout exact repository state
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.15"
+          cache: pip
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install locked dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --require-hashes -r requirements-lock.txt
+
+      - name: Run declared scenario calibration
+        shell: bash
+        run: |
+          set -euo pipefail
+          python analysis/calibrate_null_type1_scenario.py \
+            --scenario "${{ matrix.scenario }}" \
+            --repetitions 1000 \
+            --surrogates 200 \
+            --n 1024 \
+            --seed "${{ matrix.seed }}" \
+            --checkpoint-every 25
+
+      - name: Upload scenario calibration report or checkpoint
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: null-type1-${{ matrix.scenario }}
+          path: artifacts/null_type1_calibration_${{ matrix.scenario }}.json
+          if-no-files-found: warn
+          retention-days: 90
