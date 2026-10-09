@@ -13,7 +13,6 @@ from analysis.numerical_spectral_verification import (
     CANONICAL_NPERSEG,
 )
 
-
 CLAIM_PATH = Path("core-scientific/strict_claim.json")
 OUTPUT_PATH = Path("artifacts/dataset_eligibility_gate.json")
 PROVENANCE_PATH = Path(
@@ -33,6 +32,10 @@ REQUIRED_PROVENANCE_FIELDS = (
     "missingness_policy",
     "preprocessing_policy",
     "known_shared_nuisance_with_primary",
+)
+
+SECONDARY_TIME_AUDIT_PATH = Path(
+    "artifacts/secondary_data_integrity_audit.json"
 )
 
 def provenance_value_present(value):
@@ -62,7 +65,6 @@ def frequency_bin_count(
         )
     )
 
-
 def finite_array(x):
     x = np.asarray(
         x,
@@ -74,7 +76,6 @@ def finite_array(x):
         and len(x) > 0
         and np.all(np.isfinite(x))
     )
-
 
 def evaluate_dataset(
     name: str,
@@ -223,7 +224,6 @@ def evaluate_dataset(
             "status": "ERROR",
             "reason": str(exc),
         }
-
 
 def main():
     if not CLAIM_PATH.exists():
@@ -408,6 +408,29 @@ def main():
         item["provenance_replication_eligible"] = (
             provenance_eligible
         )
+
+        if name in {"hadcet_monthly", "fred_indpro"}:
+            time_audit_passed = False
+            if SECONDARY_TIME_AUDIT_PATH.is_file():
+                try:
+                    time_audit = json.loads(
+                        SECONDARY_TIME_AUDIT_PATH.read_text(encoding="utf-8")
+                    )
+                    audit_record = time_audit.get("datasets", {}).get(name, {})
+                    time_audit_passed = (
+                        audit_record.get("time_integrity_passed") is True
+                        and audit_record.get("claim_support") is False
+                    )
+                except Exception:
+                    time_audit_passed = False
+
+            item["time_integrity_audit_passed"] = time_audit_passed
+            if not time_audit_passed:
+                item["provenance_replication_eligible"] = False
+                item["provenance_exclusion_reason"] = (
+                    "secondary_monthly_time_integrity_audit_not_passed"
+                )
+                provenance_eligible = False
 
         if (
             item.get("eligible_for_replication")
