@@ -42,7 +42,8 @@ jobs:
         run: |
           set -euo pipefail
           python -m pip install --require-hashes -r requirements-lock.txt
-
+          python -m unittest discover -s tests -p 'test_secondary_acquisition_safety.py' -v
+          
       - name: Run declared scenario calibration
         shell: bash
         run: |
