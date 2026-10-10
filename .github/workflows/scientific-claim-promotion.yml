@@ -388,6 +388,7 @@ jobs:
           set -euo pipefail
 
           node core-scientific/evaluate_scientific_contract.cjs
+          python -m unittest discover -s tests -p 'test_secondary_acquisition_safety.py' -v
 
       - name: Enforce dataset eligibility contract
         shell: bash
