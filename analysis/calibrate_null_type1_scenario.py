@@ -68,13 +68,14 @@ def main() -> int:
             and lower <= NOMINAL_ALPHA <= upper
             and upper <= MAX_ACCEPTABLE_WILSON_UPPER
         )
-        final_status = (
-            "TYPE1_CALIBRATION_PASS_LIMITED_SYNTHETIC_SCOPE"
-            if status == "FINAL" and calibrated
-            else "PILOT_OR_CALIBRATION_NOT_PASSED"
-            if status == "FINAL"
-            else "INCOMPLETE_RUN_CHECKPOINT"
-        )
+        if status != "FINAL":
+            final_status = "INCOMPLETE_RUN_CHECKPOINT"
+        elif calibrated:
+            final_status = "TYPE1_CALIBRATION_PASS_LIMITED_SYNTHETIC_SCOPE"
+        elif args.repetitions < MIN_CONFIRMATORY_REPETITIONS and valid == args.repetitions and invalid == 0:
+            final_status = "PILOT_COMPLETED_NOT_CONFIRMATORY"
+        else:
+            final_status = "CALIBRATION_NOT_PASSED_OR_INCOMPLETE"
         return {
             "protocol": "NULL_TYPE1_CALIBRATION_SCENARIO_V1",
             "created_at_utc": utc_now(),
@@ -150,7 +151,13 @@ def main() -> int:
         "wilson_95_percent_interval": final["wilson_95_percent_interval"],
         "output": str(output),
     }, indent=2))
-    return 0 if final["status"] == "TYPE1_CALIBRATION_PASS_LIMITED_SYNTHETIC_SCOPE" else 1
+    # A completed pilot is a successful diagnostic run, not a calibration pass.
+    # Full assessments still exit nonzero unless all declared pass criteria hold.
+    if final["status"] == "TYPE1_CALIBRATION_PASS_LIMITED_SYNTHETIC_SCOPE":
+        return 0
+    if final["status"] == "PILOT_COMPLETED_NOT_CONFIRMATORY":
+        return 0
+    return 1
 
 
 if __name__ == "__main__":
