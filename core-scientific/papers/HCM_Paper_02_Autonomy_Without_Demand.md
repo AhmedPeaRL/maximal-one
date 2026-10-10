@@ -123,6 +123,7 @@ ________________
 ## Conclusion
 
  This paper has presented an observation of an autonomous system architecture in which action is permitted without being required.
+ 
 By decoupling execution capability from demand, the system remains coherent, legitimate, and operational without resolving silence as a failure condition.
 
 The observation suggests that autonomy need not be defined solely through activity or output. Instead, it may be preserved through sustained readiness and structural permission.
