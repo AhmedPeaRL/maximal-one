@@ -1,0 +1,784 @@
+{
+  "audit": "stationary_ar_null_calibration",
+  "calibration_review_required": false,
+  "claim_support": false,
+  "inner_surrogates_requested": 200,
+  "interpretation": "Calibration diagnostics only. Any failed outer replicate is explicitly reported. Insufficient valid outer replicates block confirmation use but do not falsify the scientific hypothesis.",
+  "minimum_valid_surrogates": 200,
+  "model_capacity_review": {
+    "boundary_fraction_threshold": 0.5,
+    "claim_support": false,
+    "interpretation": "A high boundary fraction indicates that the declared AR order range may be capacity-limited. This triggers model-capacity review but does not itself establish or falsify the scientific hypothesis.",
+    "review_reasons": [],
+    "review_triggered": false,
+    "scientific_role": "diagnostic_only"
+  },
+  "outer_replicates_requested": 50,
+  "results": [
+    {
+      "case": "ar1_phi_0_7",
+      "claim_support": false,
+      "fitted_order_summary": {
+        "boundary_fraction": 0.0,
+        "count": 50,
+        "max": 7,
+        "median": 1.0
+      },
+      "inner_surrogates_requested": 200,
+      "interpretation": "This audit evaluates calibration behavior of the declared stochastic-null procedure on data generated from known stationary AR processes. It does not establish or refute the scientific claim.",
+      "minimum_valid_surrogates": 200,
+      "observed_results": [
+        {
+          "alpha": 0.32402914,
+          "outer_index": 0,
+          "p_value": 0.5472636815920398,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.30038453,
+          "outer_index": 1,
+          "p_value": 0.7761194029850746,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.64869575,
+          "outer_index": 2,
+          "p_value": 0.12935323383084577,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.78577652,
+          "outer_index": 3,
+          "p_value": 0.03482587064676617,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.07292986,
+          "outer_index": 4,
+          "p_value": 0.9353233830845771,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": -0.16896909,
+          "outer_index": 5,
+          "p_value": 0.9950248756218906,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.12299065,
+          "outer_index": 6,
+          "p_value": 0.8109452736318408,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.12335529,
+          "outer_index": 7,
+          "p_value": 0.8606965174129353,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.45513065,
+          "outer_index": 8,
+          "p_value": 0.24875621890547264,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 1.0217333,
+          "outer_index": 9,
+          "p_value": 0.009950248756218905,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.32761511,
+          "outer_index": 10,
+          "p_value": 0.35323383084577115,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.22434144,
+          "outer_index": 11,
+          "p_value": 0.7611940298507462,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.44766197,
+          "outer_index": 12,
+          "p_value": 0.4975124378109453,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.33183735,
+          "outer_index": 13,
+          "p_value": 0.5771144278606966,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.58556767,
+          "outer_index": 14,
+          "p_value": 0.35323383084577115,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.81447891,
+          "outer_index": 15,
+          "p_value": 0.06467661691542288,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": -0.13169315,
+          "outer_index": 16,
+          "p_value": 0.9701492537313433,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.78333863,
+          "outer_index": 17,
+          "p_value": 0.04477611940298507,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.43986165,
+          "outer_index": 18,
+          "p_value": 0.4577114427860697,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.50950811,
+          "outer_index": 19,
+          "p_value": 0.25870646766169153,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": -0.20989229,
+          "outer_index": 20,
+          "p_value": 0.9900497512437811,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.33730439,
+          "outer_index": 21,
+          "p_value": 0.43781094527363185,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.91180629,
+          "outer_index": 22,
+          "p_value": 0.014925373134328358,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.69157323,
+          "outer_index": 23,
+          "p_value": 0.06965174129353234,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.04311918,
+          "outer_index": 24,
+          "p_value": 0.7213930348258707,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.14590529,
+          "outer_index": 25,
+          "p_value": 0.8109452736318408,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.84301179,
+          "outer_index": 26,
+          "p_value": 0.01990049751243781,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.37135521,
+          "outer_index": 27,
+          "p_value": 0.4577114427860697,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": -0.08854667,
+          "outer_index": 28,
+          "p_value": 0.9303482587064676,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.3153665,
+          "outer_index": 29,
+          "p_value": 0.6268656716417911,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.37662411,
+          "outer_index": 30,
+          "p_value": 0.472636815920398,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.41796564,
+          "outer_index": 31,
+          "p_value": 0.32338308457711445,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.7257357,
+          "outer_index": 32,
+          "p_value": 0.0845771144278607,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.25186447,
+          "outer_index": 33,
+          "p_value": 0.7164179104477612,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.15020434,
+          "outer_index": 34,
+          "p_value": 0.736318407960199,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.83697727,
+          "outer_index": 35,
+          "p_value": 0.004975124378109453,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": -0.11444937,
+          "outer_index": 36,
+          "p_value": 0.9950248756218906,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": -0.05273952,
+          "outer_index": 37,
+          "p_value": 0.9154228855721394,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.31413958,
+          "outer_index": 38,
+          "p_value": 0.6019900497512438,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.50354534,
+          "outer_index": 39,
+          "p_value": 0.24378109452736318,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.19041038,
+          "outer_index": 40,
+          "p_value": 0.681592039800995,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.73367449,
+          "outer_index": 41,
+          "p_value": 0.07462686567164178,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.18359134,
+          "outer_index": 42,
+          "p_value": 0.6965174129353234,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.37231683,
+          "outer_index": 43,
+          "p_value": 0.5373134328358209,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.29652532,
+          "outer_index": 44,
+          "p_value": 0.6666666666666666,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.48086852,
+          "outer_index": 45,
+          "p_value": 0.4228855721393035,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.09937156,
+          "outer_index": 46,
+          "p_value": 0.9054726368159204,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.47959911,
+          "outer_index": 47,
+          "p_value": 0.27860696517412936,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.2997826,
+          "outer_index": 48,
+          "p_value": 0.6915422885572139,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.29834199,
+          "outer_index": 49,
+          "p_value": 0.7213930348258707,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        }
+      ],
+      "outer_failures": [],
+      "outer_replicate_failure_rate": 0.0,
+      "outer_replicates_failed": 0,
+      "outer_replicates_requested": 50,
+      "outer_replicates_valid": 50,
+      "phi": [
+        0.7
+      ],
+      "rejection_rate_at_0_05": 0.12,
+      "scientific_role": "null_calibration_audit_only",
+      "surrogate_order_summary": {
+        "boundary_fraction": 0.0007,
+        "count": 10000,
+        "max": 20,
+        "median": 1.0
+      }
+    },
+    {
+      "case": "ar2_phi_0_5_0_2",
+      "claim_support": false,
+      "fitted_order_summary": {
+        "boundary_fraction": 0.0,
+        "count": 50,
+        "max": 18,
+        "median": 2.0
+      },
+      "inner_surrogates_requested": 200,
+      "interpretation": "This audit evaluates calibration behavior of the declared stochastic-null procedure on data generated from known stationary AR processes. It does not establish or refute the scientific claim.",
+      "minimum_valid_surrogates": 200,
+      "observed_results": [
+        {
+          "alpha": 0.53159062,
+          "outer_index": 0,
+          "p_value": 0.48756218905472637,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.52951054,
+          "outer_index": 1,
+          "p_value": 0.527363184079602,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.59621067,
+          "outer_index": 2,
+          "p_value": 0.3880597014925373,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.4747581,
+          "outer_index": 3,
+          "p_value": 0.44776119402985076,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.63820901,
+          "outer_index": 4,
+          "p_value": 0.2885572139303483,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.73855617,
+          "outer_index": 5,
+          "p_value": 0.1791044776119403,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.80186124,
+          "outer_index": 6,
+          "p_value": 0.14925373134328357,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.28200327,
+          "outer_index": 7,
+          "p_value": 0.835820895522388,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.16154447,
+          "outer_index": 8,
+          "p_value": 0.9651741293532339,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.43350932,
+          "outer_index": 9,
+          "p_value": 0.6467661691542289,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.55190285,
+          "outer_index": 10,
+          "p_value": 0.44776119402985076,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 1.17091308,
+          "outer_index": 11,
+          "p_value": 0.004975124378109453,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.89350115,
+          "outer_index": 12,
+          "p_value": 0.12935323383084577,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.38889118,
+          "outer_index": 13,
+          "p_value": 0.7810945273631841,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.5495434,
+          "outer_index": 14,
+          "p_value": 0.4626865671641791,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.74333699,
+          "outer_index": 15,
+          "p_value": 0.11442786069651742,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.67404426,
+          "outer_index": 16,
+          "p_value": 0.20398009950248755,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.48944565,
+          "outer_index": 17,
+          "p_value": 0.5870646766169154,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.66128131,
+          "outer_index": 18,
+          "p_value": 0.27860696517412936,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.67321674,
+          "outer_index": 19,
+          "p_value": 0.14925373134328357,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.63320186,
+          "outer_index": 20,
+          "p_value": 0.30845771144278605,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.98941071,
+          "outer_index": 21,
+          "p_value": 0.029850746268656716,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.60835795,
+          "outer_index": 22,
+          "p_value": 0.4228855721393035,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.60310204,
+          "outer_index": 23,
+          "p_value": 0.2537313432835821,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.10395156,
+          "outer_index": 24,
+          "p_value": 0.9203980099502488,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.79878967,
+          "outer_index": 25,
+          "p_value": 0.18407960199004975,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.40018645,
+          "outer_index": 26,
+          "p_value": 0.7064676616915423,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.13031169,
+          "outer_index": 27,
+          "p_value": 0.945273631840796,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.29070907,
+          "outer_index": 28,
+          "p_value": 0.7860696517412935,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.16480265,
+          "outer_index": 29,
+          "p_value": 0.9154228855721394,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.71408501,
+          "outer_index": 30,
+          "p_value": 0.2736318407960199,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.35362809,
+          "outer_index": 31,
+          "p_value": 0.6915422885572139,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.46494196,
+          "outer_index": 32,
+          "p_value": 0.4626865671641791,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.39708073,
+          "outer_index": 33,
+          "p_value": 0.5422885572139303,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.31507638,
+          "outer_index": 34,
+          "p_value": 0.7213930348258707,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.41360944,
+          "outer_index": 35,
+          "p_value": 0.6567164179104478,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.62435813,
+          "outer_index": 36,
+          "p_value": 0.5223880597014925,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.5129028,
+          "outer_index": 37,
+          "p_value": 0.4427860696517413,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.4686604,
+          "outer_index": 38,
+          "p_value": 0.6169154228855721,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.49526605,
+          "outer_index": 39,
+          "p_value": 0.6965174129353234,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.44824903,
+          "outer_index": 40,
+          "p_value": 0.5472636815920398,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.59950611,
+          "outer_index": 41,
+          "p_value": 0.34328358208955223,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.97310259,
+          "outer_index": 42,
+          "p_value": 0.024875621890547265,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.58436495,
+          "outer_index": 43,
+          "p_value": 0.40298507462686567,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.12457796,
+          "outer_index": 44,
+          "p_value": 0.945273631840796,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.61593149,
+          "outer_index": 45,
+          "p_value": 0.4228855721393035,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.55418753,
+          "outer_index": 46,
+          "p_value": 0.47761194029850745,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.83079347,
+          "outer_index": 47,
+          "p_value": 0.14925373134328357,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.38893406,
+          "outer_index": 48,
+          "p_value": 0.6915422885572139,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        },
+        {
+          "alpha": 0.56768225,
+          "outer_index": 49,
+          "p_value": 0.4427860696517413,
+          "surrogate_failures": 0,
+          "valid_surrogates": 200
+        }
+      ],
+      "outer_failures": [],
+      "outer_replicate_failure_rate": 0.0,
+      "outer_replicates_failed": 0,
+      "outer_replicates_requested": 50,
+      "outer_replicates_valid": 50,
+      "phi": [
+        0.5,
+        0.2
+      ],
+      "rejection_rate_at_0_05": 0.06,
+      "scientific_role": "null_calibration_audit_only",
+      "surrogate_order_summary": {
+        "boundary_fraction": 0.002,
+        "count": 10000,
+        "max": 20,
+        "median": 2.0
+      }
+    }
+  ],
+  "scientific_role": "diagnostic_only",
+  "seed": 90210
+}
