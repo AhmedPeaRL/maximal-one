@@ -39,6 +39,8 @@
     }, 1000);
   }
 
+})();
+
 (function () {
 
   const SAMPLE_INTERVAL = 20000;
