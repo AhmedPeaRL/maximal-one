@@ -7,6 +7,8 @@
 - Claim and promotion authority: `NONE`.
 - This register documents inconsistent reported diagnostics; it does not select a preferred result.
 
+---
+
 ## Reported values that must remain distinct until reconciled
 
 | Reported value | Evidence currently available | Interpretation |
@@ -14,6 +16,8 @@
 | `0.937` | `core-scientific/strict_claim.json` records 937 of 1000 valid surrogate refits at AR order 20 in the repaired capacity review. | Historical run-specific result; not automatically the latest run. |
 | `0.947` | The supplied `scientific-claim-promotion.yml` log for GitHub Actions run `38040221517` prints selected order 20, maximum order 20, and surrogate boundary fraction `0.947`. | Latest supplied gate diagnostic; underlying run artifact and exact commit must be linked before replacing any registry value. |
 | `0.965` | Mentioned in earlier public report material as an older result. | Historical only; verify its run, script, data, and protocol hashes before citing as current. |
+
+---
 
 ## Required reconciliation record
 
@@ -28,6 +32,8 @@ For each value, preserve or retrieve:
 7. Python/dependency versions and runner image.
 
 Do not average these values, overwrite the older record, or change the boundary threshold to make the gate pass. If the underlying artifacts cannot be retrieved, mark the value `unreconciled` rather than guessing.
+
+---
 
 ## Decision rule
 
