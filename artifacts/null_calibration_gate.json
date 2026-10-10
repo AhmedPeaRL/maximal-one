@@ -1,0 +1,177 @@
+{
+  "canonical_null_diagnostics": {
+    "selected_at_boundary": true,
+    "selected_order": 20,
+    "surrogate_boundary_fraction": 0.947,
+    "surrogate_boundary_saturation": true
+  },
+  "fresh_calibration_required": true,
+  "interpretation": "The declared finite-order AR(p) null is not treated as adequately calibrated when the selected order reaches the declared maximum or the surrogate refits show boundary saturation. This gate is conservative and does not constitute evidence against the scientific hypothesis.",
+  "observed_order_scan": {
+    "best_aic": 30528.333871269908,
+    "best_aic_order": 20,
+    "best_at_boundary": true,
+    "results": [
+      {
+        "aic": 31116.383696599485,
+        "effective_nobs": 3308,
+        "hold_back": 20,
+        "order": 1,
+        "stationary": true
+      },
+      {
+        "aic": 30864.903208848078,
+        "effective_nobs": 3308,
+        "hold_back": 20,
+        "order": 2,
+        "stationary": true
+      },
+      {
+        "aic": 30743.35352396429,
+        "effective_nobs": 3308,
+        "hold_back": 20,
+        "order": 3,
+        "stationary": true
+      },
+      {
+        "aic": 30684.638272584958,
+        "effective_nobs": 3308,
+        "hold_back": 20,
+        "order": 4,
+        "stationary": true
+      },
+      {
+        "aic": 30673.417513755765,
+        "effective_nobs": 3308,
+        "hold_back": 20,
+        "order": 5,
+        "stationary": true
+      },
+      {
+        "aic": 30666.626329968967,
+        "effective_nobs": 3308,
+        "hold_back": 20,
+        "order": 6,
+        "stationary": true
+      },
+      {
+        "aic": 30667.98813505211,
+        "effective_nobs": 3308,
+        "hold_back": 20,
+        "order": 7,
+        "stationary": true
+      },
+      {
+        "aic": 30668.702553893938,
+        "effective_nobs": 3308,
+        "hold_back": 20,
+        "order": 8,
+        "stationary": true
+      },
+      {
+        "aic": 30667.32795643585,
+        "effective_nobs": 3308,
+        "hold_back": 20,
+        "order": 9,
+        "stationary": true
+      },
+      {
+        "aic": 30662.532805587463,
+        "effective_nobs": 3308,
+        "hold_back": 20,
+        "order": 10,
+        "stationary": true
+      },
+      {
+        "aic": 30655.298955915856,
+        "effective_nobs": 3308,
+        "hold_back": 20,
+        "order": 11,
+        "stationary": true
+      },
+      {
+        "aic": 30643.22233344319,
+        "effective_nobs": 3308,
+        "hold_back": 20,
+        "order": 12,
+        "stationary": true
+      },
+      {
+        "aic": 30626.52209534379,
+        "effective_nobs": 3308,
+        "hold_back": 20,
+        "order": 13,
+        "stationary": true
+      },
+      {
+        "aic": 30621.341240642603,
+        "effective_nobs": 3308,
+        "hold_back": 20,
+        "order": 14,
+        "stationary": true
+      },
+      {
+        "aic": 30609.54249550709,
+        "effective_nobs": 3308,
+        "hold_back": 20,
+        "order": 15,
+        "stationary": true
+      },
+      {
+        "aic": 30580.588660975394,
+        "effective_nobs": 3308,
+        "hold_back": 20,
+        "order": 16,
+        "stationary": true
+      },
+      {
+        "aic": 30567.964752839758,
+        "effective_nobs": 3308,
+        "hold_back": 20,
+        "order": 17,
+        "stationary": true
+      },
+      {
+        "aic": 30539.332089083953,
+        "effective_nobs": 3308,
+        "hold_back": 20,
+        "order": 18,
+        "stationary": true
+      },
+      {
+        "aic": 30536.463474992674,
+        "effective_nobs": 3308,
+        "hold_back": 20,
+        "order": 19,
+        "stationary": true
+      },
+      {
+        "aic": 30528.333871269908,
+        "effective_nobs": 3308,
+        "hold_back": 20,
+        "order": 20,
+        "stationary": true
+      }
+    ],
+    "scan_max_order": 20,
+    "scan_min_order": 1
+  },
+  "observed_primary_alpha": 2.52534673,
+  "post_observation_amendment": true,
+  "promotion_authority": false,
+  "protocol": {
+    "comparison_hold_back": 20,
+    "criterion": "AIC",
+    "direction": "greater_than_null",
+    "endpoint": "canonical_primary_alpha",
+    "max_order": 20,
+    "min_order": 1,
+    "null_family": "stationary_gaussian_AR_p_aic",
+    "protocol_revision": "ar_order_comparison_holdback_v1",
+    "same_effective_observations_required": true,
+    "stationarity_required": true,
+    "tail": "upper"
+  },
+  "scientific_claim_authority": false,
+  "status": "CALIBRATION_REQUIRED"
+}

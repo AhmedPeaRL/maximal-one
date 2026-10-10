@@ -1,0 +1,27 @@
+{
+  "approved_for_replication": false,
+  "audit": "COSMIC_RAYS_TIME_INTEGRITY_V1",
+  "claim_support": false,
+  "clean_value_count_matches_raw": true,
+  "clean_values_match_raw_in_order": true,
+  "exactly_hourly_contiguous": false,
+  "expected_cadence_seconds": 3600,
+  "failure_reasons": [
+    "timestamps_not_continuously_hourly",
+    "no_hourly_contiguous_run_of_1024"
+  ],
+  "first_timestamp_utc": "2021-11-04 22:00:00+00:00",
+  "gap_count": 321,
+  "interpretation": "Timestamp integrity only. This audit does not establish source provenance, nuisance independence, null adequacy, scientific replication, or claim promotion.",
+  "last_timestamp_utc": "2023-12-31 23:00:00+00:00",
+  "longest_hourly_contiguous_run": 486,
+  "non_hourly_interval_count": 321,
+  "observations": 3698,
+  "pipeline_input_path": "real-data/cosmic_rays_clean.csv",
+  "raw_path": "real-data/cosmic_rays.csv",
+  "replication_eligible": false,
+  "scientific_role": "data_integrity_diagnostic_only",
+  "timestamp_valid": true,
+  "timestamps_strictly_increasing": true,
+  "timestamps_unique": true
+}

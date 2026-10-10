@@ -1,0 +1,124 @@
+{
+  "candidate_domains": [
+    "co2",
+    "cosmic_rays",
+    "fred_indpro",
+    "hadcet_monthly",
+    "passengers",
+    "sp500",
+    "temperature"
+  ],
+  "domains": [
+    {
+      "estimator_valid": true,
+      "measurement_valid": true,
+      "name": "co2",
+      "path": "real-data/co2_atmospheric_clean.csv",
+      "provenance_replication_eligible": false,
+      "reason": "Series length is below the declared replication minimum.",
+      "replication_eligible": false,
+      "replication_status": "PROVENANCE_NOT_APPROVED",
+      "rows": 816,
+      "scientific_replication": false
+    },
+    {
+      "estimator_valid": true,
+      "measurement_valid": true,
+      "name": "cosmic_rays",
+      "path": "real-data/cosmic_rays_clean.csv",
+      "provenance_replication_eligible": false,
+      "reason": "The raw companion file contains timestamps, but the pipeline input drops them. The raw observations must pass a timestamp-aware cadence and gap audit, source provenance must be verified against the actual downloaded file, and shared solar-cycle nuisance structure must be assessed before any replication eligibility review. No claim-promotion authority is granted.",
+      "replication_eligible": false,
+      "replication_status": "PROVENANCE_NOT_APPROVED",
+      "rows": 3698,
+      "scientific_replication": false
+    },
+    {
+      "estimator_valid": true,
+      "measurement_valid": true,
+      "name": "fred_indpro",
+      "path": "real-data/fred_indpro_monthly.csv",
+      "provenance_replication_eligible": false,
+      "reason": "Candidate only. No provenance approval, independence approval, or replication authority.",
+      "replication_eligible": false,
+      "replication_status": "PROVENANCE_NOT_APPROVED",
+      "rows": 1284,
+      "scientific_replication": false
+    },
+    {
+      "estimator_valid": true,
+      "measurement_valid": true,
+      "name": "hadcet_monthly",
+      "path": "real-data/hadcet_monthly.csv",
+      "provenance_replication_eligible": false,
+      "reason": "Candidate only. No provenance approval, independence approval, or replication authority.",
+      "replication_eligible": false,
+      "replication_status": "PROVENANCE_NOT_APPROVED",
+      "rows": 4404,
+      "scientific_replication": false
+    },
+    {
+      "estimator_valid": false,
+      "measurement_valid": false,
+      "name": "passengers",
+      "path": "real-data/airline_passengers.csv",
+      "provenance_replication_eligible": false,
+      "reason": "The current series has 144 rows, below the declared estimator minimum of 512 and replication minimum of 1024.",
+      "replication_eligible": false,
+      "replication_status": "PROVENANCE_NOT_APPROVED",
+      "rows": 144,
+      "scientific_replication": false
+    },
+    {
+      "estimator_valid": false,
+      "measurement_valid": false,
+      "name": "sp500",
+      "path": "real-data/sp500.csv",
+      "provenance_replication_eligible": false,
+      "reason": "The current series has 252 rows, below the declared estimator minimum of 512 and replication minimum of 1024.",
+      "replication_eligible": false,
+      "replication_status": "PROVENANCE_NOT_APPROVED",
+      "rows": 252,
+      "scientific_replication": false
+    },
+    {
+      "estimator_valid": false,
+      "measurement_valid": false,
+      "name": "temperature",
+      "path": "real-data/temperature_global.csv",
+      "provenance_replication_eligible": false,
+      "reason": "The current series has 146 rows, below the declared estimator minimum of 512 and replication minimum of 1024.",
+      "replication_eligible": false,
+      "replication_status": "PROVENANCE_NOT_APPROVED",
+      "rows": 146,
+      "scientific_replication": false
+    }
+  ],
+  "eligibility_policy": {
+    "canonical_nperseg": 1024,
+    "eligibility_is_not_scientific_replication": true,
+    "estimator_minimum_series_length": 512,
+    "estimator_validity_is_not_replication": true,
+    "measurement_minimum_series_length": 256,
+    "measurement_validity_is_not_replication": true,
+    "replication_minimum_series_length": 1024
+  },
+  "estimator_valid_independent_domains": 4,
+  "interpretation": "Independent real domains are evaluated from the declared dataset registry after excluding primary and derived domains. Measurement validity, estimator validity, replication eligibility, and scientific replication are separate states. No domain is counted as scientific replication merely because it has a finite alpha or sufficient length.",
+  "measurement_valid_independent_domains": 4,
+  "minimum_required": 2,
+  "passed_independent_domains": 0,
+  "promotion_authority": false,
+  "replication_eligible_independent_domains": 0,
+  "required_protocol": {
+    "alternative": "greater_than_null",
+    "endpoint": "canonical_primary_alpha",
+    "model_id": "stationary_gaussian_ar_p_aic",
+    "null_family": "stationary_gaussian_AR_p",
+    "protocol_id": "stationary_gaussian_ar_p_aic_v2_exploratory",
+    "tail": "upper",
+    "trials": 1000
+  },
+  "scientific_claim_authority": false,
+  "status": "REPLICATION_NOT_ESTABLISHED"
+}
