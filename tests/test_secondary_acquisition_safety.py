@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 import analysis.audit_secondary_monthly_domains as audit
-from analysis.acquire_secondary_domain_snapshots import ANALYSIS_END, parse_hadcet, parse_fred_indpro
+from analysis.acquire_secondary_domain_snapshots import ANALYSIS_END, SOURCES, parse_hadcet, parse_fred_indpro
 
 
 class SecondaryAcquisitionSafetyTests(unittest.TestCase):
@@ -27,6 +27,16 @@ class SecondaryAcquisitionSafetyTests(unittest.TestCase):
         data = b"observation_date,INDPRO\n2025-11-01,100\n2025-12-01,101\n2026-01-01,102\n"
         rows = parse_fred_indpro(data)
         self.assertEqual([r["date"] for r in rows], ["2025-11-01", "2025-12-01"])
+
+    def test_fred_first_url_is_bounded_to_frozen_window(self):
+        first_url = SOURCES["fred_indpro"]["urls"][0]
+        self.assertIn("cosd=1919-01-01", first_url)
+        self.assertIn("coed=2025-12-01", first_url)
+
+    def test_calibration_workflow_uses_module_invocation(self):
+        workflow = Path(".github/workflows/null-type1-calibration.yml").read_text(encoding="utf-8")
+        self.assertIn("python -m analysis.calibrate_null_type1_scenario", workflow)
+        self.assertNotIn("python analysis/calibrate_null_type1_scenario.py", workflow)
 
     def test_integrity_audit_blocks_missing_values(self):
         with tempfile.TemporaryDirectory() as tmp:
