@@ -19,12 +19,12 @@ MANIFEST_PATH = SNAPSHOT_DIR / "secondary_source_manifest_v1.json"
 # Frozen before examining either candidate's alpha. Both domains end at the
 # last complete calendar year available at protocol amendment time.
 ANALYSIS_END = "2025-12-01"
-MAX_ATTEMPTS = 4
-TIMEOUT_SECONDS = 120
+MAX_ATTEMPTS_PER_URL = 2
+TIMEOUT_SECONDS = 90
 
 SOURCES = {
     "hadcet_monthly": {
-        "url": "https://hadleyserver.metoffice.gov.uk/hadobs/hadcet/data/meantemp_monthly_totals.txt",
+        "urls": ["https://hadleyserver.metoffice.gov.uk/hadobs/hadcet/data/meantemp_monthly_totals.txt"],
         "snapshot": SNAPSHOT_DIR / "hadcet_meantemp_monthly_totals.txt",
         "parsed": ROOT / "real-data" / "hadcet_monthly.csv",
         "publisher": "UK Met Office Hadley Centre",
@@ -33,7 +33,12 @@ SOURCES = {
         "cadence": "monthly",
     },
     "fred_indpro": {
-        "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=INDPRO",
+        # First request only the frozen analysis window; retry the canonical
+        # FRED endpoint if the bounded request fails. Record the exact URL used.
+        "urls": [
+            "https://fred.stlouisfed.org/graph/fredgraph.csv?id=INDPRO&cosd=1919-01-01&coed=2025-12-01",
+            "https://fred.stlouisfed.org/graph/fredgraph.csv?id=INDPRO",
+        ],
         "snapshot": SNAPSHOT_DIR / "fred_indpro.csv",
         "parsed": ROOT / "real-data" / "fred_indpro_monthly.csv",
         "publisher": "Board of Governors of the Federal Reserve System, distributed through FRED",
@@ -48,25 +53,37 @@ def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def fetch_bytes(url: str) -> bytes:
-    last_error: Exception | None = None
-    for attempt in range(1, MAX_ATTEMPTS + 1):
-        try:
-            request = Request(url, headers={"User-Agent": "maximal-one-reproducible-research/1.1"})
-            with urlopen(request, timeout=TIMEOUT_SECONDS) as response:
-                status = getattr(response, "status", 200)
-                if status != 200:
-                    raise RuntimeError(f"HTTP {status} downloading {url}")
-                data = response.read()
-            if not data:
-                raise RuntimeError(f"Empty download from {url}")
-            return data
-        except (HTTPError, URLError, TimeoutError, OSError, RuntimeError) as exc:
-            last_error = exc
-            print(f"DOWNLOAD_ATTEMPT_FAILED {attempt}/{MAX_ATTEMPTS}: {url}: {type(exc).__name__}: {exc}", file=sys.stderr, flush=True)
-            if attempt < MAX_ATTEMPTS:
-                time.sleep(min(2 ** attempt, 12))
-    raise RuntimeError(f"download failed after {MAX_ATTEMPTS} attempts: {last_error}")
+def fetch_bytes(urls: list[str]) -> tuple[bytes, str]:
+    errors: list[str] = []
+    for url in urls:
+        for attempt in range(1, MAX_ATTEMPTS_PER_URL + 1):
+            try:
+                request = Request(
+                    url,
+                    headers={
+                        "User-Agent": "maximal-one-reproducible-research/1.2",
+                        "Accept": "text/csv,text/plain,*/*",
+                    },
+                )
+                with urlopen(request, timeout=TIMEOUT_SECONDS) as response:
+                    status = getattr(response, "status", 200)
+                    if status != 200:
+                        raise RuntimeError(f"HTTP {status} downloading {url}")
+                    data = response.read()
+                if not data:
+                    raise RuntimeError(f"Empty download from {url}")
+                return data, url
+            except (HTTPError, URLError, TimeoutError, OSError, RuntimeError) as exc:
+                message = f"{type(exc).__name__}: {exc}"
+                errors.append(f"{url} attempt {attempt}/{MAX_ATTEMPTS_PER_URL}: {message}")
+                print(
+                    f"DOWNLOAD_ATTEMPT_FAILED {attempt}/{MAX_ATTEMPTS_PER_URL}: {url}: {message}",
+                    file=sys.stderr,
+                    flush=True,
+                )
+                if attempt < MAX_ATTEMPTS_PER_URL:
+                    time.sleep(min(2 ** attempt, 8))
+    raise RuntimeError("all source URL attempts failed: " + " | ".join(errors))
 
 
 def fetch_or_reuse(name: str, spec: dict, manifest: dict) -> bytes:
@@ -82,13 +99,14 @@ def fetch_or_reuse(name: str, spec: dict, manifest: dict) -> bytes:
         print(f"REUSE {path} sha256={actual}")
         return data
 
-    data = fetch_bytes(spec["url"])
+    data, used_url = fetch_bytes(spec["urls"])
     path.parent.mkdir(parents=True, exist_ok=True)
     # Write only after a complete response has been read.
     path.write_bytes(data)
     manifest.setdefault("sources", {})[name] = {
         "source_identifier": spec["identifier"],
-        "source_url": spec["url"],
+        "source_url": used_url,
+        "source_url_candidates": spec["urls"],
         "publisher": spec["publisher"],
         "retrieved_at_utc": datetime.now(timezone.utc).isoformat(),
         "raw_snapshot_path": str(path.relative_to(ROOT)),
