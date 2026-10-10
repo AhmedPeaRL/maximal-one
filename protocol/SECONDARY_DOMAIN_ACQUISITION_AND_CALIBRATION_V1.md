@@ -1,91 +1,95 @@
-# Secondary Domain Acquisition and Null Calibration V1
+# Secondary Domain Acquisition and Null Calibration V1.1 — Remediation Amendment
 
 ## Status
 
-- Protocol status: `CANDIDATE_ACQUISITION_AND_EXPLORATORY_CALIBRATION`
-- Scientific claim: `UNDER_INVESTIGATION`
-- Confirmatory null: `NOT_FROZEN`
-- Eligible secondary domains at protocol creation: `0`
-- Claim-promotion authority: `NONE`
+- Claim: `UNDER_INVESTIGATION`.
+- Confirmatory null: `NOT_FROZEN`.
+- Eligible secondary domains: 0 until separate provenance, independence, null and endpoint reviews pass.
+- Claim/promotion authority from this amendment: NONE.
 
 ---
 
-## Candidate selection before endpoint inspection
+## Fixed candidate window
 
-1. hadcet_monthly: official Met Office monthly mean Central England temperature series. Source: `https://www.metoffice.gov.uk/hadobs/hadcet/data/meantemp_monthly_totals.txt`
-2. fred_indpro: Federal Reserve Industrial Production: Total Index distributed by FRED. Source: `https://fred.stlouisfed.org/series/INDPRO`
-3. fred_dexuseu remains a negative-control candidate only, not a replication domain under this plan, until a separate protocol justifies its endpoint and sampling semantics.
+The candidate analysis window ends inclusively at 2025-12-01 (December 2025 monthly observation).
 
-Selection is based on source availability, monthly cadence, and expected record length---not on alpha, p-values, or observed agreement. Candidate status does not establish independence or replication.
+This cutoff is fixed before analysis of either candidate's alpha.
+Data after the cutoff remain in the raw snapshot but are excluded from the parsed analysis CSV.
 
----
+Do not change the cutoff after examining endpoint values; any change requires a dated protocol amendment and fresh validation.
 
-## Temporal interpretation
+Source endpoint and HadCET missing-value rule
+The HadCET raw snapshot is requested from the `hadleyserver.metoffice.gov.uk` data host named in the publisher download page, rather than the alternate `www.metoffice.gov.uk` path.
 
-- The primary and these two candidates are monthly series.
-- Under the current frequency band `[0.01, 0.05]` cycles per observation, the nominal period is approximately 20 to 100 monthly observations.
-- This interpretation must be stated explicitly in the claim protocol and is not transferable unchanged to daily data.
-- Do not change the band after seeing any candidate endpoint.
+The exact URL and bytes are captured in the manifest; if the publisher changes the endpoint, stop and record a protocol/source update rather than silently substituting a mirror.
 
-Any change to the canonical band requires an explicit amendment and fresh validation.
+The documented Met Office sentinel -99.9 is parsed as missing, never as a temperature. 
 
----
-
-## Acquisition and immutable snapshots
-
-• Run python `analysis/acquire_secondary_domain_snapshots.py` once from the repository root.
-The script preserves raw source bytes under `real-data/source-snapshots/`, records retrieval metadata and SHA-256 checksums in `secondary_source_manifest_v1.json`, and generates separate date,value analysis files.
-It reuses a previously manifested snapshot rather than silently overwriting it.
-
-A new data vintage must be archived as a new snapshot and separately documented.
-
-• Raw snapshots, manifest, and generated analysis files must be committed together.
-Do not hand-edit any of these files.
-Do not fill missing values, interpolate months, or concatenate across gaps.
+Missing observations remain explicit blank value cells and are reported by the audit.
+They are not imputed, interpolated, or silently dropped.
+Any missing value in the fixed analysis window blocks the monthly integrity audit.
+Broad plausibility bounds are used only as error checks: `HadCET [-20, 40] degrees C` and `INDPRO [0, 1000]`; they are not scientific selection criteria.
 
 ---
 
-## Integrity audit
+## Acquisition and retries
 
-Run python `analysis/audit_secondary_monthly_domains.py`.
+The acquisition script retries transient source failures up to four times, records retrieval time and SHA-256 after a complete response, processes the second source even if the first fails, and preserves a partial manifest.
 
-A passing result verifies only that the recorded raw and parsed checksums match, dates are sorted and unique, every month in the represented window is present, values are finite, and at least 1024 monthly observations are available.
-It does not approve provenance, independence, null adequacy, or replication.
+- The artifact should be uploaded even on failure.
+- A failed or partial acquisition must not be committed as an eligible dataset.
+- After a successful workflow, inspect the audit JSON first.
+- Then commit the raw snapshots, manifest, and parsed CSVs together.
 
----
+Do not edit them by hand. 
 
-## Null Type-I calibration
-
-`analysis/calibrate_null_type1.py` evaluates the existing implemented test on fixed synthetic Gaussian AR(1), AR(2), AR(5), and AR(10) scenarios.
-
-The default run is a pilot and is never sufficient to freeze the null.
-A calibration assessment requires at least 1000 valid outer repetitions per scenario and at least 200 inner surrogate draws per test.
-The report remains limited to the tested synthetic families and never freezes the null automatically.
-
-A pilot can be run with:
-`python analysis/calibrate_null_type1.py --repetitions 10 --surrogates 200`
-
-A full assessment can be requested with:
-`python analysis/calibrate_null_type1.py --repetitions 1000 --surrogates 200`
-
-- The full run may be computationally expensive.
-- Preserve its artifact even if it fails.
-- Do not increase the AR order limit, alter the endpoint, or choose a model based on a favorable p-value.
-
-A Type-I calibration pass is necessary but not sufficient: residual ACF/PACF, stationarity, parameter stability, surrogate validity, boundary saturation, effective sample size, and nuisance preservation still require documented review.
+For a stable citation, prefer an archived source vintage with a durable identifier when available; the recorded live URL snapshot is still the byte-level reproducibility anchor for this run.
 
 ---
 
-## Promotion remains blocked until all conditions are met
+## Offline safety tests
 
-- Exact source snapshot and checksum are committed.
-- Monthly integrity audit passes.
-- Provenance fields are complete and reviewed.
-- Independence and shared nuisance review is documented before endpoint analysis.
-- The null model and thresholds are reviewed and prospectively frozen; no result-dependent selection is allowed.
-- Fresh primary reanalysis and fresh candidate analysis occur after the freeze.
-- Each domain independently meets the same declared endpoint, estimator, frequency band, direction, null family, and testing rule.
-- At least two secondary real domains pass all eligibility and replication criteria.
-- All existing consistency, adversarial-control, and clean-checkout reproducibility gates pass.
+Run from the repository root:
+`python -m unittest discover -s tests -p 'test_secondary_acquisition_safety.py'`
 
-Never set `replication_eligible` or `approved_for_replication` to true merely because an acquisition or integrity audit passed. Never mark `NULL_CONFIRMATORY_READINESS_V1.json` ready automatically from this calibration script.
+These tests verify that -99.9 becomes missing, the fixed cutoff excludes 2026 rows, and the FRED parser respects the same cutoff.
+They do not test live source availability or approve data.
+
+---
+
+## Type-I calibration sequence
+
+Run Null Type-I Calibration (Synthetic Scenarios) with repetitions=10 first.
+A completed pilot is labeled `PILOT_COMPLETED_NOT_CONFIRMATORY`; it is not a calibration pass and does not freeze the null. 
+
+Review run time, valid/invalid replicate counts, p-value behavior, Wilson interval, and AR-order boundary diagnostics before considering 1000.
+
+The workflow invokes the module with `python -m analysis.calibrate_null_type1_scenario`, avoiding the import-path failure from executing the file as a script.
+A 1000-repetition run remains limited to the four synthetic Gaussian AR scenarios.
+Before any confirmatory null freeze, a separately reviewed protocol must add relevant nuisance scenarios (including quasi-periodic structure, long-memory alternatives/controls, larger sample size such as N=3328, residual/stationarity/parameter-stability checks, surrogate adequacy, and effective sample-size accounting).
+Do not add or tune these scenarios after looking at candidate alpha and then call them preregistered.
+
+---
+
+## Domain independence and transformations
+
+Before computing candidate alpha, document why HadCET and INDPRO are independent enough for the intended replication claim and assess shared temporal confounders.
+For INDPRO, the analysis scale (raw level, log level, growth rate, or a predeclared anomaly series) must be chosen from domain semantics and a prospective protocol before endpoint inspection.
+A raw index with trend can produce spectral behavior dominated by nonstationarity.
+The same numeric frequency band corresponds to 20–100 monthly observations here; do not transfer that interpretation to daily data.
+
+---
+
+## Promotion remains blocked until
+
+- Raw source snapshots, retrieval metadata, SHA-256, parsed files, and exact analysis window are committed together.
+- Monthly integrity audit passes with no gaps, missing values, checksum mismatch, or implausible values.
+- Provenance and source-vintage review passes.
+- Independence/shared-nuisance review is documented before endpoint analysis.
+- Transformation and endpoint are fixed before candidate alpha is viewed.
+- Null adequacy, Type-I calibration, residual/stationarity/parameter stability, model-capacity saturation, surrogate validity and effective sample size are reviewed; the null is frozen prospectively only after approval.
+- Fresh primary reanalysis and candidate analyses run on the frozen protocol.
+- At least two secondary real domains pass the same declared endpoint, direction, null family and testing rule independently.
+- Adversarial controls and clean-checkout computational reproduction pass.
+
+Never infer HCM causation, consciousness, universality, or market advantage from a spectral result alone.
