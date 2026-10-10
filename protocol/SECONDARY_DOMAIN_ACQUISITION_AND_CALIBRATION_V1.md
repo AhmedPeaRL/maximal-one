@@ -73,6 +73,7 @@ Review run time, valid/invalid replicate counts, p-value behavior, Wilson interv
 The workflow invokes the module with `python -m analysis.calibrate_null_type1_scenario`, avoiding the import-path failure from executing the file as a script.
 A 1000-repetition run remains limited to the four synthetic Gaussian AR scenarios.
 Before any confirmatory null freeze, a separately reviewed protocol must add relevant nuisance scenarios (including quasi-periodic structure, long-memory alternatives/controls, larger sample size such as N=3328, residual/stationarity/parameter-stability checks, surrogate adequacy, and effective sample-size accounting).
+
 Do not add or tune these scenarios after looking at candidate alpha and then call them preregistered.
 
 ---
