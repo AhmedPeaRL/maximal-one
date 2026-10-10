@@ -48,7 +48,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python analysis/calibrate_null_type1_scenario.py \
+          python -m analysis.calibrate_null_type1_scenario \
             --scenario "${{ matrix.scenario }}" \
             --repetitions 1000 \
             --surrogates 200 \
