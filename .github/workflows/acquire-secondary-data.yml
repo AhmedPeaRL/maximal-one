@@ -26,6 +26,7 @@ jobs:
         run: |
           set -euo pipefail
           python --version
+          python -m unittest discover -s tests -p 'test_secondary_acquisition_safety.py' -v
           python analysis/acquire_secondary_domain_snapshots.py
 
       - name: Audit source hashes and monthly time integrity
