@@ -1,0 +1,59 @@
+{
+  "analysis_window_end_inclusive": "2025-12-01",
+  "claim_authority": false,
+  "created_at_utc": "2026-10-10T10:46:00.419147+00:00",
+  "errors": [],
+  "promotion_authority": false,
+  "protocol": "SECONDARY_SOURCE_MANIFEST_V1",
+  "sources": {
+    "fred_indpro": {
+      "analysis_window_end_inclusive": "2025-12-01",
+      "analysis_window_start": null,
+      "cadence": "monthly",
+      "first_date": "1919-01-01",
+      "last_date": "2025-12-01",
+      "missing_value_rows": 0,
+      "parsed_path": "real-data/fred_indpro_monthly.csv",
+      "parsed_rows_including_missing_values": 1284,
+      "parsed_sha256": "4c45b3267e3c346a0c87a3c8c39467b86f2440ce6008fdb325b0c92dc5542560",
+      "publisher": "Board of Governors of the Federal Reserve System, distributed through FRED",
+      "raw_bytes": 24280,
+      "raw_sha256": "9a07cd7f775a1783d5d2512d2b00014c8c5291fdb134ebc5998d8a8e567e007d",
+      "raw_snapshot_path": "real-data/source-snapshots/fred_indpro.csv",
+      "retrieved_at_utc": "2026-10-10T10:46:01.653518+00:00",
+      "source_identifier": "FRED:INDPRO",
+      "source_url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=INDPRO&cosd=1919-01-01&coed=2025-12-01",
+      "source_url_candidates": [
+        "https://fred.stlouisfed.org/graph/fredgraph.csv?id=INDPRO&cosd=1919-01-01&coed=2025-12-01",
+        "https://fred.stlouisfed.org/graph/fredgraph.csv?id=INDPRO"
+      ],
+      "status": "SNAPSHOT_PRESERVED_PENDING_TIME_AND_PROVENANCE_AUDIT",
+      "units": "index 2017=100, seasonally adjusted"
+    },
+    "hadcet_monthly": {
+      "analysis_window_end_inclusive": "2025-12-01",
+      "analysis_window_start": null,
+      "cadence": "monthly",
+      "first_date": "1659-01-01",
+      "last_date": "2025-12-01",
+      "missing_value_rows": 0,
+      "parsed_path": "real-data/hadcet_monthly.csv",
+      "parsed_rows_including_missing_values": 4404,
+      "parsed_sha256": "2024e93ad1aceb97b26ff67516c39abbe714b50c52b310c1c288e345ea46308a",
+      "publisher": "UK Met Office Hadley Centre",
+      "raw_bytes": 36713,
+      "raw_sha256": "e19be737e1d7abcc0060fd93d315e5dc893ca99ccdc7188b7b60149f1addf7f1",
+      "raw_snapshot_path": "real-data/source-snapshots/hadcet_meantemp_monthly_totals.txt",
+      "retrieved_at_utc": "2026-10-10T10:46:00.914283+00:00",
+      "source_identifier": "HadCET monthly mean temperature",
+      "source_url": "https://hadleyserver.metoffice.gov.uk/hadobs/hadcet/data/meantemp_monthly_totals.txt",
+      "source_url_candidates": [
+        "https://hadleyserver.metoffice.gov.uk/hadobs/hadcet/data/meantemp_monthly_totals.txt"
+      ],
+      "status": "SNAPSHOT_PRESERVED_PENDING_TIME_AND_PROVENANCE_AUDIT",
+      "units": "degrees Celsius"
+    }
+  },
+  "status": "ACQUISITION_COMPLETE_PENDING_AUDIT",
+  "window_policy": "Fixed cutoff at last complete calendar year before candidate endpoint analysis; no alpha-based cutoff selection."
+}
