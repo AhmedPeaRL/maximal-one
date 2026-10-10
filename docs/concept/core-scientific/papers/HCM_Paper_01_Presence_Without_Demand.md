@@ -1,10 +1,6 @@
-### Conceptual manuscript — not an empirical finding.
+Conceptual manuscript — not an empirical finding.
 
-Scientific status: `The repository's Constrained Spectral Persistence Hypothesis remains UNDER_INVESTIGATION`.
-These pages express conceptual or theoretical proposals; they do not establish HCM causation, consciousness, a universal mechanism, or empirical support from spectral results.
-The current null model is not confirmatory, independent replication is not established, and claim-promotion authority remains false.
-
-See the repository's current protocol and validation artifacts before making scientific claims.
+Scientific status: The repository's Constrained Spectral Persistence Hypothesis remains UNDER_INVESTIGATION. These pages express conceptual or theoretical proposals; they do not establish HCM causation, consciousness, a universal mechanism, or empirical support from spectral results. The current null model is not confirmatory, independent replication is not established, and claim-promotion authority remains false. See the repository's current protocol and validation artifacts before making scientific claims.
 
 ---
 
