@@ -4,8 +4,8 @@
 
 - Claim: `UNDER_INVESTIGATION`.
 - Confirmatory null: `NOT_FROZEN`.
-- Eligible secondary domains: 0 until separate provenance, independence, null and endpoint reviews pass.
-- Claim/promotion authority from this amendment: NONE.
+- Eligible secondary domains: `0` until separate provenance, independence, null and endpoint reviews pass.
+- Claim/promotion authority from this amendment: `NONE`.
 
 ---
 
@@ -18,7 +18,10 @@ Data after the cutoff remain in the raw snapshot but are excluded from the parse
 
 Do not change the cutoff after examining endpoint values; any change requires a dated protocol amendment and fresh validation.
 
-Source endpoint and HadCET missing-value rule
+---
+
+## Source endpoint and HadCET missing-value rule
+
 The HadCET raw snapshot is requested from the `hadleyserver.metoffice.gov.uk` data host named in the publisher download page, rather than the alternate `www.metoffice.gov.uk` path.
 
 The exact URL and bytes are captured in the manifest; if the publisher changes the endpoint, stop and record a protocol/source update rather than silently substituting a mirror.
@@ -34,14 +37,17 @@ Broad plausibility bounds are used only as error checks: `HadCET [-20, 40] degre
 
 ## Acquisition and retries
 
-The acquisition script retries transient source failures up to four times, records retrieval time and SHA-256 after a complete response, processes the second source even if the first fails, and preserves a partial manifest.
+The acquisition script requests the bounded FRED INDPRO window first (1919-01-01 through 2025-12-01), then tries the canonical FRED CSV URL as a fallback. Each URL receives two attempts with a 90-second socket timeout.
+The exact successful URL, candidate URL list, retrieval time and SHA-256 are recorded after a complete response.
+It processes the second source even if the first fails and preserves a partial manifest.
 
-- The artifact should be uploaded even on failure.
-- A failed or partial acquisition must not be committed as an eligible dataset.
-- After a successful workflow, inspect the audit JSON first.
-- Then commit the raw snapshots, manifest, and parsed CSVs together.
+This is retry/fallback handling, not a guarantee that FRED is reachable from GitHub Actions.
+The artifact should be uploaded even on failure.
+A failed or partial acquisition must not be committed as an eligible dataset.
 
-Do not edit them by hand. 
+After a successful workflow, inspect the audit JSON first.
+Then commit the raw snapshots, manifest, and parsed CSVs together.
+Do not edit them by hand.
 
 For a stable citation, prefer an archived source vintage with a durable identifier when available; the recorded live URL snapshot is still the byte-level reproducibility anchor for this run.
 
