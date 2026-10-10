@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import math
 from datetime import date
 from pathlib import Path
 
@@ -10,6 +11,7 @@ ROOT = Path.cwd()
 MANIFEST_PATH = ROOT / "real-data/source-snapshots/secondary_source_manifest_v1.json"
 OUTPUT_PATH = ROOT / "artifacts/secondary_data_integrity_audit.json"
 MIN_ROWS = 1024
+ANALYSIS_END = "2025-12-01"
 DATASETS = {
     "hadcet_monthly": ROOT / "real-data/hadcet_monthly.csv",
     "fred_indpro": ROOT / "real-data/fred_indpro_monthly.csv",
@@ -34,10 +36,13 @@ def month_index(value: str) -> int:
 
 
 def audit_one(name: str, path: Path, manifest: dict) -> dict:
-    reasons = []
+    reasons: list[str] = []
     record = manifest.get("sources", {}).get(name, {})
-    raw_path = ROOT / record.get("raw_snapshot_path", "__missing_raw_snapshot__")
-    rows = []
+    raw_rel = record.get("raw_snapshot_path")
+    raw_path = ROOT / raw_rel if raw_rel else ROOT / "__missing_raw_snapshot__"
+    rows: list[tuple[str, int, float | None]] = []
+    if not record:
+        reasons.append("source_manifest_entry_missing")
     if not path.is_file():
         reasons.append("parsed_file_missing")
     else:
@@ -53,13 +58,21 @@ def audit_one(name: str, path: Path, manifest: dict) -> dict:
                 except Exception:
                     reasons.append(f"invalid_month_date_at_line_{line_no}")
                     continue
+                value: float | None
                 try:
                     value = float(value_text)
-                    if not (value == value and abs(value) != float("inf")):
+                    if not math.isfinite(value):
                         raise ValueError("nonfinite")
                 except Exception:
                     reasons.append(f"missing_or_nonfinite_value_at_line_{line_no}")
                     value = None
+                if date_text > ANALYSIS_END:
+                    reasons.append(f"date_after_frozen_analysis_window_at_line_{line_no}")
+                if value is not None:
+                    if name == "hadcet_monthly" and not (-20.0 <= value <= 40.0):
+                        reasons.append(f"hadcet_value_outside_plausibility_bounds_at_line_{line_no}")
+                    if name == "fred_indpro" and not (0.0 < value <= 1000.0):
+                        reasons.append(f"indpro_value_outside_plausibility_bounds_at_line_{line_no}")
                 rows.append((date_text, index, value))
 
     indices = [row[1] for row in rows]
@@ -73,6 +86,8 @@ def audit_one(name: str, path: Path, manifest: dict) -> dict:
         reasons.append("duplicate_months")
     if len(indices) > 1 and any(b - a != 1 for a, b in zip(indices, indices[1:])):
         reasons.append("monthly_gaps_or_nonmonthly_steps")
+    if rows and rows[-1][0] != ANALYSIS_END:
+        reasons.append("last_date_does_not_match_frozen_analysis_window_end_2025_12")
 
     raw_sha = sha256_file(raw_path)
     parsed_sha = sha256_file(path)
@@ -86,15 +101,21 @@ def audit_one(name: str, path: Path, manifest: dict) -> dict:
         reasons.append("parsed_snapshot_checksum_mismatch")
 
     passed = not reasons
+    numeric = [r[2] for r in rows if r[2] is not None]
     return {
         "name": name,
         "parsed_path": str(path.relative_to(ROOT)),
         "raw_snapshot_path": record.get("raw_snapshot_path"),
         "raw_sha256_actual": raw_sha,
         "parsed_sha256_actual": parsed_sha,
-        "rows": len(rows),
+        "rows_including_missing": len(rows),
+        "valid_numeric_rows": len(numeric),
+        "missing_or_nonfinite_rows": len(rows) - len(numeric),
+        "minimum_value": min(numeric) if numeric else None,
+        "maximum_value": max(numeric) if numeric else None,
         "first_date": rows[0][0] if rows else None,
         "last_date": rows[-1][0] if rows else None,
+        "analysis_window_end_inclusive": ANALYSIS_END,
         "expected_cadence": "monthly",
         "time_integrity_passed": passed,
         "replication_eligible": False,
@@ -106,24 +127,42 @@ def audit_one(name: str, path: Path, manifest: dict) -> dict:
 
 
 def main() -> int:
-    if not MANIFEST_PATH.is_file():
-        raise SystemExit("Missing acquisition manifest; run acquisition first.")
-    manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
-    if manifest.get("protocol") != "SECONDARY_SOURCE_MANIFEST_V1":
-        raise SystemExit("Unexpected source manifest protocol")
+    if MANIFEST_PATH.is_file():
+        try:
+            manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+            if manifest.get("protocol") != "SECONDARY_SOURCE_MANIFEST_V1":
+                raise ValueError("Unexpected source manifest protocol")
+        except Exception as exc:
+            manifest = {}
+            manifest_error = f"manifest_unreadable_or_invalid:{type(exc).__name__}:{exc}"
+        else:
+            manifest_error = None
+    else:
+        manifest = {}
+        manifest_error = "acquisition_manifest_missing"
+
     results = {name: audit_one(name, path, manifest) for name, path in DATASETS.items()}
+    if manifest_error:
+        for item in results.values():
+            item["time_integrity_passed"] = False
+            item["status"] = "BLOCKED"
+            item["failure_reasons"] = sorted(set(item["failure_reasons"] + [manifest_error]))
+    manifest_errors = manifest.get("errors", []) if isinstance(manifest, dict) else []
+    all_pass = all(x["time_integrity_passed"] for x in results.values()) and not manifest_errors
     output = {
         "protocol": "SECONDARY_MONTHLY_DATA_INTEGRITY_AUDIT_V1",
-        "status": "TIME_INTEGRITY_PASS_PENDING_REVIEW" if all(x["time_integrity_passed"] for x in results.values()) else "BLOCKED",
+        "status": "TIME_INTEGRITY_PASS_PENDING_REVIEW" if all_pass else "BLOCKED",
+        "analysis_window_end_inclusive": ANALYSIS_END,
+        "manifest_errors": manifest_errors,
         "datasets": results,
         "claim_authority": False,
         "promotion_authority": False,
-        "interpretation": "This audit checks snapshot identity and monthly timestamp/value integrity only. It does not approve provenance, independence, null adequacy, replication, or claim promotion.",
+        "interpretation": "This audit checks raw/parsed identity, explicit monthly cutoff, gaps, missing values, and broad plausibility bounds. It does not approve provenance, independence, null adequacy, replication, or claim promotion.",
     }
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(json.dumps(output, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(output, indent=2, sort_keys=True))
-    return 0 if output["status"] != "BLOCKED" else 1
+    return 0 if all_pass else 1
 
 
 if __name__ == "__main__":
