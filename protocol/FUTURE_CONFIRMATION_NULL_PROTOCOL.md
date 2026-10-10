@@ -14,9 +14,12 @@ The current canonical result remains under investigation.
 
 ## Current Null Limitation
 
-The current exploratory primary stochastic null uses a stationary Gaussian AR(p) family with AIC order selection over `p = 1..20`.
+The current exploratory primary stochastic null uses a stationary Gaussian AR(p) family with AIC order selection over p = 1..20.
 
-In the current canonical run, 96.5% of surrogate fits select the maximum declared order.
+The historical pre-repair run reported a boundary fraction of 0.965.
+
+The repaired primary-domain capacity audit later reported 0.937 across 1000 valid surrogate refits.
+A separate latest workflow log reports 0.947 for its null-calibration gate; this run-specific value must be reconciled against its artifact before it is treated as the same statistic.
 
 The associated capacity audit also shows boundary saturation when the explored order cap is increased.
 
