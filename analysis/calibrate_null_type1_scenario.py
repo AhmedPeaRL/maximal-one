@@ -74,6 +74,8 @@ def main() -> int:
             final_status = "TYPE1_CALIBRATION_PASS_LIMITED_SYNTHETIC_SCOPE"
         elif args.repetitions < MIN_CONFIRMATORY_REPETITIONS and valid == args.repetitions and invalid == 0:
             final_status = "PILOT_COMPLETED_NOT_CONFIRMATORY"
+        elif valid == args.repetitions and invalid == 0:
+            final_status = "TYPE1_CALIBRATION_FAILED"
         else:
             final_status = "CALIBRATION_NOT_PASSED_OR_INCOMPLETE"
         return {
