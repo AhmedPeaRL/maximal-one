@@ -194,6 +194,21 @@ jobs:
           path: artifacts/null_calibration_gate.json
           if-no-files-found: error
 
+      - name: Reconcile static and run-generated null capacity state (diagnostic only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m analysis.null_capacity_state_reconciliation
+          test -s artifacts/null_capacity_state_reconciliation.json
+
+      - name: Upload null capacity state reconciliation
+        uses: actions/upload-artifact@v4
+        with:
+          name: null-capacity-state-reconciliation
+          path: artifacts/null_capacity_state_reconciliation.json
+          if-no-files-found: error
+          retention-days: 90
+
       - name: Verify replication inventory consistency
         shell: bash
         run: |
@@ -391,6 +406,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_secondary_acquisition_safety.py' -v
           python -m unittest tests.test_type1_acceptance_operating_characteristics -v
           python analysis/type1_acceptance_operating_characteristics.py
+          python -m unittest tests.test_null_capacity_state_reconciliation -v
 
       - name: Enforce dataset eligibility contract
         shell: bash
