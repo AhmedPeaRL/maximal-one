@@ -1,38 +1,41 @@
 {
   "dataset": "hadcet_monthly",
   "path": "real-data/hadcet_monthly.csv",
-  "provenance_status": "CANDIDATE_PENDING_SOURCE_SNAPSHOT_AND_REVIEW",
+  "provenance_status": "METADATA_RECONCILED_PENDING_INDEPENDENCE_AND_APPROVAL",
   "source": {
     "source_identifier": "HadCET monthly mean temperature",
-    "source_url_or_citation": "https://www.metoffice.gov.uk/hadobs/hadcet/data/meantemp_monthly_totals.txt",
+    "source_url_or_citation": "https://hadleyserver.metoffice.gov.uk/hadobs/hadcet/data/meantemp_monthly_totals.txt",
     "source_publisher": "UK Met Office Hadley Centre",
-    "retrieval_date": null,
+    "retrieval_date": "2026-10-10T10:46:00.914283+00:00",
     "original_filename": "hadcet_meantemp_monthly_totals.txt",
-    "original_checksum_sha256": null
+    "original_checksum_sha256": "e19be737e1d7abcc0060fd93d315e5dc893ca99ccdc7188b7b60149f1addf7f1"
   },
   "observation": {
     "physical_domain": "Meteorology and climate observations",
     "observation_variable": "Monthly mean Central England temperature",
     "sampling_cadence": "Monthly",
-    "sampling_regularness": "REQUIRES_MONTHLY_CONTIGUITY_AUDIT",
-    "timestamp_presence": "Date column required in parsed analysis file",
-    "time_order": "REQUIRES_AUDIT",
-    "observation_window": null,
+    "sampling_regularness": "MONTHLY_CONTIGUITY_AND_NO_GAPS_PASSED_IN_RUN_38090633422",
+    "timestamp_presence": "Date column present in parsed date,value CSV; monthly date format audited",
+    "time_order": "Strictly increasing and unique monthly dates; verified in run 38090633422",
+    "observation_window": {
+      "start_inclusive": "1659-01-01",
+      "end_inclusive": "2025-12-01"
+    },
     "units": "degrees Celsius"
   },
   "data_handling": {
     "missingness_policy": "Do not impute missing months. Preserve and report any missing source values or gaps.",
     "preprocessing_policy": "Preserve the exact raw source snapshot and its SHA-256. Generate the date,value analysis file deterministically from that snapshot; do not modify the raw file.",
-    "normalization_policy": "Use repository normalization only after the raw snapshot, monthly cadence, missingness, and eligibility checks pass."
+    "normalization_policy": "No transformation/normalization is authorized by this metadata update. Any INDPRO transformation must be declared before examining endpoint results; retain the raw index series as the primary recorded form."
   },
   "independence": {
-    "known_shared_nuisance_with_primary": "PENDING_REVIEW: solar forcing and other climate drivers must be assessed; different dataset names do not establish independence.",
+    "known_shared_nuisance_with_primary": "PENDING_REVIEW: assess solar forcing and other climate drivers; different dataset names do not establish independence.",
     "independence_review_status": "PENDING"
   },
   "eligibility": {
     "minimum_rows": 1024,
-    "observed_rows": null,
-    "measurement_valid": false,
+    "observed_rows": 4404,
+    "measurement_valid": true,
     "replication_eligible": false
   },
   "review": {
@@ -40,5 +43,5 @@
     "approved_for_replication": false,
     "approval_basis": null
   },
-  "interpretation": "Candidate record only. Acquisition, checksum verification, time-integrity audit, independence review, null adequacy, and prospective replication remain pending."
+  "interpretation": "Metadata fields reconciled to the committed source manifest and run 38090633422 integrity audit. This does not approve source independence, null adequacy, replication, or claim promotion."
 }
