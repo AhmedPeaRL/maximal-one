@@ -1,0 +1,33 @@
+{
+  "ar_coefficients": [
+    0.4
+  ],
+  "claim_support": false,
+  "completed_repetitions": 1000,
+  "confirmatory_null_frozen": false,
+  "created_at_utc": "2026-10-11T00:49:10.245770+00:00",
+  "empirical_type1_rate": 0.052,
+  "failure_examples_first_20": [],
+  "interpretation": "Synthetic calibration under this one declared Gaussian AR scenario only. Even a pass does not establish general null adequacy, freeze the null, support the scientific claim, or authorize promotion.",
+  "invalid_repetitions": 0,
+  "maximum_acceptable_95pct_wilson_upper_bound": 0.075,
+  "mean_surrogate_boundary_fraction": 0.002165,
+  "minimum_valid_repetitions_per_scenario": 1000,
+  "nominal_alpha": 0.05,
+  "production_null_protocol": "stationary_gaussian_ar_p_aic_v2_exploratory",
+  "promotion_authority": false,
+  "protocol": "NULL_TYPE1_CALIBRATION_SCENARIO_V1",
+  "rejections_at_nominal_alpha": 52,
+  "repetitions_requested": 1000,
+  "sample_size": 1024,
+  "scenario": "gaussian_ar1_phi_0_4",
+  "scenario_calibration_passed": true,
+  "seed": 20261009,
+  "status": "TYPE1_CALIBRATION_PASS_LIMITED_SYNTHETIC_SCOPE",
+  "surrogates_per_test": 200,
+  "valid_repetitions": 1000,
+  "wilson_95_percent_interval": [
+    0.03987303628377742,
+    0.06755573931927998
+  ]
+}
