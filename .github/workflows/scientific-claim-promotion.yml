@@ -56,7 +56,7 @@ jobs:
           set -euo pipefail
 
           python --version
-          python -m compileall -q analysis scripts core tests
+          python -m compileall -q analysis scripts core tests      
           python -m pip --version
 
           python -m pip install \
@@ -389,6 +389,8 @@ jobs:
 
           node core-scientific/evaluate_scientific_contract.cjs
           python -m unittest discover -s tests -p 'test_secondary_acquisition_safety.py' -v
+          python -m unittest tests.test_type1_acceptance_operating_characteristics -v
+          python analysis/type1_acceptance_operating_characteristics.py
 
       - name: Enforce dataset eligibility contract
         shell: bash
