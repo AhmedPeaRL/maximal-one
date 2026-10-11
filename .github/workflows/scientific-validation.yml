@@ -89,6 +89,18 @@ jobs:
           python -m unittest tests.test_type1_acceptance_operating_characteristics -v
           python analysis/type1_acceptance_operating_characteristics.py
           python -m unittest tests.test_null_capacity_state_reconciliation -v
+
+      - name: Verify repository commit identity
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          actual_head="$(git rev-parse HEAD)"
+
+          test "$actual_head" = "$GITHUB_SHA"
+
+          echo "Verified workflow commit:"
+          echo "$actual_head"
           
       - name: Prepare canonical derived inputs (MANDATORY)
         run: |
