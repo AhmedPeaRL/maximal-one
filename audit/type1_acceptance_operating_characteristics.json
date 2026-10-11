@@ -1,23 +1,28 @@
 {
   "accepted_rejection_count_max": 58,
-  "accepted_rejection_count_min": 0,
+  "accepted_rejection_count_min": 37,
+  "accepted_rejection_count_rule": "two-sided Wilson 95% interval must contain nominal_p AND Wilson upper endpoint <= upper_limit",
   "assumption": "independent Bernoulli repetitions with common rejection probability",
   "audit_only": true,
   "exact_binomial_upper_tail_examples": {
     "60": 0.08673217838488002,
     "73": 0.0010059773196299897
   },
-  "false_fail_probability_one_nominal_scenario": 0.11056152176083311,
+  "false_fail_probability_one_nominal_scenario": 0.13171635417264715,
   "n": 1000,
   "nominal_p": 0.05,
-  "pass_probability_all_scenarios_if_independent": 0.6258404861595097,
-  "pass_probability_one_nominal_scenario": 0.8894384782391669,
-  "probability_at_least_one_false_fail_if_scenarios_independent": 0.3741595138404903,
+  "pass_probability_all_scenarios_if_independent": 0.5683900733077348,
+  "pass_probability_one_nominal_scenario": 0.8682836458273528,
+  "probability_at_least_one_false_fail_if_scenarios_independent": 0.43160992669226517,
   "production_gate_modified": false,
   "protocol": "TYPE1_ACCEPTANCE_RULE_OPERATING_CHARACTERISTICS_AUDIT_V1",
   "scenarios_assumed_independent_for_family_calculation": 4,
+  "wilson_lower_at_min_accepted": 0.026961180875554734,
+  "wilson_lower_at_previous_count": 0.026115571407387315,
   "wilson_two_sided_confidence": 0.95,
   "wilson_upper_at_max_accepted": 0.0742495762662325,
+  "wilson_upper_at_min_accepted": 0.05058239748206931,
   "wilson_upper_at_next_count": 0.07536090277145915,
+  "wilson_upper_at_previous_count": 0.04943566046720784,
   "wilson_upper_limit": 0.075
 }
