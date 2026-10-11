@@ -48,19 +48,29 @@ def binomial_probabilities(n: int, p: float) -> list[float]:
     return [weight / total for weight in weights]
 
 
-def accepted_counts(n: int, upper_limit: float, z: float = WILSON_Z_95) -> list[int]:
-    """Counts accepted by the criterion Wilson upper endpoint <= upper_limit."""
-    if n <= 0 or not 0.0 < upper_limit < 1.0:
-        raise ValueError("Require n > 0 and 0 < upper_limit < 1")
-    return [x for x in range(n + 1) if wilson_interval(x, n, z)[1] <= upper_limit]
+def accepted_counts(
+    n: int,
+    nominal_p: float,
+    upper_limit: float,
+    z: float = WILSON_Z_95,
+) -> list[int]:
+    """Counts accepted by the production rule: CI contains nominal_p and upper <= limit."""
+    if n <= 0 or not 0.0 < nominal_p < 1.0 or not 0.0 < upper_limit < 1.0:
+        raise ValueError("Require n > 0 and both probabilities strictly between 0 and 1")
+    accepted = []
+    for x in range(n + 1):
+        lower, upper = wilson_interval(x, n, z)
+        if lower <= nominal_p <= upper and upper <= upper_limit:
+            accepted.append(x)
+    return accepted
 
 
 def summarize(n: int = 1000, nominal_p: float = 0.05,
               upper_limit: float = 0.075, scenarios: int = 4) -> dict:
-    """Compute current-rule operating characteristics under iid Binomial assumptions."""
+    """Compute operating characteristics of the production rule under iid Binomial assumptions."""
     if scenarios < 1:
         raise ValueError("scenarios must be >= 1")
-    accepted = accepted_counts(n, upper_limit)
+    accepted = accepted_counts(n, nominal_p, upper_limit)
     probs = binomial_probabilities(n, nominal_p)
     pass_probability = sum(probs[x] for x in accepted)
     result = {
@@ -74,6 +84,11 @@ def summarize(n: int = 1000, nominal_p: float = 0.05,
         "wilson_upper_limit": upper_limit,
         "accepted_rejection_count_min": min(accepted),
         "accepted_rejection_count_max": max(accepted),
+        "accepted_rejection_count_rule": "two-sided Wilson 95% interval must contain nominal_p AND Wilson upper endpoint <= upper_limit",
+        "wilson_lower_at_previous_count": wilson_interval(min(accepted) - 1, n)[0] if min(accepted) > 0 else None,
+        "wilson_upper_at_previous_count": wilson_interval(min(accepted) - 1, n)[1] if min(accepted) > 0 else None,
+        "wilson_lower_at_min_accepted": wilson_interval(min(accepted), n)[0],
+        "wilson_upper_at_min_accepted": wilson_interval(min(accepted), n)[1],
         "wilson_upper_at_max_accepted": wilson_interval(max(accepted), n)[1],
         "wilson_upper_at_next_count": wilson_interval(max(accepted) + 1, n)[1]
         if max(accepted) < n else None,
