@@ -1,38 +1,41 @@
 {
   "dataset": "fred_indpro",
   "path": "real-data/fred_indpro_monthly.csv",
-  "provenance_status": "CANDIDATE_PENDING_SOURCE_SNAPSHOT_AND_REVIEW",
+  "provenance_status": "METADATA_RECONCILED_PENDING_INDEPENDENCE_AND_APPROVAL",
   "source": {
     "source_identifier": "FRED:INDPRO",
-    "source_url_or_citation": "https://fred.stlouisfed.org/series/INDPRO",
+    "source_url_or_citation": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=INDPRO&cosd=1919-01-01&coed=2025-12-01",
     "source_publisher": "Board of Governors of the Federal Reserve System; distributed through FRED",
-    "retrieval_date": null,
+    "retrieval_date": "2026-10-10T10:46:01.653518+00:00",
     "original_filename": "fred_indpro.csv",
-    "original_checksum_sha256": null
+    "original_checksum_sha256": "9a07cd7f775a1783d5d2512d2b00014c8c5291fdb134ebc5998d8a8e567e007d"
   },
   "observation": {
     "physical_domain": "Industrial production and economic activity",
     "observation_variable": "Industrial Production: Total Index",
-    "sampling_cadence": "Monthly calendar observations",
-    "sampling_regularness": "REQUIRES_MONTHLY_CONTIGUITY_AUDIT",
-    "timestamp_presence": "Date column required in parsed analysis file",
-    "time_order": "REQUIRES_AUDIT",
-    "observation_window": null,
+    "sampling_cadence": "Monthly",
+    "sampling_regularness": "MONTHLY_CONTIGUITY_AND_NO_GAPS_PASSED_IN_RUN_38090633422",
+    "timestamp_presence": "Date column present in parsed date,value CSV; monthly date format audited",
+    "time_order": "Strictly increasing and unique monthly dates; verified in run 38090633422",
+    "observation_window": {
+      "start_inclusive": "1919-01-01",
+      "end_inclusive": "2025-12-01"
+    },
     "units": "Index 2017=100; seasonally adjusted"
   },
   "data_handling": {
     "missingness_policy": "Do not interpolate missing months. Preserve and report missing values or gaps.",
     "preprocessing_policy": "Preserve the exact raw source snapshot and its SHA-256. Generate the date,value analysis file deterministically from that snapshot; do not modify the raw file.",
-    "normalization_policy": "Use repository normalization only after the raw snapshot, monthly cadence, missingness, and eligibility checks pass."
+    "normalization_policy": "No transformation/normalization is authorized by this metadata update. Any INDPRO transformation must be declared before examining endpoint results; retain the raw index series as the primary recorded form."
   },
   "independence": {
-    "known_shared_nuisance_with_primary": "PENDING_REVIEW: industrial activity, energy use, policy, wars, climate, and possible solar-related covariation must be considered; independence is not assumed.",
+    "known_shared_nuisance_with_primary": "PENDING_REVIEW: assess industrial activity, energy use, policy, wars, climate, and possible solar-related covariation; independence is not assumed.",
     "independence_review_status": "PENDING"
   },
   "eligibility": {
     "minimum_rows": 1024,
-    "observed_rows": null,
-    "measurement_valid": false,
+    "observed_rows": 1284,
+    "measurement_valid": true,
     "replication_eligible": false
   },
   "review": {
@@ -40,5 +43,5 @@
     "approved_for_replication": false,
     "approval_basis": null
   },
-  "interpretation": "Candidate record only. Acquisition, checksum verification, time-integrity audit, independence review, null adequacy, and prospective replication remain pending."
+  "interpretation": "Metadata fields reconciled to the committed source manifest and run 38090633422 integrity audit. This does not approve source independence, null adequacy, replication, or claim promotion."
 }
