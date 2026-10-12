@@ -287,6 +287,13 @@ jobs:
           test -s \
             artifacts/dataset_eligibility_gate.json
 
+      - name: Add explanatory eligibility labels (no gate changes)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m analysis.eligibility_diagnostic_labels
+          test -s artifacts/dataset_eligibility_gate.json
+
       - name: Upload dataset eligibility artifact
         uses: actions/upload-artifact@v4
         with:
@@ -407,6 +414,7 @@ jobs:
           python -m unittest tests.test_type1_acceptance_operating_characteristics -v
           python analysis/type1_acceptance_operating_characteristics.py
           python -m unittest tests.test_null_capacity_state_reconciliation -v
+          python -m unittest tests.test_eligibility_diagnostic_labels -v
 
       - name: Enforce dataset eligibility contract
         shell: bash
@@ -451,22 +459,29 @@ jobs:
                   False,
               )
 
-              reasons = []
-
-              for key in (
-                  "reason",
-                  "replication_exclusion_reason",
-                  "provenance_exclusion_reason",
-              ):
-                  value = item.get(key)
-                  if isinstance(value, str) and value:
-                      reasons.append(value)
-
-              review = item.get("provenance_review", {})
-              if isinstance(review, dict):
-                  review_reason = review.get("reason")
-                  if isinstance(review_reason, str) and review_reason:
-                      reasons.append(review_reason)
+              labels = item.get("diagnostic_labels", {})
+              if isinstance(labels, dict) and labels:
+                  print(f"    structural status: {labels.get('structural_status', 'UNKNOWN')}")
+                  print(f"    final replication status: {labels.get('final_replication_status', 'UNKNOWN')}")
+                  for reason in labels.get("final_replication_reasons", []):
+                      print(f"    exclusion reason: {reason}")
+              else:
+                  reasons = []
+                  for key in (
+                      "reason",
+                      "replication_exclusion_reason",
+                      "provenance_exclusion_reason",
+                  ):
+                      value = item.get(key)
+                      if isinstance(value, str) and value and value != "eligible":
+                          reasons.append(value)
+                  review = item.get("provenance_review", {})
+                  if isinstance(review, dict):
+                      review_reason = review.get("reason")
+                      if isinstance(review_reason, str) and review_reason:
+                          reasons.append(review_reason)
+                  for reason in dict.fromkeys(reasons):
+                      print(f"    exclusion reason: {reason}")
 
               print(
                   f"- {name}: rows={rows}; "
@@ -474,9 +489,6 @@ jobs:
                   f"replication={replication}; "
                   f"provenance={provenance}"
               )
-
-              for reason in dict.fromkeys(reasons):
-                  print(f"    reason: {reason}")
 
           if available < required:
               print(
