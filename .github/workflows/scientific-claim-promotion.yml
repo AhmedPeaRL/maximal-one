@@ -459,10 +459,25 @@ jobs:
                   False,
               )
 
+              # Print the domain identity first so following diagnostics
+              # cannot be mistaken for the preceding/following domain.
+              print(
+                  f"- {name}: rows={rows}; "
+                  f"measurement={measurement}; "
+                  f"replication={replication}; "
+                  f"provenance={provenance}"
+              )
+
               labels = item.get("diagnostic_labels", {})
               if isinstance(labels, dict) and labels:
-                  print(f"    structural status: {labels.get('structural_status', 'UNKNOWN')}")
-                  print(f"    final replication status: {labels.get('final_replication_status', 'UNKNOWN')}")
+                  print(
+                      f"    structural status: "
+                      f"{labels.get('structural_status', 'UNKNOWN')}"
+                  )
+                  print(
+                      f"    final replication status: "
+                      f"{labels.get('final_replication_status', 'UNKNOWN')}"
+                  )
                   for reason in labels.get("final_replication_reasons", []):
                       print(f"    exclusion reason: {reason}")
               else:
@@ -482,13 +497,6 @@ jobs:
                           reasons.append(review_reason)
                   for reason in dict.fromkeys(reasons):
                       print(f"    exclusion reason: {reason}")
-
-              print(
-                  f"- {name}: rows={rows}; "
-                  f"measurement={measurement}; "
-                  f"replication={replication}; "
-                  f"provenance={provenance}"
-              )
 
           if available < required:
               print(
