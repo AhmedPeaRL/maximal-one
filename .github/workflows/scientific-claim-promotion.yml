@@ -194,6 +194,21 @@ jobs:
           path: artifacts/null_calibration_gate.json
           if-no-files-found: error
 
+      - name: Run dedicated primary null capacity audit (diagnostic only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m analysis.primary_null_capacity_audit
+          test -s artifacts/primary_null_capacity_audit.json
+
+      - name: Upload primary null capacity audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: primary-null-capacity-audit
+          path: artifacts/primary_null_capacity_audit.json
+          if-no-files-found: error
+          retention-days: 90
+
       - name: Reconcile static and run-generated null capacity state (diagnostic only)
         shell: bash
         run: |
