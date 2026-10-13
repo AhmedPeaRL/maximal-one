@@ -1308,44 +1308,73 @@ jobs:
           python analysis/finalize_artifacts.py
 
       - name: Commit fingerprint
+        shell: bash
         run: |
-          set -e
-          
+          set -euo pipefail
+
+          FINGERPRINT_SOURCE="$RUNNER_TEMP/maximal-one-fingerprint.txt"
+
+          # Preserve the fingerprint produced by this workflow run
+          # before synchronizing the working tree with remote main.
+          test -s artifacts/fingerprint.txt
+          cp artifacts/fingerprint.txt "$FINGERPRINT_SOURCE"
+
+          python - "$FINGERPRINT_SOURCE" <<'PY'
+          import re
+          import sys
+          from pathlib import Path
+
+          value = Path(sys.argv[1]).read_text(
+              encoding="utf-8"
+          ).strip()
+
+          if not re.fullmatch(r"[0-9a-fA-F]{64}", value):
+              raise SystemExit(
+                  "FAIL: generated fingerprint is not a "
+                  "64-character SHA-256 value"
+              )
+
+          print("Generated fingerprint format: PASS")
+          PY
+
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          
+
           git remote set-url origin \
-          https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}.git
+            "https://x-access-token:${GH_TOKEN}@github.com/${GH_REPO}.git"
 
-          git fetch origin main
-          git checkout main
-          git reset --hard origin/main
+          for attempt in 1 2 3; do
+            echo "=== Fingerprint publication attempt ${attempt}/3 ==="
 
-          git add artifacts/*.txt || true
-          git add artifacts/*.json || true
-          git add -f artifacts/archive/*.json || true
+            git fetch origin main
+            git checkout main
+            git reset --hard origin/main
 
-          if git diff --cached --quiet; then
-            echo "No artifact changes detected"
-            exit 0
-          fi
+            mkdir -p artifacts
+            cp "$FINGERPRINT_SOURCE" artifacts/fingerprint.txt
 
-          git commit -m "update deterministic artifacts [skip ci]"
+            # artifacts/ is ignored, so force-add this one
+            # explicitly approved public fingerprint file.
+            git add -f artifacts/fingerprint.txt
 
-          for i in 1 2 3
-          do
-            git pull --rebase origin main || true
-
-            if git push origin HEAD:main; then
-              echo "✅ push success"
+            if git diff --cached --quiet; then
+              echo "Fingerprint already matches the published file."
               exit 0
             fi
 
-            echo "Retrying push..."
+            git commit \
+              -m "Publish canonical fingerprint [skip ci]"
+
+            if git push origin HEAD:main; then
+              echo "Public fingerprint publication: PASS"
+              exit 0
+            fi
+
+            echo "Push did not succeed; refreshing main before retry."
             sleep 3
           done
 
-          echo "❌ push failed after retries"
+          echo "FAIL: fingerprint publication failed after 3 attempts."
           exit 1
           
       - name: Public Fingerprint Source Sanity Check
