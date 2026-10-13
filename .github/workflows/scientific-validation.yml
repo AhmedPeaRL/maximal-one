@@ -465,6 +465,7 @@ jobs:
           PY
 
       - name: Evaluate canonical independent real-domain replication eligibility
+        continue-on-error: true
         run: |
           python scripts/canonical_consensus.py
 
@@ -2305,6 +2306,11 @@ jobs:
           name: independent-verification
           path: public
 
+      - uses: actions/download-artifact@v6
+        with:
+          name: dataset-eligibility-gate
+          path: artifacts/dataset-eligibility-gate
+
       - name: Verify final provenance evidence inputs
         shell: bash
         run: |
@@ -2983,6 +2989,49 @@ jobs:
           else
             echo "✅ Attractor stable."
           fi
+
+      - name: Enforce replication eligibility after evidence collection
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          REPORT="artifacts/dataset-eligibility-gate/dataset_eligibility_gate.json"
+
+          if [ ! -s "$REPORT" ]; then
+            echo "::error::Dataset eligibility report is missing."
+            exit 1
+          fi
+
+          python - "$REPORT" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          report = json.loads(
+              Path(sys.argv[1]).read_text(encoding="utf-8")
+          )
+
+          required = int(report["minimum_replication_domains"])
+          available = int(report["eligible_replication_domain_count"])
+          status = report.get("status", "UNKNOWN")
+
+          print(f"Eligible independent domains: {available}/{required}")
+          print(f"Eligibility status: {status}")
+
+          if available < required:
+              raise SystemExit(
+                  "BLOCKED: insufficient independent replication domains. "
+                  "Scientific claim promotion remains prohibited."
+              )
+
+          if status != "ELIGIBILITY_VALIDATED":
+              raise SystemExit(
+                  "BLOCKED: eligibility status is not validated."
+              )
+
+          print("Replication eligibility gate passed.")
+          PY
 
       - name: Report gate failure
         if: failure()
