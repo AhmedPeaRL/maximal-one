@@ -1,22 +1,58 @@
-import hashlib
-import requests
 import os
+import re
+from urllib.parse import urlparse
 
-url = os.getenv("EXTERNAL_SOURCE_URL", "").strip()
+import requests
 
-if not url:
-    raise SystemExit("❌ missing external source url")
 
-r = requests.get(url, timeout=10)
-r.raise_for_status()
+def main():
+    url = os.getenv("EXTERNAL_SOURCE_URL", "").strip()
 
-content = r.text.strip().encode()
+    if not url:
+        raise SystemExit("FAIL: EXTERNAL_SOURCE_URL is missing")
 
-sha = hashlib.sha256(content).hexdigest()
+    parsed = urlparse(url)
 
-print("External source SHA256:", sha)
+    if parsed.scheme != "https":
+        raise SystemExit("FAIL: external source must use HTTPS")
 
-if len(content) < 10:
-    raise SystemExit("❌ external source too small")
+    if parsed.hostname != "raw.githubusercontent.com":
+        raise SystemExit("FAIL: unexpected external source host")
 
-print("✅ EXTERNAL SOURCE INTEGRITY HOLDS")
+    expected_path = (
+        "/ahmedpearl/maximal-one/main/artifacts/fingerprint.txt"
+    )
+
+    if parsed.path != expected_path or parsed.query or parsed.fragment:
+        raise SystemExit("FAIL: unexpected fingerprint source path")
+
+    try:
+        response = requests.get(
+            url,
+            timeout=(5, 10),
+            allow_redirects=False,
+            headers={"Cache-Control": "no-cache"},
+        )
+        response.raise_for_status()
+    except requests.RequestException as exc:
+        raise SystemExit(
+            f"FAIL: public fingerprint fetch failed: {exc}"
+        ) from exc
+
+    fingerprint = response.text.strip()
+
+    if not re.fullmatch(r"[0-9a-fA-F]{64}", fingerprint):
+        raise SystemExit(
+            "FAIL: fetched content is not a 64-character SHA-256 fingerprint"
+        )
+
+    print("Public fingerprint fetch: PASS")
+    print("Fingerprint format: PASS")
+    print(
+        "LIMITATION: this check does not establish source integrity "
+        "or independent scientific reproduction."
+    )
+
+
+if __name__ == "__main__":
+    main()
