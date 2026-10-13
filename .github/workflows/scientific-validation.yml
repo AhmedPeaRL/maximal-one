@@ -2182,6 +2182,7 @@ jobs:
         with:
           name: final-provenance-closure
           path: |
+            artifacts/*.json
             artifacts/canonical_report.json
             artifacts/report.hash
             artifacts/report_hash_manifest.json
