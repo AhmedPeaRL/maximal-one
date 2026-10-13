@@ -1348,8 +1348,11 @@ jobs:
           echo "❌ push failed after retries"
           exit 1
           
-      - name: External Source Integrity Guard
-        run: python analysis/external_source_integrity_guard.py
+      - name: Public Fingerprint Source Sanity Check
+        shell: bash
+        run: |
+          set -euo pipefail
+          python analysis/external_source_integrity_guard.py
   
       - name: External Reproduction Guard
         run: |
