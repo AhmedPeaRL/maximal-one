@@ -1383,7 +1383,7 @@ jobs:
           set -euo pipefail
           python analysis/external_source_integrity_guard.py
   
-      - name: External Reproduction Guard
+      - name: Public artifact consistency diagnostic (non-gating)
         run: |
           python analysis/external_reproduction_guard.py
           python analysis/true_external_reproduction_guard.py
