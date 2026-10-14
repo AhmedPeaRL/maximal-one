@@ -566,6 +566,23 @@ jobs:
           set -euo pipefail
           python analysis/protocol_reference_guard.py
 
+      - name: Audit committed secondary monthly data integrity
+        id: secondary_monthly_integrity
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          python analysis/audit_secondary_monthly_domains.py
+
+      - name: Upload secondary monthly integrity audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: secondary-monthly-integrity-audit
+          path: artifacts/secondary_data_integrity_audit.json
+          if-no-files-found: error
+          retention-days: 90
+
       - name: Dataset eligibility gate
         shell: bash
         run: |
