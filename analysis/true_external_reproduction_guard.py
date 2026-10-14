@@ -8,7 +8,7 @@ import requests
 
 GITHUB_RAW = (
     "https://raw.githubusercontent.com/"
-    "AhmedPeaRL/maximal-one/main/artifacts/canonical_report.json"
+    "ahmedpearl/maximal-one/main/artifacts/canonical_report.json"
 )
 
 LOCAL_REPORT = "artifacts/canonical_report.json"
