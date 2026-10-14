@@ -5153,14 +5153,35 @@ jobs:
               "gate": os.environ["GATE_RESULT"],
               "consensus": os.environ["CONSENSUS_RESULT"],
               "verify-core": os.environ["VERIFY_CORE_RESULT"],
-              "stability-check": os.environ["STABILITY_RESULT"],
           }
-          sweep_required = os.environ.get("SWEEP_PLUS_REQUIRED", "false").lower() == "true"
+
+          verify_core_result = os.environ["VERIFY_CORE_RESULT"]
+          stability_result = os.environ["STABILITY_RESULT"]
+
+          # A skipped downstream job is not counted as a separate failure
+          # when its upstream dependency already failed.
+          # If verify-core succeeded, stability-check must also succeed.
+          if stability_result == "success":
+              required_jobs["stability-check"] = stability_result
+          elif verify_core_result == "success":
+              required_jobs["stability-check"] = stability_result
+          elif stability_result != "skipped":
+              required_jobs["stability-check"] = stability_result
+
+          sweep_required = (
+              os.environ.get("SWEEP_PLUS_REQUIRED", "false").lower()
+              == "true"
+          )
           sweep_result = os.environ["SWEEP_PLUS_RESULT"]
+
           if sweep_required:
               required_jobs["sweep-plus"] = sweep_result
 
-          job_failures = {name: result for name, result in required_jobs.items() if result != "success"}
+          job_failures = {
+              name: result
+              for name, result in required_jobs.items()
+              if result != "success"
+          }
           eligibility_passed = False
           eligibility_summary = None
           if eligibility is not None:
