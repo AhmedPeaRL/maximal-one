@@ -1207,40 +1207,109 @@ jobs:
       - name: Hash report
         run: sha256sum artifacts/canonical_report.json
 
-      - name: Export fingerprint
+      - name: Audit public canonical report retrieval
+        continue-on-error: true
+        shell: bash
         run: |
+          set -u
+          mkdir -p artifacts
+
           python - <<'PY'
-          import requests, hashlib, json
-
-          URL = "https://ahmedpearl.github.io/maximal-one/public/repro_bundle/canonical_report.json"
-          HASH_URL = "https://ahmedpearl.github.io/maximal-one/public/repro_bundle/report.hash"
-
-          r = requests.get(URL)
-          data = r.text
-
-          h = hashlib.sha256(data.encode()).hexdigest()
-
-          expected = requests.get(HASH_URL).text.strip()
-
-          print("Computed:", h)
-          print("Expected:", expected)
-
-          if h == expected:
-            print("MATCH ✅")
-          else:
-              print("MISMATCH ❌")
-
+          import hashlib
           import json
-          from analysis.external_reproduction_guard import compute_fingerprint
+          import os
+          from pathlib import Path
+          from urllib.request import urlopen
 
-          report = json.load(open("artifacts/canonical_report.json"))
+          report_url = (
+              "https://ahmedpearl.github.io/maximal-one/"
+              "public/repro_bundle/canonical_report.json"
+          )
+          hash_url = (
+              "https://ahmedpearl.github.io/maximal-one/"
+              "public/repro_bundle/report.hash"
+          )
 
-          fp = compute_fingerprint(report)
+          local_path = Path("artifacts/canonical_report.json")
+          audit_path = Path("artifacts/public_report_retrieval_audit.json")
 
-          open("artifacts/fingerprint.txt", "w").write(fp)
+          audit = {
+              "protocol": "PUBLIC_CANONICAL_REPORT_RETRIEVAL_AUDIT_V1",
+              "diagnostic_only": True,
+              "claim_support": False,
+              "promotion_authority": False,
+              "scientific_inputs_modified": False,
+              "github_sha": os.environ.get("GITHUB_SHA"),
+              "report_url": report_url,
+              "hash_url": hash_url,
+              "status": "UNAVAILABLE",
+          }
 
-          print("FP:", fp)
+          try:
+              if not local_path.is_file():
+                  audit["status"] = "LOCAL_INPUT_MISSING"
+                  audit["detail"] = "Local canonical report is missing."
+              else:
+                  local_bytes = local_path.read_bytes()
+                  local_hash = hashlib.sha256(local_bytes).hexdigest()
+                  audit["local_sha256"] = local_hash
+
+                  with urlopen(report_url, timeout=20) as response:
+                      remote_bytes = response.read()
+                      audit["report_http_status"] = response.status
+
+                  with urlopen(hash_url, timeout=20) as response:
+                      published_hash = response.read().decode("utf-8").strip()
+                      audit["hash_http_status"] = response.status
+
+                  remote_hash = hashlib.sha256(remote_bytes).hexdigest()
+                  audit["remote_sha256"] = remote_hash
+                  audit["published_sha256"] = published_hash
+
+                  try:
+                      json.loads(remote_bytes.decode("utf-8"))
+                      audit["remote_json_valid"] = True
+                  except (UnicodeDecodeError, json.JSONDecodeError):
+                      audit["remote_json_valid"] = False
+
+                  matched = (
+                      audit["remote_json_valid"]
+                      and remote_hash == published_hash
+                      and remote_hash == local_hash
+                  )
+
+                  audit["status"] = "PASS" if matched else "MISMATCH"
+                  audit["interpretation"] = (
+                      "Public report bytes, local report bytes, and published "
+                      "hash agree."
+                      if matched else
+                      "Public report retrieval succeeded, but the JSON or "
+                      "one or more hash comparisons did not match."
+                  )
+
+          except Exception as exc:
+              audit["status"] = "UNAVAILABLE"
+              audit["detail"] = f"{type(exc).__name__}: {exc}"
+              audit["interpretation"] = (
+                  "Public retrieval could not be verified. This is not a "
+                  "scientific result and must not be reported as a match."
+              )
+
+          audit_path.write_text(
+              json.dumps(audit, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(audit, indent=2, sort_keys=True))
           PY
+
+      - name: Upload public report retrieval audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-report-retrieval-audit
+          path: artifacts/public_report_retrieval_audit.json
+          if-no-files-found: warn
+          retention-days: 90
 
       - name: Verify local fingerprint artifact
         run: |
