@@ -2378,6 +2378,7 @@ jobs:
           path: public
 
       - uses: actions/download-artifact@v6
+        continue-on-error: true
         with:
           name: dataset-eligibility-gate
           path: artifacts/dataset-eligibility-gate
@@ -3060,49 +3061,6 @@ jobs:
           else
             echo "✅ Attractor stable."
           fi
-
-      - name: Enforce replication eligibility after evidence collection
-        if: always()
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          REPORT="artifacts/dataset-eligibility-gate/dataset_eligibility_gate.json"
-
-          if [ ! -s "$REPORT" ]; then
-            echo "::error::Dataset eligibility report is missing."
-            exit 1
-          fi
-
-          python - "$REPORT" <<'PY'
-          import json
-          import sys
-          from pathlib import Path
-
-          report = json.loads(
-              Path(sys.argv[1]).read_text(encoding="utf-8")
-          )
-
-          required = int(report["minimum_replication_domains"])
-          available = int(report["eligible_replication_domain_count"])
-          status = report.get("status", "UNKNOWN")
-
-          print(f"Eligible independent domains: {available}/{required}")
-          print(f"Eligibility status: {status}")
-
-          if available < required:
-              raise SystemExit(
-                  "BLOCKED: insufficient independent replication domains. "
-                  "Scientific claim promotion remains prohibited."
-              )
-
-          if status != "ELIGIBILITY_VALIDATED":
-              raise SystemExit(
-                  "BLOCKED: eligibility status is not validated."
-              )
-
-          print("Replication eligibility gate passed.")
-          PY
 
       - name: Report gate failure
         if: failure()
@@ -5129,3 +5087,156 @@ jobs:
           git show --stat --oneline HEAD
 
           git push origin HEAD:main
+
+  claim-gate:
+    name: Final claim and workflow gate
+    if: always()
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: read
+    needs:
+      - gate
+      - consensus
+      - verify-core
+      - stability-check
+      - sweep-plus
+    steps:
+      - name: Checkout exact workflow commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Download dataset eligibility evidence
+        id: eligibility_artifact
+        continue-on-error: true
+        uses: actions/download-artifact@v6
+        with:
+          name: dataset-eligibility-gate
+          path: artifacts/dataset-eligibility-gate
+
+      - name: Evaluate final decision without suppressing upstream diagnostics
+        id: decision
+        shell: bash
+        env:
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          HEAD_SHA: ${{ github.sha }}
+          GATE_RESULT: ${{ needs.gate.result }}
+          CONSENSUS_RESULT: ${{ needs.consensus.result }}
+          VERIFY_CORE_RESULT: ${{ needs.verify-core.result }}
+          STABILITY_RESULT: ${{ needs.stability-check.result }}
+          SWEEP_PLUS_RESULT: ${{ needs['sweep-plus'].result }}
+          SWEEP_PLUS_REQUIRED: ${{ github.event_name == 'repository_dispatch' && github.event.action == 'external_dispatch' && github.event.client_payload.approved_experimental_sweep == true }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from datetime import datetime, timezone
+
+          report_path = Path("artifacts/dataset-eligibility-gate/dataset_eligibility_gate.json")
+          eligibility = None
+          eligibility_error = None
+          if report_path.is_file() and report_path.stat().st_size:
+              try:
+                  eligibility = json.loads(report_path.read_text(encoding="utf-8"))
+              except Exception as exc:
+                  eligibility_error = f"{type(exc).__name__}: {exc}"
+          else:
+              eligibility_error = "dataset eligibility artifact missing or empty"
+
+          required_jobs = {
+              "gate": os.environ["GATE_RESULT"],
+              "consensus": os.environ["CONSENSUS_RESULT"],
+              "verify-core": os.environ["VERIFY_CORE_RESULT"],
+              "stability-check": os.environ["STABILITY_RESULT"],
+          }
+          sweep_required = os.environ.get("SWEEP_PLUS_REQUIRED", "false").lower() == "true"
+          sweep_result = os.environ["SWEEP_PLUS_RESULT"]
+          if sweep_required:
+              required_jobs["sweep-plus"] = sweep_result
+
+          job_failures = {name: result for name, result in required_jobs.items() if result != "success"}
+          eligibility_passed = False
+          eligibility_summary = None
+          if eligibility is not None:
+              try:
+                  required = int(eligibility["minimum_replication_domains"])
+                  available = int(eligibility["eligible_replication_domain_count"])
+                  status = str(eligibility.get("status", "UNKNOWN"))
+                  eligibility_summary = {
+                      "minimum_replication_domains": required,
+                      "eligible_replication_domain_count": available,
+                      "status": status,
+                  }
+                  eligibility_passed = available >= required and status == "ELIGIBILITY_VALIDATED"
+              except Exception as exc:
+                  eligibility_error = f"invalid eligibility schema: {type(exc).__name__}: {exc}"
+
+          claim_path = Path("core-scientific/strict_claim.json")
+          scientific_claim_status = "UNKNOWN"
+          claim_status_error = None
+          try:
+              claim = json.loads(claim_path.read_text(encoding="utf-8"))
+              scientific_claim_status = str(
+                  claim.get("epistemic_status", {}).get("current_status", "UNKNOWN")
+              )
+          except Exception as exc:
+              claim_status_error = f"{type(exc).__name__}: {exc}"
+
+          passed = (
+              eligibility_passed
+              and not job_failures
+              and eligibility_error is None
+              and claim_status_error is None
+          )
+          decision = {
+              "schema": "HCM_FINAL_CLAIM_GATE_V1",
+              "created_at_utc": datetime.now(timezone.utc).isoformat(),
+              "run_id": os.environ["RUN_ID"],
+              "run_attempt": os.environ["RUN_ATTEMPT"],
+              "head_sha": os.environ["HEAD_SHA"],
+              "status": "PASS" if passed else "BLOCKED",
+              "scientific_claim_status_from_strict_claim": scientific_claim_status,
+              "claim_status_error": claim_status_error,
+              "claim_support_granted_by_this_job": False,
+              "promotion_authority_granted_by_this_job": False,
+              "scientific_inputs_modified": False,
+              "eligibility_passed": eligibility_passed,
+              "eligibility": eligibility_summary,
+              "eligibility_error": eligibility_error,
+              "job_results": {
+                  "gate": os.environ["GATE_RESULT"],
+                  "consensus": os.environ["CONSENSUS_RESULT"],
+                  "verify-core": os.environ["VERIFY_CORE_RESULT"],
+                  "stability-check": os.environ["STABILITY_RESULT"],
+                  "sweep-plus": sweep_result,
+              },
+              "sweep_plus_required_for_this_event": sweep_required,
+              "required_job_failures": job_failures,
+              "interpretation": (
+                  "PASS means the declared workflow checks and replication eligibility gate passed; it does not itself establish or promote the scientific hypothesis."
+                  if passed else
+                  "BLOCKED means at least one operational check or replication eligibility condition remains unmet. Scientific claim status remains UNDER_INVESTIGATION."
+              ),
+          }
+          Path("artifacts/final_claim_gate_decision.json").write_text(
+              json.dumps(decision, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+          )
+          print(json.dumps(decision, indent=2, sort_keys=True))
+          if not passed:
+              raise SystemExit(1)
+          PY
+
+      - name: Upload final claim-gate decision
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: final-claim-gate-decision
+          path: artifacts/final_claim_gate_decision.json
+          if-no-files-found: error
+          retention-days: 90
