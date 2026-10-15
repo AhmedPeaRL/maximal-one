@@ -21,6 +21,10 @@ from analysis.appropriate_stochastic_null import (
 from analysis.null_protocol import (
     load_null_protocol,
 )
+from analysis.replication_computation_guard import (
+    candidate_computation_gate,
+    protocol_freeze_state,
+)
 
 
 CLAIM_PATH = Path(
@@ -95,8 +99,14 @@ def load_replication_policy():
     )
 
     null_protocol = load_null_protocol()
+    protocol_frozen, protocol_freeze_reasons = protocol_freeze_state(
+        claim
+    )
 
     return {
+        "confirmatory_protocol_frozen": protocol_frozen,
+        "protocol_freeze_reasons": protocol_freeze_reasons,
+
         "minimum_domains": int(
             replication.get(
                 "minimum_domains",
@@ -541,6 +551,46 @@ def evaluate_domain(
         }
 
 
+
+def evaluate_candidate_if_approved(name, candidate, policy, seed):
+    """Apply protocol/provenance approval before any endpoint computation."""
+    allowed, gate_reasons = candidate_computation_gate(
+        candidate,
+        DATASETS[name],
+        policy["confirmatory_protocol_frozen"],
+    )
+    if not allowed:
+        if not policy["confirmatory_protocol_frozen"]:
+            status = "SKIPPED_PROTOCOL_NOT_FROZEN"
+        elif not isinstance(candidate, dict):
+            status = "PROVENANCE_NOT_REGISTERED"
+        else:
+            status = "SKIPPED_PROVENANCE_OR_APPROVAL_INCOMPLETE"
+
+        return {
+            "name": name,
+            "path": DATASETS[name],
+            "rows": None,
+            "measurement_valid": None,
+            "estimator_valid": None,
+            "replication_eligible": False,
+            "scientific_replication": False,
+            "replication_status": status,
+            "provenance_replication_eligible": bool(
+                isinstance(candidate, dict)
+                and candidate.get("replication_eligible") is True
+            ),
+            "explicit_approval": bool(
+                isinstance(candidate, dict)
+                and candidate.get("explicit_approval") is True
+            ),
+            "computation_status": "SKIPPED",
+            "reason": ";".join(gate_reasons),
+            "replication_exclusion_reasons": gate_reasons,
+        }
+
+    return evaluate_domain(name, seed, policy)
+
 def main():
 
     policy = load_replication_policy()
@@ -570,63 +620,12 @@ def main():
     
     for index, name in enumerate(candidate_names):
         candidate = registered_candidates.get(name)
-
-        # Establish provenance eligibility before inspecting
-        # the scientific endpoint.
-        if (
-            not isinstance(candidate, dict)
-            or candidate.get("replication_eligible") is not True
-        ):
-            try:
-                rows = int(len(load_series(DATASETS[name])))
-                load_error = None
-            except Exception as exc:
-                rows = 0
-                load_error = str(exc)
-
-            measurement_valid = (
-                rows >= policy["measurement_minimum_length"]
-            )
-            estimator_valid = (
-                rows >= policy["estimator_minimum_length"]
-            )
-
-            if not isinstance(candidate, dict):
-                status = "PROVENANCE_NOT_REGISTERED"
-                reason = (
-                    "Dataset is absent from the replication provenance registry."
-                )
-            else:
-                status = "PROVENANCE_NOT_APPROVED"
-                reason = candidate.get(
-                    "reason",
-                    "Dataset is not approved for replication.",
-                )
-
-            item = {
-                "name": name,
-                "path": DATASETS[name],
-                "rows": rows,
-                "measurement_valid": measurement_valid,
-                "estimator_valid": estimator_valid,
-                "replication_eligible": False,
-                "scientific_replication": False,
-                "replication_status": status,
-                "provenance_replication_eligible": False,
-                "reason": reason,
-            }
-
-            if load_error is not None:
-                item["load_error"] = load_error
-
-            domains.append(item)
-            continue
-
         domains.append(
-            evaluate_domain(
+            evaluate_candidate_if_approved(
                 name,
-                BASE_SEED + index,
+                candidate,
                 policy,
+                BASE_SEED + index,
             )
         )
 
@@ -707,6 +706,12 @@ def main():
             passed,
 
         "required_protocol": {
+
+            "confirmatory_protocol_frozen":
+                policy["confirmatory_protocol_frozen"],
+
+            "protocol_freeze_reasons":
+                policy["protocol_freeze_reasons"],
 
             "protocol_id":
                 policy[
