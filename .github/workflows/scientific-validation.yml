@@ -90,6 +90,7 @@ jobs:
           python analysis/type1_acceptance_operating_characteristics.py
           python -m unittest tests.test_null_capacity_state_reconciliation -v
           python -m unittest tests.test_null_identity_contract -v
+          python -m unittest tests.test_replication_computation_guard -v
 
       - name: Verify repository commit identity
         shell: bash
