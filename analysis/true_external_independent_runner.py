@@ -1,128 +1,53 @@
+"""Compatibility entry point: external artifact retrieval/hash, not replication."""
 from __future__ import annotations
 
 import hashlib
 import json
 import time
-import requests
+from pathlib import Path
 
-BASE_URL = (
-    "https://raw.githubusercontent.com/"
-    "ahmedpearl/maximal-one/main/"
-    "artifacts/canonical_report.json"
-)
+from analysis.public_artifact_retrieval import fetch_text
 
-def fetch_external():
-    for attempt in range(6):
-        try:
-            url = (
-                f"{BASE_URL}"
-                f"?t={int(time.time())}"
-            )
 
-            response = requests.get(
-                url,
-                timeout=10,
-            )
-
-            if response.status_code == 200:
-                return response.json()
-
-            print(
-                "HTTP status:",
-                response.status_code,
-            )
-
-        except Exception as exc:
-            print(
-                "Fetch error:",
-                repr(exc),
-            )
-
-        time.sleep(5)
-
-    raise RuntimeError(
-        "Failed to fetch external canonical report"
-    )
-
-def independent_hash(data):
-    raw = json.dumps(
-        data,
-        sort_keys=True,
-        separators=(",", ":"),
-    ).encode("utf-8")
-
-    return hashlib.sha256(
-        raw
-    ).hexdigest()
-
-def run():
-    data = fetch_external()
-
-    digest = independent_hash(
-        data
-    )
-
+def run() -> int:
+    fetched = fetch_text()
     result = {
         "timestamp": time.time(),
-
-        "external_hash": digest,
-
-        "source":
-            "public_github_raw_artifact",
-
-        "retrieval_succeeded":
-            True,
-
-        "verification_status":
-            "artifact_retrieved_and_independently_hashed",
-
-        "scientific_claim_authority":
-            False,
-
-        "independent_code_execution":
-            False,
-
-        "independent_implementation_replication":
-            False,
-
-        "independent_laboratory_replication":
-            False,
-
-        "independent_scientific_replication":
-            False,
-
-        "interpretation":
-            (
-                "This process independently retrieves and hashes "
-                "a public canonical artifact. It does not rerun "
-                "the scientific pipeline and does not constitute "
-                "independent scientific verification."
-            ),
+        "protocol": "PUBLIC_ARTIFACT_RETRIEVAL_HASH_V1",
+        "status": fetched["status"],
+        "http_status": fetched["http_status"],
+        "attempts": fetched["attempts"],
+        "external_hash": None,
+        "source": "public_github_raw_artifact_same_repository",
+        "retrieval_succeeded": fetched["raw_text"] is not None,
+        "verification_status": fetched["status"],
+        "scientific_claim_authority": False,
+        "promotion_authority": False,
+        "independent_code_execution": False,
+        "independent_implementation_replication": False,
+        "independent_laboratory_replication": False,
+        "independent_scientific_replication": False,
+        "error": fetched["error"],
+        "interpretation": (
+            "This process attempts to retrieve and hash a public canonical artifact. It does not rerun "
+            "the scientific pipeline and does not constitute independent scientific verification."
+        ),
     }
+    if fetched["raw_text"] is not None:
+        try:
+            data = json.loads(fetched["raw_text"])
+            raw = json.dumps(data, sort_keys=True, separators=(",", ":")).encode("utf-8")
+            result["external_hash"] = hashlib.sha256(raw).hexdigest()
+            result["status"] = "RETRIEVED_AND_HASHED_NOT_REPLICATION"
+            result["verification_status"] = result["status"]
+        except (TypeError, ValueError) as exc:
+            result["status"] = "INVALID_JSON"
+            result["verification_status"] = result["status"]
+            result["error"] = f"{type(exc).__name__}: {exc}"
+    Path("external_artifact_retrieval.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0
 
-    with open(
-        "external_artifact_retrieval.json",
-        "w",
-        encoding="utf-8",
-    ) as f:
-        json.dump(
-            result,
-            f,
-            indent=2,
-            sort_keys=True,
-        )
-
-    print(
-        "External artifact retrieval complete."
-    )
-
-    print(
-        json.dumps(
-            result,
-            indent=2,
-            sort_keys=True,
-        )
-    )
 
 if __name__ == "__main__":
-    run()
+    raise SystemExit(run())
