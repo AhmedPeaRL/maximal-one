@@ -1,0 +1,46 @@
+{
+  "protocol": "HCM_CLAIM_PROMOTION_STATUS_V1",
+  "created_at_utc": "2026-10-16",
+  "status": "UNDER_INVESTIGATION",
+  "claim_authority": false,
+  "promotion_authority": false,
+  "acceptance_threshold_changed": false,
+  "type1_calibration": {
+    "status": "FAILURES_RECORDED_ROOT_CAUSE_REVIEW_PENDING",
+    "failed_scenarios": [
+      "gaussian_ar2_phi_0_45_minus_0_10",
+      "gaussian_ar10_low_order_coefficients"
+    ],
+    "historical_artifacts_must_be_preserved": true,
+    "root_cause_established": false
+  },
+  "stochastic_null": {
+    "status": "EXPLORATORY_CAPACITY_REVIEW_REQUIRED",
+    "boundary_fraction": 0.937,
+    "boundary_fraction_threshold": 0.5,
+    "confirmatory_null_frozen": false
+  },
+  "prospective_confirmation": {
+    "status": "NOT_FROZEN",
+    "fresh_confirmatory_validation_completed": false,
+    "historical_results_are_preregistered_confirmation": false
+  },
+  "secondary_replication": {
+    "status": "PROVENANCE_AUDIT_PENDING",
+    "hadcet_approved": false,
+    "fred_indpro_approved": false,
+    "selection_by_alpha_or_p_value_forbidden": true
+  },
+  "reproducibility": {
+    "fresh_clean_checkout_verified": false,
+    "independent_scientific_replication_demonstrated": false
+  },
+  "required_next_steps": [
+    "Complete Type-I calibration implementation and simulation audit without changing acceptance criteria.",
+    "Complete formal stochastic-null adequacy and capacity review.",
+    "Freeze a prospective confirmatory protocol with independently verifiable pre-outcome timestamp.",
+    "Audit secondary-domain provenance and independence before approval.",
+    "Run fresh validation and exact-commit clean-checkout reproduction.",
+    "Reevaluate claim-promotion gate without overriding any failed condition."
+  ]
+}
