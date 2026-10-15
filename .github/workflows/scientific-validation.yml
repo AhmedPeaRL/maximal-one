@@ -3631,29 +3631,25 @@ jobs:
     - name: External Challenge Resolution
       run: python analysis/external_challenge_protocol.py
 
-    - name: True External Execution (LOCAL VERIFIED)
+    - name: Public canonical artifact retrieval/hash diagnostic (non-authoritative)
       run: |
-        echo "Running independent external node simulation..."
+        echo "Attempting public artifact retrieval/hash only; this is not independent replication."
         python analysis/true_external_node.py
-
-        if [ ! -f external_result.json ]; then
-          echo "❌ External result missing"
-          exit 1
-        fi
-
-        echo "External node executed successfully"
+        test -s external_result.json
         cat external_result.json
 
-    - name: Fetch external result
+    - name: Display public artifact retrieval result
+      if: always()
       run: |
         if [ -f external_result.json ]; then
           cat external_result.json
         else
-          echo "⚠️ No external result found"
+          echo "No retrieval result file was produced."
         fi
 
-    - name: TRUE External Independent HTTP Verification
+    - name: Public artifact retrieval/hash diagnostic (non-authoritative, second implementation)
       run: python analysis/true_external_independent_runner.py
+      if: always()
 
     - name: Alpha Sanity Guard
       run: python analysis/alpha_sanity_guard.py
