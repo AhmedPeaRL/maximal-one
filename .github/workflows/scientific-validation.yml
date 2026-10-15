@@ -3182,8 +3182,11 @@ jobs:
     runs-on: ubuntu-24.04
     container:
       image: python:3.11.8-slim
+    
     permissions:
-      contents: write
+      actions: read
+      contents: read
+
     needs: consensus
     timeout-minutes: 20
     
@@ -3232,7 +3235,7 @@ jobs:
       uses: actions/checkout@v5
       with:
         fetch-depth: 0
-        persist-credentials: true
+        persist-credentials: false
 
     - name: Verify checkout produced Git worktree
       shell: bash
@@ -4239,10 +4242,8 @@ jobs:
 
         echo "=== AUTHORITATIVE WORKFLOW ARTIFACTS VERIFIED ==="
 
-    - name: Persist authoritative verification artifacts
-      if: >
-        success() &&
-        github.event_name != 'pull_request'
+    - name: Persistence disabled pending ruleset-safe design
+      if: false
       working-directory: ${{ github.workspace }}
       shell: bash
       run: |
