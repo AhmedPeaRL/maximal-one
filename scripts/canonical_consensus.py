@@ -7,6 +7,12 @@ import numpy as np
 
 from analysis.load_real_datasets import load_series
 from analysis.numerical_spectral_verification import estimate_alpha
+from analysis.replication_computation_guard import (
+    REQUIRED_PROVENANCE_FIELDS,
+    candidate_computation_gate,
+    protocol_freeze_state,
+    provenance_value_present,
+)
 
 
 CLAIM_PATH = Path(
@@ -95,36 +101,6 @@ PROVENANCE_PATH = Path(
     "protocol/REPLICATION_PROVENANCE_REGISTRY_V1.json"
 )
 
-REQUIRED_PROVENANCE_FIELDS = (
-    "source_identifier",
-    "source_url_or_citation",
-    "physical_domain",
-    "observation_variable",
-    "sampling_cadence",
-    "sampling_regularness",
-    "timestamp_presence",
-    "time_order",
-    "observation_window",
-    "missingness_policy",
-    "preprocessing_policy",
-    "known_shared_nuisance_with_primary",
-)
-
-
-def provenance_value_present(value):
-    """Accept explicit False where meaningful, but reject missing values."""
-    if value is None:
-        return False
-
-    if isinstance(value, str):
-        return bool(value.strip())
-
-    if isinstance(value, (list, dict)):
-        return bool(value)
-
-    return True
-
-
 def load_eligibility_policy() -> dict:
     if not CLAIM_PATH.exists():
         raise SystemExit(
@@ -189,6 +165,8 @@ def load_eligibility_policy() -> dict:
 def evaluate_dataset(
     spec: dict,
     policy: dict,
+    candidate: dict | None = None,
+    protocol_frozen: bool = False,
 ) -> dict:
     entry = {
         "dataset": spec["path"],
@@ -201,7 +179,24 @@ def evaluate_dataset(
         "replication_eligible": False,
         "rows": 0,
         "alpha": None,
+        "computation_status": "NOT_EVALUATED",
     }
+
+    # Secondary real domains must pass the protocol and provenance
+    # gates BEFORE loading the series or calling estimate_alpha().
+    if spec["role"] == "independent_real":
+        allowed, gate_reasons = candidate_computation_gate(
+            candidate,
+            spec["path"],
+            protocol_frozen,
+        )
+        if not allowed:
+            entry["computation_status"] = "SKIPPED"
+            entry["replication_exclusion_reasons"] = gate_reasons
+            entry["replication_exclusion_reason"] = (
+                gate_reasons[0] if gate_reasons else "secondary_gate_blocked"
+            )
+            return entry
 
     try:
         series = load_series(spec["path"])
@@ -258,6 +253,7 @@ def evaluate_dataset(
             return entry
 
         entry["alpha"] = float(alpha)
+        entry["computation_status"] = "COMPUTED_AFTER_GATE"
 
         entry["measurement_valid"] = True
         entry["valid"] = True
@@ -285,14 +281,13 @@ def main():
 
     policy = load_eligibility_policy()
 
-    results = [
-        evaluate_dataset(
-            spec,
-            policy,
-        )
-        for spec in DATASETS
-    ]
-  
+    claim = json.loads(
+        CLAIM_PATH.read_text(encoding="utf-8")
+    )
+    protocol_frozen, protocol_freeze_reasons = protocol_freeze_state(
+        claim
+    )
+
     if not PROVENANCE_PATH.exists():
         raise SystemExit(
             f"Missing replication provenance registry: "
@@ -311,6 +306,16 @@ def main():
         )
 
     candidates = provenance_registry.get("candidates", {})
+
+    results = [
+        evaluate_dataset(
+            spec,
+            policy,
+            candidate=candidates.get(spec["name"]),
+            protocol_frozen=protocol_frozen,
+        )
+        for spec in DATASETS
+    ]
 
     for result in results:
         # Preserve the original computational eligibility for auditing.
@@ -337,6 +342,8 @@ def main():
             candidate is not None
             and candidate.get("path") == result["dataset"]
             and candidate.get("replication_eligible") is True
+            and candidate.get("explicit_approval") is True
+            and protocol_frozen
             and not missing_fields
         )
 
@@ -393,6 +400,16 @@ def main():
                 exclusion_reasons.append(
                     "provenance_not_approved_for_replication"
                 )
+            if candidate.get("explicit_approval") is not True:
+                exclusion_reasons.append(
+                    "explicit_approval_missing"
+                )
+
+        if not protocol_frozen:
+            exclusion_reasons.extend(protocol_freeze_reasons)
+            exclusion_reasons.append(
+                "confirmatory_protocol_not_frozen"
+            )
 
         # Preserve every known exclusion cause for auditability.
         result["replication_exclusion_reasons"] = (
@@ -540,6 +557,8 @@ def main():
         secondary_domain_median = None
 
     summary = {
+        "confirmatory_protocol_frozen": protocol_frozen,
+        "protocol_freeze_reasons": protocol_freeze_reasons,
         "status": "evaluated",
 
         "datasets": results,
