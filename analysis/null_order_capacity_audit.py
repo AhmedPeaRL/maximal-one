@@ -20,6 +20,10 @@ ORDER_CAPS = [
     60,
 ]
 
+# Use one common estimation sample for all candidate orders
+# and all capacity caps in this diagnostic.
+COMMON_HOLD_BACK = max(ORDER_CAPS)
+
 LJUNG_BOX_LAGS = [
     10,
     20,
@@ -73,29 +77,16 @@ def load_primary():
     return x
 
 
-def stationary_fit(
-    series,
-    max_order,
-):
+def stationary_fit(series, max_order, hold_back):
     candidates = []
 
-    max_order = min(
-        int(max_order),
-        max(
-            1,
-            len(series) // 10,
-        ),
-    )
-
-    for order in range(
-        1,
-        max_order + 1,
-    ):
+    for order in range(1, max_order + 1):
         try:
             fit = AutoReg(
                 series,
                 lags=order,
                 trend="c",
+                hold_back=hold_back,
                 old_names=False,
             ).fit()
         except Exception:
@@ -108,26 +99,17 @@ def stationary_fit(
 
         stationary = bool(
             roots.size == order
-            and
-            np.all(
-                np.abs(roots) > 1.0
-            )
+            and np.all(np.abs(roots) > 1.0)
         )
 
         if not stationary:
             continue
 
-        if not np.isfinite(
-            float(fit.aic)
-        ):
+        if not np.isfinite(float(fit.aic)):
             continue
 
         candidates.append(
-            (
-                float(fit.aic),
-                order,
-                fit,
-            )
+            (float(fit.aic), order, fit)
         )
 
     if not candidates:
@@ -135,52 +117,71 @@ def stationary_fit(
             f"No stationary AR candidate for max_order={max_order}"
         )
 
-    _, order, fit = min(
+    _, selected_order, selected_fit = min(
         candidates,
         key=lambda item: item[0],
     )
 
-    return order, fit
+    return selected_order, selected_fit
 
 
-def residual_diagnostics(
-    fit,
-):
+def residual_diagnostics(fit, order):
     residuals = np.asarray(
         fit.resid,
         dtype=np.float64,
     )
 
-    available_lags = [
+    valid_lags = [
         lag
         for lag in LJUNG_BOX_LAGS
-        if lag < len(residuals)
+        if lag > order and lag < len(residuals)
     ]
 
-    if not available_lags:
-        return {}
+    if not valid_lags:
+        return {
+            "status": "NOT_EVALUABLE",
+            "reason": (
+                "No requested lag has positive adjusted "
+                "degrees of freedom for this AR order."
+            ),
+            "model_df": int(order),
+            "requested_lags": LJUNG_BOX_LAGS,
+            "evaluated_lags": [],
+            "results": {},
+        }
 
     lb = acorr_ljungbox(
         residuals,
-        lags=available_lags,
+        lags=valid_lags,
+        model_df=int(order),
         return_df=True,
     )
 
-    output = {}
+    results = {}
 
-    for lag in available_lags:
+    for lag in valid_lags:
         row = lb.loc[lag]
 
-        output[str(lag)] = {
+        results[str(lag)] = {
+            "status": "EVALUATED",
             "statistic": canonical_float(
                 row["lb_stat"]
             ),
             "p_value": canonical_float(
                 row["lb_pvalue"]
             ),
+            "adjusted_degrees_of_freedom": (
+                int(lag - order)
+            ),
         }
 
-    return output
+    return {
+        "status": "EVALUATED",
+        "model_df": int(order),
+        "requested_lags": LJUNG_BOX_LAGS,
+        "evaluated_lags": valid_lags,
+        "results": results,
+    }
 
 
 def main():
@@ -194,6 +195,7 @@ def main():
             stationary_fit(
                 series,
                 max_order,
+                COMMON_HOLD_BACK,
             )
         )
 
@@ -232,8 +234,9 @@ def main():
 
             "ljung_box":
                 residual_diagnostics(
-                    fit
-                ),
+                    fit,
+                    selected_order,
+                )
         })
 
     boundary_count = sum(
@@ -290,6 +293,11 @@ def main():
 
             "order_caps":
                 ORDER_CAPS,
+
+            "common_hold_back": COMMON_HOLD_BACK,
+            "same_effective_observations_across_caps": True,
+            "ljung_box_model_df": "selected_AR_order",
+            "non_evaluable_ljung_box_lags_are_not_interpreted": True,
 
             "criterion":
                 "AIC",
