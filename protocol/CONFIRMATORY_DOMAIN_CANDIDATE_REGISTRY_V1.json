@@ -1,0 +1,88 @@
+{
+  "protocol": "CONFIRMATORY_DOMAIN_CANDIDATE_REGISTRY_V1",
+  "record_date": "2026-10-17",
+  "status": "CANDIDATES_SELECTED_BY_SOURCE_CRITERIA_NOT_APPROVED",
+  "scientific_role": "prospective_candidate_selection_only",
+  "claim_support": false,
+  "promotion_authority": false,
+  "endpoint_computation_authorized": false,
+  "selection_rule": {
+    "selection_precedes_candidate_endpoint_analysis": true,
+    "alpha_based_selection_forbidden": true,
+    "p_value_based_selection_forbidden": true,
+    "favorable_outcome_selection_forbidden": true,
+    "minimum_replication_observations": 1024,
+    "monthly_cadence_required": true,
+    "source_identity_and_raw_hash_required": true,
+    "timestamp_and_missingness_audit_required": true,
+    "independent_nuisance_review_required": true,
+    "failure_does_not_authorize_outcome_based_replacement": true
+  },
+  "candidates": [
+    {
+      "candidate_id": "hadukp_ewp_monthly",
+      "source": "UK Met Office Hadley Centre HadUKP",
+      "series": "England and Wales Precipitation (EWP), monthly totals",
+      "source_url": "https://www.metoffice.gov.uk/hadobs/hadukp/",
+      "data_url": "https://hadleyserver.metoffice.gov.uk/hadobs/hadukp/data/download.html",
+      "documented_start": "1766-01",
+      "frequency": "monthly",
+      "source_metadata_suggests_minimum_length_possible": true,
+      "endpoint_values_computed_by_this_selection_record": false,
+      "raw_file_sha256": null,
+      "retrieved_at_utc": null,
+      "status": "CANDIDATE_ONLY_NOT_APPROVED",
+      "known_risks": [
+        "shared climate drivers and possible solar-related forcing",
+        "missing sentinel -99.9 must not be treated as a measurement",
+        "source revisions and homogeneity need to be recorded"
+      ],
+      "approval_requirements": [
+        "exact source vintage and raw SHA-256 recorded before parsing",
+        "monthly timestamp continuity and missingness audit passes",
+        "minimum length and estimator frequency resolution pass",
+        "independent review of nuisance structure and scientific independence",
+        "confirmatory null methodology and calibration approved before endpoint computation"
+      ]
+    },
+    {
+      "candidate_id": "fred_cpiaucns_monthly",
+      "source": "U.S. Bureau of Labor Statistics via FRED",
+      "series_id": "CPIAUCNS",
+      "series": "Consumer Price Index for All Urban Consumers: All Items in U.S. City Average, not seasonally adjusted",
+      "source_url": "https://fred.stlouisfed.org/series/CPIAUCNS",
+      "table_data_url": "https://fred.stlouisfed.org/data/cpiaucns",
+      "documented_start": "1913-01",
+      "documented_frequency": "monthly",
+      "documented_latest_observation_at_review": "2026-09",
+      "documented_observation_count_at_review": 1365,
+      "source_metadata_suggests_minimum_length_possible": true,
+      "endpoint_values_computed_by_this_selection_record": false,
+      "raw_file_sha256": null,
+      "retrieved_at_utc": null,
+      "primary_transformation": "UNRESOLVED; MUST BE DECLARED BY INDEPENDENT METHODS REVIEW BEFORE ENDPOINT ANALYSIS",
+      "status": "CANDIDATE_ONLY_NOT_APPROVED",
+      "known_risks": [
+        "trend and nonstationarity",
+        "macroeconomic, energy-price, policy, war, and climate-related shared nuisance",
+        "raw level, log level, and differenced series represent different estimands",
+        "source revision/vintage must be fixed and recorded"
+      ],
+      "approval_requirements": [
+        "exact source vintage and raw SHA-256 recorded before parsing",
+        "monthly timestamp continuity and missingness audit passes",
+        "minimum length and estimator frequency resolution pass",
+        "one primary transformation justified and frozen before endpoint analysis",
+        "independent review of nuisance structure and scientific independence",
+        "confirmatory null methodology and calibration approved before endpoint computation"
+      ]
+    }
+  ],
+  "current_decision": {
+    "approved_independent_secondary_domains": 0,
+    "minimum_required": 2,
+    "replication_status": "0/2",
+    "confirmatory_protocol_frozen": false,
+    "reason": "The null-family adequacy and calibration hold remains unresolved; candidates are not approved and no endpoint calculation is authorized."
+  }
+}
