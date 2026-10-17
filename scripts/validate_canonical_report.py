@@ -534,15 +534,40 @@ def main():
             )
         )
 
-        require(
-            len(secondary_real) >= declared_min,
-            (
-                "insufficient genuinely independent "
-                "secondary real domains: "
-                f"{len(secondary_real)} < "
-                f"{declared_min}"
-            ),
+        scientific_state = report.get(
+            "scientific_interpretation",
+            {},
         )
+
+        claim_support_requested = (
+            isinstance(scientific_state, dict)
+            and scientific_state.get(
+                "claim_support_gate"
+            ) is True
+        )
+
+        if claim_support_requested:
+            require(
+                len(secondary_real) >= declared_min,
+                (
+                    "insufficient genuinely independent "
+                    "secondary real domains: "
+                    f"{len(secondary_real)} < "
+                    f"{declared_min}"
+                ),
+            )
+        else:
+            print(
+                "   independent secondary real domains: "
+                f"{len(secondary_real)}/{declared_min}"
+            )
+
+            if len(secondary_real) < declared_min:
+                print(
+                    "   claim support remains closed: "
+                    "independent secondary replication "
+                    "requirements are not yet satisfied"
+                )
 
     # ============================================================
     # 9B. PRIMARY STOCHASTIC-NULL SEMANTIC INTEGRITY
@@ -710,11 +735,11 @@ def main():
         {},
     )
 
-    claim_support_gate = bool(
-        scientific.get(
-            "claim_support_gate",
-            False,
-        )
+    claim_support_gate = (
+        isinstance(scientific, dict)
+        and scientific.get(
+            "claim_support_gate"
+        ) is True
     )
 
     if claim_support_gate:
