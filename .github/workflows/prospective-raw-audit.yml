@@ -1,0 +1,80 @@
+name: Prospective Raw Source Audit (No Endpoint Analysis)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prospective-raw-audit:
+    name: Acquire and audit raw candidates only
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact repository state
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Set deterministic runtime identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "PYTHONHASHSEED=42" >> "$GITHUB_ENV"
+          echo "AUDIT_WORKFLOW_SHA=$GITHUB_SHA" >> "$GITHUB_ENV"
+          python --version
+          git rev-parse HEAD
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+
+      - name: Test raw-audit code before acquisition
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests -p 'test_prospective_raw_audit.py' -v
+
+      - name: Run raw acquisition and structural audit only
+        id: raw_audit
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m analysis.prospective_raw_audit
+
+      - name: Upload untouched raw files, parsed representations, manifest, and audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prospective-raw-audit-${{ github.run_id }}
+          path: |
+            real-data/prospective-raw-snapshots/
+            real-data/prospective-parsed/
+            artifacts/prospective_raw_audit_report.json
+          if-no-files-found: warn
+          retention-days: 90
+
+      - name: Preserve blocked status when acquisition or structural audit is incomplete
+        if: steps.raw_audit.outcome != 'success'
+        shell: bash
+        run: |
+          echo "Raw acquisition/structural audit is incomplete or blocked. Artifacts are preserved for review."
+          exit 1
+
+      - name: Confirm no claim authority was granted
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("artifacts/prospective_raw_audit_report.json")
+          if not path.is_file():
+              print("Audit report missing; workflow remains blocked.")
+              raise SystemExit(1)
+          report = json.loads(path.read_text(encoding="utf-8"))
+          assert report.get("endpoint_computation_performed") is False
+          assert report.get("claim_support") is False
+          assert report.get("promotion_authority") is False
+          assert report.get("confirmatory_protocol_frozen") is False
+          print("Audit-only and no-promotion invariants verified.")
+          PY
