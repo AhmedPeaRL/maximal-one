@@ -61,15 +61,25 @@ def main():
             raise SystemExit(
                 "CANONICAL REPORT HASH MISMATCH"
             )
-
+    
     if FINGERPRINT.exists():
         stored_fp = FINGERPRINT.read_text(
             encoding="utf-8"
         ).strip()
 
+        print("REPORT_RAW_SHA256 =", raw_hash)
+        print("REPORT_CANONICAL_SHA256 =", canonical_hash)
+        print("FINGERPRINT_STORED =", stored_fp)
+        print("FINGERPRINT_CALCULATED =", semantic_fingerprint)
+        print(
+            "FINGERPRINT_MATCH =",
+            stored_fp == semantic_fingerprint,
+        )
+
         if stored_fp != semantic_fingerprint:
             raise SystemExit(
-                "SEMANTIC FINGERPRINT MISMATCH"
+                "SEMANTIC FINGERPRINT MISMATCH: "
+                "stored and calculated values differ"
             )
 
     if RELEASE.exists():
