@@ -1,0 +1,100 @@
+{
+  "protocol": "NULL_ADEQUACY_CALIBRATION_PLAN_V2",
+  "record_date": "2026-10-18",
+  "status": "PLAN_SPECIFIED_REFERENCE_DATA_NOT_YET_REGISTERED",
+  "scientific_role": "outcome_blind_null_adequacy_type1_and_power_calibration",
+  "confirmatory_use_authorized": false,
+  "primary_confirmation_dataset_excluded_from_selection": true,
+  "candidate_endpoint_must_not_select_null_or_thresholds": true,
+  "claim_support": false,
+  "promotion_authority": false,
+  "reference_data_registry": [],
+  "reference_data_registration_required_fields": [
+    "source_publisher",
+    "stable_url_or_citation",
+    "variable_and_domain",
+    "retrieval_timestamp_utc",
+    "source_vintage_notes",
+    "raw_sha256",
+    "parsed_sha256",
+    "immutable_snapshot_location",
+    "cadence_and_window",
+    "missingness_and_timestamp_policy",
+    "preprocessing_policy",
+    "prior_exposure_scope_and_result",
+    "intended_calibration_role",
+    "shared_driver_assessment",
+    "reviewer_and_decision_date"
+  ],
+  "candidate_families_for_outcome_blind_comparison": [
+    "stationary_gaussian_AR_p",
+    "ARMA_p_q",
+    "IAAFT",
+    "ARFIMA_if_scientifically_justified",
+    "block_or_residual_bootstrap_if_scientifically_justified"
+  ],
+  "current_ar_p_disposition": "NOT_APPROVED_FOR_CONFIRMATORY_USE",
+  "current_ar_p_specification": {
+    "family": "stationary_gaussian_AR_p",
+    "order_selection": "AIC",
+    "min_order": 1,
+    "max_order": 20,
+    "same_effective_observations_required": true,
+    "boundary_fraction_primary_stream": 0.937,
+    "boundary_fraction_separate_stream": 0.947,
+    "boundary_review_threshold": 0.5,
+    "confirmatory_approval": false
+  },
+  "existing_type1_scenarios": [
+    {"scenario": "gaussian_ar1_phi_0_4", "rejections": 52, "trials": 1000, "recorded_status": "PASS_SCENARIO_ONLY"},
+    {"scenario": "gaussian_ar2_phi_0_45_minus_0_10", "rejections": 60, "trials": 1000, "recorded_status": "FAIL_CURRENT_RULE"},
+    {"scenario": "gaussian_ar5_low_order_coefficients", "rejections": 49, "trials": 1000, "recorded_status": "PASS_SCENARIO_ONLY"},
+    {"scenario": "gaussian_ar10_low_order_coefficients", "rejections": 73, "trials": 1000, "recorded_status": "FAIL_CURRENT_RULE"}
+  ],
+  "current_acceptance_rule_for_historical_runs": {
+    "method": "two_sided_Wilson_95_percent_interval",
+    "must_contain_nominal_type1": 0.05,
+    "upper_endpoint_maximum": 0.075,
+    "retroactive_change_permitted": false
+  },
+  "future_acceptance_rule": {
+    "status": "MUST_BE_APPROVED_BEFORE_FRESH_RUN",
+    "target_type1": null,
+    "maximum_tolerated_inflation": null,
+    "suite_level_familywise_rule": null,
+    "confidence_level_and_interval_method": null,
+    "repetitions_for_monte_carlo_precision": null,
+    "dependent_scenario_handling": null,
+    "invalid_fit_policy": null,
+    "stopping_rule": null
+  },
+  "required_scenario_families": [
+    "Gaussian AR(1), AR(2), AR(5), AR(10)",
+    "ARMA processes",
+    "non-Gaussian or heavy-tailed innovations",
+    "conditional heteroskedasticity",
+    "trend, level shifts, and regime changes",
+    "seasonal nuisance when relevant",
+    "declared missingness and gap patterns",
+    "long-memory diagnostic with explicit H0/H1 interpretation",
+    "prespecified alternatives across effect sizes"
+  ],
+  "required_outputs": [
+    "selected_order_distribution",
+    "boundary_hit_rate",
+    "fit_failure_counts_and_disposition",
+    "parameter_and_root_diagnostics",
+    "residual_acf_pacf_diagnostics",
+    "stationarity_and_parameter_stability",
+    "innovation_and_heteroskedasticity_diagnostics",
+    "type1_rates_and_uncertainty",
+    "p_value_quantiles_and_calibration_plots",
+    "power_with_monte_carlo_uncertainty",
+    "false_negative_behavior",
+    "source_hashes_commit_and_environment_fingerprint"
+  ],
+  "same_commit_suite_required": true,
+  "attributable_independent_reviewer_signoff_required": true,
+  "calibration_complete": false,
+  "confirmatory_null_frozen": false
+}
