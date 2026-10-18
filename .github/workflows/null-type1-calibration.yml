@@ -28,7 +28,19 @@ jobs:
       - name: Checkout exact repository state
         uses: actions/checkout@v5
         with:
+          fetch-depth: 0
           persist-credentials: false
+
+      - name: Verify and record exact checkout identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual_head="$(git rev-parse HEAD)"
+          test "$actual_head" = "$GITHUB_SHA"
+          echo "Verified calibration checkout: $actual_head"
+          echo "Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          echo "Scenario: ${{ matrix.scenario }}"
+          echo "Seed: ${{ matrix.seed }}"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -43,7 +55,7 @@ jobs:
           set -euo pipefail
           python -m pip install --require-hashes -r requirements-lock.txt
           python -m unittest discover -s tests -p 'test_secondary_acquisition_safety.py' -v
-          
+
       - name: Run declared scenario calibration
         shell: bash
         run: |
@@ -55,6 +67,77 @@ jobs:
             --n 1024 \
             --seed "${{ matrix.seed }}" \
             --checkpoint-every 25
+
+      - name: Bind artifact to exact workflow identity
+        if: always()
+        shell: bash
+        env:
+          CALIBRATION_SCENARIO: ${{ matrix.scenario }}
+          CALIBRATION_SEED: ${{ matrix.seed }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          import platform
+          import subprocess
+          import sys
+          from pathlib import Path
+          from datetime import datetime, timezone
+
+          scenario = os.environ["CALIBRATION_SCENARIO"]
+          path = Path(f"artifacts/null_type1_calibration_{scenario}.json")
+          if not path.is_file():
+              print(f"No calibration artifact exists to annotate: {path}")
+              raise SystemExit(0)
+
+          def sha256(path):
+              h = hashlib.sha256()
+              with path.open("rb") as f:
+                  for block in iter(lambda: f.read(1024 * 1024), b""):
+                      h.update(block)
+              return h.hexdigest()
+
+          actual_head = subprocess.check_output(
+              ["git", "rev-parse", "HEAD"], text=True
+          ).strip()
+          expected_head = os.environ["GITHUB_SHA"]
+          if actual_head != expected_head:
+              raise SystemExit(
+                  f"Checkout mismatch: HEAD={actual_head}; GITHUB_SHA={expected_head}"
+              )
+
+          data = json.loads(path.read_text(encoding="utf-8"))
+          data["workflow_identity"] = {
+              "repository": os.environ["GITHUB_REPOSITORY"],
+              "commit_sha": actual_head,
+              "workflow_name": os.environ.get("GITHUB_WORKFLOW", ""),
+              "workflow_run_id": os.environ["GITHUB_RUN_ID"],
+              "workflow_run_attempt": os.environ["GITHUB_RUN_ATTEMPT"],
+              "workflow_run_url": (
+                  os.environ["GITHUB_SERVER_URL"] + "/" +
+                  os.environ["GITHUB_REPOSITORY"] + "/actions/runs/" +
+                  os.environ["GITHUB_RUN_ID"]
+              ),
+              "scenario": scenario,
+              "seed": int(os.environ["CALIBRATION_SEED"]),
+              "python_version": sys.version,
+              "platform": platform.platform(),
+              "recorded_at_utc": datetime.now(timezone.utc).isoformat(),
+              "requirements_lock_sha256": sha256(Path("requirements-lock.txt")),
+              "scenario_script_sha256": sha256(
+                  Path("analysis/calibrate_null_type1_scenario.py")
+              ),
+              "acceptance_rule_changed_by_this_step": False,
+              "scientific_inputs_changed_by_this_step": False,
+          }
+          path.write_text(
+              json.dumps(data, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(data["workflow_identity"], indent=2))
+          PY
 
       - name: Upload scenario calibration report or checkpoint
         if: always()
