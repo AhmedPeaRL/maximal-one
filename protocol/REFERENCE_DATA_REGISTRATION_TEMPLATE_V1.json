@@ -1,0 +1,51 @@
+{
+  "protocol": "REFERENCE_DATA_REGISTRATION_TEMPLATE_V1",
+  "status": "TEMPLATE_NOT_REGISTERED",
+  "scientific_role": "empirical_reference_series_registry",
+  "claim_support": false,
+  "promotion_authority": false,
+  "entries": [
+    {
+      "reference_id": "REPLACE_WITH_STABLE_ID",
+      "publisher": "",
+      "stable_url_or_citation": "",
+      "variable_and_domain": "",
+      "source_vintage_notes": "",
+      "retrieval_timestamp_utc": "",
+      "raw_sha256": "",
+      "parsed_sha256": "",
+      "immutable_snapshot_location": "",
+      "cadence_and_window": {
+        "cadence": "",
+        "start_inclusive": "",
+        "end_inclusive": "",
+        "expected_observation_count": null
+      },
+      "timestamp_and_missingness_policy": "",
+      "preprocessing_policy": "",
+      "prior_exposure_scope": "UNKNOWN",
+      "prior_exposure_evidence": "",
+      "intended_calibration_role": "EMPIRICAL_NUISANCE_DIAGNOSTIC_NOT_KNOWN_TRUTH",
+      "known_shared_drivers_and_nuisance": "",
+      "source_revision_and_homogeneity_assessment": "",
+      "replication_eligibility": "NOT_ASSESSED",
+      "independent_reviewer": {
+        "identity": "",
+        "expertise": "",
+        "decision_date": "",
+        "decision": "NOT_ASSESSED",
+        "rationale": ""
+      },
+      "endpoint_computed": false,
+      "endpoint_computation_authorized": false
+    }
+  ],
+  "rules": {
+    "register_before_parsing_or_endpoint_computation": true,
+    "never_overwrite_raw_snapshot": true,
+    "new_retrieval_requires_new_entry_and_hash": true,
+    "empirical_reference_data_do_not_establish_type1_error_without_known_truth": true,
+    "reference_series_do_not_automatically_count_as_replication": true,
+    "unknown_exposure_must_not_be_relabelled_no": true
+  }
+}
