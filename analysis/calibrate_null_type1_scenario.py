@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import platform
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -10,12 +13,9 @@ import numpy as np
 from analysis.appropriate_stochastic_null import parametric_short_memory_null
 from analysis.numerical_spectral_verification import estimate_alpha
 from analysis.calibrate_null_type1 import (
-    MAX_ACCEPTABLE_WILSON_UPPER,
-    MIN_CONFIRMATORY_REPETITIONS,
-    NOMINAL_ALPHA,
-    SCENARIOS,
-    generate_ar,
-    wilson_interval,
+    MATRIX, MASTER_SEED, NOMINAL_ALPHA, REQUIRED_OUTER_REPETITIONS,
+    REQUIRED_SAMPLE_SIZE, REQUIRED_SURROGATES, SCENARIO_ORDER, SCENARIOS,
+    generate_ar, replicate_rngs, wilson_interval, wilson_upper_one_sided,
 )
 
 ARTIFACT_DIR = Path("artifacts")
@@ -25,141 +25,128 @@ def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def sha256(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
 def main() -> int:
-    parser = argparse.ArgumentParser(
-        description="Scenario-specific Type-I calibration; diagnostic only."
-    )
-    parser.add_argument("--scenario", required=True, choices=sorted(SCENARIOS))
-    parser.add_argument("--repetitions", type=int, default=1000)
-    parser.add_argument("--surrogates", type=int, default=200)
-    parser.add_argument("--n", type=int, default=1024)
-    parser.add_argument("--seed", type=int, required=True)
+    parser = argparse.ArgumentParser(description="V3 candidate Type-I calibration; do not run until independently reviewed and frozen.")
+    parser.add_argument("--scenario", required=True, choices=SCENARIO_ORDER)
+    parser.add_argument("--repetitions", type=int, default=REQUIRED_OUTER_REPETITIONS)
+    parser.add_argument("--surrogates", type=int, default=REQUIRED_SURROGATES)
+    parser.add_argument("--n", type=int, default=REQUIRED_SAMPLE_SIZE)
+    parser.add_argument("--master-seed", type=int, default=MASTER_SEED)
     parser.add_argument("--checkpoint-every", type=int, default=25)
     args = parser.parse_args()
 
-    if args.repetitions < 1:
-        raise SystemExit("--repetitions must be >= 1")
-    if args.surrogates < 200:
-        raise SystemExit("--surrogates must be >= 200")
-    if args.n < 1024:
-        raise SystemExit("--n must be >= 1024")
-    if args.checkpoint_every < 1:
-        raise SystemExit("--checkpoint-every must be >= 1")
+    if MATRIX.get("status") != "APPROVED_FROZEN" or MATRIX.get("freeze_state") != "FROZEN" or MATRIX.get("confirmatory_execution_authorized") is not True:
+        raise SystemExit("BLOCKED: protocol is not independently reviewed and frozen. No simulation was started.")
+    if args.repetitions != REQUIRED_OUTER_REPETITIONS or args.surrogates != REQUIRED_SURROGATES or args.n != REQUIRED_SAMPLE_SIZE or args.master_seed != MASTER_SEED:
+        raise SystemExit("BLOCKED: parameters must exactly match the machine-readable V3 candidate matrix; do not run a partial configuration as formal calibration.")
 
+    scenario_index = SCENARIO_ORDER.index(args.scenario)
     phi = SCENARIOS[args.scenario]
-    rng = np.random.default_rng(args.seed)
     p_values: list[float] = []
     boundary_fractions: list[float] = []
-    failures: list[str] = []
+    attempt_records: list[dict] = []
     invalid = 0
     output = ARTIFACT_DIR / f"null_type1_calibration_{args.scenario}.json"
     ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
 
-    def report(status: str) -> dict:
+    def report(status: str, completed: int) -> dict:
         valid = len(p_values)
         rejections = sum(p <= NOMINAL_ALPHA for p in p_values)
         rate = rejections / valid if valid else None
-        lower, upper = wilson_interval(rejections, valid) if valid else (None, None)
-        enough = valid >= MIN_CONFIRMATORY_REPETITIONS
-        calibrated = bool(
-            enough
-            and lower is not None
-            and upper is not None
-            and lower <= NOMINAL_ALPHA <= upper
-            and upper <= MAX_ACCEPTABLE_WILSON_UPPER
-        )
+        two_sided = list(wilson_interval(rejections, valid)) if valid else None
+        upper = wilson_upper_one_sided(rejections, valid) if valid else None
+        all_completed = completed == args.repetitions
+        passed = bool(all_completed and invalid == 0 and valid == args.repetitions and upper is not None and upper <= MATRIX["primary_design"]["one_sided_upper_bound_maximum"])
         if status != "FINAL":
-            final_status = "INCOMPLETE_RUN_CHECKPOINT"
-        elif calibrated:
-            final_status = "TYPE1_CALIBRATION_PASS_LIMITED_SYNTHETIC_SCOPE"
-        elif args.repetitions < MIN_CONFIRMATORY_REPETITIONS and valid == args.repetitions and invalid == 0:
-            final_status = "PILOT_COMPLETED_NOT_CONFIRMATORY"
-        elif valid == args.repetitions and invalid == 0:
-            final_status = "TYPE1_CALIBRATION_FAILED"
+            final_status = "INCOMPLETE_NOT_A_PASS"
+        elif not all_completed:
+            final_status = "INCOMPLETE_NOT_A_PASS"
+        elif invalid:
+            final_status = "TYPE1_CALIBRATION_FAILED_INVALID_ATTEMPTS"
+        elif upper is None:
+            final_status = "TYPE1_CALIBRATION_FAILED_NO_VALID_BOUND"
+        elif upper > MATRIX["primary_design"]["one_sided_upper_bound_maximum"]:
+            final_status = "TYPE1_CALIBRATION_FAILED_UPPER_BOUND"
         else:
-            final_status = "CALIBRATION_NOT_PASSED_OR_INCOMPLETE"
+            final_status = "TYPE1_CALIBRATION_PASS_LIMITED_SYNTHETIC_SCOPE"
         return {
-            "protocol": "NULL_TYPE1_CALIBRATION_SCENARIO_V1",
-            "created_at_utc": utc_now(),
-            "status": final_status,
-            "scenario": args.scenario,
-            "ar_coefficients": phi,
-            "production_null_protocol": "stationary_gaussian_ar_p_aic_v2_exploratory",
-            "nominal_alpha": NOMINAL_ALPHA,
-            "minimum_valid_repetitions_per_scenario": MIN_CONFIRMATORY_REPETITIONS,
-            "maximum_acceptable_95pct_wilson_upper_bound": MAX_ACCEPTABLE_WILSON_UPPER,
-            "repetitions_requested": args.repetitions,
-            "valid_repetitions": valid,
-            "invalid_repetitions": invalid,
-            "completed_repetitions": valid + invalid,
-            "surrogates_per_test": args.surrogates,
-            "sample_size": args.n,
-            "seed": args.seed,
-            "rejections_at_nominal_alpha": int(rejections),
-            "empirical_type1_rate": rate,
-            "wilson_95_percent_interval": [lower, upper] if valid else None,
+            "protocol": MATRIX["protocol"], "protocol_status": MATRIX["status"],
+            "created_at_utc": utc_now(), "status": final_status,
+            "scenario": args.scenario, "scenario_index": scenario_index, "ar_coefficients": phi,
+            "sample_size": args.n, "dgp_burn_in": MATRIX["primary_design"]["dgp_burn_in"],
+            "master_seed": args.master_seed, "seed_schedule": MATRIX["primary_design"]["seed_schedule"],
+            "repetitions_requested": args.repetitions, "completed_repetitions": completed,
+            "valid_repetitions": valid, "invalid_repetitions": invalid,
+            "surrogates_requested_per_test": args.surrogates,
+            "nominal_alpha": NOMINAL_ALPHA, "rejections_at_nominal_alpha": int(rejections),
+            "empirical_type1_rate_among_valid_attempts": rate,
+            "wilson_95_percent_two_sided_report_only": two_sided,
+            "wilson_95_percent_one_sided_upper_bound_acceptance": upper,
+            "acceptance_upper_bound_maximum": MATRIX["primary_design"]["one_sided_upper_bound_maximum"],
+            "scenario_calibration_passed": passed,
+            "attempt_records": attempt_records,
             "mean_surrogate_boundary_fraction": float(np.mean(boundary_fractions)) if boundary_fractions else None,
-            "scenario_calibration_passed": calibrated if status == "FINAL" else False,
-            "failure_examples_first_20": failures[:20],
+            "code_sha256": {str(p): sha256(p) for p in [Path("analysis/calibrate_null_type1.py"), Path("analysis/calibrate_null_type1_scenario.py"), Path("analysis/appropriate_stochastic_null.py"), Path("analysis/numerical_spectral_verification.py")]},
+            "matrix_sha256": sha256(Path("protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json")),
+            "python_version": sys.version, "platform": platform.platform(),
+            "claim_support": False, "promotion_authority": False,
             "confirmatory_null_frozen": False,
-            "promotion_authority": False,
-            "claim_support": False,
-            "interpretation": (
-                "Synthetic calibration under this one declared Gaussian AR scenario only. "
-                "Even a pass does not establish general null adequacy, freeze the null, "
-                "support the scientific claim, or authorize promotion."
-            ),
+            "interpretation": "Candidate-only synthetic operating-characteristic diagnostic. This artifact cannot establish production-null adequacy, real-domain replication, or HCM claim support. Any invalid attempt blocks scenario pass.",
         }
 
-    for replicate in range(args.repetitions):
-        x = generate_ar(phi, args.n, rng)
+    for replicate_index in range(args.repetitions):
+        dgp_rng, null_rng = replicate_rngs(args.master_seed, scenario_index, replicate_index)
+        record = {"replicate_index": replicate_index, "dgp_seed_entropy": [args.master_seed, scenario_index, replicate_index, 0], "null_seed_entropy": [args.master_seed, scenario_index, replicate_index, 1], "status": "INVALID", "reason": None}
         try:
+            x = generate_ar(phi, args.n, dgp_rng)
             observed_alpha = float(estimate_alpha(x))
-            result = parametric_short_memory_null(
-                x, observed_alpha, rng, trials=args.surrogates
-            )
-            p_value = result.get("p_value_mc_add_one")
+            result = parametric_short_memory_null(x, observed_alpha, null_rng, trials=args.surrogates)
             diagnostics = result.get("order_selection_diagnostic") or {}
-            boundary_fraction = diagnostics.get("surrogate_boundary_fraction")
-            if result.get("valid") is not True or p_value is None or not np.isfinite(float(p_value)):
-                invalid += 1
-                failures.append(f"replicate_{replicate + 1}:invalid_null_result")
+            record.update({
+                "observed_alpha": observed_alpha,
+                "null_valid": bool(result.get("valid") is True),
+                "requested_surrogates": int(result.get("trials_requested", args.surrogates)),
+                "valid_surrogates": int(result.get("null_samples", 0)),
+                "selected_order": result.get("selected_order"),
+                "surrogate_boundary_fraction": diagnostics.get("surrogate_boundary_fraction"),
+                "refit_failures": diagnostics.get("refit_failures"),
+                "alpha_estimation_failures": diagnostics.get("alpha_estimation_failures"),
+            })
+            p_value = result.get("p_value_mc_add_one")
+            if result.get("valid") is not True:
+                record["reason"] = result.get("reason", "invalid_null_result")
+            elif int(result.get("null_samples", 0)) != args.surrogates:
+                record["reason"] = "requested_surrogate_count_not_fully_valid"
+            elif p_value is None or not np.isfinite(float(p_value)):
+                record["reason"] = "missing_or_nonfinite_p_value"
             else:
+                record.update({"status": "VALID", "reason": None, "p_value": float(p_value), "rejected": bool(float(p_value) <= NOMINAL_ALPHA)})
                 p_values.append(float(p_value))
-                if boundary_fraction is not None and np.isfinite(float(boundary_fraction)):
-                    boundary_fractions.append(float(boundary_fraction))
+                bf = diagnostics.get("surrogate_boundary_fraction")
+                if bf is not None and np.isfinite(float(bf)):
+                    boundary_fractions.append(float(bf))
         except Exception as exc:
+            record["reason"] = f"{type(exc).__name__}:{exc}"
+        if record["status"] != "VALID":
             invalid += 1
-            failures.append(f"replicate_{replicate + 1}:{type(exc).__name__}:{exc}")
-
-        completed = replicate + 1
+        attempt_records.append(record)
+        completed = replicate_index + 1
         if completed % args.checkpoint_every == 0 or completed == args.repetitions:
-            checkpoint = report("CHECKPOINT" if completed < args.repetitions else "FINAL")
-            checkpoint["completed_repetitions"] = completed
-            output.write_text(json.dumps(checkpoint, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-            print(
-                f"{args.scenario}: completed={completed}/{args.repetitions}, "
-                f"valid={len(p_values)}, invalid={invalid}, status={checkpoint['status']}",
-                flush=True,
-            )
+            output.write_text(json.dumps(report("CHECKPOINT" if completed < args.repetitions else "FINAL", completed), indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            print(f"{args.scenario}: completed={completed}/{args.repetitions}; valid={len(p_values)}; invalid={invalid}", flush=True)
 
-    final = report("FINAL")
+    final = report("FINAL", args.repetitions)
     output.write_text(json.dumps(final, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(json.dumps({
-        "scenario": args.scenario,
-        "status": final["status"],
-        "valid_repetitions": final["valid_repetitions"],
-        "empirical_type1_rate": final["empirical_type1_rate"],
-        "wilson_95_percent_interval": final["wilson_95_percent_interval"],
-        "output": str(output),
-    }, indent=2))
-    # A completed pilot is a successful diagnostic run, not a calibration pass.
-    # Full assessments still exit nonzero unless all declared pass criteria hold.
-    if final["status"] == "TYPE1_CALIBRATION_PASS_LIMITED_SYNTHETIC_SCOPE":
-        return 0
-    if final["status"] == "PILOT_COMPLETED_NOT_CONFIRMATORY":
-        return 0
-    return 1
+    print(json.dumps({"scenario": args.scenario, "status": final["status"], "valid_repetitions": final["valid_repetitions"], "invalid_repetitions": final["invalid_repetitions"], "one_sided_upper_bound": final["wilson_95_percent_one_sided_upper_bound_acceptance"], "output": str(output)}, indent=2))
+    return 0 if final["scenario_calibration_passed"] else 1
 
 
 if __name__ == "__main__":
