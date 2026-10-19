@@ -138,3 +138,97 @@ Until then:
 - claim support remains false;
 - promotion authority remains false;
 - replication eligibility must not be inferred from calibration alone.
+
+## 8. Exact-Snapshot Discrepancy Docket — 2026-10-19
+
+Repository:
+AhmedPeaRL/maximal-one
+
+Snapshot commit:
+71d331a5c6446f86ab76c7bd94f68feff73813ae
+
+Review status:
+AWAITING ATTRIBUTABLE INDEPENDENT STATISTICAL REVIEW
+
+Freeze state:
+NOT_FROZEN
+
+Claim support:
+false
+
+Promotion authority:
+false
+
+### 8.1 Wilson acceptance-rule conflict
+
+The current draft scenario matrix specifies:
+
+- one-sided 95% Wilson upper confidence bound;
+- per-scenario maximum upper bound of 0.075;
+- suite passes only if every required scenario passes.
+
+The existing historical calibration review instead applies:
+
+- a two-sided 95% Wilson interval;
+- the interval must contain the nominal Type-I rate of 0.05;
+- the upper endpoint must be no greater than 0.075.
+
+These are different acceptance rules. The historical results must not be reclassified by silently substituting one rule for the other.
+
+The independent reviewer must select and justify one prospective rule, explain its operating characteristics and suite-level interpretation, and identify every implementation and document that must be aligned before protocol freeze.
+
+No result-dependent threshold selection is permitted.
+
+### 8.2 Scenario-matrix versus workflow mismatch
+
+The draft file
+protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V2.json
+declares nine Type-I scenarios, 2,000 outer repetitions per scenario, 1,000 requested surrogates per outer replicate, and a proposed SeedSequence schedule with master seed 20261019. Its freeze flag remains false.
+
+The workflow
+.github/workflows/null-type1-calibration.yml
+currently schedules only four scenarios, with 1,000 repetitions, 200 surrogates, and fixed scenario-specific seeds.
+
+Therefore, the current workflow is not an execution of the full draft matrix as written. The independent reviewer must decide which design is approved for prospective use and require the implementation, seed schedule, repetition counts, scenario list, and acceptance rule to match that approved specification.
+
+Do not describe the four-scenario workflow as a completed nine-scenario calibration.
+
+### 8.3 Historical calibration boundary
+
+The previously recorded four-scenario results remain historical evidence under their recorded rule and execution identities. They do not establish that the draft matrix has passed, and they must not be relabeled as a same-commit prospective calibration without matching run records and artifact hashes.
+
+Any future calibration must record the exact commit SHA, scenario ID, seed schedule, repetition and surrogate counts, dependency-lock hash, implementation hash, interval method, acceptance decision, and artifact hash.
+
+### 8.4 Independent review requirements
+
+The reviewer must be independent of the protocol and implementation decisions under review, and must disclose relevant expertise, conflicts of interest, review date, exact commit, and materials reviewed.
+
+The review must separately address:
+
+1. The Wilson acceptance rule and suite-level error interpretation.
+2. Monte Carlo uncertainty, invalid replicate handling, and seed/shard-order invariance.
+3. Whether the synthetic scenarios cover the intended Type-I operating conditions.
+4. Whether the production stochastic null is adequate for the temporal structure and observed model-capacity diagnostics.
+5. The distinction between calibration, null adequacy, statistical replication, and scientific claim support.
+
+Required reviewer decision:
+
+[APPROVE FOR PROSPECTIVE FREEZE / REVISE AND REVIEW AGAIN / REJECT]
+
+Rationale and required amendments:
+
+[TO BE COMPLETED BY THE REVIEWER]
+
+### 8.5 Hold decision pending review
+
+Until an attributable independent review is complete and the approved protocol is committed before prospective execution:
+
+- do not freeze the confirmatory protocol;
+- do not run candidate confirmation endpoints;
+- do not change the Wilson threshold to make historical results pass;
+- do not manually promote dataset eligibility;
+- preserve all historical artifacts and failures;
+- keep claim support false and promotion authority false.
+
+This docket records unresolved specification and execution discrepancies.
+It is not an independent review, approval, preregistration, or calibration pass.
