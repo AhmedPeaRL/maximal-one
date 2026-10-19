@@ -92,8 +92,8 @@ jobs:
           python -m unittest tests.test_null_identity_contract -v
           python -m unittest tests.test_replication_computation_guard -v
           python -m unittest discover -s tests -p 'test_type1_calibration_v3_candidate.py' -v
-          python -m compileall -q analysis/calibrate_null_type1.py analysis/calibrate_null_type1_scenario.py tests/test_type1_calibration_v3_candidate.py.
-
+          python -m compileall -q analysis/calibrate_null_type1.py analysis/calibrate_null_type1_scenario.py tests/test_type1_calibration_v3_candidate.py
+          
       - name: Verify repository commit identity
         shell: bash
         run: |
