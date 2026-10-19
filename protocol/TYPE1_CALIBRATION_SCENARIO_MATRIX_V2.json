@@ -18,7 +18,7 @@
     "seed_schedule": {
       "master_seed": 20261019,
       "method": "deterministic replicate-level seed derived from master seed, stable scenario index, and replicate index using NumPy SeedSequence; freeze implementation and test shard-order invariance",
-      "frozen_before_execution": true
+      "frozen_before_execution": false
     }
   },
   "scenarios": [
