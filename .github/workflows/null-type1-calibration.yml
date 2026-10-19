@@ -7,22 +7,140 @@ permissions:
   contents: read
 
 jobs:
+  prepare-matrix:
+    name: Validate frozen V3 protocol and prepare matrix
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      matrix: ${{ steps.prepare.outputs.matrix }}
+    steps:
+      - name: Checkout exact repository state
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate protocol freeze and emit matrix from JSON
+        id: prepare
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          path = Path(
+              "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json"
+          )
+          if not path.is_file():
+              raise SystemExit(
+                  f"BLOCKED: required protocol matrix is missing: {path}"
+              )
+
+          d = json.loads(path.read_text(encoding="utf-8"))
+
+          if d.get('status') != 'APPROVED_FROZEN':
+              raise SystemExit(
+                  "BLOCKED: V3 protocol is not APPROVED_FROZEN. "
+                  "No calibration simulations were started."
+              )
+          if d.get("freeze_state") != "FROZEN":
+              raise SystemExit("BLOCKED: freeze_state must be FROZEN.")
+          if d.get("confirmatory_execution_authorized") is not True:
+              raise SystemExit(
+                  "BLOCKED: confirmatory execution is not authorized."
+              )
+          if d.get("archive_git_identity_verified") is not True:
+              raise SystemExit(
+                  "BLOCKED: archived Git identity has not been verified."
+              )
+
+          primary = d.get("primary_design")
+          scenarios = d.get("scenarios")
+
+          if not isinstance(primary, dict):
+              raise SystemExit("BLOCKED: primary_design is invalid.")
+          if not isinstance(scenarios, list) or len(scenarios) != 9:
+              raise SystemExit(
+                  "BLOCKED: V3 requires exactly nine declared scenarios."
+              )
+
+          ids = []
+          for row in scenarios:
+              if not isinstance(row, dict):
+                  raise SystemExit(
+                      "BLOCKED: each scenario row must be an object."
+                  )
+              sid = row.get("scenario_id")
+              if not isinstance(sid, str) or not sid.strip():
+                  raise SystemExit("BLOCKED: scenario_id is missing.")
+              ids.append(sid)
+
+          if len(set(ids)) != len(ids):
+              raise SystemExit("BLOCKED: scenario IDs must be unique.")
+
+          config = {
+              "repetitions": int(
+                  primary["outer_repetitions_per_scenario"]
+              ),
+              "surrogates": int(
+                  primary["surrogates_requested_per_outer_replicate"]
+              ),
+              "n": int(primary["sample_size"]),
+              "master_seed": int(
+                  primary["seed_schedule"]["master_seed"]
+              ),
+          }
+
+          if (
+              config["repetitions"] != 2000
+              or config["surrogates"] != 1000
+              or config["n"] != 1024
+          ):
+              raise SystemExit(
+                  "BLOCKED: V3 design dimensions differ from "
+                  "the expected reviewed design."
+              )
+
+          matrix = {
+              "include": [
+                  {"scenario": sid, **config}
+                  for sid in ids
+              ]
+          }
+
+          # Only the GitHub output key/value goes into GITHUB_OUTPUT.
+          with open(
+              os.environ["GITHUB_OUTPUT"],
+              "a",
+              encoding="utf-8",
+          ) as output:
+              print(
+                  "matrix=" + json.dumps(
+                      matrix, separators=(",", ":")
+                  ),
+                  file=output,
+              )
+
+          print("Validated V3 matrix metadata:")
+          print(json.dumps({
+              "protocol": d.get("protocol"),
+              "status": d.get("status"),
+              "freeze_state": d.get("freeze_state"),
+              "scenario_count": len(ids),
+              **config,
+          }, indent=2, sort_keys=True))
+          PY
+
   calibrate:
     name: ${{ matrix.scenario }}
+    needs: prepare-matrix
     runs-on: ubuntu-24.04
     timeout-minutes: 360
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - scenario: gaussian_ar1_phi_0_4
-            seed: 20261009
-          - scenario: gaussian_ar2_phi_0_45_minus_0_10
-            seed: 20261010
-          - scenario: gaussian_ar5_low_order_coefficients
-            seed: 20261011
-          - scenario: gaussian_ar10_low_order_coefficients
-            seed: 20261012
+      matrix: ${{ fromJSON(needs.prepare-matrix.outputs.matrix) }}
 
     steps:
       - name: Checkout exact repository state
@@ -31,16 +149,18 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Verify and record exact checkout identity
+      - name: Verify exact checkout identity
         shell: bash
         run: |
           set -euo pipefail
           actual_head="$(git rev-parse HEAD)"
           test "$actual_head" = "$GITHUB_SHA"
           echo "Verified calibration checkout: $actual_head"
-          echo "Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
           echo "Scenario: ${{ matrix.scenario }}"
-          echo "Seed: ${{ matrix.seed }}"
+          echo "Master seed: ${{ matrix.master_seed }}"
+          echo "Outer repetitions: ${{ matrix.repetitions }}"
+          echo "Surrogates: ${{ matrix.surrogates }}"
+          echo "Sample size: ${{ matrix.n }}"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -56,16 +176,16 @@ jobs:
           python -m pip install --require-hashes -r requirements-lock.txt
           python -m unittest discover -s tests -p 'test_secondary_acquisition_safety.py' -v
 
-      - name: Run declared scenario calibration
+      - name: Run declared V3 scenario calibration
         shell: bash
         run: |
           set -euo pipefail
           python -m analysis.calibrate_null_type1_scenario \
             --scenario "${{ matrix.scenario }}" \
-            --repetitions 1000 \
-            --surrogates 200 \
-            --n 1024 \
-            --seed "${{ matrix.seed }}" \
+            --repetitions "${{ matrix.repetitions }}" \
+            --surrogates "${{ matrix.surrogates }}" \
+            --n "${{ matrix.n }}" \
+            --master-seed "${{ matrix.master_seed }}" \
             --checkpoint-every 25
 
       - name: Bind artifact to exact workflow identity
@@ -73,7 +193,7 @@ jobs:
         shell: bash
         env:
           CALIBRATION_SCENARIO: ${{ matrix.scenario }}
-          CALIBRATION_SEED: ${{ matrix.seed }}
+          CALIBRATION_MASTER_SEED: ${{ matrix.master_seed }}
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -83,55 +203,71 @@ jobs:
           import platform
           import subprocess
           import sys
-          from pathlib import Path
           from datetime import datetime, timezone
+          from pathlib import Path
 
           scenario = os.environ["CALIBRATION_SCENARIO"]
-          path = Path(f"artifacts/null_type1_calibration_{scenario}.json")
+          path = Path(
+              f"artifacts/null_type1_calibration_{scenario}.json"
+          )
           if not path.is_file():
-              print(f"No calibration artifact exists to annotate: {path}")
+              print(f"No calibration artifact exists: {path}")
               raise SystemExit(0)
 
-          def sha256(path):
+          def sha256(p):
               h = hashlib.sha256()
-              with path.open("rb") as f:
-                  for block in iter(lambda: f.read(1024 * 1024), b""):
+              with p.open("rb") as f:
+                  for block in iter(
+                      lambda: f.read(1024 * 1024), b""
+                  ):
                       h.update(block)
               return h.hexdigest()
 
-          actual_head = subprocess.check_output(
+          actual = subprocess.check_output(
               ["git", "rev-parse", "HEAD"], text=True
           ).strip()
-          expected_head = os.environ["GITHUB_SHA"]
-          if actual_head != expected_head:
+          if actual != os.environ["GITHUB_SHA"]:
               raise SystemExit(
-                  f"Checkout mismatch: HEAD={actual_head}; GITHUB_SHA={expected_head}"
+                  f"Checkout mismatch: HEAD={actual}; "
+                  f"GITHUB_SHA={os.environ['GITHUB_SHA']}"
               )
 
           data = json.loads(path.read_text(encoding="utf-8"))
           data["workflow_identity"] = {
               "repository": os.environ["GITHUB_REPOSITORY"],
-              "commit_sha": actual_head,
+              "commit_sha": actual,
               "workflow_name": os.environ.get("GITHUB_WORKFLOW", ""),
               "workflow_run_id": os.environ["GITHUB_RUN_ID"],
               "workflow_run_attempt": os.environ["GITHUB_RUN_ATTEMPT"],
               "workflow_run_url": (
-                  os.environ["GITHUB_SERVER_URL"] + "/" +
-                  os.environ["GITHUB_REPOSITORY"] + "/actions/runs/" +
-                  os.environ["GITHUB_RUN_ID"]
+                  os.environ["GITHUB_SERVER_URL"] + "/"
+                  + os.environ["GITHUB_REPOSITORY"]
+                  + "/actions/runs/" + os.environ["GITHUB_RUN_ID"]
               ),
               "scenario": scenario,
-              "seed": int(os.environ["CALIBRATION_SEED"]),
+              "master_seed": int(
+                  os.environ["CALIBRATION_MASTER_SEED"]
+              ),
               "python_version": sys.version,
               "platform": platform.platform(),
-              "recorded_at_utc": datetime.now(timezone.utc).isoformat(),
-              "requirements_lock_sha256": sha256(Path("requirements-lock.txt")),
+              "recorded_at_utc": datetime.now(
+                  timezone.utc
+              ).isoformat(),
+              "requirements_lock_sha256": sha256(
+                  Path("requirements-lock.txt")
+              ),
               "scenario_script_sha256": sha256(
                   Path("analysis/calibrate_null_type1_scenario.py")
+              ),
+              "matrix_sha256": sha256(
+                  Path(
+                      "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json"
+                  )
               ),
               "acceptance_rule_changed_by_this_step": False,
               "scientific_inputs_changed_by_this_step": False,
           }
+
           path.write_text(
               json.dumps(data, indent=2, sort_keys=True) + "\n",
               encoding="utf-8",
