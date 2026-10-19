@@ -1,0 +1,67 @@
+{
+  "protocol": "TYPE1_CALIBRATION_SCENARIO_MATRIX_V2",
+  "status": "DRAFT_PENDING_INDEPENDENT_REVIEW",
+  "freeze_state": "NOT_FROZEN",
+  "reference_commit_reviewed": "9fcd54bbc56ccf4c13b7b2020aa5f02b5f2b7ce5",
+  "claim_support": false,
+  "promotion_authority": false,
+  "primary_design": {
+    "outer_repetitions_per_scenario": 2000,
+    "surrogates_requested_per_outer_replicate": 1000,
+    "sample_size": 1024,
+    "dgp_burn_in": 2000,
+    "innovation_distribution": "iid_standard_gaussian",
+    "nominal_alpha": 0.05,
+    "interval_method": "one-sided Wilson upper confidence bound",
+    "per_scenario_upper_bound_maximum": 0.075,
+    "suite_rule": "PASS only if every required scenario's one-sided 95% Wilson upper bound is <= 0.075; no averaging across scenarios",
+    "seed_schedule": {
+      "master_seed": 20261019,
+      "method": "deterministic replicate-level seed derived from master seed, stable scenario index, and replicate index using NumPy SeedSequence; freeze implementation and test shard-order invariance",
+      "frozen_before_execution": true
+    }
+  },
+  "scenarios": [
+    {"scenario_id":"gaussian_ar1_phi_0_4","order":1,"phi":[0.4],"role":"historical_baseline","stationarity_required":true},
+    {"scenario_id":"gaussian_ar2_phi_0_45_minus_0_10","order":2,"phi":[0.45,-0.1],"role":"historical_baseline","stationarity_required":true},
+    {"scenario_id":"gaussian_ar5_low_order_coefficients","order":5,"phi":[0.2,0.1,0.05,0.025,0.0125],"role":"historical_medium_order","stationarity_required":true},
+    {"scenario_id":"gaussian_ar10_low_order_coefficients","order":10,"phi":[0.15,0.08,0.05,0.03,0.02,0.015,0.01,0.008,0.006,0.004],"role":"historical_high_order","stationarity_required":true},
+    {"scenario_id":"gaussian_ar1_phi_0_7","order":1,"phi":[0.7],"role":"additional_moderate_persistence","stationarity_required":true},
+    {"scenario_id":"gaussian_ar1_phi_0_9","order":1,"phi":[0.9],"role":"near_stability_boundary","stationarity_required":true},
+    {"scenario_id":"gaussian_ar1_phi_0_97","order":1,"phi":[0.97],"role":"near_stability_boundary","stationarity_required":true},
+    {"scenario_id":"gaussian_ar2_complex_root_radius_0_90_theta_pi_over_3","order":2,"phi":[0.9,-0.81],"role":"near_stability_boundary_complex_roots_radius_0_90","stationarity_required":true},
+    {"scenario_id":"gaussian_ar2_complex_root_radius_0_97_theta_pi_over_3","order":2,"phi":[0.97,-0.9409],"role":"near_stability_boundary_complex_roots_radius_0_97","stationarity_required":true}
+  ],
+  "power_design": {
+    "status": "PROPOSED_PENDING_INDEPENDENT_REVIEW",
+    "generator": "ARFIMA(p,d,0), with declared AR nuisance component",
+    "ar_nuisance_components": [
+      {"id":"ar1_phi_0_4","phi":[0.4]},
+      {"id":"ar5_low_order_coefficients","phi":[0.2,0.1,0.05,0.025,0.0125]}
+    ],
+    "d_values": [0.05,0.1,0.2],
+    "outer_repetitions_per_alternative": 1000,
+    "surrogates_requested_per_test": 1000,
+    "sample_size": 1024,
+    "primary_power_targets": {
+      "d_0_10_lower_one_sided_95_percent_wilson_bound_minimum": 0.75,
+      "d_0_20_lower_one_sided_95_percent_wilson_bound_minimum": 0.85,
+      "d_0_05": "report with uncertainty; sensitivity only; no pass/fail threshold"
+    },
+    "precondition": "Do not run power phase until Type-I implementation equivalence passes and the alternative generator is independently unit-tested."
+  },
+  "excluded_from_primary_matrix": [
+    {"feature":"heavy_tailed_innovations","reason":"Not part of current Gaussian production-null assumption; requires separate written rationale and prospective amendment."},
+    {"feature":"heteroskedasticity","reason":"Not part of current primary null assumption; requires separate written rationale and prospective amendment."},
+    {"feature":"seasonality_or_structural_breaks","reason":"Separate nuisance family requiring explicit scientific justification and protocol amendment."},
+    {"feature":"irregular_sampling_or_missingness","reason":"Requires a distinct timestamp/cadence/missingness protocol; excluded from this synthetic stationary AR matrix."}
+  ],
+  "failure_policy": {
+    "nonstationary_dgp": "STOP_AND_MARK_IMPLEMENTATION_FAILURE",
+    "invalid_outer_replicates": "RECORD_AND_APPLY_FROZEN_VALIDITY_POLICY; NEVER SILENTLY_DROP",
+    "any_required_scenario_fails": "SUITE_FAILS",
+    "post_result_changes_to_model_or_thresholds": "FORBIDDEN_WITHOUT_NEW_PROTOCOL_VERSION",
+    "claim_support": false,
+    "promotion_authority": false
+  }
+}
