@@ -53,6 +53,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip==24.0
           pip install numpy==1.26.4 sympy==1.12
+          python -m unittest tests.test_type1_calibration_pilot -v
 
       - name: Freeze environment
         run: pip freeze
