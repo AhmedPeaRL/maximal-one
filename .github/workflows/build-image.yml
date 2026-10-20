@@ -49,17 +49,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11.15"
+      - name: Install locked dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          
+          python --version
+          python -m compileall -q analysis scripts core tests
+          python -m pip install --require-hashes -r requirements-lock.txt
+          python -m unittest tests.test_type1_calibration_pilot -v
           
       - name: Freeze environment
         run: pip freeze
 
       - name: Debug repository structure
         run: |
-          python -m unittest tests.test_type1_calibration_pilot -v
           echo "==== ROOT ===="
           ls -R
 
