@@ -7,35 +7,57 @@
   "promotion_authority": false,
   "reviewed_base_commit": "a9808bd999a7ad902daf15606272529ca9af4580",
   "review_outcome": "REVISE_AND_RESUBMIT",
-  "design": {
+  "role": "Candidate governance and consistency record only; not an independently approved calibration matrix.",
+  "design_source": {
+    "path": "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_DRAFT.json",
+    "status_required": "DRAFT_PENDING_ATTRIBUTABLE_INDEPENDENT_STATISTICAL_REVIEW",
+    "scenario_count_expected": 9,
+    "scenario_definitions_must_remain_unchanged_until_prospective_review_approves_any_amendment": true
+  },
+  "candidate_dimensions_not_frozen": {
     "outer_repetitions_per_scenario": 2000,
     "surrogates_requested_per_outer_replicate": 1000,
-    "sample_size": 1024,
+    "sample_size": 3328,
+    "dgp_burn_in": 2000,
     "nominal_alpha": 0.05,
-    "one_sided_confidence_level": 0.95,
-    "one_sided_wilson_upper_bound_maximum": 0.075,
-    "scenario_rule": "Every required scenario must independently satisfy the frozen acceptance rule; no cross-scenario averaging.",
-    "invalid_attempt_rule": "Any invalid outer attempt or unresolved requested-surrogate shortfall fails the scenario. Preserve every attempt and its reason. The empirical rejection rate uses requested N as its denominator; invalidity remains an independent hard failure.",
-    "seed_schedule": {
-      "master_seed": 20261019,
-      "algorithm": "NumPy SeedSequence(master_seed, stable_scenario_key, replicate_index, stream_id)",
-      "stream_id_0": "DGP",
-      "stream_id_1": "null surrogates",
-      "replicate_indexing": "zero-based, assigned before dispatch",
-      "shard_order_invariant": true,
-      "freeze_before_formal_execution": true
-    }
+    "master_seed_candidate": 20261021,
+    "master_seed_is_final": false,
+    "acceptance_rule": null,
+    "historical_0_075_ceiling": "NOT_JUSTIFIED_OR_APPROVED",
+    "acceptance_rule_must_be_resolved_prospectively_by_attributable_independent_statistical_review": true
   },
-  "required_gates_before_freeze": [
-    "resume and checkpoint identity tests pass",
-    "connected and sharded per-index scientific outputs match exactly",
-    "merge rejects overlapping ranges, duplicate indices, missing indices, identity mismatch, and invalid or missing SHA-256 manifests",
-    "invalid attempts preserve the requested denominator and force scenario failure",
-    "production-equivalence tests pass",
-    "protocol, code, dependency-lock, and workflow hashes are recorded",
-    "independent reviewer approves the exact candidate commit and hash manifest"
+  "invalid_attempt_policy_candidate": {
+    "preserve_every_attempt": true,
+    "record_failure_reason": true,
+    "silent_dropping_or_replacement": false,
+    "unresolved_requested_surrogate_shortfall_blocks_pass": true,
+    "any_invalid_outer_attempt_blocks_scenario_pass": true,
+    "requested_repetition_denominator_must_be_preserved": true,
+    "invalid_attempts_must_remain_an_independent_hard_failure": true
+  },
+  "seed_schedule_candidate": {
+    "algorithm": "NumPy SeedSequence([master_seed, stable_scenario_key, replicate_index, stream_id])",
+    "scenario_key_source": "Stable hash of scenario_id, never list position",
+    "replicate_indexing": "Zero-based and assigned before dispatch",
+    "stream_id_0": "DGP",
+    "stream_id_1": "Null surrogates",
+    "shard_order_invariant": true,
+    "freeze_before_formal_execution": true
+  },
+  "required_engineering_gates": [
+    "Checkpoint resume rejects any mismatch in commit, matrix hash, runner hash, scenario, seed schedule, or shard range",
+    "Connected and sharded execution produce identical scientific outputs for every replicate index",
+    "Interrupted and resumed execution matches uninterrupted execution for every replicate index",
+    "Shard manifests are separate from artifact files and contain independently verifiable SHA-256 hashes",
+    "Merge rejects invalid hashes, identity mismatches, duplicate indices, overlapping ranges, missing indices, and out-of-range records",
+    "Every requested replicate has exactly one preserved attempt record",
+    "Invalid attempts remain visible and independently block scenario success",
+    "Pilot outputs always set formal_calibration_pass to false",
+    "Pilot outputs never authorize claim support or promotion",
+    "Production-equivalence tests pass against the declared endpoint and null implementation",
+    "Protocol, source, dependency-lock, and workflow hashes are recorded"
   ],
-  "scope_limit": "Synthetic Type-I calibration is a specified parametric operating-characteristic diagnostic. It does not establish real-domain replication, universal stochastic-null adequacy, or HCM claim support.",
+  "scientific_scope_limit": "Synthetic Type-I calibration assesses operating characteristics only for the explicitly declared data-generating scenarios and tested implementation. It does not establish real-domain replication, universal stochastic-null adequacy, or HCM claim support.",
   "approval_record": {
     "reviewer_identity": null,
     "review_date_utc": null,
