@@ -1,0 +1,65 @@
+name: Type-I Calibration Runtime Pilot (Exploratory Only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-pilot:
+    name: Small exploratory runtime pilot
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout exact repository state
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify checkout identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual_head="$(git rev-parse HEAD)"
+          test "$actual_head" = "$GITHUB_SHA"
+          echo "Verified pilot checkout: $actual_head"
+          echo "This is an exploratory pilot, not formal calibration."
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.15"
+          cache: pip
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install locked dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --require-hashes -r requirements-lock.txt
+
+      - name: Verify pilot code and protocol
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m compileall -q             analysis/type1_calibration_pilot.py             analysis/merge_type1_calibration_pilot_shards.py
+          python -m unittest             tests.test_type1_calibration_pilot -v
+
+      - name: Run exploratory runtime pilot
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          python -m analysis.type1_calibration_pilot             --scenario gaussian_ar2_inband_f_0_02_radius_0_90_n3328             --start-index 0             --stop-index 2             --total-repetitions 2             --surrogates 200             --master-seed 20261021             --output artifacts/type1_calibration_runtime_pilot.json
+
+      - name: Upload pilot artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: type1-calibration-runtime-pilot
+          path: artifacts/type1_calibration_runtime_pilot.json
+          if-no-files-found: warn
+          retention-days: 90
