@@ -45,6 +45,11 @@ def load_verified_shard(artifact_path: Path) -> dict:
             f"Unreadable shard manifest: {manifest_path}: {exc}"
         ) from exc
 
+    if manifest.get("manifest_schema") != "HCM_TYPE1_PILOT_ARTIFACT_MANIFEST_V1":
+        raise ValueError(
+            f"Unsupported shard manifest schema: {manifest_path}"
+        )
+
     expected_hash = manifest.get("artifact_sha256")
     if not isinstance(expected_hash, str) or len(expected_hash) != 64:
         raise ValueError(
