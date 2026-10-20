@@ -60,11 +60,48 @@ def main() -> int:
     def report(status: str, completed: int) -> dict:
         valid = len(p_values)
         rejections = sum(p <= NOMINAL_ALPHA for p in p_values)
-        rate = rejections / valid if valid else None
-        two_sided = list(wilson_interval(rejections, valid)) if valid else None
-        upper = wilson_upper_one_sided(rejections, valid) if valid else None
-        all_completed = completed == args.repetitions
-        passed = bool(all_completed and invalid == 0 and valid == args.repetitions and upper is not None and upper <= MATRIX["primary_design"]["one_sided_upper_bound_maximum"])
+                all_completed = completed == args.repetitions
+
+        # Descriptive rates use the requested denominator N.
+        # Invalid attempts remain visible and are never treated as non-rejections.
+        rate_requested = (
+            rejections / args.repetitions
+            if args.repetitions > 0
+            else None
+        )
+        rate_valid_only = rejections / valid if valid else None
+
+        two_sided = (
+            list(wilson_interval(rejections, valid))
+            if valid
+            else None
+        )
+        upper_valid_only = (
+            wilson_upper_one_sided(rejections, valid)
+            if valid
+            else None
+        )
+
+        # The acceptance bound is eligible only when every requested
+        # attempt is complete and valid. Do not change the threshold.
+        acceptance_eligible = bool(
+            all_completed
+            and invalid == 0
+            and valid == args.repetitions
+        )
+
+        upper = (
+            upper_valid_only
+            if acceptance_eligible
+            else None
+        )
+
+        passed = bool(
+            acceptance_eligible
+            and upper is not None
+            and upper
+            <= MATRIX["primary_design"]["one_sided_upper_bound_maximum"]
+        )
         if status != "FINAL":
             final_status = "INCOMPLETE_NOT_A_PASS"
         elif not all_completed:
@@ -87,8 +124,12 @@ def main() -> int:
             "valid_repetitions": valid, "invalid_repetitions": invalid,
             "surrogates_requested_per_test": args.surrogates,
             "nominal_alpha": NOMINAL_ALPHA, "rejections_at_nominal_alpha": int(rejections),
-            "empirical_type1_rate_among_valid_attempts": rate,
-            "wilson_95_percent_two_sided_report_only": two_sided,
+            "rejection_rate_requested_denominator": rate_requested,
+            "rejection_rate_requested_denominator_N": args.repetitions,
+            "empirical_type1_rate_among_valid_attempts_descriptive_only": rate_valid_only,
+            "wilson_95_percent_two_sided_valid_attempts_report_only": two_sided,
+            "wilson_95_percent_one_sided_upper_bound_valid_attempts_descriptive_only": upper_valid_only,
+            "acceptance_bound_eligible": acceptance_eligible,
             "wilson_95_percent_one_sided_upper_bound_acceptance": upper,
             "acceptance_upper_bound_maximum": MATRIX["primary_design"]["one_sided_upper_bound_maximum"],
             "scenario_calibration_passed": passed,
