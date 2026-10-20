@@ -3,7 +3,18 @@ from __future__ import annotations
 import unittest
 
 import numpy as np
+import json
+import tempfile
+from pathlib import Path
+from unittest.mock import patch
 
+import analysis.type1_calibration_pilot as pilot
+from analysis.type1_calibration_pilot import (
+    execute_attempt,
+    atomic_write,
+    load_verified_checkpoint,
+)
+from analysis.merge_type1_calibration_pilot_shards import merge_payloads
 from analysis.type1_calibration_pilot import (
     MATRIX,
     SCENARIOS,
@@ -81,6 +92,147 @@ class TypeICalibrationPilotTests(unittest.TestCase):
         b = {"run_identity": {**bbase, "start_index": 1, "stop_index": 2}, "attempt_records": []}
         with self.assertRaises(ValueError):
             merge_payloads([a, b], 2)
+
+    def test_indices_0_to_5_match_connected_shards_reverse_merge_and_resume(self):
+        scenario = next(iter(SCENARIOS.values()))
+        master_seed = 20261021
+        total = 6
+        fixture_n = 256
+        fixture_burn_in = 32
+        fixture_surrogates = 3
+
+        # Deterministic substitutes isolate orchestration and checkpoint behavior.
+        # This is NOT a production-equivalence or scientific-validity test.
+        def fake_null(series, observed_alpha, rng, trials):
+            return {
+                "valid": True,
+                "trials_requested": trials,
+                "null_samples": trials,
+                "exceedances": int(abs(observed_alpha) * 10) % (trials + 1),
+                "p_value_mc_add_one": 0.25,
+                "selected_order": 2,
+                "order_selection_diagnostic": {
+                    "scientific_role": "test_fixture_only"
+                },
+            }
+
+        def run_index(index):
+            return execute_attempt(
+                index=index,
+                scenario=scenario,
+                master_seed=master_seed,
+                surrogates=fixture_surrogates,
+                n=fixture_n,
+                burn_in=fixture_burn_in,
+            )
+
+        with (
+            patch(
+                "analysis.type1_calibration_pilot.estimate_alpha",
+                side_effect=lambda series: float(np.mean(series ** 2)),
+            ),
+            patch(
+                "analysis.type1_calibration_pilot.parametric_short_memory_null",
+                side_effect=fake_null,
+            ),
+        ):
+            connected = {i: run_index(i) for i in range(total)}
+
+            shard_ranges = [(0, 2), (2, 4), (4, 6)]
+            shard_payloads = []
+
+            for start, stop in shard_ranges:
+                identity = {
+                    "protocol": "engineering-fixture",
+                    "scenario": scenario["scenario_id"],
+                    "master_seed": master_seed,
+                    "start_index": start,
+                    "stop_index": stop,
+                }
+                shard_payloads.append({
+                    "run_identity": identity,
+                    "attempt_records": [
+                        run_index(i) for i in range(start, stop)
+                    ],
+                })
+
+            merged = merge_payloads(
+                list(reversed(shard_payloads)),
+                total_repetitions=total,
+            )
+
+            merged_by_index = {
+                row["replicate_index"]: row
+                for row in merged["attempt_records"]
+            }
+
+            self.assertEqual(
+                sorted(merged_by_index),
+                list(range(6)),
+            )
+
+            # Compare all per-index fields, not timing metadata.
+            for index in range(total):
+                self.assertEqual(
+                    connected[index],
+                    merged_by_index[index],
+                    msg=f"Connected/sharded mismatch at index {index}",
+                )
+
+            # Simulate interruption after indices 0 and 1.
+            resume_identity = {
+                "protocol": "engineering-fixture",
+                "scenario": scenario["scenario_id"],
+                "master_seed": master_seed,
+                "start_index": 0,
+                "stop_index": total,
+            }
+
+            with tempfile.TemporaryDirectory() as directory:
+                checkpoint = Path(directory) / "checkpoint.json"
+                atomic_write(checkpoint, {
+                    "run_identity": resume_identity,
+                    "attempt_records": [
+                        connected[0],
+                        connected[1],
+                    ],
+                })
+
+                restored = load_verified_checkpoint(
+                    checkpoint,
+                    resume_identity,
+                )
+
+                resumed = {
+                    row["replicate_index"]: row
+                    for row in restored["attempt_records"]
+                }
+
+                for index in range(2, total):
+                    resumed[index] = run_index(index)
+
+                self.assertEqual(
+                    sorted(resumed),
+                    list(range(6)),
+                )
+
+                for index in range(total):
+                    self.assertEqual(
+                        connected[index],
+                        resumed[index],
+                        msg=f"Connected/resumed mismatch at index {index}",
+                    )
+
+                # The manifest must reject modified artifact bytes.
+                checkpoint.write_text(
+                    checkpoint.read_text(encoding="utf-8") + " ",
+                    encoding="utf-8",
+                )
+                with self.assertRaisesRegex(ValueError, "SHA-256 mismatch"):
+                    load_verified_checkpoint(
+                        checkpoint,
+                        resume_identity,
+                    )
 
 
 if __name__ == "__main__":
