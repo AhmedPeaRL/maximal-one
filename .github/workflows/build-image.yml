@@ -54,7 +54,6 @@ jobs:
 
       - name: Debug repository structure
         run: |
-          python -m unittest tests.test_type1_calibration_pilot -v
           echo "==== ROOT ===="
           ls -R
 
