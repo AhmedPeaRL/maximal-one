@@ -24,6 +24,7 @@ SCENARIOS = {row["scenario_id"]: row for row in MATRIX["scenarios"]}
 PILOT_SEED = int(MATRIX["runtime_plan"]["pilot_seed"])
 PILOT_N = int(MATRIX["primary_design_candidate"]["sample_size"])
 BURN_IN = int(MATRIX["primary_design_candidate"]["dgp_burn_in"])
+MANIFEST_SUFFIX = ".manifest.json"
 
 
 def sha256_file(path: Path) -> str:
@@ -54,20 +55,194 @@ def shard_indices(start: int, stop: int, total: int) -> list[int]:
     return list(range(start, stop))
 
 
-def generate_ar(phi: list[float], n: int, rng: np.random.Generator) -> np.ndarray:
-    ar = np.asarray([1.0] + [-float(value) for value in phi], dtype=float)
+def generate_ar(
+    phi: list[float],
+    n: int,
+    rng: np.random.Generator,
+    burn_in: int = BURN_IN,
+) -> np.ndarray:
+    ar = np.asarray(
+        [1.0] + [-float(value) for value in phi],
+        dtype=float,
+    )
     process = ArmaProcess(ar=ar, ma=np.asarray([1.0]))
+
     if not bool(process.isstationary):
-        raise ValueError(f"Non-stationary declared pilot scenario: {phi}")
-    full = process.generate_sample(nsample=n + BURN_IN, burnin=0, distrvs=rng.standard_normal)
-    return np.asarray(full[BURN_IN:], dtype=np.float64)
+        raise ValueError(
+            f"Non-stationary declared pilot scenario: {phi}"
+        )
+
+    full = process.generate_sample(
+        nsample=n + burn_in,
+        burnin=0,
+        distrvs=rng.standard_normal,
+    )
+    return np.asarray(full[burn_in:], dtype=np.float64)
+
+
+def execute_attempt(
+    index: int,
+    scenario: dict,
+    master_seed: int,
+    surrogates: int,
+    n: int = PILOT_N,
+    burn_in: int = BURN_IN,
+) -> dict:
+    """Execute one replicate through the pilot's endpoint and null path."""
+    dgp_rng, null_rng = replicate_rngs(
+        master_seed,
+        scenario["scenario_id"],
+        index,
+    )
+
+    record = {
+        "replicate_index": index,
+        "dgp_seed_identity": [
+            master_seed,
+            stable_scenario_key(scenario["scenario_id"]),
+            index,
+            0,
+        ],
+        "null_seed_identity": [
+            master_seed,
+            stable_scenario_key(scenario["scenario_id"]),
+            index,
+            1,
+        ],
+        "status": "INVALID",
+        "reason": None,
+    }
+
+    try:
+        series = generate_ar(
+            scenario["phi"],
+            n,
+            dgp_rng,
+            burn_in=burn_in,
+        )
+
+        record["generated_series_sha256"] = hashlib.sha256(
+            np.asarray(series, dtype="<f8").tobytes()
+        ).hexdigest()
+
+        observed_alpha = float(estimate_alpha(series))
+        result = parametric_short_memory_null(
+            series,
+            observed_alpha,
+            null_rng,
+            trials=surrogates,
+        )
+
+        record.update({
+            "observed_alpha": observed_alpha,
+            "null_valid": bool(result.get("valid") is True),
+            "requested_surrogates": int(
+                result.get("trials_requested", surrogates)
+            ),
+            "valid_surrogates": int(result.get("null_samples", 0)),
+            "exceedances": result.get("exceedances"),
+            "p_value_mc_add_one": result.get("p_value_mc_add_one"),
+            "selected_order": result.get("selected_order"),
+            "order_selection_diagnostic": result.get(
+                "order_selection_diagnostic"
+            ),
+        })
+
+        if (
+            result.get("valid") is True
+            and int(result.get("null_samples", 0)) == surrogates
+            and result.get("p_value_mc_add_one") is not None
+        ):
+            record.update({"status": "VALID", "reason": None})
+        else:
+            record["reason"] = result.get(
+                "reason",
+                "invalid_or_short_surrogate_result",
+            )
+
+    except Exception as exc:
+        record["reason"] = f"{type(exc).__name__}: {exc}"
+        record["traceback"] = traceback.format_exc(limit=8)
+
+    return record
+
+
+def manifest_path_for(path: Path) -> Path:
+    return Path(str(path) + MANIFEST_SUFFIX)
+
+
+def atomic_write_json(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp = path.with_suffix(path.suffix + ".tmp")
+    temp.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    temp.replace(path)
 
 
 def atomic_write(path: Path, payload: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temp = path.with_suffix(path.suffix + ".tmp")
-    temp.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    temp.replace(path)
+    """Write the artifact, then bind its exact bytes to a sidecar manifest."""
+    atomic_write_json(path, payload)
+    manifest = {
+        "manifest_schema": "HCM_TYPE1_PILOT_ARTIFACT_MANIFEST_V1",
+        "artifact_file": path.name,
+        "artifact_sha256": sha256_file(path),
+        "run_identity": payload.get("run_identity"),
+    }
+    atomic_write_json(manifest_path_for(path), manifest)
+
+
+def load_verified_checkpoint(path: Path, expected_identity: dict) -> dict:
+    """Fail closed unless artifact bytes, manifest, and run identity agree."""
+    sidecar = manifest_path_for(path)
+
+    if not path.is_file():
+        raise ValueError(f"Missing checkpoint artifact: {path}")
+    if not sidecar.is_file():
+        raise ValueError(f"Missing checkpoint manifest: {sidecar}")
+
+    try:
+        manifest = json.loads(sidecar.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise ValueError(
+            f"Unreadable checkpoint manifest: {sidecar}: {exc}"
+        ) from exc
+
+    if manifest.get("manifest_schema") != "HCM_TYPE1_PILOT_ARTIFACT_MANIFEST_V1":
+        raise ValueError(f"Unsupported checkpoint manifest schema: {sidecar}")
+
+    if manifest.get("artifact_file") != path.name:
+        raise ValueError(f"Checkpoint manifest filename mismatch: {sidecar}")
+
+    expected_hash = manifest.get("artifact_sha256")
+    if not isinstance(expected_hash, str) or len(expected_hash) != 64:
+        raise ValueError(f"Missing or malformed artifact_sha256: {sidecar}")
+
+    actual_hash = sha256_file(path)
+    if actual_hash.lower() != expected_hash.lower():
+        raise ValueError(f"Checkpoint SHA-256 mismatch: {path}")
+
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise ValueError(
+            f"Unreadable checkpoint artifact: {path}: {exc}"
+        ) from exc
+
+    if payload.get("run_identity") != manifest.get("run_identity"):
+        raise ValueError(f"Checkpoint manifest/run identity mismatch: {path}")
+
+    if payload.get("run_identity") != expected_identity:
+        raise ValueError(
+            "RESUME BLOCKED: output identity differs from current "
+            "arguments/files/commit."
+        )
+
+    if not isinstance(payload.get("attempt_records"), list):
+        raise ValueError(f"Malformed checkpoint attempt_records: {path}")
+
+    return payload
 
 
 def git_head() -> str:
@@ -113,55 +288,60 @@ def main() -> int:
         "script_sha256": sha256_file(Path(__file__)),
         "commit_sha": git_head(),
     }
-
+    
     records: dict[int, dict] = {}
+
     if args.output.exists():
         if not args.resume:
-            raise SystemExit(f"Output already exists; choose a new path or pass --resume: {args.output}")
-        prior = json.loads(args.output.read_text(encoding="utf-8"))
-        if prior.get("run_identity") != identity:
-            raise SystemExit("RESUME BLOCKED: output identity differs from current arguments/files/commit.")
-        records = {int(row["replicate_index"]): row for row in prior.get("attempt_records", [])}
+            raise SystemExit(
+                f"Output already exists; choose a new path or pass --resume: "
+                f"{args.output}"
+            )
+
+        try:
+            prior = load_verified_checkpoint(args.output, identity)
+        except ValueError as exc:
+            raise SystemExit(str(exc)) from exc
+
+        prior_records = prior["attempt_records"]
+        records = {
+            int(row["replicate_index"]): row
+            for row in prior_records
+        }
+
+        if len(records) != len(prior_records):
+            raise SystemExit(
+                "RESUME BLOCKED: duplicate replicate indices in checkpoint."
+            )
+
         if any(index not in indices for index in records):
-            raise SystemExit("RESUME BLOCKED: checkpoint contains records outside this shard range.")
+            raise SystemExit(
+                "RESUME BLOCKED: checkpoint contains records outside this shard range."
+            )
+
     elif args.resume:
-        raise SystemExit("RESUME BLOCKED: no existing checkpoint file was found.")
+        raise SystemExit(
+            "RESUME BLOCKED: no existing checkpoint file was found."
+        )
 
     started = time.monotonic()
     for index in indices:
         if index in records:
             continue
+
         attempt_start = time.monotonic()
-        dgp_rng, null_rng = replicate_rngs(args.master_seed, args.scenario, index)
-        record = {
-            "replicate_index": index,
-            "dgp_seed_identity": [args.master_seed, stable_scenario_key(args.scenario), index, 0],
-            "null_seed_identity": [args.master_seed, stable_scenario_key(args.scenario), index, 1],
-            "status": "INVALID",
-            "reason": None,
-        }
-        try:
-            series = generate_ar(scenario["phi"], PILOT_N, dgp_rng)
-            observed_alpha = float(estimate_alpha(series))
-            result = parametric_short_memory_null(series, observed_alpha, null_rng, trials=args.surrogates)
-            record.update({
-                "observed_alpha": observed_alpha,
-                "null_valid": bool(result.get("valid") is True),
-                "requested_surrogates": int(result.get("trials_requested", args.surrogates)),
-                "valid_surrogates": int(result.get("null_samples", 0)),
-                "exceedances": result.get("exceedances"),
-                "p_value_mc_add_one": result.get("p_value_mc_add_one"),
-                "selected_order": result.get("selected_order"),
-                "order_selection_diagnostic": result.get("order_selection_diagnostic"),
-            })
-            if result.get("valid") is True and int(result.get("null_samples", 0)) == args.surrogates and result.get("p_value_mc_add_one") is not None:
-                record.update({"status": "VALID", "reason": None})
-            else:
-                record["reason"] = result.get("reason", "invalid_or_short_surrogate_result")
-        except Exception as exc:
-            record["reason"] = f"{type(exc).__name__}: {exc}"
-            record["traceback"] = traceback.format_exc(limit=8)
-        record["elapsed_seconds"] = round(time.monotonic() - attempt_start, 6)
+
+        record = execute_attempt(
+            index=index,
+            scenario={"scenario_id": args.scenario, **scenario},
+            master_seed=args.master_seed,
+            surrogates=args.surrogates,
+        )
+
+        record["elapsed_seconds"] = round(
+            time.monotonic() - attempt_start,
+            6,
+        )
         records[index] = record
         payload = {
             "artifact_kind": "EXPLORATORY_PILOT_ONLY_NOT_FORMAL_CALIBRATION",
