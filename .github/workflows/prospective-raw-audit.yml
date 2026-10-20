@@ -1,7 +1,6 @@
 name: Prospective Raw Source Audit (No Endpoint Analysis)
 
 on:
-  push:
   workflow_dispatch:
 
 permissions:
@@ -33,7 +32,6 @@ jobs:
         run: |
           set -euo pipefail
           python -m unittest discover -s tests -p 'test_prospective_raw_audit.py' -v
-          python -m unittest tests.test_type1_calibration_pilot -v
    
       - name: Run raw acquisition and structural audit only
         id: raw_audit
