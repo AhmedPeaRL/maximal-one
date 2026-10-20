@@ -1,6 +1,7 @@
 name: Type-I Calibration Runtime Pilot (Exploratory Only)
 
 on:
+  push:
   workflow_dispatch:
 
 permissions:
@@ -55,11 +56,13 @@ jobs:
           mkdir -p artifacts
           python -m analysis.type1_calibration_pilot             --scenario gaussian_ar2_inband_f_0_02_radius_0_90_n3328             --start-index 0             --stop-index 2             --total-repetitions 2             --surrogates 200             --master-seed 20261021             --output artifacts/type1_calibration_runtime_pilot.json
 
-      - name: Upload pilot artifact
+      - name: Upload pilot artifact and manifest
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: type1-calibration-runtime-pilot
-          path: artifacts/type1_calibration_runtime_pilot.json
-          if-no-files-found: warn
+          path: |
+            artifacts/type1_calibration_runtime_pilot.json
+            artifacts/type1_calibration_runtime_pilot.json.manifest.json
+          if-no-files-found: error
           retention-days: 90
