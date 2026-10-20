@@ -93,6 +93,7 @@ jobs:
           python -m unittest tests.test_replication_computation_guard -v
           python -m unittest discover -s tests -p 'test_type1_calibration_v3_candidate.py' -v
           python -m compileall -q analysis/calibrate_null_type1.py analysis/calibrate_null_type1_scenario.py tests/test_type1_calibration_v3_candidate.py
+          python -m analysis.merge_type1_calibration_pilot_shards --total-repetitions 2 --output artifacts/type1_pilot_merged.json path/to/shard0.json path/to/shard1.json
           
       - name: Verify repository commit identity
         shell: bash
