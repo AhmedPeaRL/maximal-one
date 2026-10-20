@@ -1,0 +1,69 @@
+{
+  "protocol": "HCM_TYPE1_CALIBRATION_V4_DRAFT",
+  "status": "DRAFT_PENDING_ATTRIBUTABLE_INDEPENDENT_STATISTICAL_REVIEW",
+  "freeze_state": "NOT_FROZEN",
+  "claim_support": false,
+  "promotion_authority": false,
+  "confirmatory_execution_authorized": false,
+  "purpose": "Exploratory design draft. Not a formal calibration protocol and not authorized for confirmatory execution.",
+  "primary_design_candidate": {
+    "sample_size": 3328,
+    "dgp_burn_in": 2000,
+    "nominal_alpha": 0.05,
+    "surrogates_per_test_candidate": 1000,
+    "outer_repetitions_per_scenario_candidate": 2000,
+    "frequency_band_open_interval": [0.01, 0.05],
+    "welch_nperseg": 1024,
+    "acceptance_rule": "UNRESOLVED_PENDING_ATTRIBUTABLE_HUMAN_STATISTICAL_REVIEW",
+    "historical_0_075_ceiling_status": "NOT_JUSTIFIED_OR_APPROVED",
+    "invalid_attempt_policy_candidate": "Any invalid outer attempt or unresolved surrogate shortfall is recorded and blocks a pass; no silent dropping or replacement. Human reviewer must approve the formal policy before freeze.",
+    "master_seed_candidate": 20261021,
+    "seed_schedule_candidate": "NumPy SeedSequence([master_seed, stable_scenario_key, replicate_index, stream_id]); stream 0 for DGP, stream 1 for null surrogates; stable_scenario_key is derived from the scenario ID, not list position.",
+    "shard_order_invariant": true
+  },
+  "production_equivalence_requirements": {
+    "endpoint": "canonical_primary_alpha",
+    "frequency_band_open_interval": [0.01, 0.05],
+    "welch_nperseg": 1024,
+    "welch_window": "hann",
+    "welch_detrend": "linear",
+    "welch_scaling": "density",
+    "welch_average": "mean",
+    "null_family": "stationary Gaussian AR(p)",
+    "candidate_order_range": [1, 20],
+    "selection_criterion": "AIC",
+    "trend": "constant",
+    "stationarity_required": true,
+    "comparison_hold_back": 20,
+    "alternative_direction": "observed alpha greater than null",
+    "p_value_rule": "(exceedances + 1) / (valid_surrogates + 1)",
+    "reject_when": "p_value <= 0.05",
+    "production_requested_surrogates": 1000,
+    "equivalence_test_required_before_formal_run": true
+  },
+  "scenarios": [
+    {"scenario_id":"gaussian_ar1_phi_0_4_n3328","order":1,"phi":[0.4],"role":"baseline_short_memory","peak_in_target_band":false},
+    {"scenario_id":"gaussian_ar2_phi_0_45_minus_0_10_n3328","order":2,"phi":[0.45,-0.1],"role":"historical_baseline","peak_in_target_band":false},
+    {"scenario_id":"gaussian_ar5_low_order_coefficients_n3328","order":5,"phi":[0.2,0.1,0.05,0.025,0.0125],"role":"medium_order_short_memory","peak_in_target_band":false},
+    {"scenario_id":"gaussian_ar10_low_order_coefficients_n3328","order":10,"phi":[0.15,0.08,0.05,0.03,0.02,0.015,0.01,0.008,0.006,0.004],"role":"high_order_short_memory","peak_in_target_band":false},
+    {"scenario_id":"gaussian_ar1_phi_0_7_n3328","order":1,"phi":[0.7],"role":"moderate_persistence","peak_in_target_band":false},
+    {"scenario_id":"gaussian_ar1_phi_0_9_n3328","order":1,"phi":[0.9],"role":"high_persistence","peak_in_target_band":false},
+    {"scenario_id":"gaussian_ar1_phi_0_97_n3328","order":1,"phi":[0.97],"role":"near_stability_boundary","peak_in_target_band":false},
+    {"scenario_id":"gaussian_ar2_inband_f_0_02_radius_0_90_n3328","order":2,"phi":[1.78580646236606,-0.81],"role":"in_band_resonance_f_0_02_radius_0_90","peak_in_target_band":true,"target_peak_frequency_cycles_per_sample":0.02,"root_radius":0.9},
+    {"scenario_id":"gaussian_ar2_inband_f_0_04_radius_0_97_n3328","order":2,"phi":[1.8790513325895442,-0.9409],"role":"in_band_resonance_f_0_04_radius_0_97","peak_in_target_band":true,"target_peak_frequency_cycles_per_sample":0.04,"root_radius":0.97}
+  ],
+  "excluded_or_separate_diagnostics": [
+    {"feature":"AR(20) plug-in stress scenario estimated from the primary series","status":"EXPLORATORY_ONLY_PENDING_REVIEW","reason":"Would be data-informed and must be explicitly labeled as a stress diagnostic, not independent confirmation; do not use observed alpha to tune it."},
+    {"feature":"heavy-tailed innovations, heteroskedasticity, breaks, irregular sampling","status":"NOT_IN_PRIMARY_MATRIX","reason":"Require separate rationale and prospective protocol amendment."}
+  ],
+  "runtime_plan": {
+    "formal_draw_count_if_approved": 18000000,
+    "pilot_only": true,
+    "pilot_scenario_count": 1,
+    "pilot_outer_repetitions": 2,
+    "pilot_surrogates_per_test": 200,
+    "pilot_seed": 20261021,
+    "pilot_outputs_are_not_formal_results": true,
+    "formal_sharding_resume_merge_must_pass_tests_before_freeze": true
+  }
+}
