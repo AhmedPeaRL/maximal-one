@@ -60,7 +60,7 @@ def main() -> int:
     def report(status: str, completed: int) -> dict:
         valid = len(p_values)
         rejections = sum(p <= NOMINAL_ALPHA for p in p_values)
-                all_completed = completed == args.repetitions
+        all_completed = completed == args.repetitions
 
         # Descriptive rates use the requested denominator N.
         # Invalid attempts remain visible and are never treated as non-rejections.
