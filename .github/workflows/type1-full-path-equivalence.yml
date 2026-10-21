@@ -1,7 +1,6 @@
 name: Type-I Full-Path Equivalence (Engineering Only)
 
 on:
-  push:
   workflow_dispatch:
 
 permissions:
