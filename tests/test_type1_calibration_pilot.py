@@ -76,7 +76,14 @@ class TypeICalibrationPilotTests(unittest.TestCase):
             "attempt_records": [{"replicate_index": 1, "status": "INVALID"}]
         }
         merged = merge_payloads([left, right], 2)
-        self.assertEqual(merged["status"], "PILOT_COMPLETE_DIAGNOSTIC_ONLY")
+        self.assertEqual(
+            merged["status"],
+            "PILOT_FAILED_DIAGNOSTIC_ONLY",
+        )
+        self.assertEqual(merged["invalid_attempts"], 1)
+        self.assertFalse(merged["formal_calibration_pass"])
+        self.assertFalse(merged["claim_support"])
+        self.assertFalse(merged["promotion_authority"])
         self.assertEqual(merged["invalid_attempts"], 1)
         self.assertFalse(merged["formal_calibration_pass"])
         with self.assertRaises(ValueError):
