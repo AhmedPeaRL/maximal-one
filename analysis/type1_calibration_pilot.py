@@ -364,11 +364,28 @@ def main() -> int:
     final["elapsed_seconds_total_for_this_invocation"] = round(time.monotonic() - started, 6)
     final["completed_indices_in_this_shard"] = sorted(records)
     final["shard_complete"] = all(index in records for index in indices)
-    final["status"] = "PILOT_COMPLETE_DIAGNOSTIC_ONLY" if final["shard_complete"] else "PILOT_INCOMPLETE_OR_DIAGNOSTIC_ONLY"
+    final["invalid_attempts"] = sum(
+        row.get("status") != "VALID"
+        for row in final.get("attempt_records", [])
+    )
+    if not final["shard_complete"]:
+        final["status"] = "PILOT_INCOMPLETE_OR_DIAGNOSTIC_ONLY"
+    elif final["invalid_attempts"] > 0:
+        final["status"] = "PILOT_FAILED_DIAGNOSTIC_ONLY"
+    else:
+        final["status"] = "PILOT_COMPLETE_DIAGNOSTIC_ONLY"
     final["formal_calibration_pass"] = False
     atomic_write(args.output, final)
     print(json.dumps({"status": final["status"], "scenario": args.scenario, "records": len(final.get("attempt_records", [])), "invalid_attempts": final.get("invalid_attempts"), "elapsed_seconds": final["elapsed_seconds_total_for_this_invocation"], "output": str(args.output)}, indent=2))
-    return 0 if final["shard_complete"] else 1
+    
+    return (
+        0
+        if (
+            final["shard_complete"]
+            and final["invalid_attempts"] == 0
+        )
+        else 1
+    )
 
 
 if __name__ == "__main__":
