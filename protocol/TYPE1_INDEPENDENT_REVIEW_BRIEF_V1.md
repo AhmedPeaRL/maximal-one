@@ -1,13 +1,13 @@
 # Type-I Calibration Independent Statistical Review Brief V1
 
-**Repository:** `AhmedPeaRL/maximal-one`
-**Required branch:** `review/type1-v4-remediation`
-**Review status:** `NOT_STARTED_OR_NOT_DOCUMENTED`
-**Protocol status:** `DRAFT_PENDING_ATTRIBUTABLE_INDEPENDENT_STATISTICAL_REVIEW`
-**Freeze state:** `NOT_FROZEN`
-**Confirmatory execution authorized:** `false`
-**Claim support:** `false`
-**Promotion authority:** `false`
+- **Repository:** `AhmedPeaRL/maximal-one`
+- **Required branch:** `review/type1-v4-remediation`
+- **Review status:** `NOT_STARTED_OR_NOT_DOCUMENTED`
+- **Protocol status:** `DRAFT_PENDING_ATTRIBUTABLE_INDEPENDENT_STATISTICAL_REVIEW`
+- **Freeze state:** `NOT_FROZEN`
+- **Confirmatory execution authorized:** `false`
+- **Claim support:** `false`
+- **Promotion authority:** `false`
 
 ## 1. Purpose and limits
 
