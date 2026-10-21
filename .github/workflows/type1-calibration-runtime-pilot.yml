@@ -45,9 +45,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m compileall -q             analysis/type1_calibration_pilot.py             analysis/merge_type1_calibration_pilot_shards.py
-          python -m unittest             tests.test_type1_calibration_pilot -v
-
+          python -m compileall -q \
+            analysis/type1_calibration_pilot.py \
+            analysis/merge_type1_calibration_pilot_shards.py \
+            tests/test_type1_production_equivalence.py
+          python -m unittest tests.test_type1_calibration_pilot -v
+          python -m unittest tests.test_type1_production_equivalence -v
+          
       - name: Run exploratory runtime pilot
         shell: bash
         run: |
