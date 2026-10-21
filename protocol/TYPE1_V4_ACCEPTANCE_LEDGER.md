@@ -55,6 +55,51 @@ This is engineering and reproducibility evidence only.
 The pilot uses two outer repetitions and 200 surrogates per attempt.
 It is not formal Type-I calibration and does not establish the research claim.
 
+### E3 — Updated full-path engineering test, 2026-10-22
+
+**Status:** PASS FOR THE RECORDED TEST CONFIGURATION ONLY
+
+* Commit: `f8b7614cca394320c59501d5f09517ba57e5e44a`
+* Workflow run: `39672639916`
+* Job: `119474224176`
+* Test: `tests.test_type1_full_path_equivalence.Type1FullPathEquivalenceTests.test_real_runner_merger_reverse_merge_and_resume`
+* Artifact ID: `12380223302`
+* Artifact URL: `https://github.com/AhmedPeaRL/maximal-one/actions/runs/39672639916/artifacts/12380223302`
+* Artifact ZIP SHA-256: `88f7576c0cef5073f935ed5175ca23f78f6a98af2bbff1d6c7fb3534a9d1a11c`
+* Tested configuration: 2 outer replicate indices and 200 surrogates per attempt.
+
+The inspected job log reports that the real full-path equivalence test passed. The test covers a connected run, separate shards, normal-order merge, reverse-order merge, verified checkpoint resume, and rejection of a corrupted shard.
+
+**Scope limitation:** This establishes successful execution of the recorded engineering test only. It does not establish formal Type-I calibration, production-configuration equivalence at 1,000 surrogates, adequacy of the confirmatory null, or support for the broader research claim. The artifact ZIP digest is not a payload JSON hash.
+
+### E4 — Updated exploratory runtime pilot
+
+**Status:** PASS FOR THE RECORDED DIAGNOSTIC RUN ONLY
+
+* Commit: `413ea997cf8a57707109921880c6e53dbafd081b`
+* Workflow run: `39646209338`
+* Job: `119382352479`
+* Artifact ID: `12367063083`
+* Artifact URL: `https://github.com/AhmedPeaRL/maximal-one/actions/runs/39646209338/artifacts/12367063083`
+* Artifact ZIP SHA-256: `456c3427d1e0c9452717a5730d1ad4bc535d28e0cc3d273ef8cec5cc13d92522`
+* Tested configuration: one exploratory scenario, 2 outer repetitions, and 200 surrogates per attempt.
+
+The inspected job log reports eight pilot tests and two production-equivalence tests passing, followed by successful completion of the small exploratory runtime pilot.
+
+**Scope limitation:** This is diagnostic and engineering evidence, not formal Type-I calibration. It does not authorize the 1,000-surrogate production run or close the independent statistical review gate.
+
+### E3/E4 decision boundary
+
+These entries update the engineering evidence record only. The scientific acceptance criteria S1–S6 remain open according to their recorded status until the required evidence and review dispositions are supplied.
+
+The following states remain unchanged:
+
+* `freeze_state = NOT_FROZEN`
+* `confirmatory_execution_authorized = false`
+* `claim_support = false`
+* `promotion_authority = false`
+* Formal calibration: `NOT AUTHORIZED`
+
 ## 3. Scientific acceptance criteria
 
 ### S1 — Attributable independent statistical review
