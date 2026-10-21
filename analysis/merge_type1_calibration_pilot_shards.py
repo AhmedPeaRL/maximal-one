@@ -172,9 +172,13 @@ def merge_payloads(
         "artifact_kind":
             "MERGED_EXPLORATORY_PILOT_ONLY_NOT_FORMAL_CALIBRATION",
         "status": (
-            "PILOT_COMPLETE_DIAGNOSTIC_ONLY"
-            if complete
-            else "PILOT_INCOMPLETE_OR_DIAGNOSTIC_ONLY"
+            "PILOT_INCOMPLETE_OR_DIAGNOSTIC_ONLY"
+            if not complete
+            else (
+                "PILOT_FAILED_DIAGNOSTIC_ONLY"
+                if invalid_count > 0
+                else "PILOT_COMPLETE_DIAGNOSTIC_ONLY"
+            )
         ),
         "common_run_identity": expected_common,
         "total_repetitions_expected": total_repetitions,
