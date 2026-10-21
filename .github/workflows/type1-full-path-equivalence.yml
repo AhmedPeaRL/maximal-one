@@ -1,0 +1,77 @@
+name: Type-I Full-Path Equivalence (Engineering Only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  full-path-equivalence:
+    name: Real runner, merger, and checkpoint-resume paths
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+
+    steps:
+      - name: Require the remediation branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
+
+      - name: Checkout exact repository state
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify checkout identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual_head="$(git rev-parse HEAD)"
+          test "$actual_head" = "$GITHUB_SHA"
+          echo "Verified commit: $actual_head"
+          echo "This workflow is engineering evidence only."
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.15"
+          cache: pip
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install locked dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --require-hashes -r requirements-lock.txt
+
+      - name: Compile the actual runner, merger, and integration test
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m compileall -q \
+            analysis/type1_calibration_pilot.py \
+            analysis/merge_type1_calibration_pilot_shards.py \
+            analysis/appropriate_stochastic_null.py \
+            analysis/numerical_spectral_verification.py \
+            tests/test_type1_full_path_equivalence.py
+
+      - name: Run real full-path equivalence test
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/type1_full_path_equivalence
+          python -m unittest \
+            tests.test_type1_full_path_equivalence \
+            -v 2>&1 | tee artifacts/type1_full_path_equivalence/test.log
+
+      - name: Upload all full-path evidence, including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: type1-full-path-equivalence-evidence
+          path: artifacts/type1_full_path_equivalence/
+          if-no-files-found: warn
+          retention-days: 90
