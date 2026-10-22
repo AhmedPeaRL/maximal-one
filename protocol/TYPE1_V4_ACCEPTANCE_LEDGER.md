@@ -100,6 +100,34 @@ The following states remain unchanged:
 * `promotion_authority = false`
 * Formal calibration: `NOT AUTHORIZED`
 
+### E5 — Latest full-path engineering workflow, 2026-10-22
+
+**Status:** PASS FOR THE RECORDED ENGINEERING CONFIGURATION ONLY
+
+* Branch: `review/type1-v4-remediation`
+* Tested commit: `2ea541207c7c8be0046327399eac2f146d576ab7`
+* Workflow run: `39683638768`
+* Job: `119512096300`
+* Artifact ID: `12384249797`
+* Artifact name: `type1-full-path-equivalence-evidence`
+* Artifact ZIP SHA-256 reported by GitHub: `156e6ffa90b7b655f85f208c85e885db45a7f213789e25df30fb7e7fdf9cfd18`
+* Workflow result: `success`
+* Checkout identity: the job log records the tested HEAD as `2ea541207c7c8be0046327399eac2f146d576ab7`.
+
+The job completed the recorded real runner, merger, and checkpoint-resume test. This is engineering evidence for the tested configuration only.
+
+The artifact ZIP digest is not an individual payload-file digest. The artifact payload has not been independently inspected as part of this ledger entry.
+
+**Limitations:** This entry does not establish formal Type-I calibration, validate every V4 candidate parameter, resolve the V3/V4 matrix-to-runner discrepancy, close the independent statistical review gate, freeze the protocol, authorize confirmatory execution, or support the broader research claim.
+
+The following states remain unchanged:
+
+* `freeze_state = NOT_FROZEN`
+* `confirmatory_execution_authorized = false`
+* `claim_support = false`
+* `promotion_authority = false`
+* Formal calibration: `NOT AUTHORIZED`
+
 ## 3. Scientific acceptance criteria
 
 ### S1 — Attributable independent statistical review
