@@ -47,6 +47,21 @@ jobs:
           set -euo pipefail
           python -m pip install --require-hashes -r requirements-lock.txt
 
+      - name: Run V4 matrix gate tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest tests.test_type1_v4_matrix_gate -v
+
+      - name: Compile V4 runner and gate tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m compileall -q \
+            analysis/calibrate_null_type1.py \
+            analysis/calibrate_null_type1_scenario.py \
+            tests/test_type1_v4_matrix_gate.py
+          
       - name: Compile the actual runner, merger, and integration test
         shell: bash
         run: |
@@ -57,7 +72,7 @@ jobs:
             analysis/appropriate_stochastic_null.py \
             analysis/numerical_spectral_verification.py \
             tests/test_type1_full_path_equivalence.py
-
+            
       - name: Run real full-path equivalence test
         shell: bash
         run: |
