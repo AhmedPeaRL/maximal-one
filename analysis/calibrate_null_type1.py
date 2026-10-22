@@ -6,18 +6,41 @@ from pathlib import Path
 import numpy as np
 from statsmodels.tsa.arima_process import ArmaProcess
 
-MATRIX_PATH = Path("protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json")
+MATRIX_PATH = Path(
+    "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_CANDIDATE.json"
+)
 MATRIX = json.loads(MATRIX_PATH.read_text(encoding="utf-8"))
-PRIMARY = MATRIX["primary_design"]
-SCENARIO_ROWS = MATRIX["scenarios"]
+
+# Fail closed: a candidate matrix is not an approved execution protocol.
+V4_APPROVED = (
+    MATRIX.get("protocol") == "HCM_TYPE1_CALIBRATION_V4_CANDIDATE"
+    and MATRIX.get("status") == "APPROVED_FROZEN"
+    and MATRIX.get("freeze_state") == "FROZEN"
+    and MATRIX.get("confirmatory_execution_authorized") is True
+)
+
+# The current V4 candidate intentionally does not yet provide the
+# approved production schema expected by the legacy V3 runner.
+# Empty defaults prevent accidental V3 fallback while the gate is open.
+PRIMARY = MATRIX.get("primary_design", {})
+SCENARIO_ROWS = PRIMARY.get("scenarios", MATRIX.get("scenarios", []))
 SCENARIO_ORDER = [row["scenario_id"] for row in SCENARIO_ROWS]
 SCENARIOS = {row["scenario_id"]: row["phi"] for row in SCENARIO_ROWS}
-MASTER_SEED = int(PRIMARY["seed_schedule"]["master_seed"])
-NOMINAL_ALPHA = float(PRIMARY["nominal_alpha"])
-MAX_ACCEPTABLE_WILSON_UPPER = float(PRIMARY["one_sided_upper_bound_maximum"])
-REQUIRED_OUTER_REPETITIONS = int(PRIMARY["outer_repetitions_per_scenario"])
-REQUIRED_SURROGATES = int(PRIMARY["surrogates_requested_per_outer_replicate"])
-REQUIRED_SAMPLE_SIZE = int(PRIMARY["sample_size"])
+
+MASTER_SEED = int(
+    PRIMARY.get("seed_schedule", {}).get("master_seed", 0)
+)
+NOMINAL_ALPHA = float(PRIMARY.get("nominal_alpha", 0.05))
+MAX_ACCEPTABLE_WILSON_UPPER = float(
+    PRIMARY.get("one_sided_upper_bound_maximum", 0.0)
+)
+REQUIRED_OUTER_REPETITIONS = int(
+    PRIMARY.get("outer_repetitions_per_scenario", 0)
+)
+REQUIRED_SURROGATES = int(
+    PRIMARY.get("surrogates_requested_per_outer_replicate", 0)
+)
+REQUIRED_SAMPLE_SIZE = int(PRIMARY.get("sample_size", 0))
 MIN_CONFIRMATORY_REPETITIONS = REQUIRED_OUTER_REPETITIONS
 
 
