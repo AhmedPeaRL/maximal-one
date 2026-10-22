@@ -2,6 +2,9 @@ name: Type-I Full-Path Equivalence (Engineering Only)
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - review/type1-v4-remediation
 
 permissions:
   contents: read
