@@ -13,9 +13,19 @@ import numpy as np
 from analysis.appropriate_stochastic_null import parametric_short_memory_null
 from analysis.numerical_spectral_verification import estimate_alpha
 from analysis.calibrate_null_type1 import (
-    MATRIX, MASTER_SEED, NOMINAL_ALPHA, REQUIRED_OUTER_REPETITIONS,
-    REQUIRED_SAMPLE_SIZE, REQUIRED_SURROGATES, SCENARIO_ORDER, SCENARIOS,
-    generate_ar, replicate_rngs, wilson_interval, wilson_upper_one_sided,
+    MATRIX,
+    V4_APPROVED,
+    MASTER_SEED,
+    NOMINAL_ALPHA,
+    REQUIRED_OUTER_REPETITIONS,
+    REQUIRED_SAMPLE_SIZE,
+    REQUIRED_SURROGATES,
+    SCENARIO_ORDER,
+    SCENARIOS,
+    generate_ar,
+    replicate_rngs,
+    wilson_interval,
+    wilson_upper_one_sided,
 )
 
 ARTIFACT_DIR = Path("artifacts")
@@ -34,6 +44,11 @@ def sha256(path: Path) -> str:
 
 
 def main() -> int:
+    if not V4_APPROVED:
+        raise SystemExit(
+            "BLOCKED: V4 matrix is not approved, frozen, and separately "
+            "authorized. No formal calibration was started."
+        )
     parser = argparse.ArgumentParser(description="V3 candidate Type-I calibration; do not run until independently reviewed and frozen.")
     parser.add_argument("--scenario", required=True, choices=SCENARIO_ORDER)
     parser.add_argument("--repetitions", type=int, default=REQUIRED_OUTER_REPETITIONS)
