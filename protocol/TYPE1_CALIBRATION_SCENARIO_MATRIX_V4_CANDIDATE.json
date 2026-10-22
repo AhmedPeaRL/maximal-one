@@ -8,6 +8,77 @@
   "reviewed_base_commit": "a9808bd999a7ad902daf15606272529ca9af4580",
   "review_outcome": "REVISE_AND_RESUBMIT",
   "role": "Candidate governance and consistency record only; not an independently approved calibration matrix.",
+  
+  "scenarios": [
+    {
+      "scenario_id": "gaussian_ar1_phi_0_4_n3328",
+      "order": 1,
+      "phi": [0.4],
+      "role": "baseline_short_memory",
+      "peak_in_target_band": false
+    },
+    {
+      "scenario_id": "gaussian_ar2_phi_0_45_minus_0_10_n3328",
+      "order": 2,
+      "phi": [0.45, -0.1],
+      "role": "historical_baseline",
+      "peak_in_target_band": false
+    },
+    {
+      "scenario_id": "gaussian_ar5_low_order_coefficients_n3328",
+      "order": 5,
+      "phi": [0.2, 0.1, 0.05, 0.025, 0.0125],
+      "role": "medium_order_short_memory",
+      "peak_in_target_band": false
+    },
+    {
+      "scenario_id": "gaussian_ar10_low_order_coefficients_n3328",
+      "order": 10,
+      "phi": [0.15, 0.08, 0.05, 0.03, 0.02, 0.015, 0.01, 0.008, 0.006, 0.004],
+      "role": "high_order_short_memory",
+      "peak_in_target_band": false
+    },
+    {
+      "scenario_id": "gaussian_ar1_phi_0_7_n3328",
+      "order": 1,
+      "phi": [0.7],
+      "role": "moderate_persistence",
+      "peak_in_target_band": false
+    },
+    {
+      "scenario_id": "gaussian_ar1_phi_0_9_n3328",
+      "order": 1,
+      "phi": [0.9],
+      "role": "high_persistence",
+      "peak_in_target_band": false
+    },
+    {
+      "scenario_id": "gaussian_ar1_phi_0_97_n3328",
+      "order": 1,
+      "phi": [0.97],
+      "role": "near_stability_boundary",
+      "peak_in_target_band": false
+    },
+    {
+      "scenario_id": "gaussian_ar2_inband_f_0_02_radius_0_90_n3328",
+      "order": 2,
+      "phi": [1.78580646236606, -0.81],
+      "role": "in_band_resonance_f_0_02_radius_0_90",
+      "peak_in_target_band": true,
+      "target_peak_frequency_cycles_per_sample": 0.02,
+      "root_radius": 0.9
+    },
+    {
+      "scenario_id": "gaussian_ar2_inband_f_0_04_radius_0_97_n3328",
+      "order": 2,
+      "phi": [1.8790513325895442, -0.9409],
+      "role": "in_band_resonance_f_0_04_radius_0_97",
+      "peak_in_target_band": true,
+      "target_peak_frequency_cycles_per_sample": 0.04,
+      "root_radius": 0.97
+    }
+  ],
+  
   "design_source": {
     "path": "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_DRAFT.json",
     "status_required": "DRAFT_PENDING_ATTRIBUTABLE_INDEPENDENT_STATISTICAL_REVIEW",
