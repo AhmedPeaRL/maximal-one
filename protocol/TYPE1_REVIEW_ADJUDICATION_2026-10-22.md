@@ -202,3 +202,53 @@ Even after a valid freeze decision, formal calibration remains unauthorized unti
 * `next_action = RECONCILE_IMPLEMENTATION_AND_OBTAIN_ATTRIBUTABLE_VERSION_SPECIFIC_REVIEW`
 
 This decision preserves the engineering evidence without promoting it into a scientific conclusion. It does not reject the research hypothesis; it records what the current evidence does and does not establish.
+
+## Addendum — V4 Runner Remediation Status — 2026-10-22
+
+- **Working branch:** `review/type1-v4-remediation`
+- **Disposition:** `CONTINUE_REMEDIATION`
+- **Freeze state:** `NOT_FROZEN`
+- **Formal calibration:** `NOT_AUTHORIZED`
+- **Confirmatory execution:** `BLOCKED`
+- **Claim support:** `false`
+- **Promotion authority:** `false`
+
+### Current engineering status
+
+The primary candidate runner reads the V4 candidate matrix and
+keeps formal execution disabled. Candidate dimensions are treated
+as diagnostic configuration only. The acceptance rule remains
+unresolved; no historical Wilson upper-bound ceiling is approved.
+
+The scenario runner requires reconciliation with the V4 schema.
+All references to the legacy V3 matrix and legacy `primary_design`
+configuration must be removed from its runtime and artifact metadata.
+Seed identity must be based on the stable scenario identifier rather
+than scenario list position.
+
+The existing small-configuration full-path test is engineering
+evidence only. Production-path equivalence at M=1000 has not been
+established by this addendum.
+
+### Independent review status
+
+No attributable independent human statistical review is recorded
+as closed by this addendum. AI-assisted analysis and repository
+engineering checks are not treated as independent human approval.
+
+### Required next evidence
+
+1. Record the exact remediation commit SHA after the changes are
+   committed.
+2. Record SHA-256 hashes of the reviewed matrix, runner, null
+   implementation, endpoint implementation, tests, dependency lock,
+   and relevant workflow files.
+3. Run and preserve the V4 schema and fail-closed gate tests.
+4. Demonstrate connected, sharded, and resumed equivalence at
+   M=1000 through the actual shared execution path.
+5. Obtain an attributable independent human statistical review
+   against the exact commit and file hashes.
+6. Record any freeze decision separately from execution authorization.
+
+This addendum does not approve a parameter, acceptance threshold,
+formal calibration, scientific claim, or promotion.
