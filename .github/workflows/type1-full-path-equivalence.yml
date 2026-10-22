@@ -5,6 +5,19 @@ on:
   push:
     branches:
       - review/type1-v4-remediation
+    paths:
+      - '.github/workflows/type1-full-path-equivalence.yml'
+      - 'protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_CANDIDATE.json'
+      - 'protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_DRAFT.json'
+      - 'analysis/calibrate_null_type1.py'
+      - 'analysis/calibrate_null_type1_scenario.py'
+      - 'analysis/type1_calibration_pilot.py'
+      - 'analysis/merge_type1_calibration_pilot_shards.py'
+      - 'analysis/appropriate_stochastic_null.py'
+      - 'analysis/numerical_spectral_verification.py'
+      - 'tests/test_type1_v4_matrix_gate.py'
+      - 'tests/test_type1_full_path_equivalence.py'
+      - 'requirements-lock.txt'
 
 permissions:
   contents: read
