@@ -1,0 +1,40 @@
+{
+  "schema": "HCM_TYPE1_CALIBRATION_FREEZE_DECISION_V1",
+  "decision_status": "NOT_APPROVED",
+  "protocol": "HCM_TYPE1_CALIBRATION_V4_CANDIDATE",
+  "freeze_state": "NOT_FROZEN",
+  "repository": "AhmedPeaRL/maximal-one",
+  "working_branch": "review/type1-v4-remediation",
+  "reviewed_commit_sha": null,
+  "reviewer_identity": null,
+  "reviewer_independence_verified": false,
+  "review_date_utc": null,
+  "reviewed_file_sha256": null,
+  "parameter_dispositions": {
+    "sample_size_N": "UNRESOLVED",
+    "dgp_burn_in": "UNRESOLVED",
+    "outer_repetitions_R": "UNRESOLVED",
+    "surrogates_per_test_M": "UNRESOLVED",
+    "master_seed_and_seed_schedule": "UNRESOLVED",
+    "acceptance_rule": "UNRESOLVED",
+    "multiplicity_across_scenarios": "UNRESOLVED",
+    "invalid_attempt_and_restart_policy": "UNRESOLVED"
+  },
+  "production_equivalence_at_M1000": "NOT_ESTABLISHED",
+  "required_tests": {
+    "schema_and_gate_tests": "PENDING",
+    "connected_sharded_equivalence": "PENDING",
+    "interrupted_resume_equivalence": "PENDING",
+    "artifact_and_manifest_integrity": "PENDING"
+  },
+  "evidence_identifiers": [],
+  "limitations": [
+    "Candidate dimensions are not approved parameters.",
+    "The historical 0.075 Wilson upper-bound ceiling is not approved.",
+    "Engineering test success does not establish scientific calibration.",
+    "No formal calibration is authorized."
+  ],
+  "confirmatory_execution_authorized": false,
+  "claim_support": false,
+  "promotion_authority": false
+}
