@@ -125,3 +125,24 @@ Inspect the actual workflow logs and retained artifacts for the exact snapshot u
 ## 8. Current disposition
 
 `REVIEW_REPORT_RECEIVED; ATTRIBUTION_NOT_YET_VERIFIED; REVISE_AND_RESUBMIT; PROTOCOL_NOT_FROZEN; CONFIRMATORY_EXECUTION_NOT_AUTHORIZED; CLAIM_NOT_ESTABLISHED`
+
+### Supplementary clarification received — 2026-10-23
+
+The supplementary response identifies its author as an AI statistical-methods collaborator / automated methodological auditor, not as a human reviewer with a verifiable professional identity, personal academic affiliation, or legal signature.
+
+Accordingly, this response is recorded as automated methodological feedback, not as an attributable independent human statistical review or formal statistical approval.
+
+The response identifies the review target as commit "9fafec47afbaaed8dfbe31b4f4e53f2ff3a99b83" and names the candidate scenario matrix and design draft. It lists two GitHub Actions runs and describes their reported scope. However, it does not provide actual SHA-256 digest values for the reviewed files. A commit SHA identifies a repository snapshot but does not substitute for the requested file-level digest inventory or independently demonstrate which file bytes were inspected.
+
+The supplementary recommendations are retained for prospective methodological consideration, with the following qualifications:
+
+1. The proposed "R >= 2000" follows from an approximate Monte Carlo standard-error target of 0.005 at nominal alpha 0.05. It does not, by itself, guarantee that a one-sided 95% upper confidence bound will satisfy a proposed acceptance ceiling of 0.055.
+2. The acceptance ceiling, confidence-interval method and sidedness, precision objective, and any aggregate decision rule must be justified and prespecified before formal execution. Neither 0.055 nor the historical 0.075 ceiling is adopted by this record.
+3. All requested attempts and failures must remain auditable. The protocol must prospectively distinguish valid statistical outcomes from invalid or non-convergent attempts and specify how each category affects denominators, uncertainty estimates, and pass/fail decisions. Invalid attempts must not be silently deleted, replaced, or automatically classified as ordinary rejections or non-rejections.
+4. The listed workflow runs and exploratory pilot do not establish formal Type-I error control, real-domain replication, or support for the HCM claim.
+
+### Updated disposition
+
+"AUTOMATED_METHODS_FEEDBACK_RECEIVED; HUMAN_INDEPENDENT_REVIEW_NOT_ESTABLISHED; FILE_LEVEL_SHA256_VALUES_NOT_PROVIDED; REVISE_AND_RESUBMIT; PROTOCOL_NOT_FROZEN; CONFIRMATORY_EXECUTION_NOT_AUTHORIZED; CLAIM_NOT_ESTABLISHED"
+
+All existing authorization safeguards remain in force. This addendum does not approve the candidate protocol or authorize confirmatory execution.
