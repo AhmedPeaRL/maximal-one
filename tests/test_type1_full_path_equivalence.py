@@ -16,7 +16,10 @@ ROOT = Path(__file__).resolve().parents[1]
 
 SCENARIO = "gaussian_ar2_inband_f_0_02_radius_0_90_n3328"
 MASTER_SEED = 20261021
-TOTAL = 2
+
+# Six-index engineering pilot only.
+# This is NOT formal Type-I calibration.
+TOTAL = 6
 SURROGATES = 200
 
 ARTIFACT_ROOT = ROOT / "artifacts" / "type1_full_path_equivalence"
@@ -231,24 +234,47 @@ class Type1FullPathEquivalenceTests(unittest.TestCase):
         )
         self.assert_all_attempts_valid(connected)
 
-        # 2. Execute separate shards through the real CLI runner.
+        # 2. Execute three disjoint shards through the real CLI runner.
         shard0_path = self.run_dir / "shard_0.json"
         shard1_path = self.run_dir / "shard_1.json"
+        shard2_path = self.run_dir / "shard_2.json"
 
-        shard0 = self.run_pilot("runner_shard_0", 0, 1, shard0_path)
-        shard1 = self.run_pilot("runner_shard_1", 1, 2, shard1_path)
+        shard0 = self.run_pilot(
+            "runner_shard_0", 0, 2, shard0_path
+        )
+        shard1 = self.run_pilot(
+            "runner_shard_1", 2, 4, shard1_path
+        )
+        shard2 = self.run_pilot(
+            "runner_shard_2", 4, 6, shard2_path
+        )
 
-        self.assertEqual(len(canonical_records(shard0)), 1)
-        self.assertEqual(len(canonical_records(shard1)), 1)
+        self.assertEqual(
+            [row["replicate_index"] for row in canonical_records(shard0)],
+            [0, 1],
+        )
+        self.assertEqual(
+            [row["replicate_index"] for row in canonical_records(shard1)],
+            [2, 3],
+        )
+        self.assertEqual(
+            [row["replicate_index"] for row in canonical_records(shard2)],
+            [4, 5],
+        )
 
-        # 3. Merge the real shard artifacts in normal order.
+        shard_paths = [shard0_path, shard1_path, shard2_path]
+
+        # 3. Merge all three verified shards in normal order.
         merged_path = self.run_dir / "merged_normal.json"
         merged = self.run_merge(
             "merge_normal_order",
             merged_path,
-            [shard0_path, shard1_path],
+            shard_paths,
         )
-        self.assertEqual(merged["status"], "PILOT_COMPLETE_DIAGNOSTIC_ONLY")
+
+        self.assertEqual(
+            merged["status"], "PILOT_COMPLETE_DIAGNOSTIC_ONLY"
+        )
         self.assertEqual(merged["missing_indices"], [])
         self.assertEqual(merged["invalid_attempts"], 0)
         self.assertEqual(
@@ -256,14 +282,17 @@ class Type1FullPathEquivalenceTests(unittest.TestCase):
             canonical_records(merged),
         )
 
-        # 4. Merge the same verified shard artifacts in reverse order.
+        # 4. Merge the same verified shards in reverse order.
         reverse_path = self.run_dir / "merged_reverse.json"
         reverse = self.run_merge(
             "merge_reverse_order",
             reverse_path,
-            [shard1_path, shard0_path],
+            list(reversed(shard_paths)),
         )
-        self.assertEqual(reverse["status"], "PILOT_COMPLETE_DIAGNOSTIC_ONLY")
+
+        self.assertEqual(
+            reverse["status"], "PILOT_COMPLETE_DIAGNOSTIC_ONLY"
+        )
         self.assertEqual(
             canonical_merge(merged),
             canonical_merge(reverse),
@@ -311,11 +340,16 @@ class Type1FullPathEquivalenceTests(unittest.TestCase):
             canonical_records(resumed),
         )
 
-        # 7. Corrupt a shard's bytes and verify the real merger rejects it.
+        # 7. Corrupt one shard and verify SHA-256 rejection.
         original_bytes = shard0_path.read_bytes()
+
         try:
-            shard0_path.write_bytes(original_bytes + b"\nCORRUPTED\n")
+            shard0_path.write_bytes(
+                original_bytes + b"\nCORRUPTED\n"
+            )
+
             corrupt_output = self.run_dir / "corrupt_merge.json"
+
             args = [
                 sys.executable,
                 "-m",
@@ -324,12 +358,14 @@ class Type1FullPathEquivalenceTests(unittest.TestCase):
                 str(TOTAL),
                 "--output",
                 str(corrupt_output),
-                str(shard0_path),
-                str(shard1_path),
+                *[str(path) for path in shard_paths],
             ]
+
             result = self.run_command("merge_corrupted_shard", args)
+
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("SHA-256 mismatch", result.stdout)
+
         finally:
             shard0_path.write_bytes(original_bytes)
 
@@ -352,8 +388,7 @@ class Type1FullPathEquivalenceTests(unittest.TestCase):
             path.name: sha256_file(path)
             for path in [
                 connected_path,
-                shard0_path,
-                shard1_path,
+                *shard_paths,
                 merged_path,
                 reverse_path,
                 checkpoint_path,
