@@ -93,3 +93,48 @@ Until the acceptance rule and invalid-attempt policy have been resolved prospect
 6. Current disposition
 
 "ACCEPTANCE_RULE_UNRESOLVED; PROSPECTIVE_STATISTICAL_DECISION_REQUESTED; PROTOCOL_NOT_FROZEN; CONFIRMATORY_EXECUTION_NOT_AUTHORIZED; CLAIM_NOT_ESTABLISHED"
+
+### Supplementary prospective operating-characteristic analysis — V4
+
+## Status: ILLUSTRATIVE AUDIT ONLY — NO ACCEPTANCE RULE APPROVED
+
+## Purpose
+
+This section records a prospective operating-characteristic calculation to inform independent statistical review. It does not select an acceptance threshold, freeze the protocol, authorize confirmatory execution, or support the HCM claim.
+
+## Illustrative calculation
+
+For illustration only, consider a one-sided 95% Wilson upper confidence bound, 2,000 requested outer repetitions, and a true rejection probability of 0.05. Under an independent Bernoulli model, the approximate probability that one scenario satisfies the upper-bound criterion is:
+
+Candidate upper limit| Maximum accepted rejection count| Pass probability when true p = 0.05
+0.050| 83| 0.0423
+0.055| 93| 0.2552
+0.060| 102| 0.6067
+0.075| 130| 0.9987
+
+These values are illustrative calculations for the stated Wilson rule. They do not approve any listed limit. They do not establish operating characteristics for the final protocol until the confidence-bound method, acceptance objective, scenario-level rule, and repetition count have been prospectively selected and independently reviewed.
+
+## Decisions still required
+
+The independent reviewer must recommend and justify:
+
+1. The estimand and operational rejection rule for each declared scenario.
+2. The maximum tolerable Type-I error probability, including the scientific rationale for any tolerance above the nominal level of 0.05.
+3. The confidence-bound method and confidence level.
+4. The desired probability of accepting a suitably calibrated procedure and the probability of accepting a procedure whose rejection probability exceeds the chosen tolerance.
+5. The outer repetition count required to achieve those operating characteristics, with computational feasibility documented.
+6. The aggregate decision across the nine scenarios, including whether the intended conclusion is an intersection-union decision or requires simultaneous confidence coverage.
+7. The treatment of invalid attempts, failed fits, and surrogate shortfalls, preserving all requested attempts and the requested denominator.
+
+## Safeguards
+
+- The historical 0.075 ceiling remains NOT_JUSTIFIED_OR_APPROVED.
+- No listed illustrative threshold is adopted by this section.
+- No threshold may be changed after formal calibration outcomes are observed.
+- The V4 candidate remains NOT_FROZEN.
+- Confirmatory execution remains NOT_AUTHORIZED.
+- Claim support remains false and promotion authority remains false.
+
+## Disposition:
+
+PROSPECTIVE_OPERATING_CHARACTERISTICS_ILLUSTRATED; ACCEPTANCE_RULE_UNRESOLVED; INDEPENDENT_STATISTICAL_DECISION_REQUIRED.
