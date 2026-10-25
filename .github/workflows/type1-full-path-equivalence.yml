@@ -88,6 +88,14 @@ jobs:
             analysis/appropriate_stochastic_null.py \
             analysis/numerical_spectral_verification.py \
             tests/test_type1_full_path_equivalence.py
+
+      - name: Run pilot merge rejection tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest \
+            tests.test_type1_pilot_merge_rejections \
+            -v
             
       - name: Run real full-path equivalence test
         shell: bash
