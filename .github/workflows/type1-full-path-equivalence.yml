@@ -16,6 +16,7 @@ on:
       - 'analysis/appropriate_stochastic_null.py'
       - 'analysis/numerical_spectral_verification.py'
       - 'tests/test_type1_v4_matrix_gate.py'
+      - 'tests/test_type1_pilot_manifest_rejections.py'
       - 'tests/test_type1_full_path_equivalence.py'
       - 'requirements-lock.txt'
 
@@ -95,6 +96,14 @@ jobs:
           set -euo pipefail
           python -m unittest \
             tests.test_type1_pilot_merge_rejections \
+            -v
+
+      - name: Run pilot manifest rejection tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest \
+            tests.test_type1_pilot_manifest_rejections \
             -v
             
       - name: Run real full-path equivalence test
