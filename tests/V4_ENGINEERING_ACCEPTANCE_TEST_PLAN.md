@@ -20,9 +20,9 @@ Use a tiny synthetic fixture with replicate indices 0 through 5.
 - [ ] Resumed and uninterrupted execution produce identical scientific outputs per index.
 - [ ] Seed identities are independent of shard order and worker assignment.
 - [ ] Resume rejects mismatched commit, matrix hash, runner hash, scenario, seed schedule, or range.
-- [ ] Merge rejects duplicate indices and overlapping ranges.
-- [ ] Merge identifies missing indices and cannot report completion.
-- [ ] Merge independently verifies each shard artifact SHA-256 against its manifest.
+- [x] Merge rejects duplicate indices and overlapping ranges.
+- [x] Merge identifies missing indices and cannot report completion.
+- [x] Merge independently verifies each shard artifact SHA-256 against its manifest.
 - [ ] Invalid attempts remain in the ledger and force scenario failure.
 - [ ] The rejection-rate denominator is the requested repetition count N.
 - [ ] A pilot always declares formal_calibration_pass=false.
@@ -158,8 +158,8 @@ execution authorization, or support for the scientific claim.
 
 ### Remaining engineering blockers
 
-- [ ] Manifest/run-identity mismatch rejection test.
-- [ ] Artifact SHA-256 mismatch rejection test.
+- [x] Manifest/run-identity mismatch rejection test.
+- [x] Artifact SHA-256 mismatch rejection test.
 - [ ] Production runner supports and validates deterministic shard ranges.
 - [ ] Production runner preserves a manifest bound to the exact run identity.
 - [ ] Production checkpoint resume verifies commit, matrix, runner,
