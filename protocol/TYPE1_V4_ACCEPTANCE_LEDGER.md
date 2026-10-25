@@ -128,6 +128,67 @@ The following states remain unchanged:
 * `promotion_authority = false`
 * Formal calibration: `NOT AUTHORIZED`
 
+
+### E6 — Manifest rejection and full-path workflow evidence — 2026-10-25
+
+**Status:** PASS FOR THE EXACT RECORDED ENGINEERING TESTS ONLY
+
+- Branch: `review/type1-v4-remediation`
+- Commit: `f9406420d1ff2416ec76b4ad90a893e629f33555`
+- Workflow run: `40150487193`
+- Job: `121040837616`
+- Workflow result: `success`
+- Artifact ID: `12582489398`
+- Artifact name: `type1-full-path-equivalence-evidence`
+- Artifact ZIP SHA-256:
+  `962af7439aa08223c41d924aa4177b374b8ca82bcba1871f3e8dba96a45da9ac`
+
+### Rejection tests
+
+The workflow reports:
+
+- `tests.test_type1_pilot_merge_rejections`: 6 tests passed.
+- `tests.test_type1_pilot_manifest_rejections`: 2 tests passed.
+
+The manifest tests reject a manifest/run-identity mismatch and a
+shard artifact whose bytes no longer match its recorded SHA-256.
+
+### Full-path pilot test
+
+- Test: `tests.test_type1_full_path_equivalence`
+- Result: 1 test passed
+- Recorded duration: 296.152 seconds
+- Outer replicate indices: 0 through 5
+- Surrogates per attempt: 200
+
+The integration test exercises the real exploratory pilot runner,
+shard execution, merge, reverse-order merge, and checkpoint resume.
+
+### Scope and limitations
+
+This is engineering evidence for the exact recorded test configuration.
+The six outer replicates and 200-surrogate setting do not establish
+production equivalence at 1,000 surrogates or formal Type-I calibration.
+
+The production runner has not yet been shown to provide the complete
+shard, verified-resume, manifest, and merge contract required by this
+acceptance plan.
+
+The artifact ZIP digest identifies the uploaded archive; it is not a
+claim that every payload file has been independently inspected.
+
+The following states remain unchanged:
+
+- `freeze_state = NOT_FROZEN`
+- `confirmatory_execution_authorized = false`
+- `claim_support = false`
+- `promotion_authority = false`
+- Formal calibration: `NOT AUTHORIZED`
+
+E6 closes only the two pilot manifest rejection-test items and records
+the latest pilot full-path run. It does not close the production-path
+or scientific acceptance gates.
+
 ## 3. Scientific acceptance criteria
 
 ### S1 — Attributable independent statistical review
