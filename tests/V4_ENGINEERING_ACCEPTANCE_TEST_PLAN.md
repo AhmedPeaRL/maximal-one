@@ -1,6 +1,6 @@
 # Engineering Test Acceptance Record — V4 Candidate
 
-Status: NOT RUN
+Status: PARTIALLY RUN — NOT COMPLETE
 
 ## Test fixture
 
@@ -60,7 +60,6 @@ Only explicitly declared volatile metadata, such as elapsed duration and timesta
 
 Passing this engineering plan is not a Type-I calibration pass.
 
-
 ## Evidence reconciliation — 2026-10-25
 
 ### Pilot full-path evidence
@@ -112,6 +111,71 @@ The pilot test may be marked PASS for its recorded configuration.
 The complete V4 engineering plan remains NOT COMPLETE until the applicable
 remaining tests have run and their artifacts have been inspected.
 
+The protocol remains NOT_FROZEN.
+Confirmatory execution remains NOT_AUTHORIZED.
+Claim support remains NOT_ESTABLISHED.
+Promotion authority remains false.
+
+
+## Evidence reconciliation — 2026-10-25 — latest run
+
+### Pilot merge rejection tests
+
+Status: PASS FOR THE TESTED CASES ONLY
+
+- Commit: 5563000b7911502ec9d69251e85ac1bad1b86af6
+- Workflow run: 40148534671
+- Job: 121034983759
+- Test module: tests.test_type1_pilot_merge_rejections
+- Result: 6 tests passed
+
+Verified rejection/incompleteness cases:
+- Duplicate replicate index inside one shard.
+- Duplicate replicate index across shards.
+- Overlapping declared shard ranges.
+- Missing indices cannot report completion.
+- Common run-identity mismatch across shards.
+- Invalid attempt prevents a pilot completion pass.
+
+### Pilot full-path integration test
+
+Status: PASS FOR THE RECORDED ENGINEERING CONFIGURATION ONLY
+
+- Commit: 5563000b7911502ec9d69251e85ac1bad1b86af6
+- Workflow run: 40148534671
+- Job: 121034983759
+- Test: tests.test_type1_full_path_equivalence
+- Result: 1 test passed
+- Recorded test duration: 302.261 seconds
+- Artifact ID: 12582046447
+- Artifact ZIP SHA-256:
+  dd323d70fb70d4822a8920f90a670f42fa0601589ee045020d7f5e0d05e3c9e1
+
+This run provides engineering evidence for the exact tested paths and
+configuration. It does not establish formal Type-I calibration,
+production equivalence at B=1000, protocol freeze, confirmatory
+execution authorization, or support for the scientific claim.
+
+### Remaining engineering blockers
+
+- [ ] Manifest/run-identity mismatch rejection test.
+- [ ] Artifact SHA-256 mismatch rejection test.
+- [ ] Production runner supports and validates deterministic shard ranges.
+- [ ] Production runner preserves a manifest bound to the exact run identity.
+- [ ] Production checkpoint resume verifies commit, matrix, runner,
+      scenario, seed schedule, configuration, and requested range.
+- [ ] Production-equivalence test is separate from the pilot test.
+- [ ] Production-equivalence test exercises B=1000 with a small
+      engineering fixture and compares scientific output per replicate.
+- [ ] Runtime measurement at B=1000 is retained and reviewed.
+- [ ] V3 workflow and acceptance references are explicitly superseded
+      or safely disabled; no V3 rule is treated as the V4 decision.
+- [ ] The acceptance ledger records the latest run and exact scope.
+- [ ] Attributable independent human statistical review is completed.
+
+### Authority boundary
+
+The engineering plan remains NOT COMPLETE.
 The protocol remains NOT_FROZEN.
 Confirmatory execution remains NOT_AUTHORIZED.
 Claim support remains NOT_ESTABLISHED.
