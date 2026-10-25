@@ -59,3 +59,60 @@ Only explicitly declared volatile metadata, such as elapsed duration and timesta
 - NOT_RUN
 
 Passing this engineering plan is not a Type-I calibration pass.
+
+
+## Evidence reconciliation — 2026-10-25
+
+### Pilot full-path evidence
+
+Status: PASS FOR THE EXACT RECORDED PILOT CONFIGURATION ONLY
+
+- Commit: f84a4990caee2bd6341151f92abdf37c8e1b63c2
+- Workflow run: 40144016182
+- Job: 121021438641
+- Test: tests.test_type1_full_path_equivalence
+- Outer indices: 0 through 5
+- Surrogates per attempt: 200
+- Observed test duration: 152.783 seconds
+- Workflow result: success
+- Artifact ID: 12579803125
+- Artifact ZIP SHA-256:
+  4b3e9a308e36ba57041117955b4e82a37a88966d84f233a69c09faca2567902c
+
+The workflow log reports that the six-index connected/sharded/reverse-merge/
+checkpoint-resume pilot test passed.
+
+This evidence does not establish production-runner equivalence, formal
+Type-I calibration, acceptance-rule approval, protocol freeze, confirmatory
+execution authorization, or support for the scientific claim.
+
+### Remaining engineering blockers
+
+- [ ] Pilot rejection tests for duplicate indices, overlapping ranges,
+      missing indices, common-identity mismatch, and invalid attempts.
+- [ ] Manifest/run-identity mismatch rejection test.
+- [ ] Production runner supports and validates deterministic shard ranges.
+- [ ] Production runner preserves a manifest bound to the exact run identity.
+- [ ] Production checkpoint resume verifies commit, matrix, runner,
+      scenario, seed schedule, configuration, and requested range.
+- [ ] Production merger verifies shard hashes and rejects duplicate,
+      overlapping, missing, and mismatched inputs.
+- [ ] Production-equivalence test is separate from the pilot test.
+- [ ] Production-equivalence test exercises B=1000 with a small engineering
+      fixture and compares scientific output per replicate.
+- [ ] Runtime measurement at B=1000 is retained and reviewed.
+- [ ] V3 workflow and acceptance references are explicitly superseded or
+      safely disabled; no V3 rule is treated as the V4 decision.
+- [ ] The acceptance ledger records run 40144016182 and its exact scope.
+- [ ] Attributable independent human statistical review is completed.
+
+### Status policy
+
+The pilot test may be marked PASS for its recorded configuration.
+The complete V4 engineering plan remains NOT COMPLETE until the applicable
+remaining tests have run and their artifacts have been inspected.
+
+The protocol remains NOT_FROZEN.
+Confirmatory execution remains NOT_AUTHORIZED.
+Claim support remains NOT_ESTABLISHED.
+Promotion authority remains false.
