@@ -18,7 +18,8 @@ Use a tiny synthetic fixture with replicate indices 0 through 5.
 - [x] Every requested index has exactly one attempt record.
 - [x] Connected and sharded execution produce identical scientific outputs per index.
 - [x] Resumed and uninterrupted execution produce identical scientific outputs per index.
-- [x] Seed identities are independent of shard order and worker assignment.
+- [x] Canonical per-replicate records match across the specifically tested connected, sharded, reverse-merge, and resumed paths.
+- [ ] Seed identity and scientific outputs remain invariant under alternative worker assignments and alternative valid shard partitions.
 - [ ] Resume rejects mismatched commit, matrix hash, runner hash, scenario, seed schedule, or range.
 - [x] Merge rejects duplicate indices and overlapping ranges.
 - [x] Merge identifies missing indices and cannot report completion.
@@ -234,3 +235,32 @@ records exist, the item remains unchecked.
 
 Passing engineering tests does not constitute Type-I calibration,
 protocol approval, independent replication, or HCM claim support.
+
+## Resume identity follow-up — evidence reconciliation — 2026-10-26
+
+Evidence observed
+
+- Commit: "a4b8698517c742a8bc5d579418d05c833462c87e"
+- Workflow run: "40378112715"
+- Job: "121766644902"
+- Result: "success"
+- Standalone test module: "tests/test_type1_resume_identity_rejections.py"
+
+The standalone module tests exact identity acceptance, rejection of multiple identity mismatches, and rejection of corrupted artifact bytes.
+
+Scope restriction
+
+These tests call the artifact identity-verification helper using synthetic fixtures. They do not exercise the complete production CLI resume path for every mismatch.
+
+Keep these items open
+
+- [ ] Actual CLI resume rejects changed commit, matrix hash, runner hash, scenario, seed schedule, configuration, dependency-lock identity, endpoint/null identity, and requested range.
+- [ ] Rejected CLI resume leaves the existing checkpoint byte-for-byte unchanged.
+- [ ] Alternative valid shard partitions and worker assignments preserve canonical scientific outputs.
+- [ ] Every requested replicate has exactly one preserved attempt record after interruption and resume.
+- [ ] The requested repetition denominator N is preserved under the prospectively reviewed invalid-attempt policy.
+- [ ] Bounded engineering output cannot authorize formal calibration, claim support, or promotion.
+
+Governance status
+
+The engineering tests do not resolve the scientific acceptance-rule conflict. V4 remains "NOT_FROZEN"; confirmatory execution remains "NOT_AUTHORIZED"; "claim_support" and "promotion_authority" remain false.
