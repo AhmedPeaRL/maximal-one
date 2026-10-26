@@ -16,6 +16,7 @@ on:
       - 'requirements-lock.txt'
       - '.github/workflows/type1-v4-engineering-equivalence.yml'
       - 'tests/test_type1_resume_identity_rejections.py'
+      - 'tests/test_type1_cli_resume_identity_rejections.py'
 
 permissions:
   contents: read
@@ -78,6 +79,14 @@ jobs:
         run: |
           set -euo pipefail
           python -m unittest discover -s tests -p 'test_type1_resume_identity_rejections.py' -v
+
+      - name: Test actual CLI resume identity rejection
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest \
+            tests.test_type1_cli_resume_identity_rejections \
+            -v
           
       - name: Test official-runner connected/sharded/merged/resumed equivalence
         shell: bash
