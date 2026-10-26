@@ -1,0 +1,89 @@
+name: Type-I V4 Official Runner Engineering Equivalence
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - review/type1-v4-remediation
+    paths:
+      - 'analysis/calibrate_null_type1_scenario.py'
+      - 'analysis/type1_execution_artifacts.py'
+      - 'analysis/merge_type1_execution_shards.py'
+      - 'tests/test_type1_execution_artifacts.py'
+      - 'tests/test_type1_full_path_equivalence.py'
+      - 'tests/test_type1_execution_merge_rejections.py'
+      - 'protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_CANDIDATE.json'
+      - 'requirements-lock.txt'
+      - '.github/workflows/type1-v4-engineering-equivalence.yml'
+
+permissions:
+  contents: read
+
+env:
+  PYTHONHASHSEED: '42'
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  NUMEXPR_NUM_THREADS: '1'
+
+jobs:
+  engineering-equivalence:
+    name: Official runner / 1000-surrogate engineering equivalence
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify checkout identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$GITHUB_SHA"
+          printf 'commit_sha=%s\n' "$actual"
+          printf 'workflow_ref=%s\n' "$GITHUB_REF"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.15'
+          cache: pip
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install locked dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --require-hashes -r requirements-lock.txt
+
+      - name: Test artifact integrity primitives
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests -p 'test_type1_execution_artifacts.py' -v
+
+      - name: Test merger integrity and rejection cases
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests -p 'test_type1_execution_merge_rejections.py' -v
+
+      - name: Test official-runner connected/sharded/merged/resumed equivalence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests -p 'test_type1_full_path_equivalence.py' -v
+
+      - name: Upload engineering evidence even when tests fail
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: type1-v4-official-runner-engineering-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            artifacts/type1_official_runner_equivalence/**
+          if-no-files-found: warn
+          retention-days: 90
