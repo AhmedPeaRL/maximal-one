@@ -15,6 +15,7 @@ on:
       - 'protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_CANDIDATE.json'
       - 'requirements-lock.txt'
       - '.github/workflows/type1-v4-engineering-equivalence.yml'
+      - 'tests/test_type1_resume_identity_rejections.py'
 
 permissions:
   contents: read
@@ -72,6 +73,12 @@ jobs:
           set -euo pipefail
           python -m unittest discover -s tests -p 'test_type1_execution_merge_rejections.py' -v
 
+      - name: Test resume identity and artifact rejection
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests -p 'test_type1_resume_identity_rejections.py' -v
+          
       - name: Test official-runner connected/sharded/merged/resumed equivalence
         shell: bash
         run: |
