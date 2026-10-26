@@ -89,3 +89,38 @@ Never replace missing evidence with an inference from a successful workflow stat
 Never mark a test as passed unless the test was actually executed and its result was inspected.
 
 Never describe exploratory pilot results as formal Type-I calibration results.
+
+## 8. New evidence entry — 2026-10-26 official-runner engineering equivalence
+
+Observed run
+
+- Repository: "AhmedPeaRL/maximal-one"
+- Branch: "review/type1-v4-remediation"
+- Tested commit: "38694ecdc4bc44a48b86ab8a54221a5d67d6a89c"
+- Workflow: "Type-I V4 Official Runner Engineering Equivalence"
+- Workflow run: "40352081420"
+- Job: "121674545367"
+- Result: "success"
+- Artifact ID: "12663848472"
+- Artifact name: "type1-v4-official-runner-engineering-40352081420-1"
+- Artifact size reported by GitHub: 20,217 bytes
+- Full-path integration-test duration: 868.804 seconds
+
+Results visible in the job log
+
+- Artifact-integrity tests: 8 passed.
+- Execution-shard merge rejection tests: 6 passed.
+- Official-runner engineering-equivalence integration test: 1 passed.
+- Test configuration: scenario "gaussian_ar2_phi_0_45_minus_0_10_n3328"; six replicate indices; n=3328; master seed 20261021; 1000 requested surrogates per replicate.
+- Tested paths: connected execution, two disjoint shards, normal and reverse-order merges, interrupted checkpoint, and resume.
+- The bounded "--engineering-test" mode kept "formal_calibration_pass" false.
+
+Evidence classification
+
+Established for this exact run: checkout identity verification, locked dependency installation, successful completion of the listed tests, and matching canonical records across the tested execution paths.
+
+Not established: formal Type-I calibration; approval or freeze of the V4 matrix; independent statistical review; confirmatory execution authorization; independent empirical replication; broader HCM claim support; independent inspection of every file in the artifact ZIP. No ZIP digest is asserted here.
+
+Status: "ENGINEERING_EQUIVALENCE_PASS_FOR_RECORDED_CONFIGURATION_ONLY"
+
+Formal calibration remains "NOT AUTHORIZED". V4 remains "NOT_FROZEN"; "confirmatory_execution_authorized", "claim_support", and "promotion_authority" remain false.
