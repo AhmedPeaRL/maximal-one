@@ -243,6 +243,29 @@ The following states remain unchanged:
 
 E7 closes only the engineering-test items explicitly covered by the recorded tests. Independent statistical review and scientific acceptance gates remain open.
 
+### E8 — Resume identity rejection tests and engineering workflow verification — 2026-10-26
+
+Status: PASS FOR THE RECORDED ENGINEERING TESTS ONLY
+
+- Branch: "review/type1-v4-remediation"
+- Tested commit: "a4b8698517c742a8bc5d579418d05c833462c87e"
+- Official-runner workflow run: "40378112715"
+- Job: "121766644902"
+- Result: "success"
+- Engineering artifact ID: "12678142523"
+- Full-path workflow run: "40378112711"
+- Full-path job: "121766644597"
+- Full-path result: "success"
+- Full-path artifact ID: "12678977860"
+
+The workflow successfully ran the standalone resume identity/artifact rejection tests and the official-runner engineering-equivalence test. The standalone tests use synthetic fixtures and validate the identity-verification helper; they do not by themselves prove that every production CLI resume mismatch is rejected or that every rejected resume preserves an existing checkpoint unchanged.
+
+E8 supplements E7; it does not replace the historical record of earlier failures. Only the exact tests and configurations observed in these runs are considered passed.
+
+This entry does not establish Type-I calibration, approve an acceptance threshold, freeze the V4 protocol, authorize confirmatory execution, establish independent replication, or support the broader HCM claim.
+
+Keep "freeze_state = NOT_FROZEN", "confirmatory_execution_authorized = false", "claim_support = false", and "promotion_authority = false". Formal calibration remains "NOT AUTHORIZED".
+
 ## 3. Scientific acceptance criteria
 
 ### S1 — Attributable independent statistical review
