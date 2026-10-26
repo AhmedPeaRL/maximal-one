@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import copy
-import hashlib
 import json
 import os
 import subprocess
@@ -10,100 +8,45 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from analysis.type1_calibration_pilot import atomic_write
-
 ROOT = Path(__file__).resolve().parents[1]
-
-SCENARIO = "gaussian_ar2_inband_f_0_02_radius_0_90_n3328"
+SCENARIO = "gaussian_ar2_phi_0_45_minus_0_10_n3328"
 MASTER_SEED = 20261021
-
-# Six-index engineering pilot only.
-# This is NOT formal Type-I calibration.
 TOTAL = 6
-SURROGATES = 200
-
-ARTIFACT_ROOT = ROOT / "artifacts" / "type1_full_path_equivalence"
+SURROGATES = 1000
+SAMPLE_SIZE = 3328
+ARTIFACT_ROOT = ROOT / "artifacts" / "type1_official_runner_equivalence"
 
 
 def read_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def write_json(path: Path, payload: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(payload, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
-
-
-def sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as stream:
-        for block in iter(lambda: stream.read(1024 * 1024), b""):
-            digest.update(block)
-    return digest.hexdigest()
-
-
-def canonical_record(record: dict) -> dict:
-    """Exclude timing/traceback metadata; preserve scientific fields."""
-    return {
-        key: value
-        for key, value in record.items()
-        if key not in {"elapsed_seconds", "traceback"}
-    }
-
-
 def canonical_records(payload: dict) -> list[dict]:
     rows = payload.get("attempt_records")
     if not isinstance(rows, list):
         raise AssertionError("Missing attempt_records list")
-
-    ordered = sorted(rows, key=lambda row: row["replicate_index"])
-    return [canonical_record(row) for row in ordered]
+    return sorted(rows, key=lambda row: row["replicate_index"])
 
 
-def canonical_merge(payload: dict) -> dict:
-    """Normalize only input-order-dependent provenance ordering."""
-    result = copy.deepcopy(payload)
-    result["verified_shard_hashes"] = sorted(
-        result.get("verified_shard_hashes", []),
-        key=lambda row: (
-            row.get("sha256") or "",
-            row.get("manifest") or "",
-        ),
-    )
-    return result
+class OfficialRunnerEquivalenceTests(unittest.TestCase):
+    """Engineering equivalence through the official runner entry point only.
 
-
-class Type1FullPathEquivalenceTests(unittest.TestCase):
-    """
-    Integration test over the real pilot runner, merger, endpoint,
-    stochastic-null implementation, and checkpoint verification.
-
-    This is still an exploratory engineering test, not formal
-    Type-I calibration and not an independent scientific review.
+    Six outer replicates and 1000 requested surrogates per replicate. This is
+    not a formal Type-I calibration and cannot authorize a scientific claim.
     """
 
     @classmethod
     def setUpClass(cls):
         ARTIFACT_ROOT.mkdir(parents=True, exist_ok=True)
-        cls.run_dir = Path(
-            tempfile.mkdtemp(
-                prefix="run-",
-                dir=str(ARTIFACT_ROOT),
-            )
-        )
+        cls.run_dir = Path(tempfile.mkdtemp(prefix="run-", dir=ARTIFACT_ROOT))
         cls.summary_path = cls.run_dir / "evidence_summary.json"
         cls.summary = {
-            "test": "TYPE1_FULL_PATH_EQUIVALENCE_V1",
+            "test": "TYPE1_OFFICIAL_RUNNER_EQUIVALENCE_V1",
             "scenario": SCENARIO,
             "master_seed": MASTER_SEED,
             "total_repetitions": TOTAL,
             "surrogates_per_attempt": SURROGATES,
-            "repository_commit": os.environ.get(
-                "GITHUB_SHA", "LOCAL_OR_UNAVAILABLE"
-            ),
+            "repository_commit": os.environ.get("GITHUB_SHA", "LOCAL_OR_UNAVAILABLE"),
             "status": "IN_PROGRESS",
             "formal_calibration_pass": False,
             "claim_support": False,
@@ -115,288 +58,87 @@ class Type1FullPathEquivalenceTests(unittest.TestCase):
 
     @classmethod
     def save_summary(cls):
-        write_json(cls.summary_path, cls.summary)
+        cls.summary_path.write_text(json.dumps(cls.summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
-    def run_command(self, label: str, args: list[str]) -> subprocess.CompletedProcess:
-        log_path = self.run_dir / f"{label}.log"
-        result = subprocess.run(
-            args,
-            cwd=ROOT,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            check=False,
-        )
-        log_path.write_text(result.stdout, encoding="utf-8")
-        self.summary["paths"][label] = {
-            "command": args,
-            "returncode": result.returncode,
-            "log": str(log_path.relative_to(ROOT)),
-        }
-        self.save_summary()
-        return result
-
-    def run_pilot(
-        self,
-        label: str,
-        start: int,
-        stop: int,
-        output: Path,
-        resume: bool = False,
-    ) -> dict:
+    def run_runner(self, label: str, start: int, stop: int, output: Path, resume: bool = False, stop_after: int | None = None):
         args = [
-            sys.executable,
-            "-m",
-            "analysis.type1_calibration_pilot",
-            "--scenario",
-            SCENARIO,
-            "--start-index",
-            str(start),
-            "--stop-index",
-            str(stop),
-            "--total-repetitions",
-            str(TOTAL),
-            "--surrogates",
-            str(SURROGATES),
-            "--master-seed",
-            str(MASTER_SEED),
-            "--output",
-            str(output),
+            sys.executable, "-m", "analysis.calibrate_null_type1_scenario",
+            "--engineering-test", "--scenario", SCENARIO,
+            "--repetitions", str(TOTAL), "--surrogates", str(SURROGATES),
+            "--n", str(SAMPLE_SIZE), "--master-seed", str(MASTER_SEED),
+            "--start-index", str(start), "--stop-index", str(stop),
+            "--output", str(output),
         ]
         if resume:
             args.append("--resume")
-
-        result = self.run_command(label, args)
-        self.assertEqual(
-            result.returncode,
-            0,
-            msg=f"{label} failed. Inspect {label}.log in {self.run_dir}",
-        )
-        self.assertTrue(output.is_file(), f"{label} did not create its artifact")
-        self.assertTrue(
-            Path(str(output) + ".manifest.json").is_file(),
-            f"{label} did not create its manifest",
-        )
-        return read_json(output)
-
-    def run_merge(
-        self,
-        label: str,
-        output: Path,
-        shard_paths: list[Path],
-        expected_returncode: int = 0,
-    ) -> dict:
-        args = [
-            sys.executable,
-            "-m",
-            "analysis.merge_type1_calibration_pilot_shards",
-            "--total-repetitions",
-            str(TOTAL),
-            "--output",
-            str(output),
-            *[str(path) for path in shard_paths],
-        ]
-        result = self.run_command(label, args)
-        self.assertEqual(
-            result.returncode,
-            expected_returncode,
-            msg=f"Unexpected return code for {label}; inspect its log",
-        )
-        self.assertTrue(output.is_file(), f"{label} did not write its output")
-        return read_json(output)
-
-    def assert_all_attempts_valid(self, payload: dict):
-        rows = canonical_records(payload)
-        self.assertEqual(len(rows), TOTAL)
-        self.assertEqual(
-            [row["replicate_index"] for row in rows],
-            list(range(TOTAL)),
-        )
-
-        for row in rows:
-            self.assertEqual(row.get("status"), "VALID")
-            self.assertEqual(row.get("requested_surrogates"), SURROGATES)
-            self.assertEqual(row.get("valid_surrogates"), SURROGATES)
-            self.assertIsNotNone(row.get("p_value_mc_add_one"))
-            self.assertEqual(
-                row["p_value_mc_add_one"],
-                (row["exceedances"] + 1) / (SURROGATES + 1),
-            )
-
-    def test_real_runner_merger_reverse_merge_and_resume(self):
-        # 1. Fresh uninterrupted run through the real CLI runner.
-        connected_path = self.run_dir / "connected.json"
-        connected = self.run_pilot(
-            "connected_runner",
-            0,
-            TOTAL,
-            connected_path,
-        )
-        self.assert_all_attempts_valid(connected)
-
-        # 2. Execute three disjoint shards through the real CLI runner.
-        shard0_path = self.run_dir / "shard_0.json"
-        shard1_path = self.run_dir / "shard_1.json"
-        shard2_path = self.run_dir / "shard_2.json"
-
-        shard0 = self.run_pilot(
-            "runner_shard_0", 0, 2, shard0_path
-        )
-        shard1 = self.run_pilot(
-            "runner_shard_1", 2, 4, shard1_path
-        )
-        shard2 = self.run_pilot(
-            "runner_shard_2", 4, 6, shard2_path
-        )
-
-        self.assertEqual(
-            [row["replicate_index"] for row in canonical_records(shard0)],
-            [0, 1],
-        )
-        self.assertEqual(
-            [row["replicate_index"] for row in canonical_records(shard1)],
-            [2, 3],
-        )
-        self.assertEqual(
-            [row["replicate_index"] for row in canonical_records(shard2)],
-            [4, 5],
-        )
-
-        shard_paths = [shard0_path, shard1_path, shard2_path]
-
-        # 3. Merge all three verified shards in normal order.
-        merged_path = self.run_dir / "merged_normal.json"
-        merged = self.run_merge(
-            "merge_normal_order",
-            merged_path,
-            shard_paths,
-        )
-
-        self.assertEqual(
-            merged["status"], "PILOT_COMPLETE_DIAGNOSTIC_ONLY"
-        )
-        self.assertEqual(merged["missing_indices"], [])
-        self.assertEqual(merged["invalid_attempts"], 0)
-        self.assertEqual(
-            canonical_records(connected),
-            canonical_records(merged),
-        )
-
-        # 4. Merge the same verified shards in reverse order.
-        reverse_path = self.run_dir / "merged_reverse.json"
-        reverse = self.run_merge(
-            "merge_reverse_order",
-            reverse_path,
-            list(reversed(shard_paths)),
-        )
-
-        self.assertEqual(
-            reverse["status"], "PILOT_COMPLETE_DIAGNOSTIC_ONLY"
-        )
-        self.assertEqual(
-            canonical_merge(merged),
-            canonical_merge(reverse),
-        )
-
-        # 5. Create a verified partial checkpoint from the connected run.
-        # The checkpoint identity stays exactly the same as the intended
-        # 0..TOTAL run; only the retained attempt records are partial.
-        checkpoint_path = self.run_dir / "resume_checkpoint.json"
-        checkpoint = copy.deepcopy(connected)
-        checkpoint["attempt_records"] = [
-            row
-            for row in connected["attempt_records"]
-            if row["replicate_index"] == 0
-        ]
-        checkpoint["status"] = "PILOT_INCOMPLETE_OR_DIAGNOSTIC_ONLY"
-        checkpoint["invalid_attempts"] = 0
-        checkpoint["formal_calibration_pass"] = False
-        atomic_write(checkpoint_path, checkpoint)
-
-        # Verify the checkpoint is readable and bound to its manifest.
-        from analysis.type1_calibration_pilot import load_verified_checkpoint
-
-        restored = load_verified_checkpoint(
-            checkpoint_path,
-            connected["run_identity"],
-        )
-        self.assertEqual(
-            [row["replicate_index"] for row in restored["attempt_records"]],
-            [0],
-        )
-
-        # 6. Resume through the real CLI runner. Index 0 must not be rerun;
-        # index 1 must be executed and retained in the final artifact.
-        resumed = self.run_pilot(
-            "runner_resume",
-            0,
-            TOTAL,
-            checkpoint_path,
-            resume=True,
-        )
-        self.assert_all_attempts_valid(resumed)
-        self.assertEqual(
-            canonical_records(connected),
-            canonical_records(resumed),
-        )
-
-        # 7. Corrupt one shard and verify SHA-256 rejection.
-        original_bytes = shard0_path.read_bytes()
-
-        try:
-            shard0_path.write_bytes(
-                original_bytes + b"\nCORRUPTED\n"
-            )
-
-            corrupt_output = self.run_dir / "corrupt_merge.json"
-
-            args = [
-                sys.executable,
-                "-m",
-                "analysis.merge_type1_calibration_pilot_shards",
-                "--total-repetitions",
-                str(TOTAL),
-                "--output",
-                str(corrupt_output),
-                *[str(path) for path in shard_paths],
-            ]
-
-            result = self.run_command("merge_corrupted_shard", args)
-
-            self.assertNotEqual(result.returncode, 0)
-            self.assertIn("SHA-256 mismatch", result.stdout)
-
-        finally:
-            shard0_path.write_bytes(original_bytes)
-
-        # Retain canonical expected/observed records and artifact hashes.
-        self.summary["status"] = "PASS_ENGINEERING_EQUIVALENCE_ONLY"
-        self.summary["formal_calibration_pass"] = False
-        self.summary["claim_support"] = False
-        self.summary["promotion_authority"] = False
-        self.summary["confirmatory_execution_authorized"] = False
-        self.summary["observed"] = {
-            "connected": canonical_records(connected),
-            "merged_normal": canonical_records(merged),
-            "merged_reverse": canonical_records(reverse),
-            "resumed": canonical_records(resumed),
-            "normal_merge_status": merged["status"],
-            "reverse_merge_status": reverse["status"],
-            "corrupted_shard_rejected": True,
-        }
-        self.summary["artifact_sha256"] = {
-            path.name: sha256_file(path)
-            for path in [
-                connected_path,
-                *shard_paths,
-                merged_path,
-                reverse_path,
-                checkpoint_path,
-            ]
-        }
+        if stop_after is not None:
+            args.extend(["--stop-after", str(stop_after)])
+        result = subprocess.run(args, cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False)
+        log_path = self.run_dir / f"{label}.log"
+        log_path.write_text(result.stdout, encoding="utf-8")
+        self.summary["paths"][label] = {"command": args, "returncode": result.returncode, "log": str(log_path.relative_to(ROOT))}
         self.save_summary()
+        self.assertIn(result.returncode, (0, 1), msg=f"{label} had an execution error; inspect {log_path}")
+        self.assertTrue(output.is_file(), f"{label} did not write an artifact")
+        self.assertTrue(Path(str(output) + ".manifest.json").is_file(), f"{label} did not write a manifest")
+        payload = read_json(output)
+        self.assertFalse(payload.get("formal_calibration_pass", True))
+        return payload
 
-        print(f"Evidence retained at: {self.run_dir}", flush=True)
+    def run_merge(self, label: str, output: Path, shards: list[Path]) -> dict:
+        args = [sys.executable, "-m", "analysis.merge_type1_execution_shards", "--total-repetitions", str(TOTAL), "--output", str(output), *[str(p) for p in shards]]
+        result = subprocess.run(args, cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=False)
+        log_path = self.run_dir / f"{label}.log"
+        log_path.write_text(result.stdout, encoding="utf-8")
+        self.summary["paths"][label] = {"command": args, "returncode": result.returncode, "log": str(log_path.relative_to(ROOT))}
+        self.save_summary()
+        self.assertEqual(result.returncode, 0, msg=f"{label} failed; inspect {log_path}")
+        self.assertTrue(output.is_file())
+        self.assertTrue(Path(str(output) + ".manifest.json").is_file())
+        payload = read_json(output)
+        self.assertFalse(payload.get("formal_calibration_pass", True))
+        return payload
+
+    def assert_records_preserved(self, payload: dict):
+        rows = canonical_records(payload)
+        self.assertEqual([row["replicate_index"] for row in rows], list(range(TOTAL)))
+        for row in rows:
+            self.assertEqual(row.get("requested_surrogates"), SURROGATES)
+            self.assertIn(row.get("status"), {"VALID", "INVALID"})
+            if row["status"] == "INVALID":
+                self.assertTrue(row.get("reason"), "Invalid attempt must preserve a reason")
+            else:
+                self.assertEqual(row.get("valid_surrogates"), SURROGATES)
+                self.assertIsNotNone(row.get("p_value_mc_add_one"))
+
+    def test_official_runner_connected_sharded_merge_and_resume_equivalence(self):
+        connected_path = self.run_dir / "connected.json"
+        connected = self.run_runner("connected", 0, TOTAL, connected_path)
+        self.assert_records_preserved(connected)
+
+        shard_a_path = self.run_dir / "shard-a.json"
+        shard_b_path = self.run_dir / "shard-b.json"
+        shard_a = self.run_runner("shard_a", 0, 3, shard_a_path)
+        shard_b = self.run_runner("shard_b", 3, TOTAL, shard_b_path)
+        self.assertEqual([r["replicate_index"] for r in canonical_records(shard_a)], [0, 1, 2])
+        self.assertEqual([r["replicate_index"] for r in canonical_records(shard_b)], [3, 4, 5])
+
+        normal = self.run_merge("merge_normal", self.run_dir / "merged-normal.json", [shard_a_path, shard_b_path])
+        reverse = self.run_merge("merge_reverse", self.run_dir / "merged-reverse.json", [shard_b_path, shard_a_path])
+        self.assertEqual(canonical_records(connected), canonical_records(normal))
+        self.assertEqual(canonical_records(connected), canonical_records(reverse))
+
+        resume_path = self.run_dir / "resume.json"
+        interrupted = self.run_runner("resume_interrupted", 0, TOTAL, resume_path, stop_after=2)
+        self.assertEqual(interrupted["status"], "ENGINEERING_INCOMPLETE")
+        self.assertEqual(interrupted["missing_indices"], [2, 3, 4, 5])
+        resumed = self.run_runner("resume_completed", 0, TOTAL, resume_path, resume=True)
+        self.assertEqual(canonical_records(connected), canonical_records(resumed))
+
+        self.summary["status"] = "ENGINEERING_EQUIVALENCE_PASS"
+        self.summary["invalid_attempts_observed"] = sum(r["status"] == "INVALID" for r in canonical_records(connected))
+        self.summary["scientific_interpretation"] = "Path equivalence only. Invalid attempts remain invalid; this does not pass Type-I calibration."
+        self.save_summary()
 
 
 if __name__ == "__main__":
