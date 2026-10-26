@@ -116,7 +116,6 @@ Confirmatory execution remains NOT_AUTHORIZED.
 Claim support remains NOT_ESTABLISHED.
 Promotion authority remains false.
 
-
 ## Evidence reconciliation — 2026-10-25 — latest run
 
 ### Pilot merge rejection tests
@@ -180,3 +179,58 @@ The protocol remains NOT_FROZEN.
 Confirmatory execution remains NOT_AUTHORIZED.
 Claim support remains NOT_ESTABLISHED.
 Promotion authority remains false.
+
+## Resume identity and runtime-configuration gate — 2026-10-26
+
+Status: NOT YET VERIFIED BY THE NEW TESTS
+
+### Required evidence
+
+- [ ] The exact same run identity can be loaded from a valid artifact and
+      its matching manifest.
+- [ ] Resume rejects a changed commit identity.
+- [ ] Resume rejects a changed matrix hash.
+- [ ] Resume rejects a changed runner hash.
+- [ ] Resume rejects a changed scenario.
+- [ ] Resume rejects a changed seed schedule or master seed.
+- [ ] Resume rejects a changed sample size, burn-in, or surrogate count.
+- [ ] Resume rejects changed total repetitions or requested shard range.
+- [ ] Resume rejects a changed endpoint/null implementation identity.
+- [ ] Resume rejects a changed dependency-lock identity.
+- [ ] Resume rejects an artifact whose bytes no longer match its manifest.
+- [ ] A rejected resume leaves the existing checkpoint unchanged.
+- [ ] The actual CLI resume path is tested, not only the identity helper.
+- [ ] Worker-assignment invariance is tested separately from shard-order
+      invariance.
+- [ ] A deterministic test covers alternative valid shard partitions.
+- [ ] Every requested replicate has exactly one preserved attempt record.
+- [ ] Invalid attempts remain visible and block scenario success.
+- [ ] The rejection-rate denominator remains the predeclared requested
+      repetition count N, including invalid attempts according to the
+      reviewed protocol.
+- [ ] Bounded engineering output cannot authorize formal calibration,
+      claim support, or promotion.
+
+### V3/V4 governance reconciliation
+
+- [ ] Identify every active workflow that invokes the legacy V3 protocol.
+- [ ] Identify every acceptance-rule constant and historical reference
+      to the 0.075 boundary.
+- [ ] Document whether each legacy workflow is historical, diagnostic,
+      or capable of attempting formal execution.
+- [ ] Ensure no legacy V3 workflow can authorize a V4 confirmatory run.
+- [ ] Preserve historical V3 results and their original interpretation.
+- [ ] Link the prospective acceptance-rule decision record.
+- [ ] Obtain attributable independent human statistical review.
+- [ ] Freeze only the reviewed and approved V4 specification.
+- [ ] Authorize confirmatory execution only in a separate, explicit,
+      traceable decision.
+
+### Evidence rule
+
+Every checked item must cite the exact commit, workflow run, job,
+test result, and retained artifact where applicable. Until those
+records exist, the item remains unchecked.
+
+Passing engineering tests does not constitute Type-I calibration,
+protocol approval, independent replication, or HCM claim support.
