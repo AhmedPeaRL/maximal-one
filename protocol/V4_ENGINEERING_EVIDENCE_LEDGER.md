@@ -124,3 +124,34 @@ Not established: formal Type-I calibration; approval or freeze of the V4 matrix;
 Status: "ENGINEERING_EQUIVALENCE_PASS_FOR_RECORDED_CONFIGURATION_ONLY"
 
 Formal calibration remains "NOT AUTHORIZED". V4 remains "NOT_FROZEN"; "confirmatory_execution_authorized", "claim_support", and "promotion_authority" remain false.
+
+### Evidence entry — 2026-10-26 — Resume-test fixture mismatch
+
+Classification: ENGINEERING_TEST_FAILURE — FIX REQUIRED
+Branch: "review/type1-v4-remediation"
+
+Observed runs
+
+- Run "40371121290", job "121741811161": failed in the full-path equivalence test.
+- Run "40371737134", job "121743963162": failed in the full-path equivalence test.
+- The separate resume identity and artifact rejection tests passed in run "40371737134".
+- The artifact for run "40371737134" is available at artifact ID "12673738219".
+
+Direct failure
+
+The duplicated "test_resume_rejects_changed_runtime_identity" method inside "tests/test_type1_full_path_equivalence.py" attempts to create an engineering checkpoint with "--surrogates 1". The official engineering runner requires exactly 1000 surrogates per replicate and exits before creating the checkpoint.
+
+Required remediation
+
+Remove the invalid duplicated low-surrogate test from the full-path equivalence test module. Retain the standalone synthetic artifact identity rejection tests. Add or verify a separate official-runner identity-mismatch test using a valid engineering configuration.
+
+Interpretation
+
+The full workflow result remains FAILED. The successful standalone identity tests do not override the full-path failure. This is an engineering test-fixture defect, not evidence for or against the scientific HCM claim.
+
+Governance
+
+No Type-I calibration pass is established.
+No acceptance rule is approved by this entry.
+
+Keep the V4 candidate NOT_FROZEN, confirmatory execution unauthorized, claim support false, and promotion authority false until the required independent review and governance gates are completed.
