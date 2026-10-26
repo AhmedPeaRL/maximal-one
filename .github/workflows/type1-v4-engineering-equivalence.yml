@@ -87,6 +87,14 @@ jobs:
           python -m unittest \
             tests.test_type1_cli_resume_identity_rejections \
             -v
+
+      - name: Test V3/V4 governance separation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest \
+            tests.test_v3_v4_governance_separation \
+            -v
           
       - name: Test official-runner connected/sharded/merged/resumed equivalence
         shell: bash
