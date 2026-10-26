@@ -172,13 +172,17 @@ class OfficialCliResumeIdentityTests(unittest.TestCase):
                     after_checkpoint = checkpoint.read_bytes()
                     after_manifest = manifest.read_bytes()
 
-                    self.assertNotEqual(
-                        result.returncode, 0,
-                        f"CLI unexpectedly accepted mismatch: {field}",
+                    self.assertEqual(
+                        result.returncode,
+                        1,
+                        f"Unexpected exit code for identity mismatch {field}: "
+                        f"{result.returncode}\n{result.stdout}",
                     )
-                    self.assertTrue(
-                        result.stdout.strip(),
-                        f"No failure output recorded for {field}",
+                    self.assertIn(
+                        "Artifact run identity differs from requested execution",
+                        result.stdout,
+                        f"Expected identity-rejection diagnostic missing for {field}:\n"
+                        f"{result.stdout}",
                     )
                     self.assertEqual(
                         after_checkpoint, before_checkpoint,
