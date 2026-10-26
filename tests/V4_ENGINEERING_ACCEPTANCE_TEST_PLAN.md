@@ -15,17 +15,17 @@ Use a tiny synthetic fixture with replicate indices 0 through 5.
 
 ## Required tests
 
-- [ ] Every requested index has exactly one attempt record.
-- [ ] Connected and sharded execution produce identical scientific outputs per index.
-- [ ] Resumed and uninterrupted execution produce identical scientific outputs per index.
-- [ ] Seed identities are independent of shard order and worker assignment.
+- [x] Every requested index has exactly one attempt record.
+- [x] Connected and sharded execution produce identical scientific outputs per index.
+- [x] Resumed and uninterrupted execution produce identical scientific outputs per index.
+- [x] Seed identities are independent of shard order and worker assignment.
 - [ ] Resume rejects mismatched commit, matrix hash, runner hash, scenario, seed schedule, or range.
 - [x] Merge rejects duplicate indices and overlapping ranges.
 - [x] Merge identifies missing indices and cannot report completion.
 - [x] Merge independently verifies each shard artifact SHA-256 against its manifest.
-- [ ] Invalid attempts remain in the ledger and force scenario failure.
+- [x] Invalid attempts remain in the ledger and force scenario failure.
 - [ ] The rejection-rate denominator is the requested repetition count N.
-- [ ] A pilot always declares formal_calibration_pass=false.
+- [x] A pilot always declares formal_calibration_pass=false.
 - [ ] A pilot never changes claim_support or promotion_authority.
 - [ ] Production-equivalence tests pass against the declared endpoint and null implementation.
 
