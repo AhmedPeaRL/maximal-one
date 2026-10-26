@@ -161,6 +161,44 @@ class OfficialRunnerEquivalenceTests(unittest.TestCase):
             list(reversed(alt_paths)),
         )
 
+        # Simulate a different replicate-to-worker assignment order.
+        # These are separate CLI subprocesses in the same runner
+        # environment, not distinct GitHub-hosted runners.
+        worker_order = [4, 1, 5, 0, 3, 2]
+        worker_shards = []
+
+        for worker_number, replicate_index in enumerate(worker_order):
+            shard_path = (
+                self.run_dir
+                / f"worker-order-shard-{worker_number}.json"
+            )
+
+            payload = self.run_runner(
+                f"worker_order_{worker_number}",
+                replicate_index,
+                replicate_index + 1,
+                shard_path,
+            )
+
+            rows = canonical_records(payload)
+            self.assertEqual(
+                [row["replicate_index"] for row in rows],
+                [replicate_index],
+            )
+            self.assert_records_preserved(payload)
+            worker_shards.append(shard_path)
+
+        worker_order_merged = self.run_merge(
+            "worker_order_merge",
+            self.run_dir / "worker-order-merged.json",
+            worker_shards,
+        )
+
+        self.assertEqual(
+            canonical_records(connected),
+            canonical_records(worker_order_merged),
+        )
+
         self.assertEqual(
             canonical_records(connected),
             canonical_records(alt_merged),
