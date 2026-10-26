@@ -227,3 +227,84 @@ Keep the following unchanged until separately reviewed and authorized:
 - Formal calibration: "NOT AUTHORIZED"
 
 The remaining CLI-resume, runtime-configuration, worker-assignment, scientific acceptance-rule, and independent-review gates remain open unless supported by their own attributable evidence.
+
+
+## 10. Evidence — CLI resume identity rejection and partition verification — 2026-10-27
+
+### A. Official CLI identity rejection
+
+Workflow:
+https://github.com/AhmedPeaRL/maximal-one/actions/runs/40401666237
+
+Job:
+https://github.com/AhmedPeaRL/maximal-one/actions/runs/40401666237/job/121848811028
+
+Tested commit:
+8164fc0d6b5364703574367f8ff52e6ec01f8ec1
+
+Observed workflow result: SUCCESS.
+
+The inspected job log reports:
+- 8 artifact-integrity tests passed.
+- 6 execution-merge rejection tests passed.
+- 3 standalone resume-identity tests passed.
+- The official CLI identity-rejection test passed.
+- The official-runner full-path equivalence test passed.
+
+The CLI test declares 19 identity fields and creates a checkpoint
+through the bounded engineering CLI. It changes each field
+individually, attempts resume, requires a non-zero return code,
+requires non-empty output, and compares checkpoint and manifest
+bytes before and after each rejected attempt.
+
+Classification:
+CLI_IDENTITY_REJECTION_PASS_FOR_RECORDED_TEST_ONLY
+
+Required qualification:
+The test currently does not assert the exact expected identity
+error message or a specific exit code. Its byte comparison
+protects the candidate artifact during each rejected attempt;
+it does not yet retain a separate untouched baseline file and
+prove that baseline remains byte-identical throughout all cases.
+
+These are follow-up test-strengthening items, not grounds to
+erase or relabel the observed successful run.
+
+### B. Alternative partition and resume equivalence
+
+Workflow:
+https://github.com/AhmedPeaRL/maximal-one/actions/runs/40401149060
+
+Job:
+https://github.com/AhmedPeaRL/maximal-one/actions/runs/40401149060/job/121847012649
+
+Observed workflow result: SUCCESS.
+
+The tested procedure included connected execution, alternative
+shard partitions, merge ordering, and interrupted/resumed
+execution. It is evidence of equivalence only for the exact
+bounded configuration and paths exercised by the test.
+
+The tests were run within the same workflow job. They do not
+establish invariance across distinct GitHub-hosted runners or
+different worker environments.
+
+### C. Scientific and governance limits
+
+Neither run establishes:
+- Type-I calibration at nominal alpha 0.05.
+- Approval of the 0.075 threshold or another acceptance rule.
+- Validation of all nine V4 scenarios.
+- Independent statistical approval.
+- Protocol freeze or formal execution authorization.
+- Independent empirical replication or broader HCM claim support.
+
+Preserve historical failures and their original classifications.
+
+Required state remains:
+
+freeze_state = NOT_FROZEN
+confirmatory_execution_authorized = false
+claim_support = false
+promotion_authority = false
+formal_calibration = NOT_AUTHORIZED
