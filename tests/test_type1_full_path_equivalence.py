@@ -139,7 +139,91 @@ class OfficialRunnerEquivalenceTests(unittest.TestCase):
         self.summary["invalid_attempts_observed"] = sum(r["status"] == "INVALID" for r in canonical_records(connected))
         self.summary["scientific_interpretation"] = "Path equivalence only. Invalid attempts remain invalid; this does not pass Type-I calibration."
         self.save_summary()
+    
+    def test_resume_rejects_changed_runtime_identity(self):
+        with tempfile.TemporaryDirectory(
+            prefix="resume-identity-", dir=ARTIFACT_ROOT
+        ) as tmp:
+            checkpoint = Path(tmp) / "checkpoint.json"
 
+            # Create a tiny valid engineering checkpoint through the
+            # official runner entry point. This test is intentionally
+            # small; it is not a calibration run.
+            base = [
+                sys.executable, "-m",
+                "analysis.calibrate_null_type1_scenario",
+                "--engineering-test",
+                "--scenario", SCENARIO,
+                "--repetitions", "1",
+                "--surrogates", "1",
+                "--n", str(SAMPLE_SIZE),
+                "--master-seed", str(MASTER_SEED),
+                "--start-index", "0",
+                "--stop-index", "1",
+                "--output", str(checkpoint),
+                "--stop-after", "1",
+            ]
+            created = subprocess.run(
+                base, cwd=ROOT, text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT, check=False,
+            )
+            self.assertEqual(created.returncode, 0, created.stdout)
+            self.assertTrue(checkpoint.is_file())
+            self.assertTrue(
+                Path(str(checkpoint) + ".manifest.json").is_file()
+            )
+
+            original_bytes = checkpoint.read_bytes()
+            changes = [
+                ["--scenario", "gaussian_ar1_phi_0_4_n3328"],
+                ["--master-seed", str(MASTER_SEED + 1)],
+                ["--n", str(SAMPLE_SIZE + 1)],
+                ["--surrogates", "2"],
+                ["--start-index", "0", "--stop-index", "2"],
+                ["--repetitions", "2", "--stop-index", "2"],
+            ]
+
+            for change in changes:
+                with self.subTest(change=change):
+                    command = [
+                        sys.executable, "-m",
+                        "analysis.calibrate_null_type1_scenario",
+                        "--engineering-test",
+                        "--scenario", SCENARIO,
+                        "--repetitions", "1",
+                        "--surrogates", "1",
+                        "--n", str(SAMPLE_SIZE),
+                        "--master-seed", str(MASTER_SEED),
+                        "--start-index", "0",
+                        "--stop-index", "1",
+                        "--output", str(checkpoint),
+                        "--resume",
+                    ]
+                    # Replace/add the selected command-line option(s).
+                    for i in range(0, len(change), 2):
+                        flag, value = change[i], change[i + 1]
+                        if flag in command:
+                            pos = command.index(flag)
+                            command[pos + 1] = value
+                        else:
+                            command.extend([flag, value])
+
+                    result = subprocess.run(
+                        command, cwd=ROOT, text=True,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.STDOUT, check=False,
+                    )
+                    self.assertNotEqual(
+                        result.returncode, 0,
+                        msg=f"Mismatch unexpectedly accepted: {change}\n"
+                            f"{result.stdout}",
+                    )
+                    self.assertEqual(
+                        checkpoint.read_bytes(), original_bytes,
+                        "Rejected resume modified the checkpoint",
+                    )
+                    
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
