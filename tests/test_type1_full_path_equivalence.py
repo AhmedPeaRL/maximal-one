@@ -125,6 +125,51 @@ class OfficialRunnerEquivalenceTests(unittest.TestCase):
 
         normal = self.run_merge("merge_normal", self.run_dir / "merged-normal.json", [shard_a_path, shard_b_path])
         reverse = self.run_merge("merge_reverse", self.run_dir / "merged-reverse.json", [shard_b_path, shard_a_path])
+        
+        # Alternative three-shard partition:
+        # [0, 2), [2, 5), [5, 6).
+        alt_ranges = [(0, 2), (2, 5), (5, 6)]
+        alt_paths = []
+        alt_payloads = []
+
+        for shard_number, (start, stop) in enumerate(alt_ranges):
+            shard_path = self.run_dir / f"alt-shard-{shard_number}.json"
+            payload = self.run_runner(
+                f"alt_shard_{shard_number}",
+                start,
+                stop,
+                shard_path,
+            )
+            alt_paths.append(shard_path)
+            alt_payloads.append(payload)
+
+            expected_indices = list(range(start, stop))
+            actual_indices = [
+                row["replicate_index"]
+                for row in canonical_records(payload)
+            ]
+            self.assertEqual(actual_indices, expected_indices)
+
+        alt_merged = self.run_merge(
+            "merge_alternative_partition",
+            self.run_dir / "merged-alternative.json",
+            alt_paths,
+        )
+        alt_reverse = self.run_merge(
+            "merge_alternative_partition_reverse",
+            self.run_dir / "merged-alternative-reverse.json",
+            list(reversed(alt_paths)),
+        )
+
+        self.assertEqual(
+            canonical_records(connected),
+            canonical_records(alt_merged),
+        )
+        self.assertEqual(
+            canonical_records(connected),
+            canonical_records(alt_reverse),
+        )
+        
         self.assertEqual(canonical_records(connected), canonical_records(normal))
         self.assertEqual(canonical_records(connected), canonical_records(reverse))
 
