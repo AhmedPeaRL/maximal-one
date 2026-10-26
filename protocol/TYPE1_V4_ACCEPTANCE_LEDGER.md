@@ -128,7 +128,6 @@ The following states remain unchanged:
 * `promotion_authority = false`
 * Formal calibration: `NOT AUTHORIZED`
 
-
 ### E6 — Manifest rejection and full-path workflow evidence — 2026-10-25
 
 **Status:** PASS FOR THE EXACT RECORDED ENGINEERING TESTS ONLY
@@ -188,6 +187,61 @@ The following states remain unchanged:
 E6 closes only the two pilot manifest rejection-test items and records
 the latest pilot full-path run. It does not close the production-path
 or scientific acceptance gates.
+
+### E7 — Official-runner engineering equivalence at B=1000 — 2026-10-26
+
+Status: PASS FOR THE EXACT RECORDED ENGINEERING CONFIGURATION ONLY
+
+- Repository: "AhmedPeaRL/maximal-one"
+- Branch: "review/type1-v4-remediation"
+- Tested commit: "38694ecdc4bc44a48b86ab8a54221a5d67d6a89c"
+- Workflow: "Type-I V4 Official Runner Engineering Equivalence"
+- Workflow file: ".github/workflows/type1-v4-engineering-equivalence.yml"
+- Workflow run: "40352081420"
+- Job: "121674545367"
+- Workflow result: "success"
+- Checkout identity verification: passed
+- Python: "3.11.15"
+- Dependency installation: "requirements-lock.txt" with "pip --require-hashes"
+- Artifact ID: "12663848472"
+- Artifact name: "type1-v4-official-runner-engineering-40352081420-1"
+- Artifact size reported by GitHub: 20,217 bytes
+- Full-path test duration: 868.804 seconds
+
+Tests reported by the inspected job log
+
+- "tests/test_type1_execution_artifacts.py": 8 tests passed.
+- "tests/test_type1_execution_merge_rejections.py": 6 tests passed.
+- "tests/test_type1_full_path_equivalence.py": 1 test passed.
+
+Exact test configuration
+
+- Scenario: "gaussian_ar2_phi_0_45_minus_0_10_n3328"
+- Replicate indices: 0 through 5; six total.
+- Sample size: 3328.
+- Master seed: 20261021.
+- Requested surrogates per replicate: 1000.
+- Execution paths: connected run; two disjoint shards; normal-order merge; reverse-order merge; interruption after two attempts; verified resume.
+
+The integration test compared canonical per-replicate records across connected, merged, reverse-merged, and resumed execution. It required "formal_calibration_pass" to remain false.
+
+Scope and limitations
+
+This establishes engineering path-equivalence evidence for the exact bounded test above. It used the runner's "--engineering-test" mode; it is not a formal confirmatory run through the formal authorization path.
+
+The uploaded artifact ZIP payload has not been independently inspected for this entry. No ZIP SHA-256 is asserted.
+
+This result does not establish Type-I error calibration, approve an acceptance threshold, validate all nine candidate scenarios, approve or freeze the V4 scientific design, establish independent empirical replication, or support the broader HCM claim.
+
+The following states remain unchanged:
+
+- "freeze_state = NOT_FROZEN"
+- "confirmatory_execution_authorized = false"
+- "claim_support = false"
+- "promotion_authority = false"
+- Formal calibration: "NOT AUTHORIZED"
+
+E7 closes only the engineering-test items explicitly covered by the recorded tests. Independent statistical review and scientific acceptance gates remain open.
 
 ## 3. Scientific acceptance criteria
 
