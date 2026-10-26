@@ -52,7 +52,7 @@ def sha256(path: Path) -> str:
     return h.hexdigest()
 
 
-def main() -> int:
+def formal_main() -> int:
     if not V4_APPROVED:
         raise SystemExit(
             "BLOCKED: V4 matrix is not approved, frozen, and separately "
@@ -207,75 +207,245 @@ def main() -> int:
         }
 
     for replicate_index in range(args.repetitions):
-        dgp_rng, null_rng = replicate_rngs(
-            args.master_seed,
+        # The formal runner and bounded engineering mode share this exact
+        # scientific attempt function. Governance gates remain separate.
+        record = execute_attempt(
             args.scenario,
             replicate_index,
+            args.master_seed,
+            args.n,
+            args.surrogates,
         )
-
-        scenario_key = stable_scenario_key(args.scenario)
-        record = {
-            "replicate_index": replicate_index,
-            "scenario_id": args.scenario,
-            "scenario_key": scenario_key,
-            "dgp_seed_identity": [
-                args.master_seed,
-                scenario_key,
-                replicate_index,
-                0,
-            ],
-            "null_seed_identity": [
-                args.master_seed,
-                scenario_key,
-                replicate_index,
-                1,
-            ],
-            "status": "INVALID",
-            "reason": None,
-        }
-
-        try:
-            x = generate_ar(phi, args.n, dgp_rng)
-            observed_alpha = float(estimate_alpha(x))
-            result = parametric_short_memory_null(x, observed_alpha, null_rng, trials=args.surrogates)
-            diagnostics = result.get("order_selection_diagnostic") or {}
-            record.update({
-                "observed_alpha": observed_alpha,
-                "null_valid": bool(result.get("valid") is True),
-                "requested_surrogates": int(result.get("trials_requested", args.surrogates)),
-                "valid_surrogates": int(result.get("null_samples", 0)),
-                "selected_order": result.get("selected_order"),
-                "surrogate_boundary_fraction": diagnostics.get("surrogate_boundary_fraction"),
-                "refit_failures": diagnostics.get("refit_failures"),
-                "alpha_estimation_failures": diagnostics.get("alpha_estimation_failures"),
-            })
-            p_value = result.get("p_value_mc_add_one")
-            if result.get("valid") is not True:
-                record["reason"] = result.get("reason", "invalid_null_result")
-            elif int(result.get("null_samples", 0)) != args.surrogates:
-                record["reason"] = "requested_surrogate_count_not_fully_valid"
-            elif p_value is None or not np.isfinite(float(p_value)):
-                record["reason"] = "missing_or_nonfinite_p_value"
-            else:
-                record.update({"status": "VALID", "reason": None, "p_value": float(p_value), "rejected": bool(float(p_value) <= NOMINAL_ALPHA)})
-                p_values.append(float(p_value))
-                bf = diagnostics.get("surrogate_boundary_fraction")
-                if bf is not None and np.isfinite(float(bf)):
-                    boundary_fractions.append(float(bf))
-        except Exception as exc:
-            record["reason"] = f"{type(exc).__name__}:{exc}"
-        if record["status"] != "VALID":
+        if record["status"] == "VALID":
+            p_values.append(float(record["p_value_mc_add_one"]))
+            boundary_fraction = record.get("surrogate_boundary_fraction")
+            if boundary_fraction is not None and np.isfinite(float(boundary_fraction)):
+                boundary_fractions.append(float(boundary_fraction))
+        else:
             invalid += 1
         attempt_records.append(record)
         completed = replicate_index + 1
         if completed % args.checkpoint_every == 0 or completed == args.repetitions:
-            output.write_text(json.dumps(report("CHECKPOINT" if completed < args.repetitions else "FINAL", completed), indent=2, sort_keys=True) + "\n", encoding="utf-8")
-            print(f"{args.scenario}: completed={completed}/{args.repetitions}; valid={len(p_values)}; invalid={invalid}", flush=True)
+            output.write_text(
+                json.dumps(
+                    report("CHECKPOINT" if completed < args.repetitions else "FINAL", completed),
+                    indent=2,
+                    sort_keys=True,
+                ) + "\n",
+                encoding="utf-8",
+            )
+            print(
+                f"{args.scenario}: completed={completed}/{args.repetitions}; "
+                f"valid={len(p_values)}; invalid={invalid}",
+                flush=True,
+            )
 
     final = report("FINAL", args.repetitions)
     output.write_text(json.dumps(final, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps({"scenario": args.scenario, "status": final["status"], "valid_repetitions": final["valid_repetitions"], "invalid_repetitions": final["invalid_repetitions"], "one_sided_upper_bound": final["wilson_95_percent_one_sided_upper_bound_acceptance"], "output": str(output)}, indent=2))
     return 0 if final["scenario_calibration_passed"] else 1
+
+
+# ---------------------------------------------------------------------------
+# Bounded engineering entry point. This path is intentionally separate from
+# formal calibration and cannot set formal_calibration_pass=True.
+# ---------------------------------------------------------------------------
+def _engineering_file_hash(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+def _engineering_identity(scenario_id, start, stop, repetitions, surrogates, n, master_seed):
+    import subprocess
+    root = Path(__file__).resolve().parents[1]
+    try:
+        commit_sha = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=root, text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except Exception:
+        import os
+        commit_sha = os.environ.get("GITHUB_SHA", "LOCAL_COMMIT_UNAVAILABLE")
+    return {
+        "protocol": MATRIX["protocol"],
+        "scenario_id": scenario_id,
+        "scenario_coefficients": SCENARIOS[scenario_id],
+        "sample_size": n,
+        "dgp_burn_in": DGP_BURN_IN,
+        "surrogates_requested": surrogates,
+        "total_repetitions": repetitions,
+        "master_seed": master_seed,
+        "seed_schedule_id": "NumPy SeedSequence([master_seed, stable_scenario_key, replicate_index, stream_id]); stream 0=DGP, 1=null",
+        "start_index": start,
+        "stop_index": stop,
+        "commit_sha": commit_sha,
+        "matrix_sha256": _engineering_file_hash(Path(MATRIX_PATH)),
+        "runner_sha256": _engineering_file_hash(Path(__file__)),
+        "endpoint_identity": "analysis.numerical_spectral_verification.estimate_alpha",
+        "null_implementation_identity": "analysis.appropriate_stochastic_null.parametric_short_memory_null",
+        "requirements_lock_sha256": _engineering_file_hash(root / "requirements-lock.txt"),
+        "python_version": sys.version,
+        "platform_identity": platform.platform(),
+    }
+
+
+def execute_attempt(scenario_id, replicate_index, master_seed, n, surrogates):
+    """One replicate through the runner's canonical endpoint and null implementation."""
+    phi = SCENARIOS[scenario_id]
+    dgp_rng, null_rng = replicate_rngs(master_seed, scenario_id, replicate_index)
+    scenario_key = stable_scenario_key(scenario_id)
+    row = {
+        "replicate_index": replicate_index,
+        "scenario_id": scenario_id,
+        "scenario_key": scenario_key,
+        "dgp_seed_identity": [master_seed, scenario_key, replicate_index, 0],
+        "null_seed_identity": [master_seed, scenario_key, replicate_index, 1],
+        "requested_surrogates": surrogates,
+        "status": "INVALID",
+        "reason": None,
+    }
+    try:
+        series = generate_ar(phi, n, dgp_rng)
+        row["generated_series_sha256"] = hashlib.sha256(
+            np.asarray(series, dtype="<f8").tobytes()
+        ).hexdigest()
+        observed_alpha = float(estimate_alpha(series))
+        result = parametric_short_memory_null(
+            series, observed_alpha, null_rng, trials=surrogates
+        )
+        diagnostic = result.get("order_selection_diagnostic") or {}
+        p_value = result.get("p_value_mc_add_one")
+        row.update({
+            "observed_alpha": observed_alpha,
+            "null_valid": result.get("valid") is True,
+            "requested_surrogates": int(result.get("trials_requested", surrogates)),
+            "valid_surrogates": int(result.get("null_samples", 0)),
+            "exceedances": result.get("exceedances"),
+            "p_value_mc_add_one": (
+                float(p_value) if p_value is not None and np.isfinite(float(p_value)) else None
+            ),
+            "selected_order": result.get("selected_order"),
+            "surrogate_boundary_fraction": diagnostic.get("surrogate_boundary_fraction"),
+            "refit_failures": diagnostic.get("refit_failures"),
+            "alpha_estimation_failures": diagnostic.get("alpha_estimation_failures"),
+        })
+        if result.get("valid") is not True:
+            row["reason"] = result.get("reason", "invalid_null_result")
+        elif int(result.get("null_samples", 0)) != surrogates:
+            row["reason"] = "requested_surrogate_count_not_fully_valid"
+        elif row["p_value_mc_add_one"] is None:
+            row["reason"] = "missing_or_nonfinite_p_value"
+        else:
+            row.update({
+                "status": "VALID", "reason": None,
+                "rejected": bool(row["p_value_mc_add_one"] <= NOMINAL_ALPHA),
+            })
+    except Exception as exc:
+        row["reason"] = f"{type(exc).__name__}:{exc}"
+    return row
+
+
+def engineering_main() -> int:
+    import argparse
+    from analysis.type1_execution_artifacts import (
+        load_verified_artifact, validate_attempt_records,
+        write_artifact_with_manifest,
+    )
+    parser = argparse.ArgumentParser(description="Bounded V4 engineering-only execution; never formal calibration.")
+    parser.add_argument("--engineering-test", action="store_true")
+    parser.add_argument("--scenario", required=True, choices=SCENARIO_ORDER)
+    parser.add_argument("--repetitions", type=int, default=6)
+    parser.add_argument("--surrogates", type=int, default=1000)
+    parser.add_argument("--n", type=int, default=REQUIRED_SAMPLE_SIZE)
+    parser.add_argument("--master-seed", type=int, default=MASTER_SEED)
+    parser.add_argument("--start-index", type=int, default=0)
+    parser.add_argument("--stop-index", type=int)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--stop-after", type=int, help="Inject an interruption after this many new attempts.")
+    args = parser.parse_args()
+    if not args.engineering_test:
+        raise SystemExit("BLOCKED: pass --engineering-test explicitly.")
+    if args.scenario != "gaussian_ar2_phi_0_45_minus_0_10_n3328":
+        raise SystemExit("BLOCKED: engineering mode is restricted to the declared stationary AR(2) baseline.")
+    if not 1 <= args.repetitions <= 6:
+        raise SystemExit("BLOCKED: at most six outer replicates are allowed in engineering mode.")
+    if args.surrogates != 1000:
+        raise SystemExit("BLOCKED: engineering equivalence requires exactly 1000 surrogates per replicate.")
+    if args.n != REQUIRED_SAMPLE_SIZE or args.master_seed != MASTER_SEED:
+        raise SystemExit("BLOCKED: engineering dimensions must match the candidate sample size and seed.")
+    stop = args.repetitions if args.stop_index is None else args.stop_index
+    if not 0 <= args.start_index < stop <= args.repetitions:
+        raise SystemExit("BLOCKED: require 0 <= start-index < stop-index <= repetitions.")
+    if args.stop_after is not None and args.stop_after < 1:
+        raise SystemExit("BLOCKED: --stop-after must be positive.")
+    identity = _engineering_identity(args.scenario, args.start_index, stop, args.repetitions, args.surrogates, args.n, args.master_seed)
+    output = args.output
+    records = []
+    if output.exists():
+        if not args.resume:
+            raise SystemExit("BLOCKED: output exists; use --resume with identical identity or choose another path.")
+        payload = load_verified_artifact(output, expected_identity=identity)
+        records = payload.get("attempt_records")
+        if not isinstance(records, list):
+            raise SystemExit("BLOCKED: malformed checkpoint records.")
+        validate_attempt_records(records, args.start_index, stop)
+    elif args.resume:
+        raise SystemExit("BLOCKED: checkpoint requested for resume does not exist.")
+    present = {row["replicate_index"] for row in records}
+    pending = [i for i in range(args.start_index, stop) if i not in present]
+    executed = 0
+
+    def save():
+        validation = validate_attempt_records(records, args.start_index, stop)
+        status = "ENGINEERING_INCOMPLETE"
+        if validation["complete"]:
+            status = "ENGINEERING_FAILED_INVALID_ATTEMPTS" if validation["invalid_count"] else "ENGINEERING_COMPLETE"
+        artifact = {
+            "artifact_kind": "V4_OFFICIAL_RUNNER_ENGINEERING_ONLY",
+            "status": status,
+            "scenario_id": args.scenario,
+            "requested_surrogates_per_replicate": args.surrogates,
+            "requested_repetitions": args.repetitions,
+            "range_start_index": args.start_index,
+            "range_stop_index": stop,
+            "completed_indices": sorted(row["replicate_index"] for row in records),
+            "missing_indices": validation["missing_indices"],
+            "invalid_attempts": validation["invalid_count"],
+            "attempt_records": sorted(records, key=lambda row: row["replicate_index"]),
+            "formal_calibration_pass": False,
+            "claim_support": False,
+            "promotion_authority": False,
+            "confirmatory_execution_authorized": False,
+            "confirmatory_null_frozen": False,
+            "interpretation": "Engineering-only execution of the runner's endpoint/null path; not a formal calibration result.",
+        }
+        write_artifact_with_manifest(output, artifact, identity)
+        return artifact
+
+    save()
+    for index in pending:
+        row = execute_attempt(args.scenario, index, args.master_seed, args.n, args.surrogates)
+        records.append(row)
+        executed += 1
+        current = save()
+        print(json.dumps({"replicate_index": index, "attempt_status": row["status"], "reason": row["reason"], "checkpoint_status": current["status"], "missing_indices": current["missing_indices"]}), flush=True)
+        if args.stop_after is not None and executed >= args.stop_after:
+            print("ENGINEERING INTERRUPTION INJECTED; checkpoint retained.")
+            return 0
+    final = save()
+    print(json.dumps({"status": final["status"], "completed_indices": final["completed_indices"], "missing_indices": final["missing_indices"], "invalid_attempts": final["invalid_attempts"], "artifact": str(output), "manifest": str(output) + ".manifest.json", "formal_calibration_pass": False}, indent=2))
+    return 0 if final["status"] in {"ENGINEERING_COMPLETE", "ENGINEERING_INCOMPLETE"} else 1
+
+
+def main() -> int:
+    import sys as _sys
+    if "--engineering-test" in _sys.argv:
+        return engineering_main()
+    return formal_main()
 
 
 if __name__ == "__main__":
