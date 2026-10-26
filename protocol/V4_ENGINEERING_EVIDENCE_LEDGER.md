@@ -155,3 +155,75 @@ No Type-I calibration pass is established.
 No acceptance rule is approved by this entry.
 
 Keep the V4 candidate NOT_FROZEN, confirmatory execution unauthorized, claim support false, and promotion authority false until the required independent review and governance gates are completed.
+
+## 9. New evidence entry — 2026-10-26 — Resume identity tests and official-runner engineering verification
+
+A. Official-runner engineering workflow
+
+- Repository: "AhmedPeaRL/maximal-one"
+- Branch: "review/type1-v4-remediation"
+- Tested commit: "a4b8698517c742a8bc5d579418d05c833462c87e"
+- Workflow run: "40378112715"
+- Job: "121766644902"
+- Job conclusion: "success"
+- Artifact ID: "12678142523"
+- Artifact name: "type1-v4-official-runner-engineering-40378112715-1"
+- Artifact size reported by GitHub: "20,219" bytes
+- GitHub-reported artifact digest: "sha256:f158607d53aaff84039410f91ac72c16f26aada03b869c283437d285936b89e8"
+
+The job completed the following steps successfully:
+
+- Checkout identity verification.
+- Locked dependency installation.
+- Artifact integrity tests.
+- Merger integrity and rejection tests.
+- Resume identity and artifact rejection tests.
+- Official-runner connected/sharded/merged/resumed engineering-equivalence test.
+- Evidence-artifact upload step.
+
+The separate resume-identity test module uses synthetic identity fixtures. It checks acceptance of an exact matching identity, rejection of multiple identity mismatches, and rejection of artifact bytes that no longer match the recorded SHA-256.
+
+B. Full-path workflow
+
+- Workflow run: "40378112711"
+- Job: "121766644597"
+- Job conclusion: "success"
+- Artifact ID: "12678977860"
+- Artifact name: "type1-full-path-equivalence-evidence"
+- Artifact size reported by GitHub: "273" bytes
+- GitHub-reported artifact digest: "sha256:12e0f6cb702e23be8cefd1e02e5b33b931ae445563a464cce4589b38d37620d2"
+
+The job summary reports successful completion of the official-runner full-path test and its preceding engineering checks.
+
+C. Exact scope and limitations
+
+Classification:
+
+"ENGINEERING_TESTS_PASS_FOR_RECORDED_RUNS_ONLY"
+
+The results support successful completion of the specific engineering tests executed at the recorded commit. They do not establish that every production CLI resume mismatch is rejected, that a rejected CLI resume leaves an existing checkpoint byte-for-byte unchanged, or that worker-assignment invariance has been demonstrated.
+
+The standalone resume identity tests exercise the artifact identity-verification helper using synthetic fixtures. They must not be described as complete end-to-end proof of every production resume safeguard.
+
+The evidence does not establish:
+
+- Formal Type-I error calibration.
+- Approval of the 0.075 acceptance ceiling or any alternative acceptance rule.
+- Validation of all nine V4 scenarios.
+- Protocol freeze or authorization of confirmatory execution.
+- Independent empirical replication or broader HCM claim support.
+- Independent inspection of the downloaded artifact ZIP payloads.
+
+The previous failed runs remain part of the historical record. The later successful runs address the tested engineering fixture and paths only; they do not retroactively change the earlier results.
+
+D. Governance state
+
+Keep the following unchanged until separately reviewed and authorized:
+
+- "freeze_state = NOT_FROZEN"
+- "confirmatory_execution_authorized = false"
+- "claim_support = false"
+- "promotion_authority = false"
+- Formal calibration: "NOT AUTHORIZED"
+
+The remaining CLI-resume, runtime-configuration, worker-assignment, scientific acceptance-rule, and independent-review gates remain open unless supported by their own attributable evidence.
