@@ -228,7 +228,6 @@ Keep the following unchanged until separately reviewed and authorized:
 
 The remaining CLI-resume, runtime-configuration, worker-assignment, scientific acceptance-rule, and independent-review gates remain open unless supported by their own attributable evidence.
 
-
 ## 10. Evidence — CLI resume identity rejection and partition verification — 2026-10-27
 
 ### A. Official CLI identity rejection
@@ -308,3 +307,53 @@ confirmatory_execution_authorized = false
 claim_support = false
 promotion_authority = false
 formal_calibration = NOT_AUTHORIZED
+
+## 11. Engineering remediation record — 2026-10-27
+
+Classification: OPEN — REMEDIATION REQUIRED
+
+The following failures were observed in the recorded engineering runs:
+
+1. Run 40417570720:
+   the worker-order test passed a single-replicate shard to a helper
+   that requires all six replicate records. This is a test-scope mismatch.
+   The full-path test did not pass.
+
+2. Run 40417595888:
+   the CLI resume identity test failed for start_index because the
+   mutated range was invalid before the expected identity comparison.
+   The full CLI identity test did not pass.
+
+3. Run 40419156405:
+   the V3/V4 governance separation test failed two assertions.
+   The legacy workflow validates V3 metadata but calls a scenario runner
+   whose current implementation reads the V4 candidate matrix.
+   This is a governance-path mismatch requiring a fail-closed guard
+   and a separately verified V3 runner before any V3 calibration attempt.
+
+These failures remain historical facts and must not be deleted,
+overwritten, or retrospectively relabeled as passing.
+
+Required re-test evidence:
+- CLI identity mismatch rejection with valid ranges.
+- Exit code and expected diagnostic asserted for every identity field.
+- Original checkpoint and manifest retained as immutable baseline copies.
+- Worker-order records validated individually and compared after merge.
+- Missing, duplicate, or invalid attempts remain visible and cannot
+  be silently replaced or counted as successful completion.
+- V3 workflow blocked before invoking a V4 candidate runner.
+- Evidence artifacts uploaded even when a test fails.
+
+The remediation is not complete until a new workflow run on the
+review branch demonstrates the corrected tests and retains its logs
+and artifacts.
+
+Governance state remains unchanged:
+- freeze_state = NOT_FROZEN
+- confirmatory_execution_authorized = false
+- claim_support = false
+- promotion_authority = false
+- formal calibration = NOT AUTHORIZED
+
+No acceptance threshold is approved by this record.
+No historical result is reinterpreted by this record.
