@@ -525,3 +525,103 @@ Required state remains:
 
 No historical result or failed run may be deleted, backdated,
 or retrospectively reclassified as a pass.
+
+## 14. Official CLI resume identity and concurrent worker-order verification — 2026-10-27
+
+Classification: PASS FOR THE EXACT RECORDED ENGINEERING CONFIGURATION ONLY
+
+### A. Run identity
+
+* Repository: `AhmedPeaRL/maximal-one`
+* Branch: `review/type1-v4-remediation`
+* Tested commit: `c5f69718a40f9de6bedea0bbd7c6e75bcc403c98`
+* Workflow run: `40573677677`
+* Job: `122434281366`
+* Workflow result: `success`
+* Workflow: `Type-I V4 Official Runner Engineering Equivalence`
+* Artifact ID: `12768599749`
+* Artifact name: `type1-v4-official-runner-engineering-40573677677-1`
+* Artifact size reported by GitHub: `76083` bytes
+* Artifact ZIP SHA-256 reported by GitHub: `91b64867c5e55cd93e4b872e0540058be45fef8d295fce38bf73cdd5d4e5487e`
+
+### B. Official CLI resume identity rejection
+
+Test:
+`tests/test_type1_cli_resume_identity_rejections.py`
+
+Observed result: PASS.
+
+The test created a checkpoint and manifest through the bounded official engineering CLI configuration. It tested each of 19 declared identity fields individually.
+
+For every mismatch, the test required:
+
+* exit code `1`;
+* the expected identity-mismatch diagnostic;
+* byte-for-byte preservation of the original checkpoint;
+* byte-for-byte preservation of the original manifest;
+* unchanged SHA-256 hashes for both files.
+
+The workflow log reports one test passed. The test duration was approximately 151.172 seconds.
+
+This establishes rejection and byte preservation for the exact identity schema, test hook, checkpoint, command path, and configuration exercised. It does not prove resistance to every possible malformed input or every untested resume failure mode.
+
+### C. Concurrent worker-order equivalence
+
+Test:
+`tests/test_type1_parallel_worker_order_equivalence.py`
+
+Observed result: PASS.
+
+Configuration:
+
+* Scenario: `gaussian_ar2_phi_0_45_minus_0_10_n3328`
+* Sample size: `3328`
+* Master seed: `20261021`
+* Requested repetitions: `6`
+* Requested surrogates per replicate: `1000`
+* Worker submission order: `[4, 1, 5, 0, 3, 2]`
+* Maximum concurrent workers: `3`
+
+The test compared a connected reference with separately invoked CLI worker tasks. It required exactly one attempt record for every requested replicate index, no duplicate worker results, complete coverage of indices `0` through `5`, and matching canonical scientific fields for every replicate.
+
+Compared fields included DGP and null seed identities, generated-series SHA-256, endpoint estimate, requested and valid surrogate counts, exceedances, Monte Carlo p-value, selected order, boundary fraction, refit and estimation failures, status, and failure reason.
+
+The test passed. Its recorded duration was approximately 596.326 seconds.
+
+### D. Governance separation tests
+
+Test:
+`tests/test_v3_v4_governance_separation.py`
+
+Observed result: 3 tests passed.
+
+The tests checked that:
+
+* the legacy V3 workflow remains fail-closed before calling the incompatible candidate runner;
+* the V4 candidate matrix remains unfrozen and unauthorized;
+* the engineering workflow is separate from formal calibration.
+
+### E. Scope and limitations
+
+The workflow also reported:
+
+* 8 artifact-integrity tests passed;
+* 6 shard-merge rejection tests passed;
+* 1 official-runner full-path connected/sharded/merged/resumed equivalence test passed;
+* 1 concurrent worker-order equivalence test passed;
+* 1 CLI identity-rejection test passed;
+* 3 V3/V4 governance separation tests passed.
+
+These are engineering results for the recorded commit and configuration. They do not establish formal Type-I calibration, validate all nine candidate scenarios, approve the 0.075 ceiling, resolve the acceptance-rule conflict, freeze the V4 protocol, establish independent statistical approval, or support the broader HCM claim.
+
+Earlier failed and cancelled runs remain part of the historical record. This successful run does not delete or retrospectively relabel those results.
+
+### F. Governance state — unchanged
+
+* `freeze_state = NOT_FROZEN`
+* `confirmatory_execution_authorized = false`
+* `claim_support = false`
+* `promotion_authority = false`
+* Formal calibration: `NOT AUTHORIZED`
+
+No acceptance threshold is approved by this entry. The separate-runner comparison must be rerun against the current review-branch snapshot before it is described as evidence for that exact snapshot.
