@@ -77,7 +77,15 @@ class V3V4GovernanceSeparationTests(unittest.TestCase):
             workflow,
         )
         self.assertIn(
-            "tests.test_type1_full_path_equivalence",
+            "test_type1_full_path_equivalence.py",
+            workflow,
+        )
+        self.assertIn(
+            "python -m unittest discover -s tests -p",
+            workflow,
+        )
+        self.assertIn(
+            "tests.test_type1_cli_resume_identity_rejections",
             workflow,
         )
 
