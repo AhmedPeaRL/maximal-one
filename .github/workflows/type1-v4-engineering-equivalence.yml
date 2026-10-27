@@ -17,6 +17,7 @@ on:
       - '.github/workflows/type1-v4-engineering-equivalence.yml'
       - 'tests/test_type1_resume_identity_rejections.py'
       - 'tests/test_type1_cli_resume_identity_rejections.py'
+      - 'tests/test_v3_v4_governance_separation.py'
 
 permissions:
   contents: read
@@ -109,5 +110,6 @@ jobs:
           name: type1-v4-official-runner-engineering-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             artifacts/type1_official_runner_equivalence/**
-          if-no-files-found: warn
+            artifacts/type1_cli_resume_identity/**
+          if-no-files-found: error
           retention-days: 90
