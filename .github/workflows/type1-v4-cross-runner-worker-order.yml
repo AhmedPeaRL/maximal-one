@@ -1,0 +1,190 @@
+name: Type-I V4 Cross-Runner Worker-Order Equivalence
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - review/type1-v4-remediation
+    paths:
+      - 'analysis/calibrate_null_type1_scenario.py'
+      - 'analysis/type1_execution_artifacts.py'
+      - 'analysis/compare_type1_cross_runner.py'
+      - 'requirements-lock.txt'
+      - '.github/workflows/type1-v4-cross-runner-worker-order.yml'
+
+permissions:
+  contents: read
+
+env:
+  PYTHONHASHSEED: '42'
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  NUMEXPR_NUM_THREADS: '1'
+
+jobs:
+  connected-reference:
+    name: Connected reference on independent runner
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.15'
+          cache: pip
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install locked dependencies
+        run: python -m pip install --require-hashes -r requirements-lock.txt
+
+      - name: Run connected engineering reference
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/cross_runner
+          python -m analysis.calibrate_null_type1_scenario \
+            --engineering-test \
+            --scenario gaussian_ar2_phi_0_45_minus_0_10_n3328 \
+            --repetitions 6 \
+            --surrogates 1000 \
+            --n 3328 \
+            --master-seed 20261021 \
+            --start-index 0 \
+            --stop-index 6 \
+            --output artifacts/cross_runner/reference.json
+
+      - name: Upload connected reference, including on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cross-runner-reference
+          path: |
+            artifacts/cross_runner/reference.json
+            artifacts/cross_runner/reference.json.manifest.json
+          if-no-files-found: error
+          retention-days: 90
+
+  independent-workers:
+    name: Worker replicate ${{ matrix.replicate_index }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        replicate_index: [0, 1, 2, 3, 4, 5]
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.15'
+          cache: pip
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install locked dependencies
+        run: python -m pip install --require-hashes -r requirements-lock.txt
+
+      - name: Run assigned replicate
+        shell: bash
+        env:
+          REPLICATE_INDEX: ${{ matrix.replicate_index }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/cross_runner
+          START="$REPLICATE_INDEX"
+          STOP="$((REPLICATE_INDEX + 1))"
+          python -m analysis.calibrate_null_type1_scenario \
+            --engineering-test \
+            --scenario gaussian_ar2_phi_0_45_minus_0_10_n3328 \
+            --repetitions 6 \
+            --surrogates 1000 \
+            --n 3328 \
+            --master-seed 20261021 \
+            --start-index "$START" \
+            --stop-index "$STOP" \
+            --output "artifacts/cross_runner/worker-${REPLICATE_INDEX}.json"
+
+      - name: Upload worker evidence, including on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cross-runner-worker-${{ matrix.replicate_index }}
+          path: |
+            artifacts/cross_runner/worker-${{ matrix.replicate_index }}.json
+            artifacts/cross_runner/worker-${{ matrix.replicate_index }}.json.manifest.json
+          if-no-files-found: error
+          retention-days: 90
+
+  compare:
+    name: Verify all workers against connected reference
+    if: always()
+    needs:
+      - connected-reference
+      - independent-workers
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.15'
+          cache: pip
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install locked dependencies
+        run: python -m pip install --require-hashes -r requirements-lock.txt
+
+      - name: Download connected reference
+        uses: actions/download-artifact@v4
+        with:
+          name: cross-runner-reference
+          path: artifacts/download/reference
+
+      - name: Download worker artifacts separately
+        uses: actions/download-artifact@v4
+        with:
+          pattern: cross-runner-worker-*
+          path: artifacts/download/workers
+          merge-multiple: false
+
+      - name: Compare verified worker records
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/cross_runner
+          python -m analysis.compare_type1_cross_runner \
+            --reference artifacts/download/reference/reference.json \
+            --total-repetitions 6 \
+            --output artifacts/cross_runner/cross_runner_comparison.json \
+            --worker artifacts/download/workers/cross-runner-worker-0/worker-0.json \
+            --worker artifacts/download/workers/cross-runner-worker-1/worker-1.json \
+            --worker artifacts/download/workers/cross-runner-worker-2/worker-2.json \
+            --worker artifacts/download/workers/cross-runner-worker-3/worker-3.json \
+            --worker artifacts/download/workers/cross-runner-worker-4/worker-4.json \
+            --worker artifacts/download/workers/cross-runner-worker-5/worker-5.json
+
+      - name: Upload comparison report and downloaded evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cross-runner-comparison-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            artifacts/cross_runner/**
+            artifacts/download/**
+          if-no-files-found: warn
+          retention-days: 90
