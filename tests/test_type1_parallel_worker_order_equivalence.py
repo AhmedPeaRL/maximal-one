@@ -52,10 +52,10 @@ def scientific_record(row: dict) -> dict:
 
 
 class ParallelWorkerOrderEquivalenceTests(unittest.TestCase):
-    """Compare concurrent CLI workers with the connected reference.
+    """Compare concurrent CLI workers with the connected reference."""
 
-    This is engineering-only. It is not formal Type-I calibration.
-    """
+    def setUp(self):
+        EVIDENCE_ROOT.mkdir(parents=True, exist_ok=True)
 
     def run_cli(
         self,
