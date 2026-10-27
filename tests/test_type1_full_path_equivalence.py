@@ -185,7 +185,33 @@ class OfficialRunnerEquivalenceTests(unittest.TestCase):
                 [row["replicate_index"] for row in rows],
                 [replicate_index],
             )
-            self.assert_records_preserved(payload)
+
+            self.assertEqual(len(rows), 1)
+            row = rows[0]
+
+            self.assertEqual(
+                row.get("requested_surrogates"),
+                SURROGATES,
+            )
+            self.assertIn(
+                row.get("status"),
+                {"VALID", "INVALID"},
+            )
+
+            if row["status"] == "INVALID":
+                self.assertTrue(
+                    row.get("reason"),
+                    "Invalid attempt must preserve its failure reason",
+                )
+            else:
+                self.assertEqual(
+                    row.get("valid_surrogates"),
+                    SURROGATES,
+                )
+                self.assertIsNotNone(
+                    row.get("p_value_mc_add_one"),
+                )
+
             worker_shards.append(shard_path)
 
         worker_order_merged = self.run_merge(
