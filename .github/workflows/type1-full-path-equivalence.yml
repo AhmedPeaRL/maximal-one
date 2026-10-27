@@ -120,6 +120,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: type1-full-path-equivalence-evidence
-          path: artifacts/type1_full_path_equivalence/
-          if-no-files-found: warn
+          path: |
+            artifacts/type1_full_path_equivalence/**
+            artifacts/type1_official_runner_equivalence/**
+          if-no-files-found: error
           retention-days: 90
