@@ -416,9 +416,9 @@ def engineering_main() -> int:
         raise SystemExit("BLOCKED: --stop-after must be positive.")
     identity = _engineering_identity(args.scenario, args.start_index, stop, args.repetitions, args.surrogates, args.n, args.master_seed)
     if args.test_identity_mismatch_field is not None:
-    identity = dict(identity)
-    field = args.test_identity_mismatch_field
-    identity[field] = f"__TEST_ONLY_MISMATCH__:{field}"
+        identity = dict(identity)
+        field = args.test_identity_mismatch_field
+        identity[field] = f"__TEST_ONLY_MISMATCH__:{field}"
     output = args.output
     records = []
     if output.exists():
