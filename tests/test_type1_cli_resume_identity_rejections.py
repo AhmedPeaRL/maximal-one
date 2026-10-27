@@ -105,8 +105,6 @@ class OfficialCliResumeIdentityTests(unittest.TestCase):
                 "create-valid-checkpoint",
                 cli_command(checkpoint, resume=False),
             )
-            immutable_baseline_checkpoint = bytes(before_checkpoint)
-            immutable_baseline_manifest = bytes(before_manifest)
             baseline_checkpoint_copy = Path(temporary) / "baseline-checkpoint.json"
             baseline_manifest_copy = Path(temporary) / "baseline-manifest.json"
 
@@ -173,6 +171,8 @@ class OfficialCliResumeIdentityTests(unittest.TestCase):
 
                     before_checkpoint = checkpoint.read_bytes()
                     before_manifest = manifest.read_bytes()
+                    immutable_baseline_checkpoint = bytes(before_checkpoint)
+                    immutable_baseline_manifest = bytes(before_manifest)
 
                     result = self.run_cli(
                         f"resume-reject-{field}",
