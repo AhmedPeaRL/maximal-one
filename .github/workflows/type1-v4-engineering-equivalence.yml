@@ -18,6 +18,9 @@ on:
       - 'tests/test_type1_resume_identity_rejections.py'
       - 'tests/test_type1_cli_resume_identity_rejections.py'
       - 'tests/test_v3_v4_governance_separation.py'
+      - 'tests/test_type1_parallel_worker_order_equivalence.py'
+      - 'analysis/compare_type1_cross_runner.py'
+      - '.github/workflows/type1-v4-cross-runner-worker-order.yml'
 
 permissions:
   contents: read
