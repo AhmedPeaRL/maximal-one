@@ -6,26 +6,36 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class V3V4GovernanceSeparationTests(unittest.TestCase):
-    def test_legacy_workflow_remains_pinned_to_v3(self):
+    def test_legacy_workflow_is_fail_closed_until_v3_runner_is_restored(self):
         workflow = (
             ROOT / ".github/workflows/null-type1-calibration.yml"
-        ).read_text(encoding="utf-8")
-
-        runner = (
-            ROOT / "analysis/calibrate_null_type1.py"
         ).read_text(encoding="utf-8")
 
         self.assertIn(
             "TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json",
             workflow,
         )
-        self.assertIn(
-            'MATRIX_PATH = Path("protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json")',
-            runner,
-        )
         self.assertNotIn(
             "TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_CANDIDATE.json",
             workflow,
+        )
+
+        start = workflow.index(
+            "- name: Fail closed until the V3 runner is reconciled"
+        )
+        end = workflow.find(
+            "\n      - name:",
+            start + 1,
+        )
+        if end == -1:
+            end = len(workflow)
+
+        guard_step = workflow[start:end]
+        self.assertIn("BLOCKED:", guard_step)
+        self.assertIn("exit 1", guard_step)
+        self.assertNotIn(
+            "python -m analysis.calibrate_null_type1_scenario",
+            guard_step,
         )
 
     def test_v4_candidate_is_not_an_authorization_record(self):
@@ -37,10 +47,7 @@ class V3V4GovernanceSeparationTests(unittest.TestCase):
             matrix_path.read_text(encoding="utf-8")
         )
 
-        self.assertEqual(
-            matrix["freeze_state"],
-            "NOT_FROZEN",
-        )
+        self.assertEqual(matrix["freeze_state"], "NOT_FROZEN")
         self.assertIs(
             matrix["confirmatory_execution_authorized"],
             False,
@@ -57,8 +64,7 @@ class V3V4GovernanceSeparationTests(unittest.TestCase):
 
     def test_engineering_workflow_is_separate(self):
         workflow_path = (
-            ROOT
-            / ".github/workflows/type1-v4-engineering-equivalence.yml"
+            ROOT / ".github/workflows/type1-v4-engineering-equivalence.yml"
         )
         workflow = workflow_path.read_text(encoding="utf-8")
 
