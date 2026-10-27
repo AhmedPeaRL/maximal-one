@@ -290,6 +290,74 @@ Keep:
 
 Historical failures and classifications must be preserved.
 
+### E14 — Official CLI resume identity and worker-order verification — 2026-10-27
+
+**Status:** PASS FOR THE RECORDED ENGINEERING CONFIGURATIONS ONLY
+
+#### A. Official CLI resume identity rejection
+
+- Repository: `AhmedPeaRL/maximal-one`
+- Branch: `review/type1-v4-remediation`
+- Tested commit: `eae6f282031c691c9801c1815f41bbf55a244956`
+- Workflow run: `40585881657`
+- Job: `122478074710`
+- Workflow result: `success`
+- Workflow attempt: `2`
+- Test: `tests/test_type1_cli_resume_identity_rejections.py`
+
+The test creates a valid engineering checkpoint and manifest, records their original bytes and SHA-256 hashes, and tests rejection of each of 19 identity-field mismatches through the actual CLI resume entry point.
+
+For every tested mismatch, the test requires:
+- Exit code `1`.
+- The expected identity-mismatch diagnostic.
+- Byte-for-byte preservation of the original checkpoint.
+- Byte-for-byte preservation of the original manifest.
+- Matching before/after SHA-256 values for both files.
+
+The workflow reports successful completion of the CLI identity-rejection test. The uploaded artifact payload has not been independently inspected for this ledger entry.
+
+#### B. Concurrent worker-order equivalence
+
+- Workflow run: `40585881668`
+- Workflow: `Type-I V4 Cross-Runner Worker-Order Equivalence`
+- Tested commit: `eae6f282031c691c9801c1815f41bbf55a244956`
+- Result: `success`
+- Connected reference: six replicate indices, `0–5`.
+- Independent workers: one assigned replicate per worker, with separate artifacts and manifests.
+- Scenario: `gaussian_ar2_phi_0_45_minus_0_10_n3328`
+- Sample size: `3328`
+- Master seed: `20261021`
+- Requested surrogates per replicate: `1000`
+
+The workflow reports successful completion of the connected reference, all six worker jobs, and the final worker-to-reference comparison.
+
+The worker-order test compares, by replicate index:
+- DGP and null seed identities.
+- Generated-series SHA-256.
+- Endpoint estimate.
+- Requested and valid surrogate counts.
+- Exceedance count and Monte Carlo p-value.
+- Selected order and diagnostic fields.
+- Attempt status and failure reason.
+
+It checks that every requested index is represented exactly once and that the compared scientific fields match the connected reference.
+
+#### C. Scope and governance
+
+These results establish engineering evidence for the recorded test configurations only. They do not establish formal Type-I calibration, approve the V4 acceptance rule, validate all nine scenarios, or support the broader HCM scientific claim.
+
+The tests use `--engineering-test`. They are not an authorized confirmatory execution.
+
+Keep all of the following unchanged:
+
+- `freeze_state = NOT_FROZEN`
+- `confirmatory_execution_authorized = false`
+- `claim_support = false`
+- `promotion_authority = false`
+- Formal calibration: `NOT AUTHORIZED`
+
+Historical failures remain preserved under their original decision rules. The uploaded artifact payloads and their internal evidence files must be inspected before making stronger claims about artifact contents.
+
 ## 3. Scientific acceptance criteria
 
 ### S1 — Attributable independent statistical review
