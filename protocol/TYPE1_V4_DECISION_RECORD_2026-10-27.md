@@ -175,3 +175,70 @@ formal_calibration = NOT_AUTHORIZED
 A later approval must identify its exact commit and protocol hashes.
 It applies prospectively only to the explicitly approved protocol
 and must not retroactively alter historical results.
+
+## 7. Parallel worker-order and cross-runner verification — 2026-10-27
+
+Status: REQUIRED — NOT YET ESTABLISHED BY THIS RECORD
+
+### A. Same-runner concurrent execution
+
+Required test:
+`tests/test_type1_parallel_worker_order_equivalence.py`
+
+The test must launch concurrent CLI subprocesses using a permuted
+replicate assignment order and compare every requested replicate
+against the connected reference.
+
+Required comparisons include:
+- DGP and null seed identities.
+- Generated-series SHA-256.
+- Endpoint estimate (`observed_alpha`).
+- Requested and valid surrogate counts.
+- Exceedances and Monte Carlo p-value.
+- Selected order and available numerical diagnostics.
+- Attempt status and failure reason.
+
+The test must preserve all requested indices and must not silently
+drop, replace, or retry an invalid attempt.
+
+### B. Independent GitHub-hosted runners
+
+Required workflow:
+`.github/workflows/type1-v4-cross-runner-worker-order.yml`
+
+Each replicate must be executed in its own GitHub Actions job.
+The comparison job must verify artifact manifests and hashes, check
+the common execution identity, record platform identity differences,
+and compare each worker record against the connected reference.
+
+A successful same-runner test is not evidence of cross-runner
+invariance. A successful workflow status alone is not sufficient:
+the logs, uploaded artifacts, commit SHA, and comparison report
+must be inspected.
+
+### C. Evidence status
+
+Until new workflow runs are observed and their evidence inspected,
+both gates remain OPEN.
+
+No result is to be labelled PASS merely because a workflow file was
+added or a workflow was dispatched.
+
+Any missing, duplicated, invalid, or mismatching attempt must remain
+visible and must not be silently replaced. The requested denominator
+must remain N = 6 for this bounded engineering test.
+
+### D. Governance boundary
+
+These tests are engineering checks only. They do not establish
+Type-I calibration, validate all nine V4 scenarios, approve an
+acceptance threshold, or authorize confirmatory execution.
+
+Keep:
+- freeze_state = NOT_FROZEN
+- confirmatory_execution_authorized = false
+- claim_support = false
+- promotion_authority = false
+- formal calibration = NOT AUTHORIZED
+
+Historical outcomes and failures remain unchanged.
