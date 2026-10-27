@@ -357,3 +357,71 @@ Governance state remains unchanged:
 
 No acceptance threshold is approved by this record.
 No historical result is reinterpreted by this record.
+
+## 12. Required parallel worker-order and independent-runner evidence — 2026-10-27
+
+Classification: PENDING EXECUTION AND EVIDENCE REVIEW
+
+### A. Same-runner concurrent worker-order test
+
+Planned test:
+`tests/test_type1_parallel_worker_order_equivalence.py`
+
+Purpose:
+Compare a connected six-replicate reference with six separately
+invoked CLI replicate tasks submitted concurrently in a permuted
+worker assignment order.
+
+Evidence required:
+- Exact tested commit SHA and workflow run/job URLs.
+- Full test log and uploaded evidence artifact.
+- Requested indices exactly 0 through 5, with one attempt per index.
+- Per-replicate seed identities and generated-series hashes.
+- Endpoint estimates, requested/valid surrogate counts, exceedances,
+  p-values, statuses, and failure reasons.
+- Explicit confirmation that formal_calibration_pass remained false.
+
+### B. Independent-runner comparison
+
+Planned workflow:
+`.github/workflows/type1-v4-cross-runner-worker-order.yml`
+
+Purpose:
+Execute each replicate in a separate GitHub Actions job and compare
+the resulting records with the connected reference.
+
+Evidence required:
+- Reference and worker job conclusions.
+- Exact checkout commit SHA for every job.
+- Verified artifact and manifest hashes.
+- Common run-identity comparison, including commit, matrix, runner,
+  seed schedule, endpoint, null implementation, and dependency lock.
+- Recorded platform_identity for the reference and each worker.
+- A complete comparison report covering all requested indices.
+- Evidence that missing, duplicate, invalid, or mismatching attempts
+  cannot be treated as a successful complete result.
+
+### C. Interpretation rule
+
+Until the runs have completed and the actual logs and artifacts have
+been inspected, these are planned tests, not successful evidence.
+
+If the tests pass, the conclusion is limited to engineering
+equivalence for the exact recorded configuration and execution
+environments. It is not evidence of Type-I calibration, acceptance
+threshold validity, protocol freeze, independent statistical approval,
+or HCM claim support.
+
+A failed run must remain in the historical record. A later successful
+run may establish a corrected engineering test for its own recorded
+configuration, but it does not erase or retroactively relabel earlier
+failures.
+
+Governance state remains unchanged:
+- freeze_state = NOT_FROZEN
+- confirmatory_execution_authorized = false
+- claim_support = false
+- promotion_authority = false
+- formal calibration = NOT AUTHORIZED
+
+No acceptance threshold is approved by this entry.
