@@ -266,6 +266,30 @@ This entry does not establish Type-I calibration, approve an acceptance threshol
 
 Keep "freeze_state = NOT_FROZEN", "confirmatory_execution_authorized = false", "claim_support = false", and "promotion_authority = false". Formal calibration remains "NOT AUTHORIZED".
 
+## E9 — Resume identity and independent-runner evidence — 2026-10-27
+
+Status: PARTIAL ENGINEERING PASS; PARALLEL WORKER-ORDER RETEST OPEN
+
+- CLI resume identity rejection: PASS for 19 tested identity fields.
+- Checkpoint and manifest byte preservation: PASS for tested rejections.
+- Independent-runner comparison: PASS for the six declared replicates.
+- Comparison artifact: `12719509424`.
+- Concurrent worker-order test: FAILED in run `40474378251`;
+  a corrected retest is required.
+- Cross-runner result does not replace the failed worker-order test.
+
+The V4 matrix remains a candidate, not a frozen protocol.
+No acceptance threshold is approved by this entry.
+
+Keep:
+- freeze_state = NOT_FROZEN
+- confirmatory_execution_authorized = false
+- claim_support = false
+- promotion_authority = false
+- formal calibration = NOT AUTHORIZED
+
+Historical failures and classifications must be preserved.
+
 ## 3. Scientific acceptance criteria
 
 ### S1 — Attributable independent statistical review
