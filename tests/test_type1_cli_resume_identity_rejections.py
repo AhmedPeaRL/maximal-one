@@ -39,7 +39,7 @@ def cli_command(checkpoint: Path, *, resume: bool) -> list[str]:
         "--n", str(SAMPLE_SIZE),
         "--master-seed", str(MASTER_SEED),
         "--start-index", "0",
-        "--stop-index", "1",
+        "--stop-index", "2",
         "--output", str(checkpoint),
     ]
     if resume:
@@ -59,7 +59,7 @@ def changed_identity_fields() -> dict:
         "master_seed": MASTER_SEED + 1,
         "seed_schedule_id": "mutated-seed-schedule",
         "start_index": 1,
-        "stop_index": 2,
+        "stop_index": 1,
         "commit_sha": "b" * 40,
         "matrix_sha256": "4" * 64,
         "runner_sha256": "5" * 64,
@@ -105,6 +105,14 @@ class OfficialCliResumeIdentityTests(unittest.TestCase):
                 "create-valid-checkpoint",
                 cli_command(checkpoint, resume=False),
             )
+            baseline_checkpoint_copy = Path(temporary) / "baseline-checkpoint.json"
+            baseline_manifest_copy = Path(temporary) / "baseline-manifest.json"
+
+            baseline_checkpoint_copy.write_bytes(checkpoint.read_bytes())
+            baseline_manifest_copy.write_bytes(manifest.read_bytes())
+
+            baseline_checkpoint_sha256 = sha256_file(baseline_checkpoint_copy)
+            baseline_manifest_sha256 = sha256_file(baseline_manifest_copy)
             self.assertEqual(
                 created.returncode, 0, created.stdout
             )
@@ -164,6 +172,9 @@ class OfficialCliResumeIdentityTests(unittest.TestCase):
                     before_checkpoint = checkpoint.read_bytes()
                     before_manifest = manifest.read_bytes()
 
+                    immutable_baseline_checkpoint = bytes(before_checkpoint)
+                    immutable_baseline_manifest = bytes(before_manifest)
+
                     result = self.run_cli(
                         f"resume-reject-{field}",
                         cli_command(checkpoint, resume=True),
@@ -191,6 +202,14 @@ class OfficialCliResumeIdentityTests(unittest.TestCase):
                     self.assertEqual(
                         after_manifest, before_manifest,
                         f"Rejected resume changed manifest for {field}",
+                    )
+                    self.assertEqual(
+                        sha256_file(baseline_checkpoint_copy),
+                        baseline_checkpoint_sha256,
+                    )
+                    self.assertEqual(
+                        sha256_file(baseline_manifest_copy),
+                        baseline_manifest_sha256,
                     )
 
                     summary.append({
