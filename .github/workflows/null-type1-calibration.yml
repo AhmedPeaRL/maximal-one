@@ -176,17 +176,13 @@ jobs:
           python -m pip install --require-hashes -r requirements-lock.txt
           python -m unittest discover -s tests -p 'test_secondary_acquisition_safety.py' -v
 
-      - name: Run declared V3 scenario calibration
+      - name: Fail closed until the V3 runner is reconciled
         shell: bash
         run: |
           set -euo pipefail
-          python -m analysis.calibrate_null_type1_scenario \
-            --scenario "${{ matrix.scenario }}" \
-            --repetitions "${{ matrix.repetitions }}" \
-            --surrogates "${{ matrix.surrogates }}" \
-            --n "${{ matrix.n }}" \
-            --master-seed "${{ matrix.master_seed }}" \
-            --checkpoint-every 25
+          echo "::error::BLOCKED: this workflow validates the V3 matrix but its current execution path calls the scenario runner that reads the V4 candidate matrix. No calibration is authorized."
+          echo "Required remediation: restore and independently verify a V3-specific runner, or approve a separately reviewed workflow migration."
+          exit 1
 
       - name: Bind artifact to exact workflow identity
         if: always()
