@@ -366,9 +366,41 @@ def engineering_main() -> int:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--stop-after", type=int, help="Inject an interruption after this many new attempts.")
+    parser.add_argument(
+        "--test-identity-mismatch-field",
+        choices=[
+            "protocol",
+            "scenario_id",
+            "scenario_coefficients",
+            "sample_size",
+            "dgp_burn_in",
+            "surrogates_requested",
+            "total_repetitions",
+            "master_seed",
+            "seed_schedule_id",
+            "start_index",
+            "stop_index",
+            "commit_sha",
+            "matrix_sha256",
+            "runner_sha256",
+            "endpoint_identity",
+            "null_implementation_identity",
+            "requirements_lock_sha256",
+            "python_version",
+            "platform_identity",
+        ],
+        help="Engineering-test-only identity mismatch injection.",
+    )
     args = parser.parse_args()
     if not args.engineering_test:
         raise SystemExit("BLOCKED: pass --engineering-test explicitly.")
+    if (
+        args.test_identity_mismatch_field is not None
+        and not args.resume
+    ):
+        raise SystemExit(
+            "BLOCKED: identity mismatch injection requires --resume."
+        )
     if args.scenario != "gaussian_ar2_phi_0_45_minus_0_10_n3328":
         raise SystemExit("BLOCKED: engineering mode is restricted to the declared stationary AR(2) baseline.")
     if not 1 <= args.repetitions <= 6:
@@ -383,6 +415,10 @@ def engineering_main() -> int:
     if args.stop_after is not None and args.stop_after < 1:
         raise SystemExit("BLOCKED: --stop-after must be positive.")
     identity = _engineering_identity(args.scenario, args.start_index, stop, args.repetitions, args.surrogates, args.n, args.master_seed)
+    if args.test_identity_mismatch_field is not None:
+    identity = dict(identity)
+    field = args.test_identity_mismatch_field
+    identity[field] = f"__TEST_ONLY_MISMATCH__:{field}"
     output = args.output
     records = []
     if output.exists():
