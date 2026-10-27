@@ -425,3 +425,103 @@ Governance state remains unchanged:
 - formal calibration = NOT AUTHORIZED
 
 No acceptance threshold is approved by this entry.
+
+## 13. CLI resume identity and cross-runner comparison — 2026-10-27
+
+Classification: PARTIAL ENGINEERING PASS; PARALLEL WORKER-ORDER RETEST REQUIRED
+
+### A. CLI resume identity rejection
+
+Workflow run:
+https://github.com/AhmedPeaRL/maximal-one/actions/runs/40474378251
+
+Test:
+`tests/test_type1_cli_resume_identity_rejections.py`
+
+Observed result:
+- The CLI identity-rejection test passed.
+- 19 identity fields were tested individually.
+- Each rejected resume returned exit code 1.
+- The expected identity-mismatch diagnostic was observed.
+- The original checkpoint bytes remained unchanged.
+- The original manifest bytes remained unchanged.
+- SHA-256 hashes before and after each rejected resume matched.
+
+Scope:
+This establishes rejection and byte preservation for the exact tested
+checkpoint, identity fields, command path, and configuration. It does
+not establish exhaustive protection against all malformed artifacts
+or every possible resume failure.
+
+### B. Independent GitHub Actions worker comparison
+
+Workflow run:
+https://github.com/AhmedPeaRL/maximal-one/actions/runs/40473744189
+
+Exact tested commit:
+`af67370b255580b4056c9ec0ebbba16c9ed1323c`
+
+Workflow:
+`.github/workflows/type1-v4-cross-runner-worker-order.yml`
+
+Observed result:
+- Connected reference job: success.
+- Worker jobs for indices 0 through 5: success.
+- Comparison job: success.
+- Comparison artifact: `12719509424`.
+- Comparison report status: `PASS`.
+- Replicate indices 0 through 5: all matched the connected reference
+  on the declared comparison fields.
+- The report retained:
+  `formal_calibration_pass = false`,
+  `claim_support = false`,
+  `promotion_authority = false`,
+  `confirmatory_execution_authorized = false`.
+
+The recorded platform identity strings were identical across the
+reference and six workers. The jobs were separate GitHub Actions jobs;
+this does not establish diversity of operating-system or hardware
+architectures.
+
+### C. Concurrent worker-order failure
+
+Workflow run:
+https://github.com/AhmedPeaRL/maximal-one/actions/runs/40474378251
+
+Test:
+`tests/test_type1_parallel_worker_order_equivalence.py`
+
+Observed result:
+- The concurrent worker-order step failed.
+- The overall workflow therefore remains failed.
+- Source inspection identified that `EVIDENCE_ROOT` is passed to
+  `TemporaryDirectory` before its existence is ensured.
+- The test must be corrected and rerun. Do not classify this test as
+  passed based on the separate cross-runner result.
+
+Required retest:
+- Ensure the evidence directory exists before creating the temporary
+  run directory.
+- Rerun the official engineering workflow on the remediation branch.
+- Inspect the complete test output and the uploaded evidence.
+- Require exact index coverage, no duplicate worker results, and
+  field-by-field equivalence.
+- Preserve this failed run as a historical record.
+
+### D. Governance boundary
+
+These results are engineering evidence only. They do not establish
+Type-I calibration, approve the 0.075 acceptance threshold, freeze
+V4, authorize confirmatory execution, establish independent
+statistical approval, or support the broader HCM claim.
+
+Required state remains:
+
+- freeze_state = NOT_FROZEN
+- confirmatory_execution_authorized = false
+- claim_support = false
+- promotion_authority = false
+- formal calibration = NOT AUTHORIZED
+
+No historical result or failed run may be deleted, backdated,
+or retrospectively reclassified as a pass.
