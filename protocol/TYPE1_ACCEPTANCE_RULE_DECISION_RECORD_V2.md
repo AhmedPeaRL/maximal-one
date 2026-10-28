@@ -106,3 +106,62 @@ protocol snapshot:
 
 This record does not authorize execution and does not alter any
 historical result.
+
+
+## Addendum — 2026-10-29 — Prospective decision after engineering evidence
+
+Decision ID: `HCM-TYPE1-V4-HOLD-2026-10-29`
+
+Disposition: `HOLD_NO_ACCEPTANCE_RULE_APPROVED`
+
+### Evidence considered
+
+The CLI resume identity workflow run `40778431846` succeeded for
+its recorded bounded engineering test.
+
+This result concerns resume identity rejection and preservation of
+checkpoint and manifest bytes. It does not determine the statistical
+acceptance rule.
+
+### Prospective governance decision
+
+1. Preserve the historical two-sided Wilson rule and all historical
+   result classifications unchanged.
+2. Do not approve the candidate one-sided Wilson rule merely because
+   it appears in a V3 or V4 draft.
+3. Do not treat the historical `0.075` ceiling as scientifically
+   justified without a prospective substantive rationale.
+4. Require an attributable independent human statistical reviewer
+   to select and justify one complete rule before formal execution.
+5. Bind the future decision to the exact reviewed commit and hashes.
+6. Require a separate authorization record after the approved
+   protocol is frozen.
+7. Do not backdate the decision or reclassify historical failures
+   under the future rule.
+
+### Required content of the independent review
+
+The reviewer must document:
+
+- target estimand and nominal Type-I error rate;
+- interval sidedness and confidence level;
+- numerical acceptance boundary and substantive rationale;
+- outer repetition count and Monte Carlo operating characteristics;
+- scenario-level and suite-level acceptance requirements;
+- invalid-attempt policy and preservation of the requested denominator;
+- treatment of missing results and surrogate shortfalls;
+- reviewer identity, relevant expertise, independence, conflicts,
+  date, reviewed commit, and protocol hashes;
+- explicit recommendation, rationale, limitations, and disposition.
+
+### Current authorization state
+
+- Approved V4 acceptance rule: `NONE`
+- V4 freeze state: `NOT_FROZEN`
+- Confirmatory execution authorized: `false`
+- Claim support: `false`
+- Promotion authority: `false`
+- Formal calibration: `NOT AUTHORIZED`
+
+This addendum is a governance hold, not a substitute for the
+independent statistical review and not an authorization to execute.
