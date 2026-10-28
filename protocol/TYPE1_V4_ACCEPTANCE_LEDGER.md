@@ -446,6 +446,70 @@ Keep:
 
 Historical failures and their original classifications remain unchanged.
 
+### E15 — Official CLI resume identity rejection — 2026-10-29
+
+**Status:** PASS FOR THE RECORDED ENGINEERING TEST ONLY
+
+- Repository: `AhmedPeaRL/maximal-one`
+- Branch: `review/type1-v4-remediation`
+- Tested commit: `f88c7918c36f09953dd129cf45bddcadb75fde0c`
+- Workflow: `Type-I V4 Official CLI Resume Identity Audit`
+- Workflow file: `.github/workflows/type1-v4-cli-resume-identity.yml`
+- Workflow run: `40778431846`
+- Job: `123133645396`
+- Result: `success`
+- Test module: `tests.test_type1_resume_cli_identity_rejections`
+- Test result: 1 unittest passed
+- Recorded test duration: 102.735 seconds
+- Artifact ID: `12855647378`
+- Artifact name: `type1-v4-cli-resume-identity-40778431846-1`
+- Artifact size reported by GitHub: 15,963 bytes
+- Artifact ZIP SHA-256 reported in the job log:
+  `faeb166fb43b25a59fb04ea0da978a7254852c7a766f5a0c9b4c2f8c34e9be0b`
+
+#### Exact test scope
+
+The test creates a bounded engineering checkpoint and manifest, then
+attempts resume after changing each of 19 declared identity fields:
+
+- protocol and scenario identity;
+- scenario coefficients;
+- sample size, burn-in, and requested surrogate count;
+- total repetitions and requested index range;
+- master seed and seed schedule;
+- commit, matrix, runner, and dependency-lock identities;
+- endpoint and null implementation identities;
+- Python version and platform identity.
+
+The inspected test implementation requires each changed identity to
+produce a nonzero exit code and checks that the checkpoint and manifest
+remain byte-for-byte unchanged. It records command output and exit code
+in per-case logs.
+
+#### Qualification
+
+This specific workflow test does not itself require exit code `1` or
+the exact expected rejection diagnostic. Those stronger assertions are
+required in the follow-up test remediation before the gate is considered
+fully closed.
+
+The artifact ZIP digest above identifies the uploaded archive; the
+archive payload has not been independently inspected for this entry.
+
+#### Decision boundary
+
+This is engineering evidence for the recorded configuration only.
+It is not Type-I calibration, acceptance-rule approval, protocol freeze,
+or authorization for confirmatory execution.
+
+Keep:
+
+- `freeze_state = NOT_FROZEN`
+- `confirmatory_execution_authorized = false`
+- `claim_support = false`
+- `promotion_authority = false`
+- Formal calibration: `NOT AUTHORIZED`
+
 ## 3. Scientific acceptance criteria
 
 ### S1 — Attributable independent statistical review
