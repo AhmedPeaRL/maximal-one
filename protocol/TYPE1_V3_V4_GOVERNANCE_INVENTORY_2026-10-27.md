@@ -160,3 +160,100 @@ Required state remains:
 - claim_support: false
 - promotion_authority: false
 - formal calibration: NOT AUTHORIZED
+
+## Addendum — 2026-10-29 — Current engineering and governance controls
+
+Status: PARTIAL INVENTORY; TWO-REF AUTOMATED AUDIT REQUIRED
+
+### 1. Current CLI resume identity evidence
+
+The workflow run `40778431846` on commit
+`f88c7918c36f09953dd129cf45bddcadb75fde0c` completed the dedicated
+CLI resume identity rejection test successfully.
+
+This is engineering evidence only. The exact exit-code and diagnostic
+assertions remain subject to the follow-up test remediation recorded
+in the V4 acceptance ledger.
+
+### 2. Known V3/V4 workflow classifications
+
+- `.github/workflows/null-type1-calibration.yml`
+  Classification: LEGACY V3 EXECUTION-CAPABLE-BUT-FAIL-CLOSED.
+  Preserve historical runs. Do not repoint this workflow to the V4
+  candidate matrix. Its V3 runner and matrix compatibility must be
+  independently verified before any future authorization.
+
+- `.github/workflows/type1-v4-cli-resume-identity.yml`
+  Classification: ENGINEERING-ONLY CLI IDENTITY REJECTION.
+  It tests bounded resume rejection. It does not authorize calibration.
+
+- `.github/workflows/type1-v4-engineering-equivalence.yml`
+  Classification: ENGINEERING-ONLY.
+  It tests artifact integrity, merger behavior, resume identity,
+  governance separation, worker ordering, and bounded path equivalence.
+  It must not authorize formal calibration.
+
+- `.github/workflows/type1-v4-cross-runner-worker-order.yml`
+  Classification: ENGINEERING-ONLY CROSS-RUNNER COMPARISON.
+  Its evidence is limited to the tested configuration and runner
+  environments.
+
+- `.github/workflows/type1-v4-assignment-matrix.yml`
+  Classification: ENGINEERING-ONLY WORKER ASSIGNMENT AUDIT.
+  Its output must remain separate from scientific acceptance.
+
+- `.github/workflows/type1-full-path-equivalence.yml`
+  Classification: ENGINEERING PATH-EQUIVALENCE EVIDENCE ONLY.
+
+- `.github/workflows/type1-calibration-runtime-pilot.yml`
+  Classification: EXPLORATORY RUNTIME DIAGNOSTIC ONLY.
+
+- `.github/workflows/null-calibration-audit.yml`
+  Classification: DIAGNOSTIC AUDIT ONLY; its reduced design is not
+  the formal V4 calibration protocol.
+
+- `.github/workflows/confirmatory-readiness-gate.yml`
+  Classification: GOVERNANCE GATE; inspect its complete call path and
+  verify that it cannot authorize V4 without the required signed
+  decision and frozen protocol.
+
+The above list is a known-workflow inventory, not a claim that every
+relevant workflow, indirect runner, or reference on both branches has
+already been exhaustively reviewed.
+
+### 3. Required reference classification
+
+The generated two-ref inventory must be reviewed for each occurrence
+of `0.075`, V3, V4, acceptance-rule fields, and authorization fields.
+
+Every relevant reference must be assigned one of these classes:
+
+- HISTORICAL: immutable record of a prior rule or outcome.
+- DIAGNOSTIC: analysis, audit, operating-characteristic study, or test.
+- PROPOSAL: unapproved protocol, threshold, or design.
+- GOVERNANCE: guard, readiness check, or promotion control.
+- EXECUTION-CAPABLE-BUT-GATED: code or workflow that can attempt
+  execution but must refuse unless the exact matching protocol is
+  approved, frozen, and separately authorized.
+
+For each execution-capable path, record the exact fail-closed guard
+and the regression test that demonstrates the guard.
+
+### 4. Non-retroactivity and authority
+
+No historical record may be deleted, overwritten, or relabeled to
+make a previously failed result pass.
+
+No `0.075` reference is approval by itself.
+
+No engineering workflow may set formal calibration success,
+claim support, promotion authority, or confirmatory authorization.
+
+Until the independent statistical review and prospective decision
+are attributable and complete:
+
+- `freeze_state = NOT_FROZEN`
+- `confirmatory_execution_authorized = false`
+- `claim_support = false`
+- `promotion_authority = false`
+- Formal calibration = NOT AUTHORIZED
