@@ -358,6 +358,94 @@ Keep all of the following unchanged:
 
 Historical failures remain preserved under their original decision rules. The uploaded artifact payloads and their internal evidence files must be inspected before making stronger claims about artifact contents.
 
+## E15 — CLI identity rejection and independent-runner comparison — 2026-10-27
+
+Status: PASS FOR RECORDED ENGINEERING CONFIGURATIONS ONLY
+
+### A. Official CLI resume identity rejection
+
+- Repository: `AhmedPeaRL/maximal-one`
+- Branch: `review/type1-v4-remediation`
+- Tested commit: `eae6f282031c691c9801c1815f41bbf55a244956`
+- Workflow run: `40585881657`
+- Job: `122478074710`
+- Workflow result: `success`
+- Test: `tests/test_type1_cli_resume_identity_rejections.py`
+- Artifact: `12773333354`
+- Artifact digest reported by GitHub:
+  `sha256:3547b3440c215eeef61b60a6837077bcb8e7db222136590d1a2c50ce002fb34a`
+
+The job log reports successful execution of the official CLI resume identity test.
+
+The test creates an engineering checkpoint and manifest, records their original bytes and SHA-256 hashes, and tests 19 identity-field mismatches individually through the CLI resume path.
+
+For each tested field, the test requires:
+- Exit code `1`.
+- The expected identity-mismatch diagnostic.
+- Byte-for-byte preservation of the checkpoint.
+- Byte-for-byte preservation of the manifest.
+- Matching before/after SHA-256 values.
+
+The mismatch is injected through the explicit test-only CLI option
+`--test-identity-mismatch-field`. Therefore, this evidence establishes rejection through the tested CLI path and test hook, not exhaustive coverage of every externally altered runtime configuration.
+
+### B. Concurrent worker-order comparison
+
+- Workflow run: `40585881668`
+- Tested commit: `eae6f282031c691c9801c1815f41bbf55a244956`
+- Test: `tests/test_type1_parallel_worker_order_equivalence.py`
+- Result: `success`
+- Scenario: `gaussian_ar2_phi_0_45_minus_0_10_n3328`
+- Sample size: `3328`
+- Master seed: `20261021`
+- Requested replicates: indices `0–5`
+- Requested surrogates per replicate: `1000`
+- Declared worker submission order: `[4, 1, 5, 0, 3, 2]`
+- Maximum concurrent workers: `3`
+
+The test compares the connected reference against concurrent CLI workers using the declared scientific fields, including seed identities, generated-series SHA-256, endpoint estimate, surrogate counts, exceedances, Monte Carlo p-value, selected order, diagnostics, status, and failure reason.
+
+The test requires exact index coverage and rejects duplicate worker results or invalid attempts.
+
+Qualification: the tested permutation changes submission order while retaining each replicate's own index-specific execution. It does not by itself establish invariance under every possible replicate-to-worker assignment.
+
+### C. Separate GitHub-hosted runner comparison
+
+- Workflow run: `40585881668`
+- Comparison job: `122480861674`
+- Result: `success`
+- Connected reference and six worker jobs: reported successful
+- Comparison artifact: `12771342690`
+- Comparison artifact digest reported by GitHub:
+  `sha256:e1c77bdb04bebf3b8406eb4fcb2aa55d5c2a646bcf779516723be880b1477f34`
+
+The workflow reports successful comparison of the six declared replicate records against the connected reference.
+
+The artifacts have not been independently unpacked and inspected for this ledger entry. The recorded artifact digests establish the GitHub-reported artifact identities, not independent validation of every payload field.
+
+### D. Remaining engineering gates
+
+Keep open:
+- Explicit replicate-to-worker assignment permutation across separate jobs.
+- Alternative shard partitions beyond those already exercised.
+- Exhaustive verification of every execution-identity mismatch path.
+- Full branch-by-branch inventory of V3/V4 and `0.075` references.
+- Attributable independent human statistical review.
+- Prospective acceptance-rule decision and protocol freeze.
+
+### E. Scientific and governance boundary
+
+These results are engineering evidence only. They do not establish Type-I calibration, validate all nine V4 scenarios, approve an acceptance threshold, or support the broader HCM claim.
+
+Keep:
+- `freeze_state = NOT_FROZEN`
+- `confirmatory_execution_authorized = false`
+- `claim_support = false`
+- `promotion_authority = false`
+- Formal calibration = `NOT AUTHORIZED`
+
+Historical failures and their original classifications remain unchanged.
+
 ## 3. Scientific acceptance criteria
 
 ### S1 — Attributable independent statistical review
