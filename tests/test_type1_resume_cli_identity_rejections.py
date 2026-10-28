@@ -158,9 +158,40 @@ class OfficialCliResumeIdentityTests(unittest.TestCase):
                     }
                     self.report["cases"].append(case)
 
-                    self.assertNotEqual(
-                        result.returncode, 0,
-                        f"Changed identity field was accepted: {field}",
+                    self.assertEqual(
+                        result.returncode,
+                        1,
+                        f"Wrong exit code for {field}: {result.stdout}",
+                    )
+
+                    self.assertIn(
+                        "Artifact run identity differs from requested execution",
+                        result.stdout,
+                        f"Wrong rejection reason for {field}: {result.stdout}",
+                    )
+
+                    self.assertEqual(
+                        output.read_bytes(),
+                        original_checkpoint,
+                        f"Checkpoint bytes changed for {field}",
+                    )
+
+                    self.assertEqual(
+                        manifest.read_bytes(),
+                        original_manifest,
+                        f"Manifest bytes changed for {field}",
+                    )
+
+                    self.assertEqual(
+                        sha256_bytes(output.read_bytes()),
+                        checkpoint_hash,
+                        f"Checkpoint SHA-256 changed for {field}",
+                    )
+
+                    self.assertEqual(
+                        sha256_bytes(manifest.read_bytes()),
+                        manifest_hash,
+                        f"Manifest SHA-256 changed for {field}",
                     )
                     self.assertTrue(
                         checkpoint_unchanged,
