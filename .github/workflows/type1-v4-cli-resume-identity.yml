@@ -1,0 +1,70 @@
+name: Type-I V4 Official CLI Resume Identity Audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - review/type1-v4-remediation
+    paths:
+      - "tests/test_type1_resume_cli_identity_rejections.py"
+      - "analysis/calibrate_null_type1_scenario.py"
+      - "analysis/type1_execution_artifacts.py"
+      - "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_CANDIDATE.json"
+      - "requirements-lock.txt"
+      - ".github/workflows/type1-v4-cli-resume-identity.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  cli-resume-identity:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout exact repository state
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify branch and checkout identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          echo "Verified commit: $(git rev-parse HEAD)"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.15"
+          cache: pip
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install locked dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --require-hashes -r requirements-lock.txt
+
+      - name: Compile test
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            tests/test_type1_resume_cli_identity_rejections.py
+
+      - name: Execute real CLI resume rejection tests
+        run: |
+          set -euo pipefail
+          python -m unittest -v \
+            tests.test_type1_resume_cli_identity_rejections
+
+      - name: Upload logs and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: type1-v4-cli-resume-identity-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/type1_resume_cli_identity/
+          if-no-files-found: warn
+          retention-days: 90
