@@ -1,0 +1,134 @@
+name: Type-I V3 V4 Governance Inventory Audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - review/type1-v4-remediation
+    paths:
+      - "scripts/audit_type1_governance_refs.py"
+      - "tests/test_v3_v4_governance_separation.py"
+      - "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json"
+      - "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_CANDIDATE.json"
+      - ".github/workflows/null-type1-calibration.yml"
+      - ".github/workflows/type1-v3-v4-governance-audit.yml"
+      - "analysis/calibrate_null_type1.py"
+      - "analysis/calibrate_null_type1_scenario.py"
+      - "protocol/TYPE1_ACCEPTANCE_RULE_DECISION_RECORD_V2.md"
+      - "protocol/TYPE1_V4_ACCEPTANCE_RULE_DECISION_RECORD.md"
+
+permissions:
+  contents: read
+
+jobs:
+  governance-inventory:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout exact review branch
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify review branch identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          echo "Verified review commit: $(git rev-parse HEAD)"
+
+      - name: Fetch main for read-only comparison
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin \
+            +refs/heads/main:refs/remotes/origin/main
+          echo "Review: $(git rev-parse HEAD)"
+          echo "Main:   $(git rev-parse origin/main)"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.15"
+          cache: pip
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install locked dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --require-hashes -r requirements-lock.txt
+
+      - name: Compile governance audit and regression test
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            scripts/audit_type1_governance_refs.py \
+            tests/test_v3_v4_governance_separation.py
+
+      - name: Generate inventories for both exact refs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/audit_type1_governance_refs.py \
+            HEAD origin/main
+
+          test -s \
+            artifacts/type1_governance_inventory/reference_inventory.json
+
+      - name: Verify V3 V4 separation guards
+        run: |
+          set -euo pipefail
+          python -m unittest -v \
+            tests.test_v3_v4_governance_separation
+
+      - name: Verify inventory identifies both refs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path(
+              "artifacts/type1_governance_inventory/"
+              "reference_inventory.json"
+          )
+          data = json.loads(path.read_text(encoding="utf-8"))
+
+          refs = data.get("refs", [])
+          if len(refs) != 2:
+              raise SystemExit(
+                  f"Expected two ref inventories; got {len(refs)}"
+              )
+
+          names = {item.get("ref_requested") for item in refs}
+          if names != {"HEAD", "origin/main"}:
+              raise SystemExit(
+                  f"Unexpected refs in inventory: {names}"
+              )
+
+          for item in refs:
+              if not item.get("commit_sha"):
+                  raise SystemExit(
+                      f"Missing commit identity for {item.get('ref_requested')}"
+                  )
+              if not item.get("entries"):
+                  raise SystemExit(
+                      f"No matching references found for {item.get('ref_requested')}"
+                  )
+
+          print("Both branch snapshots were inventoried.")
+          print("Manual classification review is still required.")
+          PY
+
+      - name: Upload governance inventory even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: type1-v3-v4-governance-inventory-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/type1_governance_inventory/
+          if-no-files-found: warn
+          retention-days: 90
