@@ -1,0 +1,3051 @@
+{
+  "audit": "TYPE1_V3_V4_THRESHOLD_REFERENCE_INVENTORY_V1",
+  "refs": [
+    {
+      "commit_sha": "fadfccdb6f7ec66ceefdd0719575f914b3d1b891",
+      "entries": [
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 41,
+              "text": "uses: actions/upload-artifact@v4"
+            }
+          ],
+          "path": ".github/workflows/acquire-secondary-data.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 14,
+              "text": "- uses: actions/checkout@v4"
+            },
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 50,
+              "text": "- uses: actions/checkout@v4"
+            }
+          ],
+          "path": ".github/workflows/build-image.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 14,
+              "text": "- uses: actions/checkout@v4"
+            },
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 16,
+              "text": "- uses: actions/setup-node@v4"
+            }
+          ],
+          "path": ".github/workflows/canonical-sync.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 23,
+              "text": "uses: github/codeql-action/init@v3"
+            },
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 28,
+              "text": "uses: github/codeql-action/analyze@v3"
+            }
+          ],
+          "path": ".github/workflows/codeql-analysis.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 33,
+              "text": "uses: actions/checkout@v4"
+            }
+          ],
+          "path": ".github/workflows/confirmatory-readiness-gate.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 13,
+              "text": "- uses: actions/checkout@v4"
+            }
+          ],
+          "path": ".github/workflows/cross-run-memory-verification.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 15,
+              "text": "- uses: actions/checkout@v4"
+            },
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 31,
+              "text": "uses: actions/upload-artifact@v4"
+            }
+          ],
+          "path": ".github/workflows/cross_arch_timing.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 14,
+              "text": "uses: actions/checkout@v4"
+            }
+          ],
+          "path": ".github/workflows/emergent-periodicity.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 15,
+              "text": "- uses: actions/checkout@v4"
+            }
+          ],
+          "path": ".github/workflows/evolution.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 11,
+              "text": "- uses: actions/checkout@v4"
+            }
+          ],
+          "path": ".github/workflows/legacy/evaluation.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 11,
+              "text": "- uses: actions/checkout@v4"
+            }
+          ],
+          "path": ".github/workflows/legacy/scientific-evaluation.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 11,
+              "text": "name: Validate frozen V3 protocol and prepare matrix"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 34,
+              "text": "\"protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json\""
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 45,
+              "text": "\"BLOCKED: V3 protocol is not APPROVED_FROZEN. \""
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 50,
+              "text": "if d.get(\"confirmatory_execution_authorized\") is not True:"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 66,
+              "text": "\"BLOCKED: V3 requires exactly nine declared scenarios.\""
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 102,
+              "text": "\"BLOCKED: V3 design dimensions differ from \""
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 126,
+              "text": "print(\"Validated V3 matrix metadata:\")"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 179,
+              "text": "- name: Run declared V3 scenario calibration"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 264,
+              "text": "\"protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json\""
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 280,
+              "text": "uses: actions/upload-artifact@v4"
+            }
+          ],
+          "path": ".github/workflows/null-type1-calibration.yml",
+          "runner_invocation_candidate": true,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 46,
+              "text": "uses: actions/upload-artifact@v4"
+            }
+          ],
+          "path": ".github/workflows/prospective-raw-audit.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 19,
+              "text": "uses: actions/checkout@v4"
+            },
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 25,
+              "text": "uses: actions/setup-node@v4"
+            }
+          ],
+          "path": ".github/workflows/release-lock.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 18,
+              "text": "- uses: actions/checkout@v3"
+            },
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 21,
+              "text": "uses: actions/setup-python@v4"
+            }
+          ],
+          "path": ".github/workflows/replication.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 14,
+              "text": "- uses: actions/checkout@v4"
+            },
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 15,
+              "text": "- uses: actions/setup-python@v4"
+            }
+          ],
+          "path": ".github/workflows/reproducible_research.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 11,
+              "text": "- uses: actions/checkout@v4"
+            }
+          ],
+          "path": ".github/workflows/run.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 159,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 191,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 205,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 220,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 288,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 313,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 330,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 355,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 399,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 415,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 434,
+              "text": "python -m unittest discover -s tests -p 'test_type1_calibration_v3_candidate.py' -v"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 435,
+              "text": "python -m compileall -q analysis/calibrate_null_type1.py analysis/calibrate_null_type1_scenario.py tests/test_type1_calibration_v3_candidate.py"
+            }
+          ],
+          "path": ".github/workflows/scientific-claim-promotion.yml",
+          "runner_invocation_candidate": true,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 59,
+              "text": "uses: github/codeql-action/init@v4"
+            },
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 64,
+              "text": "uses: github/codeql-action/analyze@v4"
+            },
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 94,
+              "text": "python -m unittest discover -s tests -p 'test_type1_calibration_v3_candidate.py' -v"
+            },
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 95,
+              "text": "python -m compileall -q analysis/calibrate_null_type1.py analysis/calibrate_null_type1_scenario.py tests/test_type1_calibration_v3_candidate.py"
+            },
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 582,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 600,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 686,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 1310,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 1636,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 5258,
+              "text": "uses: actions/upload-artifact@v4"
+            }
+          ],
+          "path": ".github/workflows/scientific-validation.yml",
+          "runner_invocation_candidate": true,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 13,
+              "text": "- uses: actions/checkout@v4"
+            }
+          ],
+          "path": ".github/workflows/tag-signature-verify.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 15,
+              "text": "uses: actions/checkout@v4"
+            },
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 18,
+              "text": "uses: actions/setup-python@v4"
+            }
+          ],
+          "path": ".github/workflows/theoretical_validity.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 17,
+              "text": "- uses: actions/checkout@v4"
+            },
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 33,
+              "text": "uses: actions/upload-artifact@v4"
+            }
+          ],
+          "path": ".github/workflows/timing_cross_arch.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 60,
+              "text": "uses: actions/upload-artifact@v4"
+            }
+          ],
+          "path": ".github/workflows/type1-calibration-runtime-pilot.yml",
+          "runner_invocation_candidate": true,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 13,
+              "text": "- uses: actions/checkout@v4"
+            },
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 14,
+              "text": "- uses: actions/setup-node@v4"
+            }
+          ],
+          "path": ".github/workflows/validate-stress.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 9,
+              "text": "MATRIX_PATH = Path(\"protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json\")"
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 52,
+              "text": "\"\"\"One-sided Wilson upper confidence bound used by V3 candidate rule.\"\"\""
+            }
+          ],
+          "path": "analysis/calibrate_null_type1.py",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 37,
+              "text": "parser = argparse.ArgumentParser(description=\"V3 candidate Type-I calibration; do not run until independently reviewed and frozen.\")"
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 46,
+              "text": "if MATRIX.get(\"status\") != \"APPROVED_FROZEN\" or MATRIX.get(\"freeze_state\") != \"FROZEN\" or MATRIX.get(\"confirmatory_execution_authorized\") is not True:"
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 49,
+              "text": "raise SystemExit(\"BLOCKED: parameters must exactly match the machine-readable V3 candidate matrix; do not run a partial configuration as formal calibration.\")"
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 98,
+              "text": "\"matrix_sha256\": sha256(Path(\"protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json\")),"
+            }
+          ],
+          "path": "analysis/calibrate_null_type1_scenario.py",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 55,
+              "text": "\"formal_calibration_pass\": False,"
+            }
+          ],
+          "path": "analysis/merge_type1_calibration_pilot_shards.py",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 69,
+              "text": "upper_limit: float = 0.075, scenarios: int = 4) -> dict:"
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 111,
+              "text": "parser.add_argument(\"--upper-limit\", type=float, default=0.075)"
+            }
+          ],
+          "path": "analysis/type1_acceptance_operating_characteristics.py",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 21,
+              "text": "MATRIX_PATH = Path(\"protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_DRAFT.json\")"
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 93,
+              "text": "raise SystemExit(\"BLOCKED: pilot script requires the V4 draft status; it cannot run formal calibration.\")"
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 174,
+              "text": "\"formal_calibration_pass\": False,"
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 188,
+              "text": "final[\"formal_calibration_pass\"] = False"
+            }
+          ],
+          "path": "analysis/type1_calibration_pilot.py",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 22,
+              "text": "\"maximum_acceptable_95pct_wilson_upper_bound\": 0.075,"
+            }
+          ],
+          "path": "audit/downloaded-artifacts/null_type1_calibration_gaussian_ar10_low_order_coefficients.json",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 13,
+              "text": "\"maximum_acceptable_95pct_wilson_upper_bound\": 0.075,"
+            }
+          ],
+          "path": "audit/downloaded-artifacts/null_type1_calibration_gaussian_ar1_phi_0_4.json",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 14,
+              "text": "\"maximum_acceptable_95pct_wilson_upper_bound\": 0.075,"
+            }
+          ],
+          "path": "audit/downloaded-artifacts/null_type1_calibration_gaussian_ar2_phi_0_45_minus_0_10.json",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 17,
+              "text": "\"maximum_acceptable_95pct_wilson_upper_bound\": 0.075,"
+            }
+          ],
+          "path": "audit/downloaded-artifacts/null_type1_calibration_gaussian_ar5_low_order_coefficients.json",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 25,
+              "text": "\"wilson_upper_at_next_count\": 0.07536090277145915,"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 27,
+              "text": "\"wilson_upper_limit\": 0.075"
+            }
+          ],
+          "path": "audit/type1_acceptance_operating_characteristics.json",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "OTHER_REFERENCE",
+              "execution_or_authority_review": "Manual review required",
+              "line": 12,
+              "text": "- uses: actions/checkout@v4"
+            },
+            {
+              "classification": "OTHER_REFERENCE",
+              "execution_or_authority_review": "Manual review required",
+              "line": 15,
+              "text": "uses: actions/setup-node@v4"
+            }
+          ],
+          "path": "core-scientific/.github/workflows/truth-pressure-lock.yml",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 65,
+              "text": "2. The interval's upper endpoint must not exceed 0.075."
+            }
+          ],
+          "path": "docs/research/AR_P_NULL_ADEQUACY_REVIEW_2026-10-17.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 113,
+              "text": "2. the upper endpoint to be no greater than 0.075."
+            }
+          ],
+          "path": "docs/research/PROSPECTIVE_CONFIRMATORY_PROTOCOL_V1_DRAFT.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 30,
+              "text": "- AR(2): 60/1000, rate 0.060, interval [0.046896, 0.076471], fail: upper endpoint > 0.075."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 32,
+              "text": "- AR(10): 73/1000, rate 0.073, interval [0.058459, 0.090809], fail: interval excludes 0.05 and upper endpoint > 0.075."
+            }
+          ],
+          "path": "protocol/ACCEPTANCE_DECISION_RECORD_2026-10-19.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 45,
+              "text": "- Historical Type-I counts are AR(1): 52/1000, AR(2): 60/1000, AR(5): 49/1000, AR(10): 73/1000. Under the currently recorded rule (two-sided 95% Wilson interval contains 0.05 and upper endpoint <= 0.075), AR(2) and AR(10) fail."
+            }
+          ],
+          "path": "protocol/CLOSURE_DECISION_AND_FREEZE_REASSESSMENT_20261018.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 29,
+              "text": "The declared rule requires the two-sided Wilson 95% interval to contain the nominal Type-I rate 0.05 AND its upper endpoint to be no greater than 0.075."
+            }
+          ],
+          "path": "protocol/INDEPENDENT_NULL_CALIBRATION_REVIEW_20261017.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 37,
+              "text": "| Gaussian AR(2), phi = 0.45, -0.10 | 60 / 1,000 | 0.060 | [0.046896, 0.076471] | Fails: upper endpoint exceeds 0.075 |"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 39,
+              "text": "| Gaussian AR(10), low-order coefficients | 73 / 1,000 | 0.073 | [0.058459, 0.090809] | Fails: interval excludes 0.05 and upper endpoint exceeds 0.075 |"
+            }
+          ],
+          "path": "protocol/INDEPENDENT_REVIEW_ADDENDUM_20261018.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 17,
+              "text": "The recorded acceptance rule requires the two-sided Wilson 95% interval to contain 0.05 and its upper endpoint to be no greater than 0.075."
+            }
+          ],
+          "path": "protocol/INDEPENDENT_SCIENTIFIC_AUDIT_20261016.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 67,
+              "text": "The declared acceptance rule requires the two-sided Wilson 95% interval to contain 0.05 and its upper endpoint to be no greater than 0.075."
+            }
+          ],
+          "path": "protocol/INDEPENDENT_TECHNICAL_REVIEW_20261016.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 25,
+              "text": "- The current acceptance rule requires the two-sided Wilson 95% interval to contain 0.05 and its upper endpoint to be at most 0.075. These scenarios do not pass that rule."
+            }
+          ],
+          "path": "protocol/LIVE_STATE_TRIAGE_20261012.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 14,
+              "text": "The production calibration rule stays unchanged. The audit now represents both conditions already enforced in `analysis/calibrate_null_type1_scenario.py`: the Wilson interval must contain 0.05, and its upper endpoint must be <= 0.075. Expected accepted counts for n=1000: 37..58. Four local unit tests passed against the patch files in the packaging environment; this is not a claim that GitHub Actions has passed."
+            }
+          ],
+          "path": "protocol/NEXT_STEP_ORDER_20261011.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 1,
+              "text": "# Null Adequacy, Type-I Error, Power, and Reference-Data Execution Plan \u2014 V3 Draft"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 75,
+              "text": "Apply the historical rule exactly as recorded: the two-sided 95% Wilson interval must contain 0.05 and its upper endpoint must be <= 0.075. Do not reinterpret or amend historical failures. A successful rerun establishes reproducibility of that run, not full null adequacy."
+            }
+          ],
+          "path": "protocol/NULL_ADEQUACY_CALIBRATION_EXECUTION_PLAN_V3_DRAFT.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 57,
+              "text": "\"upper_endpoint_maximum\": 0.075,"
+            }
+          ],
+          "path": "protocol/NULL_ADEQUACY_CALIBRATION_PLAN_V2.json",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 14,
+              "text": "2. Keep the two failed scenarios marked failed. Do not change the 0.075 Wilson-upper limit or the nominal alpha to turn them green."
+            }
+          ],
+          "path": "protocol/SCIENTIFIC_GATE_DIAGNOSTIC_FIX_PLAN_20261011.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 12,
+              "text": "3. The Wilson upper endpoint is no greater than 0.075."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 22,
+              "text": "- At 58 rejections, the Wilson upper endpoint is approximately 0.0742496, within the 0.075 limit."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 23,
+              "text": "- At 59 rejections, the Wilson upper endpoint is approximately 0.0753609, above the limit."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 38,
+              "text": "- AR(2): 60/1000 = 0.060; interval approximately [0.046896, 0.076471]. Fails because its upper endpoint exceeds 0.075. The interval contains 0.05; the exact one-sided binomial tail `P(X >= 60 | n=1000, p=0.05)` is approximately 0.086732, so do not characterize this alone as strong evidence of inflation."
+            }
+          ],
+          "path": "protocol/TYPE1_ACCEPTANCE_RULE_OPERATING_CHARACTERISTICS_V1.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 3,
+              "text": "The committed audit describes the current acceptance rule: with 1000 repetitions and a nominal rejection probability of 0.05, accept a scenario only when its two-sided 95% Wilson upper confidence endpoint is at most 0.075. The audit is explicitly marked `audit_only=true` and `production_gate_modified=false`."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 9,
+              "text": "- Wilson upper endpoint at 59/1000: approximately 0.0753609, above the 0.075 cutoff."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 21,
+              "text": "AR(1) and AR(5) passed only their named synthetic scenarios. AR(2) and AR(10) failed the declared acceptance criterion. AR(2)'s Wilson interval includes 0.05, but its upper endpoint exceeds 0.075; AR(10)'s interval excludes 0.05 and its upper endpoint exceeds 0.075. These outcomes must remain separate. Passing two scenarios does not cancel the two failures, and none of these synthetic scenarios by itself establishes that the null is adequate for the real sunspot series."
+            }
+          ],
+          "path": "protocol/TYPE1_AUDIT_INTERPRETATION_20261011.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 1,
+              "text": "# Type-I Calibration V3 Review Decision Record \u2014 V1"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 9,
+              "text": "1. The V3 candidate matrix uses `n=1024`, while the primary real series is reported as `n=3328`. With `nperseg=1024`, this changes Welch averaging from approximately five overlapping segments in the longer series to one segment in the calibration series. This is a material operating-characteristic mismatch."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 10,
+              "text": "2. The two V3 complex-root AR(2) scenarios use angular frequency `theta=pi/3`, corresponding to `f=theta/(2*pi)=1/6`, outside the tested open band `(0.01, 0.05)`. They test persistence/resonance outside the target band, not a peak inside it."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 11,
+              "text": "3. The inherited ceiling `0.075` does not by itself establish calibration at nominal `0.05`. It permits a Type-I rate up to 50% above nominal. No consequence-based justification is currently recorded, so the ceiling is **unresolved**, not approved."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 18,
+              "text": "- Keep V3 unchanged as a historical candidate. Do not relabel its historical outputs."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 19,
+              "text": "- Create V4 only as a **draft for review**: use the production series length (`n=3328`) for the primary synthetic scenarios and include in-band resonant AR(2) stress scenarios. Do not treat this matrix as frozen."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 20,
+              "text": "- Do not claim that `0.075` is justified. An attributable statistician must either provide a decision-consequence rationale and approve it, or specify a different prospective rule before formal simulation."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 29,
+              "text": "- [ ] V4 scenarios are finalized prospectively; all primary scenarios use production-matched sample length and in-band resonance is represented."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 30,
+              "text": "- [ ] The `0.075` criterion is justified by decision consequences or replaced before data collection; its operating characteristics are simulated/reported."
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_DECISION_RECORD_V1.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 9,
+              "text": "Workflow [39155162528](https://github.com/AhmedPeaRL/maximal-one/actions/runs/39155162528) checked out the exact commit and completed all four scenarios. Historical rule: two-sided 95% Wilson interval must contain nominal 0.05 and its upper endpoint must be <= 0.075."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 14,
+              "text": "| AR(2), phi=[0.45,-0.10] | 1000 | 60 | 0.060 | [0.046896, 0.076471] | Fail: upper endpoint > 0.075 |"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 16,
+              "text": "| AR(10), low-order coefficients | 1000 | 73 | 0.073 | [0.058459, 0.090809] | Fail: interval excludes 0.05 and upper endpoint > 0.075 |"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 20,
+              "text": "**AR(2):** the interval contains 0.05, but its upper endpoint 0.076471 exceeds the committed 0.075 ceiling. This is a failure under the current rule, not proof that the true rate differs from 5%."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 22,
+              "text": "**AR(10):** the interval's lower endpoint is above 0.05 and its upper endpoint exceeds 0.075. This is a stronger warning of over-rejection under this DGP. It does not, by itself, identify the mechanism. Inspect AIC order selection, refitting, surrogate failures, selected-order distribution, and boundary diagnostics before assigning cause."
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_IMPLEMENTATION_GAP_V1.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 25,
+              "text": "bound with a maximum of 0.075."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 29,
+              "text": "and its upper endpoint must not exceed 0.075."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 167,
+              "text": "- per-scenario maximum upper bound of 0.075;"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 174,
+              "text": "- the upper endpoint must be no greater than 0.075."
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_INDEPENDENT_REVIEW_REQUEST_V1.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 29,
+              "text": "- Suite passes only if the one-sided 95% Wilson upper bound is <= 0.075 in **every** required DGP. Do not average across scenarios. Any required scenario failure means suite failure."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 31,
+              "text": "- The 0.075 ceiling is inherited from current policy and must be explicitly approved by the independent reviewer before freeze; it must not be tuned using new results."
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_PREREGISTRATION_V2.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 10,
+              "text": "- Declared maximum acceptable Wilson upper bound: `0.075`"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 19,
+              "text": "- The observed rejection rate is above 0.05, the reported interval does not contain 0.05, and the upper bound exceeds the protocol's 0.075 limit."
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_RESULT_REVIEW_20261010.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 1,
+              "text": "# Request for Attributable Independent Statistical Review \u2014 Type-I Calibration V4 Draft"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 13,
+              "text": "3. **Acceptance criterion.** Is a ceiling of 0.075 defensible given the consequences of false rejection? If yes, provide a prospective substantive rationale and recommend a complete decision rule. If no, propose an alternative before formal simulation. Do not infer that passing a ceiling alone means the rate equals 0.05."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 14,
+              "text": "4. **Monte Carlo precision.** Are 2,000 outer repetitions sufficient for the proposed decision rule? Please assess the chance of pass/fail around plausible true rejection rates, including 0.05, 0.065, 0.07, and 0.075."
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_REVIEWER_REQUEST_V2.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 21,
+              "text": "| `gaussian_ar2_phi_0_45_minus_0_10` | 0.060 | [0.0468964727, 0.0764710748] | `TYPE1_CALIBRATION_FAILED` | Fails the current rule because the Wilson upper bound exceeds 0.075; the interval still contains 0.05 |"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 22,
+              "text": "| `gaussian_ar10_low_order_coefficients` | 0.073 | [0.0584590262, 0.0908090255] | `TYPE1_CALIBRATION_FAILED` | Fails the current rule; interval excludes 0.05 and upper bound exceeds 0.075 |"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 34,
+              "text": "2. AR(2) is a rule failure because the upper Wilson bound is 0.07647, above 0.075. It is **not** accurate to say its interval excludes 0.05; it includes 0.05."
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_RUN_REVIEW_20261011.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 16,
+              "text": "\"per_scenario_upper_bound_maximum\": 0.075,"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 17,
+              "text": "\"suite_rule\": \"PASS only if every required scenario's one-sided 95% Wilson upper bound is <= 0.075; no averaging across scenarios\","
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V2.json",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 2,
+              "text": "\"protocol\": \"HCM_TYPE1_CALIBRATION_V3_CANDIDATE\","
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 10,
+              "text": "\"confirmatory_execution_authorized\": false,"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 18,
+              "text": "\"acceptance_rule\": \"one-sided 95% Wilson upper confidence bound <= 0.075 for every required scenario; no averaging across scenarios\","
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 20,
+              "text": "\"one_sided_upper_bound_maximum\": 0.075,"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 70,
+              "text": "\"one-sided 95% Wilson upper bound <= 0.075 in every scenario\","
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "PROTOCOL_OR_DOCUMENTATION_REFERENCE",
+              "execution_or_authority_review": "Document reference; does not itself authorize execution",
+              "line": 2,
+              "text": "\"protocol\": \"HCM_TYPE1_CALIBRATION_V4_DRAFT\","
+            },
+            {
+              "classification": "PROTOCOL_OR_DOCUMENTATION_REFERENCE",
+              "execution_or_authority_review": "Document reference; does not itself authorize execution",
+              "line": 7,
+              "text": "\"confirmatory_execution_authorized\": false,"
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_DRAFT.json",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 1,
+              "text": "# HCM Type-I Calibration Specification V3 \u2014 Candidate for Review"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 8,
+              "text": "**Single machine-readable scenario/design source:** `protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json`"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 25,
+              "text": "- Acceptance rule: for every scenario, the one-sided 95% Wilson upper confidence bound on the empirical rejection probability must be `<= 0.075`. Two-sided Wilson intervals are reported for context but do not decide acceptance. The 0.075 tolerance is inherited from prior policy and requires explicit independent review; it is not a claim that the test is controlled at 0.05."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 52,
+              "text": "The reviewer must be named and attributable and must document approval or requested revisions for: target quantity; the inherited 0.075 ceiling; one-sided Wilson rule; nine DGPs and their stationarity; zero-invalid-attempt policy; Monte Carlo precision and feasibility of 18,000,000 requested surrogate draws; implementation equivalence; reproducibility/seed design; and artifact-retention plan. An AI-assisted review is not a substitute for this independent human review."
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_SPEC_V3_CANDIDATE.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 15,
+              "text": "1. **Acceptance-rule conflict:** the historical implementation uses a two-sided 95% Wilson interval and requires it to contain 0.05 while its upper endpoint is at most 0.075. The proposed matrix specifies a one-sided 95% Wilson upper bound at most 0.075. These are different decision rules. V3 candidate files make the one-sided rule explicit and keep the two-sided interval report-only. This rule still requires attributable independent statistical approval; 0.075 is a tolerance above nominal alpha 0.05 and must not be represented as 5% Type-I control."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 17,
+              "text": "3. **Seed dependence:** the existing runner carries one RNG stream through series generation and null generation. V3 candidate code uses stable per-scenario/per-replicate SeedSequence identities with separate DGP and null streams and includes an order-invariance test."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 18,
+              "text": "4. **Invalid attempts:** the old runner calculates the rejection rate among valid attempts while allowing invalid attempts to be excluded. V3 candidate policy preserves every attempted record and blocks a scenario pass if any outer attempt is invalid or a requested surrogate is missing."
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_TECHNICAL_REVIEW_20261020.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 9,
+              "text": "\"0.075\","
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 10,
+              "text": "\"TYPE1_CALIBRATION_SCENARIO_MATRIX_V3\","
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 11,
+              "text": "\"TYPE1_CALIBRATION_SCENARIO_MATRIX_V4\","
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 12,
+              "text": "\"V3\","
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 13,
+              "text": "\"V4\","
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 14,
+              "text": "\"confirmatory_execution_authorized\","
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 15,
+              "text": "\"formal_calibration_pass\","
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 63,
+              "text": "if \"0.075\" in line or \"0.075\" in lower_content:"
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 135,
+              "text": "\"audit\": \"TYPE1_V3_V4_THRESHOLD_REFERENCE_INVENTORY_V1\","
+            }
+          ],
+          "path": "scripts/audit_type1_governance_refs.py",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 16,
+              "text": "self.assertEqual(accepted_counts(1000, 0.05, 0.075)[0], 37)"
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 19,
+              "text": "self.assertLessEqual(wilson_interval(58, 1000)[1], 0.075)"
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 20,
+              "text": "self.assertGreater(wilson_interval(59, 1000)[1], 0.075)"
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 21,
+              "text": "accepted = accepted_counts(1000, 0.05, 0.075)"
+            }
+          ],
+          "path": "tests/test_type1_acceptance_operating_characteristics.py",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 21,
+              "text": "self.assertFalse(MATRIX[\"confirmatory_execution_authorized\"])"
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 70,
+              "text": "self.assertFalse(merged[\"formal_calibration_pass\"])"
+            }
+          ],
+          "path": "tests/test_type1_calibration_pilot.py",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 16,
+              "text": "class TypeICalibrationV3CandidateTests(unittest.TestCase):"
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 20,
+              "text": "self.assertFalse(MATRIX[\"confirmatory_execution_authorized\"])"
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 23,
+              "text": "self.assertTrue(MATRIX[\"confirmatory_execution_authorized\"])"
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 37,
+              "text": "self.assertEqual(p[\"one_sided_upper_bound_maximum\"], 0.075)"
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 60,
+              "text": "# 49/1000: the one-sided upper bound should be below the 0.075 ceiling."
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 62,
+              "text": "self.assertLess(upper, 0.075)"
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 99,
+              "text": "self.assertIn('TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json', workflow)"
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 101,
+              "text": "self.assertIn('outer_repetitions_per_scenario', Path('protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json').read_text(encoding='utf-8'))"
+            }
+          ],
+          "path": "tests/test_type1_calibration_v3_candidate.py",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        }
+      ],
+      "files_with_matches": 66,
+      "interpretation": "Automated inventory for review, not an authorization decision. Workflow and code execution capability requires manual call-path review.",
+      "pattern_set": [
+        "0.075",
+        "TYPE1_CALIBRATION_SCENARIO_MATRIX_V3",
+        "TYPE1_CALIBRATION_SCENARIO_MATRIX_V4",
+        "V3",
+        "V4",
+        "confirmatory_execution_authorized",
+        "formal_calibration_pass"
+      ],
+      "ref_requested": "HEAD"
+    },
+    {
+      "commit_sha": "fadfccdb6f7ec66ceefdd0719575f914b3d1b891",
+      "entries": [
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 41,
+              "text": "uses: actions/upload-artifact@v4"
+            }
+          ],
+          "path": ".github/workflows/acquire-secondary-data.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 14,
+              "text": "- uses: actions/checkout@v4"
+            },
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 50,
+              "text": "- uses: actions/checkout@v4"
+            }
+          ],
+          "path": ".github/workflows/build-image.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 14,
+              "text": "- uses: actions/checkout@v4"
+            },
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 16,
+              "text": "- uses: actions/setup-node@v4"
+            }
+          ],
+          "path": ".github/workflows/canonical-sync.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 23,
+              "text": "uses: github/codeql-action/init@v3"
+            },
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 28,
+              "text": "uses: github/codeql-action/analyze@v3"
+            }
+          ],
+          "path": ".github/workflows/codeql-analysis.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 33,
+              "text": "uses: actions/checkout@v4"
+            }
+          ],
+          "path": ".github/workflows/confirmatory-readiness-gate.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 13,
+              "text": "- uses: actions/checkout@v4"
+            }
+          ],
+          "path": ".github/workflows/cross-run-memory-verification.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 15,
+              "text": "- uses: actions/checkout@v4"
+            },
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 31,
+              "text": "uses: actions/upload-artifact@v4"
+            }
+          ],
+          "path": ".github/workflows/cross_arch_timing.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 14,
+              "text": "uses: actions/checkout@v4"
+            }
+          ],
+          "path": ".github/workflows/emergent-periodicity.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 15,
+              "text": "- uses: actions/checkout@v4"
+            }
+          ],
+          "path": ".github/workflows/evolution.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 11,
+              "text": "- uses: actions/checkout@v4"
+            }
+          ],
+          "path": ".github/workflows/legacy/evaluation.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 11,
+              "text": "- uses: actions/checkout@v4"
+            }
+          ],
+          "path": ".github/workflows/legacy/scientific-evaluation.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 11,
+              "text": "name: Validate frozen V3 protocol and prepare matrix"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 34,
+              "text": "\"protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json\""
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 45,
+              "text": "\"BLOCKED: V3 protocol is not APPROVED_FROZEN. \""
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 50,
+              "text": "if d.get(\"confirmatory_execution_authorized\") is not True:"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 66,
+              "text": "\"BLOCKED: V3 requires exactly nine declared scenarios.\""
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 102,
+              "text": "\"BLOCKED: V3 design dimensions differ from \""
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 126,
+              "text": "print(\"Validated V3 matrix metadata:\")"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 179,
+              "text": "- name: Run declared V3 scenario calibration"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 264,
+              "text": "\"protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json\""
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 280,
+              "text": "uses: actions/upload-artifact@v4"
+            }
+          ],
+          "path": ".github/workflows/null-type1-calibration.yml",
+          "runner_invocation_candidate": true,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 46,
+              "text": "uses: actions/upload-artifact@v4"
+            }
+          ],
+          "path": ".github/workflows/prospective-raw-audit.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 19,
+              "text": "uses: actions/checkout@v4"
+            },
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 25,
+              "text": "uses: actions/setup-node@v4"
+            }
+          ],
+          "path": ".github/workflows/release-lock.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 18,
+              "text": "- uses: actions/checkout@v3"
+            },
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 21,
+              "text": "uses: actions/setup-python@v4"
+            }
+          ],
+          "path": ".github/workflows/replication.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 14,
+              "text": "- uses: actions/checkout@v4"
+            },
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 15,
+              "text": "- uses: actions/setup-python@v4"
+            }
+          ],
+          "path": ".github/workflows/reproducible_research.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 11,
+              "text": "- uses: actions/checkout@v4"
+            }
+          ],
+          "path": ".github/workflows/run.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 159,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 191,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 205,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 220,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 288,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 313,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 330,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 355,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 399,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 415,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 434,
+              "text": "python -m unittest discover -s tests -p 'test_type1_calibration_v3_candidate.py' -v"
+            },
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 435,
+              "text": "python -m compileall -q analysis/calibrate_null_type1.py analysis/calibrate_null_type1_scenario.py tests/test_type1_calibration_v3_candidate.py"
+            }
+          ],
+          "path": ".github/workflows/scientific-claim-promotion.yml",
+          "runner_invocation_candidate": true,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 59,
+              "text": "uses: github/codeql-action/init@v4"
+            },
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 64,
+              "text": "uses: github/codeql-action/analyze@v4"
+            },
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 94,
+              "text": "python -m unittest discover -s tests -p 'test_type1_calibration_v3_candidate.py' -v"
+            },
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 95,
+              "text": "python -m compileall -q analysis/calibrate_null_type1.py analysis/calibrate_null_type1_scenario.py tests/test_type1_calibration_v3_candidate.py"
+            },
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 582,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 600,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 686,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 1310,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 1636,
+              "text": "uses: actions/upload-artifact@v4"
+            },
+            {
+              "classification": "WORKFLOW_CONTROL_PATH",
+              "execution_or_authority_review": "Workflow exists; inspect guard ordering and runner invocation",
+              "line": 5258,
+              "text": "uses: actions/upload-artifact@v4"
+            }
+          ],
+          "path": ".github/workflows/scientific-validation.yml",
+          "runner_invocation_candidate": true,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 13,
+              "text": "- uses: actions/checkout@v4"
+            }
+          ],
+          "path": ".github/workflows/tag-signature-verify.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 15,
+              "text": "uses: actions/checkout@v4"
+            },
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 18,
+              "text": "uses: actions/setup-python@v4"
+            }
+          ],
+          "path": ".github/workflows/theoretical_validity.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 17,
+              "text": "- uses: actions/checkout@v4"
+            },
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 33,
+              "text": "uses: actions/upload-artifact@v4"
+            }
+          ],
+          "path": ".github/workflows/timing_cross_arch.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE",
+              "execution_or_authority_review": "May invoke an execution path; inspect triggers and all guards",
+              "line": 60,
+              "text": "uses: actions/upload-artifact@v4"
+            }
+          ],
+          "path": ".github/workflows/type1-calibration-runtime-pilot.yml",
+          "runner_invocation_candidate": true,
+          "workflow_dispatch_present": true
+        },
+        {
+          "matches": [
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 13,
+              "text": "- uses: actions/checkout@v4"
+            },
+            {
+              "classification": "WORKFLOW_REFERENCE",
+              "execution_or_authority_review": "Workflow reference; execution capability not inferred from this line alone",
+              "line": 14,
+              "text": "- uses: actions/setup-node@v4"
+            }
+          ],
+          "path": ".github/workflows/validate-stress.yml",
+          "runner_invocation_candidate": false,
+          "workflow_dispatch_present": false
+        },
+        {
+          "matches": [
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 9,
+              "text": "MATRIX_PATH = Path(\"protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json\")"
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 52,
+              "text": "\"\"\"One-sided Wilson upper confidence bound used by V3 candidate rule.\"\"\""
+            }
+          ],
+          "path": "analysis/calibrate_null_type1.py",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 37,
+              "text": "parser = argparse.ArgumentParser(description=\"V3 candidate Type-I calibration; do not run until independently reviewed and frozen.\")"
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 46,
+              "text": "if MATRIX.get(\"status\") != \"APPROVED_FROZEN\" or MATRIX.get(\"freeze_state\") != \"FROZEN\" or MATRIX.get(\"confirmatory_execution_authorized\") is not True:"
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 49,
+              "text": "raise SystemExit(\"BLOCKED: parameters must exactly match the machine-readable V3 candidate matrix; do not run a partial configuration as formal calibration.\")"
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 98,
+              "text": "\"matrix_sha256\": sha256(Path(\"protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json\")),"
+            }
+          ],
+          "path": "analysis/calibrate_null_type1_scenario.py",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 55,
+              "text": "\"formal_calibration_pass\": False,"
+            }
+          ],
+          "path": "analysis/merge_type1_calibration_pilot_shards.py",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 69,
+              "text": "upper_limit: float = 0.075, scenarios: int = 4) -> dict:"
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 111,
+              "text": "parser.add_argument(\"--upper-limit\", type=float, default=0.075)"
+            }
+          ],
+          "path": "analysis/type1_acceptance_operating_characteristics.py",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 21,
+              "text": "MATRIX_PATH = Path(\"protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_DRAFT.json\")"
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 93,
+              "text": "raise SystemExit(\"BLOCKED: pilot script requires the V4 draft status; it cannot run formal calibration.\")"
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 174,
+              "text": "\"formal_calibration_pass\": False,"
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 188,
+              "text": "final[\"formal_calibration_pass\"] = False"
+            }
+          ],
+          "path": "analysis/type1_calibration_pilot.py",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 22,
+              "text": "\"maximum_acceptable_95pct_wilson_upper_bound\": 0.075,"
+            }
+          ],
+          "path": "audit/downloaded-artifacts/null_type1_calibration_gaussian_ar10_low_order_coefficients.json",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 13,
+              "text": "\"maximum_acceptable_95pct_wilson_upper_bound\": 0.075,"
+            }
+          ],
+          "path": "audit/downloaded-artifacts/null_type1_calibration_gaussian_ar1_phi_0_4.json",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 14,
+              "text": "\"maximum_acceptable_95pct_wilson_upper_bound\": 0.075,"
+            }
+          ],
+          "path": "audit/downloaded-artifacts/null_type1_calibration_gaussian_ar2_phi_0_45_minus_0_10.json",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 17,
+              "text": "\"maximum_acceptable_95pct_wilson_upper_bound\": 0.075,"
+            }
+          ],
+          "path": "audit/downloaded-artifacts/null_type1_calibration_gaussian_ar5_low_order_coefficients.json",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 25,
+              "text": "\"wilson_upper_at_next_count\": 0.07536090277145915,"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 27,
+              "text": "\"wilson_upper_limit\": 0.075"
+            }
+          ],
+          "path": "audit/type1_acceptance_operating_characteristics.json",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "OTHER_REFERENCE",
+              "execution_or_authority_review": "Manual review required",
+              "line": 12,
+              "text": "- uses: actions/checkout@v4"
+            },
+            {
+              "classification": "OTHER_REFERENCE",
+              "execution_or_authority_review": "Manual review required",
+              "line": 15,
+              "text": "uses: actions/setup-node@v4"
+            }
+          ],
+          "path": "core-scientific/.github/workflows/truth-pressure-lock.yml",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 65,
+              "text": "2. The interval's upper endpoint must not exceed 0.075."
+            }
+          ],
+          "path": "docs/research/AR_P_NULL_ADEQUACY_REVIEW_2026-10-17.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 113,
+              "text": "2. the upper endpoint to be no greater than 0.075."
+            }
+          ],
+          "path": "docs/research/PROSPECTIVE_CONFIRMATORY_PROTOCOL_V1_DRAFT.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 30,
+              "text": "- AR(2): 60/1000, rate 0.060, interval [0.046896, 0.076471], fail: upper endpoint > 0.075."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 32,
+              "text": "- AR(10): 73/1000, rate 0.073, interval [0.058459, 0.090809], fail: interval excludes 0.05 and upper endpoint > 0.075."
+            }
+          ],
+          "path": "protocol/ACCEPTANCE_DECISION_RECORD_2026-10-19.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 45,
+              "text": "- Historical Type-I counts are AR(1): 52/1000, AR(2): 60/1000, AR(5): 49/1000, AR(10): 73/1000. Under the currently recorded rule (two-sided 95% Wilson interval contains 0.05 and upper endpoint <= 0.075), AR(2) and AR(10) fail."
+            }
+          ],
+          "path": "protocol/CLOSURE_DECISION_AND_FREEZE_REASSESSMENT_20261018.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 29,
+              "text": "The declared rule requires the two-sided Wilson 95% interval to contain the nominal Type-I rate 0.05 AND its upper endpoint to be no greater than 0.075."
+            }
+          ],
+          "path": "protocol/INDEPENDENT_NULL_CALIBRATION_REVIEW_20261017.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 37,
+              "text": "| Gaussian AR(2), phi = 0.45, -0.10 | 60 / 1,000 | 0.060 | [0.046896, 0.076471] | Fails: upper endpoint exceeds 0.075 |"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 39,
+              "text": "| Gaussian AR(10), low-order coefficients | 73 / 1,000 | 0.073 | [0.058459, 0.090809] | Fails: interval excludes 0.05 and upper endpoint exceeds 0.075 |"
+            }
+          ],
+          "path": "protocol/INDEPENDENT_REVIEW_ADDENDUM_20261018.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 17,
+              "text": "The recorded acceptance rule requires the two-sided Wilson 95% interval to contain 0.05 and its upper endpoint to be no greater than 0.075."
+            }
+          ],
+          "path": "protocol/INDEPENDENT_SCIENTIFIC_AUDIT_20261016.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 67,
+              "text": "The declared acceptance rule requires the two-sided Wilson 95% interval to contain 0.05 and its upper endpoint to be no greater than 0.075."
+            }
+          ],
+          "path": "protocol/INDEPENDENT_TECHNICAL_REVIEW_20261016.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 25,
+              "text": "- The current acceptance rule requires the two-sided Wilson 95% interval to contain 0.05 and its upper endpoint to be at most 0.075. These scenarios do not pass that rule."
+            }
+          ],
+          "path": "protocol/LIVE_STATE_TRIAGE_20261012.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 14,
+              "text": "The production calibration rule stays unchanged. The audit now represents both conditions already enforced in `analysis/calibrate_null_type1_scenario.py`: the Wilson interval must contain 0.05, and its upper endpoint must be <= 0.075. Expected accepted counts for n=1000: 37..58. Four local unit tests passed against the patch files in the packaging environment; this is not a claim that GitHub Actions has passed."
+            }
+          ],
+          "path": "protocol/NEXT_STEP_ORDER_20261011.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 1,
+              "text": "# Null Adequacy, Type-I Error, Power, and Reference-Data Execution Plan \u2014 V3 Draft"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 75,
+              "text": "Apply the historical rule exactly as recorded: the two-sided 95% Wilson interval must contain 0.05 and its upper endpoint must be <= 0.075. Do not reinterpret or amend historical failures. A successful rerun establishes reproducibility of that run, not full null adequacy."
+            }
+          ],
+          "path": "protocol/NULL_ADEQUACY_CALIBRATION_EXECUTION_PLAN_V3_DRAFT.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 57,
+              "text": "\"upper_endpoint_maximum\": 0.075,"
+            }
+          ],
+          "path": "protocol/NULL_ADEQUACY_CALIBRATION_PLAN_V2.json",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 14,
+              "text": "2. Keep the two failed scenarios marked failed. Do not change the 0.075 Wilson-upper limit or the nominal alpha to turn them green."
+            }
+          ],
+          "path": "protocol/SCIENTIFIC_GATE_DIAGNOSTIC_FIX_PLAN_20261011.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 12,
+              "text": "3. The Wilson upper endpoint is no greater than 0.075."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 22,
+              "text": "- At 58 rejections, the Wilson upper endpoint is approximately 0.0742496, within the 0.075 limit."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 23,
+              "text": "- At 59 rejections, the Wilson upper endpoint is approximately 0.0753609, above the limit."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 38,
+              "text": "- AR(2): 60/1000 = 0.060; interval approximately [0.046896, 0.076471]. Fails because its upper endpoint exceeds 0.075. The interval contains 0.05; the exact one-sided binomial tail `P(X >= 60 | n=1000, p=0.05)` is approximately 0.086732, so do not characterize this alone as strong evidence of inflation."
+            }
+          ],
+          "path": "protocol/TYPE1_ACCEPTANCE_RULE_OPERATING_CHARACTERISTICS_V1.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 3,
+              "text": "The committed audit describes the current acceptance rule: with 1000 repetitions and a nominal rejection probability of 0.05, accept a scenario only when its two-sided 95% Wilson upper confidence endpoint is at most 0.075. The audit is explicitly marked `audit_only=true` and `production_gate_modified=false`."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 9,
+              "text": "- Wilson upper endpoint at 59/1000: approximately 0.0753609, above the 0.075 cutoff."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 21,
+              "text": "AR(1) and AR(5) passed only their named synthetic scenarios. AR(2) and AR(10) failed the declared acceptance criterion. AR(2)'s Wilson interval includes 0.05, but its upper endpoint exceeds 0.075; AR(10)'s interval excludes 0.05 and its upper endpoint exceeds 0.075. These outcomes must remain separate. Passing two scenarios does not cancel the two failures, and none of these synthetic scenarios by itself establishes that the null is adequate for the real sunspot series."
+            }
+          ],
+          "path": "protocol/TYPE1_AUDIT_INTERPRETATION_20261011.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 1,
+              "text": "# Type-I Calibration V3 Review Decision Record \u2014 V1"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 9,
+              "text": "1. The V3 candidate matrix uses `n=1024`, while the primary real series is reported as `n=3328`. With `nperseg=1024`, this changes Welch averaging from approximately five overlapping segments in the longer series to one segment in the calibration series. This is a material operating-characteristic mismatch."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 10,
+              "text": "2. The two V3 complex-root AR(2) scenarios use angular frequency `theta=pi/3`, corresponding to `f=theta/(2*pi)=1/6`, outside the tested open band `(0.01, 0.05)`. They test persistence/resonance outside the target band, not a peak inside it."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 11,
+              "text": "3. The inherited ceiling `0.075` does not by itself establish calibration at nominal `0.05`. It permits a Type-I rate up to 50% above nominal. No consequence-based justification is currently recorded, so the ceiling is **unresolved**, not approved."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 18,
+              "text": "- Keep V3 unchanged as a historical candidate. Do not relabel its historical outputs."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 19,
+              "text": "- Create V4 only as a **draft for review**: use the production series length (`n=3328`) for the primary synthetic scenarios and include in-band resonant AR(2) stress scenarios. Do not treat this matrix as frozen."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 20,
+              "text": "- Do not claim that `0.075` is justified. An attributable statistician must either provide a decision-consequence rationale and approve it, or specify a different prospective rule before formal simulation."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 29,
+              "text": "- [ ] V4 scenarios are finalized prospectively; all primary scenarios use production-matched sample length and in-band resonance is represented."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 30,
+              "text": "- [ ] The `0.075` criterion is justified by decision consequences or replaced before data collection; its operating characteristics are simulated/reported."
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_DECISION_RECORD_V1.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 9,
+              "text": "Workflow [39155162528](https://github.com/AhmedPeaRL/maximal-one/actions/runs/39155162528) checked out the exact commit and completed all four scenarios. Historical rule: two-sided 95% Wilson interval must contain nominal 0.05 and its upper endpoint must be <= 0.075."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 14,
+              "text": "| AR(2), phi=[0.45,-0.10] | 1000 | 60 | 0.060 | [0.046896, 0.076471] | Fail: upper endpoint > 0.075 |"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 16,
+              "text": "| AR(10), low-order coefficients | 1000 | 73 | 0.073 | [0.058459, 0.090809] | Fail: interval excludes 0.05 and upper endpoint > 0.075 |"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 20,
+              "text": "**AR(2):** the interval contains 0.05, but its upper endpoint 0.076471 exceeds the committed 0.075 ceiling. This is a failure under the current rule, not proof that the true rate differs from 5%."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 22,
+              "text": "**AR(10):** the interval's lower endpoint is above 0.05 and its upper endpoint exceeds 0.075. This is a stronger warning of over-rejection under this DGP. It does not, by itself, identify the mechanism. Inspect AIC order selection, refitting, surrogate failures, selected-order distribution, and boundary diagnostics before assigning cause."
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_IMPLEMENTATION_GAP_V1.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 25,
+              "text": "bound with a maximum of 0.075."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 29,
+              "text": "and its upper endpoint must not exceed 0.075."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 167,
+              "text": "- per-scenario maximum upper bound of 0.075;"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 174,
+              "text": "- the upper endpoint must be no greater than 0.075."
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_INDEPENDENT_REVIEW_REQUEST_V1.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 29,
+              "text": "- Suite passes only if the one-sided 95% Wilson upper bound is <= 0.075 in **every** required DGP. Do not average across scenarios. Any required scenario failure means suite failure."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 31,
+              "text": "- The 0.075 ceiling is inherited from current policy and must be explicitly approved by the independent reviewer before freeze; it must not be tuned using new results."
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_PREREGISTRATION_V2.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 10,
+              "text": "- Declared maximum acceptable Wilson upper bound: `0.075`"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 19,
+              "text": "- The observed rejection rate is above 0.05, the reported interval does not contain 0.05, and the upper bound exceeds the protocol's 0.075 limit."
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_RESULT_REVIEW_20261010.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 1,
+              "text": "# Request for Attributable Independent Statistical Review \u2014 Type-I Calibration V4 Draft"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 13,
+              "text": "3. **Acceptance criterion.** Is a ceiling of 0.075 defensible given the consequences of false rejection? If yes, provide a prospective substantive rationale and recommend a complete decision rule. If no, propose an alternative before formal simulation. Do not infer that passing a ceiling alone means the rate equals 0.05."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 14,
+              "text": "4. **Monte Carlo precision.** Are 2,000 outer repetitions sufficient for the proposed decision rule? Please assess the chance of pass/fail around plausible true rejection rates, including 0.05, 0.065, 0.07, and 0.075."
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_REVIEWER_REQUEST_V2.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 21,
+              "text": "| `gaussian_ar2_phi_0_45_minus_0_10` | 0.060 | [0.0468964727, 0.0764710748] | `TYPE1_CALIBRATION_FAILED` | Fails the current rule because the Wilson upper bound exceeds 0.075; the interval still contains 0.05 |"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 22,
+              "text": "| `gaussian_ar10_low_order_coefficients` | 0.073 | [0.0584590262, 0.0908090255] | `TYPE1_CALIBRATION_FAILED` | Fails the current rule; interval excludes 0.05 and upper bound exceeds 0.075 |"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 34,
+              "text": "2. AR(2) is a rule failure because the upper Wilson bound is 0.07647, above 0.075. It is **not** accurate to say its interval excludes 0.05; it includes 0.05."
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_RUN_REVIEW_20261011.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 16,
+              "text": "\"per_scenario_upper_bound_maximum\": 0.075,"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 17,
+              "text": "\"suite_rule\": \"PASS only if every required scenario's one-sided 95% Wilson upper bound is <= 0.075; no averaging across scenarios\","
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V2.json",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 2,
+              "text": "\"protocol\": \"HCM_TYPE1_CALIBRATION_V3_CANDIDATE\","
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 10,
+              "text": "\"confirmatory_execution_authorized\": false,"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 18,
+              "text": "\"acceptance_rule\": \"one-sided 95% Wilson upper confidence bound <= 0.075 for every required scenario; no averaging across scenarios\","
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 20,
+              "text": "\"one_sided_upper_bound_maximum\": 0.075,"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 70,
+              "text": "\"one-sided 95% Wilson upper bound <= 0.075 in every scenario\","
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "PROTOCOL_OR_DOCUMENTATION_REFERENCE",
+              "execution_or_authority_review": "Document reference; does not itself authorize execution",
+              "line": 2,
+              "text": "\"protocol\": \"HCM_TYPE1_CALIBRATION_V4_DRAFT\","
+            },
+            {
+              "classification": "PROTOCOL_OR_DOCUMENTATION_REFERENCE",
+              "execution_or_authority_review": "Document reference; does not itself authorize execution",
+              "line": 7,
+              "text": "\"confirmatory_execution_authorized\": false,"
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_DRAFT.json",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 1,
+              "text": "# HCM Type-I Calibration Specification V3 \u2014 Candidate for Review"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 8,
+              "text": "**Single machine-readable scenario/design source:** `protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json`"
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 25,
+              "text": "- Acceptance rule: for every scenario, the one-sided 95% Wilson upper confidence bound on the empirical rejection probability must be `<= 0.075`. Two-sided Wilson intervals are reported for context but do not decide acceptance. The 0.075 tolerance is inherited from prior policy and requires explicit independent review; it is not a claim that the test is controlled at 0.05."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 52,
+              "text": "The reviewer must be named and attributable and must document approval or requested revisions for: target quantity; the inherited 0.075 ceiling; one-sided Wilson rule; nine DGPs and their stationarity; zero-invalid-attempt policy; Monte Carlo precision and feasibility of 18,000,000 requested surrogate draws; implementation equivalence; reproducibility/seed design; and artifact-retention plan. An AI-assisted review is not a substitute for this independent human review."
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_SPEC_V3_CANDIDATE.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 15,
+              "text": "1. **Acceptance-rule conflict:** the historical implementation uses a two-sided 95% Wilson interval and requires it to contain 0.05 while its upper endpoint is at most 0.075. The proposed matrix specifies a one-sided 95% Wilson upper bound at most 0.075. These are different decision rules. V3 candidate files make the one-sided rule explicit and keep the two-sided interval report-only. This rule still requires attributable independent statistical approval; 0.075 is a tolerance above nominal alpha 0.05 and must not be represented as 5% Type-I control."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 17,
+              "text": "3. **Seed dependence:** the existing runner carries one RNG stream through series generation and null generation. V3 candidate code uses stable per-scenario/per-replicate SeedSequence identities with separate DGP and null streams and includes an order-invariance test."
+            },
+            {
+              "classification": "POLICY_OR_HISTORICAL_REFERENCE",
+              "execution_or_authority_review": "Determine whether this is historical, diagnostic, or proposed policy",
+              "line": 18,
+              "text": "4. **Invalid attempts:** the old runner calculates the rejection rate among valid attempts while allowing invalid attempts to be excluded. V3 candidate policy preserves every attempted record and blocks a scenario pass if any outer attempt is invalid or a requested surrogate is missing."
+            }
+          ],
+          "path": "protocol/TYPE1_CALIBRATION_TECHNICAL_REVIEW_20261020.md",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 9,
+              "text": "\"0.075\","
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 10,
+              "text": "\"TYPE1_CALIBRATION_SCENARIO_MATRIX_V3\","
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 11,
+              "text": "\"TYPE1_CALIBRATION_SCENARIO_MATRIX_V4\","
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 12,
+              "text": "\"V3\","
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 13,
+              "text": "\"V4\","
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 14,
+              "text": "\"confirmatory_execution_authorized\","
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 15,
+              "text": "\"formal_calibration_pass\","
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 63,
+              "text": "if \"0.075\" in line or \"0.075\" in lower_content:"
+            },
+            {
+              "classification": "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW",
+              "execution_or_authority_review": "Inspect entry points, callers, flags, and authorization guards",
+              "line": 135,
+              "text": "\"audit\": \"TYPE1_V3_V4_THRESHOLD_REFERENCE_INVENTORY_V1\","
+            }
+          ],
+          "path": "scripts/audit_type1_governance_refs.py",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 16,
+              "text": "self.assertEqual(accepted_counts(1000, 0.05, 0.075)[0], 37)"
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 19,
+              "text": "self.assertLessEqual(wilson_interval(58, 1000)[1], 0.075)"
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 20,
+              "text": "self.assertGreater(wilson_interval(59, 1000)[1], 0.075)"
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 21,
+              "text": "accepted = accepted_counts(1000, 0.05, 0.075)"
+            }
+          ],
+          "path": "tests/test_type1_acceptance_operating_characteristics.py",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 21,
+              "text": "self.assertFalse(MATRIX[\"confirmatory_execution_authorized\"])"
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 70,
+              "text": "self.assertFalse(merged[\"formal_calibration_pass\"])"
+            }
+          ],
+          "path": "tests/test_type1_calibration_pilot.py",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        },
+        {
+          "matches": [
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 16,
+              "text": "class TypeICalibrationV3CandidateTests(unittest.TestCase):"
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 20,
+              "text": "self.assertFalse(MATRIX[\"confirmatory_execution_authorized\"])"
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 23,
+              "text": "self.assertTrue(MATRIX[\"confirmatory_execution_authorized\"])"
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 37,
+              "text": "self.assertEqual(p[\"one_sided_upper_bound_maximum\"], 0.075)"
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 60,
+              "text": "# 49/1000: the one-sided upper bound should be below the 0.075 ceiling."
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 62,
+              "text": "self.assertLess(upper, 0.075)"
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 99,
+              "text": "self.assertIn('TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json', workflow)"
+            },
+            {
+              "classification": "TEST_OR_GUARD",
+              "execution_or_authority_review": "Diagnostic/test reference; not itself evidence of scientific approval",
+              "line": 101,
+              "text": "self.assertIn('outer_repetitions_per_scenario', Path('protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json').read_text(encoding='utf-8'))"
+            }
+          ],
+          "path": "tests/test_type1_calibration_v3_candidate.py",
+          "runner_invocation_candidate": null,
+          "workflow_dispatch_present": null
+        }
+      ],
+      "files_with_matches": 66,
+      "interpretation": "Automated inventory for review, not an authorization decision. Workflow and code execution capability requires manual call-path review.",
+      "pattern_set": [
+        "0.075",
+        "TYPE1_CALIBRATION_SCENARIO_MATRIX_V3",
+        "TYPE1_CALIBRATION_SCENARIO_MATRIX_V4",
+        "V3",
+        "V4",
+        "confirmatory_execution_authorized",
+        "formal_calibration_pass"
+      ],
+      "ref_requested": "origin/main"
+    }
+  ]
+}
