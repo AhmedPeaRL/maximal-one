@@ -341,6 +341,46 @@ Keep the following states unchanged:
 
 Historical failures remain historical failures. These later engineering results do not retroactively change their outcomes.
 
+
+### E8 — Official CLI identity and current-snapshot execution equivalence — 2026-10-29
+
+Status: PASS FOR THE EXACT RECORDED ENGINEERING CONFIGURATION ONLY
+
+- Review branch: `review/type1-v4-remediation`
+- Tested commit: `d49c428ad9633739db1c17c28ea1e9793a69c40f`
+- Workflow run: `40802655822`
+- Job: `123214138066`
+- Artifact ID: `12868916363`
+- Artifact SHA-256: `211f5a8b9b4bc7acbc06e92f52095187dd503e029ee5b91a80005eca81334d7e`
+
+Observed evidence:
+
+- 19/19 CLI identity mismatch cases rejected with exit code 1 and the expected diagnostic.
+- Checkpoint and manifest bytes and SHA-256 hashes remained unchanged for every tested mismatch.
+- Artifact-integrity tests: 8 passed.
+- Artifact-loss and denominator tests: 5 passed.
+- Merge rejection tests: 6 passed.
+- Resume identity/artifact tests: 3 passed.
+- V3/V4 separation tests: 3 passed.
+- Connected/sharded/merged/resumed equivalence: 1 passed.
+- Concurrent worker-order equivalence: 1 passed with zero mismatches for indices 0–5.
+
+The tested engineering configuration used scenario
+`gaussian_ar2_phi_0_45_minus_0_10_n3328`, n=3328, master seed
+20261021, six outer replicates, and 1000 surrogates per replicate.
+
+Limitations: this is engineering equivalence and rejection evidence
+only. It is not Type-I calibration, does not approve the 0.075 ceiling,
+does not freeze V4, and does not authorize confirmatory execution.
+
+The following states remain unchanged:
+
+- `freeze_state = NOT_FROZEN`
+- `confirmatory_execution_authorized = false`
+- `claim_support = false`
+- `promotion_authority = false`
+- Formal calibration: `NOT AUTHORIZED`
+
 ### E9 — Resume identity and independent-runner evidence — 2026-10-27
 
 Status: PARTIAL ENGINEERING PASS; PARALLEL WORKER-ORDER RETEST OPEN
