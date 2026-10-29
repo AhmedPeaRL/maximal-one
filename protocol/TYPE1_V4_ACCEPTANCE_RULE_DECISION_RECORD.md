@@ -126,3 +126,53 @@ Protocol freeze: "NOT APPROVED"
 "promotion_authority = false"
 
 This record may be marked approved only after an attributable independent statistical review and explicit governance decision. A subsequent formal execution requires its own separate authorization record.
+
+
+## Addendum — 2026-10-29 — Engineering evidence E9–E11
+
+Disposition: `ENGINEERING_PROGRESS_RECORDED; SCIENTIFIC_GATE_STILL_CLOSED`
+
+### E9 — Official CLI resume identity rejection
+
+- Workflow run: `40783850430`
+- Job: `123151990547`
+- Evidence artifact: `12858910681`
+- Test: `tests.test_type1_resume_cli_identity_rejections`
+- Result: successful test execution for the recorded bounded configuration.
+- Scope: the test creates a bounded engineering checkpoint and manifest, injects a mismatch into each of 19 declared identity fields, and requires exit code 1, the expected identity-mismatch message, and byte-for-byte plus SHA-256 preservation of both checkpoint and manifest.
+- Limitation: this verifies only the declared fields and tested CLI path. It is not a proof of all possible resume, storage, filesystem, or production configurations.
+
+### E10 — Worker assignment matrix invariance
+
+- Workflow run: `40768558101`
+- Job: `123099219597`
+- Evidence artifact: `12851468942`
+- Test: `tests.test_type1_worker_assignment_matrix_invariance`
+- Result: successful test execution for the recorded engineering configuration.
+- Scope: six predeclared replicate indices were compared across a connected reference and two distinct worker-assignment matrices. The test compares per-replicate seed identities, generated-series hash, endpoint estimate, requested and valid surrogate counts, exceedances, Monte Carlo p-value, selected order, boundary diagnostics, status, and failure reason.
+- Denominator protection in this test: the requested index set is fixed before dispatch; duplicate or missing indices in either tested assignment matrix cause test failure.
+- Limitation: this does not cover every possible worker schedule, process failure, artifact loss, cross-platform execution, or all production resource conditions.
+
+### E11 — V3/V4 governance reference inventory
+
+- Review-branch workflow run: `40783622950`
+- Job: `123151210065`
+- Evidence artifact: `12857744377`
+- Result: inventory generation and the recorded V3/V4 separation regression tests succeeded.
+- Scope: both the review snapshot and `origin/main` were inventoried. The inventory is a discovery aid, not a final manual classification or authorization decision.
+- Negative-control run on `main`: `40784703754`, job `123154872086`, failed at the branch identity guard because the workflow requires `refs/heads/review/type1-v4-remediation`. Preserve this run as a rejected wrong-branch invocation; do not classify it as a scientific test failure or as a successful inventory run.
+
+### Prospective acceptance-rule decision
+
+The historical two-sided 95% Wilson rule and all historical results remain unchanged. The candidate one-sided Wilson rule is not approved by these engineering results. The `0.075` ceiling remains unresolved and unjustified until an attributable independent human statistical reviewer provides a prospective rationale and an explicit decision.
+
+### Authorization state — unchanged
+
+- `freeze_state = NOT_FROZEN`
+- `confirmatory_execution_authorized = false`
+- `claim_support = false`
+- `promotion_authority = false`
+- Approved V4 acceptance rule: `NONE`
+- Formal calibration: `NOT AUTHORIZED`
+
+No engineering result in E9–E11 authorizes formal calibration, changes historical classifications, freezes V4, or supports the broader HCM claim.
