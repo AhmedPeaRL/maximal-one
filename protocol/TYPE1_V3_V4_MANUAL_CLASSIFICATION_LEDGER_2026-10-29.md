@@ -5,9 +5,11 @@ Status: INCOMPLETE — MANUAL REVIEW REQUIRED
 Review branch: review/type1-v4-remediation
 
 Review target:
-- Exact review-branch commit: REQUIRED
-- Exact main-branch commit: REQUIRED
-- Governance inventory artifact ID: REQUIRED
+- Review commit: `d49c428ad9633739db1c17c28ea1e9793a69c40f`
+- Main comparison commit: `12f12e024a2e4d6eb7ec2e3232f77cde94af3b9a`
+- Governance inventory artifact ID: `12866603073`
+- Review files with matching references: `115`
+- Main files with matching references: `67`
 - Reviewer and review date: REQUIRED
 
 ## 1. Purpose
