@@ -266,7 +266,82 @@ This entry does not establish Type-I calibration, approve an acceptance threshol
 
 Keep "freeze_state = NOT_FROZEN", "confirmatory_execution_authorized = false", "claim_support = false", and "promotion_authority = false". Formal calibration remains "NOT AUTHORIZED".
 
-## E9 — Resume identity and independent-runner evidence — 2026-10-27
+### E8 — Official CLI resume identity, denominator protection, and worker-order checks — 2026-10-29
+
+**Status:** PASS FOR THE EXACT RECORDED ENGINEERING TESTS ONLY
+
+**Repository:** `AhmedPeaRL/maximal-one`  
+**Branch:** `review/type1-v4-remediation`  
+**Commit:** `d49c428ad9633739db1c17c28ea1e9793a69c40f`
+
+#### A. Official-runner engineering workflow
+
+- Workflow run: `40802655822`
+- Job: `123214138066`
+- Result: `success`
+- Artifact ID: `12868916363`
+- Artifact name: `type1-v4-official-runner-engineering-40802655822-1`
+- Artifact size reported by GitHub: `76086` bytes
+- GitHub-reported artifact digest: `sha256:211f5a8b9b4bc7acbc06e92f52095187dd503e029ee5b91a80005eca81334d7e`
+
+#### B. Test results visible in the job log
+
+- Artifact integrity tests: 8 passed.
+- Artifact-loss and denominator-protection tests: 5 passed.
+- Merger rejection tests: 6 passed.
+- Resume identity and artifact rejection tests: 3 passed.
+- Official CLI resume identity rejection test: passed.
+- V3/V4 governance separation tests: 3 passed.
+- Official-runner connected/sharded/merged/resumed equivalence test: passed.
+- Concurrent worker-order equivalence test: passed.
+
+The official CLI resume test created a checkpoint and manifest using a bounded engineering configuration, then tested 19 identity fields independently. Each rejected resume was required to return exit code `1`, emit the expected identity-mismatch diagnostic, and leave the original checkpoint and manifest byte-identical.
+
+The worker-order comparison used six replicate indices, `n=3328`, master seed `20261021`, and 1000 requested surrogates per replicate. The tested configuration was bounded engineering mode, not formal calibration.
+
+#### C. Governance inventory workflow
+
+- Workflow run: `40802782354`
+- Job: `123214546453`
+- Result: `success`
+- Artifact ID: `12866603073`
+- Artifact name: `type1-v3-v4-governance-inventory-40802782354-1`
+- Artifact size reported by GitHub: `30601` bytes
+- GitHub-reported artifact digest: `sha256:1a58ddff971ec0d0b5b0802296937deab57e6565d0396aadf4708a5f59334e4f`
+
+The inventory workflow completed and uploaded its generated reference inventory. Its output is an automated inventory for review, not a final authorization decision. Every execution-capable workflow and every `0.075` reference still requires contextual classification and manual call-path review.
+
+#### D. Scope and limitations
+
+These results establish successful completion of the listed engineering tests at the recorded commit and configuration only.
+
+They do **not** establish:
+
+- Formal Type-I error calibration.
+- Approval of the V4 acceptance rule or the `0.075` ceiling.
+- Validation of all nine candidate scenarios.
+- Protocol freeze or authorization of confirmatory execution.
+- Independent statistical approval.
+- Independent empirical replication or broader HCM claim support.
+- Independent inspection of every file inside the uploaded artifact ZIPs.
+
+The GitHub-reported artifact digest identifies the uploaded archive; it is not a separately verified digest of each payload file.
+
+#### E. Required state preservation
+
+Keep the following states unchanged:
+
+- `freeze_state = NOT_FROZEN`
+- `confirmatory_execution_authorized = false`
+- `claim_support = false`
+- `promotion_authority = false`
+- Formal calibration: `NOT AUTHORIZED`
+
+**Classification:** `ENGINEERING_TESTS_PASS_FOR_RECORDED_RUNS_ONLY`
+
+Historical failures remain historical failures. These later engineering results do not retroactively change their outcomes.
+
+### E9 — Resume identity and independent-runner evidence — 2026-10-27
 
 Status: PARTIAL ENGINEERING PASS; PARALLEL WORKER-ORDER RETEST OPEN
 
@@ -358,11 +433,11 @@ Keep all of the following unchanged:
 
 Historical failures remain preserved under their original decision rules. The uploaded artifact payloads and their internal evidence files must be inspected before making stronger claims about artifact contents.
 
-## E15 — CLI identity rejection and independent-runner comparison — 2026-10-27
+### E15 — CLI identity rejection and independent-runner comparison — 2026-10-27
 
 Status: PASS FOR RECORDED ENGINEERING CONFIGURATIONS ONLY
 
-### A. Official CLI resume identity rejection
+#### A. Official CLI resume identity rejection
 
 - Repository: `AhmedPeaRL/maximal-one`
 - Branch: `review/type1-v4-remediation`
@@ -389,7 +464,7 @@ For each tested field, the test requires:
 The mismatch is injected through the explicit test-only CLI option
 `--test-identity-mismatch-field`. Therefore, this evidence establishes rejection through the tested CLI path and test hook, not exhaustive coverage of every externally altered runtime configuration.
 
-### B. Concurrent worker-order comparison
+#### B. Concurrent worker-order comparison
 
 - Workflow run: `40585881668`
 - Tested commit: `eae6f282031c691c9801c1815f41bbf55a244956`
@@ -409,7 +484,7 @@ The test requires exact index coverage and rejects duplicate worker results or i
 
 Qualification: the tested permutation changes submission order while retaining each replicate's own index-specific execution. It does not by itself establish invariance under every possible replicate-to-worker assignment.
 
-### C. Separate GitHub-hosted runner comparison
+#### C. Separate GitHub-hosted runner comparison
 
 - Workflow run: `40585881668`
 - Comparison job: `122480861674`
@@ -423,7 +498,7 @@ The workflow reports successful comparison of the six declared replicate records
 
 The artifacts have not been independently unpacked and inspected for this ledger entry. The recorded artifact digests establish the GitHub-reported artifact identities, not independent validation of every payload field.
 
-### D. Remaining engineering gates
+#### D. Remaining engineering gates
 
 Keep open:
 - Explicit replicate-to-worker assignment permutation across separate jobs.
@@ -433,7 +508,7 @@ Keep open:
 - Attributable independent human statistical review.
 - Prospective acceptance-rule decision and protocol freeze.
 
-### E. Scientific and governance boundary
+#### E. Scientific and governance boundary
 
 These results are engineering evidence only. They do not establish Type-I calibration, validate all nine V4 scenarios, approve an acceptance threshold, or support the broader HCM claim.
 
