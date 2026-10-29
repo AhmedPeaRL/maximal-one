@@ -264,3 +264,33 @@ Keep these items open
 Governance status
 
 The engineering tests do not resolve the scientific acceptance-rule conflict. V4 remains "NOT_FROZEN"; confirmatory execution remains "NOT_AUTHORIZED"; "claim_support" and "promotion_authority" remain false.
+
+## New evidence status — 2026-10-29
+
+### Passed for the exact recorded configurations
+
+- [x] Real CLI resume rejection test for each of the 19 declared identity fields.
+- [x] Checkpoint and manifest byte preservation after each tested mismatch.
+- [x] Expected identity-mismatch message and exit code 1 for each tested mismatch.
+- [x] Connected reference compared with two worker-assignment matrices over replicate indices 0–5.
+- [x] Per-replicate scientific-record comparison across the tested assignments.
+- [x] Requested denominator and index coverage checked for both tested assignment matrices.
+- [x] Engineering outputs retain `formal_calibration_pass=false`, `claim_support=false`, `promotion_authority=false`, and `confirmatory_execution_authorized=false`.
+- [x] V3/V4 inventory generated for the exact review snapshot and `origin/main`.
+- [x] V3/V4 separation regression tests passed on the recorded review-branch run.
+- [x] Wrong-branch governance invocation rejected by the review-branch identity guard; failure retained as negative-control evidence.
+
+### Still open
+
+- [ ] Independent human statistical review and attributable decision on the acceptance rule.
+- [ ] Prospective justification or rejection of the `0.075` ceiling.
+- [ ] Manual classification of every relevant V3/V4 and `0.075` reference as historical, diagnostic, workflow-control, or execution-capable.
+- [ ] Full audit of all workflow triggers and runner call paths, including legacy workflows.
+- [ ] Explicit inventory of every V3 workflow and every workflow that could invoke formal execution.
+- [ ] Fault-injection tests for worker termination, lost artifact, incomplete shard, and missing attempt record.
+- [ ] Explicit proof that a missing or invalid attempt cannot be silently replaced while preserving the requested denominator.
+- [ ] Full cross-runner and environment-invariance review beyond the recorded worker assignment test.
+- [ ] Production-path behavioral equivalence under an independently reviewed, frozen protocol.
+- [ ] Prospective approval, freeze commit, and separate authorization record before formal execution.
+
+Engineering success is not Type-I calibration. The V4 protocol remains NOT_FROZEN and formal execution remains NOT AUTHORIZED.
