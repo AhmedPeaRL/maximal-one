@@ -11,6 +11,7 @@ on:
       - 'analysis/compare_type1_cross_runner.py'
       - 'requirements-lock.txt'
       - '.github/workflows/type1-v4-cross-runner-worker-order.yml'
+      - 'tests/test_type1_cross_runner_workflow_branch_guard.py'
 
 permissions:
   contents: read
@@ -32,6 +33,14 @@ jobs:
         uses: actions/checkout@v5
         with:
           persist-credentials: false
+      
+      - name: Require remediation branch and verify checkout identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          echo "Verified review commit: $(git rev-parse HEAD)"
 
       - name: Set up Python
         uses: actions/setup-python@v5
