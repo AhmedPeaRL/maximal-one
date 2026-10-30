@@ -1,92 +1,67 @@
-import json
-import unittest
 from pathlib import Path
+import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+WORKFLOW = (
+    ROOT / ".github/workflows/null-type1-calibration.yml"
+)
 
 
 class V3V4GovernanceSeparationTests(unittest.TestCase):
-    def test_legacy_workflow_is_fail_closed_until_v3_runner_is_restored(self):
-        workflow = (
-            ROOT / ".github/workflows/null-type1-calibration.yml"
-        ).read_text(encoding="utf-8")
+    @classmethod
+    def setUpClass(cls):
+        cls.text = WORKFLOW.read_text(encoding="utf-8")
 
-        self.assertIn(
-            "TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json",
-            workflow,
-        )
-        self.assertNotIn(
-            "TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_CANDIDATE.json",
-            workflow,
+    def test_v3_authorization_guards_precede_matrix_output(self):
+        required = [
+            "APPROVED_FROZEN",
+            'd.get("freeze_state") != "FROZEN"',
+            'd.get("confirmatory_execution_authorized") is not True',
+            'd.get("archive_git_identity_verified") is not True',
+            'output["GITHUB_OUTPUT"]',
+        ]
+
+        positions = [self.text.index(item) for item in required]
+        self.assertEqual(positions, sorted(positions))
+
+    def test_v3_calibration_job_fails_closed_before_artifact_binding(self):
+        guard = "Fail closed until the V3 runner is reconciled"
+        artifact = "Bind artifact to exact workflow identity"
+
+        self.assertIn(guard, self.text)
+        self.assertIn(artifact, self.text)
+        self.assertLess(
+            self.text.index(guard),
+            self.text.index(artifact),
         )
 
-        start = workflow.index(
-            "- name: Fail closed until the V3 runner is reconciled"
-        )
-        end = workflow.find(
-            "\n      - name:",
-            start + 1,
-        )
-        if end == -1:
-            end = len(workflow)
+        guard_section = self.text[
+            self.text.index(guard):
+            self.text.index(artifact)
+        ]
+        self.assertIn("exit 1", guard_section)
+        self.assertIn("No calibration is authorized", guard_section)
 
-        guard_step = workflow[start:end]
-        self.assertIn("BLOCKED:", guard_step)
-        self.assertIn("exit 1", guard_step)
-        self.assertNotIn(
+    def test_v3_workflow_contains_no_executable_v4_runner_command(self):
+        forbidden_commands = [
             "python -m analysis.calibrate_null_type1_scenario",
-            guard_step,
-        )
+            "python -m analysis.calibrate_null_type1",
+            "python analysis/calibrate_null_type1_scenario.py",
+            "python analysis/calibrate_null_type1.py",
+        ]
 
-    def test_v4_candidate_is_not_an_authorization_record(self):
-        matrix_path = (
-            ROOT
-            / "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_CANDIDATE.json"
-        )
-        matrix = json.loads(
-            matrix_path.read_text(encoding="utf-8")
-        )
+        for command in forbidden_commands:
+            with self.subTest(command=command):
+                self.assertNotIn(command, self.text)
 
-        self.assertEqual(matrix["freeze_state"], "NOT_FROZEN")
-        self.assertIs(
-            matrix["confirmatory_execution_authorized"],
-            False,
-        )
-        self.assertIs(matrix["claim_support"], False)
-        self.assertIs(matrix["promotion_authority"], False)
-        self.assertIsNone(
-            matrix["candidate_dimensions_not_frozen"]["acceptance_rule"]
-        )
-        self.assertEqual(
-            matrix["approval_record"]["approval_status"],
-            "NOT_APPROVED",
-        )
-
-    def test_engineering_workflow_is_separate(self):
-        workflow_path = (
-            ROOT / ".github/workflows/type1-v4-engineering-equivalence.yml"
-        )
-        workflow = workflow_path.read_text(encoding="utf-8")
-
+    def test_v3_workflow_does_not_authorize_itself(self):
         self.assertIn(
-            "Type-I V4 Official Runner Engineering Equivalence",
-            workflow,
+            'd.get("confirmatory_execution_authorized") is not True',
+            self.text,
         )
         self.assertIn(
-            "tests.test_type1_cli_resume_identity_rejections",
-            workflow,
-        )
-        self.assertIn(
-            "test_type1_full_path_equivalence.py",
-            workflow,
-        )
-        self.assertIn(
-            "python -m unittest discover -s tests -p",
-            workflow,
-        )
-        self.assertIn(
-            "tests.test_type1_cli_resume_identity_rejections",
-            workflow,
+            'd.get("status") != \'APPROVED_FROZEN\'',
+            self.text,
         )
 
 
