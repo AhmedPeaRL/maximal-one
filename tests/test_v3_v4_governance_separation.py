@@ -60,7 +60,7 @@ class V3V4GovernanceSeparationTests(unittest.TestCase):
             self.text,
         )
         self.assertIn(
-            'd.get("status") != \'APPROVED_FROZEN\'',
+            "d.get('status') != 'APPROVED_FROZEN'",
             self.text,
         )
 
