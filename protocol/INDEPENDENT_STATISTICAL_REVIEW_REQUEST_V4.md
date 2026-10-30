@@ -135,3 +135,50 @@ Until an attributable independent reviewer has issued a documented disposition a
 - Promotion authority remains `false`.
 
 No formal calibration run is requested or authorized by this document.
+
+## Addendum — Engineering evidence available as of 2026-10-29
+
+The following additional records are available for inspection:
+
+1. Official CLI resume identity rejection:
+   https://github.com/AhmedPeaRL/maximal-one/actions/runs/40830437451
+
+   Job:
+   https://github.com/AhmedPeaRL/maximal-one/actions/runs/40830437451/job/123303151899
+
+   Artifact:
+   https://github.com/AhmedPeaRL/maximal-one/actions/runs/40830437451/artifacts/12880224200
+
+2. Cross-runner worker-order equivalence:
+   https://github.com/AhmedPeaRL/maximal-one/actions/runs/40830639931
+
+   Comparison job:
+   https://github.com/AhmedPeaRL/maximal-one/actions/runs/40830639931/job/123306217103
+
+   Comparison artifact:
+   https://github.com/AhmedPeaRL/maximal-one/actions/runs/40830639931/artifacts/12879330111
+
+3. V3/V4 automated governance inventory:
+   https://github.com/AhmedPeaRL/maximal-one/actions/runs/40802782354
+
+   Job:
+   https://github.com/AhmedPeaRL/maximal-one/actions/runs/40802782354/job/123214546453
+
+   Artifact:
+   https://github.com/AhmedPeaRL/maximal-one/actions/runs/40802782354/artifacts/12866603073
+
+These records extend the engineering evidence.
+They do not resolve the statistical acceptance-rule conflict.
+
+The manual V3/V4 classification ledger remains incomplete.
+The reviewer must inspect the artifact payloads and exact source
+snapshot rather than relying only on workflow success labels.
+
+The historical two-sided 95% Wilson rule and historical results
+must remain unchanged.
+
+The candidate one-sided 95% Wilson rule is not approved.
+The 0.075 ceiling remains without prospective independent
+statistical justification.
+
+No formal V4 confirmatory execution is authorized.
