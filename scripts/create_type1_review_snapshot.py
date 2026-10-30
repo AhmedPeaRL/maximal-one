@@ -3,18 +3,17 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-BRANCH = "review/type1-v4-remediation"
+EXPECTED_BRANCH = "refs/heads/review/type1-v4-remediation"
 
-FILES = [
-    # Protocol and governance
+REQUIRED_PATHS = [
     "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json",
     "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_CANDIDATE.json",
-    "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_DRAFT.json",
     "protocol/TYPE1_CALIBRATION_SPEC_V3_CANDIDATE.md",
     "protocol/TYPE1_CALIBRATION_V4_ACCEPTANCE_RULE_DECISION_REQUEST.md",
     "protocol/TYPE1_CALIBRATION_EXECUTION_AUTHORIZATION.json",
@@ -23,8 +22,6 @@ FILES = [
     "protocol/TYPE1_V3_V4_MANUAL_CLASSIFICATION_LEDGER_2026-10-29.md",
     "protocol/TYPE1_ENGINEERING_EVIDENCE_ADDENDUM_2026-10-30.md",
     "protocol/TYPE1_REVIEW_SNAPSHOT_POLICY_V1.md",
-
-    # Statistical implementation
     "analysis/calibrate_null_type1.py",
     "analysis/calibrate_null_type1_scenario.py",
     "analysis/appropriate_stochastic_null.py",
@@ -36,39 +33,29 @@ FILES = [
     "analysis/merge_type1_calibration_pilot_shards.py",
     "analysis/compare_type1_cross_runner.py",
     "analysis/type1_acceptance_operating_characteristics.py",
-
-    # Dependencies
     "requirements-lock.txt",
     "requirements.in",
-
-    # Workflows
     ".github/workflows/null-type1-calibration.yml",
-    ".github/workflows/scientific-claim-promotion.yml",
-    ".github/workflows/scientific-validation.yml",
-    ".github/workflows/confirmatory-readiness-gate.yml",
     ".github/workflows/type1-calibration-runtime-pilot.yml",
     ".github/workflows/type1-full-path-equivalence.yml",
     ".github/workflows/type1-v3-v4-governance-audit.yml",
-    ".github/workflows/type1-v4-engineering-equivalence.yml",
-    ".github/workflows/type1-v4-cli-resume-identity.yml",
     ".github/workflows/type1-v4-assignment-matrix.yml",
+    ".github/workflows/type1-v4-cli-resume-identity.yml",
     ".github/workflows/type1-v4-cross-runner-worker-order.yml",
+    ".github/workflows/type1-v4-engineering-equivalence.yml",
     ".github/workflows/type1-review-snapshot.yml",
-
-    # Tests
-    "tests/test_v3_v4_governance_separation.py",
     "tests/test_type1_full_path_equivalence.py",
     "tests/test_type1_production_equivalence.py",
-    "tests/test_type1_resume_cli_identity_rejections.py",
+    "tests/test_type1_cli_resume_identity_rejections.py",
     "tests/test_type1_worker_assignment_matrix_invariance.py",
     "tests/test_type1_parallel_worker_order_equivalence.py",
-
-    # Snapshot generator itself
+    "tests/test_type1_cross_runner_workflow_branch_guard.py",
+    "scripts/audit_type1_governance_refs.py",
     "scripts/create_type1_review_snapshot.py",
 ]
 
 
-def git_text(*args: str) -> str:
+def git(*args: str) -> str:
     return subprocess.check_output(
         ["git", *args],
         text=True,
@@ -84,37 +71,88 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def discover_scope() -> list[str]:
+    tracked = git("ls-files", "-z").split("\0")
+    selected = set(REQUIRED_PATHS)
+
+    for item in tracked:
+        if not item:
+            continue
+
+        path = Path(item)
+        name = path.name.lower()
+
+        if item.startswith("protocol/") and name.startswith("type1_"):
+            selected.add(item)
+
+        if item.startswith("analysis/") and (
+            name.startswith("type1_")
+            or name in {
+                "appropriate_stochastic_null.py",
+                "calibrate_null_type1.py",
+                "calibrate_null_type1_scenario.py",
+                "numerical_spectral_verification.py",
+                "null_protocol.py",
+            }
+        ):
+            selected.add(item)
+
+        if item.startswith(".github/workflows/") and "type1" in name:
+            selected.add(item)
+
+        if item.startswith("tests/") and name.startswith("test_type1"):
+            selected.add(item)
+
+    return sorted(selected)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--expected-commit", required=True)
+    parser.add_argument("--inventory-artifact-id", required=True)
+    parser.add_argument("--inventory-source-commit", required=True)
     args = parser.parse_args()
 
-    branch = git_text("branch", "--show-current")
-    commit = git_text("rev-parse", "HEAD")
+    expected_commit = args.expected_commit.strip().lower()
+    inventory_source_commit = (
+        args.inventory_source_commit.strip().lower()
+    )
 
-    if branch != BRANCH:
+    if len(expected_commit) != 40:
+        raise SystemExit("BLOCKED: expected commit must be a full 40-char SHA")
+
+    if inventory_source_commit != expected_commit:
         raise SystemExit(
-            f"BLOCKED: expected branch {BRANCH}; found {branch}"
+            "BLOCKED: inventory source commit differs from review commit"
         )
 
-    if commit != args.expected_commit:
+    github_ref = os.environ.get("GITHUB_REF", "")
+    if github_ref != EXPECTED_BRANCH:
         raise SystemExit(
-            "BLOCKED: checked-out commit differs from requested "
-            f"review commit: {commit}"
+            f"BLOCKED: expected {EXPECTED_BRANCH}; got {github_ref!r}"
+        )
+
+    actual_commit = git("rev-parse", "HEAD").lower()
+    if actual_commit != expected_commit:
+        raise SystemExit(
+            "BLOCKED: checked-out commit mismatch: "
+            f"{actual_commit} != {expected_commit}"
         )
 
     root = Path(".").resolve()
     output = root / "artifacts/type1_review_snapshot"
     output.mkdir(parents=True, exist_ok=True)
 
+    scope = discover_scope()
+    missing_required = [
+        item for item in REQUIRED_PATHS
+        if not (root / item).is_file()
+    ]
+
     records = []
-    missing = []
-
-    for relative in FILES:
+    for relative in scope:
         path = root / relative
-
         if not path.is_file():
-            missing.append(relative)
             records.append({
                 "path": relative,
                 "status": "MISSING",
@@ -129,21 +167,31 @@ def main() -> int:
             "size_bytes": path.stat().st_size,
         })
 
+    missing_scope = [
+        row["path"] for row in records
+        if row["status"] == "MISSING"
+    ]
+
     manifest = {
-        "schema": "HCM_TYPE1_REVIEW_SNAPSHOT_V1",
+        "schema": "HCM_TYPE1_REVIEW_SNAPSHOT_V2",
         "created_at_utc": datetime.now(
             timezone.utc
         ).isoformat(),
         "repository": "AhmedPeaRL/maximal-one",
-        "branch": branch,
-        "commit_sha": commit,
-        "expected_commit_sha": args.expected_commit,
-        "file_count_declared": len(FILES),
-        "file_count_present": sum(
+        "review_ref": github_ref,
+        "review_commit_sha": actual_commit,
+        "inventory_artifact_id": args.inventory_artifact_id,
+        "inventory_source_commit": inventory_source_commit,
+        "scope_discovery": (
+            "tracked Git files selected by explicit Type-I path rules"
+        ),
+        "required_path_count": len(REQUIRED_PATHS),
+        "discovered_scope_count": len(scope),
+        "present_file_count": sum(
             row["status"] == "PRESENT" for row in records
         ),
-        "file_count_missing": len(missing),
-        "missing_files": missing,
+        "missing_required_paths": missing_required,
+        "missing_scope_paths": missing_scope,
         "files": records,
         "protocol_freeze": "NOT_FROZEN",
         "formal_calibration_authorized": False,
@@ -153,11 +201,7 @@ def main() -> int:
 
     manifest_path = output / "manifest.json"
     manifest_path.write_text(
-        json.dumps(
-            manifest,
-            indent=2,
-            sort_keys=True,
-        ) + "\n",
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
 
@@ -173,22 +217,24 @@ def main() -> int:
     )
 
     print(json.dumps({
-        "commit_sha": commit,
-        "present": manifest["file_count_present"],
-        "missing": missing,
+        "commit": actual_commit,
+        "inventory_artifact_id": args.inventory_artifact_id,
+        "present": manifest["present_file_count"],
+        "missing_required": missing_required,
+        "missing_scope": missing_scope,
         "manifest": str(manifest_path),
         "sha256sums": str(sums_path),
     }, indent=2))
 
-    if missing:
+    if missing_required or missing_scope:
         print(
-            "SNAPSHOT INCOMPLETE: one or more declared files are missing.",
+            "SNAPSHOT INCOMPLETE: missing files require reconciliation.",
             file=sys.stderr,
         )
         return 2
 
-    print("SNAPSHOT FILE HASHING COMPLETE.")
-    print("This does not freeze or authorize the scientific protocol.")
+    print("SNAPSHOT HASHING COMPLETE.")
+    print("No protocol freeze or formal authorization is implied.")
     return 0
 
 
