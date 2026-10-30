@@ -4,7 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       review_commit:
-        description: Exact commit SHA to fingerprint
+        description: Exact 40-character review commit SHA
+        required: true
+        type: string
+      inventory_artifact_id:
+        description: Artifact ID from the fresh governance inventory run
+        required: true
+        type: string
+      inventory_source_commit:
+        description: Exact commit SHA used by the inventory workflow
         required: true
         type: string
 
@@ -17,22 +25,30 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Checkout selected review ref
-        uses: actions/checkout@v5
-        with:
-          ref: ${{ github.ref }}
-          fetch-depth: 0
-          persist-credentials: false
-
-      - name: Verify exact branch and commit
+      - name: Verify selected branch
         shell: bash
-        env:
-          EXPECTED_COMMIT: ${{ inputs.review_commit }}
         run: |
           set -euo pipefail
           test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
-          test "$(git rev-parse HEAD)" = "$EXPECTED_COMMIT"
-          echo "Verified review commit: $(git rev-parse HEAD)"
+
+      - name: Checkout exact review commit
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.review_commit }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify exact commit identity
+        shell: bash
+        env:
+          EXPECTED_COMMIT: ${{ inputs.review_commit }}
+          INVENTORY_COMMIT: ${{ inputs.inventory_source_commit }}
+        run: |
+          set -euo pipefail
+          ACTUAL="$(git rev-parse HEAD)"
+          test "$ACTUAL" = "$EXPECTED_COMMIT"
+          test "$INVENTORY_COMMIT" = "$EXPECTED_COMMIT"
+          echo "Verified exact review commit: $ACTUAL"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -43,10 +59,14 @@ jobs:
         shell: bash
         env:
           EXPECTED_COMMIT: ${{ inputs.review_commit }}
+          INVENTORY_ARTIFACT_ID: ${{ inputs.inventory_artifact_id }}
+          INVENTORY_SOURCE_COMMIT: ${{ inputs.inventory_source_commit }}
         run: |
           set -euo pipefail
           python scripts/create_type1_review_snapshot.py \
-            --expected-commit "$EXPECTED_COMMIT"
+            --expected-commit "$EXPECTED_COMMIT" \
+            --inventory-artifact-id "$INVENTORY_ARTIFACT_ID" \
+            --inventory-source-commit "$INVENTORY_SOURCE_COMMIT"
 
       - name: Upload snapshot evidence
         if: always()
