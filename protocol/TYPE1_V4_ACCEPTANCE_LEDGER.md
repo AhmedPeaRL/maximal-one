@@ -405,6 +405,134 @@ Keep:
 
 Historical failures and classifications must be preserved.
 
+## E12 — Official CLI resume identity rejection — 2026-10-29
+
+Classification: ENGINEERING_PASS_FOR_RECORDED_CONFIGURATION_ONLY
+
+Repository: AhmedPeaRL/maximal-one
+Branch: review/type1-v4-remediation
+Workflow run: 40830437451
+Job: 123303151899
+Commit used by run: 5369f9a0c565b2f917b8613ea69842cb68e25bd8
+Artifact ID: 12880224200
+Artifact SHA-256:
+ac62cc3ad8fe577ca55ebd2eca21dda9262158995539df34b133383fba799d84
+
+Test:
+tests/test_type1_cli_resume_identity_rejections.py
+
+Result:
+PASS — the official CLI test completed successfully.
+
+The test creates a valid bounded engineering checkpoint and manifest,
+then tests each of the 19 declared identity fields independently.
+
+For every tested mismatch, it requires:
+- exit code exactly 1;
+- the expected identity-mismatch diagnostic;
+- byte-for-byte preservation of the original checkpoint;
+- byte-for-byte preservation of the original manifest;
+- matching SHA-256 values before and after rejection.
+
+The test also verifies that the checkpoint and manifest contain
+the same declared identity fields.
+
+Limitations:
+- This is evidence for the exact tested CLI path and engineering
+  configuration, not every possible filesystem, storage, process,
+  or production environment.
+- It is not a Type-I calibration result.
+- It does not authorize formal execution.
+
+## E13 — Cross-runner worker-order equivalence — 2026-10-29
+
+Classification: ENGINEERING_EQUIVALENCE_PASS_FOR_RECORDED_CONFIGURATION_ONLY
+
+Repository: AhmedPeaRL/maximal-one
+Branch: review/type1-v4-remediation
+Workflow run: 40830639931
+Comparison job: 123306217103
+Commit used by run:
+f8e4c4a9fa73cb8022cfa738cb02cb6b31ac5a99
+
+Comparison artifact ID: 12879330111
+Artifact SHA-256:
+7132cc3ad8fe577ca55ebd2eca21dda9262158995539df34b133383fba799c86e7
+
+Connected reference artifact: 12878951942
+
+Worker artifacts:
+- worker 0: 12878532460
+- worker 1: 12879020783
+- worker 2: 12878990877
+- worker 3: 12878935436
+- worker 4: 12878831235
+- worker 5: 12878267328
+
+Result:
+PASS — all six worker records matched the connected reference.
+
+The comparison report records:
+- replicate 0: MATCH
+- replicate 1: MATCH
+- replicate 2: MATCH
+- replicate 3: MATCH
+- replicate 4: MATCH
+- replicate 5: MATCH
+
+Requested denominator: 6.
+
+The workflow downloaded the connected reference and six worker
+artifacts separately, verified their artifact digests, and compared
+the worker records against the connected reference.
+
+The tested environment used Python 3.11.15 and the recorded
+Linux hosted-runner platform identity.
+
+Limitations:
+- This establishes equivalence only for the recorded six-replicate
+  scenario, seed, worker assignment, and environment.
+- It does not establish invariance for every possible worker schedule,
+  operating system, process failure, or production configuration.
+- It is not a Type-I calibration result.
+
+## E14 — Automated V3/V4 governance inventory — 2026-10-29
+
+Classification: AUTOMATED_DISCOVERY_PASS; MANUAL_CLASSIFICATION_OPEN
+
+Workflow run: 40802782354
+Job: 123214546453
+Review commit:
+d49c428ad9633739db1c17c28ea1e9793a69c40f
+Artifact ID: 12866603073
+Artifact SHA-256:
+1a58ddff971ec0d0b5b0802296937deab57e6565d0396aadf4708a5f59334e4f
+
+Result:
+PASS — inventory generation and recorded V3/V4 separation
+regression tests completed successfully.
+
+The inventory compared the review branch and main.
+It is a discovery aid only.
+
+The manual classification ledger remains INCOMPLETE.
+Every occurrence of 0.075, V3/V4 matrix references, authorization
+fields, and execution-capable workflow paths still requires
+individual classification and reviewer disposition.
+
+No automated classification is accepted as a substitute for
+manual runner call-path review.
+
+## Scientific authorization state — unchanged
+
+freeze_state = NOT_FROZEN
+confirmatory_execution_authorized = false
+claim_support = false
+promotion_authority = false
+
+Approved V4 acceptance rule = NONE
+Formal Type-I calibration = NOT AUTHORIZED
+
 ### E14 — Official CLI resume identity and worker-order verification — 2026-10-27
 
 **Status:** PASS FOR THE RECORDED ENGINEERING CONFIGURATIONS ONLY
