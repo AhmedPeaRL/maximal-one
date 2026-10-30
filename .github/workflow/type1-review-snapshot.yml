@@ -1,0 +1,58 @@
+name: Type-I Exact Review Snapshot and SHA-256
+
+on:
+  workflow_dispatch:
+    inputs:
+      review_commit:
+        description: Exact commit SHA to fingerprint
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout selected review ref
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify exact branch and commit
+        shell: bash
+        env:
+          EXPECTED_COMMIT: ${{ inputs.review_commit }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
+          test "$(git rev-parse HEAD)" = "$EXPECTED_COMMIT"
+          echo "Verified review commit: $(git rev-parse HEAD)"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.15"
+
+      - name: Generate SHA-256 manifest
+        shell: bash
+        env:
+          EXPECTED_COMMIT: ${{ inputs.review_commit }}
+        run: |
+          set -euo pipefail
+          python scripts/create_type1_review_snapshot.py \
+            --expected-commit "$EXPECTED_COMMIT"
+
+      - name: Upload snapshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: type1-exact-review-snapshot-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/type1_review_snapshot/
+          if-no-files-found: error
+          retention-days: 90
