@@ -63,10 +63,11 @@ jobs:
 
       - name: Compile governance audit and regression test
         run: |
-          set -euo pipefail
+          set -euo pipefail  
           python -m py_compile \
             scripts/audit_type1_governance_refs.py \
-            tests/test_v3_v4_governance_separation.py
+            tests/test_v3_v4_governance_separation.py \
+            tests/test_type1_v4_matrix_gate.py
 
       - name: Generate inventories for both exact refs
         shell: bash
@@ -82,7 +83,8 @@ jobs:
         run: |
           set -euo pipefail
           python -m unittest -v \
-            tests.test_v3_v4_governance_separation
+            tests.test_v3_v4_governance_separation \
+            tests.test_type1_v4_matrix_gate
 
       - name: Verify inventory identifies both refs
         shell: bash
