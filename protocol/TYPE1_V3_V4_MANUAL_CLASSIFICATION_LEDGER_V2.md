@@ -1,28 +1,61 @@
-# Type-I V3/V4 Manual Occurrence Classification Ledger V2
+# Type-I V3/V4 Manual Classification Ledger V2
 
 Status: OPEN — NOT COMPLETE
 Review branch: review/type1-v4-remediation
-Target review commit: b9496c02f38770c57917fd06a5fdfb8016af9142
-Inventory source commit: PENDING — MUST MATCH TARGET REVIEW COMMIT
-Inventory artifact ID: PENDING
-Inventory SHA-256: PENDING
-Reviewer: PENDING
-Review date: PENDING
+Review target at creation: b9496c02f38770c57917fd06a5fdfb8016af9142
+Inventory artifact at creation: 13030619492
+Inventory workflow run: 41171524932
 
-## 1. Purpose and boundary
+## 1. Purpose and authority boundary
 
-This ledger records manual review of every relevant occurrence
-identified by the automated inventory and every additional occurrence
-identified by manual call-graph inspection.
+This ledger records the manual classification of every relevant
+occurrence found by the automated V3/V4 governance inventory,
+plus additional execution and authorization paths discovered
+through repository-wide call-graph inspection.
 
-The automated inventory is a discovery aid only.
-Its classifications are not accepted as final classifications.
+The automated inventory is a discovery aid. Its classifications
+are not final human classifications.
 
-This ledger does not approve the V4 protocol, freeze the protocol,
-authorize confirmatory execution, establish Type-I error control,
-or support the broader HCM claim.
+This ledger does not:
+- approve a statistical acceptance rule;
+- freeze V3 or V4;
+- authorize confirmatory execution;
+- establish Type-I error control;
+- establish HCM claim support;
+- grant promotion authority.
 
-## 2. Mandatory occurrence-level classification
+## 2. Inventory baseline
+
+The inventory artifact was generated from:
+
+Review branch:
+- ref: review/type1-v4-remediation
+- commit: b9496c02f38770c57917fd06a5fdfb8016af9142
+- files with matching references: 121
+- occurrence matches: 804
+- workflow files with matches: 31
+- analysis/scripts files with matches: 9
+- test files with matches: 16
+- runner invocation candidates: 10
+
+Main comparison:
+- ref: main
+- commit: 116686b03077f2521ab320635a098d5359c8d337
+- files with matching references: 69
+- occurrence matches: 203
+- workflow files with matches: 26
+- analysis/scripts files with matches: 7
+- test files with matches: 3
+- runner invocation candidates: 5
+
+These are automated pattern-match counts, not counts of
+independent execution paths or confirmed authorization routes.
+
+The inventory must be regenerated after this ledger is committed.
+The final ledger must identify the exact inventory artifact and
+source commits used for its completed classification.
+
+## 3. Mandatory classification vocabulary
 
 Every occurrence must receive exactly one primary classification:
 
@@ -37,51 +70,110 @@ Every occurrence must receive exactly one primary classification:
 - DOCUMENTATION-ONLY
 - UNKNOWN
 
-UNKNOWN is a valid and mandatory disposition whenever evidence is
-insufficient. UNKNOWN must remain OPEN; it must never be converted
-to a negative finding by assumption.
+UNKNOWN is the initial classification.
+UNKNOWN must remain OPEN until sufficient evidence supports
+a different classification.
 
-## 3. Required fields for every occurrence
+Do not infer that a workflow is harmless from a matching line
+alone. Inspect the entire workflow and all direct and indirect
+calls reachable from it.
 
-Each row must identify:
+## 4. Required occurrence-level record
+
+Create one record for every relevant inventory occurrence.
+Do not collapse different lines or files into a single record.
+
+Required fields:
 
 1. Stable occurrence ID.
-2. Branch/ref name.
-3. Exact 40-character commit SHA.
-4. File path.
-5. Line number or line range.
+2. Repository ref.
+3. Exact commit SHA.
+4. Repository-relative file path.
+5. Line number.
 6. Exact matched text.
-7. Primary classification.
-8. Whether the occurrence can influence execution.
-9. Direct caller or workflow step.
-10. Indirect call path, if any.
-11. Runner or entry-point reached.
-12. Trigger conditions.
-13. Matrix/protocol consumed.
-14. Authorization guard and its ordering.
-15. Negative test proving unauthorized execution is blocked.
-16. Evidence URL, artifact, log, or test result.
-17. Reviewer disposition.
-18. OPEN/CLOSED state and rationale.
+7. Automated inventory classification.
+8. Final manual classification.
+9. Historical / diagnostic / proposed / governance status.
+10. Whether the occurrence can influence execution.
+11. Direct caller or workflow step.
+12. Indirect call path, if any.
+13. Runner entry point or command.
+14. Trigger conditions and branch restrictions.
+15. Matrix and protocol consumed.
+16. Authorization guard and its execution order.
+17. Whether the guard fails closed.
+18. Negative test proving refusal when unauthorized.
+19. Test run, job, artifact, and exact commit.
+20. Reviewer disposition.
+21. OPEN or CLOSED status.
+22. Evidence supporting closure.
+23. Reason for any unresolved status.
 
-A file name or a keyword match is never sufficient evidence
-for an execution-path conclusion.
+Suggested stable ID format:
 
-## 4. Occurrence ledger
+REF-SCOPE / PATH-SHA256-PREFIX / LINE / MATCH-INDEX
 
-The complete occurrence table must be generated from the fresh
-inventory for both the review commit and the main comparison commit.
+IDs must remain stable within the exact inventory snapshot.
 
-No occurrence may be silently omitted, merged, or summarized.
+## 5. Occurrence table
 
-| ID | Ref | Commit SHA | File | Line | Exact occurrence | Class | Call path / caller | Guard evidence | Test evidence | Disposition | State |
-|---|---|---|---|---:|---|---|---|---|---|---|---|
-| PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | UNKNOWN | PENDING | PENDING | PENDING | UNRESOLVED | OPEN |
+The table below is a schema example, not a completed classification.
+Every inventory occurrence must be added as its own row.
 
-## 5. Required call-path investigation
+| Occurrence ID | Ref | Commit SHA | Path | Line | Matched text | Automated class | Manual class | Execution influence | Call path / guard | Negative test | Evidence | Status |
+|---|---|---|---|---:|---|---|---|---|---|---|---|---|
+| REQUIRED | REQUIRED | REQUIRED | REQUIRED | REQUIRED | REQUIRED | REQUIRED | UNKNOWN | UNKNOWN | REQUIRED | REQUIRED | REQUIRED | OPEN |
 
-Inspect all relevant direct and indirect references, including
-but not limited to:
+No row may be marked CLOSED solely because:
+- its workflow completed successfully;
+- a test file exists;
+- a guard string appears in the source;
+- the automated inventory assigned a category;
+- the path appears in a documentation file.
+
+## 6. Minimum workflow and runner review
+
+Inspect complete current file contents, triggers, conditions,
+commands, called scripts, imported modules, and indirect call paths.
+
+Minimum workflow scope:
+
+- .github/workflows/null-type1-calibration.yml
+- .github/workflows/type1-calibration-runtime-pilot.yml
+- .github/workflows/type1-full-path-equivalence.yml
+- .github/workflows/type1-v3-v4-governance-audit.yml
+- .github/workflows/type1-v4-engineering-equivalence.yml
+- .github/workflows/type1-v4-cli-resume-identity.yml
+- .github/workflows/type1-v4-assignment-matrix.yml
+- .github/workflows/type1-v4-cross-runner-worker-order.yml
+- .github/workflows/scientific-validation.yml
+- .github/workflows/scientific-claim-promotion.yml
+- .github/workflows/confirmatory-readiness-gate.yml
+
+The list is a minimum, not a claim of exhaustiveness.
+Expand it using the generated inventory and repository call graph.
+
+For each workflow, record:
+
+1. Every trigger, including workflow_dispatch, push, schedule,
+   repository_dispatch, and reusable workflow invocation.
+2. Every branch and path filter.
+3. Every direct runner command.
+4. Every indirect script, module, or reusable workflow call.
+5. Every matrix and protocol file read.
+6. Every environment variable or input affecting authorization.
+7. Every authorization guard and its position relative to execution.
+8. Whether a bypass path exists.
+9. Whether the workflow can set or influence:
+   formal_calibration_pass,
+   confirmatory_execution_authorized,
+   claim_support,
+   promotion_authority.
+10. The exact negative test and its successful run evidence.
+
+## 7. Minimum code-path review
+
+Inspect at minimum:
 
 - analysis/calibrate_null_type1.py
 - analysis/calibrate_null_type1_scenario.py
@@ -96,87 +188,84 @@ but not limited to:
 - scripts/audit_type1_governance_refs.py
 - scripts/create_type1_review_snapshot.py
 
-Inspect the complete current versions of all relevant workflows,
-including:
+Expand this list whenever imports, subprocess calls, workflow
+references, or dynamic invocation reveal additional paths.
 
-- null-type1-calibration.yml
-- type1-calibration-runtime-pilot.yml
-- type1-full-path-equivalence.yml
-- type1-v3-v4-governance-audit.yml
-- type1-v4-assignment-matrix.yml
-- type1-v4-cli-resume-identity.yml
-- type1-v4-cross-runner-worker-order.yml
-- type1-v4-engineering-equivalence.yml
-- scientific-validation.yml
-- scientific-claim-promotion.yml
-- confirmatory-readiness-gate.yml
+## 8. V3/V4 separation
 
-This list is a minimum, not proof of exhaustive coverage.
-Add every other workflow, script, module, or indirect caller
-identified by repository-wide inspection.
+V3 and V4 must be reviewed as separate protocol identities.
 
-For every workflow, record:
-- Every trigger and branch/path filter.
-- Every job dependency and conditional.
-- Every direct and indirect runner invocation.
-- The exact matrix and protocol file consumed.
-- All authorization checks and their execution order.
-- Every route that can set or influence formal-pass,
-  confirmatory authorization, claim support, or promotion authority.
-- A negative test demonstrating that an unauthorized state
-  cannot reach formal execution.
+Do not silently:
+- redirect a V3 workflow to a V4 matrix;
+- treat a V3 guard as V4 approval;
+- reuse a V3 acceptance rule as an approved V4 rule;
+- use an engineering-test flag as confirmatory authorization;
+- interpret a successful governance inventory as scientific approval.
 
-## 6. Historical acceptance-rule conflict
+Record the exact matrix path and SHA-256 consumed by each
+execution-capable path.
 
-Preserve the historical acceptance rule and all historical outcomes.
+## 9. Acceptance-rule conflict — preserve unchanged
 
 Historical rule:
-- Two-sided 95% Wilson interval must contain nominal alpha = 0.05.
-- Upper endpoint must be <= 0.075.
+- two-sided 95% Wilson interval must contain nominal alpha 0.05;
+- upper endpoint must be no greater than 0.075.
 
-Alternative candidate rule:
-- One-sided 95% Wilson upper bound <= 0.075.
+Candidate alternative:
+- one-sided 95% Wilson upper bound no greater than 0.075.
 
-These are different statistical decision rules.
-Do not silently substitute one for the other.
-Do not change the threshold or confidence-bound rule after
-observing results to obtain a passing outcome.
+These are different rules.
 
-V4 acceptance rule: UNRESOLVED
-Independent human recommendation: NOT RECEIVED
-Prospective governance decision: NOT APPROVED
+The V3 candidate matrix contains a one-sided 95% Wilson proposal.
+The V4 candidate matrix currently leaves acceptance_rule null
+and explicitly records the 0.075 ceiling as not justified
+or approved.
 
-## 7. Required status safeguards
+No rule is approved by this ledger.
 
-Until all required independent review and governance decisions
-are complete:
+Historical results and their original classifications must remain
+unchanged. The exact historical AR5 interval must be retrieved
+from its original immutable result artifact; do not estimate,
+reconstruct, or invent endpoints.
 
-- freeze_state = NOT_FROZEN
-- confirmatory_execution_authorized = false
-- claim_support = false
-- promotion_authority = false
-- formal calibration = NOT AUTHORIZED
+No threshold, confidence rule, scenario, estimator, or invalid-result
+policy may be changed after observing results merely to obtain a pass.
 
-Engineering equivalence is not formal Type-I calibration.
-A pilot is not a confirmatory calibration.
-An inventory is not a manual classification.
-A passing workflow is not scientific approval.
+## 10. Current governance state
 
-## 8. Closure criteria
+- V3 freeze state: NOT_FROZEN
+- V4 freeze state: NOT_FROZEN
+- Approved V4 acceptance rule: NONE
+- Attributable independent human statistical review: PENDING
+- Confirmatory execution authorized: false
+- Formal calibration authorized: false
+- Claim support: false
+- Promotion authority: false
+
+## 11. Closure criteria
 
 This ledger may be marked COMPLETE only when:
 
-- The inventory is tied to the exact target commit.
-- Every inventory occurrence has an individual disposition.
-- Every additional manually discovered occurrence is included.
-- Every execution-capable path has a documented call path.
-- Every authorization path and guard ordering is verified.
-- Every unresolved path remains explicitly OPEN.
-- Relevant negative tests have actually passed.
-- Evidence URLs, run IDs, artifact IDs, and hashes are recorded.
-- The reviewer and review date are attributable.
-- The ledger itself is committed and hashed.
+1. Every relevant occurrence in the final inventory has a row.
+2. Every row has a reasoned manual classification.
+3. Every execution-capable path has a documented call path.
+4. Every authorization guard has been inspected in execution order.
+5. Every unresolved or ambiguous route remains OPEN.
+6. Negative tests have actually passed on the reviewed commit.
+7. Historical and proposed policy references are distinguished.
+8. Review and main commits are recorded exactly.
+9. Inventory artifact identity and hashes are recorded.
+10. An attributable reviewer has signed off on the classification.
 
-Completion means complete coverage of the declared review scope.
-It does not mean universal proof, protocol approval, or scientific
-validation.
+Completion means declared-scope coverage only.
+It does not prove the absence of every conceivable execution path,
+approve the protocol, authorize execution, or establish HCM.
+
+## 12. Final disposition
+
+Current disposition: OPEN — MANUAL CLASSIFICATION REQUIRED
+
+No protocol freeze.
+No confirmatory execution.
+No claim promotion.
+No retrospective reclassification.
