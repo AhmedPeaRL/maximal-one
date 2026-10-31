@@ -7,61 +7,56 @@ import os
 import subprocess
 import sys
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 EXPECTED_BRANCH = "refs/heads/review/type1-v4-remediation"
 
-REQUIRED_PATHS = [
-    "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json",
-    "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_CANDIDATE.json",
-    "protocol/TYPE1_CALIBRATION_SPEC_V3_CANDIDATE.md",
-    "protocol/TYPE1_CALIBRATION_V4_ACCEPTANCE_RULE_DECISION_REQUEST.md",
-    "protocol/TYPE1_CALIBRATION_EXECUTION_AUTHORIZATION.json",
-    "protocol/TYPE1_CALIBRATION_FREEZE_DECISION.json",
-    "protocol/TYPE1_V3_V4_GOVERNANCE_INVENTORY_2026-10-27.md",
-    "protocol/TYPE1_V3_V4_MANUAL_CLASSIFICATION_LEDGER_2026-10-29.md",
-    "protocol/TYPE1_ENGINEERING_EVIDENCE_ADDENDUM_2026-10-30.md",
-    "protocol/TYPE1_REVIEW_SNAPSHOT_POLICY_V1.md",
-    "analysis/calibrate_null_type1.py",
-    "analysis/calibrate_null_type1_scenario.py",
-    "analysis/appropriate_stochastic_null.py",
-    "analysis/numerical_spectral_verification.py",
-    "analysis/null_protocol.py",
-    "analysis/type1_calibration_pilot.py",
-    "analysis/type1_execution_artifacts.py",
-    "analysis/merge_type1_execution_shards.py",
-    "analysis/merge_type1_calibration_pilot_shards.py",
-    "analysis/compare_type1_cross_runner.py",
-    "analysis/type1_acceptance_operating_characteristics.py",
-    "requirements-lock.txt",
-    "requirements.in",
-    ".github/workflows/null-type1-calibration.yml",
-    ".github/workflows/type1-calibration-runtime-pilot.yml",
-    ".github/workflows/type1-full-path-equivalence.yml",
-    ".github/workflows/type1-v3-v4-governance-audit.yml",
-    ".github/workflows/type1-v4-assignment-matrix.yml",
-    ".github/workflows/type1-v4-cli-resume-identity.yml",
-    ".github/workflows/type1-v4-cross-runner-worker-order.yml",
-    ".github/workflows/type1-v4-engineering-equivalence.yml",
-    ".github/workflows/type1-review-snapshot.yml",
-    "tests/test_type1_full_path_equivalence.py",
-    "tests/test_type1_production_equivalence.py",
-    "tests/test_type1_cli_resume_identity_rejections.py",
-    "tests/test_type1_worker_assignment_matrix_invariance.py",
-    "tests/test_type1_parallel_worker_order_equivalence.py",
-    "tests/test_type1_cross_runner_workflow_branch_guard.py",
-    "scripts/audit_type1_governance_refs.py",
-    "scripts/create_type1_review_snapshot.py",
-]
-
+# These are mandatory anchors, not the complete review scope.
+REQUIRED_PATHS = ['protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json',
+ 'protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_CANDIDATE.json',
+ 'protocol/TYPE1_CALIBRATION_SPEC_V3_CANDIDATE.md',
+ 'protocol/TYPE1_CALIBRATION_V4_ACCEPTANCE_RULE_DECISION_REQUEST.md',
+ 'protocol/TYPE1_CALIBRATION_EXECUTION_AUTHORIZATION.json',
+ 'protocol/TYPE1_CALIBRATION_FREEZE_DECISION.json',
+ 'protocol/TYPE1_V3_V4_GOVERNANCE_INVENTORY_2026-10-27.md',
+ 'protocol/TYPE1_V3_V4_MANUAL_CLASSIFICATION_LEDGER_2026-10-29.md',
+ 'protocol/TYPE1_ENGINEERING_EVIDENCE_ADDENDUM_2026-10-30.md',
+ 'protocol/TYPE1_REVIEW_SNAPSHOT_POLICY_V1.md',
+ 'analysis/calibrate_null_type1.py',
+ 'analysis/calibrate_null_type1_scenario.py',
+ 'analysis/appropriate_stochastic_null.py',
+ 'analysis/numerical_spectral_verification.py',
+ 'analysis/null_protocol.py',
+ 'analysis/type1_calibration_pilot.py',
+ 'analysis/type1_execution_artifacts.py',
+ 'analysis/merge_type1_execution_shards.py',
+ 'analysis/merge_type1_calibration_pilot_shards.py',
+ 'analysis/compare_type1_cross_runner.py',
+ 'analysis/type1_acceptance_operating_characteristics.py',
+ 'requirements-lock.txt',
+ 'requirements.in',
+ '.github/workflows/null-type1-calibration.yml',
+ '.github/workflows/type1-calibration-runtime-pilot.yml',
+ '.github/workflows/type1-full-path-equivalence.yml',
+ '.github/workflows/type1-v3-v4-governance-audit.yml',
+ '.github/workflows/type1-v4-assignment-matrix.yml',
+ '.github/workflows/type1-v4-cli-resume-identity.yml',
+ '.github/workflows/type1-v4-cross-runner-worker-order.yml',
+ '.github/workflows/type1-v4-engineering-equivalence.yml',
+ '.github/workflows/type1-review-snapshot.yml',
+ 'tests/test_type1_full_path_equivalence.py',
+ 'tests/test_type1_production_equivalence.py',
+ 'tests/test_type1_cli_resume_identity_rejections.py',
+ 'tests/test_type1_worker_assignment_matrix_invariance.py',
+ 'tests/test_type1_parallel_worker_order_equivalence.py',
+ 'tests/test_type1_cross_runner_workflow_branch_guard.py',
+ 'scripts/audit_type1_governance_refs.py',
+ 'scripts/create_type1_review_snapshot.py']
 
 def git(*args: str) -> str:
     return subprocess.check_output(
-        ["git", *args],
-        text=True,
-        stderr=subprocess.STDOUT,
+        ["git", *args], text=True, stderr=subprocess.STDOUT
     ).strip()
-
 
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
@@ -70,173 +65,184 @@ def sha256_file(path: Path) -> str:
             digest.update(chunk)
     return digest.hexdigest()
 
+def safe_repo_path(value: str) -> str:
+    # Inventory paths are untrusted data. Reject absolute paths and traversal.
+    p = PurePosixPath(value)
+    if not value or p.is_absolute() or ".." in p.parts or "\\" in value:
+        raise SystemExit(f"BLOCKED: unsafe inventory path: {value!r}")
+    normalized = p.as_posix()
+    if normalized.startswith(".git/") or normalized == ".git":
+        raise SystemExit(f"BLOCKED: Git metadata path is not review content: {value!r}")
+    return normalized
 
-def discover_scope() -> list[str]:
-    tracked = git("ls-files", "-z").split("\0")
-    selected = set(REQUIRED_PATHS)
-
-    for item in tracked:
-        if not item:
-            continue
-
-        path = Path(item)
-        name = path.name.lower()
-
-        if item.startswith("protocol/") and name.startswith("type1_"):
-            selected.add(item)
-
-        if item.startswith("analysis/") and (
-            name.startswith("type1_")
-            or name in {
-                "appropriate_stochastic_null.py",
-                "calibrate_null_type1.py",
-                "calibrate_null_type1_scenario.py",
-                "numerical_spectral_verification.py",
-                "null_protocol.py",
-            }
-        ):
-            selected.add(item)
-
-        if item.startswith(".github/workflows/") and "type1" in name:
-            selected.add(item)
-
-        if item.startswith("tests/") and name.startswith("test_type1"):
-            selected.add(item)
-
-    return sorted(selected)
-
+def load_inventory(path: Path, expected_commit: str) -> tuple[dict, list[str], list[dict]]:
+    if not path.is_file():
+        raise SystemExit(f"BLOCKED: inventory JSON not found: {path}")
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if data.get("audit") != "TYPE1_V3_V4_THRESHOLD_REFERENCE_INVENTORY_V1":
+        raise SystemExit("BLOCKED: unexpected governance inventory schema.")
+    refs = data.get("refs")
+    if not isinstance(refs, list):
+        raise SystemExit("BLOCKED: inventory refs must be a list.")
+    matches = [r for r in refs if r.get("commit_sha", "").lower() == expected_commit]
+    if len(matches) != 1:
+        raise SystemExit(
+            "BLOCKED: inventory must contain exactly one ref for the expected commit; "
+            f"found {len(matches)}."
+        )
+    ref_record = matches[0]
+    entries = ref_record.get("entries")
+    if not isinstance(entries, list):
+        raise SystemExit("BLOCKED: inventory entries must be a list.")
+    paths = set()
+    occurrences = []
+    for entry in entries:
+        if not isinstance(entry, dict) or not isinstance(entry.get("path"), str):
+            raise SystemExit("BLOCKED: malformed inventory entry.")
+        rel = safe_repo_path(entry["path"])
+        paths.add(rel)
+        found = entry.get("matches", [])
+        if not isinstance(found, list):
+            raise SystemExit(f"BLOCKED: malformed matches for {rel}")
+        for index, match in enumerate(found, 1):
+            if not isinstance(match, dict):
+                raise SystemExit(f"BLOCKED: malformed occurrence in {rel}")
+            line = match.get("line")
+            if not isinstance(line, int) or line < 1:
+                raise SystemExit(f"BLOCKED: invalid line number in {rel}")
+            text = match.get("text")
+            if not isinstance(text, str):
+                raise SystemExit(f"BLOCKED: invalid matched text in {rel}:{line}")
+            occurrences.append({
+                "path": rel,
+                "line": line,
+                "match_index_within_file": index,
+                "text": text,
+                "automated_classification": match.get("classification", "UNKNOWN"),
+                "automated_note": match.get("execution_or_authority_review", ""),
+            })
+    if not paths:
+        raise SystemExit("BLOCKED: inventory contains no matching paths.")
+    return data, sorted(paths), occurrences
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--expected-commit", required=True)
     parser.add_argument("--inventory-artifact-id", required=True)
     parser.add_argument("--inventory-source-commit", required=True)
+    parser.add_argument("--inventory-json", required=True)
+    parser.add_argument("--inventory-sha256", required=True)
     args = parser.parse_args()
 
-    expected_commit = args.expected_commit.strip().lower()
-    inventory_source_commit = (
-        args.inventory_source_commit.strip().lower()
-    )
-
-    if len(expected_commit) != 40:
-        raise SystemExit("BLOCKED: expected commit must be a full 40-char SHA")
-
-    if inventory_source_commit != expected_commit:
-        raise SystemExit(
-            "BLOCKED: inventory source commit differs from review commit"
-        )
-
+    expected = args.expected_commit.strip().lower()
+    source_commit = args.inventory_source_commit.strip().lower()
+    if len(expected) != 40 or source_commit != expected:
+        raise SystemExit("BLOCKED: inventory and snapshot commit identities differ.")
+    if not args.inventory_artifact_id.isdigit():
+        raise SystemExit("BLOCKED: inventory artifact ID must be numeric.")
     github_ref = os.environ.get("GITHUB_REF", "")
     if github_ref != EXPECTED_BRANCH:
-        raise SystemExit(
-            f"BLOCKED: expected {EXPECTED_BRANCH}; got {github_ref!r}"
-        )
+        raise SystemExit(f"BLOCKED: expected {EXPECTED_BRANCH}; got {github_ref!r}")
+    actual = git("rev-parse", "HEAD").lower()
+    if actual != expected:
+        raise SystemExit(f"BLOCKED: checked-out commit mismatch: {actual} != {expected}")
 
-    actual_commit = git("rev-parse", "HEAD").lower()
-    if actual_commit != expected_commit:
-        raise SystemExit(
-            "BLOCKED: checked-out commit mismatch: "
-            f"{actual_commit} != {expected_commit}"
-        )
+    inventory_path = Path(args.inventory_json)
+    actual_inventory_hash = sha256_file(inventory_path)
+    if actual_inventory_hash.lower() != args.inventory_sha256.strip().lower():
+        raise SystemExit("BLOCKED: downloaded inventory JSON SHA-256 mismatch.")
+    inventory, inventory_paths, occurrences = load_inventory(inventory_path, expected)
 
     root = Path(".").resolve()
-    output = root / "artifacts/type1_review_snapshot"
-    output.mkdir(parents=True, exist_ok=True)
-
-    scope = discover_scope()
-    missing_required = [
-        item for item in REQUIRED_PATHS
-        if not (root / item).is_file()
-    ]
-
+    required_missing = [p for p in REQUIRED_PATHS if not (root / p).is_file()]
+    # Dynamic scope is the union of every path in the exact-commit inventory
+    # and the explicitly declared mandatory anchor paths.
+    selected = sorted(set(inventory_paths) | set(REQUIRED_PATHS))
     records = []
-    for relative in scope:
-        path = root / relative
+    for rel in selected:
+        path = root / rel
         if not path.is_file():
+            records.append({"path": rel, "status": "MISSING", "sha256": None})
+        else:
             records.append({
-                "path": relative,
-                "status": "MISSING",
-                "sha256": None,
+                "path": rel, "status": "PRESENT",
+                "sha256": sha256_file(path), "size_bytes": path.stat().st_size,
             })
-            continue
 
-        records.append({
-            "path": relative,
-            "status": "PRESENT",
-            "sha256": sha256_file(path),
-            "size_bytes": path.stat().st_size,
+    missing_scope = [r["path"] for r in records if r["status"] == "MISSING"]
+    inventory_paths_set = set(inventory_paths)
+    inventory_occurrence_rows = []
+    for occ in occurrences:
+        rel = occ["path"]
+        path_hash = hashlib.sha256(rel.encode("utf-8")).hexdigest()[:12]
+        occurrence_id = (
+            f"REVIEW/{path_hash}/{occ['line']}/"
+            f"{occ['match_index_within_file']}"
+        )
+        inventory_occurrence_rows.append({
+            "occurrence_id": occurrence_id,
+            **occ,
+            "manual_classification": "UNKNOWN",
+            "status": "OPEN",
         })
 
-    missing_scope = [
-        row["path"] for row in records
-        if row["status"] == "MISSING"
-    ]
-
+    # Explicit exclusions: none are silently applied. Every inventory path is
+    # included; unsafe paths block the run rather than being skipped.
     manifest = {
-        "schema": "HCM_TYPE1_REVIEW_SNAPSHOT_V2",
-        "created_at_utc": datetime.now(
-            timezone.utc
-        ).isoformat(),
+        "schema": "HCM_TYPE1_REVIEW_SNAPSHOT_V3",
+        "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "repository": "AhmedPeaRL/maximal-one",
         "review_ref": github_ref,
-        "review_commit_sha": actual_commit,
+        "review_commit_sha": actual,
         "inventory_artifact_id": args.inventory_artifact_id,
-        "inventory_source_commit": inventory_source_commit,
+        "inventory_source_commit": source_commit,
+        "inventory_json_sha256": actual_inventory_hash,
+        "inventory_schema": inventory.get("audit"),
+        "inventory_ref": next(
+            r.get("ref_requested") for r in inventory["refs"]
+            if r.get("commit_sha", "").lower() == expected
+        ),
         "scope_discovery": (
-            "tracked Git files selected by explicit Type-I path rules"
+            "all paths in the exact-commit governance inventory, union "
+            "explicit mandatory anchors; no silent exclusions"
         ),
-        "required_path_count": len(REQUIRED_PATHS),
-        "discovered_scope_count": len(scope),
-        "present_file_count": sum(
-            row["status"] == "PRESENT" for row in records
-        ),
-        "missing_required_paths": missing_required,
+        "inventory_path_count": len(inventory_paths_set),
+        "required_anchor_count": len(REQUIRED_PATHS),
+        "selected_scope_count": len(selected),
+        "present_file_count": sum(r["status"] == "PRESENT" for r in records),
+        "missing_required_paths": required_missing,
         "missing_scope_paths": missing_scope,
+        "excluded_paths": [],
         "files": records,
+        "inventory_occurrences": inventory_occurrence_rows,
         "protocol_freeze": "NOT_FROZEN",
         "formal_calibration_authorized": False,
+        "confirmatory_execution_authorized": False,
         "claim_support": False,
         "promotion_authority": False,
     }
-
-    manifest_path = output / "manifest.json"
-    manifest_path.write_text(
-        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
+    out = root / "artifacts/type1_review_snapshot"
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
-
-    sums_path = output / "SHA256SUMS.txt"
-    sums = [
-        f"{row['sha256']}  {row['path']}"
-        for row in records
-        if row["status"] == "PRESENT"
-    ]
-    sums_path.write_text(
-        "\n".join(sums) + "\n",
-        encoding="utf-8",
-    )
-
+    sums = [f"{r['sha256']}  {r['path']}" for r in records if r["status"] == "PRESENT"]
+    (out / "SHA256SUMS.txt").write_text("\n".join(sums) + "\n", encoding="utf-8")
     print(json.dumps({
-        "commit": actual_commit,
+        "commit": actual,
         "inventory_artifact_id": args.inventory_artifact_id,
-        "present": manifest["present_file_count"],
-        "missing_required": missing_required,
+        "inventory_paths": len(inventory_paths),
+        "selected_scope": len(selected),
+        "occurrences": len(occurrences),
+        "missing_required": required_missing,
         "missing_scope": missing_scope,
-        "manifest": str(manifest_path),
-        "sha256sums": str(sums_path),
+        "excluded_paths": [],
     }, indent=2))
-
-    if missing_required or missing_scope:
-        print(
-            "SNAPSHOT INCOMPLETE: missing files require reconciliation.",
-            file=sys.stderr,
-        )
+    if required_missing or missing_scope:
+        print("SNAPSHOT INCOMPLETE: missing paths require explicit reconciliation.", file=sys.stderr)
         return 2
-
-    print("SNAPSHOT HASHING COMPLETE.")
-    print("No protocol freeze or formal authorization is implied.")
+    print("DYNAMIC SNAPSHOT COMPLETE; no protocol or execution authority implied.")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())
