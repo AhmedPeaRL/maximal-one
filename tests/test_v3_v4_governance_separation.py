@@ -18,7 +18,7 @@ class V3V4GovernanceSeparationTests(unittest.TestCase):
             'd.get("freeze_state") != "FROZEN"',
             'd.get("confirmatory_execution_authorized") is not True',
             'd.get("archive_git_identity_verified") is not True',
-            'output["GITHUB_OUTPUT"]',
+            'os.environ["GITHUB_OUTPUT"]',
         ]
 
         positions = [self.text.index(item) for item in required]
