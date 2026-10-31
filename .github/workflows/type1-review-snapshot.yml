@@ -23,8 +23,7 @@ permissions:
 jobs:
   snapshot:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
-
+    timeout-minutes: 20
     steps:
       - name: Verify selected branch
         shell: bash
@@ -35,7 +34,7 @@ jobs:
       - name: Checkout exact review commit
         uses: actions/checkout@v5
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ inputs.review_commit }}
           fetch-depth: 0
           persist-credentials: false
 
@@ -47,17 +46,14 @@ jobs:
           EVENT_COMMIT: ${{ github.sha }}
         run: |
           set -euo pipefail
-
           ACTUAL="$(git rev-parse HEAD)"
-
           test "$ACTUAL" = "$EXPECTED_COMMIT"
           test "$ACTUAL" = "$EVENT_COMMIT"
           test "$INVENTORY_COMMIT" = "$EXPECTED_COMMIT"
-
-          echo "Verified exact review commit: $ACTUAL"
-          echo "Verified inventory source commit: $INVENTORY_COMMIT"
+          echo "Verified exact review and inventory commit: $ACTUAL"
 
       - name: Verify governance inventory artifact provenance
+        id: inventory
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -65,57 +61,56 @@ jobs:
           EXPECTED_COMMIT: ${{ inputs.review_commit }}
         run: |
           set -euo pipefail
-
-          gh api \
-            "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}" \
-            > inventory_artifact_metadata.json
-
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}" > inventory_artifact_metadata.json
           python - <<'PY'
-          import json
-          import os
+          import json, os
           from pathlib import Path
-
-          data = json.loads(
-              Path("inventory_artifact_metadata.json").read_text()
-          )
-
-          expected_commit = os.environ["EXPECTED_COMMIT"]
-          expected_branch = "review/type1-v4-remediation"
-
+          data=json.loads(Path("inventory_artifact_metadata.json").read_text())
+          expected=os.environ["EXPECTED_COMMIT"]
           if data.get("expired") is not False:
               raise SystemExit("BLOCKED: inventory artifact is expired.")
-
-          if not data.get("name", "").startswith(
-              "type1-v3-v4-governance-inventory-"
-          ):
-              raise SystemExit(
-                  "BLOCKED: unexpected inventory artifact name."
-              )
-
-          run = data.get("workflow_run") or {}
-
-          if run.get("head_sha") != expected_commit:
-              raise SystemExit(
-                  "BLOCKED: inventory artifact commit does not match."
-              )
-
-          if run.get("head_branch") != expected_branch:
-              raise SystemExit(
-                  "BLOCKED: inventory artifact branch does not match."
-              )
-
-          print("Verified inventory artifact provenance.")
-          print("Artifact:", data.get("id"))
-          print("Source commit:", run.get("head_sha"))
-          print("Source branch:", run.get("head_branch"))
+          if not data.get("name","").startswith("type1-v3-v4-governance-inventory-"):
+              raise SystemExit("BLOCKED: unexpected inventory artifact name.")
+          run=data.get("workflow_run") or {}
+          if run.get("head_sha") != expected:
+              raise SystemExit("BLOCKED: inventory artifact commit mismatch.")
+          if run.get("head_branch") != "review/type1-v4-remediation":
+              raise SystemExit("BLOCKED: inventory artifact branch mismatch.")
+          if not run.get("id"):
+              raise SystemExit("BLOCKED: artifact has no source workflow run ID.")
+          with open(os.environ["GITHUB_OUTPUT"],"a") as f:
+              f.write(f"run_id={run['id']}\n")
+              f.write(f"artifact_name={data['name']}\n")
+          print("Artifact provenance verified:", data["id"], run["head_sha"])
           PY
+
+      - name: Download the exact governance inventory artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ steps.inventory.outputs.run_id }}
+          ARTIFACT_NAME: ${{ steps.inventory.outputs.artifact_name }}
+        run: |
+          set -euo pipefail
+          gh run download "$SOURCE_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name "$ARTIFACT_NAME" \
+            --dir inventory_download
+          test -s inventory_download/reference_inventory.json
+          sha256sum inventory_download/reference_inventory.json | tee inventory_download/INVENTORY_SHA256.txt
+          cat inventory_download/INVENTORY_SHA256.txt
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11.15"
 
-      - name: Generate SHA-256 manifest
+      - name: Test inventory-driven scope and fail-closed path validation
+        run: |
+          set -euo pipefail
+          python -m unittest -v tests.test_dynamic_snapshot_inventory
+
+      - name: Generate inventory-driven snapshot
         shell: bash
         env:
           EXPECTED_COMMIT: ${{ inputs.review_commit }}
@@ -123,10 +118,13 @@ jobs:
           INVENTORY_SOURCE_COMMIT: ${{ inputs.inventory_source_commit }}
         run: |
           set -euo pipefail
+          INVENTORY_HASH="$(sha256sum inventory_download/reference_inventory.json | awk '{print $1}')"
           python scripts/create_type1_review_snapshot.py \
             --expected-commit "$EXPECTED_COMMIT" \
             --inventory-artifact-id "$INVENTORY_ARTIFACT_ID" \
-            --inventory-source-commit "$INVENTORY_SOURCE_COMMIT"
+            --inventory-source-commit "$INVENTORY_SOURCE_COMMIT" \
+            --inventory-json inventory_download/reference_inventory.json \
+            --inventory-sha256 "$INVENTORY_HASH"
 
       - name: Upload snapshot evidence
         if: always()
