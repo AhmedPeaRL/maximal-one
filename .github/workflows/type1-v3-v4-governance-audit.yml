@@ -16,6 +16,7 @@ on:
       - "analysis/calibrate_null_type1_scenario.py"
       - "protocol/TYPE1_ACCEPTANCE_RULE_DECISION_RECORD_V2.md"
       - "protocol/TYPE1_V4_ACCEPTANCE_RULE_DECISION_RECORD.md"
+      - "tests/test_type1_v4_matrix_gate.py"
 
 permissions:
   contents: read
