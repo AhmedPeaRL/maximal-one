@@ -21,6 +21,10 @@ on:
       - "tests/test_type1_v4_matrix_gate.py"
       - "scripts/type1_occurrence_classifier.py"
       - "tests/test_type1_occurrence_local_classifier.py"
+      - "scripts/create_type1_review_snapshot.py"
+      - "tests/test_dynamic_snapshot_inventory.py"
+      - "tests/test_type1_governance_inventory_occurrence_local.py"
+      - "tests/test_type1_main_negative_gate.py"
 
 permissions:
   contents: read
@@ -93,7 +97,10 @@ jobs:
             tests.test_v3_v4_governance_separation \
             tests.test_type1_v4_matrix_gate \
             tests.test_type1_occurrence_ledger \
-            tests.test_type1_occurrence_local_classifier
+            tests.test_type1_occurrence_local_classifier \
+            tests.test_type1_governance_inventory_occurrence_local \
+            tests.test_dynamic_snapshot_inventory \
+            tests.test_type1_main_negative_gate
 
       - name: Generate exact-commit occurrence ledger and reconciliation report
         shell: bash
