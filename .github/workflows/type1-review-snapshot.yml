@@ -97,10 +97,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -s inventory_download/reference_inventory.json
-          sha256sum inventory_download/reference_inventory.json \
-            | tee inventory_download/INVENTORY_SHA256.txt
-          cat inventory_download/INVENTORY_SHA256.txt
+          test -s inventory_download/type1_governance_inventory/reference_inventory.json
+
+          sha256sum inventory_download/type1_governance_inventory/reference_inventory.json \
+            | tee inventory_download/type1_governance_inventory/INVENTORY_SHA256.txt
+
+          cat inventory_download/type1_governance_inventory/INVENTORY_SHA256.txt
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -120,12 +122,12 @@ jobs:
           INVENTORY_SOURCE_COMMIT: ${{ inputs.inventory_source_commit }}
         run: |
           set -euo pipefail
-          INVENTORY_HASH="$(sha256sum inventory_download/reference_inventory.json | awk '{print $1}')"
+          INVENTORY_HASH="$(sha256sum inventory_download/type1_governance_inventory/reference_inventory.json | awk '{print $1}')"
           python scripts/create_type1_review_snapshot.py \
             --expected-commit "$EXPECTED_COMMIT" \
             --inventory-artifact-id "$INVENTORY_ARTIFACT_ID" \
             --inventory-source-commit "$INVENTORY_SOURCE_COMMIT" \
-            --inventory-json inventory_download/reference_inventory.json \
+            --inventory-json inventory_download/type1_governance_inventory/reference_inventory.json \
             --inventory-sha256 "$INVENTORY_HASH"
 
       - name: Upload snapshot evidence
