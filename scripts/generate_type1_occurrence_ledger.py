@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 from typing import Any
+from scripts.type1_occurrence_classifier import classify_occurrence
 
 INVENTORY_SCHEMA = "TYPE1_V3_V4_THRESHOLD_REFERENCE_INVENTORY_V1"
 LEDGER_SCHEMA = "HCM_TYPE1_OCCURRENCE_MANUAL_LEDGER_V1"
@@ -136,6 +137,12 @@ def build_ledger(inventory: dict, ref: dict, inventory_sha256: str) -> dict:
                     "classification", "UNKNOWN"
                 ),
             }
+            row["occurrence_local_assessment"] = classify_occurrence(
+                path=path,
+                line=match["line"],
+                matched_text=match["text"],
+                context_window=match.get("context_window"),
+            )
             row.update(INITIAL_FIELDS)
             rows.append(row)
 
