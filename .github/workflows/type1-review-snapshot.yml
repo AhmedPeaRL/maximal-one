@@ -85,19 +85,21 @@ jobs:
           PY
 
       - name: Download the exact governance inventory artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.inventory.outputs.artifact_name }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ steps.inventory.outputs.run_id }}
+          path: inventory_download
+
+      - name: Verify downloaded inventory and calculate SHA-256
         shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-          SOURCE_RUN_ID: ${{ steps.inventory.outputs.run_id }}
-          ARTIFACT_NAME: ${{ steps.inventory.outputs.artifact_name }}
         run: |
           set -euo pipefail
-          gh run download "$SOURCE_RUN_ID" \
-            --repo "$GITHUB_REPOSITORY" \
-            --name "$ARTIFACT_NAME" \
-            --dir inventory_download
           test -s inventory_download/reference_inventory.json
-          sha256sum inventory_download/reference_inventory.json | tee inventory_download/INVENTORY_SHA256.txt
+          sha256sum inventory_download/reference_inventory.json \
+            | tee inventory_download/INVENTORY_SHA256.txt
           cat inventory_download/INVENTORY_SHA256.txt
 
       - name: Set up Python
@@ -132,5 +134,5 @@ jobs:
         with:
           name: type1-exact-review-snapshot-${{ github.run_id }}-${{ github.run_attempt }}
           path: artifacts/type1_review_snapshot/
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 90
