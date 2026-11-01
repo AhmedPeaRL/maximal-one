@@ -86,15 +86,33 @@ def inspect_ref(ref: str) -> dict:
         except subprocess.CalledProcessError:
             continue
 
+        source_lines = content.splitlines()
+
         matching = []
-        for number, line in enumerate(content.splitlines(), 1):
+        for number, line in enumerate(source_lines, 1):
             if any(pattern.lower() in line.lower() for pattern in PATTERNS):
                 kind, capability = classify(path, content, line)
+
+                context_start = max(1, number - 5)
+                context_end = min(len(source_lines), number + 5)
+
+                context_window = [
+                    {
+                        "line": context_line,
+                        "text": source_lines[context_line - 1],
+                    }
+                    for context_line in range(
+                        context_start,
+                        context_end + 1,
+                    )
+                ]
+
                 matching.append({
                     "line": number,
                     "text": line.strip(),
                     "classification": kind,
                     "execution_or_authority_review": capability,
+                    "context_window": context_window,
                 })
 
         if matching:
