@@ -168,3 +168,32 @@ LEGACY_PATH_REVIEW_PENDING;
 PROTOCOL_NOT_FROZEN;
 CONFIRMATORY_EXECUTION_NOT_AUTHORIZED;
 CLAIM_NOT_ESTABLISHED.
+
+## Superseding technical update — 2026-11-01, commit 984fa1872e0080d567f2f45e1cd166dea12025d5
+
+This addendum supersedes only the snapshot-specific counts and commit identifiers in the earlier findings above.
+It does not erase the earlier review record.
+
+- Review branch: review/type1-v4-remediation
+- Exact review commit: 984fa1872e0080d567f2f45e1cd166dea12025d5
+- Main commit: 116686b03077f2521ab320635a098d5359c8d337
+- Merge base: a9808bd999a7ad902daf15606272529ca9af4580
+- Branch relation: review branch 209 commits ahead and 7 commits behind main.
+- Current review inventory: 132 paths, 2,241 occurrences.
+- Current main inventory: 69 paths, 203 occurrences.
+- Current exact-review manifest: 139 selected paths, 139 present, zero missing, zero excluded.
+- Review occurrence ledger: 2,241 records; all remain manual_classification=UNKNOWN, status=OPEN, reviewer_disposition=PENDING.
+- Review ledger reconciliation: RECONCILED, with no missing, extra, duplicate, or identity-mismatched occurrence IDs.
+
+A separate main-branch occurrence ledger remains required; the supplied artifact does not contain one.
+
+The occurrence-local classifier has an identified attribution defect: a runner invocation on a nearby line can cause the current non-runner occurrence to be labeled EXECUTION_PATH_CANDIDATE_UNVERIFIED.
+This is a discovery-label defect, not an authorization bypass.
+Correct it and add a regression test before relying on its candidate count.
+
+The snapshot artifact contains manifest.json and SHA256SUMS.txt, not copies of all 139 source files.
+Reviewers must retrieve the exact source files from the pinned commit or receive a separate source bundle.
+
+No scientific threshold, historical result, protocol freeze, formal calibration authorization, confirmatory execution authorization, claim-support state, or promotion-authority state is changed by this addendum.
+
+### Current disposition remains: MANUAL_CLASSIFICATION_OPEN; MAIN_LEDGER_PENDING; CALL_GRAPH_REVIEW_PENDING; PROTOCOL_NOT_FROZEN; CONFIRMATORY_EXECUTION_NOT_AUTHORIZED; CLAIM_NOT_ESTABLISHED.
