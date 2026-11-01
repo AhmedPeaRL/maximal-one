@@ -135,6 +135,22 @@ class OccurrenceLocalClassifierTests(unittest.TestCase):
         )
         self.assertEqual(result["suggested_classification"], "UNKNOWN")
 
+    def test_adjacent_runner_does_not_reclassify_unrelated_occurrence(self):
+        result = self.classify(
+            "uses: actions/upload-artifact@v4",
+            ctx(
+                (60, "python -m analysis.calibrate_null_type1_scenario"),
+                (64, "uses: actions/upload-artifact@v4"),
+            ),
+            line=64,
+            path=".github/workflows/type1-calibration-runtime-pilot.yml",
+        )
+        self.assertEqual(result["suggested_classification"], "UNKNOWN")
+        self.assertEqual(
+            result["evidence"]["nearby_runner_reference_lines"], [60]
+        )
+        self.assertFalse(result["execution_authority"])
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
