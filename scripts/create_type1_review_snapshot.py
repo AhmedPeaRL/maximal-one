@@ -75,6 +75,38 @@ def safe_repo_path(value: str) -> str:
         raise SystemExit(f"BLOCKED: Git metadata path is not review content: {value!r}")
     return normalized
 
+def inventory_scanner_exclusions(data: dict, expected_commit: str) -> list[dict]:
+    refs = data.get("refs")
+    if not isinstance(refs, list):
+        raise SystemExit("BLOCKED: inventory refs must be a list.")
+    matches = [
+        row for row in refs
+        if isinstance(row, dict)
+        and row.get("commit_sha", "").lower() == expected_commit.lower()
+    ]
+    if len(matches) != 1:
+        raise SystemExit("BLOCKED: cannot resolve exact inventory ref for exclusions.")
+    raw = matches[0].get("excluded_paths", [])
+    if not isinstance(raw, list):
+        raise SystemExit("BLOCKED: inventory excluded_paths must be a list.")
+    normalized = []
+    seen = set()
+    for item in raw:
+        if not isinstance(item, dict):
+            raise SystemExit("BLOCKED: malformed scanner exclusion record.")
+        rel = safe_repo_path(item.get("path", ""))
+        reason = item.get("reason")
+        handling = item.get("handling")
+        if not isinstance(reason, str) or not reason.strip():
+            raise SystemExit(f"BLOCKED: exclusion reason missing for {rel}.")
+        if not isinstance(handling, str) or not handling.strip():
+            raise SystemExit(f"BLOCKED: exclusion handling missing for {rel}.")
+        if rel in seen:
+            raise SystemExit(f"BLOCKED: duplicate scanner exclusion: {rel}")
+        seen.add(rel)
+        normalized.append({"path": rel, "reason": reason, "handling": handling})
+    return sorted(normalized, key=lambda row: row["path"])
+
 def load_inventory(path: Path, expected_commit: str) -> tuple[dict, list[str], list[dict]]:
     if not path.is_file():
         raise SystemExit(f"BLOCKED: inventory JSON not found: {path}")
@@ -153,11 +185,19 @@ def main() -> int:
         raise SystemExit("BLOCKED: downloaded inventory JSON SHA-256 mismatch.")
     inventory, inventory_paths, occurrences = load_inventory(inventory_path, expected)
 
+    scanner_exclusions = inventory_scanner_exclusions(inventory, expected)
+
     root = Path(".").resolve()
     required_missing = [p for p in REQUIRED_PATHS if not (root / p).is_file()]
     # Dynamic scope is the union of every path in the exact-commit inventory
     # and the explicitly declared mandatory anchor paths.
-    selected = sorted(set(inventory_paths) | set(REQUIRED_PATHS))
+    # Excluded generated evidence is not scanned for occurrences, but remains
+    # in the exact snapshot's hash scope so the exclusion is auditable.
+    selected = sorted(
+        set(inventory_paths)
+        | set(REQUIRED_PATHS)
+        | {row["path"] for row in scanner_exclusions}
+    )
     records = []
     for rel in selected:
         path = root / rel
@@ -203,8 +243,8 @@ def main() -> int:
             if r.get("commit_sha", "").lower() == expected
         ),
         "scope_discovery": (
-            "all paths in the exact-commit governance inventory, union "
-            "explicit mandatory anchors; no silent exclusions"
+            "all matched paths in the exact-commit inventory, union explicit "
+            "mandatory anchors and hash-only scanner-excluded generated evidence"
         ),
         "inventory_path_count": len(inventory_paths_set),
         "required_anchor_count": len(REQUIRED_PATHS),
@@ -213,6 +253,8 @@ def main() -> int:
         "missing_required_paths": required_missing,
         "missing_scope_paths": missing_scope,
         "excluded_paths": [],
+        "scanner_exclusions": scanner_exclusions,
+        "scanner_exclusion_count": len(scanner_exclusions),
         "files": records,
         "inventory_occurrences": inventory_occurrence_rows,
         "protocol_freeze": "NOT_FROZEN",
