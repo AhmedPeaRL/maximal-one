@@ -107,6 +107,19 @@ jobs:
           test -s artifacts/type1_occurrence_ledger/occurrence_level_manual_ledger.json
           test -s artifacts/type1_occurrence_ledger/reconciliation.json
 
+      - name: Generate separate main-branch occurrence ledger and reconciliation
+        shell: bash
+        run: |
+          set -euo pipefail
+          MAIN_SHA="$(git rev-parse origin/main)"
+          python -m scripts.generate_type1_occurrence_ledger \
+            --inventory artifacts/type1_governance_inventory/reference_inventory.json \
+            --expected-commit "$MAIN_SHA" \
+            --output-ledger artifacts/type1_occurrence_ledger/main_occurrence_level_manual_ledger.json \
+            --output-reconciliation artifacts/type1_occurrence_ledger/main_reconciliation.json
+          test -s artifacts/type1_occurrence_ledger/main_occurrence_level_manual_ledger.json
+          test -s artifacts/type1_occurrence_ledger/main_reconciliation.json
+
       - name: Verify inventory identifies both refs
         run: |
           set -euo pipefail
