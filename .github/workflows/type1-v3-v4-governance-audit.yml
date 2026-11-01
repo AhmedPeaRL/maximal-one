@@ -19,6 +19,8 @@ on:
       - "protocol/TYPE1_ACCEPTANCE_RULE_DECISION_RECORD_V2.md"
       - "protocol/TYPE1_V4_ACCEPTANCE_RULE_DECISION_RECORD.md"
       - "tests/test_type1_v4_matrix_gate.py"
+      - "scripts/type1_occurrence_classifier.py"
+      - "tests/test_type1_occurrence_local_classifier.py"
 
 permissions:
   contents: read
@@ -97,7 +99,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python scripts/generate_type1_occurrence_ledger.py \
+          python -m scripts.generate_type1_occurrence_ledger \
             --inventory artifacts/type1_governance_inventory/reference_inventory.json \
             --expected-commit "$GITHUB_SHA" \
             --output-ledger artifacts/type1_occurrence_ledger/occurrence_level_manual_ledger.json \
