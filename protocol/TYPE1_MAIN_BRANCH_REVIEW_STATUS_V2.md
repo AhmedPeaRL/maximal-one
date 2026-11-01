@@ -11,7 +11,7 @@
 ## 1. Exact source identities
 
 - Repository: AhmedPeaRL/maximal-one
--:Current main branch commit:
+- Current main branch commit:
 `ab4170645d6e902a065a3235d0c31136bcbee77c`
 - Review branch:
 `review/type1-v4-remediation`
