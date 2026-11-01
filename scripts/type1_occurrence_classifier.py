@@ -64,38 +64,26 @@ def _normalize_context(
 ) -> list[dict[str, Any]]:
     if context_window is None:
         return []
-
     if not isinstance(context_window, list):
         raise ValueError("context_window must be a list")
 
     normalized = []
-
     for item in context_window:
         if not isinstance(item, dict):
             raise ValueError("context entries must be objects")
-
         line_number = item.get("line")
         line_text = item.get("text")
-
         if (
             isinstance(line_number, bool)
             or not isinstance(line_number, int)
             or line_number < 1
         ):
             raise ValueError("context line numbers must be positive integers")
-
         if not isinstance(line_text, str):
             raise ValueError("context text must be a string")
-
-        # The classifier is strictly occurrence-local.
         if abs(line_number - occurrence_line) > CONTEXT_RADIUS:
             continue
-
-        normalized.append({
-            "line": line_number,
-            "text": line_text,
-        })
-
+        normalized.append({"line": line_number, "text": line_text})
     return sorted(normalized, key=lambda item: item["line"])
 
 
@@ -106,106 +94,79 @@ def classify_occurrence(
     matched_text: str,
     context_window: list[dict[str, Any]] | None,
 ) -> dict[str, Any]:
-    """
-    Produce a conservative occurrence-local discovery suggestion.
+    """Return a conservative occurrence-local discovery suggestion only.
 
     This function never creates a manual classification, closes a ledger
     record, verifies a complete call graph, or grants execution authority.
+    A nearby runner invocation is not sufficient to classify this occurrence
+    as an execution path; the matched occurrence itself must be the invocation.
     """
-
     if not isinstance(path, str) or not path:
         raise ValueError("path must be a non-empty string")
-
     if isinstance(line, bool) or not isinstance(line, int) or line < 1:
         raise ValueError("line must be a positive integer")
-
     if not isinstance(matched_text, str):
         raise ValueError("matched_text must be a string")
 
     local = _normalize_context(context_window, line)
-
-    # Ensure the exact occurrence is represented in its own context.
     if not any(item["line"] == line for item in local):
         local.append({"line": line, "text": matched_text})
         local.sort(key=lambda item: item["line"])
 
     local_text = "\n".join(item["text"] for item in local)
     occurrence_text = matched_text
-
-    runner_lines = [
-        item["line"]
-        for item in local
-        if RUNNER_RE.search(item["text"])
+    occurrence_is_runner = bool(RUNNER_RE.search(occurrence_text))
+    nearby_runner_lines = [
+        item["line"] for item in local
+        if item["line"] != line and RUNNER_RE.search(item["text"])
     ]
-
     guard_lines = [
-        item["line"]
-        for item in local
-        if GUARD_RE.search(item["text"])
+        item["line"] for item in local if GUARD_RE.search(item["text"])
     ]
+    governance_match = bool(GOVERNANCE_RE.search(occurrence_text))
 
-    governance_match = bool(
-        GOVERNANCE_RE.search(occurrence_text)
-    )
-
-    # A runner candidate is never automatically declared gated:
-    # the local window cannot establish the full workflow/call graph,
-    # all authorization checks, or their actual runtime order.
-    if runner_lines:
+    if occurrence_is_runner:
         suggestion = "EXECUTION_PATH_CANDIDATE_UNVERIFIED"
         rationale = (
-            "A runner invocation appears within the occurrence-local "
-            "context. Full direct/indirect call-path and authorization-order "
-            "review is still required."
+            "The matched occurrence itself is a runner invocation. Full "
+            "direct/indirect call-path and authorization-order review remains required."
         )
         evidence = {
-            "runner_candidate_lines": runner_lines,
+            "runner_occurrence_line": line,
+            "nearby_runner_reference_lines": nearby_runner_lines,
             "nearby_guard_candidate_lines": guard_lines,
             "guard_order_verified": False,
         }
-
     elif governance_match:
         suggestion = "GOVERNANCE"
         rationale = (
-            "The matched occurrence itself names an authorization, "
-            "promotion, freeze, or claim-state control."
+            "The matched occurrence itself names an authorization, promotion, "
+            "freeze, or claim-state control."
         )
         evidence = {
             "matched_occurrence_is_governance_field": True,
             "nearby_guard_candidate_lines": guard_lines,
+            "nearby_runner_reference_lines": nearby_runner_lines,
         }
-
     elif PROPOSAL_RE.search(local_text):
         suggestion = "PROPOSAL"
-        rationale = (
-            "Proposal or candidate language occurs within the bounded "
-            "occurrence-local context."
-        )
-        evidence = {}
-
+        rationale = "Proposal or candidate language occurs within the bounded occurrence-local context."
+        evidence = {"nearby_runner_reference_lines": nearby_runner_lines}
     elif HISTORICAL_RE.search(local_text):
         suggestion = "HISTORICAL"
-        rationale = (
-            "Historical or superseded language occurs within the bounded "
-            "occurrence-local context."
-        )
-        evidence = {}
-
+        rationale = "Historical or superseded language occurs within the bounded occurrence-local context."
+        evidence = {"nearby_runner_reference_lines": nearby_runner_lines}
     elif DIAGNOSTIC_RE.search(local_text):
         suggestion = "DIAGNOSTIC"
-        rationale = (
-            "Diagnostic, audit, exploratory, or engineering-only language "
-            "occurs within the bounded occurrence-local context."
-        )
-        evidence = {}
-
+        rationale = "Diagnostic, audit, exploratory, or engineering-only language occurs within the bounded occurrence-local context."
+        evidence = {"nearby_runner_reference_lines": nearby_runner_lines}
     else:
         suggestion = "UNKNOWN"
         rationale = (
             "The bounded occurrence-local evidence is insufficient for "
             "a defensible automated suggestion."
         )
-        evidence = {}
+        evidence = {"nearby_runner_reference_lines": nearby_runner_lines}
 
     return {
         "classifier": "TYPE1_OCCURRENCE_LOCAL_CLASSIFIER_P1",
