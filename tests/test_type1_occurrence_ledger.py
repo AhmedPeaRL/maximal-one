@@ -13,6 +13,7 @@ from scripts.generate_type1_occurrence_ledger import (
     reconcile_inventory_and_ledger,
     _validate_inventory,
 )
+from scripts.type1_occurrence_classifier import classify_occurrence
 
 COMMIT = "a" * 40
 
@@ -164,6 +165,36 @@ class OccurrenceLedgerTests(unittest.TestCase):
         ledger["records"][0]["reviewer_disposition"] = "PENDING_SECOND_REVIEW"
         report = reconcile_inventory_and_ledger(self.inventory, self.ref, ledger)
         self.assertEqual(report["status"], "RECONCILED")
+
+    def test_occurrence_local_assessment_is_added_without_manual_closure(self):
+        self.inventory["refs"][0]["entries"][0]["matches"][0][
+            "context_window"
+        ] = [
+            {"line": 6, "text": "Historical prior-run record."},
+            {"line": 7, "text": "workflow_dispatch:"},
+        ]
+
+        ledger = build_ledger(self.inventory, self.ref, "f" * 64)
+
+        row = next(
+            item for item in ledger["records"]
+            if item["line"] == 7
+        )
+
+        assessment = row["occurrence_local_assessment"]
+
+        self.assertEqual(
+            assessment["classifier"],
+            "TYPE1_OCCURRENCE_LOCAL_CLASSIFIER_P1",
+        )
+        self.assertEqual(
+            assessment["suggested_classification"],
+            "HISTORICAL",
+        )
+
+        self.assertEqual(row["manual_classification"], "UNKNOWN")
+        self.assertEqual(row["status"], "OPEN")
+        self.assertEqual(row["reviewer_disposition"], "PENDING")
 
 
 if __name__ == "__main__":
