@@ -17,6 +17,9 @@ from statsmodels.tsa.arima_process import ArmaProcess
 
 from analysis.appropriate_stochastic_null import parametric_short_memory_null
 from analysis.numerical_spectral_verification import estimate_alpha
+from scripts.type1_runtime_pilot_branch_guard import (
+    require_authorized_branch,
+)
 
 MATRIX_PATH = Path("protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_DRAFT.json")
 MATRIX = json.loads(MATRIX_PATH.read_text(encoding="utf-8"))
@@ -253,7 +256,14 @@ def git_head() -> str:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Exploratory Type-I runtime/reproducibility pilot only; never a formal calibration.")
+    require_authorized_branch()
+
+    parser = argparse.ArgumentParser(
+        description=(
+            "Exploratory Type-I runtime/reproducibility pilot only; "
+            "never a formal calibration."
+        )
+    )
     parser.add_argument("--scenario", required=True, choices=sorted(SCENARIOS))
     parser.add_argument("--start-index", type=int, default=0)
     parser.add_argument("--stop-index", type=int, default=2)
