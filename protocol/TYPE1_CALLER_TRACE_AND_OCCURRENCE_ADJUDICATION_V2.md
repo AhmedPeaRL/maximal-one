@@ -753,3 +753,118 @@ Required remediation:
 `CLAIM_SUPPORT_FALSE`.
 
 `PROMOTION_AUTHORITY_FALSE`.
+
+## 12. Remediation CI findings — 2026-11-03
+
+### 12.1 Review commit
+
+`1852b6d39ae4d5ea6fabeb309659343d3da5568d`
+
+The commit adds the overlay and snapshot identity test modules to the governance workflow test command and adds their paths to the workflow push filters.
+
+This is a test-integration change. It does not establish that the tests passed.
+
+### 12.2 Governance workflow failure
+
+Run: `41722640770`
+
+Job: `126219143070`
+
+Artifact: `13271434653`
+
+Artifact ZIP SHA-256:
+
+`55db17839c523126626557ad34ca2fa1f5155c9733d05fe89624122f73fa3701`
+
+Inventory JSON SHA-256:
+
+`d5e2a9212b7979c234c097ffb9a3b8163da6df8c633efe46107bf23e9751f9e7`
+
+The job executed 61 tests and ended with one failure and one error.
+
+Failure 1:
+
+`tests.test_dynamic_snapshot_inventory.InventoryScopeTests.test_all_inventory_paths_are_returned`
+
+The snapshot inventory loader returns four values, while the test still unpacks three.
+
+Failure 2:
+
+`tests.test_type1_manual_adjudication_overlay.OverlayTests.test_wrong_inventory_hash_is_rejected`
+
+The test helper rewrites the inventory hash to its correct value before invoking the merge operation. The intended negative condition was therefore not tested.
+
+The artifact contains `reference_inventory.json` only. Ledger generation and reconciliation steps were skipped after the test failure.
+
+Inventory scope:
+
+- Review HEAD: 248 files with matches, 1,589 occurrences.
+- Main: 179 files with matches, 581 occurrences.
+
+The review generated-ledger scanner exclusion remains explicitly declared and retained in the intended snapshot scope.
+
+### 12.3 Snapshot workflow failure
+
+Run: `41723323820`
+
+Job: `126221497236`
+
+The workflow successfully verified:
+
+- Selected review branch.
+- Exact review commit identity.
+- Inventory artifact provenance.
+- Inventory artifact source commit.
+- Downloaded inventory file presence.
+- Downloaded inventory SHA-256.
+
+The snapshot scope test then failed because of the same three-versus-four return-value mismatch in `load_inventory()`.
+
+The snapshot generation step was skipped.
+
+No new valid snapshot archive was produced by this run.
+
+### 12.4 Identity test limitation
+
+The current snapshot identity test computes both expected and observed IDs from the same fixture and the same local helper. It is not yet an integration test comparing actual generated ledger records against actual snapshot occurrence records.
+
+A replacement test must use the canonical ledger generator and the actual snapshot occurrence-row builder, then compare:
+
+- Complete occurrence ID sets.
+- Duplicate absence.
+- Repository path.
+- Line number.
+- Exact matched text.
+- Preservation of `UNKNOWN` and `OPEN` for unreviewed records.
+
+### 12.5 Current disposition
+
+`OVERLAY_TESTS_ADDED_TO_GOVERNANCE_WORKFLOW`.
+
+`OVERLAY_TEST_EXECUTION_FAILED_DUE_TO_TEST_FIXTURE_HASH_RESET`.
+
+`SNAPSHOT_INVENTORY_TEST_FAILED_DUE_TO_RETURN_ARITY_MISMATCH`.
+
+`GOVERNANCE_LEDGER_GENERATION_SKIPPED`.
+
+`SNAPSHOT_GENERATION_SKIPPED`.
+
+`SELF_CONTAINED_ARCHIVE_NOT_PRODUCED`.
+
+`OCCURRENCE_ID_INTEGRATION_TEST_NOT_YET_ESTABLISHED`.
+
+`CALLER_GRAPH_REVIEW_OPEN`.
+
+`GUARD_ORDER_MATRIX_REVIEW_OPEN`.
+
+`MANUAL_ADJUDICATION_OPEN`.
+
+`PROTOCOL_NOT_FROZEN`.
+
+`FORMAL_CALIBRATION_NOT_AUTHORIZED`.
+
+`CONFIRMATORY_EXECUTION_NOT_AUTHORIZED`.
+
+`CLAIM_SUPPORT_FALSE`.
+
+`PROMOTION_AUTHORITY_FALSE`.
