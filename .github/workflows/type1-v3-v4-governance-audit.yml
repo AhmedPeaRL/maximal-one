@@ -25,6 +25,10 @@ on:
       - "tests/test_dynamic_snapshot_inventory.py"
       - "tests/test_type1_governance_inventory_occurrence_local.py"
       - "tests/test_type1_main_negative_gate.py"
+      - ".github/workflows/type1-calibration-runtime-pilot.yml"
+      - "analysis/type1_calibration_pilot.py"
+      - "scripts/type1_runtime_pilot_branch_guard.py"
+      - "tests/test_type1_runtime_pilot_branch_guard.py"
 
 permissions:
   contents: read
