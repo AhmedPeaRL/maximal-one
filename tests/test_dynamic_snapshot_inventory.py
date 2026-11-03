@@ -16,9 +16,13 @@ class InventoryScopeTests(unittest.TestCase):
         ]}
         with tempfile.TemporaryDirectory() as d:
             p=Path(d)/"inventory.json"; p.write_text(json.dumps(data))
-            _, paths, occurrences=load_inventory(p,"a"*40)
+            _, paths, occurrences, inventory_ref = load_inventory(
+                p,
+                "a" * 40,
+            )
         self.assertEqual(paths,["analysis/a.py","workflow/b.yml"])
         self.assertEqual(len(occurrences),2)
+        self.assertEqual(inventory_ref, "HEAD")
 
     def test_commit_mismatch_blocks(self):
         data={"audit":"TYPE1_V3_V4_THRESHOLD_REFERENCE_INVENTORY_V1","refs":[
