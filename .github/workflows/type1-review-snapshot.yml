@@ -123,7 +123,7 @@ jobs:
         run: |
           set -euo pipefail
           INVENTORY_HASH="$(sha256sum inventory_download/type1_governance_inventory/reference_inventory.json | awk '{print $1}')"
-          python scripts/create_type1_review_snapshot.py \
+          python -m scripts.create_type1_review_snapshot \
             --expected-commit "$EXPECTED_COMMIT" \
             --inventory-artifact-id "$INVENTORY_ARTIFACT_ID" \
             --inventory-source-commit "$INVENTORY_SOURCE_COMMIT" \
