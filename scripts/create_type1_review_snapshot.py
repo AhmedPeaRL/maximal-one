@@ -6,6 +6,8 @@ import json
 import os
 import subprocess
 import sys
+import shutil
+import zipfile
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 
@@ -111,7 +113,10 @@ def inventory_scanner_exclusions(data: dict, expected_commit: str) -> list[dict]
         normalized.append({"path": rel, "reason": reason, "handling": handling})
     return sorted(normalized, key=lambda row: row["path"])
 
-def load_inventory(path: Path, expected_commit: str) -> tuple[dict, list[str], list[dict]]:
+def load_inventory(
+    path: Path,
+    expected_commit: str,
+) -> tuple[dict, list[str], list[dict], str]:
     if not path.is_file():
         raise SystemExit(f"BLOCKED: inventory JSON not found: {path}")
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -160,6 +165,220 @@ def load_inventory(path: Path, expected_commit: str) -> tuple[dict, list[str], l
     if not paths:
         raise SystemExit("BLOCKED: inventory contains no matching paths.")
     return data, sorted(paths), occurrences, ref_record["ref_requested"]
+
+def build_snapshot_occurrence_rows(
+    occurrences: list[dict],
+    inventory_ref: str,
+) -> list[dict]:
+    rows = []
+    seen = set()
+
+    for occ in occurrences:
+        oid = canonical_occurrence_id(
+            inventory_ref,
+            occ["path"],
+            occ["line"],
+            occ["match_index_within_file"],
+        )
+
+        if oid in seen:
+            raise ValueError(
+                f"Duplicate snapshot occurrence ID: {oid}"
+            )
+
+        seen.add(oid)
+
+        rows.append({
+            "occurrence_id": oid,
+            **occ,
+            "manual_classification": "UNKNOWN",
+            "status": "OPEN",
+        })
+
+    return rows
+
+def create_self_contained_archive(
+    repo_root: Path,
+    selected_paths: list[str],
+    inventory_path: Path,
+    ledger_path: Path,
+    overlay_path: Path,
+    output_dir: Path,
+) -> tuple[Path, dict]:
+
+    repo_root = repo_root.resolve()
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    staging = output_dir / "staging"
+
+    if staging.exists():
+        shutil.rmtree(staging)
+
+    source_repo = staging / "source/repository"
+    source_evidence = staging / "source/evidence"
+
+    source_repo.mkdir(parents=True)
+    source_evidence.mkdir(parents=True)
+
+    copied = []
+
+    for rel in sorted(set(selected_paths)):
+        safe = safe_repo_path(rel)
+        source = (repo_root / safe).resolve()
+
+        if not source.is_relative_to(repo_root):
+            raise ValueError(
+                f"Path escapes repository: {rel}"
+            )
+
+        if not source.is_file():
+            raise FileNotFoundError(rel)
+
+        target = source_repo / safe
+        target.parent.mkdir(parents=True, exist_ok=True)
+
+        shutil.copy2(source, target)
+
+        copied.append(
+            f"source/repository/{safe}"
+        )
+
+    evidence_inputs = {
+        "reference_inventory.json": inventory_path,
+        "occurrence_level_manual_ledger.json": ledger_path,
+        "manual_adjudication_overlay.json": overlay_path,
+    }
+
+    for name, source in evidence_inputs.items():
+        source = Path(source)
+
+        if not source.is_file():
+            raise FileNotFoundError(
+                f"Missing evidence file: {source}"
+            )
+
+        target = source_evidence / name
+        shutil.copy2(source, target)
+
+        copied.append(
+            f"source/evidence/{name}"
+        )
+
+    file_records = []
+
+    for rel in sorted(copied):
+        path = staging / rel
+
+        file_records.append({
+            "path": rel,
+            "size_bytes": path.stat().st_size,
+            "sha256": sha256_file(path),
+        })
+
+    sums = "".join(
+        f"{row['sha256']}  {row['path']}\n"
+        for row in file_records
+    )
+
+    (staging / "SHA256SUMS.txt").write_text(
+        sums,
+        encoding="utf-8",
+    )
+
+    manifest = {
+        "schema": "HCM_TYPE1_SELF_CONTAINED_REVIEW_SNAPSHOT_V1",
+        "files": file_records,
+        "file_count": len(file_records),
+        "source_files_included": True,
+        "hashes_calculated_from_copied_files": True,
+        "archive_extraction_verification_required": True,
+    }
+
+    (staging / "manifest.json").write_text(
+        json.dumps(
+            manifest,
+            indent=2,
+            sort_keys=True,
+        ) + "\n",
+        encoding="utf-8",
+    )
+
+    archive = output_dir / "self-contained-review-snapshot.zip"
+
+    if archive.exists():
+        archive.unlink()
+
+    with zipfile.ZipFile(
+        archive,
+        "w",
+        compression=zipfile.ZIP_DEFLATED,
+    ) as z:
+        for path in sorted(staging.rglob("*")):
+            if path.is_file():
+                z.write(
+                    path,
+                    path.relative_to(staging).as_posix(),
+                )
+
+    verification = {
+        "archive": archive.name,
+        "verified": True,
+        "checked_file_count": 0,
+        "errors": [],
+    }
+
+    with zipfile.ZipFile(archive, "r") as z:
+        names = set(z.namelist())
+
+        for row in file_records:
+            rel = row["path"]
+
+            if rel not in names:
+                verification["errors"].append(
+                    f"MISSING:{rel}"
+                )
+                continue
+
+            data = z.read(rel)
+            digest = hashlib.sha256(data).hexdigest()
+
+            if digest != row["sha256"]:
+                verification["errors"].append(
+                    f"HASH_MISMATCH:{rel}"
+                )
+                continue
+
+            if len(data) != row["size_bytes"]:
+                verification["errors"].append(
+                    f"SIZE_MISMATCH:{rel}"
+                )
+                continue
+
+            verification["checked_file_count"] += 1
+
+    verification["verified"] = not verification["errors"]
+
+    if not verification["verified"]:
+        raise ValueError(
+            "Self-contained snapshot verification failed: "
+            + "; ".join(verification["errors"])
+        )
+
+    (staging / "verification").mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    (staging / "verification/extraction_verification.json").write_text(
+        json.dumps(
+            verification,
+            indent=2,
+            sort_keys=True,
+        ) + "\n",
+        encoding="utf-8",
+    )
+
+    return archive, verification
 
 def main() -> int:
     parser = argparse.ArgumentParser()
@@ -217,22 +436,10 @@ def main() -> int:
 
     missing_scope = [r["path"] for r in records if r["status"] == "MISSING"]
     inventory_paths_set = set(inventory_paths)
-    inventory_occurrence_rows = []
-    for occ in occurrences:
-        rel = occ["path"]
-        path_hash = hashlib.sha256(rel.encode("utf-8")).hexdigest()[:12]
-        occurrence_id_value = canonical_occurrence_id(
-            inventory_ref,
-            occ["path"],
-            occ["line"],
-            occ["match_index_within_file"],
-        )
-        inventory_occurrence_rows.append({
-            "occurrence_id": occurrence_id_value,
-            **occ,
-            "manual_classification": "UNKNOWN",
-            "status": "OPEN",
-        })
+    inventory_occurrence_rows = build_snapshot_occurrence_rows(
+        occurrences,
+        inventory_ref,
+    )
 
     # Explicit exclusions: none are silently applied. Every inventory path is
     # included; unsafe paths block the run rather than being skipped.
