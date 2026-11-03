@@ -19,6 +19,12 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Enforce authorized runtime-pilot branch before output
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/type1_runtime_pilot_branch_guard.py
+
       - name: Verify checkout identity
         shell: bash
         run: |
@@ -40,6 +46,13 @@ jobs:
         run: |
           set -euo pipefail
           python -m pip install --require-hashes -r requirements-lock.txt
+
+      - name: Test unauthorized runtime-pilot branch rejection
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest \
+            tests.test_type1_runtime_pilot_branch_guard -v
 
       - name: Verify pilot code and protocol
         shell: bash
