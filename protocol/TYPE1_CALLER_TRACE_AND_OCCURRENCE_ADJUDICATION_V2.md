@@ -199,7 +199,6 @@ CLAIM_SUPPORT_FALSE.
 
 PROMOTION_AUTHORITY_FALSE.
 
-
 ## 10. Evidence update — 2026-11-03
 
 This addendum supersedes earlier evidence references only for
@@ -483,3 +482,274 @@ CONFIRMATORY_EXECUTION_NOT_AUTHORIZED.
 CLAIM_SUPPORT_FALSE.
 
 PROMOTION_AUTHORITY_FALSE.
+
+## 11. Evidence update — 2026-11-03 — Runtime, full-path, governance, and snapshot review
+
+This section records the four subsequent workflow runs and the direct inspection of their downloadable artifacts. Earlier sections and historical run records are retained unchanged.
+
+### 11.1 Exact commits and workflow evidence
+
+Repository: `AhmedPeaRL/maximal-one`
+
+Review branch: `review/type1-v4-remediation`
+
+Review commit used by runtime pilot, governance inventory, and snapshot:
+`72f7a2932df28f18a0daf11cb04d6f46d083140a`
+
+Earlier engineering-equivalence commit:
+`7c21e67f82f3e75acf23e66888dd8c3c102ed4e7`
+
+The full-path engineering run is bound to the earlier commit and must not be represented as execution against the later snapshot commit.
+
+### 11.2 Runtime pilot
+
+Workflow run: `41694631522`
+
+Job: `126121910255`
+
+Artifact: `13260851211`
+
+Commit: `72f7a2932df28f18a0daf11cb04d6f46d083140a`
+
+Artifact ZIP SHA-256:
+`3e6823ffe772586a10e830026196c2e3d662a920a6fd956b24b1c22b251a068b`
+
+The workflow completed successfully. Its observed step order was:
+
+1. Checkout exact repository state.
+2. Enforce authorized runtime-pilot branch.
+3. Verify checkout identity.
+4. Set up Python and install locked dependencies.
+5. Test unauthorized runtime-pilot branch rejection.
+6. Verify pilot code and protocol.
+7. Run exploratory runtime pilot.
+8. Upload pilot artifact and manifest.
+
+The artifact reports:
+
+- `artifact_kind`: `EXPLORATORY_PILOT_ONLY_NOT_FORMAL_CALIBRATION`
+- `status`: `PILOT_COMPLETE_DIAGNOSTIC_ONLY`
+- Scenario: `gaussian_ar2_inband_f_0_02_radius_0_90_n3328`
+- Repetitions: 2
+- Surrogates per repetition: 200
+- Invalid attempts: 0
+- `formal_calibration_pass`: false
+- `claim_support`: false
+- `promotion_authority`: false
+
+This is runtime and engineering evidence only. It is not formal Type-I calibration.
+
+### 11.3 Full-path runner, shard, merge, and resume equivalence
+
+Workflow run: `41692165286`
+
+Job: `126113240338`
+
+Artifact: `13261839999`
+
+Commit:
+`7c21e67f82f3e75acf23e66888dd8c3c102ed4e7`
+
+Artifact ZIP SHA-256:
+`925a3c7eac4c2cef2a2303ffe5030b9873b7bc192e679b9f23d91a56d7c97563`
+
+The full-path test log reports:
+
+`Ran 1 test in 2648.356s — OK`
+
+The evidence includes connected execution, alternative shard partitions, merge order reversal, checkpoint interruption and resume, and worker-order execution.
+
+The tested scenario used:
+
+- Protocol: `HCM_TYPE1_CALIBRATION_V4_CANDIDATE`
+- Sample size: 3328
+- Master seed: 20261021
+- Requested repetitions: 6
+- Requested surrogates per replicate: 1000
+- Endpoint: `analysis.numerical_spectral_verification.estimate_alpha`
+- Null implementation: `analysis.appropriate_stochastic_null.parametric_short_memory_null`
+
+The merged outputs report:
+
+- `status`: `ENGINEERING_COMPLETE`
+- Completed indices: 0 through 5
+- Missing indices: none
+- Invalid attempts: 0
+- `formal_calibration_pass`: false
+- `claim_support`: false
+- `promotion_authority`: false
+- `confirmatory_execution_authorized`: false
+
+This establishes bounded engineering-path equivalence for the tested commit and scenario. It does not establish statistical calibration, protocol approval, or confirmatory authorization.
+
+### 11.4 Governance inventory and occurrence ledger
+
+Workflow run: `41693140984`
+
+Job: `126116614276`
+
+Artifact: `13259270393`
+
+Commit:
+`72f7a2932df28f18a0daf11cb04d6f46d083140a`
+
+Artifact ZIP SHA-256:
+`1ab03f30ac07a1bc2202f209c3d5f1526a393b51e22eb6df31af5396519f8ccd`
+
+Inventory JSON SHA-256:
+`bc218a7396c7d8e924f5f53c153bbef5b56088df33cff8abc617d7739d924102`
+
+Review inventory:
+
+- Files with matching references: 247
+- Occurrences: 1,578
+- All 1,578 ledger records remain `UNKNOWN`, `OPEN`, and `PENDING`.
+
+Main inventory:
+
+- Files with matching references: 179
+- Occurrences: 581
+- All 581 ledger records remain `UNKNOWN`, `OPEN`, and `PENDING`.
+
+The review automated-label distribution is:
+
+- `PROTOCOL_OR_DOCUMENTATION_REFERENCE`: 406
+- `GOVERNANCE_REFERENCE`: 369
+- `CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW`: 243
+- `TEST_OR_GUARD`: 186
+- `POLICY_OR_HISTORICAL_REFERENCE`: 143
+- `WORKFLOW_REFERENCE`: 131
+- `WORKFLOW_CONTROL_PATH`: 83
+- `OTHER_REFERENCE`: 14
+- `EXECUTION_CAPABLE_WORKFLOW_CANDIDATE`: 3
+
+The main automated-label distribution is:
+
+- `CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW`: 151
+- `GOVERNANCE_REFERENCE`: 142
+- `WORKFLOW_REFERENCE`: 73
+- `WORKFLOW_CONTROL_PATH`: 71
+- `POLICY_OR_HISTORICAL_REFERENCE`: 58
+- `PROTOCOL_OR_DOCUMENTATION_REFERENCE`: 40
+- `TEST_OR_GUARD`: 31
+- `OTHER_REFERENCE`: 14
+- `EXECUTION_CAPABLE_WORKFLOW_CANDIDATE`: 1
+
+The inventory and ledger reconciliation reports establish occurrence accounting and identity for their own generated records. They do not establish manual adjudication or caller-graph completeness.
+
+### 11.5 Overlay implementation and test status
+
+The following files are present on the review branch:
+
+- `protocol/TYPE1_OCCURRENCE_MANUAL_ADJUDICATION_OVERLAY_V1.json`
+- `scripts/merge_type1_manual_adjudication_overlay.py`
+- `tests/test_type1_manual_adjudication_overlay.py`
+
+The current overlay has an empty `records` array. It is bound to review commit `72f7a2932df28f18a0daf11cb04d6f46d083140a`, inventory artifact `13259270393`, and inventory SHA-256 `bc218a7396c7d8e924f5f53c153bbef5b56088df33cff8abc617d7739d924102`.
+
+The implementation and test source were inspected. The four workflow runs listed in this addendum do not provide explicit evidence that `tests.test_type1_manual_adjudication_overlay` was executed.
+
+Therefore:
+
+`OVERLAY_FILES_PRESENT`.
+
+`OVERLAY_TEST_EXECUTION_NOT_YET_VERIFIED`.
+
+`MANUAL_ADJUDICATION_RECORDS_NONE`.
+
+No human classification or closure is inferred from the empty overlay.
+
+### 11.6 Snapshot artifact inspection and identity defect
+
+Workflow run: `41694072718`
+
+Job: `126119860659`
+
+Artifact: `13257893355`
+
+Commit:
+`72f7a2932df28f18a0daf11cb04d6f46d083140a`
+
+Artifact ZIP SHA-256:
+`1add93d25df8582cf6edd7f8ff6774d5c621399d006c39fb7098a47c41f91359`
+
+The snapshot manifest reports:
+
+- Inventory paths: 247
+- Mandatory anchors: 40
+- Selected scope paths: 254
+- Present files: 254
+- Missing scope paths: 0
+- Inventory occurrences: 1,578
+- Scanner exclusions retained in hash scope: 1
+
+The scanner-excluded generated ledger remains in the declared scope:
+
+`protocol/TYPE1_V3_V4_OCCURRENCE_LEVEL_MANUAL_LEDGER_2026-10-31.json`
+
+The ZIP contains only:
+
+- `manifest.json`
+- `SHA256SUMS.txt`
+
+It does not contain copies of the 254 source files. It is therefore a hash manifest, not a self-contained source review package.
+
+A direct identity discrepancy was also observed:
+
+- The generated ledger uses IDs beginning with `HEAD/`.
+- The snapshot manifest uses IDs beginning with `REVIEW/`.
+
+Example:
+
+Ledger: `HEAD/d667e902462e/41/1`
+
+Snapshot: `REVIEW/d667e902462e/41/1`
+
+The snapshot script constructs the latter using a hard-coded prefix rather than the inventory's original `ref_requested` identity. Equal occurrence counts do not resolve this mismatch.
+
+Required remediation:
+
+1. Reuse the canonical occurrence-ID function from the ledger generator.
+2. Add an exact set-equality test between ledger and snapshot occurrence IDs.
+3. Compare occurrence path, line, and matched text as well as IDs.
+4. Copy every selected source file into the ZIP under `source/repository/`.
+5. Include inventory, ledger, and overlay under `source/evidence/`.
+6. Preserve scanner-excluded generated evidence in the copied source scope.
+7. Recompute hashes from the copied files.
+8. Extract the ZIP into a clean temporary directory and verify every listed file and hash.
+
+### 11.7 Current disposition
+
+`RUNTIME_PILOT_BRANCH_GUARD_WORKFLOW_ORDER_VERIFIED`.
+
+`RUNTIME_PILOT_COMPLETED_DIAGNOSTIC_ONLY`.
+
+`FULL_PATH_ENGINEERING_EQUIVALENCE_TEST_PASSED_FOR_COMMIT_7c21e67`.
+
+`GOVERNANCE_INVENTORY_GENERATED_FOR_COMMIT_72f7a293`.
+
+`OVERLAY_IMPLEMENTATION_PRESENT`.
+
+`OVERLAY_TEST_EXECUTION_NOT_YET_VERIFIED`.
+
+`SNAPSHOT_OCCURRENCE_IDENTITY_MISMATCH_CONFIRMED`.
+
+`SELF_CONTAINED_SOURCE_SNAPSHOT_NOT_YET_CREATED`.
+
+`CALLER_GRAPH_REVIEW_OPEN`.
+
+`GUARD_ORDER_MATRIX_REVIEW_OPEN`.
+
+`MANUAL_OCCURRENCE_ADJUDICATION_OPEN`.
+
+`INDEPENDENT_HUMAN_STATISTICAL_REVIEW_PENDING`.
+
+`PROTOCOL_NOT_FROZEN`.
+
+`FORMAL_CALIBRATION_NOT_AUTHORIZED`.
+
+`CONFIRMATORY_EXECUTION_NOT_AUTHORIZED`.
+
+`CLAIM_SUPPORT_FALSE`.
+
+`PROMOTION_AUTHORITY_FALSE`.
