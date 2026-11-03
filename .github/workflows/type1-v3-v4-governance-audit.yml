@@ -29,6 +29,10 @@ on:
       - "analysis/type1_calibration_pilot.py"
       - "scripts/type1_runtime_pilot_branch_guard.py"
       - "tests/test_type1_runtime_pilot_branch_guard.py"
+      - "protocol/TYPE1_OCCURRENCE_MANUAL_ADJUDICATION_OVERLAY_V1.json"
+      - "scripts/merge_type1_manual_adjudication_overlay.py"
+      - "tests/test_type1_manual_adjudication_overlay.py"
+      - "tests/test_type1_snapshot_occurrence_identity.py"
 
 permissions:
   contents: read
@@ -104,7 +108,9 @@ jobs:
             tests.test_type1_occurrence_local_classifier \
             tests.test_type1_governance_inventory_occurrence_local \
             tests.test_dynamic_snapshot_inventory \
-            tests.test_type1_main_negative_gate
+            tests.test_type1_main_negative_gate \
+            tests.test_type1_manual_adjudication_overlay \
+            tests.test_type1_snapshot_occurrence_identity
 
       - name: Generate exact-commit occurrence ledger and reconciliation report
         shell: bash
