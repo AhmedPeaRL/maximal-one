@@ -9,6 +9,10 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 
+from scripts.generate_type1_occurrence_ledger import (
+    occurrence_id as canonical_occurrence_id,
+)
+
 EXPECTED_BRANCH = "refs/heads/review/type1-v4-remediation"
 
 # These are mandatory anchors, not the complete review scope.
@@ -155,7 +159,7 @@ def load_inventory(path: Path, expected_commit: str) -> tuple[dict, list[str], l
             })
     if not paths:
         raise SystemExit("BLOCKED: inventory contains no matching paths.")
-    return data, sorted(paths), occurrences
+    return data, sorted(paths), occurrences, ref_record["ref_requested"]
 
 def main() -> int:
     parser = argparse.ArgumentParser()
@@ -183,8 +187,10 @@ def main() -> int:
     actual_inventory_hash = sha256_file(inventory_path)
     if actual_inventory_hash.lower() != args.inventory_sha256.strip().lower():
         raise SystemExit("BLOCKED: downloaded inventory JSON SHA-256 mismatch.")
-    inventory, inventory_paths, occurrences = load_inventory(inventory_path, expected)
-
+    inventory, inventory_paths, occurrences, inventory_ref = load_inventory(
+        inventory_path,
+        expected,
+    )
     scanner_exclusions = inventory_scanner_exclusions(inventory, expected)
 
     root = Path(".").resolve()
@@ -215,12 +221,14 @@ def main() -> int:
     for occ in occurrences:
         rel = occ["path"]
         path_hash = hashlib.sha256(rel.encode("utf-8")).hexdigest()[:12]
-        occurrence_id = (
-            f"REVIEW/{path_hash}/{occ['line']}/"
-            f"{occ['match_index_within_file']}"
+        occurrence_id_value = canonical_occurrence_id(
+            inventory_ref,
+            occ["path"],
+            occ["line"],
+            occ["match_index_within_file"],
         )
         inventory_occurrence_rows.append({
-            "occurrence_id": occurrence_id,
+            "occurrence_id": occurrence_id_value,
             **occ,
             "manual_classification": "UNKNOWN",
             "status": "OPEN",
@@ -238,10 +246,7 @@ def main() -> int:
         "inventory_source_commit": source_commit,
         "inventory_json_sha256": actual_inventory_hash,
         "inventory_schema": inventory.get("audit"),
-        "inventory_ref": next(
-            r.get("ref_requested") for r in inventory["refs"]
-            if r.get("commit_sha", "").lower() == expected
-        ),
+        "inventory_ref": inventory_ref,
         "scope_discovery": (
             "all matched paths in the exact-commit inventory, union explicit "
             "mandatory anchors and hash-only scanner-excluded generated evidence"
