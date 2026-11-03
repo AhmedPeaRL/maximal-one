@@ -215,10 +215,22 @@ class OverlayTests(unittest.TestCase):
             self.run_merge()
 
     def test_wrong_inventory_hash_is_rejected(self):
-        self.overlay["inventory_sha256"] = "0" * 64
         self.write_overlay()
 
-        with self.assertRaisesRegex(ValueError, "SHA-256 mismatch"):
+        corrupted = json.loads(
+            self.overlay_path.read_text(encoding="utf-8")
+        )
+        corrupted["inventory_sha256"] = "0" * 64
+
+        self.overlay_path.write_text(
+            json.dumps(corrupted),
+            encoding="utf-8",
+        )
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "SHA-256 mismatch",
+        ):
             merge_overlay(
                 self.inventory_path,
                 self.ledger_path,
