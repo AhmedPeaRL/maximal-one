@@ -1,4 +1,4 @@
-name: Type-I Priority Occurrence Guard Tests
+name: Type-I Priority Occurrence Guard and Negative-Gate Tests
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ jobs:
   priority-guard-tests:
     name: Priority execution-path guard verification
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
       - name: Checkout exact review commit
@@ -45,7 +45,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           python -m unittest -v \
             tests.test_type1_runtime_pilot_branch_guard \
             tests.test_type1_cross_runner_workflow_branch_guard \
@@ -53,11 +52,24 @@ jobs:
             tests.test_type1_v4_matrix_gate \
             tests.test_type1_cli_resume_identity_rejections
 
-      - name: Record non-execution boundary
+      - name: Record accurate execution boundary
+        if: always()
         shell: bash
         run: |
           set -euo pipefail
-          echo "Guard and negative-gate tests only."
-          echo "No runtime pilot was invoked."
-          echo "No cross-runner simulation was invoked."
-          echo "No formal calibration was invoked."
+          echo "No standalone runtime-pilot workflow was dispatched."
+          echo "No cross-runner GitHub Actions workflow was dispatched."
+          echo "The CLI resume-identity test creates a bounded --engineering-test checkpoint."
+          echo "That test selects replicate indices 0 and 1 from a six-replicate engineering run."
+          echo "The engineering test uses n=3328 and 1000 surrogates per selected replicate."
+          echo "No formal Type-I calibration was invoked."
+          echo "No confirmatory execution was authorized."
+
+      - name: Upload CLI identity-test evidence
+        if: always() && hashFiles('artifacts/type1_cli_resume_identity/**') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: type1-priority-guard-test-evidence-${{ github.run_id }}
+          path: artifacts/type1_cli_resume_identity/
+          if-no-files-found: warn
+          retention-days: 90
