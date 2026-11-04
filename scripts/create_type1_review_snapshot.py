@@ -387,6 +387,7 @@ def main() -> int:
     parser.add_argument("--inventory-source-commit", required=True)
     parser.add_argument("--inventory-json", required=True)
     parser.add_argument("--inventory-sha256", required=True)
+    parser.add_argument("--ledger-json", required=True)
     args = parser.parse_args()
 
     expected = args.expected_commit.strip().lower()
@@ -482,6 +483,44 @@ def main() -> int:
     )
     sums = [f"{r['sha256']}  {r['path']}" for r in records if r["status"] == "PRESENT"]
     (out / "SHA256SUMS.txt").write_text("\n".join(sums) + "\n", encoding="utf-8")
+    ledger_path = Path(args.ledger_json)
+    overlay_path = out / "manual_adjudication_overlay.json"
+    overlay_seed = {
+        "schema": "HCM_TYPE1_OCCURRENCE_MANUAL_ADJUDICATION_OVERLAY_V1",
+        "review_commit_sha": actual,
+        "inventory_ref": inventory_ref,
+        "inventory_sha256": actual_inventory_hash,
+        "records": [],
+    }
+    overlay_path.write_text(
+        json.dumps(overlay_seed, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    package_dir = out / "self_contained"
+    archive, verification = create_self_contained_archive(
+        repo_root=root,
+        selected_paths=selected,
+        inventory_path=inventory_path,
+        ledger_path=ledger_path,
+        overlay_path=overlay_path,
+        output_dir=package_dir,
+    )
+
+    # Keep the extraction verification as a separate artifact file.
+    verification_source = (
+        package_dir / "staging" / "verification"
+        / "extraction_verification.json"
+    )
+    verification_target = package_dir / "extraction_verification.json"
+
+    shutil.copy2(verification_source, verification_target)
+
+    # Avoid uploading a second, unpacked copy of all source files.
+    shutil.rmtree(package_dir / "staging")
+
+    if not verification.get("verified"):
+        raise SystemExit("BLOCKED: self-contained archive verification failed.")
+
     print(json.dumps({
         "commit": actual,
         "inventory_artifact_id": args.inventory_artifact_id,
@@ -491,6 +530,10 @@ def main() -> int:
         "missing_required": required_missing,
         "missing_scope": missing_scope,
         "excluded_paths": [],
+        "self_contained_archive": str(archive),
+        "verified": verification["verified"],
+        "checked_file_count": verification["checked_file_count"],
+        "verification_file": str(verification_target),
     }, indent=2))
     if required_missing or missing_scope:
         print("SNAPSHOT INCOMPLETE: missing paths require explicit reconciliation.", file=sys.stderr)
