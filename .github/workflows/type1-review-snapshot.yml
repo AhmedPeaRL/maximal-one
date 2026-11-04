@@ -61,6 +61,14 @@ jobs:
           EXPECTED_COMMIT: ${{ inputs.review_commit }}
         run: |
           set -euo pipefail
+
+          case "$ARTIFACT_ID" in
+            ''|*[!0-9]*)
+              echo "::error::inventory_artifact_id must be the numeric GitHub artifact ID, not a URL."
+              exit 1
+              ;;
+          esac
+
           gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}" > inventory_artifact_metadata.json
           python - <<'PY'
           import json, os
@@ -122,13 +130,15 @@ jobs:
           INVENTORY_SOURCE_COMMIT: ${{ inputs.inventory_source_commit }}
         run: |
           set -euo pipefail
+
           INVENTORY_HASH="$(sha256sum inventory_download/type1_governance_inventory/reference_inventory.json | awk '{print $1}')"
+
           python -m scripts.create_type1_review_snapshot \
             --expected-commit "$EXPECTED_COMMIT" \
             --inventory-artifact-id "$INVENTORY_ARTIFACT_ID" \
             --inventory-source-commit "$INVENTORY_SOURCE_COMMIT" \
             --inventory-json inventory_download/type1_governance_inventory/reference_inventory.json \
-            --inventory-sha256 "$INVENTORY_HASH"
+            --inventory-sha256 "$INVENTORY_HASH" \
             --ledger-json inventory_download/type1_occurrence_ledger/occurrence_level_manual_ledger.json
 
       - name: Upload snapshot evidence
