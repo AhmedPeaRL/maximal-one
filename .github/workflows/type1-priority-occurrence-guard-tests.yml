@@ -1,0 +1,63 @@
+name: Type-I Priority Occurrence Guard Tests
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  priority-guard-tests:
+    name: Priority execution-path guard verification
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout exact review commit
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify review branch and exact checkout identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
+          ACTUAL="$(git rev-parse HEAD)"
+          test "$ACTUAL" = "$GITHUB_SHA"
+          echo "Verified review commit: $ACTUAL"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.15"
+          cache: pip
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install locked dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --require-hashes -r requirements-lock.txt
+
+      - name: Run priority occurrence guard and negative-gate tests
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python -m unittest -v \
+            tests.test_type1_runtime_pilot_branch_guard \
+            tests.test_type1_cross_runner_workflow_branch_guard \
+            tests.test_type1_main_negative_gate \
+            tests.test_type1_v4_matrix_gate \
+            tests.test_type1_cli_resume_identity_rejections
+
+      - name: Record non-execution boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Guard and negative-gate tests only."
+          echo "No runtime pilot was invoked."
+          echo "No cross-runner simulation was invoked."
+          echo "No formal calibration was invoked."
