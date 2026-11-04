@@ -129,6 +129,7 @@ jobs:
             --inventory-source-commit "$INVENTORY_SOURCE_COMMIT" \
             --inventory-json inventory_download/type1_governance_inventory/reference_inventory.json \
             --inventory-sha256 "$INVENTORY_HASH"
+            --ledger-json inventory_download/type1_occurrence_ledger/occurrence_level_manual_ledger.json
 
       - name: Upload snapshot evidence
         if: always()
