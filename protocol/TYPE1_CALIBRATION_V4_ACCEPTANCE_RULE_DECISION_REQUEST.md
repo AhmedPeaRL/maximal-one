@@ -1,4 +1,4 @@
-Type-I Calibration V4 — Prospective Acceptance-Rule Decision Request
+## Type-I Calibration V4 — Prospective Acceptance-Rule Decision Request
 
 1. Purpose
 
@@ -12,7 +12,7 @@ Repository: "AhmedPeaRL/maximal-one"
 
 Remediation branch: "review/type1-v4-remediation"
 
-Candidate review base: "9fafec47afbaaed8dfbe31b4f4e53f2ff3a99b83"
+Exact review snapshot for this request: "e41fb7392b58198e8a4d8fa28b470b12b6ad2c31"
 
 Candidate matrix: "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_CANDIDATE.json"
 
