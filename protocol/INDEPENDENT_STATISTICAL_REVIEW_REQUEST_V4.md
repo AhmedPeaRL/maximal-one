@@ -182,3 +182,45 @@ The 0.075 ceiling remains without prospective independent
 statistical justification.
 
 No formal V4 confirmatory execution is authorized.
+
+## Addendum — 2026-11-06 — Exact snapshot and new engineering evidence
+
+Exact review snapshot: 5b814ddf529b04b3ea9fda908373c3676eb647c1
+
+Review branch: review/type1-v4-remediation
+
+Exact snapshot artifact: https://github.com/AhmedPeaRL/maximal-one/actions/runs/42106395007/artifacts/13451792355
+
+Engineering evidence:
+
+- Official runner equivalence: https://github.com/AhmedPeaRL/maximal-one/actions/runs/42106008752
+Resume identity rejection: https://github.com/AhmedPeaRL/maximal-one/actions/runs/42108047580
+
+- Governance inventory: https://github.com/AhmedPeaRL/maximal-one/actions/runs/42106008761
+
+- Exact review snapshot: https://github.com/AhmedPeaRL/maximal-one/actions/runs/42106395007
+
+The official-runner result is limited to one scenario, six outer replicates, and 1,000 surrogates per attempt.
+It establishes bounded engineering equivalence only.
+It explicitly sets formal_calibration_pass=false, confirmatory_execution_authorized=false, claim_support=false, and promotion_authority=false.
+
+The resume-identity test rejected 23 injected identity mismatches while preserving the original checkpoint and manifest hashes.
+This is an engineering integrity test only.
+
+The review-branch inventory contains 1,649 occurrences, all still OPEN, UNKNOWN, and PENDING.
+The exact snapshot contains 262 selected files with all 262 manifest hashes verified.
+The manual-adjudication overlay remains empty.
+
+The primary null-capacity evidence shows selected AR order 20/20 and boundary selection in 93.7% and 94.7% of the recorded surrogate refits in the two supplied diagnostics.
+The gate reports CALIBRATION_REQUIRED; this is a model-capacity warning, not evidence against the scientific hypothesis.
+The canonical primary stochastic-null p-value is 0.999001 with 999 exceedances among 1,000 valid surrogates; no rejection at 0.05 was recorded under that procedure.
+
+Independent replication eligibility remains 0/2. HADCET and FRED are measurement-valid but not provenance/source-independence approved. Cosmic-ray timestamps have 321 gaps and a longest hourly-contiguous run of 486, below 1,024.
+
+The historical two-sided 95% Wilson rule and all historical decisions remain unchanged.
+The V4 acceptance rule remains unresolved; the historical 0.075 ceiling is not approved for V4.
+No supplied workflow run is a formal V4 Type-I calibration.
+V4 remains NOT_FROZEN; confirmatory execution remains NOT_AUTHORIZED; claim support and promotion authority remain false.
+
+The reviewer must inspect the exact snapshot, workflow/source call paths, logs, and artifact payloads.
+An AI-generated assessment is not an attributable independent human review.
