@@ -29,7 +29,9 @@ COMPARE_FIELDS = (
 ALLOWED_IDENTITY_DIFFERENCES = {
     "start_index",
     "stop_index",
-    "platform_identity",
+    "platform_identity",  # descriptive only; never evidence of independence
+    "workflow_job_id",
+    "runner_instance_id",
 }
 
 
@@ -48,6 +50,8 @@ def main() -> int:
     failures = []
     compared = {}
     platform_identities = []
+    runner_identity_records = []
+    replicate_records = {}
     reference = None
 
     try:
@@ -77,6 +81,21 @@ def main() -> int:
         if sorted(reference_map) != expected_indices:
             failures.append("Reference has missing or duplicate replicate indices")
 
+        reference_runner_id = reference_identity.get("runner_instance_id")
+        if not reference_runner_id:
+            failures.append("Connected reference is missing runner_instance_id")
+        runner_ids = {reference_runner_id} if reference_runner_id else set()
+        reference_run_id = reference_identity.get("workflow_run_id")
+        reference_run_attempt = reference_identity.get("workflow_run_attempt")
+        reference_job_id = reference_identity.get("workflow_job_id")
+        runner_identity_records.append({
+            "role": "connected_reference",
+            "workflow_run_id": reference_run_id,
+            "workflow_run_attempt": reference_run_attempt,
+            "workflow_job_id": reference_job_id,
+            "runner_instance_id": reference_runner_id,
+            "platform_identity": reference_identity.get("platform_identity"),
+        })
         platform_identities.append({
             "role": "connected_reference",
             "platform_identity": reference_identity.get("platform_identity"),
@@ -94,9 +113,35 @@ def main() -> int:
             if payload.get("formal_calibration_pass") is not False:
                 failures.append(f"Formal flag is not false: {worker_path}")
 
-            # Match every identity field except the declared shard range and
-            # runtime platform identity. Do not ignore commit, matrix, runner,
-            # seed schedule, endpoint, null implementation, or dependencies.
+            worker_runner_id = identity.get("runner_instance_id")
+            if not worker_runner_id:
+                failures.append(f"{worker_path}: missing runner_instance_id")
+            elif worker_runner_id in runner_ids:
+                failures.append(f"{worker_path}: runner instance is not independent")
+            else:
+                runner_ids.add(worker_runner_id)
+
+            if identity.get("workflow_run_id") != reference_run_id:
+                failures.append(f"{worker_path}: workflow_run_id differs from reference")
+            if identity.get("workflow_run_attempt") != reference_run_attempt:
+                failures.append(f"{worker_path}: workflow_run_attempt differs from reference")
+            if not identity.get("workflow_job_id"):
+                failures.append(f"{worker_path}: missing workflow_job_id")
+            if identity.get("workflow_job_id") == reference_job_id:
+                failures.append(f"{worker_path}: worker job identity matches connected reference")
+
+            runner_identity_records.append({
+                "role": f"worker_{identity.get('start_index')}",
+                "workflow_run_id": identity.get("workflow_run_id"),
+                "workflow_run_attempt": identity.get("workflow_run_attempt"),
+                "workflow_job_id": identity.get("workflow_job_id"),
+                "runner_instance_id": worker_runner_id,
+                "platform_identity": identity.get("platform_identity"),
+            })
+
+            # Match scientific/protocol identity fields except the declared
+            # shard range and per-job/instance metadata. Platform identity is
+            # descriptive only and cannot substitute for runner_instance_id.
             for key, expected_value in reference_identity.items():
                 if key in ALLOWED_IDENTITY_DIFFERENCES:
                     continue
@@ -159,8 +204,15 @@ def main() -> int:
                 failures.append(
                     f"Replicate {index} differs from connected reference"
                 )
+                comparison_status = "MISMATCH"
             else:
                 compared[str(index)] = "MATCH"
+                comparison_status = "MATCH"
+            replicate_records[str(index)] = {
+                "comparison": comparison_status,
+                "reference_record": reference_map[index],
+                "worker_record": worker_map[index],
+            }
 
         invalid = [
             index for index, row in sorted(worker_map.items())
@@ -179,6 +231,8 @@ def main() -> int:
         "status": "PASS" if not failures else "FAIL",
         "total_repetitions_requested": args.total_repetitions,
         "replicate_comparisons": compared,
+        "replicate_records": replicate_records,
+        "runner_identity_records": runner_identity_records,
         "platform_identities": platform_identities,
         "failures": failures,
         "formal_calibration_pass": False,
