@@ -180,8 +180,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo "::error::BLOCKED: this workflow validates the V3 matrix but its current execution path calls the scenario runner that reads the V4 candidate matrix. No calibration is authorized."
-          echo "Required remediation: restore and independently verify a V3-specific runner, or approve a separately reviewed workflow migration."
+          echo "::error::BLOCKED: V3 execution runner is not reconciled with the V3 protocol. No calibration simulations were started."
+
+          echo "Required remediation: implement and independently verify a V3-specific runner, or approve a separately reviewed workflow migration."
+
+          echo "Do not execute the V4 candidate runner under the V3 matrix."
           exit 1
 
       - name: Bind artifact to exact workflow identity
