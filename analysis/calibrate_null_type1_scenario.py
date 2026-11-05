@@ -258,17 +258,67 @@ def _engineering_file_hash(path: Path) -> str:
     return h.hexdigest()
 
 
+def _runner_instance_identity() -> str:
+    """Hash host-level identity; platform strings and runner code hashes are not instance IDs."""
+    import os
+    import socket
+
+    required_env = ("RUNNER_NAME", "RUNNER_OS", "RUNNER_ARCH")
+    missing = [key for key in required_env if not os.environ.get(key)]
+    if missing:
+        raise RuntimeError(
+            "Missing GitHub runner identity fields: " + ", ".join(missing)
+        )
+
+    machine_id = ""
+    for candidate in ("/etc/machine-id", "/var/lib/dbus/machine-id"):
+        try:
+            machine_id = Path(candidate).read_text(encoding="utf-8").strip()
+        except OSError:
+            continue
+        if machine_id:
+            break
+    hostname = socket.gethostname().strip()
+    if not machine_id or not hostname:
+        raise RuntimeError(
+            "Cannot establish host-level runner instance identity; refusing execution."
+        )
+
+    material = "\n".join((
+        os.environ["RUNNER_NAME"],
+        os.environ["RUNNER_OS"],
+        os.environ["RUNNER_ARCH"],
+        hostname,
+        machine_id,
+    )).encode("utf-8")
+    return hashlib.sha256(material).hexdigest()
+
+
 def _engineering_identity(scenario_id, start, stop, repetitions, surrogates, n, master_seed):
     import subprocess
+    import os
     root = Path(__file__).resolve().parents[1]
+    if os.environ.get("GITHUB_ACTIONS") != "true":
+        raise RuntimeError("Engineering execution requires a GitHub Actions runner identity.")
+    try:
+        workflow_run_id = int(os.environ["GITHUB_RUN_ID"])
+        workflow_run_attempt = int(os.environ["GITHUB_RUN_ATTEMPT"])
+        workflow_job_id = os.environ["GITHUB_JOB"].strip()
+    except (KeyError, ValueError) as exc:
+        raise RuntimeError("Missing or invalid GitHub workflow run/job identity.") from exc
+    if not workflow_job_id:
+        raise RuntimeError("Missing GITHUB_JOB identity.")
+    runner_instance_id = _runner_instance_identity()
     try:
         commit_sha = subprocess.check_output(
             ["git", "rev-parse", "HEAD"], cwd=root, text=True,
             stderr=subprocess.DEVNULL,
         ).strip()
     except Exception:
-        import os
         commit_sha = os.environ.get("GITHUB_SHA", "LOCAL_COMMIT_UNAVAILABLE")
+    expected_commit = os.environ.get("GITHUB_SHA")
+    if expected_commit and commit_sha != expected_commit:
+        raise RuntimeError("Engineering checkout commit differs from GITHUB_SHA.")
     return {
         "protocol": MATRIX["protocol"],
         "scenario_id": scenario_id,
@@ -284,6 +334,10 @@ def _engineering_identity(scenario_id, start, stop, repetitions, surrogates, n, 
         "commit_sha": commit_sha,
         "matrix_sha256": _engineering_file_hash(Path(MATRIX_PATH)),
         "runner_sha256": _engineering_file_hash(Path(__file__)),
+        "workflow_run_id": workflow_run_id,
+        "workflow_run_attempt": workflow_run_attempt,
+        "workflow_job_id": workflow_job_id,
+        "runner_instance_id": runner_instance_id,
         "endpoint_identity": "analysis.numerical_spectral_verification.estimate_alpha",
         "null_implementation_identity": "analysis.appropriate_stochastic_null.parametric_short_memory_null",
         "requirements_lock_sha256": _engineering_file_hash(root / "requirements-lock.txt"),
@@ -349,6 +403,26 @@ def execute_attempt(scenario_id, replicate_index, master_seed, n, surrogates):
 
 
 def engineering_main() -> int:
+    # Defense in depth: workflow_dispatch is not a branch restriction.
+    import os
+    import subprocess
+    from scripts.type1_runtime_pilot_branch_guard import require_authorized_branch
+    require_authorized_branch()
+    if os.environ.get("GITHUB_ACTIONS") != "true":
+        raise SystemExit("BLOCKED: engineering entry point requires GitHub Actions context.")
+    expected_sha = os.environ.get("GITHUB_SHA", "").strip()
+    if not expected_sha:
+        raise SystemExit("BLOCKED: GITHUB_SHA is required for engineering execution.")
+    root = Path(__file__).resolve().parents[1]
+    try:
+        actual_sha = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=root, text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except Exception as exc:
+        raise SystemExit("BLOCKED: cannot verify engineering checkout identity.") from exc
+    if actual_sha != expected_sha:
+        raise SystemExit("BLOCKED: engineering checkout differs from GITHUB_SHA.")
     import argparse
     from analysis.type1_execution_artifacts import (
         load_verified_artifact, validate_attempt_records,
@@ -383,6 +457,10 @@ def engineering_main() -> int:
             "commit_sha",
             "matrix_sha256",
             "runner_sha256",
+            "workflow_run_id",
+            "workflow_run_attempt",
+            "workflow_job_id",
+            "runner_instance_id",
             "endpoint_identity",
             "null_implementation_identity",
             "requirements_lock_sha256",
@@ -418,7 +496,12 @@ def engineering_main() -> int:
     if args.test_identity_mismatch_field is not None:
         identity = dict(identity)
         field = args.test_identity_mismatch_field
-        identity[field] = f"__TEST_ONLY_MISMATCH__:{field}"
+        if field in {"workflow_run_id", "workflow_run_attempt"}:
+            identity[field] += 1
+        elif field == "runner_instance_id":
+            identity[field] = "0" * 64 if identity[field] != "0" * 64 else "1" * 64
+        else:
+            identity[field] = f"__TEST_ONLY_MISMATCH__:{field}"
     output = args.output
     records = []
     if output.exists():
