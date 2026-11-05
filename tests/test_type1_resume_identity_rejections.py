@@ -30,6 +30,10 @@ def identity_fixture() -> dict:
         "commit_sha": "a" * 40,
         "matrix_sha256": "1" * 64,
         "runner_sha256": "2" * 64,
+        "workflow_run_id": 41904649393,
+        "workflow_run_attempt": 1,
+        "workflow_job_id": "synthetic-engineering-job",
+        "runner_instance_id": "4" * 64,
         "endpoint_identity": (
             "analysis.numerical_spectral_verification.estimate_alpha"
         ),
@@ -68,6 +72,10 @@ class ResumeIdentityRejectionTests(unittest.TestCase):
             "commit_sha": "b" * 40,
             "matrix_sha256": "4" * 64,
             "runner_sha256": "5" * 64,
+            "workflow_run_id": 41904649394,
+            "workflow_run_attempt": 2,
+            "workflow_job_id": "different-job",
+            "runner_instance_id": "5" * 64,
             "scenario_id": "different_scenario",
             "seed_schedule_id": "different_seed_schedule",
             "sample_size": 4096,

@@ -278,3 +278,170 @@ Promotion authority remains false.
 **Next authorized work:** manual occurrence adjudication and complete execution-path tracing, followed by separately controlled engineering-equivalence tests and independent statistical review.
 
 **No scientific or confirmatory authority is granted by this register.**
+
+## 9. Evidence update — 2026-11-04
+
+This addendum records the later review-branch evidence. It does not overwrite
+or retroactively modify the earlier run identities above.
+
+Repository: `AhmedPeaRL/maximal-one`
+
+Exact review commit:
+`04023ee26a210756ee4f71d75cfe96dfcd322dbe`
+
+### 9.1 Governance inventory
+
+- Run ID: `41904243262`
+- Job ID: `126834528392`
+- Job: `governance-inventory`
+- Conclusion: `success`
+- Artifact ID: `13360111421`
+- Artifact name: `type1-v3-v4-governance-inventory-41904243262-1`
+- Artifact ZIP SHA-256: `336e0101c5bdee0591cdb5f1ecf23630da7df39d37093f552b07b0f0356a589c`
+- Inventory JSON SHA-256: `7bcedac25805046695517a9d137216eb694a0910e2ffe5574a48fc7bba31172f`
+
+Observed review inventory before the governance-register exclusion:
+- occurrences: `1640`;
+- matched paths: `254`;
+- reconciliation: `RECONCILED`;
+- missing IDs: `0`;
+- duplicate IDs: `0`.
+
+The governance register itself contributed `10` discovery occurrences. The
+inventory excluded only the generated occurrence ledger at this commit; it did
+not yet exclude this register. The 10 register occurrences are therefore a
+known self-reference inflation, not 10 independent execution paths.
+
+Main comparison:
+- commit: `fe0daded51229ed88d449c2eb68252455fd4ad7c`;
+- occurrences: `583`;
+- reconciliation: `RECONCILED`.
+
+### 9.2 Exact review snapshot
+
+- Run ID: `41904544815`
+- Job ID: `126835587454`
+- Job: `snapshot`
+- Conclusion: `success`
+- Artifact ID: `13359398622`
+- Artifact name: `type1-exact-review-snapshot-41904544815-1`
+- Artifact ZIP SHA-256: `499022a0a51b2708d71b71c1be082beb50e4ae23ead02357faf8a9e2e78b5242`
+- Review commit: `04023ee26a210756ee4f71d75cfe96dfcd322dbe`
+- Inventory artifact ID: `13360111421`
+- Inventory JSON SHA-256: `7bcedac25805046695517a9d137216eb694a0910e2ffe5574a48fc7bba31172f`
+
+Snapshot results:
+- selected scope: `261` files;
+- present files: `261`;
+- missing required paths: `0`;
+- missing scope paths: `0`;
+- scanner exclusions: `1` (the generated occurrence ledger only);
+- extraction verification: `verified=true`, `264` files checked, `0` errors.
+
+The governance register is present in the self-contained snapshot at
+`source/repository/protocol/TYPE1_EVIDENCE_GOVERNANCE_REGISTER_V1.md` with
+SHA-256 `0011edf18babaf41c99d9d23b2a480b97cc6dfeb019bfcf68f35bda1368eacf5`.
+
+The manual adjudication overlay contains zero records. No occurrence was
+manually classified or closed by this snapshot.
+
+### 9.3 Priority guard and negative-gate tests
+
+- Run ID: `41904649393`
+- Job ID: `126835953700`
+- Job: `Priority execution-path guard verification`
+- Conclusion: `success`
+- Artifact ID: `13359847440`
+- Artifact name: `type1-priority-guard-test-evidence-41904649393`
+- Artifact ZIP SHA-256: `20c351f2eff96493bb20cc03e083e57fe0ccb2485261a7141f9f4ff5e3f78c6c`
+
+The job ran `15` unit tests successfully. The CLI resume-identity test covered
+`19` identity fields and verified rejection without mutating the original
+checkpoint or manifest. These are bounded engineering guard tests only.
+
+The workflow explicitly recorded that no standalone runtime-pilot workflow,
+no cross-runner workflow, no formal Type-I calibration, and no confirmatory
+execution were dispatched by this run.
+
+### 9.4 Three priority execution occurrences
+
+The exact inventory identifies these three execution-capable workflow sites:
+
+| Occurrence ID | Source site | Preliminary human reading |
+|---|---|---|
+| `HEAD/2f8523fcf7c5/73/4` | `.github/workflows/type1-calibration-runtime-pilot.yml:73` | Exploratory pilot execution entry point; not formal calibration by label or scope |
+| `HEAD/40d0253a5dd6/60/6` | `.github/workflows/type1-v4-cross-runner-worker-order.yml:60` | Connected-reference engineering execution entry point |
+| `HEAD/40d0253a5dd6/123/9` | `.github/workflows/type1-v4-cross-runner-worker-order.yml:123` | Sharded-worker engineering execution entry point |
+
+The second and third sites are separate invocation occurrences in one workflow,
+not separate workflows. The current manual overlay still records all three as
+`UNKNOWN` and `OPEN`; this table is a reviewer navigation aid, not a closure
+record. The three supplied runs above do not execute these three routes and
+cannot close their occurrences.
+
+### 9.5 Outstanding controls and evidence
+
+At commit `04023ee26a210756ee4f71d75cfe96dfcd322dbe`:
+- `type1-v4-cross-runner-worker-order.yml` contains a branch and checkout guard
+  in each of its three jobs;
+- `type1-calibration-runtime-pilot.yml` contains a branch guard before output
+  creation and pilot invocation;
+- `type1-v4-engineering-equivalence.yml` has `workflow_dispatch` but no explicit
+  job-level branch guard;
+- `engineering_main()` does not independently enforce the review branch;
+- the cross-runner comparator checks `runner_sha256` (runner source-code hash)
+  and reports `platform_identity`, but has no required host-instance identity,
+  workflow run/job identity, or per-replicate record archive.
+
+These are engineering remediation targets, not completed fixes in the evidence
+runs above. Full connected/sharded/merged/resumed equivalence, true distinct
+runner execution, per-replicate cross-runner comparison, and upload/download
+failure injection remain un demonstrated at this snapshot.
+
+### 9.6 Current decision
+
+`EVIDENCE_CAPTURED_REVIEW_OPEN` remains the decision.
+
+All 1640 pre-remediation inventory occurrences remain open or unknown in the
+current snapshot. The 10 self-referential register occurrences are identified
+for discovery-only exclusion in the next prospective inventory run. The
+register itself must remain in the snapshot and SHA-256 scope.
+
+Formal Type-I calibration remains unauthorized. Confirmatory execution remains
+unauthorized. Protocol freeze remains `NOT_FROZEN`. Claim support remains
+`false`. Promotion authority remains `false`.
+
+
+### 9.7 Live GitHub ruleset recheck — 2026-11-04
+
+The live GitHub API was re-read for ruleset `12957369` (`Evolution Gate`).
+It remains `active`, with `include: ["~DEFAULT_BRANCH"]` and
+`exclude: ["refs/heads/main"]`. The repository API confirms that `main` is
+the default branch. GitHub's ruleset semantics require an include match and
+then veto any excluded ref; `~DEFAULT_BRANCH` targets the default branch.
+Therefore, the current include/exclude combination leaves no effective target
+branch. Do not assume this active ruleset currently protects `main`.
+
+The live API currently reports ten required approving reviews, two entries
+for the `Evolution Gate` status context (one with integration ID `15368`),
+linear history, CodeQL scanning, code quality, Copilot code review, required
+deployment environments, required signatures, and a branch-creation rule.
+The committed `.github/rulesets/evolution-gate.json` remains a partial/stale
+snapshot with zero required approvals and fewer rule types. It does not update
+the live GitHub setting.
+
+The branch-protection read endpoint returned HTTP 403 to the available GitHub
+connection, so individual legacy branch-protection settings were not verified.
+The live ruleset endpoint itself was readable. Owner action is required in
+GitHub Settings to choose the intended target branches and feasible approval /
+deployment requirements, then re-read the live API and update the committed
+snapshot separately. Do not simply remove the `main` exclusion before deciding
+whether ten approvals and the deployment requirements are feasible.
+
+The post-remediation occurrence total is intentionally not predeclared as
+`1630`: legitimate changes to runner code, tests, and workflow guards may add
+new discoverable matches. The acceptance condition for this specific
+self-reference fix is structural: the register must be absent from occurrence
+entries, present in `excluded_paths` with a reason, and still present in the
+snapshot's selected files and SHA-256 manifest. All other newly discoverable
+matches remain in scope.

@@ -166,6 +166,19 @@ def load_inventory(
         raise SystemExit("BLOCKED: inventory contains no matching paths.")
     return data, sorted(paths), occurrences, ref_record["ref_requested"]
 
+def select_snapshot_paths(
+    inventory_paths: list[str],
+    required_paths: list[str],
+    scanner_exclusions: list[dict],
+) -> list[str]:
+    """Keep scanner-excluded evidence in the snapshot/hash scope."""
+    return sorted(
+        set(inventory_paths)
+        | set(required_paths)
+        | {row["path"] for row in scanner_exclusions}
+    )
+
+
 def build_snapshot_occurrence_rows(
     occurrences: list[dict],
     inventory_ref: str,
@@ -419,10 +432,10 @@ def main() -> int:
     # and the explicitly declared mandatory anchor paths.
     # Excluded generated evidence is not scanned for occurrences, but remains
     # in the exact snapshot's hash scope so the exclusion is auditable.
-    selected = sorted(
-        set(inventory_paths)
-        | set(REQUIRED_PATHS)
-        | {row["path"] for row in scanner_exclusions}
+    selected = select_snapshot_paths(
+        inventory_paths,
+        REQUIRED_PATHS,
+        scanner_exclusions,
     )
     records = []
     for rel in selected:
