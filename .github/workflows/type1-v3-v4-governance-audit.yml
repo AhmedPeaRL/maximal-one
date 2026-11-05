@@ -29,6 +29,7 @@ on:
       - "analysis/type1_calibration_pilot.py"
       - "scripts/type1_runtime_pilot_branch_guard.py"
       - "tests/test_type1_runtime_pilot_branch_guard.py"
+      - "protocol/TYPE1_EVIDENCE_GOVERNANCE_REGISTER_V1.md"
       - "protocol/TYPE1_OCCURRENCE_MANUAL_ADJUDICATION_OVERLAY_V1.json"
       - "scripts/merge_type1_manual_adjudication_overlay.py"
       - "tests/test_type1_manual_adjudication_overlay.py"
