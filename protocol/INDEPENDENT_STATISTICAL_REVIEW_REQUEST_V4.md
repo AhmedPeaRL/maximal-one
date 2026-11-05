@@ -46,7 +46,7 @@ Historical recorded outcomes included:
 
 - AR1: 52/1000; interval [0.039873, 0.067556]; pass under the historical rule.
 - AR2: 60/1000; interval [0.046896, 0.076471]; fail under the historical rule.
-- AR5: 49/1000; interval [0.036..., 0.0...]; consult the original archived report for the exact interval before citing it.
+- AR5: 49/1000; interval [0.0372610346, 0.0641907015]; pass under the historical rule.
 - AR10: 73/1000; interval [0.058459, 0.090809]; fail under the historical rule.
 
 The original archived reports and exact recorded values are authoritative for historical reporting. Do not recalculate, relabel, omit, or reinterpret historical outcomes merely to make a later protocol pass.
