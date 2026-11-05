@@ -26,7 +26,7 @@ The historical V1 result was recorded as "NOT_PASSED":
 
 - AR1: 52/1000; interval [0.039873, 0.067556]; passed the historical per-scenario rule.
 - AR2: 60/1000; interval [0.046896, 0.076471]; failed the historical per-scenario rule.
-- AR5: 49/1000; interval [0.030..., 0.064...] — verify exact endpoints from the original immutable result record before reproducing this interval.
+- AR5: 49/1000; interval [0.0372610346, 0.0641907015]; passed the historical per-scenario rule.
 - AR10: 73/1000; interval [0.058459, 0.090809]; failed the historical per-scenario rule.
 
 The overall historical outcome remains "NOT_PASSED". Do not replace original result files or change the historical rule retrospectively.
