@@ -11,7 +11,7 @@ on:
       - 'analysis/compare_type1_cross_runner.py'
       - 'requirements-lock.txt'
       - '.github/workflows/type1-v4-cross-runner-worker-order.yml'
-      - 'tests/test_type1_cross_runner_workflow_branch_guard.py'
+      - 'tests/test_type1_cross_runner_*.py'
 
 permissions:
   contents: read
