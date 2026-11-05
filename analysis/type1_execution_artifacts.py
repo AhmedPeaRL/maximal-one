@@ -26,6 +26,10 @@ REQUIRED_IDENTITY_FIELDS = {
     "commit_sha",
     "matrix_sha256",
     "runner_sha256",
+    "workflow_run_id",
+    "workflow_run_attempt",
+    "workflow_job_id",
+    "runner_instance_id",
     "endpoint_identity",
     "null_implementation_identity",
     "requirements_lock_sha256",
@@ -140,9 +144,18 @@ def validate_run_identity(identity: dict) -> None:
             "Require 0 <= start_index < stop_index <= total_repetitions"
         )
 
+    for field in ("workflow_run_id", "workflow_run_attempt"):
+        value = identity[field]
+        if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+            raise ValueError(f"Invalid workflow identity field: {field}")
+
+    if not isinstance(identity["workflow_job_id"], str) or not identity["workflow_job_id"].strip():
+        raise ValueError("Invalid workflow identity field: workflow_job_id")
+
     for field in (
         "matrix_sha256",
         "runner_sha256",
+        "runner_instance_id",
         "requirements_lock_sha256",
     ):
         value = identity[field]
