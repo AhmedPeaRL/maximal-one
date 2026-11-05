@@ -7,7 +7,9 @@ on:
       - review/type1-v4-remediation
     paths:
       - "scripts/audit_type1_governance_refs.py"
+      - "scripts/generate_type1_occurrence_ledger.py"
       - "tests/test_v3_v4_governance_separation.py"
+      - "tests/test_type1_occurrence_ledger.py"
       - "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json"
       - "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_CANDIDATE.json"
       - ".github/workflows/null-type1-calibration.yml"
@@ -16,6 +18,22 @@ on:
       - "analysis/calibrate_null_type1_scenario.py"
       - "protocol/TYPE1_ACCEPTANCE_RULE_DECISION_RECORD_V2.md"
       - "protocol/TYPE1_V4_ACCEPTANCE_RULE_DECISION_RECORD.md"
+      - "tests/test_type1_v4_matrix_gate.py"
+      - "scripts/type1_occurrence_classifier.py"
+      - "tests/test_type1_occurrence_local_classifier.py"
+      - "scripts/create_type1_review_snapshot.py"
+      - "tests/test_dynamic_snapshot_inventory.py"
+      - "tests/test_type1_governance_inventory_occurrence_local.py"
+      - "tests/test_type1_main_negative_gate.py"
+      - ".github/workflows/type1-calibration-runtime-pilot.yml"
+      - "analysis/type1_calibration_pilot.py"
+      - "scripts/type1_runtime_pilot_branch_guard.py"
+      - "tests/test_type1_runtime_pilot_branch_guard.py"
+      - "protocol/TYPE1_EVIDENCE_GOVERNANCE_REGISTER_V1.md"
+      - "protocol/TYPE1_OCCURRENCE_MANUAL_ADJUDICATION_OVERLAY_V1.json"
+      - "scripts/merge_type1_manual_adjudication_overlay.py"
+      - "tests/test_type1_manual_adjudication_overlay.py"
+      - "tests/test_type1_snapshot_occurrence_identity.py"
 
 permissions:
   contents: read
@@ -61,12 +79,17 @@ jobs:
           set -euo pipefail
           python -m pip install --require-hashes -r requirements-lock.txt
 
-      - name: Compile governance audit and regression test
+      - name: Compile governance audit, ledger generator, and tests
         run: |
           set -euo pipefail
           python -m py_compile \
             scripts/audit_type1_governance_refs.py \
-            tests/test_v3_v4_governance_separation.py
+            scripts/generate_type1_occurrence_ledger.py \
+            tests/test_v3_v4_governance_separation.py \
+            tests/test_type1_occurrence_ledger.py \
+            tests/test_type1_v4_matrix_gate.py \
+            scripts/type1_occurrence_classifier.py \
+            tests/test_type1_occurrence_local_classifier.py
 
       - name: Generate inventories for both exact refs
         shell: bash
@@ -74,18 +97,48 @@ jobs:
           set -euo pipefail
           python scripts/audit_type1_governance_refs.py \
             HEAD origin/main
+          test -s artifacts/type1_governance_inventory/reference_inventory.json
 
-          test -s \
-            artifacts/type1_governance_inventory/reference_inventory.json
-
-      - name: Verify V3 V4 separation guards
+      - name: Verify V3 V4 separation and occurrence-ledger reconciliation
         run: |
           set -euo pipefail
           python -m unittest -v \
-            tests.test_v3_v4_governance_separation
+            tests.test_v3_v4_governance_separation \
+            tests.test_type1_v4_matrix_gate \
+            tests.test_type1_occurrence_ledger \
+            tests.test_type1_occurrence_local_classifier \
+            tests.test_type1_governance_inventory_occurrence_local \
+            tests.test_dynamic_snapshot_inventory \
+            tests.test_type1_main_negative_gate \
+            tests.test_type1_manual_adjudication_overlay \
+            tests.test_type1_snapshot_occurrence_identity
+
+      - name: Generate exact-commit occurrence ledger and reconciliation report
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m scripts.generate_type1_occurrence_ledger \
+            --inventory artifacts/type1_governance_inventory/reference_inventory.json \
+            --expected-commit "$GITHUB_SHA" \
+            --output-ledger artifacts/type1_occurrence_ledger/occurrence_level_manual_ledger.json \
+            --output-reconciliation artifacts/type1_occurrence_ledger/reconciliation.json
+          test -s artifacts/type1_occurrence_ledger/occurrence_level_manual_ledger.json
+          test -s artifacts/type1_occurrence_ledger/reconciliation.json
+
+      - name: Generate separate main-branch occurrence ledger and reconciliation
+        shell: bash
+        run: |
+          set -euo pipefail
+          MAIN_SHA="$(git rev-parse origin/main)"
+          python -m scripts.generate_type1_occurrence_ledger \
+            --inventory artifacts/type1_governance_inventory/reference_inventory.json \
+            --expected-commit "$MAIN_SHA" \
+            --output-ledger artifacts/type1_occurrence_ledger/main_occurrence_level_manual_ledger.json \
+            --output-reconciliation artifacts/type1_occurrence_ledger/main_reconciliation.json
+          test -s artifacts/type1_occurrence_ledger/main_occurrence_level_manual_ledger.json
+          test -s artifacts/type1_occurrence_ledger/main_reconciliation.json
 
       - name: Verify inventory identifies both refs
-        shell: bash
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -97,19 +150,12 @@ jobs:
               "reference_inventory.json"
           )
           data = json.loads(path.read_text(encoding="utf-8"))
-
           refs = data.get("refs", [])
           if len(refs) != 2:
-              raise SystemExit(
-                  f"Expected two ref inventories; got {len(refs)}"
-              )
-
+              raise SystemExit(f"Expected two ref inventories; got {len(refs)}")
           names = {item.get("ref_requested") for item in refs}
           if names != {"HEAD", "origin/main"}:
-              raise SystemExit(
-                  f"Unexpected refs in inventory: {names}"
-              )
-
+              raise SystemExit(f"Unexpected refs in inventory: {names}")
           for item in refs:
               if not item.get("commit_sha"):
                   raise SystemExit(
@@ -119,16 +165,17 @@ jobs:
                   raise SystemExit(
                       f"No matching references found for {item.get('ref_requested')}"
                   )
-
           print("Both branch snapshots were inventoried.")
           print("Manual classification review is still required.")
           PY
 
-      - name: Upload governance inventory even on failure
+      - name: Upload governance inventory and occurrence ledger evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: type1-v3-v4-governance-inventory-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/type1_governance_inventory/
+          path: |
+            artifacts/type1_governance_inventory/
+            artifacts/type1_occurrence_ledger/
           if-no-files-found: warn
           retention-days: 90
