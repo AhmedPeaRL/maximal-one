@@ -1,5 +1,6 @@
 import csv
 import hashlib
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -33,10 +34,71 @@ class SecondaryAcquisitionSafetyTests(unittest.TestCase):
         self.assertIn("cosd=1919-01-01", first_url)
         self.assertIn("coed=2025-12-01", first_url)
 
-    def test_calibration_workflow_uses_module_invocation(self):
-        workflow = Path(".github/workflows/null-type1-calibration.yml").read_text(encoding="utf-8")
-        self.assertIn("python -m analysis.calibrate_null_type1_scenario", workflow)
-        self.assertNotIn("python analysis/calibrate_null_type1_scenario.py", workflow)
+    def test_v3_calibration_workflow_fails_closed_while_candidate_is_unfrozen(self):
+        workflow = Path(
+            ".github/workflows/null-type1-calibration.yml"
+        ).read_text(encoding="utf-8")
+
+        matrix_path = Path(
+            "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json"
+        )
+
+        matrix = json.loads(
+            matrix_path.read_text(encoding="utf-8")
+        )
+
+        # The current V3 matrix is a candidate, not an approved protocol.
+        self.assertEqual(
+            matrix.get("status"),
+            "CANDIDATE_PENDING_ATTRIBUTABLE_INDEPENDENT_STATISTICAL_REVIEW",
+        )
+
+        self.assertEqual(
+            matrix.get("freeze_state"),
+            "NOT_FROZEN",
+        )
+
+        self.assertIs(
+            matrix.get("confirmatory_execution_authorized"),
+            False,
+        )
+
+        self.assertIs(
+            matrix.get("archive_git_identity_verified"),
+            False,
+        )
+
+        # The workflow must reject execution until V3 is reviewed and frozen.
+        self.assertIn(
+            "APPROVED_FROZEN",
+            workflow,
+        )
+
+        self.assertIn(
+            "confirmatory_execution_authorized",
+            workflow,
+        )
+
+        self.assertIn(
+            "archive_git_identity_verified",
+            workflow,
+        )
+
+        self.assertIn(
+            "Fail closed until the V3 runner is reconciled",
+            workflow,
+        )
+
+        self.assertIn(
+            "exit 1",
+            workflow,
+        )
+
+        # No V4 runner may be invoked under the V3 workflow.
+        self.assertNotIn(
+            "python -m analysis.calibrate_null_type1_scenario",
+            workflow,
+        )
 
     def test_integrity_audit_blocks_missing_values(self):
         with tempfile.TemporaryDirectory() as tmp:
