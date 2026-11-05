@@ -60,10 +60,21 @@ class CrossRunnerWorkflowBranchGuardTests(unittest.TestCase):
                     section.index(invocation),
                 )
 
+    def test_artifact_upload_and_download_fail_closed(self):
+        workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
+        self.assertIn("if-no-files-found: error", workflow)
+        self.assertIn("actions/download-artifact@v4", workflow)
+        self.assertIn("pattern: cross-runner-worker-*", workflow)
+        self.assertIn("name: cross-runner-reference", workflow)
+        self.assertIn("--worker artifacts/download/workers/cross-runner-worker-5/worker-5.json", workflow)
+        self.assertNotIn("continue-on-error: true", workflow)
+        self.assertIn("    if: always()\n    needs:", workflow)
+
     def test_workflow_stays_engineering_only(self):
         workflow = WORKFLOW_PATH.read_text(encoding="utf-8")
 
         self.assertIn("workflow_dispatch:", workflow)
+        self.assertIn("tests/test_type1_cross_runner_*.py", workflow)
         self.assertIn("--engineering-test", workflow)
         self.assertNotIn("formal_calibration_pass: true", workflow)
 
