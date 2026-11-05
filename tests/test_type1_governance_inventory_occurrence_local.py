@@ -49,24 +49,43 @@ class OccurrenceLocalInventoryTests(unittest.TestCase):
         self.assertTrue(EXCLUDED_GENERATED_PATHS[path])
 
 
+    def test_governance_register_has_explicit_discovery_only_exclusion(self):
+        path = "protocol/TYPE1_EVIDENCE_GOVERNANCE_REGISTER_V1.md"
+        self.assertIn(path, EXCLUDED_GENERATED_PATHS)
+        self.assertIn("self-referential", EXCLUDED_GENERATED_PATHS[path])
+        self.assertIn("snapshot", EXCLUDED_GENERATED_PATHS[path])
+
     def test_inspect_ref_records_exclusion_without_scanning_ledger(self):
         generated = "protocol/TYPE1_V3_V4_OCCURRENCE_LEVEL_MANUAL_LEDGER_2026-10-31.json"
+        register = "protocol/TYPE1_EVIDENCE_GOVERNANCE_REGISTER_V1.md"
         def fake_git(*args):
             if args[0] == "rev-parse":
                 return "a" * 40
             if args[0] == "ls-tree":
-                return generated + "\n.github/workflows/example.yml"
+                return generated + "\n" + register + "\n.github/workflows/example.yml"
             if args[0] == "show" and args[1].endswith(generated):
                 return '{"V3": "V4", "confirmatory_execution_authorized": false}'
+            if args[0] == "show" and args[1].endswith(register):
+                return "V4 governance register; confirmatory_execution_authorized=false\n"
             if args[0] == "show" and args[1].endswith(".github/workflows/example.yml"):
                 return "uses: actions/upload-artifact@v4\n"
             raise AssertionError(args)
         with patch("scripts.audit_type1_governance_refs.git", side_effect=fake_git):
             report = inspect_ref("HEAD")
-        self.assertEqual([row["path"] for row in report["excluded_paths"]], [generated])
+        self.assertEqual(
+            [row["path"] for row in report["excluded_paths"]],
+            [generated, register],
+        )
         self.assertNotIn(generated, [row["path"] for row in report["entries"]])
+        self.assertNotIn(register, [row["path"] for row in report["entries"]])
         self.assertEqual(len(report["entries"]), 1)
         self.assertEqual(report["entries"][0]["matches"][0]["classification"], "WORKFLOW_REFERENCE")
+
+    def test_governance_register_changes_trigger_inventory_workflow(self):
+        from pathlib import Path
+        workflow_path = Path(__file__).resolve().parents[1] / ".github/workflows/type1-v3-v4-governance-audit.yml"
+        workflow = workflow_path.read_text(encoding="utf-8")
+        self.assertIn('"protocol/TYPE1_EVIDENCE_GOVERNANCE_REGISTER_V1.md"', workflow)
 
     def test_occurrence_classifier_does_not_treat_runner_as_authority(self):
         result, note = classify(
