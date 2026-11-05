@@ -39,8 +39,16 @@ class V3V4GovernanceSeparationTests(unittest.TestCase):
             self.text.index(guard):
             self.text.index(artifact)
         ]
+
         self.assertIn("exit 1", guard_section)
-        self.assertIn("No calibration is authorized", guard_section)
+        self.assertIn(
+            "No calibration simulations were started",
+            guard_section,
+        )
+        self.assertIn(
+            "Do not execute the V4 candidate runner under the V3 matrix.",
+            guard_section,
+        )
 
     def test_v3_workflow_contains_no_executable_v4_runner_command(self):
         forbidden_commands = [
