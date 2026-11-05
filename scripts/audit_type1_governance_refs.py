@@ -39,6 +39,12 @@ EXCLUDED_GENERATED_PATHS = {
         "Generated occurrence ledger; scanning serialized rows recursively "
         "duplicates prior inventory occurrences and inflates the source scope."
     ),
+    "protocol/TYPE1_EVIDENCE_GOVERNANCE_REGISTER_V1.md": (
+        "Governance register documents the inventory and its own evidence; "
+        "scanning it creates self-referential occurrences. Retain the exact "
+        "file in snapshot and SHA-256 scope, but exclude its contents from "
+        "occurrence discovery."
+    ),
 }
 
 RUNNER_RE = re.compile(
