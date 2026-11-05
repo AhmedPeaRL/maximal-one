@@ -7,15 +7,95 @@
   "enforcement": "active",
   "conditions": {
     "ref_name": {
-      "exclude": ["refs/heads/main"],
-      "include": ["~DEFAULT_BRANCH"]
+      "exclude": [],
+      "include": [
+        "~DEFAULT_BRANCH"
+      ]
     }
   },
   "rules": [
-    { "type": "pull_request", "parameters": { "required_approving_review_count": 0, "dismiss_stale_reviews_on_push": false, "allowed_merge_methods": ["merge", "squash", "rebase"] } },
-    { "type": "required_status_checks", "parameters": { "strict_required_status_checks_policy": true, "required_status_checks": [{ "context": "Evolution Gate" }] } },
-    { "type": "required_linear_history" },
-    { "type": "code_scanning", "parameters": { "code_scanning_tools": [{ "tool": "CodeQL", "security_alerts_threshold": "all", "alerts_threshold": "errors" }] } },
-    { "type": "copilot_code_review", "parameters": { "review_on_push": true, "review_draft_pull_requests": true } }
-  ]
+    {
+      "type": "pull_request",
+      "parameters": {
+        "required_approving_review_count": 10,
+        "dismiss_stale_reviews_on_push": false,
+        "required_reviewers": [],
+        "require_code_owner_review": false,
+        "require_last_push_approval": false,
+        "required_review_thread_resolution": false,
+        "require_extra_approval_for_unattributed_changes": true,
+        "allowed_merge_methods": [
+          "merge",
+          "squash",
+          "rebase"
+        ]
+      }
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": true,
+        "do_not_enforce_on_create": true,
+        "required_status_checks": [
+          {
+            "context": "Evolution Gate"
+          },
+          {
+            "context": "Evolution Gate",
+            "integration_id": 15368
+          }
+        ]
+      }
+    },
+    {
+      "type": "required_linear_history"
+    },
+    {
+      "type": "code_scanning",
+      "parameters": {
+        "code_scanning_tools": [
+          {
+            "tool": "CodeQL",
+            "security_alerts_threshold": "all",
+            "alerts_threshold": "errors"
+          }
+        ]
+      }
+    },
+    {
+      "type": "code_quality",
+      "parameters": {
+        "severity": "all"
+      }
+    },
+    {
+      "type": "copilot_code_review",
+      "parameters": {
+        "review_on_push": true,
+        "review_draft_pull_requests": true
+      }
+    },
+    {
+      "type": "required_deployments",
+      "parameters": {
+        "required_deployment_environments": [
+          "github-pages",
+          "GH_REPO",
+          "Personal Access Token",
+          "Preview – maximal-one",
+          "Production – maximal-one",
+          "WITNESS_SIGNATURE",
+          "Preview – ahmedpearl-maximal-one",
+          "Production – ahmedpearl-maximal-one"
+        ]
+      }
+    },
+    {
+      "type": "required_signatures"
+    },
+    {
+      "type": "creation"
+    }
+  ],
+  "bypass_actors": []
 }
