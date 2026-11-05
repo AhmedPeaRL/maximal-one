@@ -22,6 +22,9 @@ on:
       - 'analysis/compare_type1_cross_runner.py'
       - '.github/workflows/type1-v4-cross-runner-worker-order.yml'
       - 'tests/test_type1_artifact_loss_and_denominator.py'
+      - 'tests/test_type1_engineering_equivalence_workflow_branch_guard.py'
+      - 'tests/test_type1_cross_runner_identity.py'
+      - 'scripts/type1_runtime_pilot_branch_guard.py'
 
 permissions:
   contents: read
@@ -54,6 +57,14 @@ jobs:
           printf 'commit_sha=%s\n' "$actual"
           printf 'workflow_ref=%s\n' "$GITHUB_REF"
 
+      - name: Require review branch before engineering execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          echo "Verified engineering review branch and commit: $GITHUB_SHA"
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -66,6 +77,18 @@ jobs:
         run: |
           set -euo pipefail
           python -m pip install --require-hashes -r requirements-lock.txt
+
+      - name: Test engineering workflow branch guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest tests.test_type1_engineering_equivalence_workflow_branch_guard -v
+
+      - name: Test cross-runner identity contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest tests.test_type1_cross_runner_identity -v
 
       - name: Test artifact integrity primitives
         shell: bash
