@@ -1,0 +1,246 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/AhmedPeaRL/maximal-one/blob/review/type1-v4-remediation/protocol/TYPE1_OCCURRENCE_MANUAL_ADJUDICATION_OVERLAY_V2.schema.json",
+  "title": "HCM Type-I Occurrence Manual Adjudication Overlay V2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "review_commit_sha",
+    "inventory_ref",
+    "inventory_sha256",
+    "records"
+  ],
+  "properties": {
+    "schema": {
+      "const": "HCM_TYPE1_OCCURRENCE_MANUAL_ADJUDICATION_OVERLAY_V2"
+    },
+    "review_commit_sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "inventory_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "inventory_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/record"
+      }
+    }
+  },
+  "$defs": {
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "occurrence_id",
+        "manual_classification",
+        "can_influence_execution",
+        "direct_caller_or_workflow_step",
+        "indirect_call_path",
+        "runner_entry_point_or_command",
+        "trigger_conditions_and_branch_restrictions",
+        "matrix_and_protocol_consumed",
+        "authorization_guard_and_execution_order",
+        "guard_fails_closed",
+        "negative_test",
+        "test_run_job_artifact_commit",
+        "historical_diagnostic_proposed_governance_status",
+        "reviewer",
+        "reviewer_role",
+        "conflict_statement",
+        "reviewed_at_utc",
+        "rationale",
+        "status",
+        "reviewer_disposition",
+        "closure_evidence"
+      ],
+      "properties": {
+        "occurrence_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "manual_classification": {
+          "enum": [
+            "EXECUTION_ENTRY_POINT",
+            "EXECUTION_CALLER",
+            "WORKFLOW_TRIGGER_OR_CONTROL",
+            "AUTHORIZATION_GUARD",
+            "TEST_ONLY",
+            "DOCUMENTATION_ONLY",
+            "HISTORICAL_OR_SUPERSEDED",
+            "DIAGNOSTIC_ONLY",
+            "POLICY_OR_CONFIGURATION",
+            "NON_EXECUTABLE_REFERENCE",
+            "UNRESOLVED"
+          ]
+        },
+        "can_influence_execution": {
+          "enum": [
+            "YES",
+            "NO",
+            "UNRESOLVED"
+          ]
+        },
+        "direct_caller_or_workflow_step": {
+          "type": "string",
+          "minLength": 1
+        },
+        "indirect_call_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "runner_entry_point_or_command": {
+          "type": "string",
+          "minLength": 1
+        },
+        "trigger_conditions_and_branch_restrictions": {
+          "type": "string",
+          "minLength": 1
+        },
+        "matrix_and_protocol_consumed": {
+          "type": "string",
+          "minLength": 1
+        },
+        "authorization_guard_and_execution_order": {
+          "type": "string",
+          "minLength": 1
+        },
+        "guard_fails_closed": {
+          "enum": [
+            "YES",
+            "NO",
+            "UNRESOLVED",
+            "NOT_APPLICABLE"
+          ]
+        },
+        "negative_test": {
+          "type": "string",
+          "minLength": 1
+        },
+        "test_run_job_artifact_commit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "historical_diagnostic_proposed_governance_status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reviewer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reviewer_role": {
+          "type": "string",
+          "minLength": 1
+        },
+        "conflict_statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reviewed_at_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "enum": [
+            "OPEN",
+            "CLOSED"
+          ]
+        },
+        "reviewer_disposition": {
+          "enum": [
+            "ADJUDICATED",
+            "PENDING"
+          ]
+        },
+        "closure_evidence": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "references": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1
+            },
+            "negative_test_passed": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "references",
+            "description",
+            "negative_test_passed"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "CLOSED"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reviewer_disposition": {
+                "const": "ADJUDICATED"
+              },
+              "manual_classification": {
+                "not": {
+                  "const": "UNRESOLVED"
+                }
+              },
+              "closure_evidence": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "OPEN"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "closure_evidence": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
