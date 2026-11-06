@@ -161,8 +161,23 @@ jobs:
             "ledger_generator_sha256":sha("scripts/generate_type1_occurrence_ledger.py")
           }
           Path("artifacts/type1_governance_inventory/provenance.json").write_text(json.dumps(provenance,indent=2,sort_keys=True)+"\n")
-          files=[p for p in Path("artifacts").rglob("*") if p.is_file() and p.name!="SHA256SUMS.txt"]
-          Path("artifacts/SHA256SUMS.txt").write_text("".join(f"{sha(p)}  {p.as_posix()}\n" for p in sorted(files)))
+          root = Path("artifacts")
+          files = [
+              root / "type1_governance_inventory" / "provenance.json",
+              root / "type1_governance_inventory" / "reference_inventory.json",
+              root / "type1_occurrence_ledger" / "occurrence_level_manual_ledger.json",
+              root / "type1_occurrence_ledger" / "reconciliation.json",
+              root / "type1_occurrence_ledger" / "main_occurrence_level_manual_ledger.json",
+              root / "type1_occurrence_ledger" / "main_reconciliation.json",
+          ]
+          missing = [str(p) for p in files if not p.is_file()]
+          if missing:
+              raise SystemExit(f"BLOCKED: checksum input missing: {missing}")
+          lines = [
+              f"{sha(p)}  {p.relative_to(root).as_posix()}\\n"
+              for p in sorted(files)
+          ]
+          (root / "SHA256SUMS.txt").write_text("".join(lines))
           print(json.dumps(provenance,indent=2))
           PY
 
