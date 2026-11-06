@@ -1,18 +1,22 @@
-name: Type-I Exact Review Snapshot and SHA-256
+name: Type-I Target-Commit Review Snapshot
 
 on:
   workflow_dispatch:
     inputs:
       review_commit:
-        description: Exact 40-character review commit SHA
-        required: true
-        type: string
-      inventory_artifact_id:
-        description: Artifact ID from the fresh governance inventory run
+        description: Exact target commit to snapshot (40-character SHA)
         required: true
         type: string
       inventory_source_commit:
-        description: Exact commit SHA used by the inventory workflow
+        description: Commit actually scanned by the inventory (must equal review_commit)
+        required: true
+        type: string
+      inventory_artifact_id:
+        description: Numeric artifact ID from the targeted inventory workflow
+        required: true
+        type: string
+      inventory_workflow_commit:
+        description: Workflow-definition commit recorded by the inventory artifact metadata
         required: true
         type: string
 
@@ -23,76 +27,69 @@ permissions:
 jobs:
   snapshot:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
-      - name: Verify selected branch
+      - name: Verify dispatch branch and requested identity
         shell: bash
+        env:
+          REVIEW_COMMIT: ${{ inputs.review_commit }}
+          INVENTORY_SOURCE_COMMIT: ${{ inputs.inventory_source_commit }}
+          INVENTORY_WORKFLOW_COMMIT: ${{ inputs.inventory_workflow_commit }}
         run: |
           set -euo pipefail
           test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
+          [[ "$REVIEW_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]]
+          [[ "$INVENTORY_SOURCE_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]]
+          [[ "$INVENTORY_WORKFLOW_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]]
+          test "${REVIEW_COMMIT,,}" = "${INVENTORY_SOURCE_COMMIT,,}"
 
-      - name: Checkout exact review commit
+      - name: Checkout the requested target commit, not the dispatch commit
         uses: actions/checkout@v5
         with:
           ref: ${{ inputs.review_commit }}
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Verify exact commit identity
+      - name: Verify snapshot checkout identity
         shell: bash
         env:
-          EXPECTED_COMMIT: ${{ inputs.review_commit }}
-          INVENTORY_COMMIT: ${{ inputs.inventory_source_commit }}
-          EVENT_COMMIT: ${{ github.sha }}
+          REVIEW_COMMIT: ${{ inputs.review_commit }}
         run: |
           set -euo pipefail
           ACTUAL="$(git rev-parse HEAD)"
-          test "$ACTUAL" = "$EXPECTED_COMMIT"
-          test "$ACTUAL" = "$EVENT_COMMIT"
-          test "$INVENTORY_COMMIT" = "$EXPECTED_COMMIT"
-          echo "Verified exact review and inventory commit: $ACTUAL"
+          test "${ACTUAL,,}" = "${REVIEW_COMMIT,,}"
+          test -f scripts/create_type1_review_snapshot.py
+          echo "snapshot_review_commit=$ACTUAL"
+          echo "snapshot_workflow_definition_commit=$GITHUB_SHA"
 
-      - name: Verify governance inventory artifact provenance
+      - name: Verify inventory artifact and its workflow provenance
         id: inventory
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
           ARTIFACT_ID: ${{ inputs.inventory_artifact_id }}
-          EXPECTED_COMMIT: ${{ inputs.review_commit }}
+          EXPECTED_WORKFLOW_COMMIT: ${{ inputs.inventory_workflow_commit }}
         run: |
           set -euo pipefail
-
-          case "$ARTIFACT_ID" in
-            ''|*[!0-9]*)
-              echo "::error::inventory_artifact_id must be the numeric GitHub artifact ID, not a URL."
-              exit 1
-              ;;
-          esac
-
-          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}" > inventory_artifact_metadata.json
+          case "$ARTIFACT_ID" in ''|*[!0-9]*) echo "::error::Artifact ID must be numeric"; exit 1;; esac
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}" > artifact_metadata.json
+          RUN_ID="$(python -c 'import json; print(json.load(open("artifact_metadata.json"))["workflow_run"]["id"])')"
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}" > inventory_run_metadata.json
           python - <<'PY'
           import json, os
-          from pathlib import Path
-          data=json.loads(Path("inventory_artifact_metadata.json").read_text())
-          expected=os.environ["EXPECTED_COMMIT"]
-          if data.get("expired") is not False:
-              raise SystemExit("BLOCKED: inventory artifact is expired.")
-          if not data.get("name","").startswith("type1-v3-v4-governance-inventory-"):
-              raise SystemExit("BLOCKED: unexpected inventory artifact name.")
-          run=data.get("workflow_run") or {}
-          if run.get("head_sha") != expected:
-              raise SystemExit("BLOCKED: inventory artifact commit mismatch.")
-          if run.get("head_branch") != "review/type1-v4-remediation":
-              raise SystemExit("BLOCKED: inventory artifact branch mismatch.")
-          if not run.get("id"):
-              raise SystemExit("BLOCKED: artifact has no source workflow run ID.")
+          a=json.load(open("artifact_metadata.json")); r=json.load(open("inventory_run_metadata.json"))
+          if a.get("expired") is not False: raise SystemExit("BLOCKED: artifact is expired or expiry is unknown")
+          if not a.get("name","").startswith("type1-v3-v4-governance-inventory-"): raise SystemExit("BLOCKED: unexpected artifact name")
+          if r.get("head_branch") != "review/type1-v4-remediation": raise SystemExit("BLOCKED: inventory workflow branch mismatch")
+          if r.get("head_sha","").lower() != os.environ["EXPECTED_WORKFLOW_COMMIT"].lower(): raise SystemExit("BLOCKED: inventory workflow-definition commit mismatch")
+          if r.get("path") != ".github/workflows/type1-v3-v4-governance-audit.yml": raise SystemExit("BLOCKED: unexpected inventory workflow path")
+          if r.get("conclusion") != "success": raise SystemExit("BLOCKED: inventory workflow did not conclude successfully")
           with open(os.environ["GITHUB_OUTPUT"],"a") as f:
-              f.write(f"run_id={run['id']}\n")
-              f.write(f"artifact_name={data['name']}\n")
-          print("Artifact provenance verified:", data["id"], run["head_sha"])
+              f.write(f"run_id={r['id']}\n")
+              f.write(f"artifact_name={a['name']}\n")
           PY
 
-      - name: Download the exact governance inventory artifact
+      - name: Download the exact inventory artifact
         uses: actions/download-artifact@v4
         with:
           name: ${{ steps.inventory.outputs.artifact_name }}
@@ -101,47 +98,119 @@ jobs:
           run-id: ${{ steps.inventory.outputs.run_id }}
           path: inventory_download
 
-      - name: Verify downloaded inventory and calculate SHA-256
+      - name: Verify inventory content, commit identity, and SHA-256
         shell: bash
+        env:
+          REVIEW_COMMIT: ${{ inputs.review_commit }}
+          INVENTORY_SOURCE_COMMIT: ${{ inputs.inventory_source_commit }}
+          INVENTORY_WORKFLOW_COMMIT: ${{ inputs.inventory_workflow_commit }}
+          INVENTORY_RUN_ID: ${{ steps.inventory.outputs.run_id }}
         run: |
           set -euo pipefail
-          test -s inventory_download/type1_governance_inventory/reference_inventory.json
-
-          sha256sum inventory_download/type1_governance_inventory/reference_inventory.json \
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          root=Path("inventory_download")
+          invp=root/"type1_governance_inventory/reference_inventory.json"
+          provp=root/"type1_governance_inventory/provenance.json"
+          ledgerp=root/"type1_occurrence_ledger/occurrence_level_manual_ledger.json"
+          if not all(p.is_file() for p in (invp,provp,ledgerp)): raise SystemExit("BLOCKED: required inventory evidence missing")
+          sha=hashlib.sha256(invp.read_bytes()).hexdigest()
+          inv=json.loads(invp.read_text()); prov=json.loads(provp.read_text()); ledger=json.loads(ledgerp.read_text())
+          target=os.environ["REVIEW_COMMIT"].lower()
+          if target != os.environ["INVENTORY_SOURCE_COMMIT"].lower(): raise SystemExit("BLOCKED: target/source commit mismatch")
+          if prov.get("target_commit","").lower()!=target or prov.get("inventory_source_commit","").lower()!=target: raise SystemExit("BLOCKED: provenance target/source mismatch")
+          if prov.get("workflow_definition_commit","").lower()!=os.environ["INVENTORY_WORKFLOW_COMMIT"].lower(): raise SystemExit("BLOCKED: inventory workflow commit mismatch")
+          if str(prov.get("workflow_run_id")) != os.environ["INVENTORY_RUN_ID"]: raise SystemExit("BLOCKED: inventory run ID mismatch")
+          if prov.get("inventory_sha256") != sha: raise SystemExit("BLOCKED: inventory SHA-256 mismatch")
+          rows=[r for r in inv.get("refs",[]) if r.get("commit_sha","").lower()==target]
+          if len(rows)!=1: raise SystemExit("BLOCKED: target commit is not uniquely represented in inventory")
+          if ledger.get("inventory_commit","").lower()!=target: raise SystemExit("BLOCKED: occurrence ledger commit mismatch")
+          if ledger.get("inventory_sha256")!=sha: raise SystemExit("BLOCKED: occurrence ledger inventory hash mismatch")
+          if ledger.get("occurrence_count")!=len(ledger.get("records",[])): raise SystemExit("BLOCKED: ledger count mismatch")
+          print("TARGET_COMMIT_INVENTORY_AND_LEDGER_VERIFIED", sha)
+          PY
+          sha256sum "$PWD/inventory_download/type1_governance_inventory/reference_inventory.json" \
             | tee inventory_download/type1_governance_inventory/INVENTORY_SHA256.txt
-
-          cat inventory_download/type1_governance_inventory/INVENTORY_SHA256.txt
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11.15"
 
-      - name: Test inventory-driven scope and fail-closed path validation
+      - name: Test snapshot inventory and occurrence identity
         run: |
           set -euo pipefail
-          python -m unittest -v tests.test_dynamic_snapshot_inventory
+          python -m unittest -v \
+            tests.test_dynamic_snapshot_inventory \
+            tests.test_type1_snapshot_occurrence_identity
 
-      - name: Generate inventory-driven snapshot
+      - name: Generate snapshot from the requested target commit
         shell: bash
         env:
-          EXPECTED_COMMIT: ${{ inputs.review_commit }}
+          REVIEW_COMMIT: ${{ inputs.review_commit }}
           INVENTORY_ARTIFACT_ID: ${{ inputs.inventory_artifact_id }}
           INVENTORY_SOURCE_COMMIT: ${{ inputs.inventory_source_commit }}
         run: |
           set -euo pipefail
-
           INVENTORY_HASH="$(sha256sum inventory_download/type1_governance_inventory/reference_inventory.json | awk '{print $1}')"
-
           python -m scripts.create_type1_review_snapshot \
-            --expected-commit "$EXPECTED_COMMIT" \
+            --expected-commit "$REVIEW_COMMIT" \
             --inventory-artifact-id "$INVENTORY_ARTIFACT_ID" \
             --inventory-source-commit "$INVENTORY_SOURCE_COMMIT" \
             --inventory-json inventory_download/type1_governance_inventory/reference_inventory.json \
             --inventory-sha256 "$INVENTORY_HASH" \
             --ledger-json inventory_download/type1_occurrence_ledger/occurrence_level_manual_ledger.json
 
-      - name: Upload snapshot evidence
+      - name: Write three-way snapshot identity certificate
+        shell: bash
+        env:
+          TARGET_COMMIT: ${{ inputs.review_commit }}
+          INVENTORY_SOURCE_COMMIT: ${{ inputs.inventory_source_commit }}
+          INVENTORY_WORKFLOW_COMMIT: ${{ inputs.inventory_workflow_commit }}
+          INVENTORY_RUN_ID: ${{ steps.inventory.outputs.run_id }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          out=Path("artifacts/type1_review_snapshot")
+          manifest=json.loads((out/"manifest.json").read_text())
+          target=os.environ["TARGET_COMMIT"].lower()
+          source=os.environ["INVENTORY_SOURCE_COMMIT"].lower()
+          review=manifest.get("review_commit_sha","").lower()
+          manifest_source=manifest.get("inventory_source_commit","").lower()
+          if not (target==source==review==manifest_source):
+              raise SystemExit("BLOCKED: target, inventory source, and snapshot review commits are not identical")
+          def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          cert={
+            "schema":"HCM_TYPE1_THREE_WAY_SNAPSHOT_IDENTITY_V1",
+            "target_commit":target,
+            "inventory_source_commit":source,
+            "snapshot_review_commit":review,
+            "inventory_workflow_definition_commit":os.environ["INVENTORY_WORKFLOW_COMMIT"].lower(),
+            "inventory_workflow_run_id":os.environ["INVENTORY_RUN_ID"],
+            "snapshot_workflow_definition_commit":os.environ["GITHUB_SHA"].lower(),
+            "snapshot_workflow_run_id":os.environ["GITHUB_RUN_ID"],
+            "inventory_json_sha256":manifest["inventory_json_sha256"],
+            "snapshot_manifest_sha256":sha(out/"manifest.json"),
+            "self_contained_snapshot_zip_sha256":sha(out/"self_contained/self-contained-review-snapshot.zip"),
+            "selected_file_count":manifest["selected_scope_count"],
+            "present_file_count":manifest["present_file_count"],
+            "missing_scope_paths":manifest["missing_scope_paths"],
+            "missing_required_paths":manifest["missing_required_paths"],
+            "manual_adjudication_overlay_records":0,
+            "protocol_freeze":manifest["protocol_freeze"],
+            "formal_calibration_authorized":manifest["formal_calibration_authorized"],
+            "confirmatory_execution_authorized":manifest["confirmatory_execution_authorized"],
+            "claim_support":manifest["claim_support"],
+            "promotion_authority":manifest["promotion_authority"]
+          }
+          (out/"three_way_identity_certificate.json").write_text(json.dumps(cert,indent=2,sort_keys=True)+"\n")
+          print(json.dumps(cert,indent=2))
+          PY
+
+      - name: Upload exact-target snapshot evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
