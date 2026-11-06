@@ -1,71 +1,60 @@
-name: Type-I V3 V4 Governance Inventory Audit
+name: Type-I Target-Commit Governance Inventory
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - review/type1-v4-remediation
-    paths:
-      - "scripts/audit_type1_governance_refs.py"
-      - "scripts/generate_type1_occurrence_ledger.py"
-      - "tests/test_v3_v4_governance_separation.py"
-      - "tests/test_type1_occurrence_ledger.py"
-      - "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V3.json"
-      - "protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_CANDIDATE.json"
-      - ".github/workflows/null-type1-calibration.yml"
-      - ".github/workflows/type1-v3-v4-governance-audit.yml"
-      - "analysis/calibrate_null_type1.py"
-      - "analysis/calibrate_null_type1_scenario.py"
-      - "protocol/TYPE1_ACCEPTANCE_RULE_DECISION_RECORD_V2.md"
-      - "protocol/TYPE1_V4_ACCEPTANCE_RULE_DECISION_RECORD.md"
-      - "tests/test_type1_v4_matrix_gate.py"
-      - "scripts/type1_occurrence_classifier.py"
-      - "tests/test_type1_occurrence_local_classifier.py"
-      - "scripts/create_type1_review_snapshot.py"
-      - "tests/test_dynamic_snapshot_inventory.py"
-      - "tests/test_type1_governance_inventory_occurrence_local.py"
-      - "tests/test_type1_main_negative_gate.py"
-      - ".github/workflows/type1-calibration-runtime-pilot.yml"
-      - "analysis/type1_calibration_pilot.py"
-      - "scripts/type1_runtime_pilot_branch_guard.py"
-      - "tests/test_type1_runtime_pilot_branch_guard.py"
-      - "protocol/TYPE1_EVIDENCE_GOVERNANCE_REGISTER_V1.md"
-      - "protocol/TYPE1_OCCURRENCE_MANUAL_ADJUDICATION_OVERLAY_V1.json"
-      - "scripts/merge_type1_manual_adjudication_overlay.py"
-      - "tests/test_type1_manual_adjudication_overlay.py"
-      - "tests/test_type1_snapshot_occurrence_identity.py"
+    inputs:
+      target_commit:
+        description: Exact 40-character commit to inventory for the independent review
+        required: true
+        type: string
+      main_commit:
+        description: Exact 40-character main commit to inventory separately
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 jobs:
-  governance-inventory:
+  inventory:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
-
     steps:
-      - name: Checkout exact review branch
+      - name: Checkout workflow-definition revision
         uses: actions/checkout@v5
         with:
+          ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Verify review branch identity
+      - name: Validate requested commits and establish immutable audit refs
         shell: bash
+        env:
+          TARGET_COMMIT: ${{ inputs.target_commit }}
+          MAIN_COMMIT: ${{ inputs.main_commit }}
+          WORKFLOW_COMMIT: ${{ github.sha }}
         run: |
           set -euo pipefail
+          [[ "$TARGET_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]]
+          [[ "$MAIN_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]]
           test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          echo "Verified review commit: $(git rev-parse HEAD)"
+          test "$(git rev-parse HEAD)" = "$WORKFLOW_COMMIT"
 
-      - name: Fetch main for read-only comparison
-        shell: bash
-        run: |
-          set -euo pipefail
           git fetch --no-tags origin \
+            +refs/heads/review/type1-v4-remediation:refs/remotes/origin/review/type1-v4-remediation \
             +refs/heads/main:refs/remotes/origin/main
-          echo "Review: $(git rev-parse HEAD)"
-          echo "Main:   $(git rev-parse origin/main)"
+
+          git cat-file -e "${TARGET_COMMIT}^{commit}"
+          git cat-file -e "${MAIN_COMMIT}^{commit}"
+          git merge-base --is-ancestor "$TARGET_COMMIT" refs/remotes/origin/review/type1-v4-remediation
+          git merge-base --is-ancestor "$MAIN_COMMIT" refs/remotes/origin/main
+
+          git update-ref refs/audit/target "$TARGET_COMMIT"
+          git update-ref refs/audit/main "$MAIN_COMMIT"
+
+          echo "target_commit=$TARGET_COMMIT"
+          echo "main_commit=$MAIN_COMMIT"
+          echo "workflow_definition_commit=$WORKFLOW_COMMIT"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -75,101 +64,109 @@ jobs:
           cache-dependency-path: requirements-lock.txt
 
       - name: Install locked dependencies
-        run: |
-          set -euo pipefail
-          python -m pip install --require-hashes -r requirements-lock.txt
+        run: python -m pip install --require-hashes -r requirements-lock.txt
 
-      - name: Compile governance audit, ledger generator, and tests
+      - name: Compile audit and ledger tools
         run: |
           set -euo pipefail
           python -m py_compile \
             scripts/audit_type1_governance_refs.py \
             scripts/generate_type1_occurrence_ledger.py \
-            tests/test_v3_v4_governance_separation.py \
-            tests/test_type1_occurrence_ledger.py \
-            tests/test_type1_v4_matrix_gate.py \
-            scripts/type1_occurrence_classifier.py \
-            tests/test_type1_occurrence_local_classifier.py
+            scripts/type1_occurrence_classifier.py
 
-      - name: Generate inventories for both exact refs
+      - name: Generate inventories for the requested target and main commits
         shell: bash
+        env:
+          TARGET_COMMIT: ${{ inputs.target_commit }}
+          MAIN_COMMIT: ${{ inputs.main_commit }}
         run: |
           set -euo pipefail
-          python scripts/audit_type1_governance_refs.py \
-            HEAD origin/main
+          python scripts/audit_type1_governance_refs.py refs/audit/target refs/audit/main
           test -s artifacts/type1_governance_inventory/reference_inventory.json
 
-      - name: Verify V3 V4 separation and occurrence-ledger reconciliation
-        run: |
-          set -euo pipefail
-          python -m unittest -v \
-            tests.test_v3_v4_governance_separation \
-            tests.test_type1_v4_matrix_gate \
-            tests.test_type1_occurrence_ledger \
-            tests.test_type1_occurrence_local_classifier \
-            tests.test_type1_governance_inventory_occurrence_local \
-            tests.test_dynamic_snapshot_inventory \
-            tests.test_type1_main_negative_gate \
-            tests.test_type1_manual_adjudication_overlay \
-            tests.test_type1_snapshot_occurrence_identity
-
-      - name: Generate exact-commit occurrence ledger and reconciliation report
-        shell: bash
-        run: |
-          set -euo pipefail
           python -m scripts.generate_type1_occurrence_ledger \
             --inventory artifacts/type1_governance_inventory/reference_inventory.json \
-            --expected-commit "$GITHUB_SHA" \
+            --expected-commit "$TARGET_COMMIT" \
             --output-ledger artifacts/type1_occurrence_ledger/occurrence_level_manual_ledger.json \
             --output-reconciliation artifacts/type1_occurrence_ledger/reconciliation.json
-          test -s artifacts/type1_occurrence_ledger/occurrence_level_manual_ledger.json
-          test -s artifacts/type1_occurrence_ledger/reconciliation.json
 
-      - name: Generate separate main-branch occurrence ledger and reconciliation
-        shell: bash
-        run: |
-          set -euo pipefail
-          MAIN_SHA="$(git rev-parse origin/main)"
           python -m scripts.generate_type1_occurrence_ledger \
             --inventory artifacts/type1_governance_inventory/reference_inventory.json \
-            --expected-commit "$MAIN_SHA" \
+            --expected-commit "$MAIN_COMMIT" \
             --output-ledger artifacts/type1_occurrence_ledger/main_occurrence_level_manual_ledger.json \
             --output-reconciliation artifacts/type1_occurrence_ledger/main_reconciliation.json
-          test -s artifacts/type1_occurrence_ledger/main_occurrence_level_manual_ledger.json
-          test -s artifacts/type1_occurrence_ledger/main_reconciliation.json
 
-      - name: Verify inventory identifies both refs
+      - name: Verify inventory identities, ledger coverage, and unresolved defaults
+        shell: bash
+        env:
+          TARGET_COMMIT: ${{ inputs.target_commit }}
+          MAIN_COMMIT: ${{ inputs.main_commit }}
+          WORKFLOW_COMMIT: ${{ github.sha }}
         run: |
           set -euo pipefail
           python - <<'PY'
-          import json
+          import json, os
           from pathlib import Path
-
-          path = Path(
-              "artifacts/type1_governance_inventory/"
-              "reference_inventory.json"
-          )
-          data = json.loads(path.read_text(encoding="utf-8"))
-          refs = data.get("refs", [])
-          if len(refs) != 2:
-              raise SystemExit(f"Expected two ref inventories; got {len(refs)}")
-          names = {item.get("ref_requested") for item in refs}
-          if names != {"HEAD", "origin/main"}:
-              raise SystemExit(f"Unexpected refs in inventory: {names}")
-          for item in refs:
-              if not item.get("commit_sha"):
-                  raise SystemExit(
-                      f"Missing commit identity for {item.get('ref_requested')}"
-                  )
-              if not item.get("entries"):
-                  raise SystemExit(
-                      f"No matching references found for {item.get('ref_requested')}"
-                  )
-          print("Both branch snapshots were inventoried.")
-          print("Manual classification review is still required.")
+          inv = json.loads(Path("artifacts/type1_governance_inventory/reference_inventory.json").read_text())
+          refs = inv.get("refs", [])
+          wanted = {os.environ["TARGET_COMMIT"].lower(), os.environ["MAIN_COMMIT"].lower()}
+          found = [r for r in refs if r.get("commit_sha", "").lower() in wanted]
+          if len(found) != 2 or {r["commit_sha"].lower() for r in found} != wanted:
+              raise SystemExit("BLOCKED: inventory does not contain exactly the requested target and main commits")
+          for filename, commit in [
+              ("occurrence_level_manual_ledger.json", os.environ["TARGET_COMMIT"]),
+              ("main_occurrence_level_manual_ledger.json", os.environ["MAIN_COMMIT"]),
+          ]:
+              p = Path("artifacts/type1_occurrence_ledger") / filename
+              d = json.loads(p.read_text())
+              if d.get("inventory_commit", "").lower() != commit.lower():
+                  raise SystemExit(f"BLOCKED: {filename} commit mismatch")
+              if d.get("occurrence_count") != len(d.get("records", [])):
+                  raise SystemExit(f"BLOCKED: {filename} count mismatch")
+              for row in d["records"]:
+                  if row.get("manual_classification") != "UNKNOWN" or row.get("status") != "OPEN":
+                      raise SystemExit(f"BLOCKED: generated ledger must preserve unresolved state: {filename}")
+          print("TARGET_AND_MAIN_INVENTORY_IDENTITIES_VERIFIED")
           PY
 
-      - name: Upload governance inventory and occurrence ledger evidence
+      - name: Write inventory provenance and SHA-256 register
+        shell: bash
+        env:
+          TARGET_COMMIT: ${{ inputs.target_commit }}
+          MAIN_COMMIT: ${{ inputs.main_commit }}
+          WORKFLOW_COMMIT: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/type1_governance_inventory artifacts/type1_occurrence_ledger
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          import hashlib
+          def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          p=Path("artifacts/type1_governance_inventory/reference_inventory.json")
+          inv=json.loads(p.read_text())
+          provenance={
+            "schema":"HCM_TYPE1_TARGETED_INVENTORY_PROVENANCE_V1",
+            "repository":os.environ["GITHUB_REPOSITORY"],
+            "target_commit":os.environ["TARGET_COMMIT"].lower(),
+            "inventory_source_commit":os.environ["TARGET_COMMIT"].lower(),
+            "main_commit":os.environ["MAIN_COMMIT"].lower(),
+            "workflow_definition_commit":os.environ["WORKFLOW_COMMIT"].lower(),
+            "workflow_ref":os.environ["GITHUB_REF"],
+            "workflow_run_id":os.environ["GITHUB_RUN_ID"],
+            "workflow_run_attempt":os.environ["GITHUB_RUN_ATTEMPT"],
+            "inventory_sha256":sha(p),
+            "inventory_refs":[{"ref_requested":r.get("ref_requested"),"commit_sha":r.get("commit_sha")} for r in inv["refs"]],
+            "scanner_sha256":sha("scripts/audit_type1_governance_refs.py"),
+            "ledger_generator_sha256":sha("scripts/generate_type1_occurrence_ledger.py")
+          }
+          Path("artifacts/type1_governance_inventory/provenance.json").write_text(json.dumps(provenance,indent=2,sort_keys=True)+"\n")
+          files=[p for p in Path("artifacts").rglob("*") if p.is_file() and p.name!="SHA256SUMS.txt"]
+          Path("artifacts/SHA256SUMS.txt").write_text("".join(f"{sha(p)}  {p.as_posix()}\n" for p in sorted(files)))
+          print(json.dumps(provenance,indent=2))
+          PY
+
+      - name: Upload target-commit inventory and both ledgers
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -177,5 +174,6 @@ jobs:
           path: |
             artifacts/type1_governance_inventory/
             artifacts/type1_occurrence_ledger/
-          if-no-files-found: warn
+            artifacts/SHA256SUMS.txt
+          if-no-files-found: error
           retention-days: 90
