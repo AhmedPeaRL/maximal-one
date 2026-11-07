@@ -1,0 +1,26 @@
+{
+  "schema": "HCM_TYPE1_ADJUDICATION_BATCH_REGISTER_V3",
+  "batch_id": "BATCH_001",
+  "status": "NAVIGATION_ONLY_NOT_ADJUDICATED",
+  "target_commit": "FILL_AFTER_POST_REMEDIATION_INVENTORY",
+  "inventory_ref": "refs/audit/target",
+  "inventory_sha256": "FILL_AFTER_POST_REMEDIATION_INVENTORY",
+  "count": 25,
+  "first_occurrence_id": "FILL_FROM_POST_REMEDIATION_LEDGER",
+  "last_occurrence_id": "FILL_FROM_POST_REMEDIATION_LEDGER",
+  "canonical_id_sequence_sha256": "FILL_AFTER_CANONICALIZATION",
+  "canonicalization": "UTF-8; one occurrence ID per line; final newline included",
+  "occurrence_ids": [],
+  "primary_reviewer": {
+    "identity": "FILL_HUMAN_REVIEWER_IDENTITY",
+    "role": "repository author / primary reviewer",
+    "conflict_statement": "Disclose repository authorship and all relevant intellectual, financial, supervisory, collaboration, and other conflicts"
+  },
+  "second_reviewer_policy": "Distinct human reviewer required for every high-impact occurrence; AI is not a reviewer",
+  "authority": "NONE",
+  "protocol_freeze": "NOT_FROZEN",
+  "formal_calibration_authorized": false,
+  "confirmatory_execution_authorized": false,
+  "claim_support": false,
+  "promotion_authority": false
+}
