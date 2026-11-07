@@ -196,9 +196,9 @@ jobs:
           if actual != expected:
               raise SystemExit("BLOCKED: checksum register does not exactly match the six artifact payloads")
           print("INVENTORY_ARTIFACT_CHECKSUM_REGISTER_VERIFIED")
+          PY
           set -euo pipefail
           (cd artifacts && sha256sum -c SHA256SUMS.txt)
-          PY
 
       - name: Upload target-commit inventory and both ledgers
         if: always()
