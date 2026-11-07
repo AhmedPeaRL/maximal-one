@@ -1,0 +1,79 @@
+name: Type-I V3 Manual Adjudication Governance
+
+on:
+  push:
+    branches:
+      - review/type1-v4-remediation
+    paths:
+      - "protocol/TYPE1_OCCURRENCE_MANUAL_ADJUDICATION_OVERLAY_V3.schema.json"
+      - "protocol/TYPE1_MANUAL_OCCURRENCE_ADJUDICATION_PROTOCOL_V3.md"
+      - "scripts/merge_type1_manual_adjudication_overlay_v3.py"
+      - "scripts/csv_to_type1_overlay_v3.py"
+      - "tests/test_type1_manual_adjudication_overlay_v3.py"
+      - ".github/workflows/type1-manual-adjudication-v3.yml"
+  pull_request:
+    branches:
+      - review/type1-v4-remediation
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  v3-governance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.15"
+
+      - name: Compile V3 implementation
+        run: |
+          python -m py_compile \
+            scripts/merge_type1_manual_adjudication_overlay_v3.py \
+            scripts/csv_to_type1_overlay_v3.py \
+            tests/test_type1_manual_adjudication_overlay_v3.py
+
+      - name: Validate V3 schema JSON
+        run: |
+          python -m json.tool \
+            protocol/TYPE1_OCCURRENCE_MANUAL_ADJUDICATION_OVERLAY_V3.schema.json \
+            > /dev/null
+
+      - name: Run V3 rejection and acceptance tests
+        run: |
+          python -m unittest discover \
+            -s tests \
+            -p "test_type1_manual_adjudication_overlay_v3.py" \
+            -v
+
+      - name: Preserve non-authority invariants
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text = Path(
+              "protocol/TYPE1_MANUAL_OCCURRENCE_ADJUDICATION_PROTOCOL_V3.md"
+          ).read_text(encoding="utf-8")
+
+          required = [
+              "NOT_FROZEN",
+              "formal_calibration_authorized = false",
+              "confirmatory_execution_authorized = false",
+              "claim_support = false",
+              "promotion_authority = false"
+          ]
+
+          for item in required:
+              if item not in text:
+                  raise SystemExit(f"Missing safeguard: {item}")
+
+          print("V3_NON_AUTHORITY_INVARIANTS_PRESENT")
+          PY
