@@ -7,6 +7,7 @@ on:
     paths:
       - "protocol/TYPE1_OCCURRENCE_MANUAL_ADJUDICATION_OVERLAY_V3.schema.json"
       - "protocol/TYPE1_MANUAL_OCCURRENCE_ADJUDICATION_PROTOCOL_V3.md"
+      - "protocol/EVIDENCE_REGISTER_V3.json"
       - "scripts/merge_type1_manual_adjudication_overlay_v3.py"
       - "scripts/csv_to_type1_overlay_v3.py"
       - "tests/test_type1_manual_adjudication_overlay_v3.py"
@@ -23,9 +24,8 @@ jobs:
   v3-governance:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
-
     steps:
-      - name: Checkout
+      - name: Checkout exact revision
         uses: actions/checkout@v5
         with:
           persist-credentials: false
@@ -35,20 +35,22 @@ jobs:
         with:
           python-version: "3.11.15"
 
-      - name: Compile V3 implementation
+      - name: Install pinned schema validator
+        run: python -m pip install --disable-pip-version-check jsonschema==4.26.0
+
+      - name: Compile V3 implementation and tests
         run: |
           python -m py_compile \
             scripts/merge_type1_manual_adjudication_overlay_v3.py \
             scripts/csv_to_type1_overlay_v3.py \
             tests/test_type1_manual_adjudication_overlay_v3.py
 
-      - name: Validate V3 schema JSON
+      - name: Validate JSON files
         run: |
-          python -m json.tool \
-            protocol/TYPE1_OCCURRENCE_MANUAL_ADJUDICATION_OVERLAY_V3.schema.json \
-            > /dev/null
+          python -m json.tool protocol/TYPE1_OCCURRENCE_MANUAL_ADJUDICATION_OVERLAY_V3.schema.json > /dev/null
+          python -m json.tool protocol/EVIDENCE_REGISTER_V3.json > /dev/null
 
-      - name: Run V3 rejection and acceptance tests
+      - name: Run schema, integration, acceptance, and rejection tests
         run: |
           python -m unittest discover \
             -s tests \
@@ -58,22 +60,24 @@ jobs:
       - name: Preserve non-authority invariants
         run: |
           python - <<'PY'
+          import json
           from pathlib import Path
-          text = Path(
-              "protocol/TYPE1_MANUAL_OCCURRENCE_ADJUDICATION_PROTOCOL_V3.md"
-          ).read_text(encoding="utf-8")
-
+          protocol = Path("protocol/TYPE1_MANUAL_OCCURRENCE_ADJUDICATION_PROTOCOL_V3.md").read_text(encoding="utf-8")
+          register = json.loads(Path("protocol/EVIDENCE_REGISTER_V3.json").read_text(encoding="utf-8"))
           required = [
               "NOT_FROZEN",
               "formal_calibration_authorized = false",
               "confirmatory_execution_authorized = false",
               "claim_support = false",
-              "promotion_authority = false"
+              "promotion_authority = false",
           ]
-
           for item in required:
-              if item not in text:
-                  raise SystemExit(f"Missing safeguard: {item}")
-
-          print("V3_NON_AUTHORITY_INVARIANTS_PRESENT")
+              if item not in protocol:
+                  raise SystemExit(f"Missing protocol safeguard: {item}")
+          for key in ("formal_calibration_authorized", "confirmatory_execution_authorized", "claim_support", "promotion_authority"):
+              if register.get(key) is not False:
+                  raise SystemExit(f"Evidence register authority invariant violated: {key}")
+          if register.get("protocol_freeze") != "NOT_FROZEN":
+              raise SystemExit("Evidence register protocol_freeze must remain NOT_FROZEN")
+          print("V3_NON_AUTHORITY_INVARIANTS_PRESERVED")
           PY
