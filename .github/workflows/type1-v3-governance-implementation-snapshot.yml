@@ -1,0 +1,134 @@
+name: Type-I V3 Governance Implementation Snapshot
+
+on:
+  push:
+    branches:
+      - review/type1-v4-remediation
+    paths:
+      - "protocol/EVIDENCE_REGISTER_V3.json"
+      - "protocol/TYPE1_MANUAL_OCCURRENCE_ADJUDICATION_PROTOCOL_V3.md"
+      - "protocol/TYPE1_OCCURRENCE_MANUAL_ADJUDICATION_OVERLAY_V3.schema.json"
+      - "protocol/TYPE1_OCCURRENCE_ADJUDICATION_V3_TEMPLATE.csv"
+      - "protocol/TYPE1_BATCH_REGISTER_V3_TEMPLATE.json"
+      - "scripts/merge_type1_manual_adjudication_overlay_v3.py"
+      - "scripts/csv_to_type1_overlay_v3.py"
+      - "tests/test_type1_manual_adjudication_overlay_v3.py"
+      - ".github/workflows/type1-manual-adjudication-v3.yml"
+      - ".github/workflows/type1-v3-governance-implementation-snapshot.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Require the review branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
+          [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
+
+      - name: Checkout the exact governance implementation commit
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Verify checkout identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          ACTUAL="$(git rev-parse HEAD)"
+          test "$ACTUAL" = "$GITHUB_SHA"
+          echo "governance_implementation_commit=$ACTUAL"
+
+      - name: Build a self-contained governance implementation snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json, os, shutil, zipfile
+          from pathlib import Path, PurePosixPath
+
+          required = [
+              "protocol/EVIDENCE_REGISTER_V3.json",
+              "protocol/TYPE1_MANUAL_OCCURRENCE_ADJUDICATION_PROTOCOL_V3.md",
+              "protocol/TYPE1_OCCURRENCE_MANUAL_ADJUDICATION_OVERLAY_V3.schema.json",
+              "protocol/TYPE1_OCCURRENCE_ADJUDICATION_V3_TEMPLATE.csv",
+              "protocol/TYPE1_BATCH_REGISTER_V3_TEMPLATE.json",
+              "scripts/merge_type1_manual_adjudication_overlay_v3.py",
+              "scripts/csv_to_type1_overlay_v3.py",
+              "tests/test_type1_manual_adjudication_overlay_v3.py",
+              ".github/workflows/type1-manual-adjudication-v3.yml",
+              ".github/workflows/type1-v3-governance-implementation-snapshot.yml",
+              ".github/workflows/type1-v3-v4-governance-audit.yml",
+              ".github/workflows/type1-review-snapshot.yml",
+              "scripts/create_type1_review_snapshot.py",
+          ]
+          root = Path.cwd().resolve()
+          missing = [p for p in required if not (root / p).is_file()]
+          if missing:
+              raise SystemExit("BLOCKED: missing governance snapshot files: " + ", ".join(missing))
+
+          out = Path("artifacts/type1_v3_governance_implementation")
+          if out.exists():
+              shutil.rmtree(out)
+          source = out / "source"
+          source.mkdir(parents=True)
+          records = []
+          for rel in required:
+              p = PurePosixPath(rel)
+              if p.is_absolute() or ".." in p.parts or "\\" in rel:
+                  raise SystemExit(f"BLOCKED: unsafe path: {rel}")
+              src = root / rel
+              dst = source / rel
+              dst.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copy2(src, dst)
+              data = dst.read_bytes()
+              records.append({"path": rel, "size_bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()})
+
+          manifest = {
+              "schema": "HCM_TYPE1_V3_GOVERNANCE_IMPLEMENTATION_SNAPSHOT_V1",
+              "repository": os.environ["GITHUB_REPOSITORY"],
+              "branch": os.environ["GITHUB_REF"],
+              "implementation_commit": os.environ["GITHUB_SHA"],
+              "workflow_run_id": os.environ["GITHUB_RUN_ID"],
+              "workflow_run_attempt": os.environ["GITHUB_RUN_ATTEMPT"],
+              "file_count": len(records),
+              "files": records,
+              "protocol_freeze": "NOT_FROZEN",
+              "formal_calibration_authorized": False,
+              "confirmatory_execution_authorized": False,
+              "claim_support": False,
+              "promotion_authority": False,
+          }
+          (out / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          (out / "SHA256SUMS.txt").write_text("".join(f"{r['sha256']}  source/{r['path']}\n" for r in records), encoding="utf-8")
+          archive = out / "governance-implementation-snapshot.zip"
+          with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as z:
+              for p in sorted(out.rglob("*")):
+                  if p.is_file() and p != archive:
+                      z.write(p, p.relative_to(out).as_posix())
+          with zipfile.ZipFile(archive) as z:
+              bad = z.testzip()
+              if bad:
+                  raise SystemExit(f"BLOCKED: archive CRC failure: {bad}")
+              for row in records:
+                  member = "source/" + row["path"]
+                  data = z.read(member)
+                  if hashlib.sha256(data).hexdigest() != row["sha256"]:
+                      raise SystemExit(f"BLOCKED: archive hash mismatch: {member}")
+          print(json.dumps({"status": "VERIFIED", "implementation_commit": os.environ["GITHUB_SHA"], "file_count": len(records), "archive": str(archive)}, indent=2))
+          PY
+
+      - name: Upload exact governance implementation snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: type1-v3-governance-implementation-snapshot-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/type1_v3_governance_implementation/
+          if-no-files-found: error
+          retention-days: 90
