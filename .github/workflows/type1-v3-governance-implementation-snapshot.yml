@@ -17,6 +17,8 @@ on:
       - "tests/test_type1_evidence_register_v3.py"
       - ".github/workflows/type1-manual-adjudication-v3.yml"
       - ".github/workflows/type1-v3-governance-implementation-snapshot.yml"
+      - "scripts/audit_type1_governance_refs.py"
+      - "tests/test_type1_governance_binary_scan.py"
   workflow_dispatch:
 
 permissions:
@@ -72,6 +74,8 @@ jobs:
               ".github/workflows/type1-v3-v4-governance-audit.yml",
               ".github/workflows/type1-review-snapshot.yml",
               "scripts/create_type1_review_snapshot.py",
+              "scripts/audit_type1_governance_refs.py",
+              "tests/test_type1_governance_binary_scan.py"
           ]
           root = Path.cwd().resolve()
           missing = [p for p in required if not (root / p).is_file()]
@@ -134,5 +138,6 @@ jobs:
         with:
           name: type1-v3-governance-implementation-snapshot-${{ github.run_id }}-${{ github.run_attempt }}
           path: artifacts/type1_v3_governance_implementation/
+          include-hidden-files: true
           if-no-files-found: error
           retention-days: 90
