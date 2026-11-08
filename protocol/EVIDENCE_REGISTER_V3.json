@@ -1,0 +1,106 @@
+{
+  "schema": "HCM_TYPE1_EVIDENCE_REGISTER_V3",
+  "status": "V3_GOVERNANCE_CI_PASSED_INVENTORY_RECONCILED_TARGET_SNAPSHOT_VERIFIED_GOVERNANCE_IMPLEMENTATION_SNAPSHOT_VERIFIED",
+  "repository": "AhmedPeaRL/maximal-one",
+  "review_branch": "refs/heads/review/type1-v4-remediation",
+  "workflow_definition_commit": "e3b65f622b6f03bfde82bdbddea403ef9e6d2d03",
+  "v3_governance_ci": {
+    "workflow_run_id": "42419352067",
+    "job_id": "128544218446",
+    "conclusion": "success",
+    "tests_passed": 21,
+    "schema_validator": "jsonschema==4.26.0",
+    "python_version": "3.11.15",
+    "note": "CI verified the V3 merger identity checks, schema acceptance/rejection tests, and non-authority invariants. This is software verification, not independent human adjudication."
+  },
+  "target": {
+    "ref": "refs/audit/target",
+    "commit": "e41fb7392b58198e8a4d8fa28b470b12b6ad2c31",
+    "occurrence_count": 1711,
+    "reconciliation_status": "RECONCILED"
+  },
+  "main_comparison": {
+    "ref": "refs/audit/main",
+    "commit": "00bbd1fbd6df41b3e988ace75c480ea6232cfb86",
+    "occurrence_count": 633,
+    "reconciliation_status": "RECONCILED"
+  },
+  "inventory": {
+    "workflow_run_id": "42457774721",
+    "workflow_definition_commit": "e3b65f622b6f03bfde82bdbddea403ef9e6d2d03",
+    "artifact_id": "13608356773",
+    "artifact_zip_sha256": "dc9f060e7cfc340d7e7ac65013a303048f7feec109ef7b2d71fc25e03415bb8e",
+    "reference_inventory_sha256": "5b4fbdca1bbdf56d47f38519fecf2b7cc325e3b41df2b9fe97dcd70cd9fd0b9a",
+    "provenance_sha256": "21b0e7742d4151520493534e1018abd25873359ea9bcf5932464fac7525c2d5c",
+    "target_reconciliation_status": "RECONCILED",
+    "main_reconciliation_status": "RECONCILED"
+  },
+  "snapshot": {
+    "workflow_run_id": "42458102333",
+    "workflow_definition_commit": "e3b65f622b6f03bfde82bdbddea403ef9e6d2d03",
+    "artifact_id": "13607909833",
+    "artifact_zip_sha256": "ae15c486446bec84d972118877470c581093730bb7c605ace628a22c54a6a660",
+    "manifest_sha256": "cfdfd59c8765cfeef67a27ec8c0b4dd6fb5ba92afff58a783d7ffa0c2504e679",
+    "self_contained_snapshot_zip_sha256": "4512498c844176d0c2e917efac85fc2fca077d55bb2ecf3da27bc8f550ec175d",
+    "selected_file_count": 264,
+    "present_file_count": 264,
+    "extraction_checked_file_count": 267,
+    "extraction_verified": true,
+    "missing_scope_paths": [],
+    "missing_required_paths": [],
+    "target_commit": "e41fb7392b58198e8a4d8fa28b470b12b6ad2c31",
+    "inventory_source_commit": "e41fb7392b58198e8a4d8fa28b470b12b6ad2c31",
+    "inventory_json_sha256": "5b4fbdca1bbdf56d47f38519fecf2b7cc325e3b41df2b9fe97dcd70cd9fd0b9a",
+    "manual_adjudication_overlay_records": 0,
+    "v3_governance_implementation_included": false,
+    "scope_note": "This is the exact target-code snapshot pinned to e41fb... . It is not the review-branch governance implementation snapshot; that is separately captured below."
+  },
+  "governance_implementation_snapshot": {
+    "required": true,
+    "workflow_path": ".github/workflows/type1-v3-governance-implementation-snapshot.yml",
+    "implementation_commit": "e3b65f622b6f03bfde82bdbddea403ef9e6d2d03",
+    "workflow_run_id": "42419352220",
+    "artifact_id": "13592947197",
+    "artifact_zip_sha256": "b36e96c0e0d53d70de9a13e2baee0004ed31c8ed86439f11fed01f417433b92b",
+    "manifest_sha256": "365f90478b857f909ebee666b0805483b3ce2d2a87288ac5fe067a55a9225e0f",
+    "self_contained_implementation_zip_sha256": "05f58147594d3b7d11f475dd605d607f6acffdff3c114161ade14312e3c7de0a",
+    "file_count": 13,
+    "status": "VERIFIED",
+    "all_manifest_file_hashes_verified": true,
+    "scope_note": "Separate exact-commit snapshot of the V3 governance implementation on the review branch. It is distinct from the target-code snapshot."
+  },
+  "historical_inventory_not_rebound": {
+    "workflow_run_id": "42354217305",
+    "artifact_id": "13565989377",
+    "reference_inventory_sha256": "7171edb8da35b46a470e819626266f497983f4dee77c32ecc8aac2f82b9f86ec",
+    "historical_target_count": 1711,
+    "historical_main_count": 622,
+    "note": "Historical batch IDs and digests remain bound to the older inventory identity. Do not reuse or silently rebind them to the current inventory."
+  },
+  "current_navigation_batch": {
+    "batch_id": "BATCH_001",
+    "register_path": "protocol/TYPE1_BATCH_REGISTER_V3_B001.json",
+    "status": "NAVIGATION_ONLY_NOT_ADJUDICATED",
+    "count": 25,
+    "first_occurrence_id": "refs/audit/target/8f4a4518d7ea/45/5",
+    "last_occurrence_id": "refs/audit/target/a8a19adbc134/46/1",
+    "canonical_id_sequence_sha256": "a65ca1bff93f8ea841f6b46b9fb87cb3fe2827299ea5d7632ea3a0fa679f576b",
+    "inventory_sha256": "5b4fbdca1bbdf56d47f38519fecf2b7cc325e3b41df2b9fe97dcd70cd9fd0b9a",
+    "note": "Uses target-ledger positions 26-50, avoiding reuse of the historical positions 1-25 batch."
+  },
+  "manual_adjudication_overlay_records": 0,
+  "protocol_freeze": "NOT_FROZEN",
+  "formal_calibration_authorized": false,
+  "confirmatory_execution_authorized": false,
+  "claim_support": false,
+  "promotion_authority": false,
+  "limitations": [
+    "Inventory reconciliation verifies occurrence identity and coverage only; it does not adjudicate execution influence or code safety.",
+    "Target snapshot extraction verification establishes archive integrity and scope completeness only; it is not manual adjudication.",
+    "No occurrence has been manually adjudicated in the supplied snapshot; the overlay contains zero records.",
+    "The V3 merger now implements inventory-to-ledger identity enforcement and this behavior passed the 21-test V3 CI suite; independent human review of the implementation and occurrence classifications remains outstanding.",
+    "The target-code snapshot at e41 and governance implementation snapshot at e3 answer different questions and must not be conflated.",
+    "No protocol freeze, formal calibration authorization, confirmatory execution authorization, claim support, or promotion authority is granted."
+  ],
+  "snapshot_recording_policy": "The exact artifact for a commit is generated after that commit and is external workflow evidence. This committed register records the latest completed evidence available before the commit; the post-commit artifact is authoritative for that commit and is not self-referenced inside the same commit."
+}
