@@ -92,8 +92,14 @@ class EvidenceRegisterV3Tests(unittest.TestCase):
         self.assertNotEqual(handoff["current_inventory_source_commit"], handoff["candidate_review_commit"])
         self.assertNotEqual(handoff["current_snapshot_review_commit"], handoff["candidate_review_commit"])
 
-    def test_snapshot_workflow_captures_batch_and_evidence_test(self):
-        for path in ("protocol/TYPE1_BATCH_REGISTER_V3_B001.json", "tests/test_type1_evidence_register_v3.py"):
+    def test_snapshot_workflow_captures_all_governance_inputs(self):
+        required_paths = (
+            "protocol/TYPE1_BATCH_REGISTER_V3_B001.json",
+            "tests/test_type1_evidence_register_v3.py",
+            "scripts/audit_type1_governance_refs.py",
+            "tests/test_type1_governance_binary_scan.py",
+        )
+        for path in required_paths:
             self.assertGreaterEqual(SNAPSHOT_WORKFLOW.count(path), 2)
 
     def test_protocol_has_current_evidence_and_no_stale_current_run_ids(self):
