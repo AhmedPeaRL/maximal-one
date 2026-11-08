@@ -98,6 +98,7 @@ class EvidenceRegisterV3Tests(unittest.TestCase):
             "tests/test_type1_evidence_register_v3.py",
             "scripts/audit_type1_governance_refs.py",
             "tests/test_type1_governance_binary_scan.py",
+            "tests/test_type1_governance_generated_exclusions.py",
         )
         for path in required_paths:
             self.assertGreaterEqual(SNAPSHOT_WORKFLOW.count(path), 2)
