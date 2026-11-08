@@ -10,9 +10,11 @@ on:
       - "protocol/TYPE1_OCCURRENCE_MANUAL_ADJUDICATION_OVERLAY_V3.schema.json"
       - "protocol/TYPE1_OCCURRENCE_ADJUDICATION_V3_TEMPLATE.csv"
       - "protocol/TYPE1_BATCH_REGISTER_V3_TEMPLATE.json"
+      - "protocol/TYPE1_BATCH_REGISTER_V3_B001.json"
       - "scripts/merge_type1_manual_adjudication_overlay_v3.py"
       - "scripts/csv_to_type1_overlay_v3.py"
       - "tests/test_type1_manual_adjudication_overlay_v3.py"
+      - "tests/test_type1_evidence_register_v3.py"
       - ".github/workflows/type1-manual-adjudication-v3.yml"
       - ".github/workflows/type1-v3-governance-implementation-snapshot.yml"
   workflow_dispatch:
@@ -60,9 +62,11 @@ jobs:
               "protocol/TYPE1_OCCURRENCE_MANUAL_ADJUDICATION_OVERLAY_V3.schema.json",
               "protocol/TYPE1_OCCURRENCE_ADJUDICATION_V3_TEMPLATE.csv",
               "protocol/TYPE1_BATCH_REGISTER_V3_TEMPLATE.json",
+              "protocol/TYPE1_BATCH_REGISTER_V3_B001.json",
               "scripts/merge_type1_manual_adjudication_overlay_v3.py",
               "scripts/csv_to_type1_overlay_v3.py",
               "tests/test_type1_manual_adjudication_overlay_v3.py",
+              "tests/test_type1_evidence_register_v3.py",
               ".github/workflows/type1-manual-adjudication-v3.yml",
               ".github/workflows/type1-v3-governance-implementation-snapshot.yml",
               ".github/workflows/type1-v3-v4-governance-audit.yml",
