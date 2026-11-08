@@ -73,10 +73,14 @@ jobs:
             scripts/audit_type1_governance_refs.py \
             scripts/generate_type1_occurrence_ledger.py \
             scripts/type1_occurrence_classifier.py \
-            tests/test_type1_governance_binary_scan.py
+            tests/test_type1_governance_binary_scan.py \
+            tests/test_type1_governance_generated_exclusions.py
 
       - name: Test binary-safe governance inventory scanning
         run: python -m unittest tests.test_type1_governance_binary_scan
+
+      - name: Test generated-evidence exclusions
+        run: python -m unittest tests.test_type1_governance_generated_exclusions
 
       - name: Generate inventories for the requested target and main commits
         shell: bash
