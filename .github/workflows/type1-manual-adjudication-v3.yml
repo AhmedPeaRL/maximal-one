@@ -11,6 +11,8 @@ on:
       - "scripts/merge_type1_manual_adjudication_overlay_v3.py"
       - "scripts/csv_to_type1_overlay_v3.py"
       - "tests/test_type1_manual_adjudication_overlay_v3.py"
+      - "tests/test_type1_evidence_register_v3.py"
+      - "protocol/TYPE1_BATCH_REGISTER_V3_B001.json"
       - ".github/workflows/type1-manual-adjudication-v3.yml"
   pull_request:
     branches:
@@ -43,18 +45,20 @@ jobs:
           python -m py_compile \
             scripts/merge_type1_manual_adjudication_overlay_v3.py \
             scripts/csv_to_type1_overlay_v3.py \
-            tests/test_type1_manual_adjudication_overlay_v3.py
+            tests/test_type1_manual_adjudication_overlay_v3.py \
+            tests/test_type1_evidence_register_v3.py
 
       - name: Validate JSON files
         run: |
           python -m json.tool protocol/TYPE1_OCCURRENCE_MANUAL_ADJUDICATION_OVERLAY_V3.schema.json > /dev/null
           python -m json.tool protocol/EVIDENCE_REGISTER_V3.json > /dev/null
+          python -m json.tool protocol/TYPE1_BATCH_REGISTER_V3_B001.json > /dev/null
 
       - name: Run schema, integration, acceptance, and rejection tests
         run: |
           python -m unittest discover \
             -s tests \
-            -p "test_type1_manual_adjudication_overlay_v3.py" \
+            -p "test_type1_*v3.py" \
             -v
 
       - name: Preserve non-authority invariants
