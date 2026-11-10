@@ -323,6 +323,15 @@ def merge(inventory_path, ledger_path, overlay_path, output_path):
         updated = dict(row)
         decision = decisions_by_id.get(row["occurrence_id"])
         if decision:
+            if (
+                row.get("manual_classification") != "UNKNOWN"
+                or row.get("status") != "OPEN"
+                or row.get("reviewer_disposition", "PENDING") != "PENDING"
+            ):
+                raise ValueError(
+                    f"{row['occurrence_id']}: "
+                    "overlay cannot overwrite a previously adjudicated record"
+                )
             updated.update(decision)
         merged.append(updated)
 
