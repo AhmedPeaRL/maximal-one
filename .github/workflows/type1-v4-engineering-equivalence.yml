@@ -65,6 +65,31 @@ jobs:
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           echo "Verified engineering review branch and commit: $GITHUB_SHA"
 
+      - name: Record run context before tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/type1_official_runner_equivalence
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          data = {
+              "schema": "HCM_TYPE1_ENGINEERING_EQUIVALENCE_RUN_CONTEXT_V1",
+              "repository": os.environ.get("GITHUB_REPOSITORY"),
+              "ref": os.environ.get("GITHUB_REF"),
+              "commit_sha": os.environ.get("GITHUB_SHA"),
+              "run_id": os.environ.get("GITHUB_RUN_ID"),
+              "run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
+              "job": os.environ.get("GITHUB_JOB"),
+              "github_actions": os.environ.get("GITHUB_ACTIONS"),
+              "formal_calibration_pass": False,
+              "confirmatory_execution_authorized": False,
+              "claim_support": False,
+              "promotion_authority": False
+          }
+          Path("artifacts/type1_official_runner_equivalence/run_context.json").write_text(json.dumps(data, indent=2) + "\n")
+          PY
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -100,9 +125,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m unittest \
-            tests.test_type1_artifact_loss_and_denominator \
-            -v
+          python -m unittest tests.test_type1_artifact_loss_and_denominator -v
 
       - name: Test merger integrity and rejection cases
         shell: bash
@@ -120,17 +143,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m unittest \
-            tests.test_type1_cli_resume_identity_rejections \
-            -v
-            
+          python -m unittest tests.test_type1_cli_resume_identity_rejections -v
+
       - name: Test V3/V4 governance separation
         shell: bash
         run: |
           set -euo pipefail
-          python -m unittest \
-            tests.test_v3_v4_governance_separation \
-            -v
+          python -m unittest tests.test_v3_v4_governance_separation -v
 
       - name: Test official-runner connected/sharded/merged/resumed equivalence
         shell: bash
@@ -142,9 +161,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m unittest \
-            tests.test_type1_parallel_worker_order_equivalence \
-            -v
+          python -m unittest tests.test_type1_parallel_worker_order_equivalence -v
 
       - name: Upload engineering evidence even when tests fail
         if: always()
