@@ -1,0 +1,73 @@
+{
+  "schema": "HCM_TYPE1_AD106_POPULATION_REGISTER_V1",
+  "status": "BASELINE_IDENTITY_VERIFIED_HUMAN_OVERLAY_PIPELINE_PENDING",
+  "authority": "NONE",
+  "repository": "AhmedPeaRL/maximal-one",
+  "review_branch": "refs/heads/review/type1-v4-remediation",
+  "target": {
+    "ref": "refs/audit/target",
+    "commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+    "occurrence_count": 1800,
+    "distinct_inventory_paths": 271,
+    "reconciliation_status": "RECONCILED"
+  },
+  "main_comparison": {
+    "ref": "refs/audit/main",
+    "commit": "484b6b0a49deb175cc604cab7508c36d23882c71",
+    "occurrence_count": 697,
+    "distinct_inventory_paths": 188,
+    "reconciliation_status": "RECONCILED"
+  },
+  "inventory": {
+    "workflow_run_id": "42819437836",
+    "artifact_id": "13764794572",
+    "artifact_name": "type1-v3-v4-governance-inventory-42819437836-1",
+    "artifact_zip_sha256": "1d0d8d3625cdf183bf0b33e3826682b42e6fd0e26402d75fc28b12a90bebe051",
+    "reference_inventory_sha256": "beb593b7adfba333750e27a361dbb6b7daa0c58ca910cd0930e71b081a3ba805",
+    "target_ledger_sha256": "ad8d9350c6598b9c202512eadd56a4e97d5ff8c91799f66c5a08dffa7a8e88ce",
+    "workflow_definition_commit": "e50e9921b3fef42ea6bba14f69661d2c638d77a9"
+  },
+  "snapshot": {
+    "workflow_run_id": "42819776911",
+    "artifact_id": "13764824729",
+    "artifact_name": "type1-exact-review-snapshot-42819776911-1",
+    "artifact_zip_sha256": "0941f756a68ae6f8406e6b3670cbc3854838bfdccd5bafb4a9eada9a4bd69e4c",
+    "self_contained_snapshot_zip_sha256": "45798727decee1e35b58530a9d84e4af6d29268a8a70f268b363839ae0099ceb",
+    "selected_file_count": 289,
+    "present_file_count": 289,
+    "extraction_checked_file_count": 292,
+    "extraction_verified": true,
+    "missing_scope_paths": [],
+    "missing_required_paths": [],
+    "manual_adjudication_overlay_records": 0,
+    "workflow_definition_commit": "e50e9921b3fef42ea6bba14f69661d2c638d77a9"
+  },
+  "implementation": {
+    "review_branch_commit_at_audit": "131000448d86ccdad03d9b5c8ea3cb9923c6723e",
+    "change": "Prevent overwriting previously adjudicated records",
+    "current_overlay_workflow": "NOT_IMPLEMENTED; existing V3 workflow is test-only"
+  },
+  "path_count_reconciliation": {
+    "target_workflow_yaml_paths": 39,
+    "target_python_paths": 86,
+    "target_github_workflow_directory_paths": 38,
+    "target_workflow_occurrences_under_github_workflows": 264,
+    "target_python_occurrences": 439,
+    "requested_118_workflow_control_paths": "NOT_REPRODUCED_FROM_THIS_INVENTORY; definition and denominator required",
+    "requested_253_code_paths": "NOT_REPRODUCED_FROM_THIS_INVENTORY; definition and denominator required"
+  },
+  "authority_invariants": {
+    "protocol_freeze": "NOT_FROZEN",
+    "formal_calibration_authorized": false,
+    "confirmatory_execution_authorized": false,
+    "claim_support": false,
+    "promotion_authority": false
+  },
+  "historical_population_policy": "Do not edit or rebind protocol/EVIDENCE_REGISTER_V3.json. Its e41fb739... / 1711-occurrence population remains historical. This file defines a separate ad106 population.",
+  "notes": [
+    "The later inventory artifact 13781576718 is not the current-main baseline: it pins main commit 00bbd1f... and inventory SHA-88222e..., whereas current main is 484b6b0... and the verified baseline inventory SHA is beb593b7... .",
+    "Batch artifact 13778937429 is navigation-only and pins inventory SHA 88222e... and target-ledger SHA 5aaa4a... . Regenerate batches against this register before use.",
+    "The target occurrence records are identical across the two compared target ledgers, but the complete inventory identity differs because the main comparison commit differs.",
+    "This register establishes identity and scope only. It does not classify any occurrence or authorize execution."
+  ]
+}
