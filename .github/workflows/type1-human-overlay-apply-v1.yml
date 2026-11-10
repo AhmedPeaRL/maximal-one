@@ -1,20 +1,25 @@
-name: Type-I Human Overlay Apply V1 (Artifact Only)
+name: Type-I Human Overlay Apply V1 (Current Identity, Preflight Default, Artifact Only)
 
 on:
   workflow_dispatch:
     inputs:
       csv_path:
-        description: "Reviewed CSV committed under adjudication/incoming/"
+        description: Reviewed CSV committed under adjudication/incoming/
         required: true
         type: string
         default: adjudication/incoming/first-three-occurrences.csv
+      preflight_only:
+        description: Verify the current inventory/snapshot and pending CSV without applying adjudications
+        required: true
+        type: boolean
+        default: true
       previous_ledger_run_id:
-        description: "Optional prior successful overlay workflow run ID"
+        description: Optional prior successful overlay workflow run ID when preflight_only is false
         required: false
         type: string
         default: ""
       previous_ledger_artifact_name:
-        description: "Optional prior merged-ledger artifact name"
+        description: Optional prior merged-ledger artifact name when preflight_only is false
         required: false
         type: string
         default: ""
@@ -30,13 +35,14 @@ concurrency:
 jobs:
   apply-human-overlay:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       CSV_PATH: ${{ inputs.csv_path }}
       TARGET_COMMIT: ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876
-      INVENTORY_SHA256: beb593b7adfba333750e27a361dbb6b7daa0c58ca910cd0930e71b081a3ba805
-      TARGET_LEDGER_SHA256: ad8d9350c6598b9c202512eadd56a4e97d5ff8c91799f66c5a08dffa7a8e88ce
-      MAIN_COMMIT: 484b6b0a49deb175cc604cab7508c36d23882c71
+      INVENTORY_SHA256: b30db3cb254f276a6d2707cbdbc4bef06f1dad92c4063c7098eedaae84154c92
+      TARGET_LEDGER_SHA256: fcbc907daa1357570a20d592239a33c27deec9fb66e4bf60210cfaf9540fc976
+      MAIN_COMMIT: 0fa531bc844b1891f0574564add8eef5e20813d8
+
     steps:
       - name: Checkout the selected review-branch implementation
         uses: actions/checkout@v5
@@ -55,76 +61,194 @@ jobs:
           esac
           test -f "$CSV_PATH"
 
-      - name: Download the verified target inventory artifact
+      - name: Download the latest verified target inventory artifact
         uses: actions/download-artifact@v4
         with:
-          name: type1-v3-v4-governance-inventory-42819437836-1
+          name: type1-v3-v4-governance-inventory-42870936071-1
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
-          run-id: 42819437836
+          run-id: 42870936071
           path: artifacts/input/inventory
 
-      - name: Download the verified exact-target snapshot artifact
+      - name: Download the exact-target snapshot linked to that inventory
         uses: actions/download-artifact@v4
         with:
-          name: type1-exact-review-snapshot-42819776911-1
+          name: type1-exact-review-snapshot-42871210051-1
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
-          run-id: 42819776911
+          run-id: 42871210051
           path: artifacts/input/snapshot
 
-      - name: Verify inventory, snapshot, and population identities
+      - name: Verify inventory, nested snapshot archive, and population identities
         shell: bash
         run: |
           set -euo pipefail
           (cd artifacts/input/inventory && sha256sum -c SHA256SUMS.txt)
-          (cd artifacts/input/snapshot && sha256sum -c SHA256SUMS.txt)
           python - <<'PY'
-          import hashlib, json
-          from pathlib import Path
+          import hashlib, json, zipfile
+          from pathlib import Path, PurePosixPath
+
           root = Path("artifacts/input")
           pop = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V1.json").read_text())
-          prov = json.loads((root / "inventory/type1_governance_inventory/provenance.json").read_text())
-          inv_path = root / "inventory/type1_governance_inventory/reference_inventory.json"
-          ledger_path = root / "inventory/type1_occurrence_ledger/occurrence_level_manual_ledger.json"
-          target_rec = json.loads((root / "inventory/type1_occurrence_ledger/reconciliation.json").read_text())
-          main_rec = json.loads((root / "inventory/type1_occurrence_ledger/main_reconciliation.json").read_text())
-          cert = json.loads((root / "snapshot/three_way_identity_certificate.json").read_text())
-          extraction = json.loads((root / "snapshot/self_contained/extraction_verification.json").read_text())
+          inv_root = root / "inventory"
+          snap_root = root / "snapshot"
+          prov = json.loads((inv_root / "type1_governance_inventory/provenance.json").read_text())
+          inv_path = inv_root / "type1_governance_inventory/reference_inventory.json"
+          target_ledger_path = inv_root / "type1_occurrence_ledger/occurrence_level_manual_ledger.json"
+          main_ledger_path = inv_root / "type1_occurrence_ledger/main_occurrence_level_manual_ledger.json"
+          target_rec = json.loads((inv_root / "type1_occurrence_ledger/reconciliation.json").read_text())
+          main_rec = json.loads((inv_root / "type1_occurrence_ledger/main_reconciliation.json").read_text())
+          cert = json.loads((snap_root / "three_way_identity_certificate.json").read_text())
+          extraction = json.loads((snap_root / "self_contained/extraction_verification.json").read_text())
+          manifest_path = snap_root / "manifest.json"
+          inner_path = snap_root / "self_contained/self-contained-review-snapshot.zip"
           sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+
           expected = pop["target"]["commit"]
+          assert expected == "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876"
           assert prov["target_commit"] == expected
           assert prov["inventory_source_commit"] == expected
           assert prov["main_commit"] == pop["main_comparison"]["commit"]
+          assert pop["main_comparison"]["commit"] == "0fa531bc844b1891f0574564add8eef5e20813d8"
           assert prov["inventory_sha256"] == pop["inventory"]["reference_inventory_sha256"]
+          assert prov["workflow_run_id"] == pop["inventory"]["workflow_run_id"] == "42870936071"
           assert prov["workflow_definition_commit"] == pop["inventory"]["workflow_definition_commit"]
-          assert sha(inv_path) == prov["inventory_sha256"]
-          assert sha(ledger_path) == pop["inventory"]["target_ledger_sha256"]
-          ledger = json.loads(ledger_path.read_text())
-          assert ledger["inventory_commit"] == expected
-          assert ledger["inventory_ref"] == "refs/audit/target"
-          assert ledger["inventory_sha256"] == prov["inventory_sha256"]
-          assert ledger["occurrence_count"] == 1800
-          assert prov["workflow_run_id"] == pop["inventory"]["workflow_run_id"]
+          assert sha(inv_path) == pop["inventory"]["reference_inventory_sha256"]
+          assert sha(target_ledger_path) == pop["inventory"]["target_ledger_sha256"]
+          assert sha(main_ledger_path) == pop["inventory"]["main_ledger_sha256"]
+
+          inventory = json.loads(inv_path.read_text())
+          target_ref = next(r for r in inventory["refs"] if r["commit_sha"] == expected)
+          main_ref = next(r for r in inventory["refs"] if r["commit_sha"] == pop["main_comparison"]["commit"])
+          from collections import Counter
+          class_counts = Counter(m["classification"] for entry in target_ref["entries"] for m in entry.get("matches", []))
+          assert len(target_ref["entries"]) == 271
+          assert sum(class_counts.values()) == 1800
+          assert class_counts["WORKFLOW_CONTROL_PATH"] == 118
+          assert class_counts["CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW"] == 253
+          assert len(main_ref["entries"]) == 189
+          target_ledger = json.loads(target_ledger_path.read_text())
+          main_ledger = json.loads(main_ledger_path.read_text())
+          assert target_ledger["inventory_commit"] == expected
+          assert target_ledger["inventory_ref"] == "refs/audit/target"
+          assert target_ledger["inventory_sha256"] == prov["inventory_sha256"]
+          assert target_ledger["occurrence_count"] == len(target_ledger["records"]) == 1800
+          assert main_ledger["inventory_commit"] == pop["main_comparison"]["commit"]
+          assert main_ledger["occurrence_count"] == len(main_ledger["records"]) == 711
           assert target_rec["status"] == "RECONCILED" and target_rec["observed_occurrence_count"] == 1800
-          assert main_rec["status"] == "RECONCILED" and main_rec["observed_occurrence_count"] == 697
+          assert main_rec["status"] == "RECONCILED" and main_rec["observed_occurrence_count"] == 711
+
           assert cert["target_commit"] == expected
           assert cert["snapshot_review_commit"] == expected
           assert cert["inventory_json_sha256"] == prov["inventory_sha256"]
-          assert cert["inventory_workflow_run_id"] == pop["inventory"]["workflow_run_id"]
-          assert cert["snapshot_workflow_run_id"] == pop["snapshot"]["workflow_run_id"]
+          assert cert["inventory_workflow_run_id"] == "42870936071"
+          assert cert["snapshot_workflow_run_id"] == pop["snapshot"]["workflow_run_id"] == "42871210051"
           assert cert["inventory_workflow_definition_commit"] == pop["inventory"]["workflow_definition_commit"]
           assert cert["snapshot_workflow_definition_commit"] == pop["snapshot"]["workflow_definition_commit"]
           assert cert["present_file_count"] == cert["selected_file_count"] == 289
           assert cert["missing_scope_paths"] == [] and cert["missing_required_paths"] == []
           assert cert["manual_adjudication_overlay_records"] == 0
+          assert cert["self_contained_snapshot_zip_sha256"] == pop["snapshot"]["self_contained_snapshot_zip_sha256"] == sha(inner_path)
+          assert cert["snapshot_manifest_sha256"] == pop["snapshot"]["snapshot_manifest_sha256"] == sha(manifest_path)
+          outer_overlay = json.loads((snap_root / "manual_adjudication_overlay.json").read_text())
+          assert outer_overlay["records"] == []
+          assert outer_overlay["inventory_sha256"] == prov["inventory_sha256"]
           assert extraction["verified"] is True and extraction["errors"] == []
           assert pop["authority_invariants"]["protocol_freeze"] == "NOT_FROZEN"
-          print("AD106_POPULATION_IDENTITY_VERIFIED; AUTHORITY=NONE")
+
+          manifest = json.loads(manifest_path.read_text())
+          assert len(manifest["files"]) == 289
+          assert all(item["status"] == "PRESENT" for item in manifest["files"])
+
+          extracted = snap_root / "extracted"
+          extracted.mkdir(parents=True, exist_ok=True)
+          with zipfile.ZipFile(inner_path) as archive:
+              bad = archive.testzip()
+              assert bad is None, f"snapshot ZIP CRC failure: {bad}"
+              for member in archive.infolist():
+                  name = PurePosixPath(member.filename)
+                  assert not name.is_absolute() and ".." not in name.parts
+              archive.extractall(extracted)
+
+          extracted_inventory = extracted / "source/evidence/reference_inventory.json"
+          extracted_target_ledger = extracted / "source/evidence/occurrence_level_manual_ledger.json"
+          assert sha(extracted_inventory) == sha(inv_path)
+          assert sha(extracted_target_ledger) == sha(target_ledger_path)
+          print("AD106_CURRENT_POPULATION_AND_LINKED_SNAPSHOT_VERIFIED; AUTHORITY=NONE")
           PY
+          (cd artifacts/input/snapshot/extracted && sha256sum -c SHA256SUMS.txt)
+
+      - name: Validate CSV identity and record a non-adjudicating preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import csv, hashlib, json
+          from pathlib import Path
+          pop = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V1.json").read_text())
+          ledger = json.loads(Path("artifacts/input/inventory/type1_occurrence_ledger/occurrence_level_manual_ledger.json").read_text())
+          by_id = {r["occurrence_id"]: r for r in ledger["records"]}
+          with Path(__import__("os").environ["CSV_PATH"]).open(newline="", encoding="utf-8") as f:
+              rows = list(csv.DictReader(f))
+          assert len(rows) == 3, f"Expected exactly three rows; observed {len(rows)}"
+          ids = [r["occurrence_id"] for r in rows]
+          assert len(ids) == len(set(ids))
+          for row in rows:
+              assert row["inventory_commit"] == pop["target"]["commit"]
+              assert row["inventory_ref"] == pop["target"]["ref"]
+              assert row["inventory_sha256"] == pop["inventory"]["reference_inventory_sha256"]
+              assert row["occurrence_id"] in by_id
+          preflight_only = __import__("os").environ.get("PREFLIGHT_ONLY", "true").lower() == "true"
+          if preflight_only:
+              for row in rows:
+                  assert row["manual_classification"].strip() == ""
+                  assert row["reviewer"].strip() == ""
+                  assert row["reviewer_role"].strip() == ""
+                  assert row["reviewed_at_utc"].strip() == ""
+                  assert row["status"] == "OPEN"
+                  assert row["reviewer_disposition"] == "PENDING"
+                  second = json.loads(row["second_review"])
+                  assert second["status"] == "PENDING"
+                  assert second["reviewer_kind"] == "NONE"
+                  assert second["reviewer"].strip() == ""
+          report = {
+              "schema": "HCM_TYPE1_HUMAN_OVERLAY_PREFLIGHT_V1",
+              "status": "IDENTITY_VERIFIED_PENDING_HUMAN_REVIEW" if preflight_only else "IDENTITY_VERIFIED_APPLY_REQUESTED",
+              "target_commit": pop["target"]["commit"],
+              "main_commit": pop["main_comparison"]["commit"],
+              "inventory_sha256": pop["inventory"]["reference_inventory_sha256"],
+              "inventory_workflow_run_id": pop["inventory"]["workflow_run_id"],
+              "snapshot_workflow_run_id": pop["snapshot"]["workflow_run_id"],
+              "csv_sha256": hashlib.sha256(Path(__import__("os").environ["CSV_PATH"]).read_bytes()).hexdigest(),
+              "row_count": len(rows),
+              "occurrence_ids": ids,
+              "all_rows_open": all(r["status"] == "OPEN" for r in rows),
+              "all_rows_pending": all(r["reviewer_disposition"] == "PENDING" for r in rows),
+              "adjudications_applied": 0,
+              "authority": "NONE",
+              "formal_calibration_authorized": False,
+              "confirmatory_execution_authorized": False,
+              "claim_support": False,
+              "promotion_authority": False
+          }
+          Path("artifacts/output").mkdir(parents=True, exist_ok=True)
+          Path("artifacts/output/preflight.json").write_text(json.dumps(report, indent=2) + "\n")
+          print("PREFLIGHT_RECORDED; NO HUMAN ADJUDICATION WAS CREATED OR APPLIED")
+          PY
+        env:
+          PREFLIGHT_ONLY: ${{ inputs.preflight_only }}
+
+      - name: Upload preflight evidence only
+        if: ${{ inputs.preflight_only == true }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: type1-human-overlay-preflight-${{ github.run_id }}
+          path: artifacts/output/preflight.json
+          if-no-files-found: error
+          retention-days: 90
 
       - name: Download prior merged ledger when chaining a batch
-        if: ${{ inputs.previous_ledger_run_id != '' && inputs.previous_ledger_artifact_name != '' }}
+        if: ${{ inputs.preflight_only != true && inputs.previous_ledger_run_id != '' && inputs.previous_ledger_artifact_name != '' }}
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.previous_ledger_artifact_name }}
@@ -134,6 +258,7 @@ jobs:
           path: artifacts/input/previous
 
       - name: Select and verify the source ledger
+        if: ${{ inputs.preflight_only != true }}
         shell: bash
         env:
           PREVIOUS_RUN_ID: ${{ inputs.previous_ledger_run_id }}
@@ -147,20 +272,19 @@ jobs:
             test -f artifacts/input/previous/merged_occurrence_level_manual_ledger.json
             test -f artifacts/input/previous/provenance.json
             python - <<'PY'
-          import hashlib, json
+          import hashlib, json, os
           from pathlib import Path
           d = Path("artifacts/input/previous")
           ledger = d / "merged_occurrence_level_manual_ledger.json"
           prov = json.loads((d / "provenance.json").read_text())
           digest = hashlib.sha256(ledger.read_bytes()).hexdigest()
           assert prov["schema"] == "HCM_TYPE1_HUMAN_OVERLAY_ARTIFACT_PROVENANCE_V1"
-          assert prov["workflow_run_id"] == __import__("os").environ["PREVIOUS_RUN_ID"]
-          assert __import__("os").environ["PREVIOUS_ARTIFACT_NAME"] == f"type1-human-overlay-merged-{__import__('os').environ['PREVIOUS_RUN_ID']}"
+          assert prov["workflow_run_id"] == os.environ["PREVIOUS_RUN_ID"]
+          assert os.environ["PREVIOUS_ARTIFACT_NAME"] == f"type1-human-overlay-merged-{os.environ['PREVIOUS_RUN_ID']}"
           assert prov["target_commit"] == "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876"
-          assert prov["inventory_sha256"] == "beb593b7adfba333750e27a361dbb6b7daa0c58ca910cd0930e71b081a3ba805"
+          assert prov["inventory_sha256"] == "b30db3cb254f276a6d2707cbdbc4bef06f1dad92c4063c7098eedaae84154c92"
           assert prov["authority"] == "NONE"
           assert prov["merged_ledger_sha256"] == digest
-          print("PRIOR_MERGED_LEDGER_IDENTITY_VERIFIED")
           PY
             cp artifacts/input/previous/merged_occurrence_level_manual_ledger.json artifacts/work/source_ledger.json
             cp artifacts/input/previous/provenance.json artifacts/work/parent_provenance.json
@@ -171,18 +295,19 @@ jobs:
           echo "BASE_LEDGER=artifacts/work/source_ledger.json" >> "$GITHUB_ENV"
 
       - name: Install the pinned JSON Schema validator
+        if: ${{ inputs.preflight_only != true }}
         shell: bash
         run: python -m pip install --disable-pip-version-check jsonschema==4.26.0
 
       - name: Convert human CSV to a JSON overlay
+        if: ${{ inputs.preflight_only != true }}
         shell: bash
         run: |
           set -euo pipefail
-          python scripts/csv_to_type1_overlay_v3.py \
-            --csv "$CSV_PATH" \
-            --output artifacts/work/overlay.json
+          python scripts/csv_to_type1_overlay_v3.py --csv "$CSV_PATH" --output artifacts/work/overlay.json
 
       - name: Validate overlay schema and exact population binding
+        if: ${{ inputs.preflight_only != true }}
         shell: bash
         run: |
           set -euo pipefail
@@ -197,12 +322,13 @@ jobs:
               raise SystemExit("Overlay schema invalid: " + "; ".join(e.message for e in errors[:5]))
           assert overlay["review_commit_sha"] == "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876"
           assert overlay["inventory_ref"] == "refs/audit/target"
-          assert overlay["inventory_sha256"] == "beb593b7adfba333750e27a361dbb6b7daa0c58ca910cd0930e71b081a3ba805"
+          assert overlay["inventory_sha256"] == "b30db3cb254f276a6d2707cbdbc4bef06f1dad92c4063c7098eedaae84154c92"
           assert len(overlay["records"]) > 0, "No ADJUDICATED CSV rows; PENDING rows are intentionally not imported."
           print(f"OVERLAY_SCHEMA_VALID records={len(overlay['records'])}")
           PY
 
       - name: Merge overlay without changing untouched records
+        if: ${{ inputs.preflight_only != true }}
         shell: bash
         run: |
           set -euo pipefail
@@ -213,6 +339,7 @@ jobs:
             --output artifacts/output/merged_occurrence_level_manual_ledger.json
 
       - name: Verify untouched rows, record identity, and non-authority invariants
+        if: ${{ inputs.preflight_only != true }}
         shell: bash
         env:
           PREVIOUS_RUN_ID: ${{ inputs.previous_ledger_run_id }}
@@ -234,10 +361,10 @@ jobs:
           assert set(base_by_id) == set(merged_by_id)
           assert overlay_ids <= set(base_by_id)
           untouched = set(base_by_id) - overlay_ids
-          changed_untouched = [oid for oid in untouched if base_by_id[oid] != merged_by_id[oid]]
-          assert not changed_untouched, f"Untouched records changed: {changed_untouched[:5]}"
+          changed = [oid for oid in untouched if base_by_id[oid] != merged_by_id[oid]]
+          assert not changed, f"Untouched records changed: {changed[:5]}"
           assert merged["inventory_commit"] == "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876"
-          assert merged["inventory_sha256"] == "beb593b7adfba333750e27a361dbb6b7daa0c58ca910cd0930e71b081a3ba805"
+          assert merged["inventory_sha256"] == "b30db3cb254f276a6d2707cbdbc4bef06f1dad92c4063c7098eedaae84154c92"
           assert merged["protocol_freeze"] == "NOT_FROZEN"
           for key in ("formal_calibration_authorized", "confirmatory_execution_authorized", "claim_support", "promotion_authority"):
               assert merged[key] is False, key
@@ -265,7 +392,7 @@ jobs:
               "schema": "HCM_TYPE1_HUMAN_OVERLAY_ARTIFACT_PROVENANCE_V1",
               "target_commit": merged["inventory_commit"],
               "inventory_sha256": merged["inventory_sha256"],
-              "baseline_source_ledger_sha256": "ad8d9350c6598b9c202512eadd56a4e97d5ff8c91799f66c5a08dffa7a8e88ce",
+              "baseline_source_ledger_sha256": "fcbc907daa1357570a20d592239a33c27deec9fb66e4bf60210cfaf9540fc976",
               "parent_ledger_sha256": sha(Path(os.environ["BASE_LEDGER"])),
               "parent_provenance_sha256": sha(parent_path),
               "parent_run_id": os.environ.get("PREVIOUS_RUN_ID") or None,
@@ -288,6 +415,7 @@ jobs:
           PY
 
       - name: Upload merged ledger, overlay, verification, and provenance
+        if: ${{ inputs.preflight_only != true }}
         uses: actions/upload-artifact@v4
         with:
           name: type1-human-overlay-merged-${{ github.run_id }}
