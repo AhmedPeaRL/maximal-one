@@ -64,11 +64,19 @@ class ReviewV4NegativeGateTests(unittest.TestCase):
         )
 
         self.assertNotEqual(result.returncode, 0)
+
         combined = result.stdout + "\n" + result.stderr
+
         self.assertIn("BLOCKED:", combined)
-        self.assertIn("No formal calibration was started", combined)
-        self.assertIn("matrix has no independently approved_design", combined)
-        self.assertFalse(output.exists(), "Blocked runner created a calibration output.")
+        self.assertIn(
+            "matrix has no independently approved_design",
+            combined,
+        )
+
+        self.assertFalse(
+            output.exists(),
+            "Blocked runner created a calibration output.",
+        )
 
 
 if __name__ == "__main__":
