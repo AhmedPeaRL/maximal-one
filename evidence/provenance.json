@@ -1,0 +1,24 @@
+{
+  "inventory_refs": [
+    {
+      "commit_sha": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+      "ref_requested": "refs/audit/target"
+    },
+    {
+      "commit_sha": "00bbd1fbd6df41b3e988ace75c480ea6232cfb86",
+      "ref_requested": "refs/audit/main"
+    }
+  ],
+  "inventory_sha256": "88222e3178bc62854ffb8d1fa961c1fb4cfe582c9ff1082878ab759e011cc635",
+  "inventory_source_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+  "ledger_generator_sha256": "e8e34a8a427e450d8841915953829ef7a96dc878ad083b5ff9930dcf8ec93fe0",
+  "main_commit": "00bbd1fbd6df41b3e988ace75c480ea6232cfb86",
+  "repository": "AhmedPeaRL/maximal-one",
+  "scanner_sha256": "e8a0ed0c9ccb129a693cdd322a8b4bbcd90922805763dd3abe371e06a7b5906d",
+  "schema": "HCM_TYPE1_TARGETED_INVENTORY_PROVENANCE_V1",
+  "target_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+  "workflow_definition_commit": "8ea2a4a13abfab4d4bf36d2aa64e79dafce87ab6",
+  "workflow_ref": "refs/heads/review/type1-v4-remediation",
+  "workflow_run_attempt": "1",
+  "workflow_run_id": "42523935885"
+}
