@@ -205,6 +205,55 @@ class V3GovernanceAndIdentityTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "duplicate overlay occurrence ID"):
             self.run_merge()
 
+    def test_previously_adjudicated_record_cannot_be_overwritten(self):
+        self.ledger["records"][0].update({
+            "manual_classification": "EXECUTION_CALLER",
+            "status": "OPEN",
+            "reviewer_disposition": "ADJUDICATED",
+        })
+        self.write_ledger(self.ledger)
+        self.overlay["records"] = [make_record(OID1)]
+        self.write_overlay(self.overlay)
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "overlay cannot overwrite a previously adjudicated record",
+        ):
+            self.run_merge()
+
+        self.assertFalse(self.output_path.exists())
+
+    def test_unreviewed_record_is_preserved_exactly(self):
+        untouched_before = json.loads(json.dumps(self.ledger["records"][1]))
+        self.overlay["records"] = [make_record(OID1)]
+        self.write_overlay(self.overlay)
+
+        self.run_merge()
+        merged = json.loads(self.output_path.read_text(encoding="utf-8"))
+        untouched_after = next(
+            row for row in merged["records"] if row["occurrence_id"] == OID2
+        )
+
+        self.assertEqual(untouched_after, untouched_before)
+
+    def test_second_merge_cannot_overwrite_first_adjudication(self):
+        self.overlay["records"] = [make_record(OID1)]
+        self.write_overlay(self.overlay)
+        self.run_merge()
+
+        self.ledger_path.write_bytes(self.output_path.read_bytes())
+        self.output_path.unlink()
+        self.overlay["records"] = [make_record(OID1)]
+        self.write_overlay(self.overlay)
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "overlay cannot overwrite a previously adjudicated record",
+        ):
+            self.run_merge()
+
+        self.assertFalse(self.output_path.exists())
+
     def test_high_impact_open_pending_is_allowed(self):
         merger.validate_record(make_record(), expected_commit=COMMIT)
 
