@@ -116,7 +116,7 @@ class Type1V4MatrixGateTests(unittest.TestCase):
         with patch("sys.argv", ["calibrate_null_type1_scenario"]):
             with self.assertRaisesRegex(
                 SystemExit,
-                "BLOCKED: V4 matrix is not approved",
+                "BLOCKED: matrix has no independently approved_design",
             ):
                 scenario_runner.main()
 
