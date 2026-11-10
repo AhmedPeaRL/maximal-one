@@ -1,0 +1,205 @@
+name: Type-I Target Batch Generation Validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - review/type1-v4-remediation
+    paths:
+      - 'adjudication/generate_target_batches.py'
+      - 'tests/test_type1_target_batch_generation.py'
+      - 'evidence/occurrence_level_manual_ledger.json'
+      - '.github/workflows/type1-target-batch-generation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-and-generate:
+    name: Validate and generate 1800 target occurrences
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout exact review commit
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify review branch and checkout identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
+          ACTUAL="$(git rev-parse HEAD)"
+          test "$ACTUAL" = "$GITHUB_SHA"
+          echo "Verified review commit: $ACTUAL"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.15"
+
+      - name: Verify exact target ledger bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          LEDGER="evidence/occurrence_level_manual_ledger.json"
+
+          ACTUAL_SHA256="$(sha256sum "$LEDGER" | awk '{print $1}')"
+          EXPECTED_SHA256="5aaa4a796fe99eb1aeb9f803aba1517d5724c5e92b6c0400098f2e38d858651c"
+          test "$ACTUAL_SHA256" = "$EXPECTED_SHA256"
+
+          ACTUAL_BLOB="$(git hash-object "$LEDGER")"
+          EXPECTED_BLOB="1b4a5bb63e5840876629ea61a23fc688ae6c4b33"
+          test "$ACTUAL_BLOB" = "$EXPECTED_BLOB"
+
+          echo "Verified target ledger SHA-256: $ACTUAL_SHA256"
+          echo "Verified target ledger Git blob: $ACTUAL_BLOB"
+
+      - name: Run target batch generator unit tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest -v \
+            tests.test_type1_target_batch_generation
+
+      - name: Generate target batches
+        shell: bash
+        run: |
+          set -euo pipefail
+          python adjudication/generate_target_batches.py
+
+      - name: Verify generated batch set and authority boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          ledger_path = Path("evidence/occurrence_level_manual_ledger.json")
+          output = Path("adjudication/target_1800_batches")
+
+          ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+          register = json.loads(
+              (output / "BATCH_SET_REGISTER.json").read_text(encoding="utf-8")
+          )
+
+          expected_ids = [
+              row["occurrence_id"] for row in ledger["records"]
+          ]
+
+          files = sorted(output.glob("BATCH_[0-9][0-9][0-9].json"))
+
+          if len(files) != 72:
+              raise SystemExit("BLOCKED: expected exactly 72 batch files.")
+
+          if register.get("target_commit") != (
+              "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876"
+          ):
+              raise SystemExit("BLOCKED: target commit mismatch.")
+
+          if register.get("inventory_sha256") != (
+              "88222e3178bc62854ffb8d1fa961c1fb4cfe582c9ff1082878ab759e011cc635"
+          ):
+              raise SystemExit("BLOCKED: inventory hash mismatch.")
+
+          actual_ledger_sha = hashlib.sha256(
+              ledger_path.read_bytes()
+          ).hexdigest()
+
+          if register.get("source_ledger_sha256") != actual_ledger_sha:
+              raise SystemExit("BLOCKED: source ledger hash mismatch.")
+
+          if register.get("expected_occurrences") != 1800:
+              raise SystemExit("BLOCKED: register occurrence count mismatch.")
+
+          if register.get("status") != "NAVIGATION_ONLY_NOT_ADJUDICATED":
+              raise SystemExit("BLOCKED: unexpected register status.")
+
+          if register.get("authority") != "NONE":
+              raise SystemExit("BLOCKED: batch register has authority.")
+
+          if len(register.get("batches", [])) != 72:
+              raise SystemExit("BLOCKED: register does not contain 72 batches.")
+
+          observed_ids = []
+
+          for path in files:
+              batch = json.loads(path.read_text(encoding="utf-8"))
+
+              if batch.get("status") != "NAVIGATION_ONLY_NOT_ADJUDICATED":
+                  raise SystemExit(f"BLOCKED: unexpected status in {path.name}")
+
+              if batch.get("authority") != "NONE":
+                  raise SystemExit(f"BLOCKED: authority field in {path.name}")
+
+              if batch.get("protocol_freeze") != "NOT_FROZEN":
+                  raise SystemExit(f"BLOCKED: freeze field in {path.name}")
+
+              for field in (
+                  "formal_calibration_authorized",
+                  "confirmatory_execution_authorized",
+                  "claim_support",
+                  "promotion_authority",
+              ):
+                  if batch.get(field) is not False:
+                      raise SystemExit(
+                          f"BLOCKED: {field} is not false in {path.name}"
+                      )
+
+              if batch.get("count") != 25:
+                  raise SystemExit(f"BLOCKED: unexpected batch size in {path.name}")
+
+              observed_ids.extend(batch.get("occurrence_ids", []))
+
+              entry = next(
+                  (x for x in register["batches"] if x.get("file") == path.name),
+                  None,
+              )
+
+              if entry is None:
+                  raise SystemExit(f"BLOCKED: missing register entry for {path.name}")
+
+              actual_batch_sha = hashlib.sha256(path.read_bytes()).hexdigest()
+
+              if entry.get("sha256") != actual_batch_sha:
+                  raise SystemExit(f"BLOCKED: batch hash mismatch in {path.name}")
+
+          if len(observed_ids) != 1800:
+              raise SystemExit("BLOCKED: observed occurrence count is not 1800.")
+
+          if len(set(observed_ids)) != 1800:
+              raise SystemExit("BLOCKED: duplicate occurrence IDs detected.")
+
+          if observed_ids != expected_ids:
+              raise SystemExit("BLOCKED: generated sequence differs from source ledger.")
+
+          for row in ledger["records"]:
+              if row["manual_classification"] != "UNKNOWN":
+                  raise SystemExit("BLOCKED: source classification was changed.")
+              if row["status"] != "OPEN":
+                  raise SystemExit("BLOCKED: source status was changed.")
+              if row["reviewer_disposition"] != "PENDING":
+                  raise SystemExit("BLOCKED: reviewer disposition was changed.")
+
+          print("BATCH_SET_VERIFIED")
+          print("batches:", len(files))
+          print("occurrences:", len(observed_ids))
+          print("source_ledger_sha256:", actual_ledger_sha)
+          print("all records remain OPEN / UNKNOWN / PENDING")
+          print("authority: NONE")
+          PY
+
+      - name: Upload verified batch set
+        uses: actions/upload-artifact@v4
+        with:
+          name: type1-target-1800-batches-${{ github.run_id }}-${{ github.run_attempt }}
+          path: adjudication/target_1800_batches/
+          if-no-files-found: error
+          retention-days: 90
