@@ -1,0 +1,93 @@
+{
+  "schema": "HCM_TYPE1_AD106_POPULATION_REGISTER_V1",
+  "status": "LATEST_TARGET_INVENTORY_AND_SNAPSHOT_VERIFIED; BATCH_AND_OVERLAY_PIPELINES_REQUIRE_REPAIR",
+  "authority": "NONE",
+  "repository": "AhmedPeaRL/maximal-one",
+  "review_branch": "refs/heads/review/type1-v4-remediation",
+  "target": {
+    "ref": "refs/audit/target",
+    "commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+    "occurrence_count": 1800,
+    "distinct_inventory_paths": 271,
+    "reconciliation_status": "RECONCILED"
+  },
+  "main_comparison": {
+    "ref": "refs/audit/main",
+    "commit": "0fa531bc844b1891f0574564add8eef5e20813d8",
+    "occurrence_count": 711,
+    "distinct_inventory_paths": 189,
+    "reconciliation_status": "RECONCILED"
+  },
+  "inventory": {
+    "workflow_run_id": "42870936071",
+    "artifact_id": "13789382482",
+    "artifact_name": "type1-v3-v4-governance-inventory-42870936071-1",
+    "artifact_zip_sha256": "e844dd80fb1a082940838f35b2d82f2e3f479bfd46116dda662681fb26b731b1",
+    "reference_inventory_sha256": "b30db3cb254f276a6d2707cbdbc4bef06f1dad92c4063c7098eedaae84154c92",
+    "target_ledger_sha256": "fcbc907daa1357570a20d592239a33c27deec9fb66e4bf60210cfaf9540fc976",
+    "main_ledger_sha256": "9801d468bbd698e5978d66decd6888e857be918e8a0fa143ded4bb35bdd2abb2",
+    "workflow_definition_commit": "4d0fe317ff8e20cdd7f1767e31215d958d87508b"
+  },
+  "snapshot": {
+    "workflow_run_id": "42871210051",
+    "artifact_id": "13788334234",
+    "artifact_name": "type1-exact-review-snapshot-42871210051-1",
+    "artifact_zip_sha256_observed_after_download": "8dd52ff8bd768244f3b12383f203d7bec0fd55b0b19e90d64adcab6cf2c53baa",
+    "self_contained_snapshot_zip_sha256": "332fa4056a50ee39970045588e4df6c9094316860ab9ff646c70295d35adecf6",
+    "snapshot_manifest_sha256": "9dd4994ac642742afe3dd347c01db16cd1e6ccfbd6b5cbb5a5f71c5ab16d6fff",
+    "selected_file_count": 289,
+    "present_file_count": 289,
+    "extraction_checked_file_count": 292,
+    "extraction_verified": true,
+    "missing_scope_paths": [],
+    "missing_required_paths": [],
+    "manual_adjudication_overlay_records": 0,
+    "inventory_workflow_run_id": "42870936071",
+    "workflow_definition_commit": "4d0fe317ff8e20cdd7f1767e31215d958d87508b"
+  },
+  "target_occurrence_class_counts": {
+    "PROTOCOL_OR_DOCUMENTATION_REFERENCE": 496,
+    "GOVERNANCE_REFERENCE": 421,
+    "CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW": 253,
+    "TEST_OR_GUARD": 207,
+    "POLICY_OR_HISTORICAL_REFERENCE": 145,
+    "WORKFLOW_REFERENCE": 143,
+    "WORKFLOW_CONTROL_PATH": 118,
+    "OTHER_REFERENCE": 14,
+    "EXECUTION_CAPABLE_WORKFLOW_CANDIDATE": 3
+  },
+  "path_count_reconciliation": {
+    "target_workflow_yaml_paths": 39,
+    "target_python_paths": 86,
+    "target_github_workflow_directory_paths": 38,
+    "target_workflow_occurrences_under_github_workflows": 264,
+    "target_python_occurrences": 439,
+    "main_workflow_occurrences_under_github_workflows": 275,
+    "main_python_occurrences": 183,
+    "classification_count_unit": "occurrence records, not unique paths",
+    "classification_limit": "Inventory labels are not human adjudications or call-graph closure."
+  },
+  "implementation": {
+    "review_branch_commit": "4d0fe317ff8e20cdd7f1767e31215d958d87508b",
+    "governance_snapshot_run_id": "42870664509",
+    "governance_snapshot_artifact_id": "13789830986",
+    "human_overlay_workflow_run_id": "42872743465",
+    "human_overlay_workflow_status": "FAILURE_BEFORE_CONVERSION_OR_MERGE"
+  },
+  "authority_invariants": {
+    "protocol_freeze": "NOT_FROZEN",
+    "formal_calibration_authorized": false,
+    "confirmatory_execution_authorized": false,
+    "claim_support": false,
+    "promotion_authority": false
+  },
+  "historical_population_policy": "Do not edit or rebind protocol/EVIDENCE_REGISTER_V3.json. Its earlier e41fb739... / 1711-occurrence population remains historical. This file defines the separate ad106 population.",
+  "notes": [
+    "Current main is 0fa531bc844b1891f0574564add8eef5e20813d8. The earlier population register used main 484b6b0a... and inventory SHA beb593b7...; that older comparison is superseded for the current-main review.",
+    "The latest inventory run 42870936071 and exact-target snapshot run 42871210051 are mutually linked: the snapshot certificate names inventory run 42870936071 and inventory SHA b30db3cb... .",
+    "Batch artifact 13790040735 from run 42870617536 is stale for this register. It uses inventory SHA 88222e3178... and target-ledger SHA 5aaa4a796f... . Do not use those batches for current adjudication.",
+    "The latest inventory reproduces 118 WORKFLOW_CONTROL_PATH and 253 CODE_PATH_REQUIRES_CALL_GRAPH_REVIEW occurrence records. These are inventory classifications, not final human decisions.",
+    "The first-three CSV remains OPEN / PENDING. No adjudication has been accepted or merged.",
+    "This register establishes population identity and scope only. It does not classify occurrences or authorize formal calibration, confirmatory execution, claim support, promotion, or protocol freeze."
+  ]
+}
