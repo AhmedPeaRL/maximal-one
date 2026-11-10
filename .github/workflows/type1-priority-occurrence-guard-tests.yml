@@ -49,6 +49,7 @@ jobs:
             tests.test_type1_runtime_pilot_branch_guard \
             tests.test_type1_cross_runner_workflow_branch_guard \
             tests.test_type1_main_negative_gate \
+            tests.test_type1_formal_authorization \
             tests.test_type1_v4_matrix_gate \
             tests.test_type1_cli_resume_identity_rejections
 
