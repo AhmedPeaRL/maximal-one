@@ -26,6 +26,17 @@ class ReviewV4NegativeGateTests(unittest.TestCase):
                 "independent review and a separately designed safe test fixture."
             )
 
+        env = os.environ.copy()
+        env.update({
+            "GITHUB_ACTIONS": "true",
+            "GITHUB_REF": "refs/heads/review/type1-v4-remediation",
+            "GITHUB_SHA": subprocess.check_output(
+                ["git", "rev-parse", "HEAD"],
+                cwd=ROOT,
+                text=True,
+            ).strip(),
+        })
+
         scenarios = matrix.get("scenarios")
         self.assertIsInstance(scenarios, list)
         self.assertTrue(scenarios)
@@ -48,12 +59,14 @@ class ReviewV4NegativeGateTests(unittest.TestCase):
             capture_output=True,
             timeout=30,
             check=False,
+            env=env,
         )
 
         self.assertNotEqual(result.returncode, 0)
         combined = result.stdout + "\n" + result.stderr
         self.assertIn("BLOCKED:", combined)
         self.assertIn("No formal calibration was started", combined)
+        self.assertIn("matrix has no independently approved_design", combined)
         self.assertFalse(output.exists(), "Blocked runner created a calibration output.")
 
 
