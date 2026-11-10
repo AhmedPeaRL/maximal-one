@@ -35,7 +35,9 @@ from analysis.calibrate_null_type1 import (
     wilson_interval,
     wilson_upper_one_sided,
 )
-
+from analysis.type1_formal_authorization import (
+    require_formal_authorization,
+)
 
 ARTIFACT_DIR = Path("artifacts")
 
@@ -53,11 +55,16 @@ def sha256(path: Path) -> str:
 
 
 def formal_main() -> int:
+    require_formal_authorization()
+
+    # Keep the existing V4_APPROVED=False hard stop.
     if not V4_APPROVED:
         raise SystemExit(
-            "BLOCKED: V4 matrix is not approved, frozen, and separately "
-            "authorized. No formal calibration was started."
+            "BLOCKED: formal execution remains disabled pending "
+            "a separately reviewed implementation release."
         )
+
+    # Existing parser and execution code follows.
     
     parser = argparse.ArgumentParser(
         description=(
