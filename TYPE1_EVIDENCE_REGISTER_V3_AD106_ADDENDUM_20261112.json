@@ -1,0 +1,163 @@
+{
+  "schema": "HCM_TYPE1_EVIDENCE_REGISTER_V3_AD106_ADDENDUM_V1",
+  "record_date": "2026-11-12",
+  "status": "EVIDENCE_RECONCILED; STATISTICAL_REVIEW_PENDING; HUMAN_ADJUDICATION_PENDING",
+  "repository": "AhmedPeaRL/maximal-one",
+  "review_branch": "review/type1-v4-remediation",
+  "review_branch_head": "8d38e605d84c3b8bc55393d88f87e9d40bd8fdc5",
+  "candidate_target_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+  "main_commit": "0fa531bc844b1891f0574564add8eef5e20813d8",
+  "historical_register_policy": "Do not rewrite EVIDENCE_REGISTER_V3.json or its e41fb / 1711-occurrence identity. This file is an append-only companion for the separate ad106 population and current workflow evidence.",
+  "inventory_and_snapshot": {
+    "inventory_run_id": "43072014463",
+    "inventory_artifact_id": "13877643344",
+    "inventory_artifact_zip_sha256": "4f27ac72843e23f1f91e8ca7feeb2306306b6c05c4a4471407e457c451e4ec9c",
+    "inventory_sha256": "b30db3cb254f276a6d2707cbdbc4bef06f1dad92c4063c7098eedaae84154c92",
+    "target_ledger_sha256": "fcbc907daa1357570a20d592239a33c27deec9fb66e4bf60210cfaf9540fc976",
+    "target_occurrences": 1800,
+    "target_paths": 271,
+    "target_reconciliation": "RECONCILED",
+    "main_occurrences": 711,
+    "main_paths": 189,
+    "main_reconciliation": "RECONCILED",
+    "snapshot_run_id": "43072282939",
+    "snapshot_artifact_id": "13877613612",
+    "snapshot_artifact_zip_sha256": "cb65bfb02f1a66936f2f019de848a5147aab32594a0f303d8542603c3b9a7b1e",
+    "snapshot_manifest_sha256": "9138d899529dd55b045f2507068850b57de4b4ee3027a3d91f64601efdc42fc0",
+    "self_contained_snapshot_zip_sha256": "a14c5a7347ff74dce5a34cad76d1cf362d6444e1a2a6bb2550695ac57d1fecfe",
+    "snapshot_file_count": 289,
+    "extraction_checked_file_count": 292,
+    "extraction_verified": true,
+    "three_way_identity_match": true,
+    "manual_adjudication_overlay_records": 0
+  },
+  "manual_adjudication": {
+    "batch_generation_run_id": "43070986805",
+    "batch_artifact_id": "13876574962",
+    "batch_artifact_zip_sha256": "f77665b6184992403c0f0214d9a53da1dd39e804caa4ba9d8161f586aa1985ed",
+    "batch_count": 72,
+    "batch_size": 25,
+    "batch_population": 1800,
+    "batch_status": "NAVIGATION_ONLY_NOT_ADJUDICATED",
+    "overlay_preflight_run_id": "43072369833",
+    "overlay_preflight_artifact_id": "13877758502",
+    "overlay_preflight_status": "IDENTITY_VERIFIED_PENDING_HUMAN_REVIEW",
+    "overlay_preflight_rows": 3,
+    "overlay_preflight_adjudications_applied": 0,
+    "priority_occurrences": [
+      "refs/audit/target/2f8523fcf7c5/73/4",
+      "refs/audit/target/40d0253a5dd6/60/6",
+      "refs/audit/target/40d0253a5dd6/123/9"
+    ],
+    "second_human_reviewer": "NOT_IDENTIFIED"
+  },
+  "governance_implementation": {
+    "run_id": "43071684955",
+    "artifact_id": "13878861643",
+    "artifact_zip_sha256": "7e43a8623cd60065a338702478dde5b488e8d54f24d28490ec2de491a1939dda",
+    "implementation_commit": "8d38e605d84c3b8bc55393d88f87e9d40bd8fdc5",
+    "manifest_file_count": 18,
+    "manifest_hashes_verified": 18,
+    "formal_calibration_authorized": false,
+    "confirmatory_execution_authorized": false
+  },
+  "negative_gate_tests": {
+    "run_id": "43071480552",
+    "artifact_id": "13877069520",
+    "artifact_zip_sha256": "4ab3442a1c106359217c759438e523bd391ff9d27cc7c9eddd3f53a68250eb66",
+    "identity_fields_tested": 23,
+    "expected_rejections_observed": true,
+    "checkpoint_and_manifest_bytes_unchanged": true,
+    "scope": "engineering rejection tests only"
+  },
+  "runtime_and_cross_runner": {
+    "pilot_run_id": "43073211742",
+    "pilot_artifact_id": "13878079293",
+    "pilot_artifact_zip_sha256": "64a71f2e405fd09e4f1b0cf15342c2dfd8aabf9980b09d6e574c3c45ce39facf",
+    "pilot_scope": "2 outer attempts; 200 surrogates each; one V4 resonant AR(2) scenario; exploratory engineering only; not formal calibration",
+    "cross_runner_run_id": "43073152996",
+    "cross_runner_artifact_id": "13882575040",
+    "cross_runner_scope": "six engineering-only replicate records with 1,000 surrogates each across distinct runner instances; not formal Type-I calibration"
+  },
+  "statistical_and_claim_gates": {
+    "v3_calibration_validation_run_id": "43073483541",
+    "v3_calibration_validation_job_id": "130707223619",
+    "v3_calibration_validation_conclusion": "failure",
+    "failure_reason": "V3 protocol is not APPROVED_FROZEN; no calibration simulations were started",
+    "claim_promotion_run_id": "43073255541",
+    "claim_promotion_job_id": "130706418856",
+    "claim_promotion_conclusion": "failure",
+    "final_claim_gate_run_id": "43073370342",
+    "final_claim_gate_job_id": "130720829425",
+    "final_claim_gate_artifact_id": "13883535084",
+    "final_claim_gate_artifact_zip_sha256": "0ca310c3a411d4a646ce2b1d518ed4c0f4039fd219db1d11436e9f012502a6d3",
+    "final_claim_gate_status": "BLOCKED",
+    "eligible_independent_replication_domains": 0,
+    "minimum_required": 2,
+    "claim_support": false,
+    "promotion_authority": false
+  },
+  "canonical_report_and_external_verification": {
+    "canonical_report_run_id": "43073370342",
+    "canonical_report_artifact_id": "13882871591",
+    "canonical_report_artifact_zip_sha256": "244bb3c63db4056faec09958fa5974807370efc148b120a53a1bc096841fba42",
+    "canonical_report_file_sha256": "1fc9b9870285fcfabae1737734c61f63728f3e82a1bc48f8252453fcaf06dd3c",
+    "normalized_reproducibility_fingerprint": "9f3a829033084e6b29d2849de59ce799c192a44cd8ca8eeaf28c1c6ddbddcdb5",
+    "primary_stochastic_null_p_value": 0.999001,
+    "primary_stochastic_null_rejected": false,
+    "permutation_null_p_value": 0.0002,
+    "permutation_null_role": "DIAGNOSTIC_ONLY_NOT_PRIMARY",
+    "independent_secondary_real_domains": 0,
+    "external_replay": {
+      "artifact_id": "13881701577",
+      "artifact_zip_sha256": "e675df9f793f6ea97cd989e4a5cd9176a9a64aea14b7228390692fcf3b9fbed1",
+      "status": "VERIFIED",
+      "scope": "fresh public repository checkout on the same workflow runner; computational reproducibility only",
+      "implementation_independence": false,
+      "laboratory_independence": false,
+      "external_scientific_replication": false
+    },
+    "independent_verification": {
+      "artifact_id": "13882861695",
+      "artifact_zip_sha256": "3ed15e4a1961ea35508e3e9d25a91ae79ecd60c3057c46faea4cd0ab518b77e9",
+      "strict_contract_satisfied": false,
+      "claim_support": false
+    },
+    "public_report_retrieval_audit": {
+      "artifact_id": "13879901892",
+      "artifact_zip_sha256": "93e02679a356e9fa09b4c4481ba89217349eca6fd46efc426ca9bede5b4d74e8",
+      "status": "UNAVAILABLE",
+      "http_status": 404,
+      "interpretation": "Public retrieval from the stated GitHub Pages URLs was not verified."
+    }
+  },
+  "authority_invariants": {
+    "protocol_freeze": "NOT_FROZEN",
+    "formal_calibration_authorized": false,
+    "confirmatory_execution_authorized": false,
+    "claim_support": false,
+    "promotion_authority": false
+  },
+  "primary_null_capacity_diagnostic_comparison": {
+    "interpretation": "Two distinct workflow outputs on the same review commit; preserve both values and do not choose one without a run-level reconciliation.",
+    "run_43073255541": {
+      "artifact_id": "13880126260",
+      "artifact_zip_sha256": "086ad7016cf5a259ec93857a76930089d5638c67afd1fc8a9675325b432d6162",
+      "surrogate_boundary_fraction": 0.937,
+      "surrogate_boundary_count": 937,
+      "surrogates_requested": 1000,
+      "seed": 90210,
+      "scientific_role": "diagnostic_only"
+    },
+    "run_43073370342": {
+      "artifact_id": "13882871591",
+      "artifact_zip_sha256": "244bb3c63db4056faec09958fa5974807370efc148b120a53a1bc096841fba42",
+      "surrogate_boundary_fraction": 0.947,
+      "surrogate_boundary_count": null,
+      "surrogates_requested": 1000,
+      "scientific_role": "diagnostic_only",
+      "note": "Canonical report output; preserve its own exact report and artifact identity."
+    },
+    "required_action": "Reconcile the two run-specific outputs against exact source code, input, seed, and artifact hashes before any consolidated boundary-fraction statement. Do not backfill or overwrite either historical result."
+  }
+}
