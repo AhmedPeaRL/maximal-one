@@ -1,6 +1,6 @@
 {
   "schema": "HCM_TYPE1_AD106_POPULATION_REGISTER_V1",
-  "status": "LATEST_TARGET_INVENTORY_AND_SNAPSHOT_VERIFIED; BATCH_AND_OVERLAY_PIPELINES_REQUIRE_REPAIR",
+  "status": "TARGET_INVENTORY_AND_SNAPSHOT_VERIFIED; BATCH_GENERATION_VALIDATED; OVERLAY_PREFLIGHT_VALIDATED; HUMAN_ADJUDICATION_PENDING",
   "authority": "NONE",
   "repository": "AhmedPeaRL/maximal-one",
   "review_branch": "refs/heads/review/type1-v4-remediation",
@@ -90,4 +90,47 @@
     "The first-three CSV remains OPEN / PENDING. No adjudication has been accepted or merged.",
     "This register establishes population identity and scope only. It does not classify occurrences or authorize formal calibration, confirmatory execution, claim support, promotion, or protocol freeze."
   ]
+  "latest_validation": {
+    "review_branch_head": "a5a2b76b8691812e0e5faa0edb13f14a6f8e2466",
+    "governance_ci": {
+      "workflow_run_id": "42992788791",
+      "workflow_job_id": "130429469231",
+      "tests_passed": 34,
+      "status": "PASS"
+    },
+    "governance_snapshot": {
+      "workflow_run_id": "42992981706",
+      "artifact_id": "13842691061",
+      "file_count": 18,
+      "manifest_hashes_verified": 18,
+      "status": "PASS"
+    },
+    "batch_generation": {
+      "workflow_run_id": "42992884494",
+      "artifact_id": "13842362549",
+      "batch_count": 72,
+      "occurrence_count": 1800,
+      "unique_occurrence_count": 1800,
+      "hashes_verified": true,
+      "status": "SUCCESS"
+    },
+    "overlay_preflight": {
+      "workflow_run_id": "42992748305",
+      "artifact_id": "13842357402",
+      "row_count": 3,
+      "adjudications_applied": 0,
+      "status": "IDENTITY_VERIFIED_PENDING_HUMAN_REVIEW"
+    },
+    "priority_guard_tests": {
+      "workflow_run_id": "42992922653",
+      "artifact_id": "13842408114",
+      "resume_identity_fields_tested": 23,
+      "status": "PASS"
+    },
+    "official_runner_test": {
+      "workflow_run_id": "42991878009",
+      "status": "FAILED_ASSERTION_MESSAGE_MISMATCH",
+      "rerun_required": true
+    }
+  }
 }
