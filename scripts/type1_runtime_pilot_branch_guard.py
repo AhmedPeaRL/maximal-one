@@ -7,53 +7,51 @@ import sys
 from pathlib import Path
 
 AUTHORIZED_REF = "refs/heads/review/type1-v4-remediation"
-SHA40 = re.compile(r"^[0-9a-fA-F]{40}$")
-REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 
 
-def require_authorized_branch(actual_ref: str | None = None) -> None:
-    ref = actual_ref if actual_ref is not None else os.environ.get("GITHUB_REF", "")
+def require_authorized_branch() -> None:
+    if os.environ.get("GITHUB_ACTIONS") != "true":
+        raise SystemExit(
+            "BLOCKED: runtime pilot requires GitHub Actions context."
+        )
+
+    ref = os.environ.get("GITHUB_REF", "")
     if ref != AUTHORIZED_REF:
         raise SystemExit(
             "BLOCKED: runtime pilot is restricted to "
             f"{AUTHORIZED_REF}; received {ref or 'MISSING GITHUB_REF'}."
         )
 
-    if os.environ.get("GITHUB_ACTIONS", "").lower() != "true":
+    expected_sha = os.environ.get("GITHUB_SHA", "").strip()
+    if not SHA_PATTERN.fullmatch(expected_sha):
         raise SystemExit(
-            "BLOCKED: runtime pilot requires the GitHub Actions execution context."
+            "BLOCKED: runtime pilot requires a full 40-character GITHUB_SHA."
         )
 
-    expected_sha = os.environ.get("GITHUB_SHA", "")
-    if not SHA40.fullmatch(expected_sha):
-        raise SystemExit(
-            "BLOCKED: runtime pilot requires a non-empty full 40-character GITHUB_SHA."
-        )
+    repository_root = Path(__file__).resolve().parents[1]
 
     try:
-        result = subprocess.run(
+        actual_sha = subprocess.check_output(
             ["git", "rev-parse", "HEAD"],
-            cwd=REPOSITORY_ROOT,
-            check=True,
-            capture_output=True,
+            cwd=repository_root,
             text=True,
-        )
-    except (OSError, subprocess.CalledProcessError) as exc:
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except Exception as exc:
         raise SystemExit(
-            "BLOCKED: runtime pilot could not verify the checked-out Git commit."
+            "BLOCKED: cannot verify runtime-pilot checkout identity."
         ) from exc
 
-    actual_head = result.stdout.strip()
-    if actual_head.lower() != expected_sha.lower():
+    if actual_sha != expected_sha:
         raise SystemExit(
-            "BLOCKED: runtime pilot checkout does not match GITHUB_SHA "
-            f"(HEAD={actual_head or 'UNKNOWN'})."
+            "BLOCKED: runtime-pilot checkout differs from GITHUB_SHA."
         )
 
 
 def main() -> int:
     require_authorized_branch()
-    print(f"Authorized runtime-pilot branch and checkout: {AUTHORIZED_REF}")
+    print(f"Authorized runtime-pilot branch: {AUTHORIZED_REF}")
     return 0
 
 
