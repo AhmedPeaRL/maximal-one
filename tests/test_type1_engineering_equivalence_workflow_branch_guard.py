@@ -15,7 +15,7 @@ class EngineeringEquivalenceBranchGuardTests(unittest.TestCase):
     def test_direct_entrypoint_rejects_non_actions_context_even_on_review_ref(self):
         with patch.dict(os.environ, {"GITHUB_REF": AUTHORIZED}, clear=True):
             with patch.object(sys, "argv", ["calibrate_null_type1_scenario", "--engineering-test"]):
-                with self.assertRaisesRegex(SystemExit, "GitHub Actions execution context"):
+                with self.assertRaisesRegex(SystemExit, "GitHub Actions context"):
                     runner.engineering_main()
 
     def test_workflow_dispatch_has_job_level_branch_and_commit_guard(self):
