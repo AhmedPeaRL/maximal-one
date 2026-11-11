@@ -31,16 +31,31 @@ Review branch:
 review/type1-v4-remediation
 
 Candidate review commit:
-MUST BE FILLED WITH THE FINAL REVIEW SNAPSHOT COMMIT SHA
+ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876
 
 Review snapshot artifact:
-MUST BE FILLED AFTER SNAPSHOT GENERATION
+https://github.com/AhmedPeaRL/maximal-one/actions/runs/42909613428/artifacts/13806352229
 
 Governance inventory artifact:
-MUST BE FILLED WITH THE FINAL INVENTORY ARTIFACT ID
+https://github.com/AhmedPeaRL/maximal-one/actions/runs/42909270943/artifacts/13807285083
 
 Governance inventory source commit:
-MUST MATCH THE REVIEW COMMIT
+ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876
+
+Current main comparison commit:
+0fa531bc844b1891f0574564add8eef5e20813d8
+
+Review-branch implementation commit:
+a3412a9d10dd4b70d8603840edc2d931dd089c56
+
+Inventory JSON SHA-256:
+b30db3cb254f276a6d2707cbdbc4bef06f1dad92c4063c7098eedaae84154c92
+
+Snapshot manifest SHA-256:
+c79ff2a455e2597de93ab7ccb7ef55b6f805996b7ad93e7df57b0badbd520de1
+
+Nested snapshot ZIP SHA-256:
+0da0416e06ec85a9df8f38ed2b98accf6cb3426db5f3246e1452ee4cb03a3be5
 
 Protocol matrix:
 protocol/TYPE1_CALIBRATION_SCENARIO_MATRIX_V4_CANDIDATE.json
