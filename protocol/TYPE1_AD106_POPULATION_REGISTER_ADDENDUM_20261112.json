@@ -1,0 +1,113 @@
+{
+  "schema": "HCM_TYPE1_AD106_POPULATION_REGISTER_ADDENDUM_V1",
+  "record_date": "2026-11-12",
+  "status": "IDENTITY_REVERIFIED; HUMAN_ADJUDICATION_PENDING; NO_AUTHORITY",
+  "repository": "AhmedPeaRL/maximal-one",
+  "review_branch": "refs/heads/review/type1-v4-remediation",
+  "review_branch_head_at_recording": "8d38e605d84c3b8bc55393d88f87e9d40bd8fdc5",
+  "candidate_target_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+  "main_comparison_commit": "0fa531bc844b1891f0574564add8eef5e20813d8",
+  "supersedes": null,
+  "supplements_without_rewriting": [
+    "protocol/TYPE1_AD106_POPULATION_REGISTER_V1.json",
+    "protocol/EVIDENCE_REGISTER_V3.json",
+    "protocol/TYPE1_MANUAL_OCCURRENCE_ADJUDICATION_PROTOCOL_V3.md",
+    "protocol/TYPE1_BATCH_REGISTER_V3_B001.json"
+  ],
+  "population": {
+    "target": {
+      "ref": "refs/audit/target",
+      "commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+      "occurrence_count": 1800,
+      "distinct_inventory_paths": 271,
+      "reconciliation_status": "RECONCILED",
+      "inventory_workflow_run_id": "43072014463",
+      "inventory_artifact_id": "13877643344",
+      "inventory_sha256": "b30db3cb254f276a6d2707cbdbc4bef06f1dad92c4063c7098eedaae84154c92",
+      "target_ledger_sha256": "fcbc907daa1357570a20d592239a33c27deec9fb66e4bf60210cfaf9540fc976",
+      "workflow_definition_commit": "8d38e605d84c3b8bc55393d88f87e9d40bd8fdc5"
+    },
+    "main_comparison": {
+      "ref": "refs/audit/main",
+      "commit": "0fa531bc844b1891f0574564add8eef5e20813d8",
+      "occurrence_count": 711,
+      "distinct_inventory_paths": 189,
+      "reconciliation_status": "RECONCILED"
+    }
+  },
+  "exact_snapshot": {
+    "workflow_run_id": "43072282939",
+    "artifact_id": "13877613612",
+    "target_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+    "inventory_source_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+    "snapshot_review_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+    "three_way_identity": "MATCH",
+    "snapshot_manifest_sha256": "9138d899529dd55b045f2507068850b57de4b4ee3027a3d91f64601efdc42fc0",
+    "self_contained_snapshot_zip_sha256": "a14c5a7347ff74dce5a34cad76d1cf362d6444e1a2a6bb2550695ac57d1fecfe",
+    "selected_file_count": 289,
+    "present_file_count": 289,
+    "missing_required_paths": [],
+    "missing_scope_paths": [],
+    "extraction_checked_file_count": 292,
+    "extraction_verified": true,
+    "manual_adjudication_overlay_records": 0,
+    "authority": "NONE"
+  },
+  "navigation_batches": {
+    "batch_generation_run_id": "43070986805",
+    "batch_artifact_id": "13876574962",
+    "batch_archive_sha256": "f77665b6184992403c0f0214d9a53da1dd39e804caa4ba9d8161f586aa1985ed",
+    "batch_set_count": 72,
+    "batch_size": 25,
+    "expected_occurrences": 1800,
+    "source_inventory_workflow_run_id": "42870936071",
+    "source_inventory_artifact_id": "13789382482",
+    "source_inventory_sha256": "b30db3cb254f276a6d2707cbdbc4bef06f1dad92c4063c7098eedaae84154c92",
+    "source_ledger_sha256": "fcbc907daa1357570a20d592239a33c27deec9fb66e4bf60210cfaf9540fc976",
+    "status": "NAVIGATION_ONLY_NOT_ADJUDICATED",
+    "authority": "NONE",
+    "important_path_rule": "The new ad106 BATCH_001..BATCH_072 archive is a separate batch set. Do not replace or rebind the repository's historical TYPE1_BATCH_REGISTER_V3_B001.json."
+  },
+  "human_overlay_preflight": {
+    "workflow_run_id": "43072369833",
+    "artifact_id": "13877758502",
+    "artifact_sha256": "0c2779eec371379018bb37cc65cbba9b29848a91fb83526281a3df5835f81913",
+    "status": "IDENTITY_VERIFIED_PENDING_HUMAN_REVIEW",
+    "csv_sha256": "9af28fde3f539b894b122d488594c3dcd4ab003fb0719b3cb5fb17edb8109d12",
+    "row_count": 3,
+    "occurrence_ids": [
+      "refs/audit/target/2f8523fcf7c5/73/4",
+      "refs/audit/target/40d0253a5dd6/60/6",
+      "refs/audit/target/40d0253a5dd6/123/9"
+    ],
+    "all_rows_open": true,
+    "all_rows_pending": true,
+    "adjudications_applied": 0,
+    "authority": "NONE",
+    "lineage_note": "This preflight artifact cites inventory run 42870936071 and snapshot run 42871210051. Those are the previously pinned artifacts with the same target commit and inventory SHA. The later re-verification pair 43072014463 / 43072282939 is a separate evidence pair. Do not rewrite the preflight's run IDs. If the next review step must bind to the latest pair, run a new preflight with those exact IDs."
+  },
+  "human_review_state": {
+    "primary_human_reviewer": "Ahmed Salahuddin",
+    "primary_role": "repository owner / project researcher / non-independent primary reviewer",
+    "primary_conflict": "Repository ownership, authorship-related intellectual interest, professional and reputational interest, and prospective personal benefit are disclosed in the companion disclosure draft.",
+    "second_human_reviewer": "NOT_YET_IDENTIFIED",
+    "second_review_status": "PENDING",
+    "high_impact_records_may_be_closed": false,
+    "closure_requires": [
+      "distinct attributable human second reviewer",
+      "explicit agreement",
+      "reviewer role and conflict declaration",
+      "UTC review timestamp",
+      "specific rationale",
+      "passing negative test",
+      "exact run, job, artifact, and commit evidence"
+    ]
+  },
+  "authority_invariants": {
+    "protocol_freeze": "NOT_FROZEN",
+    "formal_calibration_authorized": false,
+    "confirmatory_execution_authorized": false,
+    "claim_support": false,
+    "promotion_authority": false
+  }
+}
