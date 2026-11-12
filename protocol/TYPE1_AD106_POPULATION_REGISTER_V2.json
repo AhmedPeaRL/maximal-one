@@ -1,0 +1,130 @@
+{
+  "schema": "HCM_TYPE1_AD106_POPULATION_REGISTER_V2",
+  "status": "CURRENT_SOURCE_PAIR_AND_EXACT_SNAPSHOT_VERIFIED; BATCH_AND_PREFLIGHT_V3_REMEDIATION_REQUIRED; AUTOMATED_ASSURANCE_OPEN; INDEPENDENT_HUMAN_REVIEW_PENDING",
+  "authority": "NONE",
+  "repository": "AhmedPeaRL/maximal-one",
+  "review_branch": "refs/heads/review/type1-v4-remediation",
+  "source_identity_addendum": "protocol/TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V3_20261112.json",
+  "workflow_definition_commit_for_inventory_and_snapshot": "2c228430b32b489d22e92298cc2edca6098acffb",
+  "target": {
+    "ref": "refs/audit/target",
+    "commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+    "occurrence_count": 1800,
+    "distinct_inventory_paths": 271,
+    "reconciliation_status": "RECONCILED"
+  },
+  "main_comparison": {
+    "ref": "refs/audit/main",
+    "commit": "fe949fc4a11d245f08846d7eece97e8c1d26a3f8",
+    "occurrence_count": 728,
+    "distinct_inventory_paths": 189,
+    "reconciliation_status": "RECONCILED",
+    "historical_previous_main": {
+      "commit": "0fa531bc844b1891f0574564add8eef5e20813d8",
+      "occurrence_count": 711,
+      "status": "HISTORICAL_NOT_CURRENT"
+    }
+  },
+  "inventory": {
+    "workflow_run_id": "43199940422",
+    "workflow_job_id": "131120423295",
+    "artifact_id": "13934996445",
+    "artifact_name": "type1-v3-v4-governance-inventory-43199940422-1",
+    "artifact_archive_sha256": "3ef0fe73b6d763b1d5d0762f64311ff3db6c4997769e9cc9a5b8ebe7b92cfffd",
+    "reference_inventory_sha256": "4e721c8dd55425c0d25dd043c3ec8433c4a4b96d1c11d6d4cb94acfaabb774b3",
+    "target_ledger_sha256": "244e27410b76b799be39be3939df840a93b5d16234827c549914945a877f3b16",
+    "main_ledger_sha256": "11b80782b4e16748742ed460027594661dd63e8a0c5592eeba74660de2dbc51c",
+    "provenance_sha256": "31954ac2e62ca2ff79ce1d8d3ffc4bbb1f1c8c94f1859c79d22c8267f4fe8f77",
+    "target_reconciliation_sha256": "5118de3094fc16bacaa7c2b4258f463a8242980cfa47058c396d4c0040336705",
+    "main_reconciliation_sha256": "b748d02caca0b386f3a42d712d8f97c8cfc29a7e731863461d64ea3bead83d19",
+    "workflow_definition_commit": "2c228430b32b489d22e92298cc2edca6098acffb",
+    "target_occurrence_count": 1800,
+    "main_occurrence_count": 728
+  },
+  "snapshot": {
+    "workflow_run_id": "43200187487",
+    "workflow_job_id": "131121269267",
+    "artifact_id": "13934059710",
+    "artifact_name": "type1-exact-review-snapshot-43200187487-1",
+    "artifact_archive_sha256": "38bc47b9a7be780c6b6c842ca3daa291bf4e6ec049dc213c057ec2ca52d7a15d",
+    "manifest_sha256": "bed97717964c43412dbceeac0fa0db4a0c3fdaec390509093eca2953be4aef64",
+    "inner_snapshot_zip_sha256": "40bba7ef5b623e2a93a4bd3b658e5b59ee69b16ebd0abd8df455d07cb68684da",
+    "three_way_identity_certificate_sha256": "8353166b656134ba2ce7bc3f1e80d85fc39f1fecacb7a8736ed0c478fafd494e",
+    "extraction_verification_sha256": "2e1f6c1134dd01d1cb39ce184865212f621bab3bf250aee0d6376f71971a31ef",
+    "selected_file_count": 289,
+    "present_file_count": 289,
+    "extraction_checked_file_count": 292,
+    "extraction_verified": true,
+    "missing_scope_paths": [],
+    "missing_required_paths": [],
+    "workflow_definition_commit": "2c228430b32b489d22e92298cc2edca6098acffb"
+  },
+  "batch_generation": {
+    "required_source_inventory_run_id": "43199940422",
+    "required_source_inventory_artifact_id": "13934996445",
+    "required_inventory_sha256": "4e721c8dd55425c0d25dd043c3ec8433c4a4b96d1c11d6d4cb94acfaabb774b3",
+    "required_target_ledger_sha256": "244e27410b76b799be39be3939df840a93b5d16234827c549914945a877f3b16",
+    "required_population_register": "protocol/TYPE1_AD106_POPULATION_REGISTER_V2.json",
+    "required_batch_count": 72,
+    "required_occurrence_count": 1800,
+    "last_run_id": "43200442556",
+    "last_artifact_id": "13934352960",
+    "last_run_disposition": "REJECTED_FOR_CURRENT_SOURCE_PAIR",
+    "reason": "The artifact's own register records the older inventory run 42870936071, artifact 13789382482, inventory SHA b30db3cb..., and ledger SHA fcbc907d.... Do not reuse it for this V2 population."
+  },
+  "preflight": {
+    "required_workflow": ".github/workflows/type1-human-overlay-preflight-v3.yml",
+    "required_csv": "adjudication/incoming/first-three-occurrences-v2.csv",
+    "required_csv_sha256": "4cac017bdb5d5d037b3ec500993409a22dbd5db09209aec2a3d770c2a6399624",
+    "required_inventory_run_id": "43199940422",
+    "required_inventory_artifact_id": "13934996445",
+    "required_snapshot_run_id": "43200187487",
+    "required_snapshot_artifact_id": "13934059710",
+    "last_run_id": "43199381950",
+    "last_artifact_id": "13933969034",
+    "last_run_disposition": "HISTORICAL_V2_ONLY_NOT_CURRENT_SOURCE_PREFLIGHT"
+  },
+  "automated_assurance": {
+    "evidence_matrix_path": "review/TYPE1_HIGH_IMPACT_SOFTWARE_ASSURANCE_EVIDENCE_MATRIX_V1.csv",
+    "status": "MATRIX_DRAFT_PREPARED_LOCALLY_NOT_YET_COMMITTED_OR_REVIEWED",
+    "actionlint": "NOT_RUN",
+    "zizmor": "NOT_RUN",
+    "scorecard": "NOT_RUN",
+    "full_call_graph_review": "OPEN",
+    "occurrence_local_evidence_required": true,
+    "generic_test_pass_is_not_sufficient_for_finding_closure": true,
+    "matrix_rows_prepared": 1800,
+    "high_priority_rows_flagged": 374,
+    "matrix_sha256_local_draft": "84a7869d778d614ef9c2bc3f0f6e2d614c5653a8f9ee94c9eaef8a72a404c546",
+    "toolchain_manifest_path": "review/TYPE1_SOFTWARE_ASSURANCE_TOOLCHAIN_V1.json",
+    "toolchain_versions_selected": {
+      "actionlint": "1.7.12",
+      "zizmor": "1.30.1",
+      "scorecard": "5.6.0"
+    },
+    "toolchain_execution_status": "NOT_YET_EXECUTED",
+    "assurance_workflow_path": ".github/workflows/type1-software-assurance-v1.yml",
+    "toolchain_manifest_sha256": "f8c023da8719488b6be46c898aeb34db229c3737402eec2038cd60c9c5f0df1e"
+  },
+  "human_review": {
+    "software_assurance_review": "NOT_YET_SUBMITTED_AS_COMPLETE_EVIDENCE_PACKAGE",
+    "reviewer_expertise_and_conflicts_required": true,
+    "reviewed_and_not_reviewed_scope_required": true,
+    "email_sent_or_received_is_not_review_approval": true,
+    "independent_statistical_review": "SEPARATE_PACKAGE; PENDING"
+  },
+  "historical_records_preserved": [
+    "protocol/TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V1_20261112.json",
+    "protocol/TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V2_20261112.json",
+    "protocol/TYPE1_AD106_POPULATION_REGISTER_V1.json"
+  ],
+  "authority_invariants": {
+    "protocol_freeze": "NOT_FROZEN",
+    "formal_calibration_authorized": false,
+    "confirmatory_execution_authorized": false,
+    "claim_support": false,
+    "promotion_authority": false,
+    "human_adjudication_applied": false
+  },
+  "interpretation_limit": "This register binds source identity, occurrence population, and exact snapshot evidence. It does not adjudicate occurrences, establish execution safety, authorize protocol freeze, authorize formal calibration or confirmatory execution, support the scientific claim, or grant promotion authority."
+}
