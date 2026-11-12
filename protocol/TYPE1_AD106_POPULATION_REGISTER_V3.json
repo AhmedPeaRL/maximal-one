@@ -1,0 +1,163 @@
+{
+  "schema": "HCM_TYPE1_AD106_POPULATION_REGISTER_V3",
+  "status": "CURRENT_SOURCE_PAIR_AND_EXACT_SNAPSHOT_VERIFIED; BATCH_V3_AND_PREFLIGHT_V4_REQUIRED; TARGET_COMMIT_ASSURANCE_V2_REQUIRED; INDEPENDENT_HUMAN_REVIEW_PENDING",
+  "authority": "NONE",
+  "repository": "AhmedPeaRL/maximal-one",
+  "review_branch": "refs/heads/review/type1-v4-remediation",
+  "source_identity_addendum": "protocol/TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V4_20261112.json",
+  "workflow_definition_commit_for_inventory_and_snapshot": "d0ec59c0af6f78aee2fdb01f5269067902ce320b",
+  "target": {
+    "ref": "refs/audit/target",
+    "commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+    "occurrence_count": 1800,
+    "distinct_inventory_paths": 271,
+    "reconciliation_status": "RECONCILED"
+  },
+  "main_comparison": {
+    "ref": "refs/audit/main",
+    "commit": "e6234f6895e3bc6c10b089a5e4f741f2143bb02f",
+    "occurrence_count": 789,
+    "distinct_inventory_paths": 193,
+    "reconciliation_status": "RECONCILED",
+    "superseded_previous_main": {
+      "commit": "fe949fc4a11d245f08846d7eece97e8c1d26a3f8",
+      "occurrence_count": 728,
+      "status": "HISTORICAL_NOT_CURRENT"
+    },
+    "historical_previous_main": {
+      "commit": "0fa531bc844b1891f0574564add8eef5e20813d8",
+      "occurrence_count": 711,
+      "status": "HISTORICAL_NOT_CURRENT"
+    }
+  },
+  "inventory": {
+    "workflow_run_id": "43249081611",
+    "workflow_job_id": "131289643543",
+    "artifact_id": "13956859801",
+    "artifact_name": "type1-v3-v4-governance-inventory-43249081611-1",
+    "artifact_archive_sha256": "dcda06a60ca306bae20cd7d582ddd962affb1b10b7c9be75b482b84908d26fc6",
+    "reference_inventory_sha256": "448d7179e2beab25209afd97c31fc12e91b76c8b330eb97fe0c2a56fa212db4a",
+    "target_ledger_sha256": "8ba997bed01134c1f7f56f7a0ae0181bdf77f63c64acc873e5e86f2c21e47f4c",
+    "main_ledger_sha256": "7fdd938104a3d44c7f29016fb9d6fc06c453507ec1d35be10be25d9f98c6e827",
+    "provenance_sha256": "567d46fa1660fe2c5df07d48154246541d6b96ed8d729c7a8e14cc84d58557ec",
+    "sha256_register_sha256": "94c4f52e2e1c63cbe8606d5b68d1c4ac67a57df783cb8d50f26b46d18ca2e854",
+    "target_reconciliation_sha256": "5118de3094fc16bacaa7c2b4258f463a8242980cfa47058c396d4c0040336705",
+    "main_reconciliation_sha256": "4cbbf9e07c7b9e73fd96362e267a07a983df211572c1cb7944d7a8eca76a7705",
+    "workflow_definition_commit": "d0ec59c0af6f78aee2fdb01f5269067902ce320b",
+    "target_occurrence_count": 1800,
+    "main_occurrence_count": 789
+  },
+  "snapshot": {
+    "workflow_run_id": "43249503611",
+    "workflow_job_id": "131291123050",
+    "artifact_id": "13958602679",
+    "artifact_name": "type1-exact-review-snapshot-43249503611-1",
+    "artifact_archive_sha256": "792d97271cfb812b12a6200f54ad3afefcb619d66187050f3991ef613d2d4e0e",
+    "manifest_sha256": "755d86e6cb746edc6db8f008368ae2533a4b2b911f004b965336b36401d51159",
+    "inner_snapshot_zip_sha256": "aac17c4a022e01bfb926924de3c1fd485ccb71a7a5186e98ef9e08c7f205c825",
+    "three_way_identity_certificate_sha256": "ce81364026527793d70388e96393684d083e2bdadf6274fe81d51c808711d003",
+    "extraction_verification_sha256": "2e1f6c1134dd01d1cb39ce184865212f621bab3bf250aee0d6376f71971a31ef",
+    "selected_file_count": 289,
+    "present_file_count": 289,
+    "extraction_checked_file_count": 292,
+    "extraction_verified": true,
+    "missing_scope_paths": [],
+    "missing_required_paths": [],
+    "workflow_definition_commit": "d0ec59c0af6f78aee2fdb01f5269067902ce320b"
+  },
+  "batch_generation": {
+    "required_source_inventory_run_id": "43249081611",
+    "required_source_inventory_artifact_id": "13956859801",
+    "required_inventory_sha256": "448d7179e2beab25209afd97c31fc12e91b76c8b330eb97fe0c2a56fa212db4a",
+    "required_target_ledger_sha256": "8ba997bed01134c1f7f56f7a0ae0181bdf77f63c64acc873e5e86f2c21e47f4c",
+    "required_main_commit": "e6234f6895e3bc6c10b089a5e4f741f2143bb02f",
+    "required_main_ledger_sha256": "7fdd938104a3d44c7f29016fb9d6fc06c453507ec1d35be10be25d9f98c6e827",
+    "required_population_register": "protocol/TYPE1_AD106_POPULATION_REGISTER_V3.json",
+    "required_batch_count": 72,
+    "required_occurrence_count": 1800,
+    "workflow_path": ".github/workflows/type1-target-batch-generation-v3.yml",
+    "last_run_id": null,
+    "last_artifact_id": null,
+    "last_run_disposition": "NOT_YET_EXECUTED_FOR_CURRENT_V4_SOURCE_PAIR",
+    "prior_v2_run_id": "43231158994",
+    "prior_v2_artifact_id": "13949798201",
+    "prior_v2_disposition": "VALID_FOR_PRIOR_SOURCE_PAIR_ONLY"
+  },
+  "preflight": {
+    "required_workflow": ".github/workflows/type1-human-overlay-preflight-v4.yml",
+    "required_csv": "adjudication/incoming/first-three-occurrences-v3.csv",
+    "required_csv_sha256": "13f8429073e5c41eb84dae54e894f9ed5b6ffe6f7dd194b2ba42230cae929783",
+    "required_inventory_run_id": "43249081611",
+    "required_inventory_artifact_id": "13956859801",
+    "required_snapshot_run_id": "43249503611",
+    "required_snapshot_artifact_id": "13958602679",
+    "last_run_id": null,
+    "last_artifact_id": null,
+    "last_run_disposition": "NOT_YET_EXECUTED_FOR_CURRENT_V4_SOURCE_PAIR",
+    "prior_v3_run_id": "43231629662",
+    "prior_v3_artifact_id": "13951095944",
+    "prior_v3_disposition": "VALID_FOR_PRIOR_SOURCE_PAIR_ONLY"
+  },
+  "automated_assurance": {
+    "evidence_matrix_path": "review/TYPE1_HIGH_IMPACT_SOFTWARE_ASSURANCE_EVIDENCE_MATRIX_V2.csv",
+    "status": "SOURCE_REBOUND_MATRIX_AND_LOCAL_EXACT_SNAPSHOT_TRIAGE_PREPARED_LOCALLY_NOT_YET_COMMITTED_OR_REVIEWED",
+    "matrix_rows_prepared": 1800,
+    "high_priority_rows_flagged": 374,
+    "matrix_sha256_local_draft": "968f6b69be77ff9336c8cc94c3df0c6aa6bbbc4b6e09928c8a94f4d4ad811cf6",
+    "target_commit_scan_required": true,
+    "assurance_workflow_path": ".github/workflows/type1-software-assurance-v2.yml",
+    "prior_v1_run_id": "43231489043",
+    "prior_v1_artifact_id": "13950562296",
+    "prior_v1_disposition": "PRELIMINARY_TRIAGE_ONLY_WRONG_SCAN_COMMIT_FOR_TARGET_SCOPE",
+    "actionlint": "LOCAL_EXACT_SNAPSHOT_TRIAGE_5_DIAGNOSTICS; TARGET_WORKTREE_RESCAN_PENDING",
+    "zizmor": "LOCAL_EXACT_SNAPSHOT_TRIAGE_204_FINDINGS; TARGET_WORKTREE_RESCAN_PENDING",
+    "scorecard": "NOT_RUN_ON_EXACT_TARGET_COMMIT",
+    "full_call_graph_review": "OPEN",
+    "occurrence_local_evidence_required": true,
+    "generic_test_pass_is_not_sufficient_for_finding_closure": true,
+    "local_snapshot_triage_manifest_path": "review/TYPE1_TARGET_SNAPSHOT_STATIC_TRIAGE_MANIFEST_V1.json",
+    "local_snapshot_triage_manifest_sha256": "8418a800472008d903aca7e1d825df7d2844d55726cec744ab4b6299a7fdc00f",
+    "local_snapshot_actionlint": {
+      "version": "1.7.12",
+      "workflow_files_scanned": 38,
+      "exit_code": 1,
+      "diagnostic_count": 5,
+      "scope": "EXTRACTED_EXACT_TARGET_SNAPSHOT; WORKTREE_RESCAN_PENDING"
+    },
+    "local_snapshot_zizmor": {
+      "version": "1.30.1",
+      "workflow_files_scanned": 38,
+      "exit_code": 14,
+      "finding_count": 204,
+      "high": 163,
+      "medium": 37,
+      "informational": 4,
+      "scope": "EXTRACTED_EXACT_TARGET_SNAPSHOT; WORKTREE_RESCAN_PENDING"
+    },
+    "remediation_workflow_static_checks_path": "review/TYPE1_REMEDIATION_WORKFLOW_STATIC_CHECKS_V1.json",
+    "remediation_workflow_static_checks_sha256": "af1653714a1183863f8a28a69a0d91947502391e826699755ae21baea03a4153"
+  },
+  "human_review": {
+    "software_assurance_review": "NOT_YET_SUBMITTED_AS_COMPLETE_TARGET_COMMIT_EVIDENCE_PACKAGE",
+    "reviewer_expertise_and_conflicts_required": true,
+    "reviewed_and_not_reviewed_scope_required": true,
+    "email_sent_or_received_is_not_review_approval": true,
+    "independent_statistical_review": "SEPARATE_PACKAGE; PENDING"
+  },
+  "historical_records_preserved": [
+    "protocol/TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V1_20261112.json",
+    "protocol/TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V2_20261112.json",
+    "protocol/TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V3_20261112.json",
+    "protocol/TYPE1_AD106_POPULATION_REGISTER_V1.json",
+    "protocol/TYPE1_AD106_POPULATION_REGISTER_V2.json"
+  ],
+  "authority_invariants": {
+    "protocol_freeze": "NOT_FROZEN",
+    "formal_calibration_authorized": false,
+    "confirmatory_execution_authorized": false,
+    "claim_support": false,
+    "promotion_authority": false,
+    "human_adjudication_applied": false
+  },
+  "interpretation_limit": "This register binds the current target inventory, current main comparison, exact target snapshot, and pending review inputs. It does not adjudicate occurrences, establish execution safety, authorize protocol freeze, formal calibration, confirmatory execution, scientific claim support, or promotion."
+}
