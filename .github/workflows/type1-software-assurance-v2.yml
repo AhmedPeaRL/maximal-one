@@ -1,0 +1,321 @@
+name: Type-I Software Assurance V2 (Exact Target Commit Worktree)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: type1-software-assurance-v2
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - name: Checkout review branch with full target history
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Load immutable source identities from Population Register V3
+        id: source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V3.json").read_text())
+          i, s = p["inventory"], p["snapshot"]
+          values = {
+            "target_commit": p["target"]["commit"],
+            "main_commit": p["main_comparison"]["commit"],
+            "review_branch_commit": os.environ["GITHUB_SHA"],
+            "inventory_run_id": str(i["workflow_run_id"]),
+            "inventory_artifact_id": str(i["artifact_id"]),
+            "inventory_artifact_name": i["artifact_name"],
+            "inventory_archive_sha256": i["artifact_archive_sha256"],
+            "source_workflow_commit": i["workflow_definition_commit"],
+            "inventory_sha256": i["reference_inventory_sha256"],
+            "snapshot_run_id": str(s["workflow_run_id"]),
+            "snapshot_artifact_id": str(s["artifact_id"]),
+            "snapshot_artifact_name": s["artifact_name"],
+            "snapshot_archive_sha256": s["artifact_archive_sha256"],
+            "snapshot_manifest_sha256": s["manifest_sha256"],
+            "snapshot_inner_sha256": s["inner_snapshot_zip_sha256"],
+            "snapshot_certificate_sha256": s["three_way_identity_certificate_sha256"],
+            "snapshot_extraction_sha256": s["extraction_verification_sha256"]
+          }
+          for k, v in values.items():
+            with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+              f.write(f"{k}={v}\n")
+          PY
+
+      - name: Verify live snapshot artifact and workflow metadata
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IRUN: ${{ steps.source.outputs.inventory_run_id }}
+          IAID: ${{ steps.source.outputs.inventory_artifact_id }}
+          IANAME: ${{ steps.source.outputs.inventory_artifact_name }}
+          IARCH: ${{ steps.source.outputs.inventory_archive_sha256 }}
+          SOURCE_WORKFLOW_COMMIT: ${{ steps.source.outputs.source_workflow_commit }}
+          SRUN: ${{ steps.source.outputs.snapshot_run_id }}
+          SAID: ${{ steps.source.outputs.snapshot_artifact_id }}
+          SANAME: ${{ steps.source.outputs.snapshot_artifact_name }}
+          SSHA: ${{ steps.source.outputs.snapshot_archive_sha256 }}
+        run: |
+          set -euo pipefail
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${IAID}" > inventory-artifact.json
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${IRUN}" > inventory-run.json
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${SAID}" > snapshot-artifact.json
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${SRUN}" > snapshot-run.json
+          python - <<'PY'
+          import json, os
+          e = os.environ
+          ia, ir = json.load(open("inventory-artifact.json")), json.load(open("inventory-run.json"))
+          sa, sr = json.load(open("snapshot-artifact.json")), json.load(open("snapshot-run.json"))
+          assert str(ia["id"]) == e["IAID"] and ia["name"] == e["IANAME"]
+          assert ia["digest"] == "sha256:" + e["IARCH"] and ia["expired"] is False
+          assert str(ia["workflow_run"]["id"]) == e["IRUN"]
+          assert str(ir["id"]) == e["IRUN"] and ir["conclusion"] == "success"
+          assert ir["head_branch"] == "review/type1-v4-remediation"
+          assert ir["head_sha"] == e["SOURCE_WORKFLOW_COMMIT"]
+          assert ir["path"] == ".github/workflows/type1-v3-v4-governance-audit.yml"
+          assert str(sa["id"]) == e["SAID"] and sa["name"] == e["SANAME"]
+          assert sa["digest"] == "sha256:" + e["SSHA"] and sa["expired"] is False
+          assert str(sa["workflow_run"]["id"]) == e["SRUN"]
+          assert str(sr["id"]) == e["SRUN"] and sr["conclusion"] == "success"
+          assert sr["head_branch"] == "review/type1-v4-remediation"
+          assert sr["head_sha"] == e["SOURCE_WORKFLOW_COMMIT"]
+          assert sr["path"] == ".github/workflows/type1-review-snapshot.yml"
+          print("EXACT_INVENTORY_AND_SNAPSHOT_LIVE_METADATA_VERIFIED")
+          PY
+
+      - name: Download exact registered snapshot artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: ${{ steps.source.outputs.snapshot_artifact_name }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ steps.source.outputs.snapshot_run_id }}
+          path: artifacts/input/snapshot
+
+      - name: Verify snapshot bytes and bind them to the target Git worktree
+        shell: bash
+        env:
+          TARGET_COMMIT: ${{ steps.source.outputs.target_commit }}
+          MAIN_COMMIT: ${{ steps.source.outputs.main_commit }}
+          IRUN: ${{ steps.source.outputs.inventory_run_id }}
+          IAID: ${{ steps.source.outputs.inventory_artifact_id }}
+          IARCH: ${{ steps.source.outputs.inventory_archive_sha256 }}
+          ISHA: ${{ steps.source.outputs.inventory_sha256 }}
+          SOURCE_WORKFLOW_COMMIT: ${{ steps.source.outputs.source_workflow_commit }}
+          SRUN: ${{ steps.source.outputs.snapshot_run_id }}
+          SAID: ${{ steps.source.outputs.snapshot_artifact_id }}
+          SSHA: ${{ steps.source.outputs.snapshot_manifest_sha256 }}
+          INNER_SHA: ${{ steps.source.outputs.snapshot_inner_sha256 }}
+          CERT_SHA: ${{ steps.source.outputs.snapshot_certificate_sha256 }}
+          EXTRACT_SHA: ${{ steps.source.outputs.snapshot_extraction_sha256 }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json, os, zipfile
+          from pathlib import Path, PurePosixPath
+          e = os.environ
+          root = Path("artifacts/input/snapshot")
+          sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+          manifestp = root / "manifest.json"
+          certp = root / "three_way_identity_certificate.json"
+          innerp = root / "self_contained/self-contained-review-snapshot.zip"
+          extractionp = root / "self_contained/extraction_verification.json"
+          assert sha(manifestp) == e["SSHA"]
+          assert sha(innerp) == e["INNER_SHA"]
+          assert sha(certp) == e["CERT_SHA"]
+          assert sha(extractionp) == e["EXTRACT_SHA"]
+          manifest, cert, extraction = json.loads(manifestp.read_text()), json.loads(certp.read_text()), json.loads(extractionp.read_text())
+          assert manifest["review_commit_sha"] == e["TARGET_COMMIT"]
+          assert manifest["present_file_count"] == 289 and len(manifest["files"]) == 289
+          assert all(x["status"] == "PRESENT" for x in manifest["files"])
+          assert manifest["missing_scope_paths"] == [] and manifest["missing_required_paths"] == []
+          assert cert["target_commit"] == cert["inventory_source_commit"] == cert["snapshot_review_commit"] == e["TARGET_COMMIT"]
+          assert cert["inventory_workflow_run_id"] == e["IRUN"] and cert["snapshot_workflow_run_id"] == e["SRUN"]
+          assert cert["inventory_json_sha256"] == e["ISHA"]
+          assert cert["inventory_workflow_definition_commit"] == e["SOURCE_WORKFLOW_COMMIT"]
+          assert cert["snapshot_workflow_definition_commit"] == e["SOURCE_WORKFLOW_COMMIT"]
+          assert manifest["inventory_json_sha256"] == e["ISHA"]
+          assert manifest["inventory_source_commit"] == e["TARGET_COMMIT"]
+          assert cert["selected_file_count"] == cert["present_file_count"] == 289
+          assert cert["missing_scope_paths"] == [] and cert["missing_required_paths"] == []
+          assert cert["manual_adjudication_overlay_records"] == 0
+          assert cert["protocol_freeze"] == "NOT_FROZEN"
+          assert cert["formal_calibration_authorized"] is False and cert["confirmatory_execution_authorized"] is False
+          assert cert["claim_support"] is False and cert["promotion_authority"] is False
+          assert extraction["verified"] is True and extraction["errors"] == [] and extraction["checked_file_count"] == 292
+          payload = Path(os.environ["RUNNER_TEMP"]) / "snapshot-payload"
+          payload.mkdir(parents=True, exist_ok=True)
+          with zipfile.ZipFile(innerp) as z:
+            assert z.testzip() is None
+            for member in z.infolist():
+              q = PurePosixPath(member.filename)
+              assert not q.is_absolute() and ".." not in q.parts
+            z.extractall(payload)
+          sums = payload / "SHA256SUMS.txt"
+          assert sums.is_file()
+          PY
+          (cd "$RUNNER_TEMP/snapshot-payload" && sha256sum -c SHA256SUMS.txt)
+          TARGET_DIR="$RUNNER_TEMP/target-source"
+          git fetch --no-tags origin \
+            +refs/heads/review/type1-v4-remediation:refs/remotes/origin/review/type1-v4-remediation \
+            +refs/heads/main:refs/remotes/origin/main
+          git cat-file -e "$TARGET_COMMIT^{commit}"
+          git cat-file -e "$MAIN_COMMIT^{commit}"
+          git merge-base --is-ancestor "$TARGET_COMMIT" refs/remotes/origin/review/type1-v4-remediation
+          git merge-base --is-ancestor "$MAIN_COMMIT" refs/remotes/origin/main
+          git worktree add --detach "$TARGET_DIR" "$TARGET_COMMIT"
+          test "$(git -C "$TARGET_DIR" rev-parse HEAD)" = "$TARGET_COMMIT"
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          e = os.environ
+          target = Path(os.environ["RUNNER_TEMP"]) / "target-source"
+          payload = Path(os.environ["RUNNER_TEMP"]) / "snapshot-payload/source/repository"
+          manifest = json.load(open("artifacts/input/snapshot/manifest.json"))
+          sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+          for item in manifest["files"]:
+            rel = Path(item["path"])
+            a, b = target / rel, payload / rel
+            assert a.is_file() and b.is_file(), f"missing selected source path: {rel}"
+            assert a.stat().st_size == item["size_bytes"] == b.stat().st_size, f"size mismatch: {rel}"
+            assert sha(a) == item["sha256"] == sha(b), f"snapshot/worktree SHA mismatch: {rel}"
+          assert len(manifest["files"]) == 289
+          print("TARGET_COMMIT_WORKTREE_MATCHES_ALL_289_SNAPSHOT_FILES")
+          PY
+
+      - name: Download and verify pinned scanner release assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p tools reports/downloads
+          cd reports/downloads
+          curl --fail --location --retry 3 --output actionlint.tar.gz https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz
+          echo '8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  actionlint.tar.gz' | sha256sum -c -
+          curl --fail --location --retry 3 --output zizmor.tar.gz https://github.com/zizmorcore/zizmor/releases/download/v1.30.1/zizmor-x86_64-unknown-linux-gnu.tar.gz
+          echo 'e65324f4430c2717591937edcec90ccbefaf14c174f8ec9415e03ca875b46e1a  zizmor.tar.gz' | sha256sum -c -
+          curl --fail --location --retry 3 --output scorecard.tar.gz https://github.com/ossf/scorecard/releases/download/v5.6.0/scorecard_5.6.0_linux_amd64.tar.gz
+          echo '19bde07129450cb65a95c6e3b9f34e034341579e6f0e241546ec3ae6efb2dd9a  scorecard.tar.gz' | sha256sum -c -
+          cd ../../tools
+          tar -xzf ../reports/downloads/actionlint.tar.gz
+          tar -xzf ../reports/downloads/zizmor.tar.gz
+          tar -xzf ../reports/downloads/scorecard.tar.gz
+          test -x ./actionlint && test -x ./zizmor && test -x ./scorecard
+
+      - name: Record scanner versions
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./tools/actionlint -version > reports/actionlint-version.txt 2>&1
+          ./tools/zizmor --version > reports/zizmor-version.txt 2>&1
+          ./tools/scorecard version > reports/scorecard-version.txt 2>&1 || ./tools/scorecard --version > reports/scorecard-version.txt 2>&1
+
+      - name: Run actionlint against exact target commit workflows
+        shell: bash
+        run: |
+          set +e
+          TARGET_DIR="$RUNNER_TEMP/target-source"
+          (cd "$TARGET_DIR" && find .github/workflows -type f \( -name '*.yml' -o -name '*.yaml' \) -print0 | xargs -0 "$GITHUB_WORKSPACE/tools/actionlint" -no-color) > reports/actionlint.txt 2>&1
+          code=$?
+          echo "$code" > reports/actionlint.exit_code
+          exit 0
+
+      - name: Run zizmor against exact target commit workflows
+        shell: bash
+        run: |
+          set +e
+          TARGET_DIR="$RUNNER_TEMP/target-source"
+          (cd "$TARGET_DIR" && "$GITHUB_WORKSPACE/tools/zizmor" --offline --collect=workflows --format=json-v1 .) > reports/zizmor.json 2> reports/zizmor.stderr.txt
+          code=$?
+          echo "$code" > reports/zizmor.exit_code
+          exit 0
+
+      - name: Run Scorecard against exact target commit worktree
+        shell: bash
+        run: |
+          set +e
+          "$GITHUB_WORKSPACE/tools/scorecard" --local="$RUNNER_TEMP/target-source" --format=json > reports/scorecard.json 2> reports/scorecard.stderr.txt
+          code=$?
+          echo "$code" > reports/scorecard.exit_code
+          exit 0
+
+      - name: Write immutable target-commit assurance manifest
+        if: always()
+        shell: bash
+        env:
+          TARGET_COMMIT: ${{ steps.source.outputs.target_commit }}
+          MAIN_COMMIT: ${{ steps.source.outputs.main_commit }}
+          IRUN: ${{ steps.source.outputs.inventory_run_id }}
+          IAID: ${{ steps.source.outputs.inventory_artifact_id }}
+          IARCH: ${{ steps.source.outputs.inventory_archive_sha256 }}
+          ISHA: ${{ steps.source.outputs.inventory_sha256 }}
+          SOURCE_WORKFLOW_COMMIT: ${{ steps.source.outputs.source_workflow_commit }}
+          SRUN: ${{ steps.source.outputs.snapshot_run_id }}
+          SAID: ${{ steps.source.outputs.snapshot_artifact_id }}
+          SARCH: ${{ steps.source.outputs.snapshot_archive_sha256 }}
+          SSHA: ${{ steps.source.outputs.snapshot_manifest_sha256 }}
+          INNER_SHA: ${{ steps.source.outputs.snapshot_inner_sha256 }}
+          CERT_SHA: ${{ steps.source.outputs.snapshot_certificate_sha256 }}
+          EXTRACT_SHA: ${{ steps.source.outputs.snapshot_extraction_sha256 }}
+        run: |
+          set -euo pipefail
+          mkdir -p reports
+          python - <<'PY'
+          import hashlib, json, os, subprocess
+          from pathlib import Path
+          files = [
+            "reports/actionlint-version.txt", "reports/zizmor-version.txt", "reports/scorecard-version.txt",
+            "reports/actionlint.txt", "reports/actionlint.exit_code", "reports/zizmor.json", "reports/zizmor.stderr.txt",
+            "reports/zizmor.exit_code", "reports/scorecard.json", "reports/scorecard.stderr.txt", "reports/scorecard.exit_code",
+            "reports/downloads/actionlint.tar.gz", "reports/downloads/zizmor.tar.gz", "reports/downloads/scorecard.tar.gz"
+          ]
+          hashes = {p: hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in files if Path(p).is_file()}
+          def read_code(p):
+            q=Path(p)
+            return int(q.read_text().strip()) if q.exists() else None
+          manifest = {
+            "schema":"HCM_TYPE1_SOFTWARE_ASSURANCE_RUN_V2",
+            "status":"TARGET_COMMIT_SCANNED_RESULTS_REQUIRE_TRIAGE_AND_OCCURRENCE_LEVEL_REVIEW",
+            "repository":os.environ["GITHUB_REPOSITORY"],
+            "target_commit":os.environ["TARGET_COMMIT"],
+            "main_comparison_commit":os.environ["MAIN_COMMIT"],
+            "scan_commit":os.environ["TARGET_COMMIT"],
+            "review_branch_commit":subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip(),
+            "inventory_run_id":os.environ["IRUN"],"inventory_artifact_id":os.environ["IAID"],"inventory_artifact_archive_sha256":os.environ["IARCH"],"inventory_sha256":os.environ["ISHA"],
+            "snapshot_run_id":os.environ["SRUN"],"snapshot_artifact_id":os.environ["SAID"],"snapshot_artifact_archive_sha256":os.environ["SARCH"],"snapshot_manifest_sha256":os.environ["SSHA"],"snapshot_inner_zip_sha256":os.environ["INNER_SHA"],"snapshot_certificate_sha256":os.environ["CERT_SHA"],"snapshot_extraction_verification_sha256":os.environ["EXTRACT_SHA"],
+            "inventory_workflow_definition_commit":os.environ["SOURCE_WORKFLOW_COMMIT"],
+            "workflow_run_id":os.environ["GITHUB_RUN_ID"],"workflow_definition_commit":os.environ["GITHUB_SHA"],
+            "tool_versions":{
+              "actionlint":Path("reports/actionlint-version.txt").read_text().strip() if Path("reports/actionlint-version.txt").exists() else None,
+              "zizmor":Path("reports/zizmor-version.txt").read_text().strip() if Path("reports/zizmor-version.txt").exists() else None,
+              "scorecard":Path("reports/scorecard-version.txt").read_text().strip() if Path("reports/scorecard-version.txt").exists() else None},
+            "exit_codes":{"actionlint":read_code("reports/actionlint.exit_code"),"zizmor":read_code("reports/zizmor.exit_code"),"scorecard":read_code("reports/scorecard.exit_code")},
+            "raw_output_sha256":hashes,"authority":"NONE","protocol_freeze":"NOT_FROZEN",
+            "formal_calibration_authorized":False,"confirmatory_execution_authorized":False,"claim_support":False,"promotion_authority":False,
+            "interpretation_limit":"Scanners were run against a detached worktree at the exact target commit after verifying all 289 snapshot-selected files. Scanner findings are triage evidence only; no occurrence is closed without complete path-specific evidence and independent human review."}
+          Path("reports/assurance-run-manifest.json").write_text(json.dumps(manifest,indent=2,sort_keys=True)+"\n")
+          PY
+
+      - name: Upload target-commit scanner outputs and provenance
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: type1-software-assurance-v2-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reports/
+          if-no-files-found: error
+          retention-days: 90
