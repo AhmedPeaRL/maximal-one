@@ -1,0 +1,214 @@
+name: Type-I Target Batch Generation V2 (Population-Register Bound)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - review/type1-v4-remediation
+    paths:
+      - 'adjudication/generate_target_batches.py'
+      - 'tests/test_type1_target_batch_generation.py'
+      - 'protocol/TYPE1_AD106_POPULATION_REGISTER_V2.json'
+      - '.github/workflows/type1-target-batch-generation-v2.yml'
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: type1-target-batch-generation-v2
+  cancel-in-progress: false
+
+jobs:
+  validate-and-generate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact review branch commit
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify branch and checkout identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+
+      - name: Read current population source identity
+        id: source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V2.json").read_text())
+          i = p["inventory"]
+          values = {
+              "inventory_run_id": str(i["workflow_run_id"]),
+              "inventory_artifact_id": str(i["artifact_id"]),
+              "inventory_artifact_name": i["artifact_name"],
+              "inventory_archive_sha256": i["artifact_archive_sha256"],
+              "inventory_sha256": i["reference_inventory_sha256"],
+              "workflow_definition_commit": i["workflow_definition_commit"],
+              "target_commit": p["target"]["commit"],
+              "main_commit": p["main_comparison"]["commit"]
+          }
+          for k, v in values.items():
+              with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+                  f.write(f"{k}={v}\n")
+          PY
+
+      - name: Verify live artifact and workflow-run metadata
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ steps.source.outputs.inventory_run_id }}
+          ARTIFACT_ID: ${{ steps.source.outputs.inventory_artifact_id }}
+          ARTIFACT_NAME: ${{ steps.source.outputs.inventory_artifact_name }}
+          ARCHIVE_SHA: ${{ steps.source.outputs.inventory_archive_sha256 }}
+          SOURCE_WORKFLOW_COMMIT: ${{ steps.source.outputs.workflow_definition_commit }}
+        run: |
+          set -euo pipefail
+          [[ "$RUN_ID" =~ ^[0-9]+$ ]]
+          [[ "$ARTIFACT_ID" =~ ^[0-9]+$ ]]
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}" > inventory-artifact-metadata.json
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}" > inventory-run-metadata.json
+          python - <<'PY'
+          import json, os
+          a = json.loads(open("inventory-artifact-metadata.json").read())
+          r = json.loads(open("inventory-run-metadata.json").read())
+          e = os.environ
+          assert str(a["id"]) == e["ARTIFACT_ID"], "BLOCKED: artifact ID mismatch"
+          assert a["name"] == e["ARTIFACT_NAME"], "BLOCKED: artifact name mismatch"
+          assert a["digest"] == "sha256:" + e["ARCHIVE_SHA"], "BLOCKED: artifact digest mismatch"
+          assert a["expired"] is False, "BLOCKED: artifact expired or expiry unknown"
+          assert str(a["workflow_run"]["id"]) == e["RUN_ID"], "BLOCKED: artifact/run ID mismatch"
+          assert str(r["id"]) == e["RUN_ID"], "BLOCKED: workflow run ID mismatch"
+          assert r["conclusion"] == "success", "BLOCKED: inventory run not successful"
+          assert r["head_branch"] == "review/type1-v4-remediation", "BLOCKED: inventory branch mismatch"
+          assert r["head_sha"] == e["SOURCE_WORKFLOW_COMMIT"], "BLOCKED: workflow-definition commit mismatch"
+          assert r["path"] == ".github/workflows/type1-v3-v4-governance-audit.yml", "BLOCKED: unexpected inventory workflow path"
+          print("LIVE_INVENTORY_ARTIFACT_AND_RUN_IDENTITY_VERIFIED")
+          PY
+
+      - name: Download the population-register-selected inventory artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: ${{ steps.source.outputs.inventory_artifact_name }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ steps.source.outputs.inventory_run_id }}
+          path: artifacts/input/inventory
+
+      - name: Verify downloaded inventory, ledgers, provenance, and population register
+        shell: bash
+        env:
+          RUN_ID: ${{ steps.source.outputs.inventory_run_id }}
+          ARTIFACT_ID: ${{ steps.source.outputs.inventory_artifact_id }}
+          TARGET_COMMIT: ${{ steps.source.outputs.target_commit }}
+          MAIN_COMMIT: ${{ steps.source.outputs.main_commit }}
+          SOURCE_WORKFLOW_COMMIT: ${{ steps.source.outputs.workflow_definition_commit }}
+        run: |
+          set -euo pipefail
+          (cd artifacts/input/inventory && sha256sum -c SHA256SUMS.txt)
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          root = Path("artifacts/input/inventory")
+          p = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V2.json").read_text())
+          inv = p["inventory"]
+          prov_path = root / "type1_governance_inventory/provenance.json"
+          inv_path = root / "type1_governance_inventory/reference_inventory.json"
+          target_path = root / "type1_occurrence_ledger/occurrence_level_manual_ledger.json"
+          main_path = root / "type1_occurrence_ledger/main_occurrence_level_manual_ledger.json"
+          sha = lambda x: hashlib.sha256(x.read_bytes()).hexdigest()
+          prov = json.loads(prov_path.read_text())
+          target = json.loads(target_path.read_text())
+          main = json.loads(main_path.read_text())
+          assert sha(prov_path) == inv["provenance_sha256"], "BLOCKED: provenance SHA mismatch"
+          assert sha(inv_path) == inv["reference_inventory_sha256"], "BLOCKED: inventory SHA mismatch"
+          assert sha(target_path) == inv["target_ledger_sha256"], "BLOCKED: target ledger SHA mismatch"
+          assert sha(main_path) == inv["main_ledger_sha256"], "BLOCKED: main ledger SHA mismatch"
+          assert str(prov["workflow_run_id"]) == os.environ["RUN_ID"], "BLOCKED: provenance run ID mismatch"
+          assert str(prov["workflow_run_id"]) == str(inv["workflow_run_id"]), "BLOCKED: register/provenance run mismatch"
+          assert str(inv["artifact_id"]) == os.environ["ARTIFACT_ID"], "BLOCKED: register/artifact ID mismatch"
+          assert prov["target_commit"] == os.environ["TARGET_COMMIT"] == p["target"]["commit"], "BLOCKED: target commit mismatch"
+          assert prov["main_commit"] == os.environ["MAIN_COMMIT"] == p["main_comparison"]["commit"], "BLOCKED: main commit mismatch"
+          assert prov["workflow_definition_commit"] == os.environ["SOURCE_WORKFLOW_COMMIT"] == inv["workflow_definition_commit"], "BLOCKED: source workflow commit mismatch"
+          assert prov["inventory_sha256"] == inv["reference_inventory_sha256"], "BLOCKED: provenance inventory SHA mismatch"
+          assert target["occurrence_count"] == len(target["records"]) == p["target"]["occurrence_count"] == 1800
+          assert main["occurrence_count"] == len(main["records"]) == p["main_comparison"]["occurrence_count"] == 728
+          assert target["inventory_sha256"] == inv["reference_inventory_sha256"]
+          assert all(x["status"] == "OPEN" and x["manual_classification"] == "UNKNOWN" and x["reviewer_disposition"] == "PENDING" for x in target["records"])
+          print("CURRENT_POPULATION_AND_BOTH_LEDGER_IDENTITIES_VERIFIED")
+          PY
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11.15"
+
+      - name: Compile generator and tests
+        run: python -m py_compile adjudication/generate_target_batches.py tests/test_type1_target_batch_generation.py
+
+      - name: Run source-mismatch negative tests
+        run: python -m unittest -v tests.test_type1_target_batch_generation
+
+      - name: Generate batches from the verified current ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          python adjudication/generate_target_batches.py \
+            --inventory artifacts/input/inventory/type1_governance_inventory/reference_inventory.json \
+            --ledger artifacts/input/inventory/type1_occurrence_ledger/occurrence_level_manual_ledger.json \
+            --population-register protocol/TYPE1_AD106_POPULATION_REGISTER_V2.json \
+            --provenance artifacts/input/inventory/type1_governance_inventory/provenance.json \
+            --artifact-metadata inventory-artifact-metadata.json \
+            --output artifacts/output/target_1800_batches
+
+      - name: Verify exact batch coverage and non-authority invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root = Path("artifacts/output/target_1800_batches")
+          p = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V2.json").read_text())
+          register = json.loads((root / "BATCH_SET_REGISTER.json").read_text())
+          ledger = json.loads(Path("artifacts/input/inventory/type1_occurrence_ledger/occurrence_level_manual_ledger.json").read_text())
+          inv = p["inventory"]
+          files = sorted(root.glob("BATCH_[0-9][0-9][0-9].json"))
+          assert len(files) == 72
+          assert register["source_inventory_workflow_run_id"] == str(inv["workflow_run_id"])
+          assert register["source_inventory_artifact_id"] == str(inv["artifact_id"])
+          assert register["inventory_sha256"] == inv["reference_inventory_sha256"]
+          assert register["source_ledger_sha256"] == inv["target_ledger_sha256"]
+          assert register["source_inventory_workflow_definition_commit"] == inv["workflow_definition_commit"]
+          assert register["status"] == "NAVIGATION_ONLY_NOT_ADJUDICATED" and register["authority"] == "NONE"
+          observed = []
+          for path in files:
+              b = json.loads(path.read_text())
+              assert b["authority"] == "NONE" and b["status"] == "NAVIGATION_ONLY_NOT_ADJUDICATED"
+              assert b["count"] == 25 and b["protocol_freeze"] == "NOT_FROZEN"
+              for key in ("formal_calibration_authorized", "confirmatory_execution_authorized", "claim_support", "promotion_authority"):
+                  assert b[key] is False
+              entry = next(x for x in register["batches"] if x["file"] == path.name)
+              assert entry["sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
+              observed.extend(b["occurrence_ids"])
+          expected = [x["occurrence_id"] for x in ledger["records"]]
+          assert observed == expected and len(observed) == len(set(observed)) == 1800
+          print("BATCH_SET_VERIFIED: 72 batches / 1800 unique occurrences; source pair exact; authority=NONE")
+          PY
+
+      - name: Upload source-bound navigation-only batch set
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: type1-target-1800-batches-source-bound-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/output/target_1800_batches/
+          if-no-files-found: error
+          retention-days: 90

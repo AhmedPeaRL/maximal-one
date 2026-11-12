@@ -1,0 +1,275 @@
+name: Type-I Human Overlay Preflight V3 (Current Source Pair, Read Only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      csv_path:
+        description: Exact pending CSV path recorded in Population Register V2
+        required: true
+        type: string
+        default: adjudication/incoming/first-three-occurrences-v2.csv
+      preflight_only:
+        description: V3 is read-only preflight; false is rejected
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: type1-human-overlay-preflight-v3
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact review branch commit
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - name: Require review branch, exact checkout, and preflight-only mode
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          event = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text())
+          inputs = event.get("inputs", {})
+          if str(inputs.get("preflight_only", "true")).lower() != "true":
+              raise SystemExit("BLOCKED: V3 is permanently preflight-only")
+          csv_path = inputs.get("csv_path", "adjudication/incoming/first-three-occurrences-v2.csv")
+          if csv_path != "adjudication/incoming/first-three-occurrences-v2.csv":
+              raise SystemExit("BLOCKED: V3 accepts only the source-bound CSV recorded in Population Register V2")
+          if not Path(csv_path).is_file():
+              raise SystemExit("BLOCKED: pending CSV is missing")
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as f:
+              f.write(f"CSV_PATH={csv_path}\n")
+          PY
+
+      - name: Load immutable source identities from Population Register V2
+        id: source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V2.json").read_text())
+          i, s = p["inventory"], p["snapshot"]
+          values = {
+            "target_commit": p["target"]["commit"],
+            "main_commit": p["main_comparison"]["commit"],
+            "source_workflow_commit": i["workflow_definition_commit"],
+            "inventory_run_id": str(i["workflow_run_id"]),
+            "inventory_artifact_id": str(i["artifact_id"]),
+            "inventory_artifact_name": i["artifact_name"],
+            "inventory_archive_sha256": i["artifact_archive_sha256"],
+            "inventory_sha256": i["reference_inventory_sha256"],
+            "target_ledger_sha256": i["target_ledger_sha256"],
+            "main_ledger_sha256": i["main_ledger_sha256"],
+            "provenance_sha256": i["provenance_sha256"],
+            "snapshot_run_id": str(s["workflow_run_id"]),
+            "snapshot_artifact_id": str(s["artifact_id"]),
+            "snapshot_artifact_name": s["artifact_name"],
+            "snapshot_archive_sha256": s["artifact_archive_sha256"],
+            "snapshot_manifest_sha256": s["manifest_sha256"],
+            "snapshot_inner_sha256": s["inner_snapshot_zip_sha256"],
+            "snapshot_certificate_sha256": s["three_way_identity_certificate_sha256"],
+            "snapshot_extraction_sha256": s["extraction_verification_sha256"],
+            "csv_sha256": p["preflight"]["required_csv_sha256"]
+          }
+          for k, v in values.items():
+              with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+                  f.write(f"{k}={v}\n")
+          PY
+
+      - name: Verify live GitHub artifact and workflow metadata
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IRUN: ${{ steps.source.outputs.inventory_run_id }}
+          IAID: ${{ steps.source.outputs.inventory_artifact_id }}
+          IANAME: ${{ steps.source.outputs.inventory_artifact_name }}
+          ISHA: ${{ steps.source.outputs.inventory_archive_sha256 }}
+          SRUN: ${{ steps.source.outputs.snapshot_run_id }}
+          SAID: ${{ steps.source.outputs.snapshot_artifact_id }}
+          SANAME: ${{ steps.source.outputs.snapshot_artifact_name }}
+          SSHA: ${{ steps.source.outputs.snapshot_archive_sha256 }}
+          SOURCE_COMMIT: ${{ steps.source.outputs.source_workflow_commit }}
+        run: |
+          set -euo pipefail
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${IAID}" > inventory-artifact.json
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${IRUN}" > inventory-run.json
+          gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${SAID}" > snapshot-artifact.json
+          gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${SRUN}" > snapshot-run.json
+          python - <<'PY'
+          import json, os
+          e = os.environ
+          ia, ir = json.load(open("inventory-artifact.json")), json.load(open("inventory-run.json"))
+          sa, sr = json.load(open("snapshot-artifact.json")), json.load(open("snapshot-run.json"))
+          def artifact(a, aid, name, digest, run_id):
+              assert str(a["id"]) == aid, "BLOCKED: artifact ID mismatch"
+              assert a["name"] == name, "BLOCKED: artifact name mismatch"
+              assert a["digest"] == "sha256:" + digest, "BLOCKED: artifact archive digest mismatch"
+              assert a["expired"] is False, "BLOCKED: artifact expired or expiry unknown"
+              assert str(a["workflow_run"]["id"]) == run_id, "BLOCKED: artifact/run association mismatch"
+          artifact(ia, e["IAID"], e["IANAME"], e["ISHA"], e["IRUN"])
+          artifact(sa, e["SAID"], e["SANAME"], e["SSHA"], e["SRUN"])
+          for run, run_id, path in (
+              (ir, e["IRUN"], ".github/workflows/type1-v3-v4-governance-audit.yml"),
+              (sr, e["SRUN"], ".github/workflows/type1-review-snapshot.yml")
+          ):
+              assert str(run["id"]) == run_id, "BLOCKED: workflow run ID mismatch"
+              assert run["conclusion"] == "success", "BLOCKED: source workflow did not succeed"
+              assert run["head_branch"] == "review/type1-v4-remediation", "BLOCKED: source workflow branch mismatch"
+              assert run["head_sha"] == e["SOURCE_COMMIT"], "BLOCKED: source workflow-definition commit mismatch"
+              assert run["path"] == path, "BLOCKED: source workflow path mismatch"
+          print("CURRENT_INVENTORY_AND_SNAPSHOT_LIVE_METADATA_VERIFIED")
+          PY
+
+      - name: Download exact current inventory artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: ${{ steps.source.outputs.inventory_artifact_name }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ steps.source.outputs.inventory_run_id }}
+          path: artifacts/input/inventory
+
+      - name: Download exact current snapshot artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: ${{ steps.source.outputs.snapshot_artifact_name }}
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ steps.source.outputs.snapshot_run_id }}
+          path: artifacts/input/snapshot
+
+      - name: Verify source bytes, ledgers, snapshot certificate, and CSV identity
+        shell: bash
+        env:
+          TARGET: ${{ steps.source.outputs.target_commit }}
+          MAIN: ${{ steps.source.outputs.main_commit }}
+          SOURCE_COMMIT: ${{ steps.source.outputs.source_workflow_commit }}
+          IRUN: ${{ steps.source.outputs.inventory_run_id }}
+          IAID: ${{ steps.source.outputs.inventory_artifact_id }}
+          ISHA: ${{ steps.source.outputs.inventory_sha256 }}
+          TLSHA: ${{ steps.source.outputs.target_ledger_sha256 }}
+          MLSHA: ${{ steps.source.outputs.main_ledger_sha256 }}
+          PSHA: ${{ steps.source.outputs.provenance_sha256 }}
+          SRUN: ${{ steps.source.outputs.snapshot_run_id }}
+          SSHA: ${{ steps.source.outputs.snapshot_manifest_sha256 }}
+          INNER_SHA: ${{ steps.source.outputs.snapshot_inner_sha256 }}
+          CERT_SHA: ${{ steps.source.outputs.snapshot_certificate_sha256 }}
+          EXTRACT_SHA: ${{ steps.source.outputs.snapshot_extraction_sha256 }}
+          CSV_SHA: ${{ steps.source.outputs.csv_sha256 }}
+        run: |
+          set -euo pipefail
+          (cd artifacts/input/inventory && sha256sum -c SHA256SUMS.txt)
+          python - <<'PY'
+          import csv, hashlib, json, os, zipfile
+          from pathlib import Path, PurePosixPath
+          e = os.environ
+          root = Path("artifacts/input")
+          invroot, snap = root / "inventory", root / "snapshot"
+          pop = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V2.json").read_text())
+          add = json.loads(Path("protocol/TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V3_20261112.json").read_text())
+          sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+          provp = invroot / "type1_governance_inventory/provenance.json"
+          invp = invroot / "type1_governance_inventory/reference_inventory.json"
+          targetp = invroot / "type1_occurrence_ledger/occurrence_level_manual_ledger.json"
+          mainp = invroot / "type1_occurrence_ledger/main_occurrence_level_manual_ledger.json"
+          assert sha(provp) == e["PSHA"] == pop["inventory"]["provenance_sha256"]
+          assert sha(invp) == e["ISHA"] == pop["inventory"]["reference_inventory_sha256"]
+          assert sha(targetp) == e["TLSHA"] == pop["inventory"]["target_ledger_sha256"]
+          assert sha(mainp) == e["MLSHA"] == pop["inventory"]["main_ledger_sha256"]
+          prov, target, main = json.loads(provp.read_text()), json.loads(targetp.read_text()), json.loads(mainp.read_text())
+          assert str(prov["workflow_run_id"]) == e["IRUN"] == pop["inventory"]["workflow_run_id"]
+          assert prov["workflow_definition_commit"] == e["SOURCE_COMMIT"] == pop["inventory"]["workflow_definition_commit"]
+          assert prov["target_commit"] == e["TARGET"] == pop["target"]["commit"]
+          assert prov["main_commit"] == e["MAIN"] == pop["main_comparison"]["commit"]
+          assert str(pop["inventory"]["artifact_id"]) == e["IAID"]
+          assert target["occurrence_count"] == len(target["records"]) == 1800
+          assert main["occurrence_count"] == len(main["records"]) == 728
+          assert target["inventory_sha256"] == e["ISHA"]
+          assert all(r["status"] == "OPEN" and r["manual_classification"] == "UNKNOWN" and r["reviewer_disposition"] == "PENDING" for r in target["records"])
+
+          manifestp = snap / "manifest.json"
+          certp = snap / "three_way_identity_certificate.json"
+          innerp = snap / "self_contained/self-contained-review-snapshot.zip"
+          extractionp = snap / "self_contained/extraction_verification.json"
+          assert sha(manifestp) == e["SSHA"] == pop["snapshot"]["manifest_sha256"]
+          assert sha(innerp) == e["INNER_SHA"] == pop["snapshot"]["inner_snapshot_zip_sha256"]
+          assert sha(certp) == e["CERT_SHA"] == pop["snapshot"]["three_way_identity_certificate_sha256"]
+          assert sha(extractionp) == e["EXTRACT_SHA"] == pop["snapshot"]["extraction_verification_sha256"]
+          manifest, cert, extraction = json.loads(manifestp.read_text()), json.loads(certp.read_text()), json.loads(extractionp.read_text())
+          assert cert["target_commit"] == cert["inventory_source_commit"] == cert["snapshot_review_commit"] == e["TARGET"]
+          assert cert["inventory_workflow_run_id"] == e["IRUN"] and cert["snapshot_workflow_run_id"] == e["SRUN"]
+          assert cert["inventory_json_sha256"] == e["ISHA"]
+          assert cert["selected_file_count"] == cert["present_file_count"] == 289
+          assert cert["missing_scope_paths"] == [] and cert["missing_required_paths"] == []
+          assert cert["manual_adjudication_overlay_records"] == 0
+          assert cert["formal_calibration_authorized"] is False and cert["confirmatory_execution_authorized"] is False
+          assert cert["claim_support"] is False and cert["promotion_authority"] is False
+          assert len(manifest["files"]) == 289 and all(x["status"] == "PRESENT" for x in manifest["files"])
+          assert extraction["verified"] is True and extraction["errors"] == [] and extraction["checked_file_count"] == 292
+          with zipfile.ZipFile(innerp) as z:
+              assert z.testzip() is None
+              for m in z.infolist():
+                  q = PurePosixPath(m.filename)
+                  assert not q.is_absolute() and ".." not in q.parts
+
+          csvp = Path(os.environ["CSV_PATH"])
+          assert sha(csvp) == e["CSV_SHA"] == pop["preflight"]["required_csv_sha256"], "BLOCKED: CSV does not belong to this source pair"
+          with csvp.open(newline="", encoding="utf-8") as f:
+              rows = list(csv.DictReader(f))
+          assert len(rows) == 3
+          ledger_ids = {r["occurrence_id"] for r in target["records"]}
+          ids = [r["occurrence_id"] for r in rows]
+          assert len(ids) == len(set(ids)) and all(x in ledger_ids for x in ids)
+          for r in rows:
+              assert r["inventory_commit"] == e["TARGET"] and r["inventory_ref"] == "refs/audit/target" and r["inventory_sha256"] == e["ISHA"]
+              assert r["status"] == "OPEN" and r["reviewer_disposition"] == "PENDING"
+              for key in ("manual_classification", "reviewer", "reviewer_kind", "reviewer_role", "conflict_statement", "reviewed_at_utc"):
+                  assert not r[key].strip(), f"BLOCKED: CSV field {key} must remain blank before independent review"
+              second = json.loads(r["second_review"])
+              assert second["status"] == "PENDING" and second["reviewer_kind"] == "NONE" and not second["reviewer"].strip()
+
+          report = {
+            "schema": "HCM_TYPE1_HUMAN_OVERLAY_PREFLIGHT_V3",
+            "status": "CURRENT_SOURCE_PAIR_VERIFIED_PENDING_INDEPENDENT_HUMAN_ADJUDICATION",
+            "preflight_workflow_run_id": os.environ["GITHUB_RUN_ID"],
+            "preflight_workflow_commit": os.environ["GITHUB_SHA"],
+            "target_commit": e["TARGET"], "main_commit": e["MAIN"],
+            "inventory_workflow_run_id": e["IRUN"], "inventory_artifact_id": e["IAID"],
+            "inventory_sha256": e["ISHA"], "target_ledger_sha256": e["TLSHA"], "main_ledger_sha256": e["MLSHA"],
+            "snapshot_workflow_run_id": e["SRUN"], "snapshot_manifest_sha256": e["SSHA"],
+            "snapshot_inner_zip_sha256": e["INNER_SHA"], "snapshot_certificate_sha256": e["CERT_SHA"],
+            "csv_path": str(csvp), "csv_sha256": sha(csvp), "row_count": len(rows), "occurrence_ids": ids,
+            "all_rows_open": True, "all_rows_pending": True, "adjudications_applied": 0,
+            "authority": "NONE", "protocol_freeze": "NOT_FROZEN",
+            "formal_calibration_authorized": False, "confirmatory_execution_authorized": False,
+            "claim_support": False, "promotion_authority": False,
+            "explicit_limit": "Read-only source and pending-CSV preflight only. No occurrence adjudication, overlay conversion, merge, protocol freeze, calibration authorization, confirmatory execution authorization, claim support, or promotion authority is granted."
+          }
+          out = Path("artifacts/output")
+          out.mkdir(parents=True, exist_ok=True)
+          (out / "preflight-v3.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          print("PREFLIGHT_V3_COMPLETE; CURRENT_SOURCE_PAIR_VERIFIED; NO ADJUDICATION APPLIED; AUTHORITY=NONE")
+          PY
+
+      - name: Upload current-source preflight evidence only
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: type1-human-overlay-preflight-v3-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/output/preflight-v3.json
+          if-no-files-found: error
+          retention-days: 90
