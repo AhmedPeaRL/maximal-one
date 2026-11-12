@@ -1,0 +1,59 @@
+{
+  "schema": "HCM_TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V2",
+  "declaration_date": "2026-11-12",
+  "status": "LATEST_SOURCE_PAIR_VERIFIED; PREFLIGHT_V2_PENDING",
+  "authority": "NONE",
+  "repository": "AhmedPeaRL/maximal-one",
+  "review_branch": "refs/heads/review/type1-v4-remediation",
+  "target": {
+    "ref": "refs/audit/target",
+    "commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+    "occurrence_count": 1800,
+    "distinct_inventory_paths": 271,
+    "reconciliation_status": "RECONCILED"
+  },
+  "main_comparison": {
+    "ref": "refs/audit/main",
+    "commit": "0fa531bc844b1891f0574564add8eef5e20813d8",
+    "occurrence_count": 711,
+    "distinct_inventory_paths": 189,
+    "reconciliation_status": "RECONCILED"
+  },
+  "source_workflow_definition_commit": "6a59fb0f26e4ad608ad01f88e3bd29c5e18614ff",
+  "inventory": {
+    "workflow_run_id": "43188522783",
+    "artifact_id": "13930046197",
+    "artifact_name": "type1-v3-v4-governance-inventory-43188522783-1",
+    "artifact_zip_sha256": "b0da033ac52dedf9695fa99fe0fdacbaf208295e2548ebae39f5abe1b760252e",
+    "reference_inventory_sha256": "b30db3cb254f276a6d2707cbdbc4bef06f1dad92c4063c7098eedaae84154c92",
+    "target_ledger_sha256": "fcbc907daa1357570a20d592239a33c27deec9fb66e4bf60210cfaf9540fc976",
+    "main_ledger_sha256": "9801d468bbd698e5978d66decd6888e857be918e8a0fa143ded4bb35bdd2abb2",
+    "provenance_sha256": "f9eef4677f36966c235a8d062c53c728ca95d8bd7509ceb1a20c352b020ee94e"
+  },
+  "snapshot": {
+    "workflow_run_id": "43188961684",
+    "artifact_id": "13928679410",
+    "artifact_name": "type1-exact-review-snapshot-43188961684-1",
+    "artifact_zip_sha256": "079b432e60b1b053ebf283859b751902281634cf787cfe2902a05a1ee5d0e833",
+    "manifest_sha256": "75330d5ddfb4d9e9b705c03eeae5a4a07cd5d462efeccc0794e0f96a9e0e374e",
+    "self_contained_snapshot_zip_sha256": "8f383b78a918d3f8ba1a7a9e320cb53035a43836e8a325d0df296617685812a3",
+    "three_way_identity_certificate_sha256": "0284293229ba51cd23acca47a4b6127679ea048134a0a0ede6d1a92e3e614583",
+    "extraction_verification_sha256": "2e1f6c1134dd01d1cb39ce184865212f621bab3bf250aee0d6376f71971a31ef",
+    "selected_file_count": 289,
+    "present_file_count": 289,
+    "extraction_checked_file_count": 292,
+    "extraction_verified": true,
+    "missing_scope_paths": [],
+    "missing_required_paths": [],
+    "inventory_workflow_run_id": "43188522783"
+  },
+  "supersession_note": "This V2 addendum records the later source pair created after Addendum V1. Addendum V1 remains unchanged as a historical record of the earlier 43072014463/43072282939 pair. The 6a59fb0... workflow-definition commit is the provenance value actually recorded in the newer inventory and snapshot artifacts.",
+  "authority_invariants": {
+    "protocol_freeze": "NOT_FROZEN",
+    "formal_calibration_authorized": false,
+    "confirmatory_execution_authorized": false,
+    "claim_support": false,
+    "promotion_authority": false,
+    "human_adjudication_applied": false
+  }
+}
