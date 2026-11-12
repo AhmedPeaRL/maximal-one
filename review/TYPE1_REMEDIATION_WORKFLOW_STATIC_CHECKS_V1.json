@@ -1,0 +1,31 @@
+{
+  "schema": "HCM_TYPE1_REMEDIATION_WORKFLOW_STATIC_CHECKS_V1",
+  "status": "LOCAL_STATIC_CHECKS_PASSED_NOT_A_GITHUB_ACTIONS_RUN",
+  "workflow_files": [
+    {
+      "path": ".github/workflows/type1-target-batch-generation-v3.yml",
+      "sha256": "08f99a08c5edd36ca079d244c61995080b51e6b3a6f703f3a4d9806324164dc8"
+    },
+    {
+      "path": ".github/workflows/type1-human-overlay-preflight-v4.yml",
+      "sha256": "fbde09800f92f3dcfcaa038347e67fcf0e68c3337cd536137fdb68efc00e76ae"
+    },
+    {
+      "path": ".github/workflows/type1-software-assurance-v2.yml",
+      "sha256": "70cf80b5ba9d59a5058bc5600289191c48ebbb7b9173b479cf223f6669888ef7"
+    }
+  ],
+  "actionlint": {
+    "version": "1.7.12",
+    "command": "actionlint -no-color <three prepared workflow files>",
+    "exit_code": 0,
+    "findings": 0
+  },
+  "zizmor": {
+    "version": "1.30.1",
+    "command": "zizmor --offline --collect=workflows --format=json-v1 <three prepared workflow files>",
+    "exit_code": 0,
+    "findings": 0
+  },
+  "limits": "This does not replace GitHub Actions execution, exact source-pair artifact checks, target-commit scan, Scorecard, or independent human review."
+}

@@ -1,0 +1,767 @@
+finding_index,ident,severity,confidence,path,line,column,feature,description,url,ignored,location_count
+1,unpinned-uses,High,High,./.github/workflows/acquire-secondary-data.yml,14,14,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+2,unpinned-uses,High,High,./.github/workflows/acquire-secondary-data.yml,19,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+3,unpinned-uses,High,High,./.github/workflows/acquire-secondary-data.yml,40,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+4,artipacked,Medium,Low,./.github/workflows/build-image.yml,13,8,uses: actions/checkout@v4,credential persistence through GitHub Actions artifacts,https://docs.zizmor.sh/audits/#artipacked,False,1
+5,artipacked,Medium,Low,./.github/workflows/build-image.yml,49,8,uses: actions/checkout@v4,credential persistence through GitHub Actions artifacts,https://docs.zizmor.sh/audits/#artipacked,False,1
+6,excessive-permissions,High,High,./.github/workflows/build-image.yml,5,2,  packages: write,overly broad permissions,https://docs.zizmor.sh/audits/#excessive-permissions,False,1
+7,template-injection,High,High,./.github/workflows/build-image.yml,30,78,"echo ""${{ secrets.GITHUB_TOKEN }}"" | docker login ghcr.io -u ${{ github.actor }} --password-stdin",code injection via template expansion,https://docs.zizmor.sh/audits/#template-injection,False,3
+8,unpinned-uses,High,High,./.github/workflows/build-image.yml,13,14,actions/checkout@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+9,unpinned-uses,High,High,./.github/workflows/build-image.yml,49,14,actions/checkout@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+10,artipacked,Medium,Low,./.github/workflows/canonical-sync.yml,13,8,uses: actions/checkout@v4,credential persistence through GitHub Actions artifacts,https://docs.zizmor.sh/audits/#artipacked,False,1
+11,unpinned-uses,High,High,./.github/workflows/canonical-sync.yml,13,14,actions/checkout@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+12,unpinned-uses,High,High,./.github/workflows/canonical-sync.yml,15,14,actions/setup-node@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+13,artipacked,Medium,Low,./.github/workflows/codeql-analysis.yml,18,6,"name: Checkout repository
+      uses: actions/checkout@v5",credential persistence through GitHub Actions artifacts,https://docs.zizmor.sh/audits/#artipacked,False,1
+14,unpinned-uses,High,High,./.github/workflows/codeql-analysis.yml,19,12,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+15,unpinned-uses,High,High,./.github/workflows/codeql-analysis.yml,22,12,github/codeql-action/init@v3,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+16,unpinned-uses,High,High,./.github/workflows/codeql-analysis.yml,27,12,github/codeql-action/analyze@v3,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+17,artipacked,Medium,Low,./.github/workflows/confirmatory-readiness-gate.yml,31,8,"name: Checkout
+        uses: actions/checkout@v4",credential persistence through GitHub Actions artifacts,https://docs.zizmor.sh/audits/#artipacked,False,1
+18,excessive-permissions,Medium,Medium,./.github/workflows/confirmatory-readiness-gate.yml,27,2,"  epistemic-lock:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set deterministic environment
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo ""PYTHONHASHSEED=42"" >> ""$GITHUB_ENV""
+          echo ""OMP_NUM_THREADS=1"" >> ""$GITHUB_ENV""
+          echo ""MKL_NUM_THREADS=1"" >> ""$GITHUB_ENV""
+          echo ""OPENBLAS_NUM_THREADS=1"" >> ""$GITHUB_ENV""
+          echo ""NUMEXPR_NUM_THREADS=1"" >> ""$GITHUB_ENV""
+          echo ""MKL_DYNAMIC=FALSE"" >> ""$GITHUB_ENV""
+          echo ""OMP_DYNAMIC=FALSE"" >> ""$GITHUB_ENV""
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ""3.11.15""
+
+      - name: Install immutable locked Python dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python --version
+          python -m pip --version
+
+          python -m pip install \
+            --require-hashes \
+            -r requirements-lock.txt
+
+          python - <<'PY'
+          import numpy
+          import scipy
+          import pandas
+          import statsmodels
+
+          expected = {
+              ""numpy"": ""1.26.4"",
+              ""scipy"": ""1.11.4"",
+              ""pandas"": ""2.2.2"",
+              ""statsmodels"": ""0.14.1"",
+          }
+
+          actual = {
+              ""numpy"": numpy.__version__,
+              ""scipy"": scipy.__version__,
+              ""pandas"": pandas.__version__,
+              ""statsmodels"": statsmodels.__version__,
+          }
+
+          for name, version in actual.items():
+              print(f""{name}=={version}"")
+
+          for name, required in expected.items():
+              if actual[name] != required:
+                  raise SystemExit(
+                      f""❌ {name} version mismatch: ""
+                      f""expected {required}, got {actual[name]}""
+                  )
+
+          print(""✅ Immutable scientific environment verified."")
+          PY
+
+      - name: Verify confirmatory-readiness lock
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python analysis/verify_confirmatory_readiness.py
+
+      - name: Explicit epistemic status
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo ""Scientific claim status: UNDER INVESTIGATION""
+          echo ""Confirmatory promotion: BLOCKED""
+          echo ""Historical exploratory results: NON-CONFIRMATORY""
+          echo ""Future null protocol: MUST BE PROSPECTIVELY FROZEN""
+
+      - name: Solar Periodicity Nuisance Audit
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python -m analysis.solar_periodicity_nuisance_audit
+
+      - name: Verify Solar Periodicity Nuisance Audit
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python -m analysis.verify_solar_periodicity_nuisance_audit
+",overly broad permissions,https://docs.zizmor.sh/audits/#excessive-permissions,False,2
+19,unpinned-uses,High,High,./.github/workflows/confirmatory-readiness-gate.yml,32,14,actions/checkout@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+20,unpinned-uses,High,High,./.github/workflows/confirmatory-readiness-gate.yml,48,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+21,artipacked,Medium,Low,./.github/workflows/cross-run-memory-verification.yml,12,8,"uses: actions/checkout@v4
+        with:
+          fetch-depth: 0",credential persistence through GitHub Actions artifacts,https://docs.zizmor.sh/audits/#artipacked,False,1
+22,excessive-permissions,Medium,Medium,./.github/workflows/cross-run-memory-verification.yml,8,2,"  cross_run_verify:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Recompute deterministic artifact
+        run: npm run validate
+
+      - name: Compute hash
+        id: compute_hash
+        run: |
+          HASH=$(sha256sum core-scientific/publication-gate/report.json | awk '{print $1}')
+          echo ""current_hash=$HASH"" >> $GITHUB_OUTPUT
+          echo $HASH > current_hash.txt
+
+      - name: Load historical hashes
+        run: |
+          mkdir -p .coherence-memory
+          if [ ! -f .coherence-memory/history.log ]; then
+            touch .coherence-memory/history.log
+          fi
+
+      - name: Compare with historical memory
+        run: |
+          CURRENT=${{ steps.compute_hash.outputs.current_hash }}
+          echo ""Current: $CURRENT""
+
+          if grep -q ""$CURRENT"" .coherence-memory/history.log; then
+            echo ""Hash already observed in historical memory.""
+          else
+            echo ""New hash detected. Appending to memory.""
+            echo ""$CURRENT"" >> .coherence-memory/history.log
+          fi
+
+      - name: Commit memory if changed
+        run: |
+          git config user.name ""coherence-bot""
+          git config user.email ""coherence@system.local""
+          git add .coherence-memory/history.log
+          git diff --cached --quiet || git commit -m ""Cross-run memory update""
+          git push || echo ""No changes to push""
+",overly broad permissions,https://docs.zizmor.sh/audits/#excessive-permissions,False,2
+23,template-injection,Informational,Low,./.github/workflows/cross-run-memory-verification.yml,38,22,"|
+          CURRENT=${{ steps.compute_hash.outputs.current_hash }}
+          echo ""Current: $CURRENT""
+
+          if grep -q ""$CURRENT"" .coherence-memory/history.log; then
+            echo ""Hash already observed in historical memory.""
+          else
+            echo ""New hash detected. Appending to memory.""
+            echo ""$CURRENT"" >> .coherence-memory/history.log
+          fi",code injection via template expansion,https://docs.zizmor.sh/audits/#template-injection,False,3
+24,unpinned-uses,High,High,./.github/workflows/cross-run-memory-verification.yml,12,14,actions/checkout@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+25,artipacked,Medium,Low,./.github/workflows/cross_arch_timing.yml,14,8,uses: actions/checkout@v4,credential persistence through GitHub Actions artifacts,https://docs.zizmor.sh/audits/#artipacked,False,1
+26,excessive-permissions,Medium,Medium,./.github/workflows/cross_arch_timing.yml,6,2,"  timing:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ""3.11""
+
+      - name: Install dependencies
+        run: |
+          pip install numpy scipy
+
+      - name: Run timing experiment
+        run: |
+          python experiments/timing_experiment.py
+
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: timing-${{ matrix.os }}
+          path: timing_results.json
+",overly broad permissions,https://docs.zizmor.sh/audits/#excessive-permissions,False,2
+27,unpinned-uses,High,High,./.github/workflows/cross_arch_timing.yml,14,14,actions/checkout@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+28,unpinned-uses,High,High,./.github/workflows/cross_arch_timing.yml,17,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+29,unpinned-uses,High,High,./.github/workflows/cross_arch_timing.yml,30,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+30,artipacked,Medium,Low,./.github/workflows/emergent-periodicity.yml,12,8,"name: Checkout
+        uses: actions/checkout@v4",credential persistence through GitHub Actions artifacts,https://docs.zizmor.sh/audits/#artipacked,False,1
+31,excessive-permissions,Medium,Medium,./.github/workflows/emergent-periodicity.yml,8,2,"  analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ""3.11""
+
+      - name: Install dependencies
+        run: |
+          pip install numpy scipy matplotlib
+
+      - name: Run spectral analysis
+        run: |
+          python analysis/ci_spectral_check.py
+
+      - name: Commit report if significant
+        run: |
+          if [ -f analysis/significant_report.json ]; then
+            git config user.name ""github-actions""
+            git config user.email ""actions@github.com""
+            git add analysis/significant_report.json
+            git commit -m ""Automated significant periodicity detection""
+            git push
+          fi
+",overly broad permissions,https://docs.zizmor.sh/audits/#excessive-permissions,False,2
+32,unpinned-uses,High,High,./.github/workflows/emergent-periodicity.yml,13,14,actions/checkout@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+33,unpinned-uses,High,High,./.github/workflows/emergent-periodicity.yml,16,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+34,artipacked,Medium,Low,./.github/workflows/evolution.yml,14,8,uses: actions/checkout@v4,credential persistence through GitHub Actions artifacts,https://docs.zizmor.sh/audits/#artipacked,False,1
+35,excessive-permissions,Medium,Medium,./.github/workflows/evolution.yml,9,2,"  evolve:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Execute Evolution Logic
+        run: echo ""Evolution triggered after successful evaluation""
+",overly broad permissions,https://docs.zizmor.sh/audits/#excessive-permissions,False,2
+36,dangerous-triggers,High,Medium,./.github/workflows/evolution.yml,2,0,"on:
+  workflow_run:
+    workflows: [""Evaluation Gate""]
+    types:
+      - completed",use of fundamentally insecure workflow trigger,https://docs.zizmor.sh/audits/#dangerous-triggers,False,1
+37,unpinned-uses,High,High,./.github/workflows/evolution.yml,14,14,actions/checkout@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+38,unpinned-uses,High,High,./.github/workflows/model-capacity-diagnostic.yml,15,14,actions/checkout@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+39,unpinned-uses,High,High,./.github/workflows/model-capacity-diagnostic.yml,21,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+40,unpinned-uses,High,High,./.github/workflows/model-capacity-diagnostic.yml,187,14,actions/upload-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+41,unpinned-uses,High,High,./.github/workflows/model-capacity-sweep.yml,15,14,actions/checkout@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+42,unpinned-uses,High,High,./.github/workflows/model-capacity-sweep.yml,21,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+43,unpinned-uses,High,High,./.github/workflows/model-capacity-sweep.yml,116,14,actions/upload-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+44,unpinned-uses,High,High,./.github/workflows/null-calibration-audit.yml,15,14,actions/checkout@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+45,unpinned-uses,High,High,./.github/workflows/null-calibration-audit.yml,21,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+46,unpinned-uses,High,High,./.github/workflows/null-calibration-audit.yml,248,14,actions/upload-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+47,template-injection,Medium,Medium,./.github/workflows/null-type1-calibration.yml,158,30,"|
+          set -euo pipefail
+          actual_head=""$(git rev-parse HEAD)""
+          test ""$actual_head"" = ""$GITHUB_SHA""
+          echo ""Verified calibration checkout: $actual_head""
+          echo ""Scenario: ${{ matrix.scenario }}""
+          echo ""Master seed: ${{ matrix.master_seed }}""
+          echo ""Outer repetitions: ${{ matrix.repetitions }}""
+          echo ""Surrogates: ${{ matrix.surrogates }}""
+          echo ""Sample size: ${{ matrix.n }}""",code injection via template expansion,https://docs.zizmor.sh/audits/#template-injection,False,3
+48,template-injection,Medium,Medium,./.github/workflows/null-type1-calibration.yml,159,33,"|
+          set -euo pipefail
+          actual_head=""$(git rev-parse HEAD)""
+          test ""$actual_head"" = ""$GITHUB_SHA""
+          echo ""Verified calibration checkout: $actual_head""
+          echo ""Scenario: ${{ matrix.scenario }}""
+          echo ""Master seed: ${{ matrix.master_seed }}""
+          echo ""Outer repetitions: ${{ matrix.repetitions }}""
+          echo ""Surrogates: ${{ matrix.surrogates }}""
+          echo ""Sample size: ${{ matrix.n }}""",code injection via template expansion,https://docs.zizmor.sh/audits/#template-injection,False,3
+49,template-injection,Medium,Medium,./.github/workflows/null-type1-calibration.yml,160,39,"|
+          set -euo pipefail
+          actual_head=""$(git rev-parse HEAD)""
+          test ""$actual_head"" = ""$GITHUB_SHA""
+          echo ""Verified calibration checkout: $actual_head""
+          echo ""Scenario: ${{ matrix.scenario }}""
+          echo ""Master seed: ${{ matrix.master_seed }}""
+          echo ""Outer repetitions: ${{ matrix.repetitions }}""
+          echo ""Surrogates: ${{ matrix.surrogates }}""
+          echo ""Sample size: ${{ matrix.n }}""",code injection via template expansion,https://docs.zizmor.sh/audits/#template-injection,False,3
+50,template-injection,Medium,Medium,./.github/workflows/null-type1-calibration.yml,161,32,"|
+          set -euo pipefail
+          actual_head=""$(git rev-parse HEAD)""
+          test ""$actual_head"" = ""$GITHUB_SHA""
+          echo ""Verified calibration checkout: $actual_head""
+          echo ""Scenario: ${{ matrix.scenario }}""
+          echo ""Master seed: ${{ matrix.master_seed }}""
+          echo ""Outer repetitions: ${{ matrix.repetitions }}""
+          echo ""Surrogates: ${{ matrix.surrogates }}""
+          echo ""Sample size: ${{ matrix.n }}""",code injection via template expansion,https://docs.zizmor.sh/audits/#template-injection,False,3
+51,template-injection,Medium,Medium,./.github/workflows/null-type1-calibration.yml,162,33,"|
+          set -euo pipefail
+          actual_head=""$(git rev-parse HEAD)""
+          test ""$actual_head"" = ""$GITHUB_SHA""
+          echo ""Verified calibration checkout: $actual_head""
+          echo ""Scenario: ${{ matrix.scenario }}""
+          echo ""Master seed: ${{ matrix.master_seed }}""
+          echo ""Outer repetitions: ${{ matrix.repetitions }}""
+          echo ""Surrogates: ${{ matrix.surrogates }}""
+          echo ""Sample size: ${{ matrix.n }}""",code injection via template expansion,https://docs.zizmor.sh/audits/#template-injection,False,3
+52,unpinned-uses,High,High,./.github/workflows/null-type1-calibration.yml,17,14,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+53,unpinned-uses,High,High,./.github/workflows/null-type1-calibration.yml,146,14,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+54,unpinned-uses,High,High,./.github/workflows/null-type1-calibration.yml,165,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+55,unpinned-uses,High,High,./.github/workflows/null-type1-calibration.yml,278,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+56,unpinned-uses,High,High,./.github/workflows/primary-null-capacity-audit.yml,15,14,actions/checkout@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+57,unpinned-uses,High,High,./.github/workflows/primary-null-capacity-audit.yml,21,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+58,unpinned-uses,High,High,./.github/workflows/primary-null-capacity-audit.yml,240,14,actions/upload-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+59,unpinned-uses,High,High,./.github/workflows/prospective-raw-audit.yml,15,14,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+60,unpinned-uses,High,High,./.github/workflows/prospective-raw-audit.yml,45,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+61,artipacked,Medium,Low,./.github/workflows/release-lock.yml,17,8,"name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0",credential persistence through GitHub Actions artifacts,https://docs.zizmor.sh/audits/#artipacked,False,1
+62,dangerous-triggers,High,Medium,./.github/workflows/release-lock.yml,2,0,"on:
+  workflow_run:
+    workflows: [""Deterministic Scientific Mesh""]
+    types:
+      - completed",use of fundamentally insecure workflow trigger,https://docs.zizmor.sh/audits/#dangerous-triggers,False,1
+63,template-injection,Informational,Low,./.github/workflows/release-lock.yml,43,26,"|
+          TAG=""v1.0.0-${{ steps.extract_hash.outputs.hash }}""
+          if git rev-parse ""$TAG"" >/dev/null 2>&1; then
+            echo ""exists=true"" >> $GITHUB_OUTPUT
+          else
+            echo ""exists=false"" >> $GITHUB_OUTPUT
+          fi",code injection via template expansion,https://docs.zizmor.sh/audits/#template-injection,False,3
+64,template-injection,Informational,Low,./.github/workflows/release-lock.yml,53,26,"|
+          TAG=""v1.0.0-${{ steps.extract_hash.outputs.hash }}""
+          git config user.name ""github-actions""
+          git config user.email ""actions@github.com""
+          git tag $TAG
+          git push origin $TAG",code injection via template expansion,https://docs.zizmor.sh/audits/#template-injection,False,3
+65,unpinned-uses,High,High,./.github/workflows/release-lock.yml,18,14,actions/checkout@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+66,unpinned-uses,High,High,./.github/workflows/release-lock.yml,24,14,actions/setup-node@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+67,unpinned-uses,High,High,./.github/workflows/release-lock.yml,61,14,softprops/action-gh-release@v2,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+68,cache-poisoning,High,Low,./.github/workflows/release-lock.yml,24,8,        uses: actions/setup-node@v4,runtime artifacts potentially vulnerable to a cache poisoning attack,https://docs.zizmor.sh/audits/#cache-poisoning,False,3
+69,superfluous-actions,Informational,High,./.github/workflows/release-lock.yml,61,14,softprops/action-gh-release@v2,action functionality is already included by the runner,https://docs.zizmor.sh/audits/#superfluous-actions,False,3
+70,artipacked,Medium,Low,./.github/workflows/replication.yml,17,6,uses: actions/checkout@v3,credential persistence through GitHub Actions artifacts,https://docs.zizmor.sh/audits/#artipacked,False,1
+71,excessive-permissions,Medium,Medium,./.github/workflows/replication.yml,6,2,"  test-matrix:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        sample: [1000000, 500000]
+        window: [none, hann]
+        norm: [raw, variance_normalized]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ""3.10""
+
+    - name: Install dependencies
+      run: |
+        pip install numpy scipy
+
+    - name: Run spectral test
+      env:
+        SAMPLE_SIZE: ${{ matrix.sample }}
+        WINDOW_TYPE: ${{ matrix.window }}
+        NORMALIZATION: ${{ matrix.norm }}
+      run: |
+        python spectral_engine.py
+",overly broad permissions,https://docs.zizmor.sh/audits/#excessive-permissions,False,2
+72,unpinned-uses,High,High,./.github/workflows/replication.yml,17,12,actions/checkout@v3,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+73,unpinned-uses,High,High,./.github/workflows/replication.yml,20,12,actions/setup-python@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+74,artipacked,Medium,Low,./.github/workflows/reproducible_research.yml,13,8,uses: actions/checkout@v4,credential persistence through GitHub Actions artifacts,https://docs.zizmor.sh/audits/#artipacked,False,1
+75,excessive-permissions,Medium,Medium,./.github/workflows/reproducible_research.yml,9,2,"  certify:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - run: pip install numpy scipy sympy
+      - run: python tests/run_full_pipeline.py
+",overly broad permissions,https://docs.zizmor.sh/audits/#excessive-permissions,False,2
+76,unpinned-uses,High,High,./.github/workflows/reproducible_research.yml,13,14,actions/checkout@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+77,unpinned-uses,High,High,./.github/workflows/reproducible_research.yml,14,14,actions/setup-python@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+78,artipacked,Medium,Low,./.github/workflows/run.yml,10,8,uses: actions/checkout@v4,credential persistence through GitHub Actions artifacts,https://docs.zizmor.sh/audits/#artipacked,False,1
+79,excessive-permissions,Medium,Medium,./.github/workflows/run.yml,7,2,"  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install requests
+      - run: python maximal-one-external-verifier/verify.py
+",overly broad permissions,https://docs.zizmor.sh/audits/#excessive-permissions,False,2
+80,unpinned-uses,High,High,./.github/workflows/run.yml,10,14,actions/checkout@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+81,unpinned-uses,High,High,./.github/workflows/scientific-claim-promotion.yml,17,14,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+82,unpinned-uses,High,High,./.github/workflows/scientific-claim-promotion.yml,23,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+83,unpinned-uses,High,High,./.github/workflows/scientific-claim-promotion.yml,158,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+84,unpinned-uses,High,High,./.github/workflows/scientific-claim-promotion.yml,190,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+85,unpinned-uses,High,High,./.github/workflows/scientific-claim-promotion.yml,204,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+86,unpinned-uses,High,High,./.github/workflows/scientific-claim-promotion.yml,219,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+87,unpinned-uses,High,High,./.github/workflows/scientific-claim-promotion.yml,287,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+88,unpinned-uses,High,High,./.github/workflows/scientific-claim-promotion.yml,312,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+89,unpinned-uses,High,High,./.github/workflows/scientific-claim-promotion.yml,329,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+90,unpinned-uses,High,High,./.github/workflows/scientific-claim-promotion.yml,354,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+91,unpinned-uses,High,High,./.github/workflows/scientific-claim-promotion.yml,398,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+92,unpinned-uses,High,High,./.github/workflows/scientific-claim-promotion.yml,414,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+93,excessive-permissions,High,High,./.github/workflows/scientific-validation.yml,16,2,  contents: write,overly broad permissions,https://docs.zizmor.sh/audits/#excessive-permissions,False,1
+94,excessive-permissions,High,High,./.github/workflows/scientific-validation.yml,17,2,  packages: write,overly broad permissions,https://docs.zizmor.sh/audits/#excessive-permissions,False,1
+95,excessive-permissions,High,High,./.github/workflows/scientific-validation.yml,18,2,  pages: write,overly broad permissions,https://docs.zizmor.sh/audits/#excessive-permissions,False,1
+96,excessive-permissions,High,High,./.github/workflows/scientific-validation.yml,19,2,  id-token: write,overly broad permissions,https://docs.zizmor.sh/audits/#excessive-permissions,False,1
+97,excessive-permissions,Medium,High,./.github/workflows/scientific-validation.yml,22,2,  security-events: write,overly broad permissions,https://docs.zizmor.sh/audits/#excessive-permissions,False,1
+98,template-injection,High,High,./.github/workflows/scientific-validation.yml,1509,26,"|
+          set -euo pipefail
+
+          mkdir -p artifacts/witness_ingestion
+
+          RAW='${{ toJson(github.event.client_payload) }}'
+
+          if [ ""$RAW"" = ""null"" ] || [ -z ""$RAW"" ]; then
+            echo '{""_empty"": true}' \
+              > artifacts/witness_ingestion/payload.json
+          else
+            echo ""$RAW"" \
+              > artifacts/witness_ingestion/payload.json
+          fi
+
+          sha256sum \
+            artifacts/witness_ingestion/payload.json \
+            > artifacts/witness_ingestion/payload.sha256
+
+          echo ""Witness staged locally only.""
+          echo ""No witness file will be written to data/external/.""",code injection via template expansion,https://docs.zizmor.sh/audits/#template-injection,False,3
+99,template-injection,High,High,./.github/workflows/scientific-validation.yml,1528,26,"|
+          RAW='${{ toJson(github.event.client_payload) }}'
+
+          # Normalize payload
+          if [ ""$RAW"" = ""null"" ] || [ -z ""$RAW"" ]; then
+            echo '{""_empty"": true}' > payload.json
+          else
+            echo ""$RAW"" > payload.json
+          fi
+
+          node - <<'NODE'
+          const fs = require('fs');
+
+          let data;
+          try {
+            data = JSON.parse(fs.readFileSync('payload.json','utf8'));
+          } catch (e) {
+            console.error(""Malformed JSON"");
+            process.exit(1);
+          }
+
+          // Reject null explicitly
+          if (data === null) {
+            console.error(""Null payload rejected"");
+            process.exit(1);
+          }
+
+          // Allow empty but mark it
+          if (data._empty === true) {
+            console.log(""Empty witness accepted."");
+            process.exit(0);
+          }
+
+          // Reject empty object (silent noise)
+          if (typeof data === 'object' && Object.keys(data).length === 0) {
+            console.error(""Empty object payload rejected"");
+            process.exit(1);
+          }
+
+          // Size guard
+          const size = JSON.stringify(data).length;
+          if (size > 5000) {
+            console.error(""Payload too large"");
+            process.exit(1);
+          }
+
+          console.log(""Payload validated."");
+          NODE",code injection via template expansion,https://docs.zizmor.sh/audits/#template-injection,False,3
+100,template-injection,High,High,./.github/workflows/scientific-validation.yml,3289,25,"|
+        echo ""INPUT: ${{ github.event.client_payload.input }}"" >> data/external_log.txt",code injection via template expansion,https://docs.zizmor.sh/audits/#template-injection,False,3
+101,template-injection,High,High,./.github/workflows/scientific-validation.yml,3293,18,"|
+        echo ""${{ github.event.client_payload.input }}"" | sha256sum >> data/hash_log.txt",code injection via template expansion,https://docs.zizmor.sh/audits/#template-injection,False,3
+102,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,47,14,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+103,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,53,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+104,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,58,14,github/codeql-action/init@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+105,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,63,14,github/codeql-action/analyze@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+106,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,581,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+107,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,599,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+108,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,685,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+109,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,1309,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+110,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,1436,14,actions/checkout@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+111,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,1635,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+112,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,1653,14,actions/checkout@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+113,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,1691,14,actions/checkout@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+114,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,1742,14,actions/checkout@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+115,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,1977,14,actions/upload-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+116,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,1984,14,actions/upload-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+117,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,2221,14,actions/upload-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+118,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,2249,14,actions/upload-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+119,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,2256,14,actions/upload-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+120,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,2277,14,actions/upload-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+121,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,2331,14,actions/checkout@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+122,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,2352,14,actions/download-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+123,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,2357,14,actions/download-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+124,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,2362,14,actions/download-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+125,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,2367,14,actions/download-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+126,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,2372,14,actions/download-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+127,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,2377,14,actions/download-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+128,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,2382,14,actions/download-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+129,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,3085,14,actions/checkout@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+130,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,3106,14,actions/download-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+131,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,3111,14,actions/download-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+132,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,3116,14,actions/download-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+133,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,3237,12,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+134,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,3355,12,actions/upload-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+135,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,3360,12,actions/download-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+136,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,3365,12,actions/download-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+137,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,3373,12,actions/cache@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+138,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,4047,12,actions/download-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+139,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,4071,12,actions/download-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+140,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,4749,14,actions/checkout@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+141,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,4803,14,actions/checkout@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+142,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,5105,14,actions/checkout@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+143,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,5113,14,actions/download-artifact@v6,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+144,unpinned-uses,High,High,./.github/workflows/scientific-validation.yml,5257,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+145,artipacked,Medium,Low,./.github/workflows/tag-signature-verify.yml,12,8,"uses: actions/checkout@v4
+        with:
+          fetch-depth: 0",credential persistence through GitHub Actions artifacts,https://docs.zizmor.sh/audits/#artipacked,False,1
+146,excessive-permissions,Medium,Medium,./.github/workflows/tag-signature-verify.yml,8,2,"  verify-tag:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify tag signature
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          git tag -v ""$TAG""
+",overly broad permissions,https://docs.zizmor.sh/audits/#excessive-permissions,False,2
+147,unpinned-uses,High,High,./.github/workflows/tag-signature-verify.yml,12,14,actions/checkout@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+148,artipacked,Medium,Low,./.github/workflows/theoretical_validity.yml,13,8,"name: Checkout repository
+        uses: actions/checkout@v4",credential persistence through GitHub Actions artifacts,https://docs.zizmor.sh/audits/#artipacked,False,1
+149,excessive-permissions,Medium,Medium,./.github/workflows/theoretical_validity.yml,9,2,"  proof-verification:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install numpy
+
+      - name: Run Theoretical Proof Harness
+        run: |
+          python tests/run_proof_verification.py
+",overly broad permissions,https://docs.zizmor.sh/audits/#excessive-permissions,False,2
+150,unpinned-uses,High,High,./.github/workflows/theoretical_validity.yml,14,14,actions/checkout@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+151,unpinned-uses,High,High,./.github/workflows/theoretical_validity.yml,17,14,actions/setup-python@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+152,artipacked,Medium,Low,./.github/workflows/timing_cross_arch.yml,16,8,uses: actions/checkout@v4,credential persistence through GitHub Actions artifacts,https://docs.zizmor.sh/audits/#artipacked,False,1
+153,excessive-permissions,Medium,Medium,./.github/workflows/timing_cross_arch.yml,8,2,"  timing-test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ""3.11""
+
+      - name: Install dependencies
+        run: |
+          pip install numpy scipy
+
+      - name: Run experiment
+        run: |
+          python experiments/timing_experiment.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: timing-${{ matrix.os }}
+          path: timing_results.json
+",overly broad permissions,https://docs.zizmor.sh/audits/#excessive-permissions,False,2
+154,unpinned-uses,High,High,./.github/workflows/timing_cross_arch.yml,16,14,actions/checkout@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+155,unpinned-uses,High,High,./.github/workflows/timing_cross_arch.yml,19,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+156,unpinned-uses,High,High,./.github/workflows/timing_cross_arch.yml,32,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+157,unpinned-uses,High,High,./.github/workflows/type1-calibration-runtime-pilot.yml,16,14,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+158,unpinned-uses,High,High,./.github/workflows/type1-calibration-runtime-pilot.yml,37,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+159,unpinned-uses,High,High,./.github/workflows/type1-calibration-runtime-pilot.yml,76,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+160,unpinned-uses,High,High,./.github/workflows/type1-full-path-equivalence.yml,39,14,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+161,unpinned-uses,High,High,./.github/workflows/type1-full-path-equivalence.yml,54,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+162,unpinned-uses,High,High,./.github/workflows/type1-full-path-equivalence.yml,119,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+163,unpinned-uses,High,High,./.github/workflows/type1-manual-adjudication-v3.yml,30,14,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+164,unpinned-uses,High,High,./.github/workflows/type1-manual-adjudication-v3.yml,35,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+165,unpinned-uses,High,High,./.github/workflows/type1-priority-occurrence-guard-tests.yml,16,14,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+166,unpinned-uses,High,High,./.github/workflows/type1-priority-occurrence-guard-tests.yml,31,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+167,unpinned-uses,High,High,./.github/workflows/type1-priority-occurrence-guard-tests.yml,69,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+168,unpinned-uses,High,High,./.github/workflows/type1-review-snapshot.yml,46,14,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+169,unpinned-uses,High,High,./.github/workflows/type1-review-snapshot.yml,92,14,actions/download-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+170,unpinned-uses,High,High,./.github/workflows/type1-review-snapshot.yml,136,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+171,unpinned-uses,High,High,./.github/workflows/type1-review-snapshot.yml,214,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+172,unpinned-uses,High,High,./.github/workflows/type1-v3-governance-implementation-snapshot.yml,35,14,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+173,unpinned-uses,High,High,./.github/workflows/type1-v3-governance-implementation-snapshot.yml,128,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+174,unpinned-uses,High,High,./.github/workflows/type1-v3-v4-governance-audit.yml,23,14,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+175,unpinned-uses,High,High,./.github/workflows/type1-v3-v4-governance-audit.yml,59,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+176,unpinned-uses,High,High,./.github/workflows/type1-v3-v4-governance-audit.yml,204,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+177,unpinned-uses,High,High,./.github/workflows/type1-v4-assignment-matrix.yml,25,14,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+178,unpinned-uses,High,High,./.github/workflows/type1-v4-assignment-matrix.yml,40,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+179,unpinned-uses,High,High,./.github/workflows/type1-v4-assignment-matrix.yml,112,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+180,unpinned-uses,High,High,./.github/workflows/type1-v4-cli-resume-identity.yml,25,14,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+181,unpinned-uses,High,High,./.github/workflows/type1-v4-cli-resume-identity.yml,39,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+182,unpinned-uses,High,High,./.github/workflows/type1-v4-cli-resume-identity.yml,64,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+183,unpinned-uses,High,High,./.github/workflows/type1-v4-cross-runner-worker-order.yml,32,14,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+184,unpinned-uses,High,High,./.github/workflows/type1-v4-cross-runner-worker-order.yml,45,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+185,unpinned-uses,High,High,./.github/workflows/type1-v4-cross-runner-worker-order.yml,72,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+186,unpinned-uses,High,High,./.github/workflows/type1-v4-cross-runner-worker-order.yml,91,14,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+187,unpinned-uses,High,High,./.github/workflows/type1-v4-cross-runner-worker-order.yml,104,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+188,unpinned-uses,High,High,./.github/workflows/type1-v4-cross-runner-worker-order.yml,135,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+189,unpinned-uses,High,High,./.github/workflows/type1-v4-cross-runner-worker-order.yml,154,14,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+190,unpinned-uses,High,High,./.github/workflows/type1-v4-cross-runner-worker-order.yml,167,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+191,unpinned-uses,High,High,./.github/workflows/type1-v4-cross-runner-worker-order.yml,177,14,actions/download-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+192,unpinned-uses,High,High,./.github/workflows/type1-v4-cross-runner-worker-order.yml,183,14,actions/download-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+193,unpinned-uses,High,High,./.github/workflows/type1-v4-cross-runner-worker-order.yml,207,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+194,unpinned-uses,High,High,./.github/workflows/type1-v4-engineering-equivalence.yml,45,14,actions/checkout@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+195,unpinned-uses,High,High,./.github/workflows/type1-v4-engineering-equivalence.yml,68,14,actions/setup-python@v5,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+196,unpinned-uses,High,High,./.github/workflows/type1-v4-engineering-equivalence.yml,150,14,actions/upload-artifact@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+197,artipacked,Medium,Low,./.github/workflows/validate-stress.yml,12,8,uses: actions/checkout@v4,credential persistence through GitHub Actions artifacts,https://docs.zizmor.sh/audits/#artipacked,False,1
+198,excessive-permissions,Medium,Medium,./.github/workflows/validate-stress.yml,7,2,"  stress:
+    runs-on: ubuntu-latest
+    env:
+      STRESS: ""true""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18.20.8
+      - run: npm install
+      - run: npm run validate
+",overly broad permissions,https://docs.zizmor.sh/audits/#excessive-permissions,False,2
+199,unpinned-uses,High,High,./.github/workflows/validate-stress.yml,12,14,actions/checkout@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+200,unpinned-uses,High,High,./.github/workflows/validate-stress.yml,13,14,actions/setup-node@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+201,artipacked,Medium,Low,./core-scientific/.github/workflows/truth-pressure-lock.yml,11,8,uses: actions/checkout@v4,credential persistence through GitHub Actions artifacts,https://docs.zizmor.sh/audits/#artipacked,False,1
+202,excessive-permissions,Medium,Medium,./core-scientific/.github/workflows/truth-pressure-lock.yml,7,2,"  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.20.8
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Regenerate report
+        run: node core-scientific/publication-gate/generate-report.cjs
+
+      - name: Verify integrity  
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const crypto = require('crypto');
+
+          function canonicalize(obj) {
+            if (Array.isArray(obj)) {
+              return obj.map(canonicalize);
+            }
+            if (obj !== null && typeof obj === 'object') {
+              return Object.keys(obj)
+                .sort()
+                .reduce((acc, key) => {
+                  acc[key] = canonicalize(obj[key]);
+                  return acc;
+                }, {});
+            }
+            return obj;
+          }
+
+          const reportPath = './core-scientific/publication-gate/report.json';
+          const generatorPath = './core-scientific/publication-gate/generate-report.cjs';
+
+          if (!fs.existsSync(reportPath)) {
+            console.error('report.json missing.');
+            process.exit(1);
+          }
+
+          const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+
+          const originalReportHash = report.reportHash;
+          const originalGeneratorHash = report.generatorHash;
+
+          const cloned = JSON.parse(JSON.stringify(report));
+          delete cloned.reportHash;
+
+          const canonicalCloned = canonicalize(cloned);
+
+          const recomputedReportHash = crypto
+            .createHash('sha256')
+            .update(JSON.stringify(canonicalCloned))
+            .digest('hex');
+
+          if (originalReportHash !== recomputedReportHash) {
+            console.error('Report hash mismatch.');
+            process.exit(1);
+          }
+
+          const currentGeneratorHash = crypto
+            .createHash('sha256')
+            .update(
+              fs.readFileSync(generatorPath, 'utf8').replace(/\r/g, '')
+            )
+            .digest('hex');
+
+          if (originalGeneratorHash !== currentGeneratorHash) {
+            console.error('Generator drift detected.');
+            process.exit(1);
+          }
+
+          console.log('All integrity checks passed.');
+          NODE
+",overly broad permissions,https://docs.zizmor.sh/audits/#excessive-permissions,False,2
+203,unpinned-uses,High,High,./core-scientific/.github/workflows/truth-pressure-lock.yml,11,14,actions/checkout@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2
+204,unpinned-uses,High,High,./core-scientific/.github/workflows/truth-pressure-lock.yml,14,14,actions/setup-node@v4,unpinned action reference,https://docs.zizmor.sh/audits/#unpinned-uses,False,2

@@ -1,0 +1,76 @@
+{
+  "schema": "HCM_TYPE1_TARGET_SNAPSHOT_STATIC_TRIAGE_V1",
+  "status": "LOCAL_EXACT_SNAPSHOT_STATIC_TRIAGE_ONLY; TARGET_WORKTREE_RESCAN_AND_SCORECARD_PENDING",
+  "target_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+  "snapshot_run_id": "43249503611",
+  "snapshot_artifact_id": "13958602679",
+  "snapshot_manifest_sha256": "755d86e6cb746edc6db8f008368ae2533a4b2b911f004b965336b36401d51159",
+  "inventory_run_id": "43249081611",
+  "inventory_artifact_id": "13956859801",
+  "inventory_sha256": "448d7179e2beab25209afd97c31fc12e91b76c8b330eb97fe0c2a56fa212db4a",
+  "workflow_files_scanned": 38,
+  "actionlint": {
+    "version": "1.7.12",
+    "command": "actionlint -no-color <38 workflow files from exact snapshot>",
+    "exit_code": 1,
+    "diagnostic_count": 5,
+    "findings": [
+      {
+        "path": ".github/workflows/replication.yml",
+        "line": 18,
+        "issue": "actions/checkout@v3 is too old"
+      },
+      {
+        "path": ".github/workflows/replication.yml",
+        "line": 21,
+        "issue": "actions/setup-python@v4 is too old"
+      },
+      {
+        "path": ".github/workflows/reproducible_research.yml",
+        "line": 15,
+        "issue": "actions/setup-python@v4 is too old"
+      },
+      {
+        "path": ".github/workflows/scientific-validation.yml",
+        "line": 4249,
+        "issue": "constant false condition; remove if section"
+      },
+      {
+        "path": ".github/workflows/theoretical_validity.yml",
+        "line": 18,
+        "issue": "actions/setup-python@v4 is too old"
+      }
+    ]
+  },
+  "zizmor": {
+    "version": "1.30.1",
+    "command": "zizmor --offline --collect=workflows --format=json-v1 .",
+    "exit_code": 14,
+    "finding_count": 204,
+    "by_ident": {
+      "unpinned-uses": 150,
+      "artipacked": 18,
+      "excessive-permissions": 19,
+      "template-injection": 13,
+      "dangerous-triggers": 2,
+      "cache-poisoning": 1,
+      "superfluous-actions": 1
+    },
+    "by_severity": {
+      "High": 163,
+      "Medium": 37,
+      "Informational": 4
+    },
+    "unique_files": 37
+  },
+  "scorecard": {
+    "status": "NOT_RUN_LOCALLY_ON_THIS_EXTRACTED_SNAPSHOT",
+    "required_in_software_assurance_v2": true
+  },
+  "interpretation_limit": "These local scans were run on the extracted exact snapshot payload. The new GitHub Software Assurance V2 workflow must repeat them in a detached Git worktree at the target commit after verifying all 289 selected files, and run Scorecard there. Scanner findings are triage evidence only and do not close any occurrence.",
+  "raw_outputs_sha256": {
+    "review/TYPE1_TARGET_SNAPSHOT_ACTIONLINT_V1.txt": "09bbef8931c8d8ce8ea88acb2c5c5d061b6aa648fb0ff3a330861f79d03e1ba1",
+    "review/TYPE1_TARGET_SNAPSHOT_ZIZMOR_V1.json": "2cc9fa9c787606b8c47e48052332a4ec1fda472c89928d07f2d4273d088430fc",
+    "review/TYPE1_TARGET_SNAPSHOT_ZIZMOR_TRIAGE_V1.csv": "67c521369e8bb234dd080916a439ad335632ed0449361a26c4e5cc02647e86d1"
+  }
+}
