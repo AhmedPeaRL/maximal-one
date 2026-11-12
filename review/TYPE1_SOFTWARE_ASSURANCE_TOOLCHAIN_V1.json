@@ -1,0 +1,40 @@
+{
+  "schema": "HCM_TYPE1_SOFTWARE_ASSURANCE_TOOLCHAIN_V1",
+  "status": "VERSIONS_AND_RELEASE_ASSET_DIGESTS_IDENTIFIED; NOT_YET_EXECUTED",
+  "verification_date": "2026-11-12",
+  "tools": [
+    {
+      "name": "actionlint",
+      "version": "1.7.12",
+      "release": "https://github.com/rhysd/actionlint/releases/tag/v1.7.12",
+      "asset": "actionlint_1.7.12_linux_amd64.tar.gz",
+      "asset_sha256": "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8",
+      "purpose": "GitHub Actions workflow syntax, expression, and metadata linting"
+    },
+    {
+      "name": "zizmor",
+      "version": "1.30.1",
+      "release": "https://github.com/zizmorcore/zizmor/releases/tag/v1.30.1",
+      "asset": "zizmor-x86_64-unknown-linux-gnu.tar.gz",
+      "asset_sha256": "e65324f4430c2717591937edcec90ccbefaf14c174f8ec9415e03ca875b46e1a",
+      "purpose": "Static security audits of GitHub Actions workflows"
+    },
+    {
+      "name": "scorecard",
+      "version": "5.6.0",
+      "release": "https://github.com/ossf/scorecard/releases/tag/v5.6.0",
+      "asset": "scorecard_5.6.0_linux_amd64.tar.gz",
+      "asset_sha256": "19bde07129450cb65a95c6e3b9f34e034341579e6f0e241546ec3ae6efb2dd9a",
+      "purpose": "Repository-level supply-chain and security-practice assessment; not a substitute for occurrence-specific call-graph review"
+    }
+  ],
+  "execution_boundary": {
+    "permissions": "contents:read only",
+    "no_secrets_required": true,
+    "no_repository_writes": true,
+    "scan_commit": "The exact review-branch commit that dispatches the assurance workflow",
+    "target_commit_reference": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+    "result_artifact_required": true,
+    "record_tool_versions_exit_codes_and_raw_outputs": true
+  }
+}
