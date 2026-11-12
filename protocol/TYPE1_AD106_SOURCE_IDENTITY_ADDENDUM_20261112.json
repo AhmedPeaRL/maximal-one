@@ -1,0 +1,65 @@
+{
+  "schema": "HCM_TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V1",
+  "declaration_date": "2026-11-12",
+  "status": "LATEST_SOURCE_ARTIFACTS_VERIFIED; HUMAN_ADJUDICATION_PENDING",
+  "authority": "NONE",
+  "repository": "AhmedPeaRL/maximal-one",
+  "review_branch": "refs/heads/review/type1-v4-remediation",
+  "workflow_definition_commit": "8d38e605d84c3b8bc55393d88f87e9d40bd8fdc5",
+  "target": {
+    "ref": "refs/audit/target",
+    "commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+    "occurrence_count": 1800,
+    "distinct_inventory_paths": 271,
+    "reconciliation_status": "RECONCILED"
+  },
+  "main_comparison": {
+    "ref": "refs/audit/main",
+    "commit": "0fa531bc844b1891f0574564add8eef5e20813d8",
+    "occurrence_count": 711,
+    "distinct_inventory_paths": 189,
+    "reconciliation_status": "RECONCILED"
+  },
+  "inventory": {
+    "workflow_run_id": "43072014463",
+    "artifact_id": "13877643344",
+    "artifact_name": "type1-v3-v4-governance-inventory-43072014463-1",
+    "artifact_zip_sha256": "4f27ac72843e23f1f91e8ca7feeb2306306b6c05c4a4471407e457c451e4ec9c",
+    "reference_inventory_sha256": "b30db3cb254f276a6d2707cbdbc4bef06f1dad92c4063c7098eedaae84154c92",
+    "target_ledger_sha256": "fcbc907daa1357570a20d592239a33c27deec9fb66e4bf60210cfaf9540fc976",
+    "main_ledger_sha256": "9801d468bbd698e5978d66decd6888e857be918e8a0fa143ded4bb35bdd2abb2",
+    "provenance_json_sha256": "4f42b2ea02a79420bce7045f72f21c48871c9ffa0025f35018bdbfa8905326d7"
+  },
+  "snapshot": {
+    "workflow_run_id": "43072282939",
+    "artifact_id": "13877613612",
+    "artifact_name": "type1-exact-review-snapshot-43072282939-1",
+    "artifact_zip_sha256": "cb65bfb02f1a66936f2f019de848a5147aab32594a0f303d8542603c3b9a7b1e",
+    "manifest_sha256": "9138d899529dd55b045f2507068850b57de4b4ee3027a3d91f64601efdc42fc0",
+    "self_contained_snapshot_zip_sha256": "a14c5a7347ff74dce5a34cad76d1cf362d6444e1a2a6bb2550695ac57d1fecfe",
+    "three_way_identity_certificate_sha256": "c29f6a9a54f24a3c023e39d2cb1114c15c1055221e7cdc3b4b78c3e543ef6a1c",
+    "extraction_verification_sha256": "2e1f6c1134dd01d1cb39ce184865212f621bab3bf250aee0d6376f71971a31ef",
+    "selected_file_count": 289,
+    "present_file_count": 289,
+    "extraction_checked_file_count": 292,
+    "extraction_verified": true,
+    "missing_scope_paths": [],
+    "missing_required_paths": []
+  },
+  "authority_invariants": {
+    "protocol_freeze": "NOT_FROZEN",
+    "formal_calibration_authorized": false,
+    "confirmatory_execution_authorized": false,
+    "claim_support": false,
+    "promotion_authority": false,
+    "human_adjudication_applied": false
+  },
+  "historical_policy": "Append-only. Do not rewrite the original population register, V3 evidence register, or historical batch records.",
+  "preflight_reconciliation": {
+    "prior_run": "43126225077",
+    "prior_inventory_run_used": "42870936071",
+    "prior_snapshot_run_used": "42871210051",
+    "prior_status": "SUCCESS_WITH_OLDER_SOURCE_BINDING",
+    "new_preflight_required": true
+  }
+}
