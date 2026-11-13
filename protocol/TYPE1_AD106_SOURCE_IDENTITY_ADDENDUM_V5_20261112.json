@@ -1,0 +1,166 @@
+{
+  "schema": "HCM_TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V5",
+  "declaration_date": "2026-11-12",
+  "status": "LATEST_SOURCE_PAIR_AND_EXACT_TARGET_SNAPSHOT_VERIFIED; TARGET_LEDGER_PAYLOAD_STABLE; MAIN_COMPARISON_INCLUDES_76_AUDIT_WORKFLOW_OCCURRENCES; FRESH_BATCH_V4_PREFLIGHT_V5_SOFTWARE_ASSURANCE_V3_REQUIRED; INDEPENDENT_HUMAN_REVIEW_PENDING",
+  "authority": "NONE",
+  "repository": "AhmedPeaRL/maximal-one",
+  "review_branch": "refs/heads/review/type1-v4-remediation",
+  "workflow_definition_commit_for_inventory_and_snapshot": "d7fdba128f88d9e7147dad92b52e101cf01af4f6",
+  "target": {
+    "ref": "refs/audit/target",
+    "commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+    "occurrence_count": 1800,
+    "distinct_inventory_paths": 271,
+    "reconciliation_status": "RECONCILED",
+    "reconciliation_sha256": "5118de3094fc16bacaa7c2b4258f463a8242980cfa47058c396d4c0040336705"
+  },
+  "main_comparison": {
+    "ref": "refs/audit/main",
+    "commit": "982c6a10f1bd4262a9915f40a3c821adfd5c58c2",
+    "occurrence_count": 865,
+    "distinct_inventory_paths": 196,
+    "reconciliation_status": "RECONCILED",
+    "reconciliation_sha256": "2ee3490ed1b4a43616e36b613f0c1df18f9415feed42bf9acacfdb10ad3f8747",
+    "previous_main_comparison": {
+      "commit": "e6234f6895e3bc6c10b089a5e4f741f2143bb02f",
+      "occurrence_count": 789,
+      "distinct_inventory_paths": 193,
+      "status": "SUPERSEDED_BY_CURRENT_MAIN_COMPARISON"
+    },
+    "historical_previous_main": {
+      "commit": "fe949fc4a11d245f08846d7eece97e8c1d26a3f8",
+      "occurrence_count": 728,
+      "status": "HISTORICAL_NOT_CURRENT"
+    },
+    "historical_earlier_main": {
+      "commit": "0fa531bc844b1891f0574564add8eef5e20813d8",
+      "occurrence_count": 711,
+      "status": "HISTORICAL_NOT_CURRENT"
+    },
+    "comparison_decomposition": {
+      "previous_commit": "e6234f6895e3bc6c10b089a5e4f741f2143bb02f",
+      "previous_occurrence_count": 789,
+      "current_commit": "982c6a10f1bd4262a9915f40a3c821adfd5c58c2",
+      "current_occurrence_count": 865,
+      "added_occurrences": 76,
+      "removed_occurrences": 0,
+      "added_occurrences_by_path": {
+        ".github/workflows/type1-human-overlay-preflight-v4.yml": 35,
+        ".github/workflows/type1-target-batch-generation-v3.yml": 29,
+        ".github/workflows/type1-software-assurance-v2.yml": 12
+      },
+      "interpretation": "All 76 additional main-comparison occurrences are in the three audit workflows added by the three commits between the previous and current main commits. Preserve all 865 current-main records; do not silently exclude or delete these records. The 76 are audit-infrastructure self-inclusion, not evidence of 76 new scientific or application-code changes."
+    }
+  },
+  "inventory": {
+    "workflow_run_id": "43285928305",
+    "workflow_job_id": "131419191291",
+    "workflow_path": ".github/workflows/type1-v3-v4-governance-audit.yml",
+    "workflow_event": "workflow_dispatch",
+    "workflow_conclusion": "success",
+    "workflow_head_branch": "review/type1-v4-remediation",
+    "workflow_definition_commit": "d7fdba128f88d9e7147dad92b52e101cf01af4f6",
+    "artifact_id": "13975650287",
+    "artifact_name": "type1-v3-v4-governance-inventory-43285928305-1",
+    "artifact_archive_sha256": "9125e3c8f691e334df20fd082658e39d65f90621a87659fcdeb48a07850548ba",
+    "artifact_api_digest": "sha256:9125e3c8f691e334df20fd082658e39d65f90621a87659fcdeb48a07850548ba",
+    "reference_inventory_sha256": "57623b58ca2025872be7d504012232b4f5874b76706af6d82c5b81bd2a344e77",
+    "target_ledger_sha256": "10c45fcaaec47819dc59df75d6f28a801022d185187933f10c665d858016b5e8",
+    "main_ledger_sha256": "6b2e8955256418c1db3d3084e889c9d284ba463fd8fadd3e3e7d08f2bc274c9d",
+    "provenance_sha256": "39788c5c2e3668e20b969efbf038f96d2519014528d4bdb9cbea0b699c648a85",
+    "sha256_register_sha256": "a5448cd84dd0f292b7cd54db002891d18a2fd04a29259bd71367328c7e0c44ef",
+    "target_reconciliation_sha256": "5118de3094fc16bacaa7c2b4258f463a8242980cfa47058c396d4c0040336705",
+    "main_reconciliation_sha256": "2ee3490ed1b4a43616e36b613f0c1df18f9415feed42bf9acacfdb10ad3f8747",
+    "target_occurrence_count": 1800,
+    "main_occurrence_count": 865,
+    "target_inventory_path_count": 271,
+    "main_inventory_path_count": 196,
+    "source_provenance_verified": true,
+    "target_and_main_ledgers_reconciled": true
+  },
+  "snapshot": {
+    "workflow_run_id": "43286179153",
+    "workflow_job_id": "131420071578",
+    "workflow_path": ".github/workflows/type1-review-snapshot.yml",
+    "workflow_event": "workflow_dispatch",
+    "workflow_conclusion": "success",
+    "workflow_head_branch": "review/type1-v4-remediation",
+    "workflow_definition_commit": "d7fdba128f88d9e7147dad92b52e101cf01af4f6",
+    "artifact_id": "13975170830",
+    "artifact_name": "type1-exact-review-snapshot-43286179153-1",
+    "artifact_archive_sha256": "3b9cb35257013f57d992306cd903046bc32ea8d3cedf72fc129f6976eee81d83",
+    "artifact_api_digest": "sha256:3b9cb35257013f57d992306cd903046bc32ea8d3cedf72fc129f6976eee81d83",
+    "manifest_sha256": "b1f2b82bcdb61bf8827b35084ae5483759c8633a750fca0d411e4d70480d8df8",
+    "inner_snapshot_zip_sha256": "2cb08ab485f74b4d88785448c4bc769b4cda12e4429d0ae10c053b3840d0a0ff",
+    "three_way_identity_certificate_sha256": "2a88707ca8e6820a9c18ad5d708ec65f43fed2b125efe9dd780b94e726e3df47",
+    "extraction_verification_sha256": "2e1f6c1134dd01d1cb39ce184865212f621bab3bf250aee0d6376f71971a31ef",
+    "selected_file_count": 289,
+    "present_file_count": 289,
+    "extraction_checked_file_count": 292,
+    "extraction_verified": true,
+    "missing_scope_paths": [],
+    "missing_required_paths": [],
+    "inventory_workflow_run_id": "43285928305",
+    "inventory_artifact_id": "13975650287",
+    "inventory_sha256": "57623b58ca2025872be7d504012232b4f5874b76706af6d82c5b81bd2a344e77"
+  },
+  "cross_version_target_ledger_comparison": {
+    "old_inventory_run_id": "43249081611",
+    "old_inventory_artifact_id": "13956859801",
+    "old_inventory_sha256": "448d7179e2beab25209afd97c31fc12e91b76c8b330eb97fe0c2a56fa212db4a",
+    "old_target_ledger_sha256": "8ba997bed01134c1f7f56f7a0ae0181bdf77f63c64acc873e5e86f2c21e47f4c",
+    "new_inventory_run_id": "43285928305",
+    "new_inventory_artifact_id": "13975650287",
+    "new_inventory_sha256": "57623b58ca2025872be7d504012232b4f5874b76706af6d82c5b81bd2a344e77",
+    "new_target_ledger_sha256": "10c45fcaaec47819dc59df75d6f28a801022d185187933f10c665d858016b5e8",
+    "occurrence_id_set_equal": true,
+    "occurrence_record_payloads_equal": true,
+    "occurrence_count": 1800,
+    "interpretation": "All 1800 target occurrence IDs and record payloads are identical between the previous V4 inventory and this V5 source identity. The target ledger SHA changed because its inventory identity envelope changed; no target occurrence payload changed."
+  },
+  "main_comparison_decomposition": {
+    "previous_main_commit": "e6234f6895e3bc6c10b089a5e4f741f2143bb02f",
+    "previous_occurrence_count": 789,
+    "current_main_commit": "982c6a10f1bd4262a9915f40a3c821adfd5c58c2",
+    "current_occurrence_count": 865,
+    "added_occurrences": 76,
+    "removed_occurrences": 0,
+    "commits": [
+      {
+        "sha": "ba7101c80dd443c4195c517bf31699e335064181",
+        "message": "Add Type-I Software Assurance V2 workflow",
+        "file": ".github/workflows/type1-software-assurance-v2.yml",
+        "occurrences_added": 12
+      },
+      {
+        "sha": "dfa393aaf13235772c529e5db58e1876295fd138",
+        "message": "Add Type-I Human Overlay Preflight V4 workflow",
+        "file": ".github/workflows/type1-human-overlay-preflight-v4.yml",
+        "occurrences_added": 35
+      },
+      {
+        "sha": "982c6a10f1bd4262a9915f40a3c821adfd5c58c2",
+        "message": "Add GitHub Actions workflow for Type-I Target Batch Generation V3",
+        "file": ".github/workflows/type1-target-batch-generation-v3.yml",
+        "occurrences_added": 29
+      }
+    ],
+    "interpretation": "The exact 76-occurrence increase in the main comparison is fully accounted for by the three audit workflow files added in the three main-branch commits. All 789 prior main occurrence IDs remain present; no records were removed. Preserve the current 865-record main ledger and disclose the audit-infrastructure self-inclusion. Do not exclude these records silently or describe the 76 as application/scientific code growth."
+  },
+  "prior_source_pair_supersession": {
+    "previous_inventory_run_id": "43249081611",
+    "previous_inventory_artifact_id": "13956859801",
+    "previous_main_commit": "e6234f6895e3bc6c10b089a5e4f741f2143bb02f",
+    "previous_main_occurrence_count": 789,
+    "status": "HISTORICAL_VALID_AT_EXECUTION_SUPERSEDED_BY_THIS_V5_PAIR"
+  },
+  "authority_invariants": {
+    "protocol_freeze": "NOT_FROZEN",
+    "formal_calibration_authorized": false,
+    "confirmatory_execution_authorized": false,
+    "claim_support": false,
+    "promotion_authority": false,
+    "human_adjudication_applied": false
+  },
+  "interpretation_limit": "This addendum updates source identity only. It does not change the scientific protocol, calibrate thresholds, adjudicate occurrences, authorize confirmatory execution, establish a claim, or confer promotion authority."
+}
