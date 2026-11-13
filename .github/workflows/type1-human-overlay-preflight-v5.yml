@@ -7,7 +7,7 @@ on:
         description: Exact pending CSV path recorded in Population Register V4
         required: true
         type: string
-        default: adjudication/incoming/first-three-occurrences-v4.csv
+        default: adjudication/incoming/first-three-occurrences-v5.csv
       preflight_only:
         description: V5 is read-only preflight; false is rejected
         required: true
@@ -45,8 +45,8 @@ jobs:
           inputs = event.get("inputs", {})
           if str(inputs.get("preflight_only", "true")).lower() != "true":
               raise SystemExit("BLOCKED: V5 is permanently preflight-only")
-          csv_path = inputs.get("csv_path", "adjudication/incoming/first-three-occurrences-v4.csv")
-          if csv_path != "adjudication/incoming/first-three-occurrences-v4.csv":
+          csv_path = inputs.get("csv_path", "adjudication/incoming/first-three-occurrences-v5.csv")
+          if csv_path != "adjudication/incoming/first-three-occurrences-v5.csv":
               raise SystemExit("BLOCKED: V5 accepts only the source-bound CSV recorded in Population Register V4")
           if not Path(csv_path).is_file():
               raise SystemExit("BLOCKED: pending CSV is missing")
@@ -62,7 +62,7 @@ jobs:
           python - <<'PY'
           import json, os
           from pathlib import Path
-          p = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V4.json").read_text())
+          p = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V5.json").read_text())
           i, s = p["inventory"], p["snapshot"]
           values = {
             "target_commit": p["target"]["commit"],
@@ -184,8 +184,8 @@ jobs:
           e = os.environ
           root = Path("artifacts/input")
           invroot, snap = root / "inventory", root / "snapshot"
-          pop = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V4.json").read_text())
-          add = json.loads(Path("protocol/TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V5_20261112.json").read_text())
+          pop = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V5.json").read_text())
+          add = json.loads(Path("protocol/TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V6_20261113.json").read_text())
           sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
           provp = invroot / "type1_governance_inventory/provenance.json"
           invp = invroot / "type1_governance_inventory/reference_inventory.json"
