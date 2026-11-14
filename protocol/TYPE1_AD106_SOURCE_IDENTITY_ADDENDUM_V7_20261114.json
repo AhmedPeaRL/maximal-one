@@ -1,0 +1,120 @@
+{
+  "schema": "HCM_TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V7",
+  "declaration_date": "2026-11-14",
+  "supersedes": "protocol/TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V6_20261113.json",
+  "status": "NOV14_SOURCE_PAIR_AND_EXACT_TARGET_SNAPSHOT_VERIFIED; PRIOR_DEPENDENT_RUNS_SUPERSEDED_FOR_CURRENT_LINEAGE; CURRENT_SOURCE_PAIR_PREFLIGHT_BATCH_AND_ASSURANCE_RERUN_REQUIRED; INDEPENDENT_HUMAN_REVIEW_PENDING",
+  "authority": "NONE",
+  "repository": "AhmedPeaRL/maximal-one",
+  "review_branch": "refs/heads/review/type1-v4-remediation",
+  "workflow_definition_commit_for_inventory_and_snapshot": "d26164cacef31322e6c6d7d0d89bf50c36f41bdf",
+  "target": {
+    "ref": "refs/audit/target",
+    "commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+    "occurrence_count": 1800,
+    "distinct_inventory_paths": 271,
+    "reconciliation_status": "RECONCILED",
+    "reconciliation_sha256": "5118de3094fc16bacaa7c2b4258f463a8242980cfa47058c396d4c0040336705"
+  },
+  "main_comparison": {
+    "ref": "refs/audit/main",
+    "commit": "160acfc8600b66c7300f2fd0caa500972de740b8",
+    "occurrence_count": 939,
+    "distinct_inventory_paths": 199,
+    "reconciliation_status": "RECONCILED",
+    "reconciliation_sha256": "05628821622d102b9fc2e7d146a07c0c9f4353e5d3ecd21d5efa7178c9645f25",
+    "previous_main_comparison": {
+      "commit": "982c6a10f1bd4262a9915f40a3c821adfd5c58c2",
+      "occurrence_count": 865,
+      "distinct_inventory_paths": 196,
+      "status": "SUPERSEDED_BY_CURRENT_MAIN_COMPARISON"
+    },
+    "comparison_decomposition": {
+      "previous_occurrence_count": 865,
+      "current_occurrence_count": 939,
+      "added_occurrences": 74,
+      "removed_occurrences": 0,
+      "added_occurrences_by_path": {
+        ".github/workflows/type1-human-overlay-preflight-v5.yml": 30,
+        ".github/workflows/type1-software-assurance-v3.yml": 15,
+        ".github/workflows/type1-target-batch-generation-v4.yml": 29
+      },
+      "interpretation": "The 74 added occurrences are confined to the three workflow-dispatch entry-point workflows. This is audit-workflow self-inclusion, not scientific or application-code growth."
+    }
+  },
+  "inventory": {
+    "workflow_run_id": "43573264494",
+    "workflow_job_id": "132381976964",
+    "workflow_path": ".github/workflows/type1-v3-v4-governance-audit.yml",
+    "workflow_event": "workflow_dispatch",
+    "workflow_conclusion": "success",
+    "workflow_head_branch": "review/type1-v4-remediation",
+    "workflow_definition_commit": "d26164cacef31322e6c6d7d0d89bf50c36f41bdf",
+    "artifact_id": "14105760451",
+    "artifact_name": "type1-v3-v4-governance-inventory-43573264494-1",
+    "artifact_archive_sha256": "509a944552daabfd1e4a33c0fdb234af5efd630702a4f05af9fac742a70e2cd8",
+    "reference_inventory_sha256": "f528652046f4d855e4dd1abd303a2d85ec06740667d90f42ae206451d60ed5e5",
+    "target_ledger_sha256": "04bfc8e6fffd8ec67084a501c455e3be159140211e18380d9826a216b6f2cd5b",
+    "main_ledger_sha256": "e50b7f2d8067d238d6e30338a802af40f581d005c382cddcef1eadf43ac93290",
+    "provenance_sha256": "0d3a5bae37a86d1c276cda08114db9b20c12ef5b176edd25fa2079e517fc24e1",
+    "sha256_register_sha256": "a3ecc417ee828a7ead558aa79fea30ccb1b3297234a6e2c97721002e46472b32",
+    "target_reconciliation_sha256": "5118de3094fc16bacaa7c2b4258f463a8242980cfa47058c396d4c0040336705",
+    "main_reconciliation_sha256": "05628821622d102b9fc2e7d146a07c0c9f4353e5d3ecd21d5efa7178c9645f25",
+    "target_occurrence_count": 1800,
+    "main_occurrence_count": 939,
+    "target_inventory_path_count": 271,
+    "main_inventory_path_count": 199,
+    "source_provenance_verified": true,
+    "target_and_main_ledgers_reconciled": true
+  },
+  "snapshot": {
+    "workflow_run_id": "43573374439",
+    "workflow_job_id": "132382304038",
+    "workflow_path": ".github/workflows/type1-review-snapshot.yml",
+    "workflow_event": "workflow_dispatch",
+    "workflow_conclusion": "success",
+    "workflow_head_branch": "review/type1-v4-remediation",
+    "workflow_definition_commit": "d26164cacef31322e6c6d7d0d89bf50c36f41bdf",
+    "artifact_id": "14104988338",
+    "artifact_name": "type1-exact-review-snapshot-43573374439-1",
+    "artifact_archive_sha256": "78d5ac9ca0dee723255f4684bf0a901613de19c4fec27bb9b621197ae8e1e79e",
+    "manifest_sha256": "e879249b18b277dbb8e704fdae656c30819ca24fac0a9b715074407915548d7f",
+    "inner_snapshot_zip_sha256": "b2925c80e974ebb4644323cba852a1a832dc63ed2488165d8af48755df29bf07",
+    "three_way_identity_certificate_sha256": "9c3a84c4540bcbcffdf1b2114a577679c15243099816966973e2e15d3da452d1",
+    "extraction_verification_sha256": "2e1f6c1134dd01d1cb39ce184865212f621bab3bf250aee0d6376f71971a31ef",
+    "selected_file_count": 289,
+    "present_file_count": 289,
+    "extraction_checked_file_count": 292,
+    "extraction_verified": true,
+    "missing_scope_paths": [],
+    "missing_required_paths": [],
+    "inventory_workflow_run_id": "43573264494",
+    "inventory_artifact_id": "14105760451",
+    "inventory_sha256": "f528652046f4d855e4dd1abd303a2d85ec06740667d90f42ae206451d60ed5e5"
+  },
+  "prior_dependent_runs": {
+    "preflight_v5": {
+      "run_id": "43571157986",
+      "artifact_id": "14104159197",
+      "status": "VALID_FOR_PREVIOUS_REGISTERED_SOURCE_PAIR_ONLY_SUPERSEDED_FOR_NOV14_PAIR"
+    },
+    "batch_v4": {
+      "run_id": "43571186587",
+      "artifact_id": "14103844765",
+      "status": "VALID_FOR_PREVIOUS_REGISTERED_SOURCE_PAIR_ONLY_SUPERSEDED_FOR_NOV14_PAIR"
+    },
+    "software_assurance_v3": {
+      "run_id": "43571209668",
+      "artifact_id": "14104348957",
+      "status": "PRIOR_SCAN_OUTPUT_RETAINED; SOURCE_PAIR_LINEAGE_SUPERSEDED; FINDINGS_REMAIN_TRIAGE_INPUT"
+    }
+  },
+  "authority_invariants": {
+    "protocol_freeze": "NOT_FROZEN",
+    "formal_calibration_authorized": false,
+    "confirmatory_execution_authorized": false,
+    "claim_support": false,
+    "promotion_authority": false,
+    "human_adjudication_applied": false
+  },
+  "interpretation_limit": "This addendum updates source identity and lineage only. It does not change the scientific protocol, calibrate thresholds, adjudicate occurrences, establish software safety, authorize confirmatory execution, establish a scientific claim, or confer promotion authority."
+}
