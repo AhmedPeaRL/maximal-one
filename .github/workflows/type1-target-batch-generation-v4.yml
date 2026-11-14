@@ -8,7 +8,7 @@ on:
     paths:
       - 'adjudication/generate_target_batches_v3.py'
       - 'tests/test_type1_target_batch_generation_v3.py'
-      - 'protocol/TYPE1_AD106_POPULATION_REGISTER_V6.json'
+      - 'protocol/TYPE1_AD106_POPULATION_REGISTER_V7.json'
       - '.github/workflows/type1-target-batch-generation-v4.yml'
 
 permissions:
@@ -45,7 +45,7 @@ jobs:
           python - <<'PY'
           import json, os
           from pathlib import Path
-          p = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V6.json").read_text())
+          p = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V7.json").read_text())
           i = p["inventory"]
           values = {
               "inventory_run_id": str(i["workflow_run_id"]),
@@ -121,7 +121,7 @@ jobs:
           import hashlib, json, os
           from pathlib import Path
           root = Path("artifacts/input/inventory")
-          p = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V6.json").read_text())
+          p = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V7.json").read_text())
           inv = p["inventory"]
           prov_path = root / "type1_governance_inventory/provenance.json"
           inv_path = root / "type1_governance_inventory/reference_inventory.json"
@@ -169,7 +169,7 @@ jobs:
           python adjudication/generate_target_batches_v3.py \
             --inventory artifacts/input/inventory/type1_governance_inventory/reference_inventory.json \
             --ledger artifacts/input/inventory/type1_occurrence_ledger/occurrence_level_manual_ledger.json \
-            --population-register protocol/TYPE1_AD106_POPULATION_REGISTER_V6.json \
+            --population-register protocol/TYPE1_AD106_POPULATION_REGISTER_V7.json \
             --provenance artifacts/input/inventory/type1_governance_inventory/provenance.json \
             --artifact-metadata inventory-artifact-metadata.json \
             --output artifacts/output/target_1800_batches
@@ -182,7 +182,7 @@ jobs:
           import hashlib, json
           from pathlib import Path
           root = Path("artifacts/output/target_1800_batches")
-          p = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V6.json").read_text())
+          p = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V7.json").read_text())
           register = json.loads((root / "BATCH_SET_REGISTER.json").read_text())
           ledger = json.loads(Path("artifacts/input/inventory/type1_occurrence_ledger/occurrence_level_manual_ledger.json").read_text())
           inv = p["inventory"]
