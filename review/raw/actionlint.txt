@@ -1,0 +1,388 @@
+.github/workflows/theoretical_validity.yml:18:15: the runner of "actions/setup-python@v4" action is too old to run on GitHub Actions. update the action's version to fix this issue [action]
+   |
+18 |         uses: actions/setup-python@v4
+   |               ^~~~~~~~~~~~~~~~~~~~~~~
+.github/workflows/null-calibration-audit.yml:27:9: shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck]
+   |
+27 |         run: |
+   |         ^~~~
+.github/workflows/scientific-validation.yml:67:9: shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck]
+   |
+67 |         run: |
+   |         ^~~~
+.github/workflows/scientific-validation.yml:67:9: shellcheck reported issue in this script: SC2086:info:2:29: Double quote to prevent globbing and word splitting [shellcheck]
+   |
+67 |         run: |
+   |         ^~~~
+.github/workflows/scientific-validation.yml:67:9: shellcheck reported issue in this script: SC2086:info:3:29: Double quote to prevent globbing and word splitting [shellcheck]
+   |
+67 |         run: |
+   |         ^~~~
+.github/workflows/scientific-validation.yml:67:9: shellcheck reported issue in this script: SC2086:info:4:29: Double quote to prevent globbing and word splitting [shellcheck]
+   |
+67 |         run: |
+   |         ^~~~
+.github/workflows/scientific-validation.yml:67:9: shellcheck reported issue in this script: SC2086:info:5:34: Double quote to prevent globbing and word splitting [shellcheck]
+   |
+67 |         run: |
+   |         ^~~~
+.github/workflows/scientific-validation.yml:67:9: shellcheck reported issue in this script: SC2086:info:6:33: Double quote to prevent globbing and word splitting [shellcheck]
+   |
+67 |         run: |
+   |         ^~~~
+.github/workflows/scientific-validation.yml:67:9: shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck]
+   |
+67 |         run: |
+   |         ^~~~
+.github/workflows/scientific-validation.yml:1208:9: shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1208 |         run: echo "GITHUB_SHA=${{ github.sha }}" >> $GITHUB_ENV
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1449:9: shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1449 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1449:9: shellcheck reported issue in this script: SC2086:info:2:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1449 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1449:9: shellcheck reported issue in this script: SC2086:info:3:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1449 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1449:9: shellcheck reported issue in this script: SC2086:info:4:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1449 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1449:9: shellcheck reported issue in this script: SC2086:info:5:34: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1449 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1449:9: shellcheck reported issue in this script: SC2086:info:6:33: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1449 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1449:9: shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck]
+     |
+1449 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1660:9: shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1660 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1660:9: shellcheck reported issue in this script: SC2086:info:2:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1660 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1660:9: shellcheck reported issue in this script: SC2086:info:3:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1660 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1660:9: shellcheck reported issue in this script: SC2086:info:4:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1660 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1660:9: shellcheck reported issue in this script: SC2086:info:5:34: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1660 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1660:9: shellcheck reported issue in this script: SC2086:info:6:33: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1660 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1660:9: shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck]
+     |
+1660 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1698:9: shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1698 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1698:9: shellcheck reported issue in this script: SC2086:info:2:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1698 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1698:9: shellcheck reported issue in this script: SC2086:info:3:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1698 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1698:9: shellcheck reported issue in this script: SC2086:info:4:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1698 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1698:9: shellcheck reported issue in this script: SC2086:info:5:34: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1698 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1698:9: shellcheck reported issue in this script: SC2086:info:6:33: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1698 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1698:9: shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck]
+     |
+1698 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1749:9: shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1749 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1749:9: shellcheck reported issue in this script: SC2086:info:2:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1749 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1749:9: shellcheck reported issue in this script: SC2086:info:3:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1749 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1749:9: shellcheck reported issue in this script: SC2086:info:4:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1749 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1749:9: shellcheck reported issue in this script: SC2086:info:5:34: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1749 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1749:9: shellcheck reported issue in this script: SC2086:info:6:33: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1749 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1749:9: shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck]
+     |
+1749 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:1776:9: shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+1776 |         run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+     |         ^~~~
+.github/workflows/scientific-validation.yml:2338:9: shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+2338 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:2338:9: shellcheck reported issue in this script: SC2086:info:2:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+2338 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:2338:9: shellcheck reported issue in this script: SC2086:info:3:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+2338 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:2338:9: shellcheck reported issue in this script: SC2086:info:4:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+2338 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:2338:9: shellcheck reported issue in this script: SC2086:info:5:34: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+2338 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:2338:9: shellcheck reported issue in this script: SC2086:info:6:33: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+2338 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:2338:9: shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck]
+     |
+2338 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:2802:9: shellcheck reported issue in this script: SC2002:style:1:12: Useless cat. Consider 'cmd < file | ..' or 'cmd file | ..' instead [shellcheck]
+     |
+2802 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:2802:9: shellcheck reported issue in this script: SC2086:info:2:22: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+2802 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:3092:9: shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+3092 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:3092:9: shellcheck reported issue in this script: SC2086:info:2:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+3092 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:3092:9: shellcheck reported issue in this script: SC2086:info:3:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+3092 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:3092:9: shellcheck reported issue in this script: SC2086:info:4:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+3092 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:3092:9: shellcheck reported issue in this script: SC2086:info:5:34: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+3092 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:3092:9: shellcheck reported issue in this script: SC2086:info:6:33: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+3092 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:3092:9: shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck]
+     |
+3092 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:3123:9: shellcheck reported issue in this script: SC2086:info:15:28: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+3123 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:3123:9: shellcheck reported issue in this script: SC2086:info:18:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+3123 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:3278:7: shellcheck reported issue in this script: SC2129:style:3:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck]
+     |
+3278 |       run: |
+     |       ^~~~
+.github/workflows/scientific-validation.yml:3372:7: shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+3372 |       run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+     |       ^~~~
+.github/workflows/scientific-validation.yml:3667:7: shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+3667 |       run: echo "GITHUB_SHA=${{ github.sha }}" >> $GITHUB_ENV  
+     |       ^~~~
+.github/workflows/scientific-validation.yml:4249:11: constant expression "false" in condition. remove the if: section [if-cond]
+     |
+4249 |       if: false
+     |           ^~~~~
+.github/workflows/scientific-validation.yml:4756:9: shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+4756 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:4756:9: shellcheck reported issue in this script: SC2086:info:2:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+4756 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:4756:9: shellcheck reported issue in this script: SC2086:info:3:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+4756 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:4756:9: shellcheck reported issue in this script: SC2086:info:4:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+4756 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:4756:9: shellcheck reported issue in this script: SC2086:info:5:34: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+4756 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:4756:9: shellcheck reported issue in this script: SC2086:info:6:33: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+4756 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:4756:9: shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck]
+     |
+4756 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:4810:9: shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+4810 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:4810:9: shellcheck reported issue in this script: SC2086:info:2:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+4810 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:4810:9: shellcheck reported issue in this script: SC2086:info:3:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+4810 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:4810:9: shellcheck reported issue in this script: SC2086:info:4:29: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+4810 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:4810:9: shellcheck reported issue in this script: SC2086:info:5:34: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+4810 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:4810:9: shellcheck reported issue in this script: SC2086:info:6:33: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+4810 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:4810:9: shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck]
+     |
+4810 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:4828:9: shellcheck reported issue in this script: SC2086:info:5:46: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+4828 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:4958:9: shellcheck reported issue in this script: SC2086:info:7:46: Double quote to prevent globbing and word splitting [shellcheck]
+     |
+4958 |         run: |
+     |         ^~~~
+.github/workflows/scientific-validation.yml:4993:9: shellcheck reported issue in this script: SC2034:warning:6:1: ALLOWED_FILES appears unused. Verify use (or export if used externally) [shellcheck]
+     |
+4993 |         run: |
+     |         ^~~~
+.github/workflows/confirmatory-readiness-gate.yml:37:9: shellcheck reported issue in this script: SC2129:style:3:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck]
+   |
+37 |         run: |
+   |         ^~~~
+.github/workflows/model-capacity-sweep.yml:27:9: shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck]
+   |
+27 |         run: |
+   |         ^~~~
+.github/workflows/legacy/scientific-evaluation.yml:18:9: shellcheck reported issue in this script: SC2086:info:2:45: Double quote to prevent globbing and word splitting [shellcheck]
+   |
+18 |         run: |
+   |         ^~~~
+.github/workflows/legacy/scientific-evaluation.yml:18:9: shellcheck reported issue in this script: SC2086:info:3:40: Double quote to prevent globbing and word splitting [shellcheck]
+   |
+18 |         run: |
+   |         ^~~~
+.github/workflows/legacy/scientific-evaluation.yml:18:9: shellcheck reported issue in this script: SC2162:info:1:7: read without -r will mangle backslashes [shellcheck]
+   |
+18 |         run: |
+   |         ^~~~
+.github/workflows/build-image.yml:26:9: shellcheck reported issue in this script: SC2086:info:2:30: Double quote to prevent globbing and word splitting [shellcheck]
+   |
+26 |         run: |
+   |         ^~~~
+.github/workflows/build-image.yml:34:9: shellcheck reported issue in this script: SC2086:info:2:17: Double quote to prevent globbing and word splitting [shellcheck]
+   |
+34 |         run: |
+   |         ^~~~
+.github/workflows/build-image.yml:39:9: shellcheck reported issue in this script: SC2086:info:2:13: Double quote to prevent globbing and word splitting [shellcheck]
+   |
+39 |         run: |
+   |         ^~~~
+.github/workflows/scientific-claim-promotion.yml:36:9: shellcheck reported issue in this script: SC2129:style:3:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck]
+   |
+36 |         run: |
+   |         ^~~~
+.github/workflows/reproducible_research.yml:15:15: the runner of "actions/setup-python@v4" action is too old to run on GitHub Actions. update the action's version to fix this issue [action]
+   |
+15 |       - uses: actions/setup-python@v4
+   |               ^~~~~~~~~~~~~~~~~~~~~~~
+.github/workflows/model-capacity-diagnostic.yml:27:9: shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck]
+   |
+27 |         run: |
+   |         ^~~~
+.github/workflows/primary-null-capacity-audit.yml:27:9: shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck]
+   |
+27 |         run: |
+   |         ^~~~
+.github/workflows/cross-run-memory-verification.yml:25:9: shellcheck reported issue in this script: SC2086:info:2:30: Double quote to prevent globbing and word splitting [shellcheck]
+   |
+25 |         run: |
+   |         ^~~~
+.github/workflows/cross-run-memory-verification.yml:25:9: shellcheck reported issue in this script: SC2086:info:3:6: Double quote to prevent globbing and word splitting [shellcheck]
+   |
+25 |         run: |
+   |         ^~~~
+.github/workflows/replication.yml:18:13: the runner of "actions/checkout@v3" action is too old to run on GitHub Actions. update the action's version to fix this issue [action]
+   |
+18 |     - uses: actions/checkout@v3
+   |             ^~~~~~~~~~~~~~~~~~~
+.github/workflows/replication.yml:21:13: the runner of "actions/setup-python@v4" action is too old to run on GitHub Actions. update the action's version to fix this issue [action]
+   |
+21 |       uses: actions/setup-python@v4
+   |             ^~~~~~~~~~~~~~~~~~~~~~~
+.github/workflows/release-lock.yml:37:9: shellcheck reported issue in this script: SC2086:info:2:22: Double quote to prevent globbing and word splitting [shellcheck]
+   |
+37 |         run: |
+   |         ^~~~
+.github/workflows/release-lock.yml:43:9: shellcheck reported issue in this script: SC2086:info:3:25: Double quote to prevent globbing and word splitting [shellcheck]
+   |
+43 |         run: |
+   |         ^~~~
+.github/workflows/release-lock.yml:43:9: shellcheck reported issue in this script: SC2086:info:5:26: Double quote to prevent globbing and word splitting [shellcheck]
+   |
+43 |         run: |
+   |         ^~~~
