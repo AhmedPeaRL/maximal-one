@@ -28,10 +28,6 @@ env:
   NODE_OPTIONS: "--no-deprecation"
   OPENBLAS_NUM_THREADS: "1"
   OMP_NUM_THREADS: "1"
-  GH_TOKEN: ${{ secrets.GH_TOKEN }}
-  WITNESS_SECRET: ${{ secrets.WITNESS_SECRET }}
-  GH_REPO: ${{ secrets.GH_REPO }}
-  EXTERNAL_SOURCE_URL: ${{ secrets.EXTERNAL_SOURCE_URL }}
   CANONICAL_TIMESTAMP: "2026-01-01T00:00:00+00:00"
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: false
@@ -1350,6 +1346,9 @@ jobs:
           python analysis/finalize_artifacts.py
 
       - name: Commit fingerprint
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_REPO: ${{ secrets.GH_REPO }}
         shell: bash
         run: |
           set -euo pipefail
@@ -1420,12 +1419,16 @@ jobs:
           exit 1
           
       - name: Public Fingerprint Source Sanity Check
+        env:
+          EXTERNAL_SOURCE_URL: ${{ secrets.EXTERNAL_SOURCE_URL }}
         shell: bash
         run: |
           set -euo pipefail
           python analysis/external_source_integrity_guard.py
   
       - name: Public artifact consistency diagnostic (non-gating)
+        env:
+          EXTERNAL_SOURCE_URL: ${{ secrets.EXTERNAL_SOURCE_URL }}
         run: |
           python analysis/external_reproduction_guard.py
           python analysis/true_external_reproduction_guard.py
@@ -2244,9 +2247,13 @@ jobs:
           if-no-files-found: error
 
       - name: GitHub public anchor
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: python analysis/github_anchor.py
 
       - name: External Public Anchor
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: python analysis/external_public_anchor.py
 
       - name: Multi-channel anchor
@@ -3281,8 +3288,8 @@ jobs:
         from pathlib import Path
 
         raw = os.environ.get("CLIENT_PAYLOAD_JSON", "null")
-        data = {"_empty": True} if raw in ("", "null") else json.loads(raw)
-
+        from analysis.safe_payload import normalize_payload
+        data = normalize_payload(raw)
         value = data.get("input", "") if isinstance(data, dict) else ""
         if not isinstance(value, str):
             raise SystemExit("client_payload.input must be a string")
