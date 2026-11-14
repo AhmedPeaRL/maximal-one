@@ -13,14 +13,7 @@ on:
   pull_request:
     branches: [ "main" ]
   
-permissions:
-  contents: write
-  packages: write
-  pages: write
-  id-token: write
-  actions: read
-  pull-requests: read
-  security-events: write
+permissions: {}
   
 env:
   PYTHONHASHSEED: "42"
@@ -34,6 +27,10 @@ env:
 
 jobs:
   core-proof:
+    permissions:
+      contents: read
+      security-events: write
+      
     timeout-minutes: 10
     strategy:
       fail-fast: false
@@ -1346,6 +1343,9 @@ jobs:
           python analysis/finalize_artifacts.py
 
       - name: Commit fingerprint
+        if: >-
+          github.ref == 'refs/heads/main' &&
+          (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GH_REPO: ${{ secrets.GH_REPO }}
@@ -1434,6 +1434,9 @@ jobs:
           python analysis/true_external_reproduction_guard.py
 
   ingest-witness:
+    permissions:
+      contents: read
+      
     runs-on: ubuntu-24.04
     needs: core-proof
     
@@ -1633,6 +1636,9 @@ jobs:
           python analysis/witness_governance_guard.py
 
   external-collision:
+    permissions:
+      contents: read
+      
     runs-on: ubuntu-24.04
     needs: ingest-witness
 
@@ -1661,6 +1667,9 @@ jobs:
         run: python analysis/external_collision_trigger.py
 
   compute:
+    permissions:
+      contents: read
+      
     runs-on: ubuntu-24.04
     needs: external-collision
     container:
@@ -1720,6 +1729,9 @@ jobs:
           path: node_report.hash
 
   build-report:
+    permissions:
+      contents: read
+      
     runs-on: ubuntu-24.04
     needs: compute
     container:
@@ -2313,6 +2325,9 @@ jobs:
           cp analysis/external_minimal_verifier.py public/verifier_interface/
 
   gate:
+    permissions:
+      contents: read
+      
     runs-on: ubuntu-24.04
     needs: build-report
     outputs:
@@ -3067,6 +3082,9 @@ jobs:
           export NODE_OPTIONS="--no-expose-wasm"
 
   consensus:
+    permissions:
+      contents: read
+      
     runs-on: ubuntu-24.04
     container:
       image: python@sha256:90f8795536170fd08236d2ceb74fe7065dbf74f738d8b84bfbf263656654dc9b
@@ -4751,6 +4769,9 @@ jobs:
         fi
         
   stability-check:
+    permissions:
+      contents: read
+      
     runs-on: ubuntu-24.04
     container:
       image: python@sha256:90f8795536170fd08236d2ceb74fe7065dbf74f738d8b84bfbf263656654dc9b
@@ -4801,6 +4822,9 @@ jobs:
         run: python stability/eigen_drift_check.py
   
   sweep-plus:
+    permissions:
+      contents: read
+      
     if: >-
       github.event_name == 'repository_dispatch'
       &&
@@ -5105,6 +5129,7 @@ jobs:
     permissions:
       actions: read
       contents: read
+      
     needs:
       - gate
       - consensus
