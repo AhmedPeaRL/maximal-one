@@ -93,6 +93,7 @@ jobs:
           python -m unittest tests.test_replication_computation_guard -v
           python -m unittest discover -s tests -p 'test_type1_calibration_v3_candidate.py' -v
           python -m compileall -q analysis/calibrate_null_type1.py analysis/calibrate_null_type1_scenario.py tests/test_type1_calibration_v3_candidate.py
+          python -m unittest discover -s tests -p 'test_safe_payload_boundary.py' -v
           
       - name: Verify repository commit identity
         shell: bash
@@ -1501,39 +1502,21 @@ jobs:
           echo "✅ No real tokens detected"
 
       - name: Stage witness as run-local artifact
-        shell: bash
+        env:
+          CLIENT_PAYLOAD_JSON: ${{ toJSON(github.event.client_payload) }}
         run: |
           set -euo pipefail
-
-          mkdir -p artifacts/witness_ingestion
-
-          RAW='${{ toJson(github.event.client_payload) }}'
-
-          if [ "$RAW" = "null" ] || [ -z "$RAW" ]; then
-            echo '{"_empty": true}' \
-              > artifacts/witness_ingestion/payload.json
-          else
-            echo "$RAW" \
-              > artifacts/witness_ingestion/payload.json
-          fi
-
-          sha256sum \
-            artifacts/witness_ingestion/payload.json \
-            > artifacts/witness_ingestion/payload.sha256
-
+          python analysis/safe_payload.py \
+            --output artifacts/witness_ingestion/payload.json \
+            --sha256 artifacts/witness_ingestion/payload.sha256
           echo "Witness staged locally only."
           echo "No witness file will be written to data/external/."
 
       - name: Validate witness payload
         run: |
-          RAW='${{ toJson(github.event.client_payload) }}'
-
-          # Normalize payload
-          if [ "$RAW" = "null" ] || [ -z "$RAW" ]; then
-            echo '{"_empty": true}' > payload.json
-          else
-            echo "$RAW" > payload.json
-          fi
+          set -euo pipefail
+          test -s artifacts/witness_ingestion/payload.json
+          cp artifacts/witness_ingestion/payload.json payload.json
 
           node - <<'NODE'
           const fs = require('fs');
@@ -3285,13 +3268,33 @@ jobs:
         echo "OPENBLAS_NUM_THREADS=1" >> "$GITHUB_ENV"
         echo "NUMEXPR_NUM_THREADS=1" >> "$GITHUB_ENV"
 
-    - name: Log Input
+    - name: Log input and generate hash safely
+      env:
+        CLIENT_PAYLOAD_JSON: ${{ toJSON(github.event.client_payload) }}
+      shell: bash
       run: |
-        echo "INPUT: ${{ github.event.client_payload.input }}" >> data/external_log.txt
+        set -euo pipefail
+        python - <<'PY'
+        import hashlib
+        import json
+        import os
+        from pathlib import Path
 
-    - name: Generate Hash
-      run: |
-        echo "${{ github.event.client_payload.input }}" | sha256sum >> data/hash_log.txt
+        raw = os.environ.get("CLIENT_PAYLOAD_JSON", "null")
+        data = {"_empty": True} if raw in ("", "null") else json.loads(raw)
+
+        value = data.get("input", "") if isinstance(data, dict) else ""
+        if not isinstance(value, str):
+            raise SystemExit("client_payload.input must be a string")
+
+        Path("data").mkdir(parents=True, exist_ok=True)
+        with Path("data/external_log.txt").open("a", encoding="utf-8") as f:
+            f.write("INPUT: " + value + "\n")
+
+        digest = hashlib.sha256((value + "\n").encode("utf-8")).hexdigest()
+        with Path("data/hash_log.txt").open("a", encoding="utf-8") as f:
+            f.write(digest + "  -\n")
+        PY
 
     - name: Verify Python runtime (container-native)
       run: |
