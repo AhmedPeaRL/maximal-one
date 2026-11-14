@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Load immutable source identities from Population Register V6
+      - name: Load immutable source identities from Population Register V7
         id: source
         shell: bash
         run: |
@@ -32,7 +32,7 @@ jobs:
           python - <<'PY'
           import json, os
           from pathlib import Path
-          p = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V6.json").read_text())
+          p = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V7.json").read_text())
           i, s = p["inventory"], p["snapshot"]
           values = {
             "target_commit": p["target"]["commit"],
@@ -255,7 +255,7 @@ jobs:
           exit 0
 
       - name: Write immutable target-commit assurance manifest
-        if: always()
+        if: success()
         shell: bash
         env:
           TARGET_COMMIT: ${{ steps.source.outputs.target_commit }}
@@ -312,7 +312,7 @@ jobs:
           PY
 
       - name: Upload target-commit scanner outputs and provenance
-        if: always()
+        if: success()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: type1-software-assurance-v3-${{ github.run_id }}-${{ github.run_attempt }}
