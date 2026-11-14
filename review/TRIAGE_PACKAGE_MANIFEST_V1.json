@@ -1,0 +1,80 @@
+{
+  "schema": "HCM_TYPE1_SOFTWARE_ASSURANCE_TRIAGE_PACKAGE_V1",
+  "repository": "AhmedPeaRL/maximal-one",
+  "scan_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+  "workflow_run_id": "43611097357",
+  "artifact_id": "14120366991",
+  "manifest_sha256": "422c1a1722108b1a74173224af39dd5d043e0f524a1272833210e5d10b638708",
+  "zizmor": {
+    "count": 205,
+    "severity": {
+      "High": 164,
+      "Medium": 37,
+      "Informational": 4
+    },
+    "rule_counts": {
+      "unpinned-uses": 151,
+      "artipacked": 18,
+      "excessive-permissions": 19,
+      "template-injection": 13,
+      "dangerous-triggers": 2,
+      "cache-poisoning": 1,
+      "superfluous-actions": 1
+    },
+    "csv": "TYPE1_ZIZMOR_205_FINDINGS_REGISTER_V1.csv"
+  },
+  "actionlint": {
+    "count": 97,
+    "class_counts": {
+      "actionlint": 5,
+      "ShellCheck": 92
+    },
+    "rule_counts": {
+      "ACTION_VERSION": 4,
+      "SC2129": 16,
+      "SC2086": 73,
+      "SC2002": 1,
+      "IF_COND": 1,
+      "SC2034": 1,
+      "SC2162": 1
+    },
+    "csv": "TYPE1_ACTIONLINT_97_DIAGNOSTICS_REGISTER_V1.csv"
+  },
+  "scorecard": {
+    "score": 5.7,
+    "repo_commit": "unknown",
+    "checks_csv": "TYPE1_SCORECARD_CHECKS_REGISTER_V1.csv",
+    "vulnerability_count_reported": 73,
+    "individual_vulnerability_records_available": false
+  },
+  "authority": {
+    "protocol_freeze": "NOT_FROZEN",
+    "formal_calibration_authorized": false,
+    "confirmatory_execution_authorized": false,
+    "claim_support": false,
+    "promotion_authority": false,
+    "main_merge_authorized": false
+  },
+  "register_state": "ALL_ROWS_OPEN_UNREVIEWED",
+  "observed_additional_evidence": {
+    "review_branch_head_commit": "283d1b7a1800fdc7a1e63dbd33878827a1b3759e",
+    "main_branch_head_commit": "160acfc8600b66c7300f2fd0caa500972de740b8",
+    "main_vs_review_commit_compare": {
+      "status": "diverged",
+      "ahead_by": 463,
+      "behind_by": 34
+    },
+    "build_image_run_id": "43614085900",
+    "build_image_run_event": "push",
+    "build_image_run_branch": "review/type1-v4-remediation",
+    "build_image_push_step": "success",
+    "build_image_push_step_job_id": "132505224850",
+    "release_lock_upstream_workflow_name": "Deterministic Scientific Mesh",
+    "release_lock_upstream_workflow_found_in_main_or_review_zip": false,
+    "candidate_build_image_actionlint_exit_code": 0,
+    "candidate_build_image_zizmor_offline_json_findings": 0,
+    "candidate_build_image_zizmor_online_audits_performed": false
+  },
+  "zip_inventory_csv": "ZIP_ARCHIVE_INTEGRITY_INVENTORY_V1.csv",
+  "p0_patch_guide": "TYPE1_P0_REMEDIATION_PATCH_GUIDE_V1.md"
+}

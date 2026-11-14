@@ -1,0 +1,486 @@
+﻿diagnostic_id,fingerprint_sha256,scanner,scan_commit,workflow_run_id,artifact_id,file_path,yaml_line,yaml_column,diagnostic_class,rule_code,severity_from_tool,message,shell_script_inner_location,source_excerpt,priority,status,triage_guidance,reviewer_disposition,reviewer_name,reviewer_expertise,conflict_disclosure,rationale_and_evidence,review_timestamp_utc,fix_commit,verification_run,closure_evidence_uri,closure_status
+ACT-001,63ae51c4466f7359d2a592ecb68f86ba5ad6324b2cd99d2888825a9e91025b28,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/theoretical_validity.yml,18,15,actionlint,ACTION_VERSION,warning,"the runner of ""actions/setup-python@v4"" action is too old to run on GitHub Actions. update the action's version to fix this issue [action]",,"16: 
+17:       - name: Setup Python
+18:         uses: actions/setup-python@v4
+19:         with:
+20:           python-version: '3.10'",P2,OPEN_UNREVIEWED,Update the deprecated action major to a currently supported version and pin the verified full commit SHA; validate compatibility and rerun the workflow.,,,,,,,,,,NOT_CLOSED
+ACT-002,d46910232bf3b85684f2dd6796e1413c72ceb1038bfefca18c4e9a63d9e47a75,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/null-calibration-audit.yml,27,9,ShellCheck,SC2129,style,shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck],style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects,"25: 
+26:       - name: Deterministic environment
+27:         run: |
+28:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> ""$GITHUB_ENV""
+29:           echo ""PYTHONHASHSEED=90210"" >> ""$GITHUB_ENV""",P3,OPEN_UNREVIEWED,"Consider grouping consecutive append redirects in a block; preserve failure behavior and output ordering, then rerun shellcheck.",,,,,,,,,,NOT_CLOSED
+ACT-003,772ba48e4f238a851d58baeb56d07ffc8067b3325012d0fea0a3ff4ed6f321a0,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,67,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck],info:1:40: Double quote to prevent globbing and word splitting,"65: 
+66:       - name: Enforce deterministic env
+67:         run: |
+68:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+69:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-004,e34c92fea2e605d45a716e48fb6a26eb2b19798810965acaf03a2bd80dc66aa9,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,67,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:2:29: Double quote to prevent globbing and word splitting [shellcheck],info:2:29: Double quote to prevent globbing and word splitting,"65: 
+66:       - name: Enforce deterministic env
+67:         run: |
+68:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+69:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-005,264da226dbf09b0d541706175a402844a68b6ac9af457adb0a963186256d33c4,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,67,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:3:29: Double quote to prevent globbing and word splitting [shellcheck],info:3:29: Double quote to prevent globbing and word splitting,"65: 
+66:       - name: Enforce deterministic env
+67:         run: |
+68:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+69:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-006,a941f5653d9063231eff212b9d190a80de4a824f7c9227f5dfd18aba7c59f867,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,67,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:4:29: Double quote to prevent globbing and word splitting [shellcheck],info:4:29: Double quote to prevent globbing and word splitting,"65: 
+66:       - name: Enforce deterministic env
+67:         run: |
+68:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+69:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-007,5ffd3393b05dedb95e2053b57e16a5af702a5860df0a78be8156ded76c37971b,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,67,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:5:34: Double quote to prevent globbing and word splitting [shellcheck],info:5:34: Double quote to prevent globbing and word splitting,"65: 
+66:       - name: Enforce deterministic env
+67:         run: |
+68:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+69:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-008,f9a8b60c84ad6b70ffd63d6a377b760ff19e0820b12663e18e8084a5ada9e763,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,67,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:6:33: Double quote to prevent globbing and word splitting [shellcheck],info:6:33: Double quote to prevent globbing and word splitting,"65: 
+66:       - name: Enforce deterministic env
+67:         run: |
+68:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+69:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-009,70dad970269bd32dd3930a41423133d8577a0a09a69596eb3293068466da8b14,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,67,9,ShellCheck,SC2129,style,shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck],style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects,"65: 
+66:       - name: Enforce deterministic env
+67:         run: |
+68:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+69:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P3,OPEN_UNREVIEWED,"Consider grouping consecutive append redirects in a block; preserve failure behavior and output ordering, then rerun shellcheck.",,,,,,,,,,NOT_CLOSED
+ACT-010,75bd484d68e2c167ba839ac47a5d50cfa35d6d5a233975d9e44358bbe2851fd8,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1208,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck],info:1:40: Double quote to prevent globbing and word splitting,"1206: 
+1207:       - name: Export commit
+1208:         run: echo ""GITHUB_SHA=${{ github.sha }}"" >> $GITHUB_ENV
+1209: 
+1210:       - name: Hash report",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-011,0f37e1ffdb20cae33b4a7aac4bcde9c0606c0cae42883f0ae070bb4c1670aa9d,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1449,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck],info:1:40: Double quote to prevent globbing and word splitting,"1447: 
+1448:       - name: Enforce deterministic env
+1449:         run: |
+1450:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1451:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-012,d040a4d4d912ccfa3dbd5f360ca3dd52b134850f045476e8515696a43f80913e,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1449,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:2:29: Double quote to prevent globbing and word splitting [shellcheck],info:2:29: Double quote to prevent globbing and word splitting,"1447: 
+1448:       - name: Enforce deterministic env
+1449:         run: |
+1450:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1451:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-013,dbb063eda8d85e81c2796366704a100922f80477f401b9664f8c4d23c1701425,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1449,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:3:29: Double quote to prevent globbing and word splitting [shellcheck],info:3:29: Double quote to prevent globbing and word splitting,"1447: 
+1448:       - name: Enforce deterministic env
+1449:         run: |
+1450:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1451:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-014,d96038fb1b484431292728e6fed87daed6e4c5c78fa3fae669e2ac943453a02f,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1449,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:4:29: Double quote to prevent globbing and word splitting [shellcheck],info:4:29: Double quote to prevent globbing and word splitting,"1447: 
+1448:       - name: Enforce deterministic env
+1449:         run: |
+1450:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1451:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-015,b300efe3686432740beca64bf174e67ec84d59d3ddb8699ac91de2927e47f17c,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1449,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:5:34: Double quote to prevent globbing and word splitting [shellcheck],info:5:34: Double quote to prevent globbing and word splitting,"1447: 
+1448:       - name: Enforce deterministic env
+1449:         run: |
+1450:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1451:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-016,d1a58e8e39f38710dd14cb465be6365751d70b52e992b88f047d616b57389262,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1449,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:6:33: Double quote to prevent globbing and word splitting [shellcheck],info:6:33: Double quote to prevent globbing and word splitting,"1447: 
+1448:       - name: Enforce deterministic env
+1449:         run: |
+1450:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1451:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-017,92a2a400614e8391dcbbc8b06a2495fd36909f33425fe250c734db0149abc51d,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1449,9,ShellCheck,SC2129,style,shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck],style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects,"1447: 
+1448:       - name: Enforce deterministic env
+1449:         run: |
+1450:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1451:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P3,OPEN_UNREVIEWED,"Consider grouping consecutive append redirects in a block; preserve failure behavior and output ordering, then rerun shellcheck.",,,,,,,,,,NOT_CLOSED
+ACT-018,cfd06f83ca1223ea4ccee1c52c3631a157d89e5d324b99494d6fad2876402b8f,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1660,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck],info:1:40: Double quote to prevent globbing and word splitting,"1658: 
+1659:       - name: Enforce deterministic env
+1660:         run: |
+1661:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1662:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-019,3e2439977a5b2ea5f23d04f992037cde02fa4a3ff693b304eb5a0611273a05ab,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1660,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:2:29: Double quote to prevent globbing and word splitting [shellcheck],info:2:29: Double quote to prevent globbing and word splitting,"1658: 
+1659:       - name: Enforce deterministic env
+1660:         run: |
+1661:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1662:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-020,c9c6d8a9b48bf1598f1d8c1f3bb20403d3c8cce85ca5e442cc40a3430e94b01f,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1660,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:3:29: Double quote to prevent globbing and word splitting [shellcheck],info:3:29: Double quote to prevent globbing and word splitting,"1658: 
+1659:       - name: Enforce deterministic env
+1660:         run: |
+1661:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1662:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-021,223a09ff805245a5c3a5ba56c524d606f5182012c3f4dfded6f21199922591a0,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1660,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:4:29: Double quote to prevent globbing and word splitting [shellcheck],info:4:29: Double quote to prevent globbing and word splitting,"1658: 
+1659:       - name: Enforce deterministic env
+1660:         run: |
+1661:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1662:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-022,71ec35b5f3504cd86ae8597381c8a4a8b8bdba953099fde4abf1d0d7c0e4fa6e,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1660,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:5:34: Double quote to prevent globbing and word splitting [shellcheck],info:5:34: Double quote to prevent globbing and word splitting,"1658: 
+1659:       - name: Enforce deterministic env
+1660:         run: |
+1661:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1662:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-023,6c5fcc26096177dfd72ab45abf3623f42dff5a2e9a518dcf64dc758e9311f6aa,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1660,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:6:33: Double quote to prevent globbing and word splitting [shellcheck],info:6:33: Double quote to prevent globbing and word splitting,"1658: 
+1659:       - name: Enforce deterministic env
+1660:         run: |
+1661:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1662:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-024,dfcf382b424a68b5caa9f6e8158b6e0c13b23b6936408a776a64123a9adcfce6,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1660,9,ShellCheck,SC2129,style,shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck],style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects,"1658: 
+1659:       - name: Enforce deterministic env
+1660:         run: |
+1661:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1662:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P3,OPEN_UNREVIEWED,"Consider grouping consecutive append redirects in a block; preserve failure behavior and output ordering, then rerun shellcheck.",,,,,,,,,,NOT_CLOSED
+ACT-025,9c85263276700b4bfe45a1fa17df7136dcf3c0919ec24de6c0aaee5eb2282e06,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1698,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck],info:1:40: Double quote to prevent globbing and word splitting,"1696: 
+1697:       - name: Enforce deterministic env
+1698:         run: |
+1699:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1700:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-026,218edef4e33668e8e9609407684bb2000b35d92aba96ea3274a96c3de29f7fe5,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1698,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:2:29: Double quote to prevent globbing and word splitting [shellcheck],info:2:29: Double quote to prevent globbing and word splitting,"1696: 
+1697:       - name: Enforce deterministic env
+1698:         run: |
+1699:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1700:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-027,2b972e40d7d8df21eb35e9fce589218d881054911ed4c171b9053e3e41ea3a4b,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1698,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:3:29: Double quote to prevent globbing and word splitting [shellcheck],info:3:29: Double quote to prevent globbing and word splitting,"1696: 
+1697:       - name: Enforce deterministic env
+1698:         run: |
+1699:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1700:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-028,25052c6dfa4872922c10b76e867566ccb1995dd0d7ed6a8d7610b58d37a26871,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1698,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:4:29: Double quote to prevent globbing and word splitting [shellcheck],info:4:29: Double quote to prevent globbing and word splitting,"1696: 
+1697:       - name: Enforce deterministic env
+1698:         run: |
+1699:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1700:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-029,361225783a4b9a4ae18afde61eebd9e46cc6e9368fffa5f1c383bc035450fd3a,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1698,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:5:34: Double quote to prevent globbing and word splitting [shellcheck],info:5:34: Double quote to prevent globbing and word splitting,"1696: 
+1697:       - name: Enforce deterministic env
+1698:         run: |
+1699:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1700:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-030,dd15ce13f47828601f74238ac1ebe3a66f41085bc01fd25ec897182d207c6512,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1698,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:6:33: Double quote to prevent globbing and word splitting [shellcheck],info:6:33: Double quote to prevent globbing and word splitting,"1696: 
+1697:       - name: Enforce deterministic env
+1698:         run: |
+1699:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1700:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-031,0120ea2441cda3d730b1564680a5cd88848970cdece946dada73f68c8a2e5b04,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1698,9,ShellCheck,SC2129,style,shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck],style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects,"1696: 
+1697:       - name: Enforce deterministic env
+1698:         run: |
+1699:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1700:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P3,OPEN_UNREVIEWED,"Consider grouping consecutive append redirects in a block; preserve failure behavior and output ordering, then rerun shellcheck.",,,,,,,,,,NOT_CLOSED
+ACT-032,9e163d2cdfe529badd2bdd889e824471f25df38ef0a69e76774ae50730f04051,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1749,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck],info:1:40: Double quote to prevent globbing and word splitting,"1747: 
+1748:       - name: Enforce deterministic env
+1749:         run: |
+1750:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1751:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-033,ec8f34851585fc4f2dba515e92344eafd36dff347c8c187adefb921fe89e893d,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1749,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:2:29: Double quote to prevent globbing and word splitting [shellcheck],info:2:29: Double quote to prevent globbing and word splitting,"1747: 
+1748:       - name: Enforce deterministic env
+1749:         run: |
+1750:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1751:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-034,847de436547d6e7483926cda9b252bdc8c4601e9d62f9d05a4176be8aa7a59e6,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1749,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:3:29: Double quote to prevent globbing and word splitting [shellcheck],info:3:29: Double quote to prevent globbing and word splitting,"1747: 
+1748:       - name: Enforce deterministic env
+1749:         run: |
+1750:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1751:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-035,fa1260e6e68994d4c2a518fd6d7831a9edcd42753b486f3bff2a98a4434d291d,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1749,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:4:29: Double quote to prevent globbing and word splitting [shellcheck],info:4:29: Double quote to prevent globbing and word splitting,"1747: 
+1748:       - name: Enforce deterministic env
+1749:         run: |
+1750:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1751:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-036,6e4889a4ca6061563ecbaefb1605195d0d19d1eda4e53d41a68536ad3c71d915,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1749,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:5:34: Double quote to prevent globbing and word splitting [shellcheck],info:5:34: Double quote to prevent globbing and word splitting,"1747: 
+1748:       - name: Enforce deterministic env
+1749:         run: |
+1750:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1751:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-037,37628041f8ced2c95326490167dc67b66b47a8ed61ec1e1160820efa267fa70a,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1749,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:6:33: Double quote to prevent globbing and word splitting [shellcheck],info:6:33: Double quote to prevent globbing and word splitting,"1747: 
+1748:       - name: Enforce deterministic env
+1749:         run: |
+1750:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1751:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-038,b54651c53643f307a8567bf8e2891724db939b01feae25e9b1c8c3e4b3ebf235,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1749,9,ShellCheck,SC2129,style,shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck],style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects,"1747: 
+1748:       - name: Enforce deterministic env
+1749:         run: |
+1750:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1751:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P3,OPEN_UNREVIEWED,"Consider grouping consecutive append redirects in a block; preserve failure behavior and output ordering, then rerun shellcheck.",,,,,,,,,,NOT_CLOSED
+ACT-039,33b695a693d9af885019a0705ac3f6d1f1ce829cf2fa974008233f1cbddaf7bf,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,1776,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck],info:1:40: Double quote to prevent globbing and word splitting,"1774: 
+1775:       - name: Set Python path
+1776:         run: echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+1777: 
+1778:       - name: Generate extended dataset (MANDATORY)",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-040,01674be82560a4f13225c154f7704113a14c3a07e790186ead6be05526f0c9b6,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,2338,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck],info:1:40: Double quote to prevent globbing and word splitting,"2336: 
+2337:       - name: Enforce deterministic env
+2338:         run: |
+2339:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+2340:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-041,ada30766501c718d86de9f5ee348e0b09c8e0af373c15f1c2b91300d5779ca84,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,2338,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:2:29: Double quote to prevent globbing and word splitting [shellcheck],info:2:29: Double quote to prevent globbing and word splitting,"2336: 
+2337:       - name: Enforce deterministic env
+2338:         run: |
+2339:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+2340:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-042,a096b75a2eaf4f116b1c24175d24cfddf10a618eaa7d6cace803455a65feee2b,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,2338,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:3:29: Double quote to prevent globbing and word splitting [shellcheck],info:3:29: Double quote to prevent globbing and word splitting,"2336: 
+2337:       - name: Enforce deterministic env
+2338:         run: |
+2339:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+2340:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-043,fa0e73a723fed8a71ae0d5f8f3368d196fc04ab21c3af805836650429e241a33,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,2338,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:4:29: Double quote to prevent globbing and word splitting [shellcheck],info:4:29: Double quote to prevent globbing and word splitting,"2336: 
+2337:       - name: Enforce deterministic env
+2338:         run: |
+2339:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+2340:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-044,b871f4c314b098a61346cd0c35611da37f425d361b44a37308ff30e0d7a07fa7,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,2338,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:5:34: Double quote to prevent globbing and word splitting [shellcheck],info:5:34: Double quote to prevent globbing and word splitting,"2336: 
+2337:       - name: Enforce deterministic env
+2338:         run: |
+2339:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+2340:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-045,fb9935f963883c53b132d522585c924562094afbeabb13f6f7da51482290cdcd,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,2338,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:6:33: Double quote to prevent globbing and word splitting [shellcheck],info:6:33: Double quote to prevent globbing and word splitting,"2336: 
+2337:       - name: Enforce deterministic env
+2338:         run: |
+2339:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+2340:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-046,5f91d059865734ff286be122ba309db6ea468b8cbb3274023fdcdcf7a3a8886b,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,2338,9,ShellCheck,SC2129,style,shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck],style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects,"2336: 
+2337:       - name: Enforce deterministic env
+2338:         run: |
+2339:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+2340:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P3,OPEN_UNREVIEWED,"Consider grouping consecutive append redirects in a block; preserve failure behavior and output ordering, then rerun shellcheck.",,,,,,,,,,NOT_CLOSED
+ACT-047,976a6be09d149b49305bd1510b3122d5386b91772fde1331cfb3ab265a57a6ef,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,2802,9,ShellCheck,SC2002,style,shellcheck reported issue in this script: SC2002:style:1:12: Useless cat. Consider 'cmd < file | ..' or 'cmd file | ..' instead [shellcheck],style:1:12: Useless cat. Consider 'cmd < file | ..' or 'cmd file | ..' instead,"2800:       - name: Load Runtime Mode
+2801:         id: mode
+2802:         run: |
+2803:           MODE=$(cat core-scientific/runtime_mode.json | jq -r '.mode')
+2804:           echo ""MODE=$MODE"" >> $GITHUB_ENV",P3,OPEN_UNREVIEWED,Remove the useless cat by passing the file directly or redirecting input; verify pipeline semantics.,,,,,,,,,,NOT_CLOSED
+ACT-048,68c0c95b3d541dda17b03dfe0ca862dc2805d9a007a649edd29bd2ba4617a4a5,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,2802,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:2:22: Double quote to prevent globbing and word splitting [shellcheck],info:2:22: Double quote to prevent globbing and word splitting,"2800:       - name: Load Runtime Mode
+2801:         id: mode
+2802:         run: |
+2803:           MODE=$(cat core-scientific/runtime_mode.json | jq -r '.mode')
+2804:           echo ""MODE=$MODE"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-049,9161ba3f7a48964b597eb25f9d1878e35bd6055782f991dfbd3068b49b222496,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,3092,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck],info:1:40: Double quote to prevent globbing and word splitting,"3090: 
+3091:       - name: Enforce deterministic env
+3092:         run: |
+3093:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+3094:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-050,a1b50f490576b954c9206b92fed3bcbab9faee20e5488a251bef05f02f3ef086,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,3092,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:2:29: Double quote to prevent globbing and word splitting [shellcheck],info:2:29: Double quote to prevent globbing and word splitting,"3090: 
+3091:       - name: Enforce deterministic env
+3092:         run: |
+3093:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+3094:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-051,5037a2ad57be9c8009f56d6f1a7dc086a5dce91bfa1954cec8281e98a9af90b3,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,3092,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:3:29: Double quote to prevent globbing and word splitting [shellcheck],info:3:29: Double quote to prevent globbing and word splitting,"3090: 
+3091:       - name: Enforce deterministic env
+3092:         run: |
+3093:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+3094:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-052,a1720eabf31edacc7f793fa6c30d473f20226e8d288d2a30c1a66de7a7db3cca,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,3092,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:4:29: Double quote to prevent globbing and word splitting [shellcheck],info:4:29: Double quote to prevent globbing and word splitting,"3090: 
+3091:       - name: Enforce deterministic env
+3092:         run: |
+3093:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+3094:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-053,2f316be8becd3071fcec83144b963f8ae53fd53998bfc425e77378f309758b8a,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,3092,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:5:34: Double quote to prevent globbing and word splitting [shellcheck],info:5:34: Double quote to prevent globbing and word splitting,"3090: 
+3091:       - name: Enforce deterministic env
+3092:         run: |
+3093:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+3094:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-054,4b8846b45b58d54e16270c846fce8fd40cb70b58dba0af910a9528289b04cca0,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,3092,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:6:33: Double quote to prevent globbing and word splitting [shellcheck],info:6:33: Double quote to prevent globbing and word splitting,"3090: 
+3091:       - name: Enforce deterministic env
+3092:         run: |
+3093:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+3094:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-055,bc86391b1c00599926a08c8696e516a12bc506c38c8d0ff0df61e2be7fb3f67a,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,3092,9,ShellCheck,SC2129,style,shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck],style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects,"3090: 
+3091:       - name: Enforce deterministic env
+3092:         run: |
+3093:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+3094:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P3,OPEN_UNREVIEWED,"Consider grouping consecutive append redirects in a block; preserve failure behavior and output ordering, then rerun shellcheck.",,,,,,,,,,NOT_CLOSED
+ACT-056,fc22bf541e0354ae9933cd94818104e472cc263175f2c65e0075852b1ace78ac,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,3123,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:15:28: Double quote to prevent globbing and word splitting [shellcheck],info:15:28: Double quote to prevent globbing and word splitting,"3121: 
+3122:       - name: Cross-version consensus (truth-aware)
+3123:         run: |
+3124:           H1=$(cat node18/node_report.hash)
+3125:           H2=$(cat node20/node_report.hash)",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-057,5a9fe057231fe386efc62cdf3b7f601f7b22f617b60e2362cc35c30c83fc8a1f,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,3123,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:18:29: Double quote to prevent globbing and word splitting [shellcheck],info:18:29: Double quote to prevent globbing and word splitting,"3121: 
+3122:       - name: Cross-version consensus (truth-aware)
+3123:         run: |
+3124:           H1=$(cat node18/node_report.hash)
+3125:           H2=$(cat node20/node_report.hash)",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-058,918a7c276528ab5598e2d5da9f9bea7bfc90fb469fa6c681b9a0524eaa8897e2,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,3278,7,ShellCheck,SC2129,style,shellcheck reported issue in this script: SC2129:style:3:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck],style:3:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects,"3276:     - name: Enforce deterministic env
+3277:       shell: bash
+3278:       run: |
+3279:         set -euo pipefail
+3280: ",P3,OPEN_UNREVIEWED,"Consider grouping consecutive append redirects in a block; preserve failure behavior and output ordering, then rerun shellcheck.",,,,,,,,,,NOT_CLOSED
+ACT-059,154c5c5df4515de499e4f1a588433e38aba2197916926e652944c2ae01c140f3,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,3372,7,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck],info:1:40: Double quote to prevent globbing and word splitting,"3370: 
+3371:     - name: Set Python path
+3372:       run: echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+3373: 
+3374:     - uses: actions/cache@v5",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-060,3cfacf9b67e3a6b60f43d879816bff40553c38697b1ef7f5d4dde4de0ff42b18,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,3667,7,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck],info:1:40: Double quote to prevent globbing and word splitting,"3665: 
+3666:     - name: Export commit
+3667:       run: echo ""GITHUB_SHA=${{ github.sha }}"" >> $GITHUB_ENV  
+3668: 
+3669:     - name: TRUE External Witness Node (REAL)",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-061,738cbb05396611108593c67bc12e7dd5cea7c30ca5211a1d3ff40bcdc73a6411,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,4249,11,actionlint,IF_COND,info,"constant expression ""false"" in condition. remove the if: section [if-cond]",,"4247: 
+4248:     - name: Persistence disabled pending ruleset-safe design
+4249:       if: false
+4250:       working-directory: ${{ github.workspace }}
+4251:       shell: bash",P3,OPEN_UNREVIEWED,Remove the constant-false conditional if intentionally dead; otherwise correct the expression and add a test that exercises the intended branch.,,,,,,,,,,NOT_CLOSED
+ACT-062,3ef4a22c2cffcf966757d600449c1b9b046012083cc51dc3e37cb9f55fce3a9e,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,4756,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck],info:1:40: Double quote to prevent globbing and word splitting,"4754: 
+4755:       - name: Enforce deterministic env
+4756:         run: |
+4757:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+4758:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-063,709f4f8523587a3dc8010a071a3d3832212478337319c7b1eca83fd219defe9d,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,4756,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:2:29: Double quote to prevent globbing and word splitting [shellcheck],info:2:29: Double quote to prevent globbing and word splitting,"4754: 
+4755:       - name: Enforce deterministic env
+4756:         run: |
+4757:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+4758:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-064,5c846c66e3c9bb91871682d3714b3a9e02ed43b25dc3f12dc2c20f9531a5dcac,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,4756,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:3:29: Double quote to prevent globbing and word splitting [shellcheck],info:3:29: Double quote to prevent globbing and word splitting,"4754: 
+4755:       - name: Enforce deterministic env
+4756:         run: |
+4757:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+4758:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-065,08eaf02005373f30bef056dd865d12dec4d5f1d263c9978ea5a82f608427aba1,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,4756,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:4:29: Double quote to prevent globbing and word splitting [shellcheck],info:4:29: Double quote to prevent globbing and word splitting,"4754: 
+4755:       - name: Enforce deterministic env
+4756:         run: |
+4757:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+4758:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-066,8f9bc070c585f83ee818d6f5441b1ac97c5a0296d0b3e1f20aa880e94b237bf5,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,4756,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:5:34: Double quote to prevent globbing and word splitting [shellcheck],info:5:34: Double quote to prevent globbing and word splitting,"4754: 
+4755:       - name: Enforce deterministic env
+4756:         run: |
+4757:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+4758:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-067,d81c1a3233e2c4d6108ee838e1e33258daaa4115b7e4f014dbcb4d5133bcd484,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,4756,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:6:33: Double quote to prevent globbing and word splitting [shellcheck],info:6:33: Double quote to prevent globbing and word splitting,"4754: 
+4755:       - name: Enforce deterministic env
+4756:         run: |
+4757:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+4758:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-068,23d0a9409dca014c4af39e6a1f20766b4f188aa0b716791486c37ee951c56aba,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,4756,9,ShellCheck,SC2129,style,shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck],style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects,"4754: 
+4755:       - name: Enforce deterministic env
+4756:         run: |
+4757:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+4758:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P3,OPEN_UNREVIEWED,"Consider grouping consecutive append redirects in a block; preserve failure behavior and output ordering, then rerun shellcheck.",,,,,,,,,,NOT_CLOSED
+ACT-069,99a5e92734927f32cff756d8a410c68fca2d0f649cc28a00f2cbe395fb061c3f,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,4810,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:1:40: Double quote to prevent globbing and word splitting [shellcheck],info:1:40: Double quote to prevent globbing and word splitting,"4808: 
+4809:       - name: Enforce deterministic env
+4810:         run: |
+4811:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+4812:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-070,12b1f729dc51171372e0fd7b07925f72e488a5c01ff78a3d94f09092880efd63,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,4810,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:2:29: Double quote to prevent globbing and word splitting [shellcheck],info:2:29: Double quote to prevent globbing and word splitting,"4808: 
+4809:       - name: Enforce deterministic env
+4810:         run: |
+4811:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+4812:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-071,7b501d40b98b4e993731f27dace31e27d92cd688723f08557f3f086166cc53b1,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,4810,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:3:29: Double quote to prevent globbing and word splitting [shellcheck],info:3:29: Double quote to prevent globbing and word splitting,"4808: 
+4809:       - name: Enforce deterministic env
+4810:         run: |
+4811:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+4812:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-072,28459703147662f6bc6475224a82873d29063b72b5fb3448a994d59700f050a7,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,4810,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:4:29: Double quote to prevent globbing and word splitting [shellcheck],info:4:29: Double quote to prevent globbing and word splitting,"4808: 
+4809:       - name: Enforce deterministic env
+4810:         run: |
+4811:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+4812:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-073,fc2c1e09f6efce173144ac301abe29b64f85b00c894f672ffa10806971a75923,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,4810,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:5:34: Double quote to prevent globbing and word splitting [shellcheck],info:5:34: Double quote to prevent globbing and word splitting,"4808: 
+4809:       - name: Enforce deterministic env
+4810:         run: |
+4811:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+4812:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-074,d73dd35ba533f8c382a805cdba0227dd43030c6bdac44764d55baa0f7e3496c2,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,4810,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:6:33: Double quote to prevent globbing and word splitting [shellcheck],info:6:33: Double quote to prevent globbing and word splitting,"4808: 
+4809:       - name: Enforce deterministic env
+4810:         run: |
+4811:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+4812:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-075,7c61e982d4974be794e2c94548607b889d1e818b77238dae272a3ff8675b4f8b,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,4810,9,ShellCheck,SC2129,style,shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck],style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects,"4808: 
+4809:       - name: Enforce deterministic env
+4810:         run: |
+4811:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> $GITHUB_ENV
+4812:           echo ""PYTHONHASHSEED=42"" >> $GITHUB_ENV",P3,OPEN_UNREVIEWED,"Consider grouping consecutive append redirects in a block; preserve failure behavior and output ordering, then rerun shellcheck.",,,,,,,,,,NOT_CLOSED
+ACT-076,6b15114aa926a5c1c8dc5078f3e46f8bc78769faa72b7db6ed378e6c4f1862a7,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,4828,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:5:46: Double quote to prevent globbing and word splitting [shellcheck],info:5:46: Double quote to prevent globbing and word splitting,"4826:         env:
+4827:           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+4828:         run: |
+4829:           git config --global user.name ""github-actions""
+4830:           git config --global user.email ""actions@github.com""",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-077,1f0b7f462f122d3fba6762fcbd88b31150f99a778da85e1fcec4593885d2ca25,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,4958,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:7:46: Double quote to prevent globbing and word splitting [shellcheck],info:7:46: Double quote to prevent globbing and word splitting,"4956:         env:
+4957:           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+4958:         run: |
+4959:           set -e
+4960: ",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-078,d44c7061461ae4c96db330cf312cb074b6881916d59a48e85f326c9b90b53865,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-validation.yml,4993,9,ShellCheck,SC2034,warning,shellcheck reported issue in this script: SC2034:warning:6:1: ALLOWED_FILES appears unused. Verify use (or export if used externally) [shellcheck],warning:6:1: ALLOWED_FILES appears unused. Verify use (or export if used externally),"4991: 
+4992:       - name: Commit multi-seed outputs only
+4993:         run: |
+4994:           set -euo pipefail
+4995: ",P2,OPEN_UNREVIEWED,Verify whether the variable is truly unused or consumed externally; remove it or document/export the intended interface.,,,,,,,,,,NOT_CLOSED
+ACT-079,dad7511813085ba29861df4b2a6ead11af98b8040fe0ebe36934796e8acd0ddd,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/confirmatory-readiness-gate.yml,37,9,ShellCheck,SC2129,style,shellcheck reported issue in this script: SC2129:style:3:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck],style:3:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects,"35:       - name: Set deterministic environment
+36:         shell: bash
+37:         run: |
+38:           set -euo pipefail
+39: ",P3,OPEN_UNREVIEWED,"Consider grouping consecutive append redirects in a block; preserve failure behavior and output ordering, then rerun shellcheck.",,,,,,,,,,NOT_CLOSED
+ACT-080,0a45a90a0f85b79ffdb2ad6001ca4ae1242e24a8ae4b2d5dfeef46d89d5cc112,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/model-capacity-sweep.yml,27,9,ShellCheck,SC2129,style,shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck],style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects,"25: 
+26:       - name: Deterministic environment
+27:         run: |
+28:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> ""$GITHUB_ENV""
+29:           echo ""PYTHONHASHSEED=90210"" >> ""$GITHUB_ENV""",P3,OPEN_UNREVIEWED,"Consider grouping consecutive append redirects in a block; preserve failure behavior and output ordering, then rerun shellcheck.",,,,,,,,,,NOT_CLOSED
+ACT-081,93ff2201966bd91e9b71389aa226a9183cd51d89c45e5c54740b8642d3d0bff1,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/legacy/scientific-evaluation.yml,18,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:2:45: Double quote to prevent globbing and word splitting [shellcheck],info:2:45: Double quote to prevent globbing and word splitting,"16: 
+17:       - name: Evaluate Scores
+18:         run: |
+19:           while read score; do
+20:             p=$(python scripts/perturbation_engine.py $score)",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-082,043a02ec2ad63072227c0b6eb680b5588bda31e59263725f134cc8b8f3dc674f,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/legacy/scientific-evaluation.yml,18,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:3:40: Double quote to prevent globbing and word splitting [shellcheck],info:3:40: Double quote to prevent globbing and word splitting,"16: 
+17:       - name: Evaluate Scores
+18:         run: |
+19:           while read score; do
+20:             p=$(python scripts/perturbation_engine.py $score)",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-083,744a609108eaecf7498b63b3c437e3bbadc29d91c056b6f07f8850beb66516bd,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/legacy/scientific-evaluation.yml,18,9,ShellCheck,SC2162,info,shellcheck reported issue in this script: SC2162:info:1:7: read without -r will mangle backslashes [shellcheck],info:1:7: read without -r will mangle backslashes,"16: 
+17:       - name: Evaluate Scores
+18:         run: |
+19:           while read score; do
+20:             p=$(python scripts/perturbation_engine.py $score)",P2,OPEN_UNREVIEWED,Use read -r unless backslash interpretation is explicitly intended; add an input test with backslashes.,,,,,,,,,,NOT_CLOSED
+ACT-084,9313f5ecd046b94879b94ec16fa7f913e2ce2a7fb5138ed7e6fe9b998926e159,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/build-image.yml,26,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:2:30: Double quote to prevent globbing and word splitting [shellcheck],info:2:30: Double quote to prevent globbing and word splitting,"24:       - name: Compute lowercase image name
+25:         id: vars
+26:         run: |
+27:           OWNER_LC=$(echo ""${{ github.repository_owner }}"" | tr '[:upper:]' '[:lower:]')
+28:           echo ""owner_lc=$OWNER_LC"" >> $GITHUB_OUTPUT",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-085,55c36d3a0b50fd87c3057cd29c91971e4d9056ba4ece3069d00ec46c4bcc2af5,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/build-image.yml,34,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:2:17: Double quote to prevent globbing and word splitting [shellcheck],info:2:17: Double quote to prevent globbing and word splitting,"32:         
+33:       - name: Build image
+34:         run: |
+35:           IMAGE_NAME=$(echo ""ghcr.io/${{ github.repository }}"" | tr '[:upper:]' '[:lower:]')
+36:           docker build -t $IMAGE_NAME:latest .",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-086,040d24893f1d31ea9958ef2448d20065d56f6af9e235d843ed5609e9e22d3761,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/build-image.yml,39,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:2:13: Double quote to prevent globbing and word splitting [shellcheck],info:2:13: Double quote to prevent globbing and word splitting,"37:           
+38:       - name: Push image
+39:         run: |
+40:           IMAGE_NAME=$(echo ""ghcr.io/${{ github.repository }}"" | tr '[:upper:]' '[:lower:]')
+41:           docker push $IMAGE_NAME:latest",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-087,5a2f65ebd8b87a6e3a60956241fa3b14b3f52b7eca122db4224b69e4beef9c73,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/scientific-claim-promotion.yml,36,9,ShellCheck,SC2129,style,shellcheck reported issue in this script: SC2129:style:3:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck],style:3:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects,"34:       - name: Enforce deterministic environment
+35:         shell: bash
+36:         run: |
+37:           set -euo pipefail
+38: ",P3,OPEN_UNREVIEWED,"Consider grouping consecutive append redirects in a block; preserve failure behavior and output ordering, then rerun shellcheck.",,,,,,,,,,NOT_CLOSED
+ACT-088,5bb78ac428d3dc8a75cedf1eb1beaf7087845b22766b9d05d230901e7a86eaab,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/reproducible_research.yml,15,15,actionlint,ACTION_VERSION,warning,"the runner of ""actions/setup-python@v4"" action is too old to run on GitHub Actions. update the action's version to fix this issue [action]",,"13:     steps:
+14:       - uses: actions/checkout@v4
+15:       - uses: actions/setup-python@v4
+16:         with:
+17:           python-version: '3.10'",P2,OPEN_UNREVIEWED,Update the deprecated action major to a currently supported version and pin the verified full commit SHA; validate compatibility and rerun the workflow.,,,,,,,,,,NOT_CLOSED
+ACT-089,66002294e6e87402c5b1151c62238835c5d89c23d7408f1a245ea051e7a3fbe9,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/model-capacity-diagnostic.yml,27,9,ShellCheck,SC2129,style,shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck],style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects,"25: 
+26:       - name: Deterministic environment
+27:         run: |
+28:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> ""$GITHUB_ENV""
+29:           echo ""PYTHONHASHSEED=90210"" >> ""$GITHUB_ENV""",P3,OPEN_UNREVIEWED,"Consider grouping consecutive append redirects in a block; preserve failure behavior and output ordering, then rerun shellcheck.",,,,,,,,,,NOT_CLOSED
+ACT-090,0d6a1ffa2bb2ba410cbe0f9750f4bbd2156b05aeb416706a7a36b630c008c21d,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/primary-null-capacity-audit.yml,27,9,ShellCheck,SC2129,style,shellcheck reported issue in this script: SC2129:style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects [shellcheck],style:1:1: Consider using { cmd1; cmd2; } >> file instead of individual redirects,"25: 
+26:       - name: Deterministic environment
+27:         run: |
+28:           echo ""PYTHONPATH=$GITHUB_WORKSPACE"" >> ""$GITHUB_ENV""
+29:           echo ""PYTHONHASHSEED=90210"" >> ""$GITHUB_ENV""",P3,OPEN_UNREVIEWED,"Consider grouping consecutive append redirects in a block; preserve failure behavior and output ordering, then rerun shellcheck.",,,,,,,,,,NOT_CLOSED
+ACT-091,ea27a47119e82eed847038357c2209578b7e33e966058991d01f6d24a1ed28b9,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/cross-run-memory-verification.yml,25,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:2:30: Double quote to prevent globbing and word splitting [shellcheck],info:2:30: Double quote to prevent globbing and word splitting,"23:       - name: Compute hash
+24:         id: compute_hash
+25:         run: |
+26:           HASH=$(sha256sum core-scientific/publication-gate/report.json | awk '{print $1}')
+27:           echo ""current_hash=$HASH"" >> $GITHUB_OUTPUT",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-092,b60ccf6ec69c1aee41be7da1f5b31c5449fdf4d51272b25d3c89bd212c8b6f38,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/cross-run-memory-verification.yml,25,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:3:6: Double quote to prevent globbing and word splitting [shellcheck],info:3:6: Double quote to prevent globbing and word splitting,"23:       - name: Compute hash
+24:         id: compute_hash
+25:         run: |
+26:           HASH=$(sha256sum core-scientific/publication-gate/report.json | awk '{print $1}')
+27:           echo ""current_hash=$HASH"" >> $GITHUB_OUTPUT",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-093,3dd478ab87e9c1bdecf554590e181d3c6f61ca1aa8c33235f3dc7bd578922874,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/replication.yml,18,13,actionlint,ACTION_VERSION,warning,"the runner of ""actions/checkout@v3"" action is too old to run on GitHub Actions. update the action's version to fix this issue [action]",,"16: 
+17:     steps:
+18:     - uses: actions/checkout@v3
+19: 
+20:     - name: Set up Python",P2,OPEN_UNREVIEWED,Update the deprecated action major to a currently supported version and pin the verified full commit SHA; validate compatibility and rerun the workflow.,,,,,,,,,,NOT_CLOSED
+ACT-094,db0198d1d2f94841ba34d0b43aa31e189e09693ae816dd5253918a77a43aa3aa,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/replication.yml,21,13,actionlint,ACTION_VERSION,warning,"the runner of ""actions/setup-python@v4"" action is too old to run on GitHub Actions. update the action's version to fix this issue [action]",,"19: 
+20:     - name: Set up Python
+21:       uses: actions/setup-python@v4
+22:       with:
+23:         python-version: ""3.10""",P2,OPEN_UNREVIEWED,Update the deprecated action major to a currently supported version and pin the verified full commit SHA; validate compatibility and rerun the workflow.,,,,,,,,,,NOT_CLOSED
+ACT-095,1b89674b1680e3c276c878ce00271ececc52ca80e74bd8c55c05cf6ac202d139,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/release-lock.yml,37,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:2:22: Double quote to prevent globbing and word splitting [shellcheck],info:2:22: Double quote to prevent globbing and word splitting,"35:       - name: Extract deterministic hash
+36:         id: extract_hash
+37:         run: |
+38:           HASH=$(node -e ""console.log(require('./core-scientific/publication-gate/report.json').deterministicArtifactHash)"")
+39:           echo ""hash=$HASH"" >> $GITHUB_OUTPUT",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-096,7bc2691f360138383d54319a9fbd56e2b8a2f90c4d2c27ff2b56c21d0af65b59,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/release-lock.yml,43,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:3:25: Double quote to prevent globbing and word splitting [shellcheck],info:3:25: Double quote to prevent globbing and word splitting,"41:       - name: Check if tag exists
+42:         id: check_tag
+43:         run: |
+44:           TAG=""v1.0.0-${{ steps.extract_hash.outputs.hash }}""
+45:           if git rev-parse ""$TAG"" >/dev/null 2>&1; then",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED
+ACT-097,bd32a3cf244debf417e2ebd64de7fa2f7f95e933a89c755a6bb8614ebad91f89,actionlint 1.7.12 + ShellCheck embedded diagnostics,ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876,43611097357,14120366991,.github/workflows/release-lock.yml,43,9,ShellCheck,SC2086,info,shellcheck reported issue in this script: SC2086:info:5:26: Double quote to prevent globbing and word splitting [shellcheck],info:5:26: Double quote to prevent globbing and word splitting,"41:       - name: Check if tag exists
+42:         id: check_tag
+43:         run: |
+44:           TAG=""v1.0.0-${{ steps.extract_hash.outputs.hash }}""
+45:           if git rev-parse ""$TAG"" >/dev/null 2>&1; then",P2,OPEN_UNREVIEWED,"Review the exact shell variable and intended word-splitting/globbing. Quote scalar expansions or use arrays where appropriate; if splitting is intentional, document it and test spaces, wildcard characters, and empty values.",,,,,,,,,,NOT_CLOSED

@@ -1,0 +1,12 @@
+﻿check_name,score,reason,details_json,documentation_url,status
+Binary-Artifacts,10,no binaries found in the repo,null,https://github.com/ossf/scorecard/blob/61e84743356275f6ffca23b1b2f2cb945e19eb96/docs/checks.md#binary-artifacts,OPEN_REVIEW_REQUIRED
+Dangerous-Workflow,10,no dangerous workflow patterns detected,null,https://github.com/ossf/scorecard/blob/61e84743356275f6ffca23b1b2f2cb945e19eb96/docs/checks.md#dangerous-workflow,OPEN_REVIEW_REQUIRED
+Dependency-Update-Tool,10,update tool detected,null,https://github.com/ossf/scorecard/blob/61e84743356275f6ffca23b1b2f2cb945e19eb96/docs/checks.md#dependency-update-tool,OPEN_REVIEW_REQUIRED
+Fuzzing,0,project is not fuzzed,null,https://github.com/ossf/scorecard/blob/61e84743356275f6ffca23b1b2f2cb945e19eb96/docs/checks.md#fuzzing,OPEN_REVIEW_REQUIRED
+License,9,license file detected,null,https://github.com/ossf/scorecard/blob/61e84743356275f6ffca23b1b2f2cb945e19eb96/docs/checks.md#license,OPEN_REVIEW_REQUIRED
+Packaging,10,packaging workflow detected,null,https://github.com/ossf/scorecard/blob/61e84743356275f6ffca23b1b2f2cb945e19eb96/docs/checks.md#packaging,OPEN_REVIEW_REQUIRED
+Pinned-Dependencies,3,dependency not pinned by hash detected -- score normalized to 3,null,https://github.com/ossf/scorecard/blob/61e84743356275f6ffca23b1b2f2cb945e19eb96/docs/checks.md#pinned-dependencies,OPEN_REVIEW_REQUIRED
+SAST,10,SAST tool detected: CodeQL,null,https://github.com/ossf/scorecard/blob/61e84743356275f6ffca23b1b2f2cb945e19eb96/docs/checks.md#sast,OPEN_REVIEW_REQUIRED
+Security-Policy,0,security policy file not detected,null,https://github.com/ossf/scorecard/blob/61e84743356275f6ffca23b1b2f2cb945e19eb96/docs/checks.md#security-policy,OPEN_REVIEW_REQUIRED
+Token-Permissions,0,detected GitHub workflow tokens with excessive permissions,null,https://github.com/ossf/scorecard/blob/61e84743356275f6ffca23b1b2f2cb945e19eb96/docs/checks.md#token-permissions,OPEN_REVIEW_REQUIRED
+Vulnerabilities,0,73 existing vulnerabilities detected,null,https://github.com/ossf/scorecard/blob/61e84743356275f6ffca23b1b2f2cb945e19eb96/docs/checks.md#vulnerabilities,OPEN_REVIEW_REQUIRED
