@@ -1,0 +1,318 @@
+{
+  "schema": "HCM_TYPE1_AD106_POPULATION_REGISTER_V6",
+  "status": "NOV14_SOURCE_PAIR_BOUND; PREFLIGHT_BATCH_AND_ASSURANCE_RERUN_REQUIRED; INDEPENDENT_HUMAN_REVIEW_PENDING",
+  "authority": "NONE",
+  "repository": "AhmedPeaRL/maximal-one",
+  "review_branch": "refs/heads/review/type1-v4-remediation",
+  "source_identity_addendum": "protocol/TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V7_20261114.json",
+  "workflow_definition_commit_for_inventory_and_snapshot": "d26164cacef31322e6c6d7d0d89bf50c36f41bdf",
+  "target": {
+    "ref": "refs/audit/target",
+    "commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+    "occurrence_count": 1800,
+    "distinct_inventory_paths": 271,
+    "reconciliation_status": "RECONCILED",
+    "reconciliation_sha256": "5118de3094fc16bacaa7c2b4258f463a8242980cfa47058c396d4c0040336705"
+  },
+  "main_comparison": {
+    "ref": "refs/audit/main",
+    "commit": "160acfc8600b66c7300f2fd0caa500972de740b8",
+    "occurrence_count": 939,
+    "distinct_inventory_paths": 199,
+    "reconciliation_status": "RECONCILED",
+    "reconciliation_sha256": "05628821622d102b9fc2e7d146a07c0c9f4353e5d3ecd21d5efa7178c9645f25",
+    "previous_main_comparison": {
+      "commit": "982c6a10f1bd4262a9915f40a3c821adfd5c58c2",
+      "occurrence_count": 865,
+      "distinct_inventory_paths": 196,
+      "status": "SUPERSEDED_BY_CURRENT_MAIN_COMPARISON"
+    },
+    "historical_previous_main": {
+      "commit": "e6234f6895e3bc6c10b089a5e4f741f2143bb02f",
+      "occurrence_count": 789,
+      "distinct_inventory_paths": 193,
+      "status": "HISTORICAL_NOT_CURRENT"
+    },
+    "historical_earlier_main": {
+      "commit": "fe949fc4a11d245f08846d7eece97e8c1d26a3f8",
+      "occurrence_count": 728,
+      "status": "HISTORICAL_NOT_CURRENT"
+    },
+    "comparison_decomposition": {
+      "previous_commit": "982c6a10f1bd4262a9915f40a3c821adfd5c58c2",
+      "previous_occurrence_count": 865,
+      "current_commit": "160acfc8600b66c7300f2fd0caa500972de740b8",
+      "current_occurrence_count": 939,
+      "added_occurrences": 74,
+      "removed_occurrences": 0,
+      "added_occurrences_by_path": {
+
+        ".github/workflows/type1-human-overlay-preflight-v5.yml": 30,
+        ".github/workflows/type1-software-assurance-v3.yml": 15,
+        ".github/workflows/type1-target-batch-generation-v4.yml": 29
+      },
+      "interpretation": "The 74 added main-comparison occurrences are fully located in the three workflow-dispatch entry-point workflows added to main. All previous 865 occurrence IDs remain; zero removed; common record payloads are identical except commit_sha. Preserve all 939 records. This is audit-workflow self-inclusion, not scientific/application-code growth."
+    }
+  },
+  "inventory": {
+    "workflow_run_id": "43573264494",
+    "workflow_job_id": "132381976964",
+    "workflow_path": ".github/workflows/type1-v3-v4-governance-audit.yml",
+    "workflow_event": "workflow_dispatch",
+    "workflow_conclusion": "success",
+    "workflow_head_branch": "review/type1-v4-remediation",
+    "workflow_definition_commit": "d26164cacef31322e6c6d7d0d89bf50c36f41bdf",
+    "artifact_id": "14105760451",
+    "artifact_name": "type1-v3-v4-governance-inventory-43463451496-1",
+    "artifact_archive_sha256": "509a944552daabfd1e4a33c0fdb234af5efd630702a4f05af9fac742a70e2cd8",
+    "artifact_api_digest": "sha256:501a1eab8f33e02734720b38a1fa59e05acc9f13450c3082ac59e047ffd2954d",
+    "reference_inventory_sha256": "f528652046f4d855e4dd1abd303a2d85ec06740667d90f42ae206451d60ed5e5",
+    "target_ledger_sha256": "04bfc8e6fffd8ec67084a501c455e3be159140211e18380d9826a216b6f2cd5b",
+    "main_ledger_sha256": "e50b7f2d8067d238d6e30338a802af40f581d005c382cddcef1eadf43ac93290",
+    "provenance_sha256": "0d3a5bae37a86d1c276cda08114db9b20c12ef5b176edd25fa2079e517fc24e1",
+    "sha256_register_sha256": "a3ecc417ee828a7ead558aa79fea30ccb1b3297234a6e2c97721002e46472b32",
+    "target_reconciliation_sha256": "5118de3094fc16bacaa7c2b4258f463a8242980cfa47058c396d4c0040336705",
+    "main_reconciliation_sha256": "05628821622d102b9fc2e7d146a07c0c9f4353e5d3ecd21d5efa7178c9645f25",
+    "target_occurrence_count": 1800,
+    "main_occurrence_count": 939,
+    "target_inventory_path_count": 271,
+    "main_inventory_path_count": 199,
+    "source_provenance_verified": true,
+    "target_and_main_ledgers_reconciled": true
+  },
+  "snapshot": {
+    "workflow_run_id": "43573374439",
+    "workflow_job_id": "132382304038",
+    "workflow_path": ".github/workflows/type1-review-snapshot.yml",
+    "workflow_event": "workflow_dispatch",
+    "workflow_conclusion": "success",
+    "workflow_head_branch": "review/type1-v4-remediation",
+    "workflow_definition_commit": "d26164cacef31322e6c6d7d0d89bf50c36f41bdf",
+    "artifact_id": "14104988338",
+    "artifact_name": "type1-exact-review-snapshot-43463683646-1",
+    "artifact_archive_sha256": "78d5ac9ca0dee723255f4684bf0a901613de19c4fec27bb9b621197ae8e1e79e",
+    "artifact_api_digest": "sha256:6d128cd5c8a6a40e71f26d1687d6191290fa96b09a54598036cbfa8a966d28e3",
+    "manifest_sha256": "e879249b18b277dbb8e704fdae656c30819ca24fac0a9b715074407915548d7f",
+    "inner_snapshot_zip_sha256": "b2925c80e974ebb4644323cba852a1a832dc63ed2488165d8af48755df29bf07",
+    "three_way_identity_certificate_sha256": "9c3a84c4540bcbcffdf1b2114a577679c15243099816966973e2e15d3da452d1",
+    "extraction_verification_sha256": "2e1f6c1134dd01d1cb39ce184865212f621bab3bf250aee0d6376f71971a31ef",
+    "selected_file_count": 289,
+    "present_file_count": 289,
+    "extraction_checked_file_count": 292,
+    "extraction_verified": true,
+    "missing_scope_paths": [],
+    "missing_required_paths": [],
+    "inventory_workflow_run_id": "43573264494",
+    "inventory_artifact_id": "14105760451",
+    "inventory_sha256": "f528652046f4d855e4dd1abd303a2d85ec06740667d90f42ae206451d60ed5e5"
+  },
+  "batch_generation": {
+    "required_source_inventory_run_id": "43573264494",
+    "required_source_inventory_artifact_id": "14105760451",
+    "required_inventory_sha256": "f528652046f4d855e4dd1abd303a2d85ec06740667d90f42ae206451d60ed5e5",
+    "required_target_ledger_sha256": "04bfc8e6fffd8ec67084a501c455e3be159140211e18380d9826a216b6f2cd5b",
+    "required_main_commit": "160acfc8600b66c7300f2fd0caa500972de740b8",
+    "required_main_ledger_sha256": "e50b7f2d8067d238d6e30338a802af40f581d005c382cddcef1eadf43ac93290",
+    "required_population_register": "protocol/TYPE1_AD106_POPULATION_REGISTER_V6.json",
+    "required_batch_count": 72,
+    "required_occurrence_count": 1800,
+    "workflow_path": ".github/workflows/type1-target-batch-generation-v4.yml",
+    "last_run_id": null,
+    "last_artifact_id": null,
+    "last_run_disposition": "NOT_YET_EXECUTED_FOR_NOV14_SOURCE_PAIR",
+    "prior_v3_run_id": "43278814319",
+    "prior_v3_artifact_id": "13971981832",
+    "prior_v3_disposition": "VALID_FOR_PREVIOUS_V4_SOURCE_PAIR_ONLY_NOT_CURRENT",
+    "prior_v2_run_id": "43281787384",
+    "prior_v2_artifact_id": "13972343443",
+    "prior_v2_disposition": "VALID_FOR_OLDER_SOURCE_PAIR_ONLY_NOT_CURRENT",
+    "legacy_v1_failed_run_id": "43281405115",
+    "legacy_v1_disposition": "FAILED_MISSING_REQUIRED_CLI_ARGUMENTS_NOT_BATCH_EVIDENCE"
+  },
+  "preflight": {
+    "required_workflow": ".github/workflows/type1-human-overlay-preflight-v5.yml",
+    "required_csv": "adjudication/incoming/first-three-occurrences-v5.csv",
+    "required_csv_sha256": "01d9abcc6a1e0b6f082ced6115f44d7b8c596df775af2233dab11d3eb5954e93",
+    "required_inventory_run_id": "43573264494",
+    "required_inventory_artifact_id": "14105760451",
+    "required_snapshot_run_id": "43573374439",
+    "required_snapshot_artifact_id": "14104988338",
+    "last_run_id": null,
+    "last_artifact_id": null,
+    "last_run_disposition": "NOT_YET_EXECUTED_FOR_NOV14_SOURCE_PAIR",
+    "prior_v4_run_id": "43285036238",
+    "prior_v4_artifact_id": "13974796188",
+    "prior_v4_disposition": "VALID_AT_EXECUTION_FOR_PREVIOUS_SOURCE_PAIR; SUPERSEDED_BY_INVENTORY_432859_AND_SNAPSHOT_432861",
+    "prior_v3_run_id": "43282131463",
+    "prior_v3_artifact_id": "13972333544",
+    "prior_v3_disposition": "OLDER_SOURCE_PAIR_ONLY",
+    "prior_v2_run_id": "43282035611",
+    "prior_v2_artifact_id": "13972742073",
+    "prior_v2_disposition": "OLDER_SOURCE_PAIR_ONLY",
+    "prior_v1_run_id": "43282259219",
+    "prior_v1_artifact_id": "13972942067",
+    "prior_v1_disposition": "PREFLIGHT_ONLY_ZERO_ADJUDICATIONS"
+  },
+  "automated_assurance": {
+    "evidence_matrix_path": "review/TYPE1_HIGH_IMPACT_SOFTWARE_ASSURANCE_EVIDENCE_MATRIX_V2.csv",
+    "status": "CURRENT_NOV14_SOURCE_PAIR_SOFTWARE_ASSURANCE_V3_RERUN_REQUIRED; PRIOR_FINDINGS_RETAINED_FOR_TRIAGE",
+    "matrix_rows_prepared": 1800,
+    "high_priority_rows_flagged": 374,
+    "matrix_sha256_local_draft": "968f6b69be77ff9336c8cc94c3df0c6aa6bbbc4b6e09928c8a94f4d4ad811cf6",
+    "target_commit_scan_required": true,
+    "assurance_workflow_path": ".github/workflows/type1-software-assurance-v3.yml",
+    "prior_v2_run_id": "43284828022",
+    "prior_v2_artifact_id": "13974288142",
+    "prior_v2_disposition": "EXACT_TARGET_COMMIT_SCANNED_289_SNAPSHOT_FILES; SOURCE_PAIR_METADATA_SUPERSEDED; FINDINGS_REMAIN_RELEVANT_TO_UNCHANGED_TARGET_COMMIT",
+    "prior_v2_actionlint_exit_code": 123,
+    "prior_v2_actionlint_diagnostic_headers": 97,
+    "prior_v2_shellcheck_diagnostics": 92,
+    "prior_v2_zizmor_exit_code": 14,
+    "prior_v2_zizmor_findings": 205,
+    "prior_v2_zizmor_severity": {
+      "high": 164,
+      "medium": 37,
+      "informational": 4
+    },
+    "prior_v2_scorecard_exit_code": 0,
+    "prior_v2_scorecard_score": 5.7,
+    "prior_v2_scorecard_reported_vulnerabilities": 71,
+    "prior_v1_run_id": "43281830641",
+    "prior_v1_artifact_id": "13973366106",
+    "prior_v1_disposition": "PRELIMINARY_ONLY_WRONG_SCAN_COMMIT_REVIEW_BRANCH_NOT_TARGET",
+    "full_call_graph_review": "OPEN",
+    "occurrence_local_evidence_required": true,
+    "generic_test_pass_is_not_sufficient_for_finding_closure": true
+  },
+  "human_review": {
+    "software_assurance_review": "PENDING_CURRENT_SOURCE_PAIR_SOFTWARE_ASSURANCE_V3_AND_INDEPENDENT_REVIEW",
+    "reviewer_expertise_and_conflicts_required": true,
+    "reviewed_and_not_reviewed_scope_required": true,
+    "email_sent_or_received_is_not_review_approval": true,
+    "independent_statistical_review": "SEPARATE PACKAGE; PENDING; HISTORICAL_WILSON_CALIBRATION_NOT_PASSED"
+  },
+  "historical_records_preserved": [
+    "protocol/TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V1_20261112.json",
+    "protocol/TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V2_20261112.json",
+    "protocol/TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V3_20261112.json",
+    "protocol/TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V4_20261112.json",
+    "protocol/TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V5_20261112.json",
+    "protocol/TYPE1_AD106_POPULATION_REGISTER_V1.json",
+    "protocol/TYPE1_AD106_POPULATION_REGISTER_V2.json",
+    "protocol/TYPE1_AD106_POPULATION_REGISTER_V3.json",
+    "protocol/TYPE1_AD106_POPULATION_REGISTER_V4.json"
+  ],
+  "authority_invariants": {
+    "protocol_freeze": "NOT_FROZEN",
+    "formal_calibration_authorized": false,
+    "confirmatory_execution_authorized": false,
+    "claim_support": false,
+    "promotion_authority": false,
+    "human_adjudication_applied": false
+  },
+  "interpretation_limit": "This register binds the latest verified target inventory, latest main comparison, and exact target snapshot. It does not adjudicate occurrences, establish execution safety, authorize protocol freeze, formal calibration, confirmatory execution, scientific claim support, or promotion.",
+  "cross_version_target_ledger_comparison": {
+    "old_inventory_run_id": "43285928305",
+    "old_inventory_artifact_id": "13975650287",
+    "old_inventory_sha256": "57623b58ca2025872be7d504012232b4f5874b76706af6d82c5b81bd2a344e77",
+    "old_target_ledger_sha256": "10c45fcaaec47819dc59df75d6f28a801022d185187933f10c665d858016b5e8",
+    "new_inventory_run_id": "43463451496",
+    "new_inventory_artifact_id": "14057845363",
+    "new_inventory_sha256": "f528652046f4d855e4dd1abd303a2d85ec06740667d90f42ae206451d60ed5e5",
+    "new_target_ledger_sha256": "04bfc8e6fffd8ec67084a501c455e3be159140211e18380d9826a216b6f2cd5b",
+    "occurrence_id_set_equal": true,
+    "occurrence_record_payloads_equal": true,
+    "occurrence_count": 1800,
+    "interpretation": "All 1800 target occurrence IDs and record payloads are identical between the previous V4 inventory and this V5 source identity. The target ledger SHA changed because its inventory identity envelope changed; no target occurrence payload changed."
+  },
+  "known_prior_outputs": {
+    "governance_tests": {
+      "run_id": "43280802583",
+      "job_id": "131401238445",
+      "conclusion": "success",
+      "tests_passed": 44,
+      "artifact": "NONE",
+      "interpretation": "Governance and negative-gate tests only; no human adjudication."
+    },
+    "implementation_snapshot": {
+      "run_id": "43280973606",
+      "artifact_id": "13972975802",
+      "file_count": 18,
+      "interpretation": "Curated implementation snapshot only; not the 289-file exact target snapshot."
+    },
+    "priority_guard": {
+      "run_id": "43281950640",
+      "artifact_id": "13973407050",
+      "mutations_tested": 23,
+      "mutations_rejected": 23,
+      "interpretation": "Engineering negative-gate evidence only; not occurrence adjudication or statistical calibration."
+    },
+    "software_assurance_v1": {
+      "run_id": "43281830641",
+      "artifact_id": "13973366106",
+      "scan_commit": "d7fdba128f88d9e7147dad92b52e101cf01af4f6",
+      "target_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+      "interpretation": "Wrong scan commit for target-scope assurance; preliminary only."
+    },
+    "software_assurance_v2": {
+      "run_id": "43284828022",
+      "artifact_id": "13974288142",
+      "scan_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+      "interpretation": "Exact target-commit scan, but bound to previous inventory/snapshot pair; findings require triage."
+    },
+    "batch_v2": {
+      "run_id": "43281787384",
+      "artifact_id": "13972343443",
+      "main_commit": "fe949fc4a11d245f08846d7eece97e8c1d26a3f8",
+      "interpretation": "72 batches / 1800 occurrences; older source pair only."
+    },
+    "batch_v3": {
+      "run_id": "43278814319",
+      "artifact_id": "13971981832",
+      "main_commit": "e6234f6895e3bc6c10b089a5e4f741f2143bb02f",
+      "interpretation": "72 batches / 1800 occurrences; previous V4 source pair only."
+    },
+    "batch_legacy_v1": {
+      "run_id": "43281405115",
+      "artifact_id": null,
+      "conclusion": "failure",
+      "interpretation": "Legacy CLI omitted --inventory, --provenance and --artifact-metadata; not batch evidence."
+    },
+    "preflight_v1": {
+      "run_id": "43282259219",
+      "artifact_id": "13972942067",
+      "adjudications_applied": 0,
+      "interpretation": "Preflight-only despite workflow title containing Apply."
+    },
+    "preflight_v2": {
+      "run_id": "43282035611",
+      "artifact_id": "13972742073",
+      "adjudications_applied": 0,
+      "interpretation": "Older source pair only."
+    },
+    "preflight_v3": {
+      "run_id": "43282131463",
+      "artifact_id": "13972333544",
+      "adjudications_applied": 0,
+      "interpretation": "Older source pair only."
+    },
+    "preflight_v4": {
+      "run_id": "43285036238",
+      "artifact_id": "13974796188",
+      "adjudications_applied": 0,
+      "inventory_run_id": "43249081611",
+      "snapshot_run_id": "43249503611",
+      "interpretation": "Valid at execution for previous pair; superseded by newer inventory/snapshot."
+    },
+    "latest_inventory": {
+      "run_id": "43285928305",
+      "artifact_id": "13975650287",
+      "conclusion": "success"
+    },
+    "latest_snapshot": {
+      "run_id": "43286179153",
+      "artifact_id": "13975170830",
+      "conclusion": "success"
+    }
+  }
+}
