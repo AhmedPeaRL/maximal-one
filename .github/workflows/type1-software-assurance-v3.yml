@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Load immutable source identities from Population Register V4
+      - name: Load immutable source identities from Population Register V6
         id: source
         shell: bash
         run: |
@@ -32,7 +32,7 @@ jobs:
           python - <<'PY'
           import json, os
           from pathlib import Path
-          p = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V5.json").read_text())
+          p = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V6.json").read_text())
           i, s = p["inventory"], p["snapshot"]
           values = {
             "target_commit": p["target"]["commit"],
