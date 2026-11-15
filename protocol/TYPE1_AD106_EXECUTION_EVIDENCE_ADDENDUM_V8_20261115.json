@@ -1,0 +1,145 @@
+{
+  "schema": "HCM_TYPE1_AD106_EXECUTION_EVIDENCE_ADDENDUM_V8",
+  "recorded_on": "2026-11-15",
+  "repository": "AhmedPeaRL/maximal-one",
+  "status": "EXECUTION_EVIDENCE_RECORDED_HUMAN_REVIEW_AND_SCANNER_TRIAGE_OPEN",
+  "authority": "NONE",
+
+  "target_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+  "workflow_definition_commit": "3a158e8f902179cdd543e92153032ae409faaea0",
+  "main_commit_last_observed": "160acfc8600b66c7300f2fd0caa500972de740b8",
+
+  "v7_source_pair_used_by_downstream_runs": {
+    "inventory_run_id": "43573264494",
+    "inventory_artifact_id": "14105760451",
+    "inventory_archive_sha256": "509a944552daabfd1e4a33c0fdb234af5efd630702a4f05af9fac742a70e2cd8",
+    "snapshot_run_id": "43573374439",
+    "snapshot_artifact_id": "14104988338",
+    "snapshot_manifest_sha256": "e879249b18b277dbb8e704fdae656c30819ca24fac0a9b715074407915548d7f",
+    "snapshot_inner_zip_sha256": "b2925c80e974ebb4644323cba852a1a832dc63ed2488165d8af48755df29bf07",
+    "snapshot_certificate_sha256": "9c3a84c4540bcbcffdf1b2114a577679c15243099816966973e2e15d3da452d1",
+    "inventory_sha256": "f528652046f4d855e4dd1abd303a2d85ec06740667d90f42ae206451d60ed5e5",
+    "target_ledger_sha256": "04bfc8e6fffd8ec67084a501c455e3be159140211e18380d9826a216b6f2cd5b",
+    "main_ledger_sha256": "e50b7f2d8067d238d6e30338a802af40f581d005c382cddcef1eadf43ac93290"
+  },
+
+  "downstream_executions": {
+    "preflight_v5": {
+      "run_id": "43657736326",
+      "job_id": "132639937335",
+      "artifact_id": "14138752865",
+      "status": "CURRENT_SOURCE_PAIR_VERIFIED_PENDING_INDEPENDENT_HUMAN_ADJUDICATION",
+      "row_count": 3,
+      "all_rows_open": true,
+      "all_rows_pending": true,
+      "adjudications_applied": 0,
+      "authority": "NONE"
+    },
+    "batch_generation_v4": {
+      "run_id": "43657698203",
+      "job_id": "132639818574",
+      "artifact_id": "14138152613",
+      "batch_count": 72,
+      "batch_size": 25,
+      "expected_occurrences": 1800,
+      "status": "NAVIGATION_ONLY_NOT_ADJUDICATED",
+      "authority": "NONE"
+    },
+    "software_assurance_v3": {
+      "run_id": "43657593010",
+      "job_id": "132639488646",
+      "artifact_id": "14138612930",
+      "workflow_definition_commit": "3a158e8f902179cdd543e92153032ae409faaea0",
+      "scan_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+      "actionlint_exit_code": 123,
+      "actionlint_diagnostics": 97,
+      "zizmor_exit_code": 14,
+      "zizmor_findings": 205,
+      "zizmor_high": 164,
+      "zizmor_medium": 37,
+      "zizmor_info": 4,
+      "scorecard_exit_code": 0,
+      "scorecard_score": 5.7,
+      "reported_vulnerabilities": 73,
+      "status": "FINDINGS_REQUIRE_TRIAGE"
+    }
+  },
+
+  "latest_inventory_snapshot_refresh": {
+    "purpose": "VERIFICATION_ONLY_DUPLICATE_REFRESH",
+    "inventory_run_id": "43724022202",
+    "inventory_job_id": "132841900677",
+    "inventory_artifact_id": "14165228673",
+    "inventory_archive_sha256": "e3c9630260c02676b428a497289cc1f97da8951f2e2e3a0979761e26314bd4",
+    "inventory_json_sha256": "f528652046f4d855e4dd1abd303a2d85ec06740667d90f42ae206451d60ed5e5",
+    "snapshot_run_id": "43724143560",
+    "snapshot_job_id": "132842282894",
+    "snapshot_artifact_id": "14166116356",
+    "snapshot_archive_sha256": "63e8a0d3b5107da4ec3d30bda0e0cf79e9c58c59a508bf31df87c2ebe2177c72",
+    "snapshot_manifest_sha256": "849c12ea44645264e9c0cbff08f78686dffb33450c3988dee289040f1f26ceba",
+    "snapshot_inner_zip_sha256": "ed5751c966aa874d2d4d3fc2ee2f4b657579281e192aaf0381afe1453768aeb8",
+    "snapshot_certificate_sha256": "4ea720b134cd8cc09304300e2037ba2871bb9709bcea7fbf6f2b19b5b131ccd8",
+    "snapshot_extraction_verification_sha256": "2e1f6c1134dd01d1cb39ce184865212f621bab3bf250aee0d6376f71971a31ef",
+    "selected_file_count": 289,
+    "present_file_count": 289,
+    "target_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+    "main_commit": "160acfc8600b66c7300f2fd0caa500972de740b8",
+    "workflow_definition_commit": "3a158e8f902179cdd543e92153032ae409faaea0",
+    "downstream_adoption": "NOT_ADOPTED_BY_V7_PREFLIGHT_OR_BATCH_RUNS"
+  },
+
+  "scientific_pipeline": {
+    "run_id": "43657414799",
+    "final_gate_job_id": "132645513412",
+    "final_gate_artifact_id": "14139621242",
+    "status": "BLOCKED",
+    "primary_null_p_value": 0.999001,
+    "primary_null_exceedances": 999,
+    "primary_null_samples": 1000,
+    "selected_ar_order": 20,
+    "boundary_fraction": 0.947,
+    "permutation_p_value": 0.0002,
+    "permutation_role": "DIAGNOSTIC_ONLY",
+    "eligible_secondary_domains": 0,
+    "required_secondary_domains": 2,
+    "claim_support": false,
+    "promotion_authority": false,
+    "public_report_retrieval": "UNAVAILABLE_HTTP_503",
+    "independent_scientific_replication": false,
+    "report_hash_semantics_reconciliation_required": true
+  },
+
+  "external_network_effects": {
+    "self_dispatch_step": "SKIPPED",
+    "public_anchor_steps": "SKIPPED",
+    "sweep_plus_job": "SKIPPED",
+    "external_uncontrolled_witness": {
+      "executed": true,
+      "script": "analysis/external_uncontrolled_witness.py",
+      "endpoints": [
+        "https://httpbin.org/post",
+        "https://postman-echo.com/post"
+      ],
+      "payload_fields": ["timestamp", "sha256_hash"],
+      "per_endpoint_http_statuses": "NOT_RETAINED_IN_AVAILABLE_ARTIFACT",
+      "scientific_evidence": false
+    },
+    "commit_fingerprint_step": "SKIPPED_ON_REVIEW_BRANCH"
+  },
+
+  "human_adjudication": {
+    "occurrences": 1800,
+    "batches": 72,
+    "adjudications_applied": 0,
+    "status": "OPEN"
+  },
+
+  "authority_invariants": {
+    "protocol_freeze": "NOT_FROZEN",
+    "formal_calibration_authorized": false,
+    "confirmatory_execution_authorized": false,
+    "claim_support": false,
+    "promotion_authority": false,
+    "main_write_evidence_in_reviewed_runs": "NONE_OBSERVED"
+  }
+}
