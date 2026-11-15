@@ -81,7 +81,7 @@ jobs:
           chmod +x tools/actionlint tools/zizmor tools/scorecard
           tools/actionlint -version > reports/actionlint-version.txt
           tools/zizmor --version > reports/zizmor-version.txt
-          tools/scorecard --version > reports/scorecard-version.txt
+          tools/scorecard version > reports/scorecard-version.txt
 
       - name: Run actionlint on exact target workflows
         shell: bash
