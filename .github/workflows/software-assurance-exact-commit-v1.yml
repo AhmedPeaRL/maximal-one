@@ -61,7 +61,7 @@ jobs:
           find downloads/actionlint -type f -name actionlint -exec cp {} tools/actionlint \;
 
           curl -fsSL \
-            https://github.com/zizmorcore/zizmor/releases/download/v1.30.1/zizmor-v1.30.1-x86_64-unknown-linux-gnu.tar.gz \
+            https://github.com/zizmorcore/zizmor/releases/download/v1.30.1/zizmor-x86_64-unknown-linux-gnu.tar.gz \
             -o downloads/zizmor.tar.gz
           echo "e65324f4430c2717591937edcec90ccbefaf14c174f8ec9415e03ca875b46e1a  downloads/zizmor.tar.gz" \
             | sha256sum -c -
