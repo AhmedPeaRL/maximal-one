@@ -126,6 +126,38 @@
       "status": "INELIGIBLE_FOR_REPLICATION",
       "replication_eligible": false,
       "reason": "Series length is below the declared replication minimum."
+    },
+    "sunspots": {
+      "path": "real-data/sunspots_full.csv",
+      "status": "PRIMARY_SOURCE_IDENTITY_CANDIDATE_PENDING_RAW_COMPARISON",
+      "replication_eligible": false,
+      "source_identifier": "WDC-SILSO SN_m_tot_V2.0 monthly mean total sunspot number",
+      "source_url_or_citation": "https://www.sidc.be/SILSO/infosnmtot ; DOI: 10.24414/qnza-ac80",
+      "physical_domain": "Solar and heliophysics observations",
+      "observation_variable": "Monthly mean total sunspot number",
+      "sampling_cadence": "Monthly",
+      "sampling_regularness": "The committed file has 3328 consecutive monthly rows with no duplicate months or gaps. The official source identifies February 1824 as historically interpolated; preserve this documented exception.",
+      "timestamp_presence": "Year, month and decimal-year fields are present.",
+      "time_order": "Strictly increasing unique monthly year-month keys; verified in the committed file.",
+      "observation_window": {
+        "start_inclusive": "1749-01-01",
+        "end_inclusive": "2026-04-01"
+      },
+      "missingness_policy": "Preserve official missing-value sentinels and definitive/provisional flags. Do not impute.",
+      "preprocessing_policy": "Preserve the committed analysis file unchanged until full row-wise comparison with the official WDC-SILSO CSV has completed. Retain the official raw TXT and CSV snapshots separately.",
+      "known_shared_nuisance_with_primary": "NOT_APPLICABLE: this is the primary solar dataset, not a secondary replication domain.",
+      "reason": "Candidate WDC-SILSO identity is strongly supported by schema, date range and inspected boundary values. Full raw-source prefix comparison remains pending. This record does not grant secondary replication eligibility.",
+      "source_snapshot_metadata": {
+        "current_file_git_blob_sha1": "32b2c5d229ce98a3c8d2f4ee500e0a70059dfea0",
+        "current_file_sha256": null,
+        "current_file_rows": 3328,
+        "official_csv_snapshot_path": "real-data/source-snapshots/wdc_silso/SN_m_tot_V2.0.csv",
+        "official_csv_sha256": null,
+        "official_txt_snapshot_path": "real-data/source-snapshots/wdc_silso/SN_m_tot_V2.0.txt",
+        "official_txt_sha256": null,
+        "retrieved_at_utc": null,
+        "full_prefix_comparison": "PENDING"
+      }
     }
   },
   "selection_rule": {
