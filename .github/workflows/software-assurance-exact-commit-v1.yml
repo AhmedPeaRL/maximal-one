@@ -1,0 +1,227 @@
+name: Exact Commit Software Assurance
+
+on:
+  workflow_dispatch:
+    inputs:
+      scan_commit:
+        description: "Exact 40-character commit SHA to scan"
+        required: true
+        type: string
+        default: "3a158e8f902179cdd543e92153032ae409faaea0"
+
+permissions:
+  contents: read
+
+jobs:
+  exact-commit-scan:
+    name: Scan exact commit without promotion authority
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout workflow definition
+        uses: actions/checkout@fbc6f8f7f4b1c5f7f6a7c8b6e4d2a1f0c9b8a7d6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate and materialize exact target
+        id: target
+        shell: bash
+        env:
+          SCAN_COMMIT: ${{ inputs.scan_commit }}
+        run: |
+          set -euo pipefail
+
+          if [[ ! "$SCAN_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Invalid commit SHA"
+            exit 1
+          fi
+
+          git fetch --no-tags origin "$SCAN_COMMIT"
+          git cat-file -e "${SCAN_COMMIT}^{commit}"
+
+          TARGET_DIR="$RUNNER_TEMP/exact-target"
+          git worktree add --detach "$TARGET_DIR" "$SCAN_COMMIT"
+
+          ACTUAL="$(git -C "$TARGET_DIR" rev-parse HEAD)"
+          test "$ACTUAL" = "$SCAN_COMMIT"
+
+          test -d "$TARGET_DIR/.github/workflows"
+
+          echo "target_dir=$TARGET_DIR" >> "$GITHUB_OUTPUT"
+          echo "scan_commit=$ACTUAL" >> "$GITHUB_OUTPUT"
+
+      - name: Install pinned scanner versions
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p tools downloads reports
+
+          curl -fsSL \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz \
+            -o downloads/actionlint.tar.gz
+
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  downloads/actionlint.tar.gz" \
+            | sha256sum -c -
+
+          mkdir -p downloads/actionlint
+          tar -xzf downloads/actionlint.tar.gz -C downloads/actionlint
+          find downloads/actionlint -type f -name actionlint -exec cp {} tools/actionlint \;
+
+          curl -fsSL \
+            https://github.com/zizmorcore/zizmor/releases/download/v1.30.1/zizmor-v1.30.1-x86_64-unknown-linux-gnu.tar.gz \
+            -o downloads/zizmor.tar.gz
+
+          echo "e65324f4430c2717591937edcec90ccbefaf14c174f8ec9415e03ca875b46e1a  downloads/zizmor.tar.gz" \
+            | sha256sum -c -
+
+          mkdir -p downloads/zizmor
+          tar -xzf downloads/zizmor.tar.gz -C downloads/zizmor
+          find downloads/zizmor -type f -name zizmor -exec cp {} tools/zizmor \;
+
+          curl -fsSL \
+            https://github.com/ossf/scorecard/releases/download/v5.6.0/scorecard_5.6.0_linux_amd64.tar.gz \
+            -o downloads/scorecard.tar.gz
+
+          echo "19bde07129450cb65a95c6e3b9f34e034341579e6f0e241546ec3ae6efb2dd9a  downloads/scorecard.tar.gz" \
+            | sha256sum -c -
+
+          mkdir -p downloads/scorecard
+          tar -xzf downloads/scorecard.tar.gz -C downloads/scorecard
+          find downloads/scorecard -type f -name scorecard -exec cp {} tools/scorecard \;
+
+          chmod +x tools/actionlint tools/zizmor tools/scorecard
+
+          tools/actionlint -version > reports/actionlint-version.txt
+          tools/zizmor --version > reports/zizmor-version.txt
+          tools/scorecard --version > reports/scorecard-version.txt
+
+      - name: Run actionlint
+        shell: bash
+        env:
+          TARGET_DIR: ${{ steps.target.outputs.target_dir }}
+        run: |
+          set +e
+          find "$TARGET_DIR/.github/workflows" -type f \
+            \( -name '*.yml' -o -name '*.yaml' \) -print0 \
+            | xargs -0 "$GITHUB_WORKSPACE/tools/actionlint" -no-color \
+              > reports/actionlint.txt 2>&1
+          CODE=$?
+          echo "$CODE" > reports/actionlint.exit_code
+          echo "actionlint exit code: $CODE"
+
+      - name: Run zizmor
+        shell: bash
+        env:
+          TARGET_DIR: ${{ steps.target.outputs.target_dir }}
+        run: |
+          set +e
+          cd "$TARGET_DIR"
+          "$GITHUB_WORKSPACE/tools/zizmor" \
+            --offline \
+            --collect=workflows \
+            --format=json-v1 \
+            . > "$GITHUB_WORKSPACE/reports/zizmor.json" \
+              2> "$GITHUB_WORKSPACE/reports/zizmor.stderr.txt"
+          CODE=$?
+          echo "$CODE" > "$GITHUB_WORKSPACE/reports/zizmor.exit_code"
+          echo "zizmor exit code: $CODE"
+
+      - name: Run OpenSSF Scorecard
+        shell: bash
+        env:
+          TARGET_DIR: ${{ steps.target.outputs.target_dir }}
+        run: |
+          set +e
+          "$GITHUB_WORKSPACE/tools/scorecard" \
+            --local="$TARGET_DIR" \
+            --format=json \
+            > reports/scorecard.json \
+            2> reports/scorecard.stderr.txt
+          CODE=$?
+          echo "$CODE" > reports/scorecard.exit_code
+          echo "scorecard exit code: $CODE"
+
+      - name: Create exact-commit assurance manifest
+        if: always()
+        shell: bash
+        env:
+          SCAN_COMMIT: ${{ steps.target.outputs.scan_commit }}
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          report_dir = Path("reports")
+
+          def sha(path):
+              p = report_dir / path
+              if not p.exists():
+                  return None
+              return hashlib.sha256(p.read_bytes()).hexdigest()
+
+          def exit_code(name):
+              p = report_dir / f"{name}.exit_code"
+              return int(p.read_text().strip()) if p.exists() else None
+
+          codes = {
+              "actionlint": exit_code("actionlint"),
+              "zizmor": exit_code("zizmor"),
+              "scorecard": exit_code("scorecard")
+          }
+
+          complete = all(v is not None for v in codes.values())
+          zero = complete and all(v == 0 for v in codes.values())
+
+          manifest = {
+              "schema": "HCM_EXACT_COMMIT_SOFTWARE_ASSURANCE_V1",
+              "repository": "AhmedPeaRL/maximal-one",
+              "scan_commit": os.environ.get("SCAN_COMMIT"),
+              "workflow_definition_commit": os.environ.get("GITHUB_SHA"),
+              "workflow_run_id": os.environ.get("GITHUB_RUN_ID"),
+              "workflow_ref": os.environ.get("GITHUB_REF"),
+              "tool_versions": {
+                  "actionlint": (report_dir / "actionlint-version.txt").read_text().strip()
+                      if (report_dir / "actionlint-version.txt").exists() else None,
+                  "zizmor": (report_dir / "zizmor-version.txt").read_text().strip()
+                      if (report_dir / "zizmor-version.txt").exists() else None,
+                  "scorecard": (report_dir / "scorecard-version.txt").read_text().strip()
+                      if (report_dir / "scorecard-version.txt").exists() else None
+              },
+              "exit_codes": codes,
+              "report_sha256": {
+                  "actionlint": sha("actionlint.txt"),
+                  "zizmor": sha("zizmor.json"),
+                  "scorecard": sha("scorecard.json")
+              },
+              "status": (
+                  "ALL_SCANNER_EXIT_CODES_ZERO_REQUIRES_MANUAL_FINDING_REVIEW"
+                  if zero else
+                  "FINDINGS_OR_SCANNER_ERRORS_REQUIRE_TRIAGE"
+              ),
+              "protocol_freeze": "NOT_FROZEN",
+              "formal_calibration_authorized": False,
+              "confirmatory_execution_authorized": False,
+              "claim_support": False,
+              "promotion_authority": False,
+              "authority": "NONE"
+          }
+
+          (report_dir / "assurance-manifest.json").write_text(
+              json.dumps(manifest, indent=2) + "\n"
+          )
+          print(json.dumps(manifest, indent=2))
+          PY
+
+      - name: Upload scanner evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: exact-commit-software-assurance-${{ github.run_id }}
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 90
