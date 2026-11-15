@@ -24,6 +24,16 @@ on:
         required: true
         type: boolean
         default: false
+      enable_external_hash_broadcast:
+        description: "Explicit opt-in for the external hash-only echo test"
+        required: true
+        type: boolean
+        default: false
+      publish_commit_fingerprint:
+        description: "Explicit opt-in for the commit fingerprint write"
+        required: true
+        type: boolean
+        default: false
   repository_dispatch:
     types: [external_witness, external_dispatch, external_reproduction]
   pull_request:
@@ -1359,9 +1369,10 @@ jobs:
           python analysis/finalize_artifacts.py
 
       - name: Commit fingerprint
-        if: >-
+        if: >
           github.ref == 'refs/heads/main' &&
-          (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+          github.event_name == 'workflow_dispatch' &&
+          inputs.publish_commit_fingerprint == true
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GH_REPO: ${{ secrets.GH_REPO }}
@@ -2337,6 +2348,10 @@ jobs:
         run: python analysis/external_proof_publisher.py
 
       - name: External Uncontrolled Witness
+        if: >
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'workflow_dispatch' &&
+          inputs.enable_external_hash_broadcast == true
         run: python analysis/external_uncontrolled_witness.py || echo "External node unavailable"
 
       - name: Publish verifier interface
@@ -3730,8 +3745,7 @@ jobs:
       run: |
         python analysis/true_external_witness_node.py > artifacts/external_witness.json || \
         echo "External witness unavailable"
-
-    
+ 
     - name: External Multi-Source Witness (DIAGNOSTIC ONLY)
       shell: bash
       run: |
@@ -3923,7 +3937,6 @@ jobs:
 
     - name: Continuity guard
       run: python analysis/continuity_guard.py
-
 
     # =========================
     # 7) PERSISTENCE
