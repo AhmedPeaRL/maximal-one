@@ -1,0 +1,112 @@
+{
+  "schema": "HCM_TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V8",
+  "declaration_date": "2026-11-15",
+  "supersedes": "protocol/TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V7_20261114.json",
+  "status": "NOV15_SOURCE_PAIR_AND_EXACT_TARGET_SNAPSHOT_VERIFIED; V8_LINEAGE_SUPERSEDES_NOV14_PAIR; V9_REGISTER_PREFLIGHT_BATCH_AND_ASSURANCE_RERUN_REQUIRED; INDEPENDENT_HUMAN_REVIEW_PENDING",
+  "authority": "NONE",
+  "repository": "AhmedPeaRL/maximal-one",
+  "review_branch": "refs/heads/review/type1-v4-remediation",
+  "workflow_definition_commit_for_inventory_and_snapshot": "cc4644e5aec7c14347d9935559417d7e99793dac",
+  "target": {
+    "ref": "refs/audit/target",
+    "commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+    "occurrence_count": 1800,
+    "distinct_inventory_paths": 271,
+    "reconciliation_status": "RECONCILED",
+    "reconciliation_sha256": "5118de3094fc16bacaa7c2b4258f463a8242980cfa47058c396d4c0040336705"
+  },
+  "main_comparison": {
+    "ref": "refs/audit/main",
+    "commit": "9749de9253f144eeda9e1b60cb219cfc5f201ecc",
+    "occurrence_count": 943,
+    "distinct_inventory_paths": 200,
+    "reconciliation_status": "RECONCILED",
+    "reconciliation_sha256": "4fa79b5d7bc330ed3e123937b4d07ef26a4cd21e64756a5a38a48d53180174d1"
+  },
+  "inventory": {
+    "workflow_run_id": "43757949244",
+    "workflow_job_id": "132946079830",
+    "workflow_path": ".github/workflows/type1-v3-v4-governance-audit.yml",
+    "workflow_event": "workflow_dispatch",
+    "workflow_conclusion": "success",
+    "workflow_head_branch": "review/type1-v4-remediation",
+    "workflow_definition_commit": "cc4644e5aec7c14347d9935559417d7e99793dac",
+    "artifact_id": "14178549418",
+    "artifact_name": "type1-v3-v4-governance-inventory-43757949244-1",
+    "artifact_archive_sha256": "dcb0dd3283689e171c938bce02409b937c431b96ef5a86f44ca9e47fc2413eb4",
+    "reference_inventory_sha256": "4ee4335d5807c0a90ac668637a2bd55277ae9b6ce442af316f65f22a24f17a89",
+    "target_ledger_sha256": "ad18beccc8e5e9e9934838afe0e176b9e25658bea24e93c5dd3d2ec9ef119c67",
+    "main_ledger_sha256": "e2a9aa2b2da293c2c68f0a518ca1d76c5ffc85c8f7304ed17d3e312e1beec650",
+    "provenance_sha256": "3a63d6b18253c24b4cf7b8954d2ae0e5c00821afa264a50361801082674fa9ea",
+    "sha256_register_sha256": "5da088e8269ce96f5d82c4620b3a27e5d10067379660c53f7c4e81420f1d83c6",
+    "target_reconciliation_sha256": "5118de3094fc16bacaa7c2b4258f463a8242980cfa47058c396d4c0040336705",
+    "main_reconciliation_sha256": "4fa79b5d7bc330ed3e123937b4d07ef26a4cd21e64756a5a38a48d53180174d1",
+    "target_occurrence_count": 1800,
+    "main_occurrence_count": 943,
+    "target_inventory_path_count": 271,
+    "main_inventory_path_count": 200,
+    "source_provenance_verified": true,
+    "target_and_main_ledgers_reconciled": true
+  },
+  "snapshot": {
+    "workflow_run_id": "43762349962",
+    "workflow_job_id": "132959730540",
+    "workflow_path": ".github/workflows/type1-review-snapshot.yml",
+    "workflow_event": "workflow_dispatch",
+    "workflow_conclusion": "success",
+    "workflow_head_branch": "review/type1-v4-remediation",
+    "workflow_definition_commit": "cc4644e5aec7c14347d9935559417d7e99793dac",
+    "artifact_id": "14180143511",
+    "artifact_name": "type1-exact-review-snapshot-43762349962-1",
+    "artifact_archive_sha256": "caa75810be3463ddf09c6d379bd6685337bbee6be62284bf8fc877768b43364e",
+    "manifest_sha256": "2ff2e9b8c9aa2aea520ca1612e76a92703af9d479d6742e6ea211627862d9426",
+    "inner_snapshot_zip_sha256": "6a399450a2e69d3e069363a957200203c84025754cb5b333dc90786e64494842",
+    "three_way_identity_certificate_sha256": "33ed699ddb23ec454c66951fd08704c4248f6709699f805b0ffe689481b32567",
+    "extraction_verification_sha256": "2e1f6c1134dd01d1cb39ce184865212f621bab3bf250aee0d6376f71971a31ef",
+    "selected_file_count": 289,
+    "present_file_count": 289,
+    "extraction_checked_file_count": 292,
+    "extraction_verified": true,
+    "missing_scope_paths": [],
+    "missing_required_paths": [],
+    "inventory_workflow_run_id": "43757949244",
+    "inventory_artifact_id": "14178549418",
+    "inventory_sha256": "4ee4335d5807c0a90ac668637a2bd55277ae9b6ce442af316f65f22a24f17a89"
+  },
+  "prior_dependent_runs": {
+    "batch_v4": {
+      "run_id": "43757607347",
+      "artifact_id": "14178821821",
+      "status": "SUCCESSFUL_NAVIGATION_ONLY_BATCH_SET_FOR_PREVIOUS_REGISTER_V8_INVENTORY_RUN_43739431060; SUPERSEDED_FOR_V9_LINEAGE"
+    },
+    "software_assurance_v3": {
+      "run_id": "43757658218",
+      "artifact_id": "14179161779",
+      "status": "SUCCESSFUL_TARGET_AD106_SCAN_FOR_V8_LINEAGE; FINDINGS_RETAINED_FOR_TRIAGE; V9_RERUN_REQUIRED"
+    },
+    "preflight_v5": {
+      "run_id": "43757685671",
+      "artifact_id": null,
+      "status": "FAILED_ADDENDUM_V7_INVENTORY_RUN_ID_MISMATCH; NO_PREFLIGHT_OUTPUT; NO_ADJUDICATION"
+    },
+    "exact_commit_assurance_v1": {
+      "run_id": "43757753461",
+      "artifact_id": "14178822000",
+      "status": "FAILED_SCANNER_INSTALLATION_ZIZMOR_ASSET_404; MANIFEST_ONLY; NO_COMPLETE_CURRENT_BRANCH_SCAN"
+    },
+    "wdc_silso_source_audit_v1": {
+      "run_id": "43757780546",
+      "artifact_id": "14179395305",
+      "status": "SOURCE_MISMATCH_REQUIRES_MANUAL_REVIEW; FOUR_FIELD_MISMATCHES; SIX_NEWER_OFFICIAL_ROWS_NOT_APPENDED; ANALYSIS_FILE_UNMODIFIED"
+    }
+  },
+  "authority_invariants": {
+    "protocol_freeze": "NOT_FROZEN",
+    "formal_calibration_authorized": false,
+    "confirmatory_execution_authorized": false,
+    "claim_support": false,
+    "promotion_authority": false,
+    "human_adjudication_applied": false
+  },
+  "interpretation_limit": "This addendum updates source identity and lineage only. It does not adjudicate occurrences, modify primary scientific data, change the scientific protocol, approve thresholds, authorize protocol freeze, formal calibration, confirmatory execution, establish a scientific claim, or confer promotion authority."
+}
