@@ -169,7 +169,7 @@ jobs:
           python adjudication/generate_target_batches_v3.py \
             --inventory artifacts/input/inventory/type1_governance_inventory/reference_inventory.json \
             --ledger artifacts/input/inventory/type1_occurrence_ledger/occurrence_level_manual_ledger.json \
-            --population-register protocol/TYPE1_AD106_POPULATION_REGISTER_V7.json \
+            --population-register protocol/TYPE1_AD106_POPULATION_REGISTER_V8.json \
             --provenance artifacts/input/inventory/type1_governance_inventory/provenance.json \
             --artifact-metadata inventory-artifact-metadata.json \
             --output artifacts/output/target_1800_batches
