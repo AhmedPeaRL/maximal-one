@@ -9,23 +9,51 @@ permissions:
 jobs:
   source-audit:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
-      - uses: actions/checkout@fbc6f8f7f4b1c5f7f6a7c8b6e4d2a1f0c9b8a7d6
+      - name: Checkout selected review branch
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
         with:
           persist-credentials: false
+          fetch-depth: 1
 
       - name: Download and compare official WDC-SILSO files
         id: audit
         continue-on-error: true
         run: python3 scripts/acquire_wdc_silso_source.py
 
-      - name: Upload raw source and comparison report
+      - name: Upload immutable raw source snapshots and report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: wdc-silso-source-audit-${{ github.run_id }}
           path: real-data/source-snapshots/wdc_silso/
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 90
+
+      - name: Enforce successful full-prefix comparison
+        if: always()
+        shell: bash
+        env:
+          AUDIT_OUTCOME: ${{ steps.audit.outcome }}
+        run: |
+          set -euo pipefail
+          if [[ "$AUDIT_OUTCOME" != "success" ]]; then
+            echo "WDC-SILSO acquisition/comparison failed; inspect uploaded evidence."
+            exit 1
+          fi
+          test -s real-data/source-snapshots/wdc_silso/comparison_report.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("real-data/source-snapshots/wdc_silso/comparison_report.json")
+          d = json.loads(p.read_text(encoding="utf-8"))
+          if d.get("comparison", {}).get("prefix_match") is not True:
+              raise SystemExit("BLOCKED: full current-file prefix comparison did not pass")
+          if d.get("comparison", {}).get("sequence_checks_passed") is not True:
+              raise SystemExit("BLOCKED: chronological/duplicate/gap checks did not pass")
+          if d.get("comparison", {}).get("analysis_file_modified") is not False:
+              raise SystemExit("BLOCKED: analysis file modification flag is not false")
+          print("WDC-SILSO source audit: PASS")
+          PY
