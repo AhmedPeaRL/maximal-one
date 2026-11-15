@@ -1,15 +1,15 @@
-name: Type-I Human Overlay Preflight V5 (Latest Inventory and Exact Snapshot, Read Only)
+name: Type-I Human Overlay Preflight V6 (V9 Source Pair, Read Only)
 
 on:
   workflow_dispatch:
     inputs:
       csv_path:
-        description: Exact pending CSV path recorded in Population Register V8
+        description: Exact pending CSV path recorded in Population Register V9
         required: true
         type: string
-        default: adjudication/incoming/first-three-occurrences-v5.csv
+        default: adjudication/incoming/first-three-occurrences-v6.csv
       preflight_only:
-        description: V5 is read-only preflight; false is rejected
+        description: V6 is read-only preflight; false is rejected
         required: true
         type: boolean
         default: true
@@ -44,17 +44,17 @@ jobs:
           event = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text())
           inputs = event.get("inputs", {})
           if str(inputs.get("preflight_only", "true")).lower() != "true":
-              raise SystemExit("BLOCKED: V5 is permanently preflight-only")
-          csv_path = inputs.get("csv_path", "adjudication/incoming/first-three-occurrences-v5.csv")
-          if csv_path != "adjudication/incoming/first-three-occurrences-v5.csv":
-              raise SystemExit("BLOCKED: V5 accepts only the source-bound CSV recorded in Population Register V8")
+              raise SystemExit("BLOCKED: V6 is permanently preflight-only")
+          csv_path = inputs.get("csv_path", "adjudication/incoming/first-three-occurrences-v6.csv")
+          if csv_path != "adjudication/incoming/first-three-occurrences-v6.csv":
+              raise SystemExit("BLOCKED: V6 accepts only the source-bound CSV recorded in Population Register V9")
           if not Path(csv_path).is_file():
               raise SystemExit("BLOCKED: pending CSV is missing")
           with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as f:
               f.write(f"CSV_PATH={csv_path}\n")
           PY
 
-      - name: Load immutable source identities from Population Register V8
+      - name: Load immutable source identities from Population Register V9
         id: source
         shell: bash
         run: |
@@ -62,7 +62,7 @@ jobs:
           python - <<'PY'
           import json, os
           from pathlib import Path
-          p = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V8.json").read_text())
+          p = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V9.json").read_text())
           i, s = p["inventory"], p["snapshot"]
           values = {
             "target_commit": p["target"]["commit"],
@@ -184,8 +184,8 @@ jobs:
           e = os.environ
           root = Path("artifacts/input")
           invroot, snap = root / "inventory", root / "snapshot"
-          pop = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V8.json").read_text())
-          add = json.loads(Path("protocol/TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V7_20261114.json").read_text())
+          pop = json.loads(Path("protocol/TYPE1_AD106_POPULATION_REGISTER_V9.json").read_text())
+          add = json.loads(Path("protocol/TYPE1_AD106_SOURCE_IDENTITY_ADDENDUM_V8_20261115.json").read_text())
           sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
           provp = invroot / "type1_governance_inventory/provenance.json"
           invp = invroot / "type1_governance_inventory/reference_inventory.json"
@@ -259,7 +259,7 @@ jobs:
               assert second["status"] == "PENDING" and second["reviewer_kind"] == "NONE" and not second["reviewer"].strip()
 
           report = {
-            "schema": "HCM_TYPE1_HUMAN_OVERLAY_PREFLIGHT_V5",
+            "schema": "HCM_TYPE1_HUMAN_OVERLAY_PREFLIGHT_V6",
             "status": "CURRENT_SOURCE_PAIR_VERIFIED_PENDING_INDEPENDENT_HUMAN_ADJUDICATION",
             "preflight_workflow_run_id": os.environ["GITHUB_RUN_ID"],
             "preflight_workflow_commit": os.environ["GITHUB_SHA"],
@@ -278,14 +278,14 @@ jobs:
           }
           out = Path("artifacts/output")
           out.mkdir(parents=True, exist_ok=True)
-          (out / "preflight-v5.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-          print("PREFLIGHT_V5_COMPLETE; CURRENT_SOURCE_PAIR_VERIFIED; NO ADJUDICATION APPLIED; AUTHORITY=NONE")
+          (out / "preflight-v6.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          print("PREFLIGHT_V6_COMPLETE; CURRENT_SOURCE_PAIR_VERIFIED; NO ADJUDICATION APPLIED; AUTHORITY=NONE")
           PY
 
       - name: Upload current-source preflight evidence only
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: type1-human-overlay-preflight-v5-${{ github.run_id }}-${{ github.run_attempt }}
-          path: artifacts/output/preflight-v5.json
+          name: type1-human-overlay-preflight-v6-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/output/preflight-v6.json
           if-no-files-found: error
           retention-days: 90
