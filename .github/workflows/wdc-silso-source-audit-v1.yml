@@ -1,0 +1,31 @@
+name: WDC-SILSO Source Acquisition and Comparison
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@fbc6f8f7f4b1c5f7f6a7c8b6e4d2a1f0c9b8a7d6
+        with:
+          persist-credentials: false
+
+      - name: Download and compare official WDC-SILSO files
+        id: audit
+        continue-on-error: true
+        run: python3 scripts/acquire_wdc_silso_source.py
+
+      - name: Upload raw source and comparison report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: wdc-silso-source-audit-${{ github.run_id }}
+          path: real-data/source-snapshots/wdc_silso/
+          if-no-files-found: warn
+          retention-days: 90
