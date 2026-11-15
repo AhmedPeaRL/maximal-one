@@ -1,0 +1,194 @@
+{
+  "schema": "HCM_TYPE1_AD106_EXECUTION_EVIDENCE_ADDENDUM_V9",
+  "recorded_on": "2026-11-15",
+  "repository": "AhmedPeaRL/maximal-one",
+  "status": "CURRENT_BRANCH_IDENTITIES_AND_WORKFLOW_FAILURES_RECORDED_REVIEW_OPEN",
+  "authority": "NONE",
+  "review_branch": {
+    "name": "review/type1-v4-remediation",
+    "head_commit": "ff640e54e6996dd2a4ab0af061fa43e2151c14a2"
+  },
+  "main_branch": {
+    "head_commit": "9749de9253f144eeda9e1b60cb219cfc5f201ecc",
+    "previous_observed_commit": "160acfc8600b66c7300f2fd0caa500972de740b8",
+    "commits_ahead_from_previous_observed": 2,
+    "changed_paths_from_previous_observed": [
+      ".github/workflows/software-assurance-exact-commit-v1.yml",
+      ".github/workflows/wdc-silso-source-audit-v1.yml"
+    ],
+    "interpretation": "GitHub commit comparison confirms exactly these two files were added to main since 160acfc; no other paths changed in that two-commit comparison."
+  },
+  "latest_source_pair": {
+    "inventory_run_id": "43739431060",
+    "inventory_job_id": "132889110097",
+    "inventory_artifact_id": "14172180461",
+    "inventory_sha256": "4ee4335d5807c0a90ac668637a2bd55277ae9b6ce442af316f65f22a24f17a89",
+    "inventory_main_commit": "9749de9253f144eeda9e1b60cb219cfc5f201ecc",
+    "inventory_target_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+    "inventory_workflow_definition_commit": "ff640e54e6996dd2a4ab0af061fa43e2151c14a2",
+    "snapshot_run_id": "43739541831",
+    "snapshot_job_id": "132889448929",
+    "snapshot_artifact_id": "14172275278",
+    "snapshot_manifest_sha256": "b90f926eb4273284a34e660911485b42105fc0eab2f0174b101a3b359d506462",
+    "snapshot_inner_archive_sha256": "b0ad0fd5e5c54f0b63d95a193afb12c4d60c582ee2127c7412eeade7f0bb866f",
+    "snapshot_certificate_target_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+    "snapshot_certificate_main_commit": "9749de9253f144eeda9e1b60cb219cfc5f201ecc",
+    "snapshot_selected_files": 289,
+    "snapshot_present_files": 289,
+    "snapshot_extraction_verified": true
+  },
+  "workflow_failures": {
+    "exact_commit_software_assurance": {
+      "run_ids": [
+        "43738668393",
+        "43739159959"
+      ],
+      "job_ids": [
+        "132886808274",
+        "132888285242"
+      ],
+      "status": "BOTH_FAILED_BEFORE_SCANNERS",
+      "details": [
+        {
+          "run_id": "43738668393",
+          "job_id": "132886808274",
+          "failure": "GitHub could not resolve the invalid actions/checkout SHA fbc6f8f7f4b1c5f7f6a7c8b6e4d2a1f0c9b8a7d6 during job setup."
+        },
+        {
+          "run_id": "43739159959",
+          "job_id": "132888285242",
+          "failure": "Checkout succeeded, but exact snapshot/worktree identity verification failed; scanner download and all three scanners were skipped."
+        }
+      ],
+      "scanner_execution": {
+        "actionlint": false,
+        "zizmor": false,
+        "scorecard": false
+      }
+    },
+    "wdc_silso_source_audit": {
+      "run_ids": [
+        "43738637414"
+      ],
+      "job_ids": [
+        "132886722886"
+      ],
+      "status": "FAILED_DURING_JOB_SETUP",
+      "cause": "GitHub could not resolve the invalid actions/checkout SHA fbc6f8f7f4b1c5f7f6a7c8b6e4d2a1f0c9b8a7d6; acquisition script did not execute."
+    },
+    "latest_preflight_after_main_advanced": {
+      "run_id": "43739221160",
+      "job_id": "132888470967",
+      "status": "FAILED_CLOSED",
+      "cause": "V7 source-bound main commit 160acfc did not match current main 9749de. This is a stale source-pair rejection, not a scientific failure."
+    }
+  },
+  "workflow_pin_correction": {
+    "invalid_pin": "fbc6f8f7f4b1c5f7f6a7c8b6e4d2a1f0c9b8a7d6",
+    "verified_checkout_pin_from_successful_repository_run": "fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09",
+    "upload_artifact_pin": "ea165f8d65b6e75b540449e92b4886f43607fa02",
+    "note": "The package workflow files use these pins; no GitHub write has been performed by the assistant."
+  },
+  "engineering_evidence": {
+    "cross_runner_run_id": "43739822976",
+    "cross_runner_artifact_id": "14171548380",
+    "cross_runner_status": "PASS",
+    "cross_runner_replicates": 6,
+    "cross_runner_all_matches": true,
+    "official_runner_equivalence_run_id": "43739790330",
+    "official_runner_equivalence_artifact_id": "14173141703",
+    "official_runner_equivalence_status": "ENGINEERING_EQUIVALENCE_PASS",
+    "official_runner_equivalence_repetitions": 6,
+    "worker_assignment_matrix_run_id": "43739857726",
+    "worker_assignment_matrix_artifact_id": "14172970464",
+    "worker_assignment_matrix_status": "PASS_ENGINEERING_ONLY",
+    "cli_resume_identity_run_id": "43739755263",
+    "cli_resume_identity_artifact_id": "14171109434",
+    "cli_resume_identity_status": "PASS",
+    "runtime_pilot_run_id": "43739728959",
+    "runtime_pilot_artifact_id": "14170899551",
+    "runtime_pilot_status": "PILOT_COMPLETE_DIAGNOSTIC_ONLY"
+  },
+  "scientific_pipeline": {
+    "run_id": "43739099464",
+    "final_claim_gate_artifact_id": "14172531634",
+    "status": "BLOCKED",
+    "eligible_secondary_domains": 0,
+    "minimum_secondary_domains": 2,
+    "claim_support": false,
+    "promotion_authority": false,
+    "canonical_alpha": 2.525347,
+    "primary_stochastic_null": {
+      "null_family": "stationary_gaussian_ar_p_aic",
+      "order_range": [
+        1,
+        20
+      ],
+      "selected_order": 20,
+      "surrogates": 1000,
+      "exceedances": 999,
+      "p_value_mc_add_one": 0.999001,
+      "reject_at_0_05": false,
+      "boundary_fraction": 0.947
+    },
+    "permutation_p_value": 0.0002,
+    "permutation_role": "DIAGNOSTIC_ONLY",
+    "public_report_retrieval": "UNAVAILABLE_HTTP_404",
+    "independent_scientific_replication": false,
+    "interpretation": "The primary stochastic null was not rejected. Permutation p-value is diagnostic only and cannot substitute for the primary null."
+  },
+  "software_assurance_prior": {
+    "run_id": "43657593010",
+    "scan_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+    "workflow_definition_commit": "3a158e8f902179cdd543e92153032ae409faaea0",
+    "actionlint_exit_code": 123,
+    "actionlint_diagnostics": 97,
+    "zizmor_exit_code": 14,
+    "zizmor_findings": 205,
+    "zizmor_high": 164,
+    "zizmor_medium": 37,
+    "zizmor_info": 4,
+    "scorecard_exit_code": 0,
+    "scorecard_score": 5.7,
+    "reported_vulnerabilities": 73,
+    "interpretation": "This scan was for ad106, not ff640 and not the newly added scanner workflow. Findings remain to be triaged."
+  },
+  "human_adjudication": {
+    "occurrences": 1800,
+    "batches": 72,
+    "adjudications_applied": 0,
+    "status": "OPEN",
+    "authority": "NONE"
+  },
+  "review_requests": {
+    "statistical": {
+      "recipient": "dpolitis@ucsd.edu",
+      "status": "SENT",
+      "gmail_message_id": "1a1e081ebe4b05f1",
+      "subject": "Independent review request \u2014 prospective Type-I calibration for a dependent time-series surrogate test"
+    },
+    "climate": {
+      "recipient": "annika.seppala@otago.ac.nz",
+      "status": "SENT",
+      "gmail_message_id": "1a1e081f966be5bb",
+      "subject": "Independent climate-domain review request \u2014 HadCET and solar-forcing independence"
+    },
+    "economics": {
+      "recipient": "Benjamin.Wong@monash.edu",
+      "status": "SENT",
+      "gmail_message_id": "1a1e082035fc0acc",
+      "subject": "Independent econometric review request \u2014 FRED INDPRO as a secondary time-series domain"
+    },
+    "reports_received": false,
+    "machiry_reply": "NO_REPLY_REPORTED_BY_USER"
+  },
+  "authority_invariants": {
+    "protocol_freeze": "NOT_FROZEN",
+    "formal_calibration_authorized": false,
+    "confirmatory_execution_authorized": false,
+    "claim_support": false,
+    "promotion_authority": false,
+    "main_merge_authorized": false,
+    "main_write_by_assistant": false
+  }
+}
