@@ -8,6 +8,22 @@ on:
   push:
     branches: [ "main", "attractor-evolution", "evolution" ]
   workflow_dispatch:
+    inputs:
+      enable_self_dispatch_smoke_test:
+        description: "Run a self-generated workflow smoke test; not scientific evidence"
+        required: true
+        type: boolean
+        default: false
+      publish_public_anchors:
+        description: "Publish public issue/Gist anchors from main only"
+        required: true
+        type: boolean
+        default: false
+      approved_experimental_sweep:
+        description: "Explicitly authorize the experimental persistence sweep on main"
+        required: true
+        type: boolean
+        default: false
   repository_dispatch:
     types: [external_witness, external_dispatch, external_reproduction]
   pull_request:
@@ -1660,7 +1676,11 @@ jobs:
       - name: Install deps
         run: pip install requests
 
-      - name: Trigger external collision
+      - name: Trigger external collision (self-generated smoke test only)
+        if: >-
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'workflow_dispatch' &&
+          inputs.enable_self_dispatch_smoke_test == true
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GH_REPO: ${{ secrets.GH_REPO }}
@@ -2259,16 +2279,28 @@ jobs:
           if-no-files-found: error
 
       - name: GitHub public anchor
+        if: >-
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'workflow_dispatch' &&
+          inputs.publish_public_anchors == true
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: python analysis/github_anchor.py
 
       - name: External Public Anchor
+        if: >-
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'workflow_dispatch' &&
+          inputs.publish_public_anchors == true
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: python analysis/external_public_anchor.py
 
       - name: Multi-channel anchor
+        if: >-
+          github.ref == 'refs/heads/main' &&
+          github.event_name == 'workflow_dispatch' &&
+          inputs.publish_public_anchors == true
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: python analysis/multi_anchor_publisher.py
@@ -4826,11 +4858,10 @@ jobs:
       contents: read
       
     if: >-
-      github.event_name == 'repository_dispatch'
-      &&
-      github.event.action == 'external_dispatch'
-      &&
-      github.event.client_payload.approved_experimental_sweep == true
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'workflow_dispatch' &&
+      inputs.approved_experimental_sweep == true
+   
     runs-on: ubuntu-24.04
     needs: stability-check
 
