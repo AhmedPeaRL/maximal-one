@@ -3,30 +3,118 @@ name: Canonical Sync
 on:
   workflow_dispatch:
 
-jobs:
-  sync:
-    runs-on: ubuntu-latest
+permissions: {}
 
+jobs:
+  generate:
+    name: Generate canonical protocol lock
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout without persisted credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 18.20.8
+
+      - name: Install exact npm dependencies
+        run: npm ci
+
+      - name: Generate canonical lock
+        shell: bash
+        run: |
+          set -euo pipefail
+          AUTO_SYNC_CANONICAL=true npm run validate
+          test -s core-scientific/publication-gate/protocol-lock.json
+          node -e "JSON.parse(require('fs').readFileSync('core-scientific/publication-gate/protocol-lock.json','utf8'))"
+
+      - name: Upload generated lock
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: canonical-protocol-lock-${{ github.run_id }}
+          path: core-scientific/publication-gate/protocol-lock.json
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    name: Publish protocol lock through Contents API
+    if: github.ref == 'refs/heads/review/type1-v4-remediation'
+    needs: generate
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
 
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
-
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      - name: Download generated lock
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
         with:
-         node-version: 18.20.8
+          name: canonical-protocol-lock-${{ github.run_id }}
+          path: artifacts/canonical-sync
 
-      - run: npm install
-
-      - name: Run validation in AUTO SYNC mode
+      - name: Update only the review-branch protocol lock
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.ref_name }}
+          REPOSITORY: ${{ github.repository }}
+          GITHUB_REF: ${{ github.ref }}
+        shell: bash
         run: |
-          AUTO_SYNC_CANONICAL=true npm run validate
+          set -euo pipefail
 
-      - name: Commit updated protocol-lock
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add core-scientific/publication-gate/protocol-lock.json
-          git commit -m "Auto-sync canonical hash" || echo "No changes"
-          git push
+          test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
+
+          source_file="artifacts/canonical-sync/protocol-lock.json"
+          test -s "$source_file"
+          jq -e . "$source_file" > /dev/null
+
+          api_path="repos/${REPOSITORY}/contents/core-scientific/publication-gate/protocol-lock.json"
+          temp_dir="$(mktemp -d)"
+          trap 'rm -rf "$temp_dir"' EXIT
+
+          current_sha=""
+
+          if gh api --method GET "$api_path" \
+            -f "ref=$BRANCH" \
+            > "${temp_dir}/existing.json" \
+            2> "${temp_dir}/get.err"; then
+
+            current_sha="$(jq -er '.sha' "${temp_dir}/existing.json")"
+
+            jq -er '.content' "${temp_dir}/existing.json" \
+              | tr -d '\n' \
+              | base64 --decode > "${temp_dir}/existing.json.body"
+
+            if cmp -s "$source_file" "${temp_dir}/existing.json.body"; then
+              echo "Protocol lock is unchanged; no write required."
+              exit 0
+            fi
+
+          else
+            if grep -Eq 'HTTP 404|Not Found' "${temp_dir}/get.err"; then
+              current_sha=""
+            else
+              cat "${temp_dir}/get.err" >&2
+              exit 1
+            fi
+          fi
+
+          encoded="$(base64 -w0 "$source_file")"
+
+          if [[ -n "$current_sha" ]]; then
+            gh api --method PUT "$api_path" \
+              --raw-field message="Update canonical protocol lock" \
+              --raw-field content="$encoded" \
+              --raw-field branch="$BRANCH" \
+              --raw-field sha="$current_sha"
+          else
+            gh api --method PUT "$api_path" \
+              --raw-field message="Create canonical protocol lock" \
+              --raw-field content="$encoded" \
+              --raw-field branch="$BRANCH"
+          fi
