@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout exact review commit
-        uses: actions/checkout@v5
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -34,7 +34,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
 
       - name: Download the current target inventory artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
         with:
           name: type1-v3-v4-governance-inventory-42870936071-1
           github-token: ${{ github.token }}
@@ -123,7 +123,7 @@ jobs:
           PY
 
       - name: Upload current navigation-only batch set
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: type1-target-1800-batches-current-${{ github.run_id }}-${{ github.run_attempt }}
           path: artifacts/output/target_1800_batches/
