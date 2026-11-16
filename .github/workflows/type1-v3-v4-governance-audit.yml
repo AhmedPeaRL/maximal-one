@@ -48,27 +48,25 @@ jobs:
       - name: Validate requested commits and establish immutable audit refs
         shell: bash
         env:
-          TARGET_COMMIT: ${{ inputs.target_commit }}
-          MAIN_COMMIT: ${{ inputs.main_commit }}
           WORKFLOW_COMMIT: ${{ github.sha }}
         run: |
           set -euo pipefail
+
           [[ "$TARGET_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]]
-          [[ "$MAIN_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]]
+
           test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
           test "$(git rev-parse HEAD)" = "$WORKFLOW_COMMIT"
 
           git fetch --no-tags origin \
             +refs/heads/review/type1-v4-remediation:refs/remotes/origin/review/type1-v4-remediation \
             +refs/heads/main:refs/remotes/origin/main
-               
+
           MAIN_COMMIT="${MAIN_COMMIT_INPUT:-}"
 
           if [[ -z "$MAIN_COMMIT" ]]; then
             MAIN_COMMIT="$(git rev-parse refs/remotes/origin/main)"
           fi
 
-          [[ "$TARGET_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]]
           [[ "$MAIN_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]]
 
           echo "MAIN_COMMIT=$MAIN_COMMIT" >> "$GITHUB_ENV"
