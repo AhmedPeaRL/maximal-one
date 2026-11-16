@@ -3,6 +3,9 @@ name: Cross Architecture Timing
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   timing:
     strategy:
@@ -12,7 +15,11 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Python
         uses: actions/setup-python@v5
