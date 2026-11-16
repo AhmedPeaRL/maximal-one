@@ -223,11 +223,66 @@ jobs:
       commit_sha: ${{ steps.publish.outputs.commit_sha }}
 
     steps:
+      - name: Checkout exact source commit
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          
       - name: Download verified lock artifact
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
         with:
           name: requirements-lock-${{ github.run_id }}
           path: generated
+
+      - name: Verify generated lock artifact provenance and hashes
+        shell: bash
+        env:
+          CURRENT_SHA: ${{ github.sha }}
+          EXPECTED_BRANCH: refs/heads/review/type1-v4-remediation
+        run: |
+          set -euo pipefail
+
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          def sha(path):
+              return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+          manifest = json.loads(
+              Path("generated/reports/requirements-refresh-manifest.json")
+              .read_text(encoding="utf-8")
+          )
+
+          if manifest["base_commit"] != os.environ["CURRENT_SHA"]:
+              raise SystemExit("BLOCKED: source commit mismatch")
+
+          if manifest["branch"] != os.environ["EXPECTED_BRANCH"]:
+              raise SystemExit("BLOCKED: source branch mismatch")
+
+          if manifest["requirements_in_sha256"] != sha("requirements.in"):
+              raise SystemExit("BLOCKED: requirements.in changed")
+
+          if manifest["requirements_lock_sha256"] != sha(
+              "generated/requirements-lock.txt"
+          ):
+              raise SystemExit("BLOCKED: lock artifact hash mismatch")
+
+          for key in (
+              "pip_check",
+              "import_smoke_test",
+              "compileall",
+              "unit_tests",
+          ):
+              if manifest.get(key) != "PASS":
+                  raise SystemExit(f"BLOCKED: {key} did not pass")
+
+          print("VERIFIED_LOCK_ARTIFACT_PROVENANCE_AND_HASHES")
+          PY
 
       - name: Publish only requirements-lock.txt to the review branch
         id: publish
@@ -291,20 +346,29 @@ jobs:
             fi
           fi
 
-          encoded="$(base64 -w 0 "$file")"
+          base64 -w 0 "$file" > "$temp_dir/content.b64"
 
           if [[ -n "$current_sha" ]]; then
-            response="$(gh api --method PUT "$api_path" \
-              --raw-field message="Refresh Python 3.11.15 hash-locked dependencies" \
-              --raw-field content="$encoded" \
-              --raw-field branch="$BRANCH" \
-              --raw-field sha="$current_sha")"
+            jq -n \
+              --arg message "Refresh Python 3.11.15 hash-locked dependencies" \
+              --rawfile content "$temp_dir/content.b64" \
+              --arg branch "$BRANCH" \
+              --arg sha "$current_sha" \
+              '{message:$message, content:$content, branch:$branch, sha:$sha}' \
+              > "$temp_dir/request.json"
           else
-            response="$(gh api --method PUT "$api_path" \
-              --raw-field message="Create Python 3.11.15 hash-locked dependencies" \
-              --raw-field content="$encoded" \
-              --raw-field branch="$BRANCH")"
+            jq -n \
+              --arg message "Create Python 3.11.15 hash-locked dependencies" \
+              --rawfile content "$temp_dir/content.b64" \
+              --arg branch "$BRANCH" \
+              '{message:$message, content:$content, branch:$branch}' \
+              > "$temp_dir/request.json"
           fi
+
+          response="$(
+            gh api --method PUT "$api_path" \
+            --input "$temp_dir/request.json"
+          )"
 
           commit_sha="$(jq -er '.commit.sha' <<< "$response")"
 
@@ -316,7 +380,7 @@ jobs:
     permissions:
       contents: read
 
-    uses: $/.github/workflows/software-assurance-exact-commit-v1.yml
+    uses: ./.github/workflows/software-assurance-exact-commit-v1.yml
 
     with:
       scan_commit: ${{ needs.publish.outputs.commit_sha }}
