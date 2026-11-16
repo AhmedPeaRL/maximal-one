@@ -15,18 +15,18 @@ jobs:
     steps:
 
       - name: Checkout exact repository state
-        uses: actions/checkout@v5
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           fetch-depth: 0
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.11.15"
 
       - name: Setup Node
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 18.20.8
           cache: npm
@@ -156,7 +156,7 @@ jobs:
             artifacts/estimator_sensitivity_audit.json
 
       - name: Upload estimator sensitivity audit
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: estimator-sensitivity-audit
           path: artifacts/estimator_sensitivity_audit.json
@@ -188,7 +188,7 @@ jobs:
             artifacts/null_calibration_gate.json
 
       - name: Upload run null calibration gate
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: null-calibration-gate
           path: artifacts/null_calibration_gate.json
@@ -202,7 +202,7 @@ jobs:
           test -s artifacts/primary_null_capacity_audit.json
 
       - name: Upload primary null capacity audit
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: primary-null-capacity-audit
           path: artifacts/primary_null_capacity_audit.json
@@ -217,7 +217,7 @@ jobs:
           test -s artifacts/null_capacity_state_reconciliation.json
 
       - name: Upload null capacity state reconciliation
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: null-capacity-state-reconciliation
           path: artifacts/null_capacity_state_reconciliation.json
@@ -285,7 +285,7 @@ jobs:
 
       - name: Upload secondary monthly integrity audit
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: secondary-monthly-integrity-audit
           path: artifacts/secondary_data_integrity_audit.json
@@ -310,7 +310,7 @@ jobs:
           test -s artifacts/dataset_eligibility_gate.json
 
       - name: Upload dataset eligibility artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: dataset-eligibility-gate
           path: artifacts/dataset_eligibility_gate.json
@@ -327,7 +327,7 @@ jobs:
             artifacts/permutation_determinism_audit.json
 
       - name: Upload permutation determinism artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: permutation-determinism-audit
           path: artifacts/permutation_determinism_audit.json
@@ -352,7 +352,7 @@ jobs:
             artifacts/independent_domain_replication_gate.json
 
       - name: Upload run independent domain replication gate
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: independent-domain-replication-gate
           path: artifacts/independent_domain_replication_gate.json
@@ -396,7 +396,7 @@ jobs:
             artifacts/claim_readiness_audit.json
 
       - name: Upload final claim readiness audit
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: claim-readiness-audit
           path: artifacts/claim_readiness_audit.json
@@ -412,7 +412,7 @@ jobs:
 
       - name: Upload cosmic-ray timestamp audit
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: cosmic-rays-time-integrity-audit
           path: artifacts/cosmic_rays_time_integrity_audit.json
