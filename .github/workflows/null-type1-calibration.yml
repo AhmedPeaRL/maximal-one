@@ -151,16 +151,22 @@ jobs:
 
       - name: Verify exact checkout identity
         shell: bash
+        env:
+          SCENARIO: ${{ matrix.scenario }}
+          MASTER_SEED: ${{ matrix.master_seed }}
+          OUTER_REPETITIONS: ${{ matrix.repetitions }}
+          SURROGATES: ${{ matrix.surrogates }}
+          SAMPLE_SIZE: ${{ matrix.n }}
         run: |
           set -euo pipefail
           actual_head="$(git rev-parse HEAD)"
           test "$actual_head" = "$GITHUB_SHA"
-          echo "Verified calibration checkout: $actual_head"
-          echo "Scenario: ${{ matrix.scenario }}"
-          echo "Master seed: ${{ matrix.master_seed }}"
-          echo "Outer repetitions: ${{ matrix.repetitions }}"
-          echo "Surrogates: ${{ matrix.surrogates }}"
-          echo "Sample size: ${{ matrix.n }}"
+          printf 'Verified calibration checkout: %s\n' "$actual_head"
+          printf 'Scenario: %s\n' "$SCENARIO"
+          printf 'Master seed: %s\n' "$MASTER_SEED"
+          printf 'Outer repetitions: %s\n' "$OUTER_REPETITIONS"
+          printf 'Surrogates: %s\n' "$SURROGATES"
+          printf 'Sample size: %s\n' "$SAMPLE_SIZE"
 
       - name: Set up Python
         uses: actions/setup-python@v5
