@@ -38,7 +38,7 @@ jobs:
           [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
 
       - name: Checkout the exact governance implementation commit
-        uses: actions/checkout@v5
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
@@ -136,7 +136,7 @@ jobs:
           PY
 
       - name: Upload exact governance implementation snapshot
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: type1-v3-governance-implementation-snapshot-${{ github.run_id }}-${{ github.run_attempt }}
           path: artifacts/type1_v3_governance_implementation/
