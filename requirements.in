@@ -1,4 +1,4 @@
-# Canonical runtime constraints for CPython 3.11.15.
+# Canonical runtime and CI-test constraints for CPython 3.11.15.
 # Generated lock: requirements-lock.txt
 # The lock must be regenerated with pip-tools and SHA-256 hashes.
 
@@ -20,3 +20,6 @@ idna==3.20
 mpmath==1.4.1
 Pillow==13.0.0
 urllib3==2.8.0
+
+# Required by the Draft 2020-12 manual-adjudication schema tests.
+jsonschema==4.26.0
