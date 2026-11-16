@@ -45,7 +45,7 @@ jobs:
 
     steps:
       - name: Checkout the selected review-branch implementation
-        uses: actions/checkout@v5
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           persist-credentials: false
 
@@ -62,7 +62,7 @@ jobs:
           test -f "$CSV_PATH"
 
       - name: Download the latest verified target inventory artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
         with:
           name: type1-v3-v4-governance-inventory-42870936071-1
           github-token: ${{ github.token }}
@@ -71,7 +71,7 @@ jobs:
           path: artifacts/input/inventory
 
       - name: Download the exact-target snapshot linked to that inventory
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
         with:
           name: type1-exact-review-snapshot-42871210051-1
           github-token: ${{ github.token }}
@@ -240,7 +240,7 @@ jobs:
 
       - name: Upload preflight evidence only
         if: ${{ inputs.preflight_only == true }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: type1-human-overlay-preflight-${{ github.run_id }}
           path: artifacts/output/preflight.json
@@ -249,7 +249,7 @@ jobs:
 
       - name: Download prior merged ledger when chaining a batch
         if: ${{ inputs.preflight_only != true && inputs.previous_ledger_run_id != '' && inputs.previous_ledger_artifact_name != '' }}
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
         with:
           name: ${{ inputs.previous_ledger_artifact_name }}
           github-token: ${{ github.token }}
@@ -416,7 +416,7 @@ jobs:
 
       - name: Upload merged ledger, overlay, verification, and provenance
         if: ${{ inputs.preflight_only != true }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: type1-human-overlay-merged-${{ github.run_id }}
           path: |
