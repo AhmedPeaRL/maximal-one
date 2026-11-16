@@ -1,15 +1,30 @@
 name: Type-I Target-Commit Governance Inventory
 
 on:
+  push:
+    branches:
+      - review/type1-v4-remediation
+    paths:
+      - "protocol/TYPE1_EVIDENCE_GOVERNANCE_REGISTER_V1.md"
+
   workflow_dispatch:
     inputs:
       target_commit:
-        description: Exact 40-character commit to inventory for the independent review
-        required: true
+        description: Exact 40-character target commit; defaults to this workflow commit
+        required: false
         type: string
       main_commit:
-        description: Exact 40-character main commit to inventory separately
-        required: true
+        description: Exact 40-character main commit; defaults to fetched main HEAD
+        required: false
+        type: string
+
+  workflow_call:
+    inputs:
+      target_commit:
+        required: false
+        type: string
+      main_commit:
+        required: false
         type: string
 
 permissions:
@@ -17,6 +32,9 @@ permissions:
 
 jobs:
   inventory:
+    env:
+      TARGET_COMMIT: ${{ inputs.target_commit || github.sha }}
+      MAIN_COMMIT_INPUT: ${{ inputs.main_commit }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -30,8 +48,6 @@ jobs:
       - name: Validate requested commits and establish immutable audit refs
         shell: bash
         env:
-          TARGET_COMMIT: ${{ inputs.target_commit }}
-          MAIN_COMMIT: ${{ inputs.main_commit }}
           WORKFLOW_COMMIT: ${{ github.sha }}
         run: |
           set -euo pipefail
@@ -43,7 +59,18 @@ jobs:
           git fetch --no-tags origin \
             +refs/heads/review/type1-v4-remediation:refs/remotes/origin/review/type1-v4-remediation \
             +refs/heads/main:refs/remotes/origin/main
+               
+          MAIN_COMMIT="${MAIN_COMMIT_INPUT:-}"
 
+          if [[ -z "$MAIN_COMMIT" ]]; then
+            MAIN_COMMIT="$(git rev-parse refs/remotes/origin/main)"
+          fi
+
+          [[ "$TARGET_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]]
+          [[ "$MAIN_COMMIT" =~ ^[0-9a-fA-F]{40}$ ]]
+
+          echo "MAIN_COMMIT=$MAIN_COMMIT" >> "$GITHUB_ENV"
+          
           git cat-file -e "${TARGET_COMMIT}^{commit}"
           git cat-file -e "${MAIN_COMMIT}^{commit}"
           git merge-base --is-ancestor "$TARGET_COMMIT" refs/remotes/origin/review/type1-v4-remediation
@@ -84,9 +111,6 @@ jobs:
 
       - name: Generate inventories for the requested target and main commits
         shell: bash
-        env:
-          TARGET_COMMIT: ${{ inputs.target_commit }}
-          MAIN_COMMIT: ${{ inputs.main_commit }}
         run: |
           set -euo pipefail
           python scripts/audit_type1_governance_refs.py refs/audit/target refs/audit/main
@@ -107,8 +131,6 @@ jobs:
       - name: Verify inventory identities, ledger coverage, and unresolved defaults
         shell: bash
         env:
-          TARGET_COMMIT: ${{ inputs.target_commit }}
-          MAIN_COMMIT: ${{ inputs.main_commit }}
           WORKFLOW_COMMIT: ${{ github.sha }}
         run: |
           set -euo pipefail
@@ -140,8 +162,6 @@ jobs:
       - name: Write inventory provenance and SHA-256 register
         shell: bash
         env:
-          TARGET_COMMIT: ${{ inputs.target_commit }}
-          MAIN_COMMIT: ${{ inputs.main_commit }}
           WORKFLOW_COMMIT: ${{ github.sha }}
         run: |
           set -euo pipefail
