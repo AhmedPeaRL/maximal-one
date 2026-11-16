@@ -19,6 +19,7 @@ jobs:
       contents: read
     outputs:
       current_hash: ${{ steps.compute_hash.outputs.current_hash }}
+
     steps:
       - name: Checkout without persisted credentials
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
@@ -54,6 +55,7 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+
     steps:
       - name: Update review-branch history through Contents API
         env:
@@ -61,21 +63,39 @@ jobs:
           CURRENT_HASH: ${{ needs.verify.outputs.current_hash }}
           BRANCH: ${{ github.ref_name }}
           REPOSITORY: ${{ github.repository }}
+          GITHUB_REF: ${{ github.ref }}
         shell: bash
         run: |
           set -euo pipefail
+
+          test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
+          [[ "$CURRENT_HASH" =~ ^[0-9a-f]{64}$ ]]
+
           api_path="repos/${REPOSITORY}/contents/.coherence-memory/history.log"
           temp_dir="$(mktemp -d)"
+          trap 'rm -rf "$temp_dir"' EXIT
+
           history_file="${temp_dir}/history.log"
           current_sha=""
 
-          if gh api "$api_path" -f ref="$BRANCH" > "${temp_dir}/existing.json" 2>/dev/null; then
-            current_sha="$(jq -r '.sha' "${temp_dir}/existing.json")"
-            jq -r '.content' "${temp_dir}/existing.json" \
+          if gh api --method GET "$api_path" \
+            -f "ref=$BRANCH" \
+            > "${temp_dir}/existing.json" \
+            2> "${temp_dir}/get.err"; then
+
+            current_sha="$(jq -er '.sha' "${temp_dir}/existing.json")"
+
+            jq -er '.content' "${temp_dir}/existing.json" \
               | tr -d '\n' \
               | base64 --decode > "$history_file"
+
           else
-            : > "$history_file"
+            if grep -Eq 'HTTP 404|Not Found' "${temp_dir}/get.err"; then
+              : > "$history_file"
+            else
+              cat "${temp_dir}/get.err" >&2
+              exit 1
+            fi
           fi
 
           if grep -Fqx -- "$CURRENT_HASH" "$history_file"; then
