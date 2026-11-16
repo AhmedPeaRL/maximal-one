@@ -5,54 +5,96 @@ on:
   schedule:
     - cron: '0 3 * * 0'
 
-jobs:
-  cross_run_verify:
-    runs-on: ubuntu-24.04
+permissions: {}
 
+concurrency:
+  group: cross-run-memory-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Read-only deterministic verification
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      current_hash: ${{ steps.compute_hash.outputs.current_hash }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout without persisted credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      - name: Install dependencies
-        run: npm install
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 18.20.8
+
+      - name: Install locked project dependencies
+        run: npm ci
 
       - name: Recompute deterministic artifact
         run: npm run validate
 
-      - name: Compute hash
+      - name: Compute report hash
         id: compute_hash
-        run: |
-          HASH=$(sha256sum core-scientific/publication-gate/report.json | awk '{print $1}')
-          echo "current_hash=$HASH" >> $GITHUB_OUTPUT
-          echo $HASH > current_hash.txt
-
-      - name: Load historical hashes
-        run: |
-          mkdir -p .coherence-memory
-          if [ ! -f .coherence-memory/history.log ]; then
-            touch .coherence-memory/history.log
-          fi
-
-      - name: Compare with historical memory
-        env:
-          CURRENT_HASH: ${{ steps.compute_hash.outputs.current_hash }}
         shell: bash
         run: |
           set -euo pipefail
-          printf 'Current: %s\n' "$CURRENT_HASH"
+          hash="$(sha256sum core-scientific/publication-gate/report.json | awk '{print $1}')"
+          printf 'current_hash=%s\n' "$hash" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "$hash" > current_hash.txt
+          printf 'Computed report hash: %s\n' "$hash"
 
-          if grep -Fqx -- "$CURRENT_HASH" .coherence-memory/history.log; then
-            echo "Hash already observed in historical memory."
+  record:
+    name: Append history using a step-scoped GitHub API token
+    if: github.ref == 'refs/heads/review/type1-v4-remediation'
+    needs: verify
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Update review-branch history through Contents API
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CURRENT_HASH: ${{ needs.verify.outputs.current_hash }}
+          BRANCH: ${{ github.ref_name }}
+          REPOSITORY: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          api_path="repos/${REPOSITORY}/contents/.coherence-memory/history.log"
+          temp_dir="$(mktemp -d)"
+          history_file="${temp_dir}/history.log"
+          current_sha=""
+
+          if gh api "$api_path" -f ref="$BRANCH" > "${temp_dir}/existing.json" 2>/dev/null; then
+            current_sha="$(jq -r '.sha' "${temp_dir}/existing.json")"
+            jq -r '.content' "${temp_dir}/existing.json" \
+              | tr -d '\n' \
+              | base64 --decode > "$history_file"
           else
-            echo "New hash detected. Appending to memory."
-            printf '%s\n' "$CURRENT_HASH" >> .coherence-memory/history.log
+            : > "$history_file"
           fi
 
-      - name: Commit memory if changed
-        run: |
-          git config user.name "coherence-bot"
-          git config user.email "coherence@system.local"
-          git add .coherence-memory/history.log
-          git diff --cached --quiet || git commit -m "Cross-run memory update"
-          git push || echo "No changes to push"
+          if grep -Fqx -- "$CURRENT_HASH" "$history_file"; then
+            echo "Hash already exists in this review branch; no write required."
+            exit 0
+          fi
+
+          printf '%s\n' "$CURRENT_HASH" >> "$history_file"
+          encoded="$(base64 -w0 "$history_file")"
+
+          if [[ -n "$current_sha" ]]; then
+            gh api --method PUT "$api_path" \
+              --raw-field message="Cross-run memory update" \
+              --raw-field content="$encoded" \
+              --raw-field branch="$BRANCH" \
+              --raw-field sha="$current_sha"
+          else
+            gh api --method PUT "$api_path" \
+              --raw-field message="Cross-run memory update" \
+              --raw-field content="$encoded" \
+              --raw-field branch="$BRANCH"
+          fi
