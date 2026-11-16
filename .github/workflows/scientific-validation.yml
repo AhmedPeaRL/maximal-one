@@ -64,23 +64,23 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           fetch-depth: 0
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: "3.11.15"
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
+        uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066
         with:
           languages: javascript, python
                    
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
+        uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066
 
       - name: Enforce deterministic env
         run: |
@@ -599,7 +599,7 @@ jobs:
 
       - name: Upload secondary monthly integrity audit
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: secondary-monthly-integrity-audit
           path: artifacts/secondary_data_integrity_audit.json
@@ -617,7 +617,7 @@ jobs:
             artifacts/dataset_eligibility_gate.json
 
       - name: Upload dataset eligibility artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: dataset-eligibility-gate
           path: artifacts/dataset_eligibility_gate.json
@@ -703,7 +703,7 @@ jobs:
             artifacts/permutation_determinism_audit.json
 
       - name: Upload permutation determinism artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: permutation-determinism-audit
           path: artifacts/permutation_determinism_audit.json
@@ -1327,7 +1327,7 @@ jobs:
 
       - name: Upload public report retrieval audit
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: public-report-retrieval-audit
           path: artifacts/public_report_retrieval_audit.json
@@ -1468,7 +1468,7 @@ jobs:
     needs: core-proof
     
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -1649,7 +1649,7 @@ jobs:
           NODE
 
       - name: Upload witness as run artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: witness-run-${{ github.run_id }}
           path: artifacts/witness_ingestion/
@@ -1670,7 +1670,7 @@ jobs:
     needs: ingest-witness
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -1711,11 +1711,10 @@ jobs:
         node-version: [18.20.8, 20.20.0, 24.11.1]
 
     steps:
-
       - name: Print trigger source
         run: echo "Triggered by ${{ github.event_name }}"
         
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -1729,7 +1728,7 @@ jobs:
           echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
           echo "NUMEXPR_NUM_THREADS=1" >> $GITHUB_ENV
 
-      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -1754,7 +1753,7 @@ jobs:
           npm run stability
           npm run attractor
 
-      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: node-hash-${{ matrix.node-version }}
           path: node_report.hash
@@ -1769,7 +1768,7 @@ jobs:
       image: python@sha256:90f8795536170fd08236d2ceb74fe7065dbf74f738d8b84bfbf263656654dc9b
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -2004,14 +2003,14 @@ jobs:
           PY
 
       - name: Upload external replay verification
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: external-replay-verification
           path: artifacts/external_replay_verification.json
           if-no-files-found: error
 
       - name: Upload reproducibility manifest
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: reproducibility-manifest
           path: artifacts/reproducibility_manifest.json
@@ -2248,7 +2247,7 @@ jobs:
           echo "✅ FINAL PROVENANCE CLOSURE COMPLETE"
 
       - name: Upload final provenance closure
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: final-provenance-closure
           path: |
@@ -2276,14 +2275,14 @@ jobs:
             artifacts/canonical_report.lock
 
       - name: Upload canonical report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: canonical-report
           path: artifacts/canonical_report.json
           if-no-files-found: error
 
       - name: Upload canonical report hash
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: report-hash
           path: artifacts/report.hash
@@ -2320,13 +2319,13 @@ jobs:
         run: python analysis/independent_verifier.py
 
       - name: Upload independent verification artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: independent-verification
           path: public/independent_verification.json
           if-no-files-found: error
 
-      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: pip-freeze
           path: pip-freeze.txt
@@ -2381,7 +2380,7 @@ jobs:
       passed: ${{ steps.final_gate.outputs.passed }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -2402,37 +2401,37 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements-lock.txt
           
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
         with:
           name: canonical-report
           path: artifacts
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
         with:
           name: report-hash
           path: artifacts
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
         with:
           name: external-replay-verification
           path: artifacts
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
         with:
           name: reproducibility-manifest
           path: artifacts
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
         with:
           name: final-provenance-closure
           path: artifacts
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
         with:
           name: independent-verification
           path: public
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
         continue-on-error: true
         with:
           name: dataset-eligibility-gate
@@ -2557,7 +2556,7 @@ jobs:
           }
           NODE
 
-      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 18.20.8
 
@@ -3138,7 +3137,7 @@ jobs:
     needs: gate
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -3159,17 +3158,17 @@ jobs:
           echo "==== FILE TREE ===="
           ls -R
           
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
         with:
           name: node-hash-18.20.8
           path: node18
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
         with:
           name: node-hash-20.20.0
           path: node20
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
         with:
           name: node-hash-24.11.1
           path: node24
@@ -3290,7 +3289,7 @@ jobs:
     # =========================
 
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
       with:
         fetch-depth: 0
         persist-credentials: false
@@ -3398,7 +3397,6 @@ jobs:
         echo "=== FAILURE TRACE ==="
         pwd
         ls -R
-        
 
     # =========================
     # 1) BOOTSTRAP LAYER + GIT LAYER (FIXED ORDER)
@@ -3428,17 +3426,17 @@ jobs:
 
     - name: Upload autonomous witness
       if: always()
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
       with:
         name: autonomous-witness
         path: data/autonomous/
 
-    - uses: actions/download-artifact@v6
+    - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
       with:
         name: report-hash
         path: artifacts
 
-    - uses: actions/download-artifact@v6
+    - uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
       with:
         name: canonical-report
         path: artifacts
@@ -3446,7 +3444,7 @@ jobs:
     - name: Set Python path
       run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
-    - uses: actions/cache@v5
+    - uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25
       with:
         path: real-data
         key: chaos-datasets-${{ hashFiles('analysis/**/*.py') }}
@@ -3483,7 +3481,6 @@ jobs:
         python analysis/system_health_check.py
         python analysis/global_scientific_verdict.py
         python -m analysis.global_signal_builder
-
 
     # =========================
     # 2) DATA LAYER
@@ -3596,7 +3593,6 @@ jobs:
     - name: Build verification signal
       run: python analysis/verification_signal.py
 
-
     # =========================
     # 3) CORE ANALYSIS
     # =========================
@@ -3634,7 +3630,6 @@ jobs:
     - name: Runtime checkpoint
       run: python -c "import repro_core.runtime_guard as rg; rg.checkpoint()"
 
-
     # =========================
     # 4) CHAOS / PHYSICS ENGINES
     # =========================
@@ -3657,7 +3652,6 @@ jobs:
       run: |
         python -m analysis.scaling_relation_finder
         python -m analysis.critical_exponent_estimator
-
 
     # =========================
     # 5) SCIENTIFIC VALIDATION
@@ -4118,7 +4112,7 @@ jobs:
       if: >
         success() &&
         github.event_name != 'pull_request'
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
       with:
         name: final-provenance-closure
         path: artifacts/final_provenance_closure
@@ -4142,7 +4136,7 @@ jobs:
       if: >
         success() &&
         github.event_name != 'pull_request'
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
       with:
         name: independent-verification
         path: public
@@ -4823,7 +4817,7 @@ jobs:
     needs: verify-core
     
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -4879,7 +4873,7 @@ jobs:
     needs: stability-check
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -5182,7 +5176,7 @@ jobs:
       - sweep-plus
     steps:
       - name: Checkout exact workflow commit
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
@@ -5190,7 +5184,7 @@ jobs:
       - name: Download dataset eligibility evidence
         id: eligibility_artifact
         continue-on-error: true
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
         with:
           name: dataset-eligibility-gate
           path: artifacts/dataset-eligibility-gate
@@ -5334,7 +5328,7 @@ jobs:
 
       - name: Upload final claim-gate decision
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: final-claim-gate-decision
           path: artifacts/final_claim_gate_decision.json
