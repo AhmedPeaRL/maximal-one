@@ -12,6 +12,14 @@ permissions:
   contents: read
 
 jobs:
+  dependency-vulnerability-inventory:
+    name: OSV inventory for the exact target commit
+    uses: ./.github/workflows/dependency-vulnerability-inventory.yml
+    with:
+      scan_commit: ${{ inputs.scan_commit }}
+    permissions:
+      contents: read
+      
   exact-commit-scan:
     name: Scan exact commit without promotion authority
     runs-on: ubuntu-24.04
