@@ -3,6 +3,9 @@ name: Scientific Evaluation
 on:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   evaluate:
     runs-on: ubuntu-latest
