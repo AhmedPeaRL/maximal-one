@@ -14,7 +14,7 @@ permissions:
 jobs:
   dependency-vulnerability-inventory:
     name: OSV inventory for the exact target commit
-    uses: ./.github/workflows/dependency-vulnerability-inventory.yml
+    uses: $/.github/workflows/dependency-vulnerability-inventory.yml
     with:
       scan_commit: ${{ inputs.scan_commit }}
     permissions:
