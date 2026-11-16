@@ -48,6 +48,8 @@ jobs:
       - name: Validate requested commits and establish immutable audit refs
         shell: bash
         env:
+          TARGET_COMMIT: ${{ inputs.target_commit }}
+          MAIN_COMMIT: ${{ inputs.main_commit }}
           WORKFLOW_COMMIT: ${{ github.sha }}
         run: |
           set -euo pipefail
