@@ -70,8 +70,33 @@ class OccurrenceLocalInventoryTests(unittest.TestCase):
             if args[0] == "show" and args[1].endswith(".github/workflows/example.yml"):
                 return "uses: actions/upload-artifact@v4\n"
             raise AssertionError(args)
-        with patch("scripts.audit_type1_governance_refs.git", side_effect=fake_git):
+        
+        def fake_git_bytes(*args):
+            if args[0] == "show" and args[1].endswith(generated):
+                return (
+                    b'{"V3": "V4", '
+                    b'"confirmatory_execution_authorized": false}'
+                )
+            if args[0] == "show" and args[1].endswith(register):
+                return (
+                    b"V4 governance register; "
+                    b"confirmatory_execution_authorized=false\n"
+                )
+            if args[0] == "show" and args[1].endswith(
+                ".github/workflows/example.yml"
+            ):
+                return b"uses: actions/upload-artifact@v4\n"
+            raise AssertionError(args)
+             
+        with patch(
+            "scripts.audit_type1_governance_refs.git",
+            side_effect=fake_git,
+        ), patch(
+            "scripts.audit_type1_governance_refs.git_bytes",
+            side_effect=fake_git_bytes,
+        ):
             report = inspect_ref("HEAD")
+
         self.assertEqual(
             [row["path"] for row in report["excluded_paths"]],
             [generated, register],
