@@ -1,3 +1,2 @@
-numpy
-cvxpy
-scs
+# Shared Python 3.11.15 hash-locked dependencies.
+-r ../../requirements-lock.txt
