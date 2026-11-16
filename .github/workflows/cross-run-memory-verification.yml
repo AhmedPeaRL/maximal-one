@@ -35,15 +35,18 @@ jobs:
           fi
 
       - name: Compare with historical memory
+        env:
+          CURRENT_HASH: ${{ steps.compute_hash.outputs.current_hash }}
+        shell: bash
         run: |
-          CURRENT=${{ steps.compute_hash.outputs.current_hash }}
-          echo "Current: $CURRENT"
+          set -euo pipefail
+          printf 'Current: %s\n' "$CURRENT_HASH"
 
-          if grep -q "$CURRENT" .coherence-memory/history.log; then
+          if grep -Fqx -- "$CURRENT_HASH" .coherence-memory/history.log; then
             echo "Hash already observed in historical memory."
           else
             echo "New hash detected. Appending to memory."
-            echo "$CURRENT" >> .coherence-memory/history.log
+            printf '%s\n' "$CURRENT_HASH" >> .coherence-memory/history.log
           fi
 
       - name: Commit memory if changed
