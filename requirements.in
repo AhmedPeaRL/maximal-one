@@ -1,3 +1,7 @@
+# Canonical runtime constraints for CPython 3.11.15.
+# Generated lock: requirements-lock.txt
+# The lock must be regenerated with pip-tools and SHA-256 hashes.
+
 numpy==1.26.4
 scipy==1.11.4
 pandas==2.2.2
@@ -6,6 +10,13 @@ matplotlib==3.8.2
 sympy==1.12
 scs==3.2.4
 cvxpy==1.4.2
-scikit-learn==1.4.2
-pyarrow==15.0.2
-requests==2.31.0
+
+scikit-learn==1.9.1
+pyarrow==26.0.1
+requests==2.34.2
+certifi==2026.10.23
+httplib2==0.32.1
+idna==3.20
+mpmath==1.4.1
+Pillow==13.0.0
+urllib3==2.8.0
