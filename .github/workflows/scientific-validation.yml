@@ -1510,11 +1510,6 @@ jobs:
 
           echo "✅ No hardcoded secrets detected"
 
-      - name: Mask secrets
-        run: |
-          echo "::add-mask::${{ secrets.GH_TOKEN }}"
-          echo "::add-mask::${{ secrets.WITNESS_SECRET }}"
-
       - name: Block real GitHub tokens only
         run: |
           echo "Scanning for REAL GitHub tokens..."
@@ -1621,17 +1616,15 @@ jobs:
             console.log("Payload accepted (controlled):", raw.length);
           }
           NODE
-
+     
       - name: Verify witness signature (conditional)
+        if: github.event_name == 'repository_dispatch'
         env:
           WITNESS_SECRET: ${{ secrets.WITNESS_SECRET }}
         run: |
-          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
-            echo "External witness detected → verifying signature..."
-            node analysis/verify_witness_signature.cjs || echo "⚠️ Signature missing — recorded as unverified witness"
-          else
-            echo "Internal trigger → skipping signature verification"
-          fi
+          set -euo pipefail
+          node analysis/verify_witness_signature.cjs || \
+            echo "Signature missing — recorded as unverified witness"
 
       - name: Attach witness hash
         run: |
