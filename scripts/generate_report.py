@@ -996,8 +996,12 @@ def main():
         import subprocess
         import sys
 
+        repo_root = Path(__file__).resolve().parents[1]
+
         canonical_consensus_script = (
-            Path("scripts/canonical_consensus.py")
+            repo_root
+            / "scripts"
+            / "canonical_consensus.py"
         )
 
         if not canonical_consensus_script.exists():
@@ -1008,13 +1012,17 @@ def main():
         subprocess.run(
             [
                 sys.executable,
-                str(canonical_consensus_script),
+                "-m",
+                "scripts.canonical_consensus",
             ],
             check=True,
+            cwd=repo_root,
         )
 
-        canonical_consensus_path = Path(
-            "artifacts/canonical_consensus.json"
+        canonical_consensus_path = (
+            repo_root
+            / "artifacts"
+            / "canonical_consensus.json"
         )
 
         if not canonical_consensus_path.exists():
