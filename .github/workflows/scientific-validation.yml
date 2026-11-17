@@ -1227,7 +1227,7 @@ jobs:
           python analysis/environment_fingerprint.py
 
       - name: Export commit
-        run: echo "GITHUB_SHA=${{ github.sha }}" >> $GITHUB_ENV
+        run: echo "GITHUB_SHA=${{ github.sha }}" >> "$GITHUB_ENV"
 
       - name: Hash report
         run: sha256sum artifacts/canonical_report.json
@@ -1483,12 +1483,14 @@ jobs:
 
       - name: Enforce deterministic env
         run: |
-          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-          echo "PYTHONHASHSEED=42" >> $GITHUB_ENV
-          echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "NUMEXPR_NUM_THREADS=1" >> $GITHUB_ENV
+          printf '%s\n' \
+            "PYTHONPATH=$GITHUB_WORKSPACE" \
+            'PYTHONHASHSEED=42' \
+            'OMP_NUM_THREADS=1' \
+            'MKL_NUM_THREADS=1' \
+            'OPENBLAS_NUM_THREADS=1' \
+            'NUMEXPR_NUM_THREADS=1' \
+            >> "$GITHUB_ENV"
 
       - name: Install deps (STRICT)
         run: |
@@ -1672,12 +1674,14 @@ jobs:
 
       - name: Enforce deterministic env
         run: |
-          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-          echo "PYTHONHASHSEED=42" >> $GITHUB_ENV
-          echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "NUMEXPR_NUM_THREADS=1" >> $GITHUB_ENV
+          printf '%s\n' \
+            "PYTHONPATH=$GITHUB_WORKSPACE" \
+            'PYTHONHASHSEED=42' \
+            'OMP_NUM_THREADS=1' \
+            'MKL_NUM_THREADS=1' \
+            'OPENBLAS_NUM_THREADS=1' \
+            'NUMEXPR_NUM_THREADS=1' \
+            >> "$GITHUB_ENV"
       
       - name: Install deps
         run: pip install requests
@@ -1716,12 +1720,14 @@ jobs:
 
       - name: Enforce deterministic env
         run: |
-          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-          echo "PYTHONHASHSEED=42" >> $GITHUB_ENV
-          echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "NUMEXPR_NUM_THREADS=1" >> $GITHUB_ENV
+          printf '%s\n' \
+            "PYTHONPATH=$GITHUB_WORKSPACE" \
+            'PYTHONHASHSEED=42' \
+            'OMP_NUM_THREADS=1' \
+            'MKL_NUM_THREADS=1' \
+            'OPENBLAS_NUM_THREADS=1' \
+            'NUMEXPR_NUM_THREADS=1' \
+            >> "$GITHUB_ENV"
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
@@ -1770,12 +1776,14 @@ jobs:
 
       - name: Enforce deterministic env
         run: |
-          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-          echo "PYTHONHASHSEED=42" >> $GITHUB_ENV
-          echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "NUMEXPR_NUM_THREADS=1" >> $GITHUB_ENV
+          printf '%s\n' \
+            "PYTHONPATH=$GITHUB_WORKSPACE" \
+            'PYTHONHASHSEED=42' \
+            'OMP_NUM_THREADS=1' \
+            'MKL_NUM_THREADS=1' \
+            'OPENBLAS_NUM_THREADS=1' \
+            'NUMEXPR_NUM_THREADS=1' \
+            >> "$GITHUB_ENV"
 
       - name: Upgrade pip first
         run: python -m pip install --upgrade pip
@@ -1796,8 +1804,8 @@ jobs:
         run: pip freeze > pip-freeze.txt
 
       - name: Set Python path
-        run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-
+        run: printf 'PYTHONPATH=%s\n' "$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
+        
       - name: Generate extended dataset (MANDATORY)
         run: |
           python analysis/expand_dataset.py
@@ -2382,12 +2390,14 @@ jobs:
 
       - name: Enforce deterministic env
         run: |
-          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-          echo "PYTHONHASHSEED=42" >> $GITHUB_ENV
-          echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "NUMEXPR_NUM_THREADS=1" >> $GITHUB_ENV
+          printf '%s\n' \
+            "PYTHONPATH=$GITHUB_WORKSPACE" \
+            'PYTHONHASHSEED=42' \
+            'OMP_NUM_THREADS=1' \
+            'MKL_NUM_THREADS=1' \
+            'OPENBLAS_NUM_THREADS=1' \
+            'NUMEXPR_NUM_THREADS=1' \
+            >> "$GITHUB_ENV"
 
       - name: Install locked Python dependencies for final provenance verification
         shell: bash
@@ -2845,9 +2855,11 @@ jobs:
 
       - name: Load Runtime Mode
         id: mode
+        shell: bash
         run: |
-          MODE=$(cat core-scientific/runtime_mode.json | jq -r '.mode')
-          echo "MODE=$MODE" >> $GITHUB_ENV
+          set -euo pipefail
+          MODE="$(jq -r '.mode' core-scientific/runtime_mode.json)"
+          printf 'MODE=%s\n' "$MODE" >> "$GITHUB_ENV"
           echo "Running in mode: $MODE"
           
       - name: Load Truth Commitment
@@ -3139,12 +3151,14 @@ jobs:
 
       - name: Enforce deterministic env
         run: |
-          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-          echo "PYTHONHASHSEED=42" >> $GITHUB_ENV
-          echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "NUMEXPR_NUM_THREADS=1" >> $GITHUB_ENV
+          printf '%s\n' \
+            "PYTHONPATH=$GITHUB_WORKSPACE" \
+            'PYTHONHASHSEED=42' \
+            'OMP_NUM_THREADS=1' \
+            'MKL_NUM_THREADS=1' \
+            'OPENBLAS_NUM_THREADS=1' \
+            'NUMEXPR_NUM_THREADS=1' \
+            >> "$GITHUB_ENV"
 
       - name: Debug repo structure
         run: |
@@ -3184,10 +3198,10 @@ jobs:
 
           # TRUE CONSENSUS CHECK
           if [ "$H1" = "$H2" ] && [ "$H2" = "$H3" ]; then
-            echo "CONSENSUS=true" >> $GITHUB_ENV
+            printf 'CONSENSUS=true\n' >> "$GITHUB_ENV"
             echo "✅ Perfect deterministic consensus"
           else
-            echo "CONSENSUS=false" >> $GITHUB_ENV
+            printf 'CONSENSUS=false\n' >> "$GITHUB_ENV"
             echo "⚠️ Divergence detected — recorded as signal, not failure"
           fi
 
@@ -3326,13 +3340,14 @@ jobs:
       shell: bash
       run: |
         set -euo pipefail
-
-        echo "PYTHONPATH=$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
-        echo "PYTHONHASHSEED=42" >> "$GITHUB_ENV"
-        echo "OMP_NUM_THREADS=1" >> "$GITHUB_ENV"
-        echo "MKL_NUM_THREADS=1" >> "$GITHUB_ENV"
-        echo "OPENBLAS_NUM_THREADS=1" >> "$GITHUB_ENV"
-        echo "NUMEXPR_NUM_THREADS=1" >> "$GITHUB_ENV"
+        printf '%s\n' \
+            "PYTHONPATH=$GITHUB_WORKSPACE" \
+            'PYTHONHASHSEED=42' \
+            'OMP_NUM_THREADS=1' \
+            'MKL_NUM_THREADS=1' \
+            'OPENBLAS_NUM_THREADS=1' \
+            'NUMEXPR_NUM_THREADS=1' \
+            >> "$GITHUB_ENV"
 
     - name: Log input and generate hash safely
       env:
@@ -3437,7 +3452,7 @@ jobs:
         path: artifacts
 
     - name: Set Python path
-      run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+      run: printf 'PYTHONPATH=%s\n' "$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
 
     - uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25
       with:
@@ -3728,7 +3743,7 @@ jobs:
       run: python analysis/external_ground_truth_validator.py
 
     - name: Export commit
-      run: echo "GITHUB_SHA=${{ github.sha }}" >> $GITHUB_ENV  
+      run: printf 'GITHUB_SHA=%s\n' '${{ github.sha }}' >> "$GITHUB_ENV"
 
     - name: TRUE External Witness Node (REAL)
       run: |
@@ -4324,12 +4339,14 @@ jobs:
 
       - name: Enforce deterministic env
         run: |
-          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-          echo "PYTHONHASHSEED=42" >> $GITHUB_ENV
-          echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "NUMEXPR_NUM_THREADS=1" >> $GITHUB_ENV
+          printf '%s\n' \
+            "PYTHONPATH=$GITHUB_WORKSPACE" \
+            'PYTHONHASHSEED=42' \
+            'OMP_NUM_THREADS=1' \
+            'MKL_NUM_THREADS=1' \
+            'OPENBLAS_NUM_THREADS=1' \
+            'NUMEXPR_NUM_THREADS=1' \
+            >> "$GITHUB_ENV"
 
       - name: Install system build tools
         run: |
@@ -4380,12 +4397,14 @@ jobs:
 
       - name: Enforce deterministic env
         run: |
-          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-          echo "PYTHONHASHSEED=42" >> $GITHUB_ENV
-          echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "MKL_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "OPENBLAS_NUM_THREADS=1" >> $GITHUB_ENV
-          echo "NUMEXPR_NUM_THREADS=1" >> $GITHUB_ENV
+          printf '%s\n' \
+            "PYTHONPATH=$GITHUB_WORKSPACE" \
+            'PYTHONHASHSEED=42' \
+            'OMP_NUM_THREADS=1' \
+            'MKL_NUM_THREADS=1' \
+            'OPENBLAS_NUM_THREADS=1' \
+            'NUMEXPR_NUM_THREADS=1' \
+            >> "$GITHUB_ENV"
       
       - name: Install locked dependencies
         shell: bash
@@ -4394,15 +4413,21 @@ jobs:
           python --version
           python -m pip install --require-hashes -r requirements-lock.txt
 
-      - name: Git bootstrap (GLOBAL FIX)
+      - name: Git bootstrap (GLOBAL FIX)     
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
         run: |
+          set -euo pipefail
+
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
 
+          gh auth setup-git
+
           git remote remove origin || true
-          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+          git remote add origin "https://github.com/${GH_REPO}.git"
         
       - name: Require scientific state
         shell: bash
@@ -4527,22 +4552,23 @@ jobs:
       - name: Ensure remote origin (FIXED PROPERLY)
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
           echo "Resetting origin safely..."
 
           git remote remove origin || true
+          git remote add origin "https://github.com/${GH_REPO}.git"
 
-          git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
+          gh auth setup-git
 
           git fetch origin main || true
-
           git checkout main || git checkout -b main
-
           git branch --set-upstream-to=origin/main main || true
 
-          echo "✅ origin fully restored and linked"
+          echo "origin restored and linked"
 
       - name: Synchronize with current main before persistence
         run: |
@@ -4593,7 +4619,6 @@ jobs:
           )
 
           echo "=== VERIFY GENERATED OUTPUTS ==="
-
           for path in "${REQUIRED_OUTPUTS[@]}"; do
             if [[ ! -s "$path" ]]; then
               echo "❌ Required generated output is missing or empty:"
@@ -4605,17 +4630,7 @@ jobs:
           done
 
           echo "=== STAGE ALLOWED FILES ==="
-
-          git add -- \
-            data/multi_seed_results.csv \
-            data/power_result.txt \
-            data/fbm_comparison.txt \
-            data/model_comparison.txt \
-            data/hurst.txt \
-            data/null_test.txt \
-            data/effect_size.txt \
-            data/lyapunov.txt \
-            README.md
+          git add -- "${ALLOWED_FILES[@]}"
 
           echo "=== STAGED FILES ==="
           git diff --cached --name-status
@@ -4630,7 +4645,6 @@ jobs:
           )
 
           STAGED_FILES="$(git diff --cached --name-only)"
-
           echo "=== PROVENANCE SAFETY CHECK ==="
 
           while IFS= read -r path; do
