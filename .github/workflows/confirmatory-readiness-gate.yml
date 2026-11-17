@@ -42,14 +42,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
-          echo "PYTHONHASHSEED=42" >> "$GITHUB_ENV"
-          echo "OMP_NUM_THREADS=1" >> "$GITHUB_ENV"
-          echo "MKL_NUM_THREADS=1" >> "$GITHUB_ENV"
-          echo "OPENBLAS_NUM_THREADS=1" >> "$GITHUB_ENV"
-          echo "NUMEXPR_NUM_THREADS=1" >> "$GITHUB_ENV"
-          echo "MKL_DYNAMIC=FALSE" >> "$GITHUB_ENV"
-          echo "OMP_DYNAMIC=FALSE" >> "$GITHUB_ENV"
+          printf '%s\n' \
+            'PYTHONHASHSEED=42' \
+            'OMP_NUM_THREADS=1' \
+            'MKL_NUM_THREADS=1' \
+            'OPENBLAS_NUM_THREADS=1' \
+            'NUMEXPR_NUM_THREADS=1' \
+            'MKL_DYNAMIC=FALSE' \
+            'OMP_DYNAMIC=FALSE' \
+            >> "$GITHUB_ENV"
 
       - name: Setup Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
