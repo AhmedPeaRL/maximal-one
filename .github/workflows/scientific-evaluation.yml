@@ -14,14 +14,21 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
 
       - name: Stream Data
+        shell: bash
         run: |
+          set -euo pipefail
           python scripts/data_stream.py data/input.csv > scores.txt
 
       - name: Evaluate Scores
+        shell: bash
         run: |
-          while read score; do
-            p=$(python scripts/perturbation_engine.py $score)
-            python scripts/adaptive_threshold.py $p
+          set -euo pipefail
+
+          while IFS= read -r score || [[ -n "$score" ]]; do
+            [[ -z "$score" ]] && continue
+
+            p="$(python scripts/perturbation_engine.py "$score")"
+            python scripts/adaptive_threshold.py "$p"
           done < scores.txt
 
       - name: Lyapunov Check
