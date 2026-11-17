@@ -35,20 +35,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
-          echo "PYTHONHASHSEED=42" >> "$GITHUB_ENV"
-
-          echo "OMP_NUM_THREADS=1" >> "$GITHUB_ENV"
-          echo "MKL_NUM_THREADS=1" >> "$GITHUB_ENV"
-          echo "OPENBLAS_NUM_THREADS=1" >> "$GITHUB_ENV"
-          echo "NUMEXPR_NUM_THREADS=1" >> "$GITHUB_ENV"
-
-          echo "MKL_DYNAMIC=FALSE" >> "$GITHUB_ENV"
-          echo "OMP_DYNAMIC=FALSE" >> "$GITHUB_ENV"
-          echo "VECLIB_MAXIMUM_THREADS=1" >> "$GITHUB_ENV"
-          echo "BLIS_NUM_THREADS=1" >> "$GITHUB_ENV"
-
-          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
+          printf '%s\n' \
+            'PYTHONHASHSEED=42' \
+            'OMP_NUM_THREADS=1' \
+            'MKL_NUM_THREADS=1' \
+            'OPENBLAS_NUM_THREADS=1' \
+            'NUMEXPR_NUM_THREADS=1' \
+            >> "$GITHUB_ENV"
 
       - name: Install immutable locked Python dependencies
         shell: bash
