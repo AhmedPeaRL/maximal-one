@@ -29,7 +29,7 @@ jobs:
   refresh:
     needs: guard
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 120
     permissions:
       contents: read
 
@@ -41,10 +41,12 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
-      - name: Set up CPython 3.11.15
+      - name: Set up Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version: "3.11.15"
+          cache: pip
+          cache-dependency-path: requirements.in
 
       - name: Verify branch, commit, and Python identity
         shell: bash
@@ -380,7 +382,7 @@ jobs:
     permissions:
       contents: read
 
-    uses: ./.github/workflows/software-assurance-exact-commit-v1.yml
-
+    uses: $/.github/workflows/software-assurance-exact-commit-v1.yml
+    
     with:
       scan_commit: ${{ needs.publish.outputs.commit_sha }}
