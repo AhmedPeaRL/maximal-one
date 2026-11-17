@@ -143,7 +143,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          python analysis/estimator_sensitivity_audit.py
+          python -m analysis.estimator_sensitivity_audit
 
           test -s \
             artifacts/estimator_sensitivity_audit.json
@@ -160,22 +160,22 @@ jobs:
         run: |
           set -euo pipefail
 
-          python scripts/generate_public_scientific_report.py
-          python scripts/generate_public_scientific_report.py --check
+          python -m scripts.generate_public_scientific_report
+          python -m scripts.generate_public_scientific_report --check
 
       - name: Verify null adequacy threshold registry
         shell: bash
         run: |
           set -euo pipefail
 
-          python analysis/verify_null_adequacy_threshold_registry.py
+          python -m analysis.verify_null_adequacy_threshold_registry
 
       - name: Run null calibration gate
         shell: bash
         run: |
           set -euo pipefail
 
-          python analysis/null_calibration_gate.py
+          python -m analysis.null_calibration_gate
 
           test -s \
             artifacts/null_calibration_gate.json
@@ -290,7 +290,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          python analysis/dataset_eligibility_gate.py
+          python -m analysis.dataset_eligibility_gate
 
           test -s \
             artifacts/dataset_eligibility_gate.json
@@ -314,7 +314,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          python analysis/permutation_determinism_audit.py
+          python -m analysis.permutation_determinism_audit
 
           test -s \
             artifacts/permutation_determinism_audit.json
@@ -331,15 +331,15 @@ jobs:
         run: |
           set -euo pipefail
 
-          python analysis/verify_replication_provenance.py
-          python analysis/verify_confirmatory_readiness.py 
+          python -m analysis.verify_replication_provenance
+          python -m analysis.verify_confirmatory_readiness
 
       - name: Run independent domain replication gate
         shell: bash
         run: |
           set -euo pipefail
 
-          python analysis/independent_domain_replication_gate.py
+          python -m analysis.independent_domain_replication_gate
 
           test -s \
             artifacts/independent_domain_replication_gate.json
@@ -356,7 +356,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          python analysis/adversarial_control.py
+          python -m analysis.adversarial_control
 
           test -s \
             artifacts/adversarial_control.json
@@ -366,7 +366,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          python analysis/true_independent_reproduction.py
+          python -m analysis.true_independent_reproduction
 
           test -s \
             artifacts/external_replay_verification.json
@@ -376,14 +376,14 @@ jobs:
         run: |
           set -euo pipefail
 
-          python scripts/validate_external_replay.py
+          python -m scripts.validate_external_replay
 
       - name: Generate final claim readiness audit
         shell: bash
         run: |
           set -euo pipefail
 
-          python analysis/claim_readiness_audit.py
+          python -m analysis.claim_readiness_audit
 
           test -s \
             artifacts/claim_readiness_audit.json
