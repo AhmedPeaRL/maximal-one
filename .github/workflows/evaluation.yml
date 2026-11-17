@@ -12,7 +12,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
-
+        with:
+          persist-credentials: false
+          
       - name: Run Adaptive Threshold
         run: |
           python scripts/adaptive_threshold.py 0.923
