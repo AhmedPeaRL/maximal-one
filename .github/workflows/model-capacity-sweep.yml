@@ -25,12 +25,14 @@ jobs:
 
       - name: Deterministic environment
         run: |
-          echo "PYTHONPATH=$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
-          echo "PYTHONHASHSEED=90210" >> "$GITHUB_ENV"
-          echo "OMP_NUM_THREADS=1" >> "$GITHUB_ENV"
-          echo "MKL_NUM_THREADS=1" >> "$GITHUB_ENV"
-          echo "OPENBLAS_NUM_THREADS=1" >> "$GITHUB_ENV"
-          echo "NUMEXPR_NUM_THREADS=1" >> "$GITHUB_ENV"
+          printf '%s\n' \
+            "PYTHONPATH=$GITHUB_WORKSPACE" \
+            'PYTHONHASHSEED=90210' \
+            'OMP_NUM_THREADS=1' \
+            'MKL_NUM_THREADS=1' \
+            'OPENBLAS_NUM_THREADS=1' \
+            'NUMEXPR_NUM_THREADS=1' \
+            >> "$GITHUB_ENV"
 
       - name: Install locked dependencies
         run: |
