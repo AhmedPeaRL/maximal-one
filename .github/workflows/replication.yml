@@ -124,11 +124,13 @@ jobs:
           import cvxpy
           import httplib2
           import idna
+          import jsonschema
           import matplotlib
           import mpmath
           import numpy
           import pandas
           import pyarrow
+          import psutil
           import requests
           import scs
           import scipy
