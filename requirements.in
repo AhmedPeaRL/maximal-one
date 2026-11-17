@@ -23,3 +23,6 @@ urllib3==2.8.0
 
 # Required by the Draft 2020-12 manual-adjudication schema tests.
 jsonschema==4.26.0
+
+# Required by analysis/system_health_check.py.
+psutil==7.2.2
