@@ -116,8 +116,8 @@ jobs:
 
           python -m scripts.prepare_canonical_inputs
           python -m scripts.generate_report --seed 42 --canonical
-          python analysis/verify_report_identity.py
-          python scripts/validate_canonical_report.py
+          python -m analysis.verify_report_identity
+          python -m scripts.validate_canonical_report
 
       - name: Verify stochastic null identity contract
         shell: bash
