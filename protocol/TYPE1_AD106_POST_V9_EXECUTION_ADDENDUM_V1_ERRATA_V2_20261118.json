@@ -1,0 +1,36 @@
+{
+  "schema": "HCM_TYPE1_AD106_POST_V9_EXECUTION_ADDENDUM_V1_ERRATA_V2",
+  "recorded_at_utc": "2026-11-18",
+  "repository": "AhmedPeaRL/maximal-one",
+  "supersedes": "protocol/TYPE1_AD106_POST_V9_EXECUTION_ADDENDUM_V1_ERRATA_20261118.json",
+  "original_addendum": "protocol/TYPE1_AD106_POST_V9_EXECUTION_ADDENDUM_V1_20261118.json",
+  "original_addendum_commit": "476848cf84a94a97e1c4e3881500cae924965dea",
+  "errata_v1_commit": "182d896af31b011e40825da96b92641821166003",
+  "finding": "ERRATA_V1_RECORDED_VALUES_DO_NOT_MATCH_ORIGINAL_ADDENDUM",
+  "disposition": "WITHDRAW_BOTH_CORRECTIONS_AS_NOT_APPLICABLE",
+  "evidence": [
+    {
+      "artifact_id": "14373670597",
+      "addendum_v1_sha256": "8dc10de19d292803e3582b1660cc7f5eb675bc33ed0bf3b782e1decab98be67d",
+      "errata_v1_recorded_value": "8dc10de19d292803e3582b1660cc7f5eb675bc33ed0bf3b782e1decab98be67",
+      "errata_v1_correct_value": "8dc10de19d292803e3582b1660cc7f5eb675bc33ed0bf3b782e1decab98be67d",
+      "conclusion": "The original Addendum V1 value already matches the independently recomputed archive SHA-256."
+    },
+    {
+      "artifact_id": "14372144011",
+      "addendum_v1_sha256": "f88d5f18b91b0c6b97aa63aef8dc3f9cc4c7f3b1de83abce4f07addea72b182c",
+      "errata_v1_recorded_value": "f88d5f18b91b0c6b97aa63aef3df9cc4c7f3b1de83abce4f07addea72b182c",
+      "errata_v1_correct_value": "f88d5f18b91b0c6b97aa63aef8dc3f9cc4c7f3b1de83abce4f07addea72b182c",
+      "conclusion": "The original Addendum V1 value already matches the independently recomputed archive SHA-256."
+    }
+  ],
+  "preservation": {
+    "addendum_v1_modified": false,
+    "errata_v1_modified": false,
+    "original_artifacts_modified": false,
+    "population_register_v9_modified": false,
+    "main_branch_modified": false
+  },
+  "authority": "NONE",
+  "interpretation_limit": "This V2 record withdraws the two inapplicable corrections in Errata V1. It does not change the original artifact evidence, workflow outcomes, scientific status, security findings, or authorization state."
+}
