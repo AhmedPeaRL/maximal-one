@@ -1,0 +1,134 @@
+{
+  "schema": "HCM_TYPE1_AD106_POST_V9_EXECUTION_ADDENDUM_V1",
+  "recorded_at_utc": "2026-11-18",
+  "repository": "AhmedPeaRL/maximal-one",
+  "source_register": {
+    "path": "protocol/TYPE1_AD106_POPULATION_REGISTER_V9.json",
+    "register_version": "V9",
+    "register_is_modified": false
+  },
+  "identity": {
+    "target_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+    "main_comparison_commit": "9749de9253f144eeda9e1b60cb219cfc5f201ecc",
+    "review_branch_commit_at_execution": "87160e6469d323187916d375c11300158777d22b"
+  },
+  "source_lineage": {
+    "inventory_run_id": "43757949244",
+    "inventory_artifact_id": "14178549418",
+    "inventory_sha256": "4ee4335d5807c0a90ac668637a2bd55277ae9b6ce442af316f65f22a24f17a89",
+    "target_ledger_sha256": "ad18beccc8e5e9e9934838afe0e176b9e25658bea24e93c5dd3d2ec9ef119c67",
+    "main_ledger_sha256": "e2a9aa2b2da293c2c68f0a518ca1d76c5ffc85c8f7304ed17d3e312e1beec650",
+    "snapshot_run_id": "43762349962",
+    "snapshot_artifact_id": "14180143511",
+    "snapshot_artifact_archive_sha256": "caa75810be3463ddf09c6d379bd6685337bbee6be62284bf8fc877768b43364e",
+    "snapshot_manifest_sha256": "2ff2e9b8c9aa2aea520ca1612e76a92703af9d479d6742e6ea211627862d9426",
+    "snapshot_certificate_sha256": "33ed699ddb23ec454c66951fd08704c4248f6709699f805b0ffe689481b32567",
+    "snapshot_inner_zip_sha256": "6a399450a2e69d3e069363a957200203c84025754cb5b333dc90786e64494842",
+    "selected_file_count": 289,
+    "present_file_count": 289,
+    "extraction_verified": true
+  },
+  "post_v9_executions": [
+    {
+      "purpose": "Navigation-only target batch generation",
+      "workflow_path": ".github/workflows/type1-target-batch-generation-v4.yml",
+      "workflow_run_id": "44182819734",
+      "workflow_definition_commit": "87160e6469d323187916d375c11300158777d22b",
+      "branch": "review/type1-v4-remediation",
+      "conclusion": "success",
+      "artifact_id": "14371289914",
+      "artifact_name": "type1-target-1800-batches-current-source-bound-44182819734-1",
+      "artifact_archive_sha256": "c63e19804f877a52f14230964ed4acddabf91dfdfee6d731d3470e371c4c93ab",
+      "output": {
+        "batch_count": 72,
+        "batch_size": 25,
+        "occurrence_count": 1800,
+        "unique_occurrence_ids": 1800,
+        "source_inventory_run_id": "43757949244",
+        "source_inventory_artifact_id": "14178549418",
+        "target_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+        "main_commit": "9749de9253f144eeda9e1b60cb219cfc5f201ecc",
+        "status": "NAVIGATION_ONLY_NOT_ADJUDICATED"
+      },
+      "authority": "NONE"
+    },
+    {
+      "purpose": "Read-only human-overlay preflight",
+      "workflow_path": ".github/workflows/type1-human-overlay-preflight-v5.yml",
+      "workflow_run_id": "44182878546",
+      "workflow_definition_commit": "87160e6469d323187916d375c11300158777d22b",
+      "branch": "review/type1-v4-remediation",
+      "conclusion": "success",
+      "artifact_id": "14373670597",
+      "artifact_name": "type1-human-overlay-preflight-v6-44182878546-1",
+      "artifact_archive_sha256": "8dc10de19d292803e3582b1660cc7f5eb675bc33ed0bf3b782e1decab98be67",
+      "output": {
+        "csv_path": "adjudication/incoming/first-three-occurrences-v6.csv",
+        "csv_sha256": "60ddb17002a5e6ccdd82b2680fdb4efcc3ce94724e1c7d48a5fa9e6040fb1c05",
+        "row_count": 3,
+        "all_rows_open": true,
+        "all_rows_pending": true,
+        "adjudications_applied": 0,
+        "target_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+        "main_commit": "9749de9253f144eeda9e1b60cb219cfc5f201ecc",
+        "status": "CURRENT_SOURCE_PAIR_VERIFIED_PENDING_INDEPENDENT_HUMAN_ADJUDICATION"
+      },
+      "authority": "NONE"
+    },
+    {
+      "purpose": "Exact-target software assurance V3",
+      "workflow_path": ".github/workflows/type1-software-assurance-v3.yml",
+      "workflow_run_id": "44182949661",
+      "workflow_definition_commit": "87160e6469d323187916d375c11300158777d22b",
+      "branch": "review/type1-v4-remediation",
+      "conclusion": "success",
+      "artifact_id": "14372144011",
+      "artifact_name": "type1-software-assurance-v3-44182949661-1",
+      "artifact_archive_sha256": "f88d5f18b91b0c6b97aa63aef3df9cc4c7f3b1de83abce4f07addea72b182c",
+      "scan_commit": "ad106dddd2b6c9a57c90bd5bdd9f4530fe7ac876",
+      "snapshot_run_id": "43762349962",
+      "inventory_run_id": "43757949244",
+      "scanner_results": {
+        "actionlint_exit_code": 123,
+        "actionlint_diagnostic_headers": 97,
+        "zizmor_exit_code": 14,
+        "zizmor_findings": 205,
+        "zizmor_severity_counts": {
+          "high": 164,
+          "medium": 37,
+          "informational": 4
+        },
+        "scorecard_exit_code": 0,
+        "scorecard": 5.7,
+        "scorecard_reported_vulnerabilities": 73
+      },
+      "status": "TARGET_COMMIT_SCANNED_RESULTS_REQUIRE_TRIAGE_AND_OCCURRENCE_LEVEL_REVIEW",
+      "authority": "NONE"
+    }
+  ],
+  "known_workflow_version_discrepancy": {
+    "workflow_path": ".github/workflows/type1-human-overlay-preflight-v5.yml",
+    "main_branch_workflow_title": "Type-I Human Overlay Preflight V5",
+    "review_branch_workflow_title": "Type-I Human Overlay Preflight V6",
+    "review_branch_output_artifact_name_prefix": "type1-human-overlay-preflight-v6",
+    "register_referenced_workflow_path": ".github/workflows/type1-human-overlay-preflight-v5.yml",
+    "disposition": "DOCUMENTED_NOT_SILENTLY_NORMALIZED"
+  },
+  "human_review": {
+    "independent_statistical_methods_review": "PENDING",
+    "climate_domain_independence_review": "PENDING",
+    "econometric_domain_independence_review": "PENDING",
+    "github_actions_security_review": "PENDING",
+    "email_acknowledgement_or_out_of_office_is_not_review_approval": true,
+    "no_new_snapshot_sent_to_reviewers": true
+  },
+  "authority_invariants": {
+    "protocol_freeze": "NOT_FROZEN",
+    "formal_calibration_authorized": false,
+    "confirmatory_execution_authorized": false,
+    "claim_support": false,
+    "promotion_authority": false,
+    "human_adjudication_applied": false
+  },
+  "interpretation_limit": "This append-only addendum records executions that occurred after Population Register V9. It does not modify V9, adjudicate any occurrence, close any software finding, establish Type-I calibration, establish independent replication, authorize protocol freeze or confirmatory execution, support the HCM scientific claim, or grant promotion authority."
+}
