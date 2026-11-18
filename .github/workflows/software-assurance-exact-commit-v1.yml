@@ -46,6 +46,19 @@ jobs:
           SCAN_COMMIT: ${{ inputs.scan_commit }}
         run: |
           set -euo pipefail
+          
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            if [[ "$GITHUB_REF" != "refs/heads/review/type1-v4-remediation" ]]; then
+              echo "BLOCKED: manual assurance scans are permitted only on the review branch."
+              exit 1
+            fi
+
+            if [[ "$SCAN_COMMIT" != "$GITHUB_SHA" ]]; then
+              echo "BLOCKED: scan_commit must equal the selected review branch HEAD."
+              exit 1
+            fi
+          fi
+          
           if [[ ! "$SCAN_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
             echo "Invalid commit SHA"
             exit 1
