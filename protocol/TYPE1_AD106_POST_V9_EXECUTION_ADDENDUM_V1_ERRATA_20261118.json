@@ -1,0 +1,34 @@
+{
+  "schema": "HCM_TYPE1_AD106_POST_V9_EXECUTION_ADDENDUM_V1_ERRATA",
+  "recorded_at_utc": "2026-11-18",
+  "repository": "AhmedPeaRL/maximal-one",
+  "corrects_file": "protocol/TYPE1_AD106_POST_V9_EXECUTION_ADDENDUM_V1_20261118.json",
+  "original_commit": "476848cf84a94a97e1c4e3881500cae924965dea",
+  "correction_basis": "SHA-256 recomputed from the downloaded artifact ZIP files in the current review session",
+  "corrections": [
+    {
+      "artifact_id": "14373670597",
+      "artifact_filename": "artifact-14373670597.zip",
+      "field": "post_v9_executions[1].artifact_archive_sha256",
+      "recorded_value": "8dc10de19d292803e3582b1660cc7f5eb675bc33ed0bf3b782e1decab98be67",
+      "correct_value": "8dc10de19d292803e3582b1660cc7f5eb675bc33ed0bf3b782e1decab98be67d",
+      "verification": "SHA-256 recomputed from the downloaded ZIP"
+    },
+    {
+      "artifact_id": "14372144011",
+      "artifact_filename": "artifact-14372144011.zip",
+      "field": "post_v9_executions[2].artifact_archive_sha256",
+      "recorded_value": "f88d5f18b91b0c6b97aa63aef3df9cc4c7f3b1de83abce4f07addea72b182c",
+      "correct_value": "f88d5f18b91b0c6b97aa63aef8dc3f9cc4c7f3b1de83abce4f07addea72b182c",
+      "verification": "SHA-256 recomputed from the downloaded ZIP"
+    }
+  ],
+  "preservation": {
+    "original_addendum_modified": false,
+    "population_register_v9_modified": false,
+    "original_artifacts_modified": false,
+    "main_branch_modified": false
+  },
+  "authority": "NONE",
+  "interpretation_limit": "This errata corrects two artifact archive SHA-256 values only. It does not alter workflow outputs, adjudicate occurrences, close security findings, establish statistical calibration, establish independent replication, authorize confirmatory execution, support the HCM claim, or grant promotion authority."
+}
