@@ -51,7 +51,8 @@ jobs:
             tests.test_type1_main_negative_gate \
             tests.test_type1_formal_authorization \
             tests.test_type1_v4_matrix_gate \
-            tests.test_type1_cli_resume_identity_rejections
+            tests.test_type1_cli_resume_identity_rejections \
+            tests.test_safe_payload_boundary
 
       - name: Record accurate execution boundary
         if: always()
