@@ -1,0 +1,7 @@
+residual_id,source,check,score,status,evidence,required_next_action
+SC-001,OpenSSF Scorecard 5.6.0,Token-Permissions,9,OPEN,Excessive workflow token permissions detected but no exact path supplied,Identify exact workflow and job then narrow only the proven excessive grant
+SC-002,OpenSSF Scorecard 5.6.0,Pinned-Dependencies,9,OPEN,Dependency not pinned by hash detected but no exact dependency supplied,Identify exact manifest and dependency then repair verified hash coverage gap
+SC-003,OpenSSF Scorecard 5.6.0,Security-Policy,4,OPEN,SECURITY.md exists but score remains partial,Review current criteria and document any justified accepted risk
+SC-004,OpenSSF Scorecard 5.6.0,Fuzzing,0,OPEN,Project is not fuzzed,Assess threat-model relevance before adding fuzz targets
+GUARD-001,Exact assurance workflow,Manual workflow_dispatch,N/A,FIXED_VERIFIED,Run 44594759111 passed on exact review HEAD,No action unless guard changes
+GUARD-002,Exact assurance workflow,Reusable replication.yml caller,N/A,OPEN,The latest run did not exercise workflow_call,Create a safe isolated non-mutating guard test
