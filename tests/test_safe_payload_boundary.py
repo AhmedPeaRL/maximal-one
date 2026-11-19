@@ -41,6 +41,12 @@ class PayloadBoundaryTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             normalize_payload("{}")
 
+    def test_non_object_payload_rejected(self):
+        for raw in ('[]', '"text"', '1', 'true'):
+            with self.subTest(raw=raw):
+                with self.assertRaises(ValueError):
+                    normalize_payload(raw)
+
     def test_oversized_payload_rejected(self):
         with self.assertRaises(ValueError):
             normalize_payload(json.dumps({"x": "a" * 6000}))
