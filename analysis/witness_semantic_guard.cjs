@@ -9,6 +9,15 @@ try {
   process.exit(1);
 }
 
+if (
+  typeof data !== "object" ||
+  data === null ||
+  Array.isArray(data)
+) {
+  console.error("Payload must be a JSON object");
+  process.exit(1);
+}
+
 // Allow empty witness (controlled silence)
 if (data._empty === true) {
   console.log("Empty witness allowed.");
