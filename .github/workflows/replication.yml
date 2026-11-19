@@ -3,6 +3,12 @@ run-name: "Python 3.11.15 dependency refresh / ${{ github.ref_name }}"
 
 on:
   workflow_dispatch:
+    inputs:
+      assurance_only:
+        description: "Run read-only reusable assurance only; skip dependency refresh and publishing"
+        required: false
+        default: false
+        type: boolean
 
 permissions: {}
 
@@ -27,6 +33,7 @@ jobs:
           fi
 
   refresh:
+    if: ${{ !inputs.assurance_only }}
     needs: guard
     runs-on: ubuntu-24.04
     timeout-minutes: 120
@@ -217,6 +224,7 @@ jobs:
           retention-days: 90
 
   publish:
+    if: ${{ !inputs.assurance_only }}
     needs: refresh
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -379,10 +387,45 @@ jobs:
           echo "commit_sha=$commit_sha" >> "$GITHUB_OUTPUT"
           echo "Published lock commit: $commit_sha"
 
-  exact-assurance:
-    needs: publish
+  review-head:
+    if: ${{ inputs.assurance_only }}
+    needs: guard
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
+    outputs:
+      commit_sha: ${{ steps.identity.outputs.commit_sha }}
+
+    steps:
+      - name: Checkout exact review HEAD
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Verify branch and exact HEAD
+        id: identity
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
+
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$GITHUB_SHA"
+
+          echo "commit_sha=$actual" >> "$GITHUB_OUTPUT"
+          
+  exact-assurance:
+    needs: [publish, review-head]
+
+    if: ${{ always() && (needs.publish.result == 'success' || needs.review-head.result == 'success') }}
+
+    permissions:
+      contents: read
+
     uses: ./.github/workflows/software-assurance-exact-commit-v1.yml
+
     with:
-      scan_commit: ${{ needs.publish.outputs.commit_sha }}
+      scan_commit: ${{ inputs.assurance_only && needs.review-head.outputs.commit_sha || needs.publish.outputs.commit_sha }}
