@@ -19,6 +19,9 @@ def normalize_payload(raw: str | None) -> Any:
 
     data = json.loads(raw)
 
+    if not isinstance(data, dict):
+        raise ValueError("Payload must be a JSON object")
+
     if data is None:
         raise ValueError("Null payload rejected")
 
