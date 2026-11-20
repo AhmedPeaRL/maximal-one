@@ -1,17 +1,30 @@
-FROM python:3.11.8-slim
+FROM --platform=linux/amd64 python:3.11.15-slim@sha256:78b39ef14d8e2b4d71f8dc304f1328c37df95fe0ef99477c2ae6bd3d03784553
 
-RUN apt-get update && apt-get install -y nodejs npm
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 WORKDIR /app
 
-RUN npm install -g npm@10
+COPY requirements-lock.txt ./requirements-lock.txt
+RUN python -m pip install \
+      --no-cache-dir \
+      --only-binary=:all: \
+      --require-hashes \
+      -r requirements-lock.txt \
+    && python -m pip check
 
-COPY package*.json ./
-RUN npm ci --omit=dev
+RUN groupadd --gid 10001 app \
+    && useradd \
+      --uid 10001 \
+      --gid app \
+      --create-home \
+      --shell /usr/sbin/nologin \
+      app
 
-COPY requirements-lock.txt ./
+COPY --chown=10001:10001 . .
 
-RUN python -m pip install --require-hashes -r requirements-lock.txt
-COPY . .
+USER 10001:10001
 
-CMD ["node", "index.js"]
+ENTRYPOINT ["python", "-m", "scripts.generate_report"]
+CMD ["--help"]
