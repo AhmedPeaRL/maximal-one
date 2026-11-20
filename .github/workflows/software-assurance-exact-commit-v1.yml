@@ -45,7 +45,7 @@ jobs:
     needs:
       - dependency-vulnerability-inventory
       - exact-commit-scan
-    uses: ./.github/workflows/container-cli-smoke-review.yml
+    uses: $/.github/workflows/container-cli-smoke-review.yml
     with:
       review_only: true
     permissions:
@@ -170,6 +170,7 @@ jobs:
                   -no-color \
                   -ignore 'reusable workflow call "\$/.github/workflows/software-assurance-exact-commit-v1\.yml" at "uses" is not following the format' \
                   -ignore 'reusable workflow call "\$/.github/workflows/dependency-vulnerability-inventory\.yml" at "uses" is not following the format' \
+                  -ignore 'reusable workflow call "\$/.github/workflows/container-cli-smoke-review\.yml" at "uses" is not following the format' \
                   -config-file "$TARGET_DIR/.github/actionlint.yaml"
           ) > reports/actionlint.txt 2>&1
 
