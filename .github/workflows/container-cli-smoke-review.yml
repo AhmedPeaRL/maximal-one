@@ -1,0 +1,96 @@
+name: Container CLI Smoke and Image Security (Review Only)
+run-name: "Container CLI review / ${{ github.ref_name }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      review_only:
+        description: "Required confirmation that this is a review-branch-only, non-publishing run."
+        required: true
+        default: true
+        type: boolean
+
+permissions: {}
+
+concurrency:
+  group: container-cli-review-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  guard:
+    runs-on: ubuntu-24.04
+    permissions: {}
+    steps:
+      - name: Require the isolated review branch and review-only mode
+        shell: bash
+        env:
+          EXPECTED_REF: refs/heads/review/type1-v4-remediation
+          REVIEW_ONLY: ${{ inputs.review_only }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "$EXPECTED_REF"
+          test "$REVIEW_ONLY" = "true"
+
+  build-smoke-and-scan:
+    needs: guard
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Verify exact review-branch checkout
+        shell: bash
+        env:
+          EXPECTED_REF: refs/heads/review/type1-v4-remediation
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "$EXPECTED_REF"
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+
+      - name: Build local image without registry credentials or publishing
+        shell: bash
+        env:
+          IMAGE_NAME: maximal-one-cli:${{ github.sha }}
+        run: |
+          set -euo pipefail
+          docker build --pull --no-cache --tag "$IMAGE_NAME" .
+
+      - name: Verify CLI entrypoint without running scientific analysis
+        shell: bash
+        env:
+          IMAGE_NAME: maximal-one-cli:${{ github.sha }}
+        run: |
+          set -euo pipefail
+          docker run --rm "$IMAGE_NAME" --help | tee /tmp/container-cli-help.txt
+          grep -q -- '--seed' /tmp/container-cli-help.txt
+          docker run --rm --entrypoint python "$IMAGE_NAME" -c \
+            'import os, platform; assert platform.python_version() == "3.11.15"; assert os.getuid() != 0; print("Python version and non-root runtime verified")'
+
+      - name: Scan the built image for HIGH and CRITICAL vulnerabilities
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: maximal-one-cli:${{ github.sha }}
+          format: json
+          output: trivy-image-results.json
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+          ignore-unfixed: "false"
+          version: v0.70.0
+          cache: "false"
+
+      - name: Upload image vulnerability report
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v4
+        with:
+          name: trivy-image-report-${{ github.run_id }}
+          path: trivy-image-results.json
+          if-no-files-found: warn
+          retention-days: 30
