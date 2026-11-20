@@ -1,0 +1,17 @@
+# Narrow compatibility exception for GitHub's documented $/ syntax.
+#
+# actionlint 1.7.12 does not yet parse the same-repository $/ syntax.
+# GitHub Actions resolved both reusable workflow calls successfully
+# in run 44714620618.
+#
+# Ignore only the exact parser diagnostic at these two call sites.
+# All other actionlint checks remain enabled.
+
+paths:
+  .github/workflows/replication.yml:
+    ignore:
+      - 'reusable workflow call "\$/\.github/workflows/software-assurance-exact-commit-v1\.yml" at "uses" is not following the format'
+
+  .github/workflows/software-assurance-exact-commit-v1.yml:
+    ignore:
+      - 'reusable workflow call "\$/\.github/workflows/dependency-vulnerability-inventory\.yml" at "uses" is not following the format'
