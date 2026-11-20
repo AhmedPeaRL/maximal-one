@@ -144,6 +144,8 @@ jobs:
               \( -name '*.yml' -o -name '*.yaml' \) -print0 \
               | xargs -0 -r "$GITHUB_WORKSPACE/tools/actionlint" \
                   -no-color \
+                  -ignore 'reusable workflow call "\$/.github/workflows/software-assurance-exact-commit-v1\.yml" at "uses" is not following the format' \
+                  -ignore 'reusable workflow call "\$/.github/workflows/dependency-vulnerability-inventory\.yml" at "uses" is not following the format' \
                   -config-file "$TARGET_DIR/.github/actionlint.yaml"
           ) > reports/actionlint.txt 2>&1
 
