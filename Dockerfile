@@ -7,7 +7,7 @@ WORKDIR /app
 RUN npm install -g npm@10
 
 COPY package*.json ./
-RUN npm install --omit=dev
+RUN npm ci --omit=dev
 
 COPY requirements-lock.txt ./
 
