@@ -38,6 +38,18 @@ jobs:
       scan_commit: ${{ inputs.scan_commit }}
     permissions:
       contents: read
+
+  container-cli-smoke-review:
+    name: Container CLI build and image security (review only)
+    if: ${{ inputs.run_container_review }}
+    needs:
+      - dependency-vulnerability-inventory
+      - exact-commit-scan
+    uses: ./.github/workflows/container-cli-smoke-review.yml
+    with:
+      review_only: true
+    permissions:
+      contents: read
       
   exact-commit-scan:
     name: Scan exact commit without promotion authority
@@ -286,15 +298,3 @@ jobs:
               raise SystemExit("SCANNER_FINDINGS_OR_ERRORS_RECORDED; triage required")
           print("All scanner exit codes are zero; manual finding review is still required.")
           PY
-
-  container-cli-smoke-review:
-    name: Container CLI build and image security (review only)
-    if: ${{ inputs.run_container_review }}
-    needs:
-      - dependency-vulnerability-inventory
-      - exact-commit-scan
-    uses: ./.github/workflows/container-cli-smoke-review.yml
-    with:
-      review_only: true
-    permissions:
-      contents: read
