@@ -16,5 +16,5 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
           
-      - run: pip install requests
+      - run: python -m pip install --require-hashes -r requirements-lock.txt
       - run: python maximal-one-external-verifier/verify.py
