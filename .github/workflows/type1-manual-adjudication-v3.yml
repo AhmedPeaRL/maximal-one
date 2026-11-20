@@ -39,7 +39,7 @@ jobs:
           python-version: "3.11.15"
 
       - name: Install pinned schema validator
-        run: python -m pip install --disable-pip-version-check jsonschema==4.26.0
+        run: python -m pip install --require-hashes -r requirements-lock.txt
 
       - name: Compile V3 implementation and tests
         run: |
