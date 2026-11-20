@@ -15,10 +15,15 @@ branch. It is not a supported release.
 Please do not disclose security vulnerabilities in public issues,
 discussions, commits, or pull requests.
 
-Use GitHub's private vulnerability reporting feature for this
-repository when it is available.
+If private vulnerability reporting is enabled for this repository,
+use the repository's
+[Security Advisories page](https://github.com/AhmedPeaRL/maximal-one/security/advisories)
+and select "Report a vulnerability".
 
-If private vulnerability reporting is unavailable, contact the
+For instructions about GitHub private vulnerability reporting, see
+[GitHub's documentation](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/configure-vulnerability-reporting/configure-for-a-repository).
+
+If the private reporting option is unavailable, contact the
 repository owner through GitHub and request a private reporting
 channel before sharing technical details.
 
@@ -36,6 +41,7 @@ data, or live exploit payloads in a report.
 ## Response Expectations
 
 There is currently no guaranteed response-time or remediation SLA.
+
 Reports will be acknowledged and assessed according to availability
 and severity.
 
