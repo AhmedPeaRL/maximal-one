@@ -9,12 +9,16 @@ WORKDIR /app
 RUN set -eux; \
     apt-get update; \
     apt-get download 'zlib1g=1:1.3.dfsg+really1.3.1-1+deb13u1'; \
-    echo '8c27c342230503b73dfde629642c3b352e87b554e06d60cf58772f236a305ceb  zlib1g_1.3.dfsg+really1.3.1-1+deb13u1_amd64.deb' \
+    DEB_FILE="$(find . -maxdepth 1 -type f -name 'zlib1g_*_amd64.deb' -print -quit)"; \
+    test -n "$DEB_FILE"; \
+    printf '%s  %s\n' \
+      '8c27c342230503b73dfde629642c3b352e87b554e06d60cf58772f236a305ceb' \
+      "$DEB_FILE" \
       | sha256sum -c -; \
-    dpkg -i zlib1g_1.3.dfsg+really1.3.1-1+deb13u1_amd64.deb; \
+    dpkg -i "$DEB_FILE"; \
     dpkg-query -W zlib1g \
       | grep -F '1:1.3.dfsg+really1.3.1-1+deb13u1'; \
-    rm -f zlib1g_1.3.dfsg+really1.3.1-1+deb13u1_amd64.deb; \
+    rm -f "$DEB_FILE"; \
     rm -rf /var/lib/apt/lists/*
     
 COPY requirements-lock.txt ./requirements-lock.txt
