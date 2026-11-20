@@ -2,12 +2,11 @@ name: Container CLI Smoke and Image Security (Review Only)
 run-name: "Container CLI review / ${{ github.ref_name }}"
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       review_only:
         description: "Required confirmation that this is a review-branch-only, non-publishing run."
         required: true
-        default: true
         type: boolean
 
 permissions: {}
