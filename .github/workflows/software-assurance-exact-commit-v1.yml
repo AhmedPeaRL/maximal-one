@@ -136,10 +136,14 @@ jobs:
           TARGET_DIR: ${{ steps.target.outputs.target_dir }}
         run: |
           set +e
+          
           find "$TARGET_DIR/.github/workflows" -type f \
             \( -name '*.yml' -o -name '*.yaml' \) -print0 \
-            | xargs -0 -r "$GITHUB_WORKSPACE/tools/actionlint" -no-color \
-              > reports/actionlint.txt 2>&1
+            | xargs -0 -r "$GITHUB_WORKSPACE/tools/actionlint" \
+                -no-color \
+                -config-file "$TARGET_DIR/.github/actionlint.yaml" \
+                > reports/actionlint.txt 2>&1
+
           CODE=$?
           echo "$CODE" > reports/actionlint.exit_code
           echo "actionlint exit code: $CODE"
