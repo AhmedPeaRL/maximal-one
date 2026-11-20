@@ -21,7 +21,7 @@ permissions:
 jobs:
   dependency-vulnerability-inventory:
     name: OSV inventory for the exact target commit
-    uses: ./.github/workflows/dependency-vulnerability-inventory.yml
+    uses: $/.github/workflows/dependency-vulnerability-inventory.yml
     with:
       scan_commit: ${{ inputs.scan_commit }}
     permissions:
@@ -169,6 +169,7 @@ jobs:
           set +e
           "$GITHUB_WORKSPACE/tools/scorecard" \
             --local="$TARGET_DIR" \
+            --show-details \
             --format=json \
             > reports/scorecard.json \
             2> reports/scorecard.stderr.txt
