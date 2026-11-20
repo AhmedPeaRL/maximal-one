@@ -7,6 +7,12 @@ on:
         description: "Exact 40-character commit SHA to scan"
         required: true
         type: string
+      
+      run_container_review:
+        description: "Run the isolated review-branch container build, CLI smoke test, and Trivy image scan."
+        required: false
+        default: false
+        type: boolean
 
   workflow_call:
     inputs:
@@ -14,6 +20,12 @@ on:
         description: "Exact 40-character commit SHA to scan"
         required: true
         type: string
+    
+      run_container_review:
+        description: "Run the isolated review-branch container build, CLI smoke test, and Trivy image scan."
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -274,3 +286,15 @@ jobs:
               raise SystemExit("SCANNER_FINDINGS_OR_ERRORS_RECORDED; triage required")
           print("All scanner exit codes are zero; manual finding review is still required.")
           PY
+
+  container-cli-smoke-review:
+    name: Container CLI build and image security (review only)
+    if: ${{ inputs.run_container_review }}
+    needs:
+      - dependency-vulnerability-inventory
+      - exact-commit-scan
+    uses: ./.github/workflows/container-cli-smoke-review.yml
+    with:
+      review_only: true
+    permissions:
+      contents: read
