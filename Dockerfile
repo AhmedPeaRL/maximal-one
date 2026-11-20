@@ -11,11 +11,7 @@ RUN npm ci --omit=dev
 
 COPY requirements-lock.txt ./
 
-RUN python -m pip install --upgrade pip==24.0 \
- && python -m pip install \
-      --no-cache-dir \
-      --require-hashes \
-      -r requirements-lock.txt
+RUN python -m pip install --require-hashes -r requirements-lock.txt
 COPY . .
 
 CMD ["node", "index.js"]
