@@ -71,7 +71,7 @@ jobs:
           docker run --rm "$IMAGE_NAME" --help | tee /tmp/container-cli-help.txt
           grep -q -- '--seed' /tmp/container-cli-help.txt
           docker run --rm --entrypoint python "$IMAGE_NAME" -c \
-            'import os, platform; assert platform.python_version() == "3.11.15"; assert os.getuid() != 0; print("Python version and non-root runtime verified")'
+            'import os, platform; assert platform.python_version() == "3.11.18"; assert os.getuid() != 0; print("Python version and non-root runtime verified")'
 
       - name: Scan the built image for HIGH and CRITICAL vulnerabilities
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
@@ -82,7 +82,7 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: "1"
           ignore-unfixed: "false"
-          version: v0.70.0
+          version: v0.76.2
           cache: "false"
 
       - name: Upload image vulnerability report
