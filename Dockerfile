@@ -6,6 +6,17 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+RUN set -eux; \
+    apt-get update; \
+    apt-get download 'zlib1g=1:1.3.dfsg+really1.3.1-1+deb13u1'; \
+    echo '8c27c342230503b73dfde629642c3b352e87b554e06d60cf58772f236a305ceb  zlib1g_1.3.dfsg+really1.3.1-1+deb13u1_amd64.deb' \
+      | sha256sum -c -; \
+    dpkg -i zlib1g_1.3.dfsg+really1.3.1-1+deb13u1_amd64.deb; \
+    dpkg-query -W zlib1g \
+      | grep -F '1:1.3.dfsg+really1.3.1-1+deb13u1'; \
+    rm -f zlib1g_1.3.dfsg+really1.3.1-1+deb13u1_amd64.deb; \
+    rm -rf /var/lib/apt/lists/*
+    
 COPY requirements-lock.txt ./requirements-lock.txt
 RUN python -m pip install \
       --no-cache-dir \
