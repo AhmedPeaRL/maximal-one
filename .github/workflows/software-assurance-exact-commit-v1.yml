@@ -7,12 +7,6 @@ on:
         description: "Exact 40-character commit SHA to scan"
         required: true
         type: string
-      
-      run_container_review:
-        description: "Run the isolated review-branch container build, CLI smoke test, and Trivy image scan."
-        required: false
-        default: false
-        type: boolean
 
   workflow_call:
     inputs:
