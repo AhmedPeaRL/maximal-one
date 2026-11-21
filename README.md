@@ -17,6 +17,28 @@ multiple internal checks agree.
 
 ---
 
+## HCM Conceptual Publications
+
+The Hybrid Consciousness Model conceptual publication
+record is indexed separately from the computational
+validation results.
+
+See:
+
+- [HCM Publications](docs/publications/README.md)
+- [Publication Registry](docs/publications/HCM_ZENODO_PUBLICATIONS.csv)
+- [Binary Identity and Provenance Policy](docs/publications/BINARY_IDENTITY_AND_PROVENANCE.md)
+
+The conceptual papers document the development of HCM.
+They are not presented as empirical confirmation of
+the repository's computational hypothesis.
+
+The repository's scientific status and claim authority
+remain governed by the independent validation,
+reproducibility, and falsification protocols.
+
+---
+
 ## Current Scientific Position
 
 The repository remains UNDER INVESTIGATION.
