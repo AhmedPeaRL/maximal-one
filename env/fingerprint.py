@@ -4,23 +4,36 @@ import os
 import platform
 import subprocess
 import sys
+from typing import Sequence
 
 
 def get_cpu_flags():
     try:
-        with open("/proc/cpuinfo", "r") as f:
+        with open("/proc/cpuinfo", "r", encoding="utf-8", errors="replace") as f:
             for line in f:
                 if line.startswith("flags"):
                     return line.strip()
-    except Exception:
+    except OSError:
         return "cpu_flags_unavailable"
+
     return "cpu_flags_missing"
 
 
-def run_cmd(cmd):
+def run_cmd(argv: Sequence[str], timeout: int = 15):
     try:
-        return subprocess.check_output(cmd, shell=True).decode().strip()
-    except Exception:
+        result = subprocess.run(
+            list(argv),
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=timeout,
+            shell=False,
+        )
+        return result.stdout.strip()
+    except (OSError, subprocess.SubprocessError):
         return "cmd_failed"
 
 
@@ -28,15 +41,19 @@ def collect_environment():
     data = {
         "python_version": sys.version,
         "platform": platform.platform(),
-        "uname": run_cmd("uname -a"),
-        "lsb_release": run_cmd("lsb_release -a"),
-        "pip_freeze": run_cmd("pip freeze"),
+        "uname": run_cmd(["uname", "-a"]),
+        "lsb_release": run_cmd(["lsb_release", "-a"]),
+        "pip_freeze": run_cmd(
+            [sys.executable, "-m", "pip", "freeze"],
+            timeout=30,
+        ),
         "cpu_flags": get_cpu_flags(),
     }
     return data
 
 
 def compute_hash(data):
+    # Preserve the existing serialization format for compatibility.
     blob = json.dumps(data, sort_keys=True).encode()
     return hashlib.sha256(blob).hexdigest()
 
@@ -47,10 +64,10 @@ if __name__ == "__main__":
 
     os.makedirs("env", exist_ok=True)
 
-    with open("env/environment.json", "w") as f:
+    with open("env/environment.json", "w", encoding="utf-8") as f:
         json.dump(env_data, f, indent=2)
 
-    with open("env/environment_hash.txt", "w") as f:
+    with open("env/environment_hash.txt", "w", encoding="ascii") as f:
         f.write(env_hash)
 
     print("Environment hash:", env_hash)
