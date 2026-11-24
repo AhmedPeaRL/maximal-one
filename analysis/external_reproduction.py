@@ -1,49 +1,39 @@
-import requests
+"""Retired static-report fetcher; not an independent reproduction mechanism.
+
+The former implementation fetched a fixed public JSON report and compared two
+thresholds. It did not rerun the scientific pipeline, consume a reproduction
+payload, or establish independent replication.
+
+A successful retrieval/hash must never be described as reproduction.
+"""
+
+from __future__ import annotations
+
 import json
+import sys
 
-URL = "https://ahmedpearl.github.io/maximal-one/public/repro_bundle/canonical_report.json"
 
-def run():
-    print("Fetching external truth...")
+def main() -> int:
+    result = {
+        "schema": "HCM_RETIRED_EXTERNAL_REPRODUCTION_HELPER_V1",
+        "status": "DISABLED_NOT_A_REPRODUCTION",
+        "independent_code_execution": False,
+        "independent_implementation_replication": False,
+        "independent_laboratory_replication": False,
+        "scientific_claim_authority": False,
+        "promotion_authority": False,
+        "reason": (
+            "This legacy helper only retrieved a fixed report; it did not "
+            "execute the analysis from supplied inputs."
+        ),
+        "next_valid_scope": (
+            "clean-checkout computational reproducibility, explicitly "
+            "distinguished from independent scientific replication"
+        ),
+    }
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 2
 
-    try:
-        r = requests.get(URL, timeout=10)
-
-        print("Status Code:", r.status_code)
-        print("Content-Type:", r.headers.get("Content-Type"))
-
-        if r.status_code != 200:
-            raise Exception("Non-200 response")
-
-        if "application/json" not in r.headers.get("Content-Type", ""):
-            raise Exception("Response is not JSON")
-
-        if not r.text.strip():
-            raise Exception("Empty response body")
-
-        data = r.json()
-
-    except Exception as e:
-        print("❌ External fetch failed:", str(e))
-        print("Raw response preview:")
-        print(r.text[:300] if 'r' in locals() else "No response")
-        return
-
-    try:
-        alpha = data["spectral_profile"]["estimated_alpha"]
-        sigma = data["separation_test"]["robust_sigma"]
-
-        print("Alpha:", alpha)
-        print("Sigma:", sigma)
-
-        if 0.45 <= alpha <= 0.60 and sigma <= 0.05:
-            print("✅ External validation PASSED")
-        else:
-            print("❌ External validation FAILED")
-
-    except KeyError:
-        print("❌ JSON structure invalid")
-        print(json.dumps(data, indent=2))
 
 if __name__ == "__main__":
-    run()
+    raise SystemExit(main())
