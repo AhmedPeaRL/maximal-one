@@ -52,7 +52,7 @@ capture_single() {
 # Repository metadata and branch heads.
 capture_single "repos/$REPO" "repository"
 capture_single "repos/$REPO/branches/main" "main_branch"
-capture_single "repos/$REPO/branches/review/type1-v4-remediation" "review_branch"
+capture_single "repos/$REPO/branches/review%2Ftype1-v4-remediation" "review_branch"
 
 # The workflow list includes each workflow's authoritative API state:
 # active, disabled_manually, or disabled_inactivity.
@@ -95,6 +95,7 @@ capture_single "repos/$REPO/actions/permissions" "actions_permissions"
 capture_single "repos/$REPO/actions/permissions/workflow" "workflow_permissions"
 capture_paginated "repos/$REPO/rulesets?includes_parents=true&per_page=100" "rulesets"
 capture_single "repos/$REPO/branches/main/protection" "main_branch_protection"
+capture_single "repos/$REPO/branches/review%2Ftype1-v4-remediation/protection" "review_branch_protection"
 
 cat >"$OUT/README.txt" <<EOF
 HCM READ-ONLY GITHUB AUDIT
@@ -111,7 +112,8 @@ Review these files:
 - code_scanning_alerts.json and code_scanning_alerts_summary.json
 - secret_scanning_alerts.json and secret_scanning_alerts_summary.json
 - actions_permissions.json, workflow_permissions.json
-- rulesets.pages.json and main_branch_protection.json
+- rulesets.pages.json
+- main_branch_protection.json and review_branch_protection.json
 
 Any *_access.txt value other than AVAILABLE means the relevant API result
 could not be established. Check the adjacent *.error.txt file. Do NOT
