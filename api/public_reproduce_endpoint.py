@@ -1,60 +1,26 @@
-import subprocess
-import tempfile
-import json
-import os
-import hashlib
-import time
+"""Retired helper: this file is not an HTTP route or a safe reproduction service.
 
-def run_external_reproduction(input_payload: dict):
-    """
-    ZERO-TRUST REPRODUCTION:
-    Runs the system in a completely isolated temp environment.
-    No dependency on internal state.
-    """
+The previous implementation cloned a mutable default branch, installed dependencies
+at request time, had no execution timeout/resource isolation, and invoked a script
+that did not consume the supplied payload or produce the expected result file.
 
-    with tempfile.TemporaryDirectory() as tmp:
+This module intentionally fails closed. It performs no network, subprocess,
+filesystem, or scientific-analysis operation.
+"""
 
-        # clone repo fresh
-        subprocess.run([
-            "git", "clone",
-            "https://github.com/ahmedpearl/maximal-one.git",
-            tmp
-        ], check=True)
+from __future__ import annotations
 
-        # install dependencies
-        subprocess.run([
-            "pip", "install", "-r", "requirements-lock.txt"
-        ], cwd=tmp, check=True)
 
-        # write input
-        payload_path = os.path.join(tmp, "external_input.json")
-        with open(payload_path, "w") as f:
-            json.dump(input_payload, f)
+def run_external_reproduction(input_payload: dict) -> dict:
+    """Preserve the old import surface while refusing unsafe execution."""
+    raise RuntimeError(
+        "PUBLIC_REPRODUCTION_HELPER_RETIRED: this module is not an HTTP endpoint "
+        "and is not authorized to execute repository code. Use the reviewed "
+        "clean-checkout computational reproducibility protocol instead."
+    )
 
-        # run core reproduction
-        subprocess.run([
-            "python",
-            "analysis/external_reproduction.py",
-            payload_path
-        ], cwd=tmp, check=True)
 
-        # read result
-        result_path = os.path.join(tmp, "artifacts/reproduction_result.json")
-
-        if not os.path.exists(result_path):
-            return {"ok": False, "error": "no result"}
-
-        with open(result_path) as f:
-            result = json.load(f)
-
-        # attach independent hash
-        h = hashlib.sha256(
-            json.dumps(result, sort_keys=True).encode()
-        ).hexdigest()
-
-        return {
-            "ok": True,
-            "result": result,
-            "hash": h,
-            "timestamp": time.time()
-        }
+if __name__ == "__main__":
+    raise SystemExit(
+        "DISABLED: this module is not a public HTTP route or executable service."
+    )
