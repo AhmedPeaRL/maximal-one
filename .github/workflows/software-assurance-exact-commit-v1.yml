@@ -50,6 +50,81 @@ jobs:
       review_only: true
     permissions:
       contents: read
+
+  dependency-lock-verification:
+    name: Verify exact Python dependency lock
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout exact target commit
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ inputs.scan_commit }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Verify exact source identity
+        shell: bash
+        env:
+          TARGET_SHA: ${{ inputs.scan_commit }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.11.15"
+
+      - name: Install and verify hash-locked dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python -m venv .verify-venv
+          VERIFY_PY="$PWD/.verify-venv/bin/python"
+
+          "$VERIFY_PY" -m pip --version
+
+          "$VERIFY_PY" -m pip install \
+            --disable-pip-version-check \
+            --only-binary=:all: \
+            --require-hashes \
+            -r requirements-lock.txt
+
+          "$VERIFY_PY" -m pip check
+
+          "$VERIFY_PY" - <<'PY'
+          import certifi
+          import cvxpy
+          import httplib2
+          import idna
+          import jsonschema
+          import matplotlib
+          import mpmath
+          import numpy
+          import pandas
+          import pyarrow
+          import psutil
+          import requests
+          import scs
+          import scipy
+          import sklearn
+          import statsmodels
+          import sympy
+          import urllib3
+          from PIL import Image
+
+          print("All required imports passed.")
+          PY
+
+          "$VERIFY_PY" -m compileall -q analysis scripts tests
+
+          "$VERIFY_PY" -m unittest discover -s tests -v
       
   exact-commit-scan:
     name: Scan exact commit without promotion authority
