@@ -72,6 +72,9 @@ jobs:
           TARGET_SHA: ${{ inputs.scan_commit }}
         run: |
           set -euo pipefail
+
+          [[ "$TARGET_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$TARGET_SHA" = "$GITHUB_SHA"
           test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
           test "$(git rev-parse HEAD)" = "$TARGET_SHA"
 
