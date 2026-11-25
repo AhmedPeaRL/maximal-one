@@ -8,6 +8,12 @@ on:
         required: true
         type: string
 
+      run_container_review:
+        description: "Run the Review-only container build and Trivy scan."
+        required: false
+        default: false
+        type: boolean
+
   workflow_call:
     inputs:
       scan_commit:
@@ -27,7 +33,7 @@ permissions:
 jobs:
   dependency-vulnerability-inventory:
     name: OSV inventory for the exact target commit
-    uses: $/.github/workflows/dependency-vulnerability-inventory.yml
+    uses: ./.github/workflows/dependency-vulnerability-inventory.yml
     with:
       scan_commit: ${{ inputs.scan_commit }}
     permissions:
@@ -39,7 +45,7 @@ jobs:
     needs:
       - dependency-vulnerability-inventory
       - exact-commit-scan
-    uses: $/.github/workflows/container-cli-smoke-review.yml
+    uses: ./.github/workflows/container-cli-smoke-review.yml
     with:
       review_only: true
     permissions:
@@ -162,9 +168,6 @@ jobs:
               \( -name '*.yml' -o -name '*.yaml' \) -print0 \
               | xargs -0 -r "$GITHUB_WORKSPACE/tools/actionlint" \
                   -no-color \
-                  -ignore 'reusable workflow call "\$/.github/workflows/software-assurance-exact-commit-v1\.yml" at "uses" is not following the format' \
-                  -ignore 'reusable workflow call "\$/.github/workflows/dependency-vulnerability-inventory\.yml" at "uses" is not following the format' \
-                  -ignore 'reusable workflow call "\$/.github/workflows/container-cli-smoke-review\.yml" at "uses" is not following the format' \
                   -config-file "$TARGET_DIR/.github/actionlint.yaml"
           ) > reports/actionlint.txt 2>&1
 
@@ -211,6 +214,8 @@ jobs:
         env:
           SCAN_COMMIT: ${{ steps.target.outputs.scan_commit }}
         run: |
+          set -euo pipefail
+          mkdir -p reports
           python3 - <<'PY'
           import hashlib
           import json
