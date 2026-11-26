@@ -8,51 +8,71 @@ on:
         required: true
         type: string
 
-      run_container_review:
-        description: "Run the Review-only container build and Trivy scan."
-        required: false
-        default: false
-        type: boolean
-
   workflow_call:
     inputs:
       scan_commit:
         description: "Exact 40-character commit SHA to scan"
         required: true
         type: string
-    
-      run_container_review:
-        description: "Run the isolated review-branch container build, CLI smoke test, and Trivy image scan."
-        required: false
-        type: boolean
-        default: false
 
 permissions:
   contents: read
 
 jobs:
+  preflight:
+    name: Validate exact Review target before scans
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout caller commit without credentials
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate exact target identity
+        shell: bash
+        env:
+          TARGET_SHA: ${{ inputs.scan_commit }}
+          WORKFLOW_REF: ${{ github.workflow_ref }}
+        run: |
+          set -euo pipefail
+
+          EXPECTED_REF="refs/heads/review/type1-v4-remediation"
+
+          [[ "$TARGET_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$GITHUB_REF" = "$EXPECTED_REF"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+
+          case "$WORKFLOW_REF" in
+            */.github/workflows/software-assurance-exact-commit-v1.yml@refs/heads/review/type1-v4-remediation)
+              test "$TARGET_SHA" = "$GITHUB_SHA"
+              ;;
+            */.github/workflows/replication.yml@refs/heads/review/type1-v4-remediation)
+              git fetch --no-tags origin "$EXPECTED_REF"
+              test "$TARGET_SHA" = "$(git rev-parse FETCH_HEAD)"
+              ;;
+            *)
+              echo "BLOCKED: unrecognized caller workflow"
+              exit 1
+              ;;
+          esac
+
   dependency-vulnerability-inventory:
     name: OSV inventory for the exact target commit
+    needs: preflight
     uses: ./.github/workflows/dependency-vulnerability-inventory.yml
     with:
       scan_commit: ${{ inputs.scan_commit }}
     permissions:
       contents: read
 
-  container-cli-smoke-review:
-    name: Container CLI build and image security (review only)
-    if: ${{ inputs.run_container_review }}
-    needs:
-      - dependency-vulnerability-inventory
-      - exact-commit-scan
-    uses: ./.github/workflows/container-cli-smoke-review.yml
-    with:
-      review_only: true
-    permissions:
-      contents: read
-
   dependency-lock-verification:
     name: Verify exact Python dependency lock
+    needs: preflight
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     permissions:
@@ -74,7 +94,7 @@ jobs:
           set -euo pipefail
 
           [[ "$TARGET_SHA" =~ ^[0-9a-f]{40}$ ]]
-          test "$TARGET_SHA" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
           test "$GITHUB_REF" = "refs/heads/review/type1-v4-remediation"
           test "$(git rev-parse HEAD)" = "$TARGET_SHA"
 
@@ -131,6 +151,7 @@ jobs:
       
   exact-commit-scan:
     name: Scan exact commit without promotion authority
+    needs: preflight
     runs-on: ubuntu-24.04
     timeout-minutes: 45
 
