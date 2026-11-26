@@ -8,13 +8,6 @@ on:
         required: true
         type: string
 
-  workflow_call:
-    inputs:
-      scan_commit:
-        description: "Exact 40-character commit SHA to scan"
-        required: true
-        type: string
-
 permissions:
   contents: read
 
@@ -46,25 +39,12 @@ jobs:
           [[ "$TARGET_SHA" =~ ^[0-9a-f]{40}$ ]]
           test "$GITHUB_REF" = "$EXPECTED_REF"
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-
-          case "$WORKFLOW_REF" in
-            */.github/workflows/software-assurance-exact-commit-v1.yml@refs/heads/review/type1-v4-remediation)
-              test "$TARGET_SHA" = "$GITHUB_SHA"
-              ;;
-            */.github/workflows/replication.yml@refs/heads/review/type1-v4-remediation)
-              git fetch --no-tags origin "$EXPECTED_REF"
-              test "$TARGET_SHA" = "$(git rev-parse FETCH_HEAD)"
-              ;;
-            *)
-              echo "BLOCKED: unrecognized caller workflow"
-              exit 1
-              ;;
-          esac
+          test "$TARGET_SHA" = "$GITHUB_SHA"
 
   dependency-vulnerability-inventory:
     name: OSV inventory for the exact target commit
     needs: preflight
-    uses: ./.github/workflows/dependency-vulnerability-inventory.yml
+    uses: $/.github/workflows/dependency-vulnerability-inventory.yml
     with:
       scan_commit: ${{ inputs.scan_commit }}
     permissions:
@@ -178,28 +158,10 @@ jobs:
             exit 1
           fi
 
-          case "$WORKFLOW_REF" in
-            */.github/workflows/software-assurance-exact-commit-v1.yml@refs/heads/review/type1-v4-remediation)
-              if [[ "$SCAN_COMMIT" != "$GITHUB_SHA" ]]; then
-                echo "BLOCKED: manual scan_commit must equal the selected review branch HEAD."
-                exit 1
-              fi
-              ;;
-
-            */.github/workflows/replication.yml@refs/heads/review/type1-v4-remediation)
-              git fetch --no-tags origin "$EXPECTED_REF"
-              REMOTE_REVIEW_HEAD="$(git rev-parse FETCH_HEAD)"
-              if [[ "$SCAN_COMMIT" != "$REMOTE_REVIEW_HEAD" ]]; then
-                echo "BLOCKED: reusable scan_commit must equal the current remote review branch HEAD."
-                exit 1
-              fi
-              ;;
-
-            *)
-              echo "BLOCKED: unrecognized caller workflow: $WORKFLOW_REF"
-              exit 1
-              ;;
-          esac
+          if [[ "$SCAN_COMMIT" != "$GITHUB_SHA" ]]; then
+            echo "BLOCKED: manual scan_commit must equal the selected Review branch HEAD."
+            exit 1
+          fi
 
           if [[ ! "$SCAN_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
             echo "Invalid commit SHA"
