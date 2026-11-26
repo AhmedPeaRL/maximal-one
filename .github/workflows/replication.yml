@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       assurance_only:
-        description: "Read-only assurance mode. Keep enabled; disable only after explicit approval for dependency refresh and publishing."
+        description: "Read-only assurance mode."
         required: false
         default: true
         type: boolean
