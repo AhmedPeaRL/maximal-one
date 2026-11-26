@@ -218,20 +218,58 @@ jobs:
         env:
           TARGET_DIR: ${{ steps.target.outputs.target_dir }}
         run: |
+          set -euo pipefail
+
+          # actionlint 1.7.12 predates GitHub's `$/` self-repository
+          # syntax for reusable-workflow calls. Lint an exact temporary
+          # copy with only that one syntax token normalized to `./`.
+          # The real target tree and the workflow executed by GitHub remain
+          # unchanged and continue to use the GitHub-native `$/` reference.
+          LINT_DIR="$(mktemp -d "$RUNNER_TEMP/actionlint-compatible.XXXXXX")"
+          tar --exclude='./.git' -C "$TARGET_DIR" -cf - . | tar -xf - -C "$LINT_DIR"
+
+          python3 - \
+            "$TARGET_DIR/.github/workflows/software-assurance-exact-commit-v1.yml" \
+            "$LINT_DIR/.github/workflows/software-assurance-exact-commit-v1.yml" \
+            "$TARGET_DIR/.github/workflows/dependency-vulnerability-inventory.yml" \
+            "$LINT_DIR/.github/workflows/dependency-vulnerability-inventory.yml" <<'PY'
+          from pathlib import Path
+          import sys
+
+          source, lint_copy, source_callee, lint_callee = map(Path, sys.argv[1:])
+          old = "uses: $/.github/workflows/dependency-vulnerability-inventory.yml"
+          new = "uses: ./.github/workflows/dependency-vulnerability-inventory.yml"
+
+          if not source.is_file() or not source_callee.is_file():
+              raise SystemExit("BLOCKED: exact caller or reusable workflow is missing")
+
+          original = source.read_text(encoding="utf-8")
+          if original.count(old) != 1 or original.count("uses: $/") != 1:
+              raise SystemExit("BLOCKED: expected exactly one known GitHub $/ reusable-workflow call")
+
+          normalized = lint_copy.read_text(encoding="utf-8")
+          if normalized.count(old) != 1:
+              raise SystemExit("BLOCKED: temporary lint copy does not match expected caller")
+          if not lint_callee.is_file():
+              raise SystemExit("BLOCKED: reusable workflow missing from temporary lint copy")
+
+          lint_copy.write_text(normalized.replace(old, new, 1), encoding="utf-8")
+          print("ACTIONLINT_COMPAT_COPY_READY; source workflow remains unchanged")
+          PY
+
           set +e
-
           (
-            cd "$TARGET_DIR"
-
+            cd "$LINT_DIR"
             find .github/workflows -type f \
               \( -name '*.yml' -o -name '*.yaml' \) -print0 \
               | xargs -0 -r "$GITHUB_WORKSPACE/tools/actionlint" \
                   -no-color \
-                  -config-file "$TARGET_DIR/.github/actionlint.yaml"
-          ) > reports/actionlint.txt 2>&1
-
+                  -config-file "$LINT_DIR/.github/actionlint.yaml"
+          ) > "$GITHUB_WORKSPACE/reports/actionlint.txt" 2>&1
           CODE=$?
-          echo "$CODE" > reports/actionlint.exit_code
+          set -e
+
+          echo "$CODE" > "$GITHUB_WORKSPACE/reports/actionlint.exit_code"
           echo "actionlint exit code: $CODE"
 
       - name: Run zizmor on exact target workflows
