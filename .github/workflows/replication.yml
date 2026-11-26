@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       assurance_only:
-        description: "Read-only assurance mode."
+        description: "When true, skip dependency refresh and publishing; this workflow does not run Exact Commit Software Assurance."
         required: false
         default: true
         type: boolean
