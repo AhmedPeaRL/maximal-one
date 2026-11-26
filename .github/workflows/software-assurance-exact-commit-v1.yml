@@ -30,7 +30,6 @@ jobs:
         shell: bash
         env:
           TARGET_SHA: ${{ inputs.scan_commit }}
-          WORKFLOW_REF: ${{ github.workflow_ref }}
         run: |
           set -euo pipefail
 
@@ -147,7 +146,6 @@ jobs:
         shell: bash
         env:
           SCAN_COMMIT: ${{ inputs.scan_commit }}
-          WORKFLOW_REF: ${{ github.workflow_ref }}
         run: |
           set -euo pipefail
 
