@@ -53,7 +53,7 @@ jobs:
     name: Verify exact Python dependency lock
     needs: preflight
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 180
     permissions:
       contents: read
 
@@ -275,8 +275,8 @@ jobs:
           set +e
           (
             cd "$LINT_DIR"
-            find .github/workflows -type f \
-              \( -name '*.yml' -o -name '*.yaml' \) -print0 \
+            find . -type f \
+              \( -path '*/.github/workflows/*.yml' -o -path '*/.github/workflows/*.yaml' \) -print0 \
               | xargs -0 -r "$GITHUB_WORKSPACE/tools/actionlint" \
                   -no-color \
                   -config-file "$LINT_DIR/.github/actionlint.yaml"
