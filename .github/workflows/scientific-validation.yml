@@ -4714,7 +4714,7 @@ jobs:
           VERIFY_CORE_RESULT: ${{ needs.verify-core.result }}
           STABILITY_RESULT: ${{ needs.stability-check.result }}
           SWEEP_PLUS_RESULT: ${{ needs['sweep-plus'].result }}
-          SWEEP_PLUS_REQUIRED: ${{ github.event_name == 'repository_dispatch' && github.event.action == 'external_dispatch' && github.event.client_payload.approved_experimental_sweep == true }}
+          SWEEP_PLUS_REQUIRED: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.approved_experimental_sweep == true }}
         run: |
           set -euo pipefail
           mkdir -p artifacts
